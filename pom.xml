@@ -907,7 +907,6 @@
         <module>javaweb</module>
         <module>express</module>
         <module>pay</module>
-        <module>jcaptcha</module>
         <module>sms</module>
     </modules>
 
