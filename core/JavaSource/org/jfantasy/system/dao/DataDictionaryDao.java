@@ -4,9 +4,9 @@ import org.jfantasy.framework.dao.hibernate.HibernateDao;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
-import org.jfantasy.system.bean.DataDictionary;
-import org.jfantasy.system.bean.DataDictionaryKey;
-import org.jfantasy.system.bean.DataDictionaryType;
+import org.jfantasy.system.bean.Dict;
+import org.jfantasy.system.bean.DictKey;
+import org.jfantasy.system.bean.DictType;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.Restrictions;
@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Repository
-public class DataDictionaryDao extends HibernateDao<DataDictionary, DataDictionaryKey> {
+public class DataDictionaryDao extends HibernateDao<Dict, DictKey> {
 
     @Override
     protected Criterion[] buildPropertyFilterCriterions(List<PropertyFilter> filters) {
@@ -36,12 +36,12 @@ public class DataDictionaryDao extends HibernateDao<DataDictionary, DataDictiona
         if (filter.getMatchType() == PropertyFilter.MatchType.IN) {
             Disjunction disjunction = Restrictions.disjunction();
             for (String code : filter.getPropertyValue(String[].class)) {
-                DataDictionaryType ddt = (DataDictionaryType) this.getSession().get(DataDictionaryType.class, code);
+                DictType ddt = (DictType) this.getSession().get(DictType.class, code);
                 disjunction.add(Restrictions.sqlRestriction(" {alias}.type in (select code from sys_dd_type where path like ? )", ddt.getPath() + "%", StringType.INSTANCE));
             }
             likePathCriterion = disjunction;
         } else {
-            DataDictionaryType ddt = (DataDictionaryType) this.getSession().get(DataDictionaryType.class, (Serializable) filter.getPropertyValue());
+            DictType ddt = (DictType) this.getSession().get(DictType.class, (Serializable) filter.getPropertyValue());
             likePathCriterion = Restrictions.sqlRestriction(" {alias}.type in (select code from sys_dd_type where path like ? )", ddt.getPath() + "%", StringType.INSTANCE);
         }
         filters = filters == null ? new ArrayList<PropertyFilter>() : filters;
@@ -50,7 +50,7 @@ public class DataDictionaryDao extends HibernateDao<DataDictionary, DataDictiona
 
     @SuppressWarnings("unchecked")
     private String[] getRootDataDictionaryTypeCodes() {
-        String ids = ObjectUtil.toString(this.getSession().createCriteria(DataDictionaryType.class).add(Restrictions.isNull("parent")).list(), "code", ";");
+        String ids = ObjectUtil.toString(this.getSession().createCriteria(DictType.class).add(Restrictions.isNull("parent")).list(), "code", ";");
         return StringUtil.tokenizeToStringArray(ids);
     }
 

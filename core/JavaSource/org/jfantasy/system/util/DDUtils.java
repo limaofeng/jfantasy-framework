@@ -3,9 +3,9 @@ package org.jfantasy.system.util;
 import org.jfantasy.framework.spring.SpringContextUtil;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
-import org.jfantasy.system.bean.DataDictionary;
-import org.jfantasy.system.bean.DataDictionaryKey;
-import org.jfantasy.system.bean.DataDictionaryType;
+import org.jfantasy.system.bean.Dict;
+import org.jfantasy.system.bean.DictKey;
+import org.jfantasy.system.bean.DictType;
 import org.jfantasy.system.service.DataDictionaryService;
 
 /**
@@ -39,11 +39,11 @@ public class DDUtils {
      * @param value 值
      */
     public static void set(String key, String value) {
-        DataDictionary dd = new DataDictionary();
-        dd.setKey(DataDictionaryKey.newInstance(key));
-        DataDictionaryType type = ddService().getDataDictionaryType(dd.getKey().getType());
+        Dict dd = new Dict();
+        dd.setKey(DictKey.newInstance(key));
+        DictType type = ddService().getDataDictionaryType(dd.getKey().getType());
         if (type == null) {
-            type = new DataDictionaryType();
+            type = new DictType();
             type.setCode(dd.getKey().getType());
             type.setName(dd.getKey().getType());
             ddService().save(type);
@@ -59,8 +59,8 @@ public class DDUtils {
      * @return 值
      */
     public static String get(String key) {
-        DataDictionary dataDictionary = ddService().get(DataDictionaryKey.newInstance(key));
-        return dataDictionary == null ? null : dataDictionary.getName();
+        Dict dict = ddService().get(DictKey.newInstance(key));
+        return dict == null ? null : dict.getName();
     }
 
     /**

@@ -5,7 +5,7 @@ import org.jfantasy.framework.util.common.DateUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.jackson.JSON;
 import org.jfantasy.member.bean.Member;
-import org.jfantasy.system.bean.DataDictionaryType;
+import org.jfantasy.system.bean.DictType;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -53,7 +53,7 @@ public class JSONTest {
     @Test
     public void serialize() throws OgnlException {
 
-        DataDictionaryType ddt = new DataDictionaryType();
+        DictType ddt = new DictType();
         ddt.setCode("junit-test");
         ddt.setName("junit-测试");
 

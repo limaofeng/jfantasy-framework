@@ -896,6 +896,10 @@
     <!-- 包含模块 -->
     <modules>
         <module>core</module>
+        <module>security</module>
+        <module>member</module>
+        <module>contacts</module>
+        <module>notification</module>
         <module>cms</module>
         <module>mall</module>
         <module>cache</module>

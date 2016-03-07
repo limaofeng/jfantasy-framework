@@ -18,7 +18,7 @@ import org.jfantasy.security.bean.Menu;
 import org.jfantasy.security.bean.Role;
 import org.jfantasy.security.dao.MenuDao;
 import org.jfantasy.security.service.MenuService;
-import org.jfantasy.system.bean.DataDictionaryType;
+import org.jfantasy.system.bean.DictType;
 import org.jfantasy.system.bean.Setting;
 import org.jfantasy.system.bean.Website;
 import org.apache.commons.logging.Log;
@@ -265,10 +265,10 @@ public class AfterPropertiesSet {
         def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
         TransactionStatus status = transactionManager.getTransaction(def);
         try {
-            DataDictionaryType ddt = null;//getDataDictionaryType("root");
+            DictType ddt = null;//getDataDictionaryType("root");
             if (ddt == null) {
                 StringBuffer log = new StringBuffer("初始化数据字典分类跟目录");
-                ddt = new DataDictionaryType();
+                ddt = new DictType();
                 ddt.setCode("root");
                 ddt.setName("数据字典分类");
                 //save(ddt);

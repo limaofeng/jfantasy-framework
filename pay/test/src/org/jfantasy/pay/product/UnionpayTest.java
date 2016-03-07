@@ -145,7 +145,7 @@ public class UnionpayTest {
     @Test
     public void testQuery() throws Exception {
         Payment payment = new Payment();
-        payment.setSn("T00000006");
+        payment.setSn("P2016030700360");
         payment.setPayConfig(this.payConfig);
         payment.setTotalAmount(BigDecimal.valueOf(0.01));
         payment.setCreateTime(DateUtil.parse("20160128131252","yyyyMMddHHmmss"));

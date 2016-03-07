@@ -2,8 +2,8 @@ package org.jfantasy.system.rest;
 
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
-import org.jfantasy.system.bean.DataDictionary;
-import org.jfantasy.system.bean.DataDictionaryKey;
+import org.jfantasy.system.bean.Dict;
+import org.jfantasy.system.bean.DictKey;
 import org.jfantasy.system.service.DataDictionaryService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -26,7 +26,7 @@ public class DataDictionaryController {
     @RequestMapping(value = "/{type}:{code}", method = RequestMethod.DELETE)
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public void delete(@PathVariable("type") String type, @PathVariable("code") String code) {
-        this.dataDictionaryService.delete(DataDictionaryKey.newInstance(code, type));
+        this.dataDictionaryService.delete(DictKey.newInstance(code, type));
     }
 
     @ApiOperation(value = "批量删除数据字典", notes = "删除数据字典")
@@ -36,27 +36,27 @@ public class DataDictionaryController {
         this.dataDictionaryService.delete(keys);
     }
 
-    @ApiOperation(value = "获取数据项", notes = "通过该接口, 可以添加新的数据项。", response = DataDictionary.class)
+    @ApiOperation(value = "获取数据项", notes = "通过该接口, 可以添加新的数据项。", response = Dict.class)
     @RequestMapping(value = "/{type}:{code}", method = RequestMethod.GET)
     @ResponseBody
-    public DataDictionary view(@PathVariable("type") String type, @PathVariable("code") String code) {
-        return this.dataDictionaryService.get(DataDictionaryKey.newInstance(code, type));
+    public Dict view(@PathVariable("type") String type, @PathVariable("code") String code) {
+        return this.dataDictionaryService.get(DictKey.newInstance(code, type));
     }
 
     @ApiOperation(value = "查询数据字典", notes = "通过该接口, 可以筛选需要的数据字典项。")
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    public Pager<DataDictionary> search(@ApiParam(value = "分页对象", name = "pager") Pager<DataDictionary> pager, @ApiParam(value = "过滤条件", name = "filters") List<PropertyFilter> filters) {
+    public Pager<Dict> search(@ApiParam(value = "分页对象", name = "pager") Pager<Dict> pager, @ApiParam(value = "过滤条件", name = "filters") List<PropertyFilter> filters) {
         return this.dataDictionaryService.findPager(pager, filters);
     }
 
-    @ApiOperation(value = "更新数据项", notes = "通过该接口, 可以更新新的数据项。", response = DataDictionary.class)
+    @ApiOperation(value = "更新数据项", notes = "通过该接口, 可以更新新的数据项。", response = Dict.class)
     @RequestMapping(value = "/{type}:{code}", method = RequestMethod.PUT)
     @ResponseBody
-    public DataDictionary update(@PathVariable("type") String type, @PathVariable("code") String code, @RequestBody DataDictionary dataDictionary) {
-        dataDictionary.setCode(code);
-        dataDictionary.setType(type);
-        return this.dataDictionaryService.save(dataDictionary);
+    public Dict update(@PathVariable("type") String type, @PathVariable("code") String code, @RequestBody Dict dict) {
+        dict.setCode(code);
+        dict.setType(type);
+        return this.dataDictionaryService.save(dict);
     }
 
 }

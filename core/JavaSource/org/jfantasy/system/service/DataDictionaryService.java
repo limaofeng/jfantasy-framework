@@ -5,12 +5,12 @@ import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.schedule.service.ScheduleService;
-import org.jfantasy.system.bean.DataDictionary;
-import org.jfantasy.system.bean.DataDictionaryKey;
-import org.jfantasy.system.bean.DataDictionaryType;
+import org.jfantasy.system.bean.Dict;
+import org.jfantasy.system.bean.DictKey;
+import org.jfantasy.system.bean.DictType;
 import org.jfantasy.system.dao.DataDictionaryDao;
 import org.jfantasy.system.dao.DataDictionaryTypeDao;
-import org.jfantasy.system.job.DataDictJob;
+import org.jfantasy.system.job.DictJob;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.criterion.Criterion;
@@ -51,24 +51,24 @@ public class DataDictionaryService implements InitializingBean {
             this.scheduleService.deleteJob(jobKey);
         }
         LOGGER.debug("添加用于生成 json 文件的 Job ");
-        this.scheduleService.addJob(jobKey, DataDictJob.class);
+        this.scheduleService.addJob(jobKey, DictJob.class);
     }
 
-    public List<DataDictionaryType> allTypes() {
+    public List<DictType> allTypes() {
         return dataDictionaryTypeDao.getAll();
     }
 
-    public List<DataDictionary> allDataDicts() {
+    public List<Dict> allDataDicts() {
         return dataDictionaryDao.find(new Criterion[0], "sort", "asc");
     }
 
-    public DataDictionary get(DataDictionaryKey key) {
+    public Dict get(DictKey key) {
         return dataDictionaryDao.get(key);
     }
 
-    public DataDictionary get(String key) {
+    public Dict get(String key) {
         String[] array = key.split(":");
-        return dataDictionaryDao.get(DataDictionaryKey.newInstance(array[1], array[0]));
+        return dataDictionaryDao.get(DictKey.newInstance(array[1], array[0]));
     }
 
     /**
@@ -78,7 +78,7 @@ public class DataDictionaryService implements InitializingBean {
      * @param showsize 返回结果条数，默认15条
      * @return {list}
      */
-    public List<DataDictionaryType> types(String name, int showsize) {
+    public List<DictType> types(String name, int showsize) {
         showsize = showsize == 0 ? 15 : showsize;
         if (StringUtil.isBlank(name)) {
             return dataDictionaryTypeDao.find(new Criterion[0], 0, showsize);
@@ -87,7 +87,7 @@ public class DataDictionaryService implements InitializingBean {
         }
     }
 
-    public DataDictionaryType getDataDictionaryType(String code) {
+    public DictType getDataDictionaryType(String code) {
         return dataDictionaryTypeDao.findUniqueBy("code", code);
     }
 
@@ -98,7 +98,7 @@ public class DataDictionaryService implements InitializingBean {
      * @param code 配置项CODE，返回的List顺序与codes的顺序一致
      * @return {DataDictionary}
      */
-    public DataDictionary getUnique(String type, String code) {
+    public Dict getUnique(String type, String code) {
         return dataDictionaryDao.findUnique(Restrictions.eq("type", type), Restrictions.eq("code", code));
     }
 
@@ -109,7 +109,7 @@ public class DataDictionaryService implements InitializingBean {
      * @param parentCode 上级编码
      * @return {List}
      */
-    public List<DataDictionary> list(String type, String parentCode) {
+    public List<Dict> list(String type, String parentCode) {
         Criterion[] criterions = new Criterion[]{Restrictions.eq("type", type)};
         if (StringUtil.isNotBlank(parentCode)) {
             criterions = ObjectUtil.join(criterions, Restrictions.eq("parent.code", parentCode));
@@ -124,64 +124,64 @@ public class DataDictionaryService implements InitializingBean {
      * @param filters 过滤条件
      * @return {List}
      */
-    public Pager<DataDictionary> findPager(Pager<DataDictionary> pager, List<PropertyFilter> filters) {
+    public Pager<Dict> findPager(Pager<Dict> pager, List<PropertyFilter> filters) {
         return this.dataDictionaryDao.findPager(pager, filters);
     }
 
-    public Pager<DataDictionaryType> findDataDictionaryTypePager(Pager<DataDictionaryType> pager, List<PropertyFilter> filters) {
+    public Pager<DictType> findDataDictionaryTypePager(Pager<DictType> pager, List<PropertyFilter> filters) {
         return this.dataDictionaryTypeDao.findPager(pager, filters);
     }
 
     /**
      * 添加及更新配置项
      *
-     * @param dataDictionary 数据字典项
+     * @param dict 数据字典项
      */
-    public DataDictionary save(DataDictionary dataDictionary) {
-        return this.dataDictionaryDao.save(dataDictionary);
+    public Dict save(Dict dict) {
+        return this.dataDictionaryDao.save(dict);
     }
 
     /**
      * 添加及更新配置项分类方法
      *
-     * @param dataDictionaryType 数据字典分类
+     * @param dictType 数据字典分类
      */
-    public DataDictionaryType save(DataDictionaryType dataDictionaryType) {
-        List<DataDictionaryType> types;
+    public DictType save(DictType dictType) {
+        List<DictType> types;
         boolean root = false;
-        if (dataDictionaryType.getParent() == null || StringUtil.isBlank(dataDictionaryType.getParent().getCode())) {
-            dataDictionaryType.setLayer(0);
-            dataDictionaryType.setPath(dataDictionaryType.getCode() + DataDictionaryType.PATH_SEPARATOR);
+        if (dictType.getParent() == null || StringUtil.isBlank(dictType.getParent().getCode())) {
+            dictType.setLayer(0);
+            dictType.setPath(dictType.getCode() + DictType.PATH_SEPARATOR);
             root = true;
             types = ObjectUtil.sort(dataDictionaryTypeDao.find(Restrictions.isNull("parent")), "sort", "asc");
         } else {
-            DataDictionaryType parentCategory = this.dataDictionaryTypeDao.get(dataDictionaryType.getParent().getCode());
-            dataDictionaryType.setLayer(parentCategory.getLayer() + 1);
-            dataDictionaryType.setPath(parentCategory.getPath() + dataDictionaryType.getCode() + DataDictionaryType.PATH_SEPARATOR);// 设置path
+            DictType parentCategory = this.dataDictionaryTypeDao.get(dictType.getParent().getCode());
+            dictType.setLayer(parentCategory.getLayer() + 1);
+            dictType.setPath(parentCategory.getPath() + dictType.getCode() + DictType.PATH_SEPARATOR);// 设置path
             types = ObjectUtil.sort(dataDictionaryTypeDao.findBy("parent.code", parentCategory.getCode()), "sort", "asc");
         }
-        DataDictionaryType old = dataDictionaryType.getCode() != null ? this.dataDictionaryTypeDao.get(dataDictionaryType.getCode()) : null;
+        DictType old = dictType.getCode() != null ? this.dataDictionaryTypeDao.get(dictType.getCode()) : null;
         if (old != null) {// 更新数据
-            if (dataDictionaryType.getSort() != null && (ObjectUtil.find(types, "code", old.getCode()) == null || !old.getSort().equals(dataDictionaryType.getSort()))) {
+            if (dictType.getSort() != null && (ObjectUtil.find(types, "code", old.getCode()) == null || !old.getSort().equals(dictType.getSort()))) {
                 if (ObjectUtil.find(types, "code", old.getCode()) == null) {// 移动了节点的层级
                     int i = 0;
-                    for (DataDictionaryType m : ObjectUtil.sort((old.getParent() == null || StringUtil.isBlank(old.getParent().getCode())) ? dataDictionaryTypeDao.find(Restrictions.isNull("parent")) : dataDictionaryTypeDao.findBy("parent.code", old.getParent().getCode()), "sort", "asc")) {
+                    for (DictType m : ObjectUtil.sort((old.getParent() == null || StringUtil.isBlank(old.getParent().getCode())) ? dataDictionaryTypeDao.find(Restrictions.isNull("parent")) : dataDictionaryTypeDao.findBy("parent.code", old.getParent().getCode()), "sort", "asc")) {
                         m.setSort(i++);
                         this.dataDictionaryTypeDao.save(m);
                     }
-                    types.add(dataDictionaryType.getSort() - 1, dataDictionaryType);
+                    types.add(dictType.getSort() - 1, dictType);
                 } else {
-                    DataDictionaryType t = ObjectUtil.remove(types, "code", old.getCode());
-                    if (types.size() >= dataDictionaryType.getSort()) {
-                        types.add(dataDictionaryType.getSort() - 1, t);
+                    DictType t = ObjectUtil.remove(types, "code", old.getCode());
+                    if (types.size() >= dictType.getSort()) {
+                        types.add(dictType.getSort() - 1, t);
                     } else {
                         types.add(t);
                     }
                 }
                 // 重新排序后更新新的位置
                 for (int i = 0; i < types.size(); i++) {
-                    DataDictionaryType m = types.get(i);
-                    if (m.getCode().equals(dataDictionaryType.getCode())) {
+                    DictType m = types.get(i);
+                    if (m.getCode().equals(dictType.getCode())) {
                         continue;
                     }
                     m.setSort(i + 1);
@@ -189,14 +189,14 @@ public class DataDictionaryService implements InitializingBean {
                 }
             }
         } else {// 新增数据
-            dataDictionaryType.setSort(types.size() + 1);
+            dictType.setSort(types.size() + 1);
         }
-        dataDictionaryType = this.dataDictionaryTypeDao.save(dataDictionaryType);
+        dictType = this.dataDictionaryTypeDao.save(dictType);
         if (root) {
-            dataDictionaryType.setParent(null);
-            this.dataDictionaryTypeDao.update(dataDictionaryType);
+            dictType.setParent(null);
+            this.dataDictionaryTypeDao.update(dictType);
         }
-        return dataDictionaryType;
+        return dictType;
     }
 
     /**
@@ -204,9 +204,9 @@ public class DataDictionaryService implements InitializingBean {
      *
      * @param keys 数据字段 key
      */
-    public void delete(DataDictionaryKey... keys) {
-        for (DataDictionaryKey key : keys) {
-            DataDictionary dd = this.get(key);
+    public void delete(DictKey... keys) {
+        for (DictKey key : keys) {
+            Dict dd = this.get(key);
             if(dd == null){
                 LOGGER.warn(" 数据字典项 key = " + key + " 不存在 , 请检查方法参数 !");
                 continue;
@@ -216,27 +216,27 @@ public class DataDictionaryService implements InitializingBean {
     }
 
     public void delete(String... keys) {
-        List<DataDictionaryKey> dataDictionaryKeys = new ArrayList<DataDictionaryKey>();
+        List<DictKey> dictKeys = new ArrayList<DictKey>();
         for (String key : keys) {
-            dataDictionaryKeys.add(new DataDictionaryKey(key));
+            dictKeys.add(new DictKey(key));
         }
-        this.delete(dataDictionaryKeys.toArray(new DataDictionaryKey[dataDictionaryKeys.size()]));
+        this.delete(dictKeys.toArray(new DictKey[dictKeys.size()]));
     }
 
     public void deleteType(String... codes) {
         for (String code : codes) {
-            DataDictionaryType dataDictionaryType = this.dataDictionaryTypeDao.get(code);
-            if (dataDictionaryType == null) {
+            DictType dictType = this.dataDictionaryTypeDao.get(code);
+            if (dictType == null) {
                 continue;
             }
-            for (DataDictionary dataDictionary : dataDictionaryType.getDataDictionaries()) {
-                this.dataDictionaryDao.delete(dataDictionary.getKey());
+            for (Dict dict : dictType.getDataDictionaries()) {
+                this.dataDictionaryDao.delete(dict.getKey());
             }
-            this.dataDictionaryTypeDao.delete(dataDictionaryType.getCode());
+            this.dataDictionaryTypeDao.delete(dictType.getCode());
         }
     }
 
-    public List<DataDictionary> find(Criterion... criterions) {
+    public List<Dict> find(Criterion... criterions) {
         return this.dataDictionaryDao.find(criterions);
     }
 
