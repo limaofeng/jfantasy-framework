@@ -21,11 +21,11 @@ import java.util.Properties;
 @JsonIgnoreProperties
 public abstract class PayProductSupport implements PayProduct {
 
-    public static String PROPERTY_TRANSACTION = "transaction";
+    public static final String PROPERTY_TRANSACTION = "transaction";
     static final String PROPERTIES_BACKURL = "back_url";
     static final String PROPERTIES_SHOWURL = "show_url";
 
-    protected final static Log LOG = LogFactory.getLog(PayProductSupport.class);
+    protected static final Log LOG = LogFactory.getLog(PayProductSupport.class);
 
     protected String id;//支付产品ID
     protected String name;// 支付产品名称

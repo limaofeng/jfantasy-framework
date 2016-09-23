@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * 会员管理
@@ -106,11 +107,12 @@ public class MemberService {
 
     private static String generateNonceString(int length) {
         int maxPos = NONCE_CHARS.length();
-        String noceStr = "";
+        StringBuilder noceStr = new StringBuilder();
+        Random random = new Random();
         for (int i = 0; i < length; i++) {
-            noceStr += NONCE_CHARS.charAt((int) Math.floor(Math.random() * maxPos));
+            noceStr.append(NONCE_CHARS.charAt(random.nextInt(maxPos)));
         }
-        return noceStr;
+        return noceStr.toString();
     }
 
     /**
@@ -156,7 +158,7 @@ public class MemberService {
         member.setAccountNonExpired(true);
         member.setCredentialsNonExpired(true);
         // 保存用户
-        member = this.memberDao.save(member);
+        this.memberDao.save(member);
         applicationContext.publishEvent(new RegisterEvent(member));
         return member;
     }

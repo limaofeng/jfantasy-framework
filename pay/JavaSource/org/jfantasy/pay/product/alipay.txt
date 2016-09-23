@@ -1,0 +1,87 @@
+//公共请求参数
+            /*
+            data.put("app_id","2016041201289130");//支付宝分配给开发者的应用Id
+            data.put("method","alipay.trade.refund");
+            data.put("charset",input_charset);
+            data.put("sign_type","RSA");
+            data.put("timestamp", DateUtil.format("yyyy-MM-dd HH:mm:ss"));
+            data.put("version","1.0");//调用的接口版本，固定为：1.0
+            //data.put("app_auth_token","");//详见应用授权概述
+
+            //请求参数
+            Map<String,String> bizcontent = new TreeMap<String, String>();
+            bizcontent.put("trade_no",payment.getTradeNo());//支付宝交易号
+            bizcontent.put("out_trade_no",payment.getSn());//商户订单号
+            bizcontent.put("refund_amount",RMB_YUAN_FORMAT.format(refund.getTotalAmount()));//需要退款的金额，该金额不能大于订单金额,单位为元，支持两位小数
+            //bizcontent.put("refund_reason","");//退款的原因说明
+            bizcontent.put("out_request_no",refund.getSn());//标识一次退款请求，同一笔交易多次退款需要保证唯一
+            //bizcontent.put("operator_id","");//商户的操作员编号
+            //bizcontent.put("store_id","");//商户的门店编号
+            //bizcontent.put("terminal_id","");//商户的终端编号
+
+            data.put("biz_content", JSON.serialize(bizcontent));
+
+            String privateKey = "MIICdwIBADANBgkqhkiG9w0BAQEFAASCAmEwggJdAgEAAoGBANesnTGjdj/aEtnZ" +
+                    "P39jKpVEEj7cuvwc4DHJbmGpyKti235ejE9V8h2puTqX3Xof5UidjFNwiHChFZmi" +
+                    "+EU8i8OQK09PR4OALhg9TdSBWF+mwLpJ5LeHYEXXUkWwWtK94IW12K/n4aEEVtRZ" +
+                    "rfa9REKrclCATnT5v/Qspqp86oNdAgMBAAECgYEAoOyHDfat0M7iqfHT0zUnHOEB" +
+                    "zC3exya0kfF+jxikRl0o8Y2Sm8/BLCjrsLCH7QvHhPspLUkWRROsjkpvfRnEHfTY" +
+                    "d3NeccKW2YuFmcL2U7J3AHvdghSR8IE2sTA8CRorCMeS0FjHc+zgJTOIalrzgDjU" +
+                    "U4C6KRGaSuCggy0wp4ECQQDsAkKQoLDN7Ig2D8KkhR3C9R4VgXgJBwZjJYQLHE2Q" +
+                    "lMPTp0TnHgJJfJFcec2kM96gIULwlsoiXNLWp313GUMFAkEA6fFop4CUVFrWWw01" +
+                    "WqhLSb3Q1aQ83XYOf7eku2SgEv5jEkZmpkJu5k3dSCRcgriXPhLw7hFIvEW6Gpy2" +
+                    "uEZeeQJBAM0LzZ9wLQxMI6+sk7RyfwACDIgsuwhE1TTQxF8O0Qj7ZwP9gKy38s67" +
+                    "7mME5Dh0ZEiFfW4f5DBkqz2ZuTT/eq0CQDLK1DMR6qKJ+mJYcs4VHguLp8zK1OAs" +
+                    "Yqd+IskA5vRYwP/VwzGz2Mot+65PHrrPAx9aE29M12LxLJ/ciJtnw9kCQEVvWtNU" +
+                    "CDLaWnH4SxTG7P9OsfNWgz//O7eT69wsGoFHb2PeN9XVDBQbr7SomrGeYa8SwqCS" +
+                    "rU4/l+JjAg+bR7o=";
+
+            data.put("sign",sign(data,privateKey));
+
+            Response response = HttpClientUtil.doPost(urls.refundUrl,data);
+
+            System.out.println(response.getBody());
+
+            //解析数据
+
+            //判断业务处理是否成功
+            if (!"SUCCESS".equalsIgnoreCase(data.get("return_code"))) {
+                throw new RestException(data.get("return_msg"));
+            }
+
+            //验证签名
+            if (!verify(data, config.getBargainorKey())) {
+                throw new RestException("微信返回的响应签名错误");
+            }
+
+            if ("FAIL".equals(data.get("result_code"))) {
+                throw new RestException("[" + data.get("err_code") + "]" + data.get("err_code_des"));
+            }
+
+            refund.setStatus(RefundStatus.wait);
+            refund.setTradeNo(data.get("refund_id"));
+
+            return null;
+            */
+
+
+
+             //支付配置
+                    /*
+                    PayConfig config = refund.getPayConfig();
+                    try {
+                        if (!verify(data, CertUtil.loadPublicKey(new RAMFileProxy(config, "validateCert")))) {
+                            throw new PayException("验证签名失败");
+                        }
+
+                        if (!data.get("RefundAmt").equals(refund.getTotalAmount().multiply(BigDecimal.valueOf(100d)).intValue() + "")) {
+                            throw new PayException("交易金额不匹配");
+                        }
+
+                        refund.setTradeNo(data.get("AcqSeqId"));
+
+                        return null;
+
+                    } finally {//记录退款通知日志
+                        this.log("in", "notify", refund, config, result);
+                    }*/
