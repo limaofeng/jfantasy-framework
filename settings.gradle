@@ -9,7 +9,6 @@ include ':jfantasy-pay-client'
 include ':jfantasy-security'
 include ':jfantasy-member'
 include ':jfantasy-system'
-include ':jfantasy-pay-test'
 include ':jfantasy-oauth'
 include ':jfantasy-oauth-api'
 include ':jfantasy-wallet'
@@ -19,7 +18,6 @@ include ':jfantasy-invoice-sdk'
 include ':jfantasy-file-sdk'
 include ':jfantasy-common-sdk'
 
-include ':jfantasy-oauth-test'
 include ':jfantasy-aliyun-ons'
 
 include ':jfantasy-rpc-common'
@@ -41,8 +39,6 @@ project(':jfantasy-oauth-api').projectDir = "$rootDir/oauth-api" as File
 project(':jfantasy-wallet').projectDir = "$rootDir/wallet" as File
 project(':jfantasy-weixin').projectDir = "$rootDir/weixin" as File
 project(':jfantasy-thirdparty').projectDir = "$rootDir/thirdparty" as File
-project(':jfantasy-pay-test').projectDir = "$rootDir/pay-test" as File
-project(':jfantasy-oauth-test').projectDir = "$rootDir/oauth-test" as File
 // sdk list
 project(':jfantasy-invoice-sdk').projectDir = "$rootDir/invoice-sdk" as File
 project(':jfantasy-file-sdk').projectDir = "$rootDir/file-sdk" as File
