@@ -27,12 +27,12 @@ import java.util.concurrent.atomic.AtomicReference;
 @SuppressWarnings("unchecked")
 public final class ObjectUtil {
 
-    private ObjectUtil() {
-    }
-
     private static final Log LOGGER = LogFactory.getLog(ObjectUtil.class);
 
-    private static final ConcurrentMap<String, Comparator<?>> comparatorMap = new ConcurrentHashMap<String, Comparator<?>>();
+    private static final ConcurrentMap<String, Comparator<?>> COMPARATOR_MAP = new ConcurrentHashMap<>();
+
+    private ObjectUtil() {
+    }
 
     /**
      * 克隆对象,调用org.apache.commons.beanutils.BeanUtils.cloneBean(object);方法实现克隆
@@ -44,28 +44,30 @@ public final class ObjectUtil {
         if (object == null) {
             return null;
         }
-        try {
-            if (object instanceof Number) {
-                return object;
-            } else if (object instanceof String) {
-                return object;
-            } else if (object instanceof Map) {
-                Map<Object, Object> cloneMap = new HashMap<Object, Object>();
-                Map<Object, Object> map = (Map<Object, Object>) object;
-                for (Map.Entry<Object, Object> entry : map.entrySet()) {
-                    cloneMap.put(clone(entry.getKey()), clone(entry.getValue()));
-                }
-                return (T) cloneMap;
-            } else if (object instanceof List) {
-                List<Object> cloneList = new ArrayList<Object>();
-                List<Object> list = (List<Object>) object;
-                for (Object l : list) {
-                    cloneList.add(clone(l));
-                }
-                return (T) cloneList;
-            } else {
-                return (T) BeanUtils.cloneBean(object);
+        if (object instanceof String) {
+            return object;
+        }
+        if (object instanceof Number) {
+            return object;
+        }
+        if (object instanceof Map) {
+            Map<Object, Object> cloneMap = new HashMap<>();
+            Map<Object, Object> map = (Map<Object, Object>) object;
+            for (Map.Entry<Object, Object> entry : map.entrySet()) {
+                cloneMap.put(clone(entry.getKey()), clone(entry.getValue()));
             }
+            return (T) cloneMap;
+        }
+        if (object instanceof List) {
+            List<Object> cloneList = new ArrayList<Object>();
+            List<Object> list = (List<Object>) object;
+            for (Object l : list) {
+                cloneList.add(clone(l));
+            }
+            return (T) cloneList;
+        }
+        try {
+            return (T) BeanUtils.cloneBean(object);
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
             throw new IgnoreException(e.getMessage());
@@ -97,17 +99,30 @@ public final class ObjectUtil {
         return toString(objs, null, sign);
     }
 
-    public static <T> List<T> filter(List<T> list, String fieldName, Object... values) {
-        List<T> filter = new ArrayList<>();
+    public static <T> List<T> filter(List<T> list, BeanFilter<T> filter) {
+        List<T> rlist = new ArrayList<>();
         if (list == null) {
-            return null;
+            return rlist;
+        }
+        for (T t : list) {
+            if (filter.accept(t)) {
+                rlist.add(t);
+            }
+        }
+        return rlist;
+    }
+
+    public static <T> List<T> filter(List<T> list, String fieldName, Object... values) {
+        List<T> rlist = new ArrayList<>();
+        if (list == null) {
+            return rlist;
         }
         for (T t : list) {
             if (ObjectUtil.exists(values, OgnlUtil.getInstance().getValue(fieldName, t))) {
-                filter.add(t);
+                rlist.add(t);
             }
         }
-        return filter;
+        return rlist;
     }
 
     public static <T> T[] filter(T[] objs, String fieldName, Object... values) {
@@ -342,27 +357,8 @@ public final class ObjectUtil {
 
     public static <T> int indexOf(T[] objs, T o) {
         for (int i = 0; i < objs.length; i++) {
-            if (ClassUtil.isList(o)) {
-                if (!ClassUtil.isList(objs[i]) || ((List<Object>) o).isEmpty()) {
-                    continue;
-                }
-                if (((List<Object>) o).size() != ((List<Object>) objs[i]).size()) {
-                    continue;
-                }
-                int num = 0;
-                for (Object obj : (List<Object>) o) {
-                    if (indexOf((List<Object>) objs[i], obj) > -1) {
-                        num++;
-                    }
-                }
-                if (num == ((List<Object>) o).size()) {
-                    return i;
-                }
-            } else {
-                if (objs[i].equals(o)) {
-                    return i;
-                }
-
+            if (objs[i].equals(o)) {
+                return i;
             }
         }
         return -1;
@@ -439,16 +435,17 @@ public final class ObjectUtil {
             return list;
         }
         String key = collectoin.iterator().next().getClass().toString().concat("|").concat(orderBy);
-        if (!comparatorMap.containsKey(key)) {
+        if (!COMPARATOR_MAP.containsKey(key)) {
             final String orderBys = orderBy;
-            comparatorMap.put(key, new Comparator<T>() {
+            COMPARATOR_MAP.put(key, new Comparator<T>() {
+                @Override
                 public int compare(Object o1, Object o2) {
                     return compareField(o1, o2, orderBys);
                 }
             });
         }
         list.addAll(collectoin);
-        Collections.sort(list, (Comparator<T>) comparatorMap.get(key));
+        Collections.sort(list, (Comparator<T>) COMPARATOR_MAP.get(key));
         if ("desc".equalsIgnoreCase(order)) {
             Collections.reverse(list);
         }
@@ -751,6 +748,7 @@ public final class ObjectUtil {
             this.idFieldName = idFieldName;
         }
 
+        @Override
         public int compare(Object o1, Object o2) {
             int o1IdKey = ObjectUtil.indexOf(customSort, OgnlUtil.getInstance().getValue(idFieldName, o1).toString());
             int o2IdKey = ObjectUtil.indexOf(customSort, OgnlUtil.getInstance().getValue(idFieldName, o2).toString());

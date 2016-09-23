@@ -7,6 +7,7 @@ import org.jfantasy.framework.jackson.annotation.AllowProperty;
 import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
 import org.jfantasy.framework.security.SpringSecurityUtils;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
+import org.jfantasy.framework.util.common.BeanFilter;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.oauth.userdetails.OAuthUserDetails;
@@ -23,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Iterator;
 import java.util.List;
 
 /** 交易记录 **/
@@ -57,7 +57,7 @@ public class TransactionController {
 
     /** 创建交易 **/
     @RequestMapping(method = RequestMethod.POST)
-    @JsonResultFilter(allow = @AllowProperty(pojo = PayConfig.class, name = {"id", "pay_product_id", "name", "platforms", "default"}))
+    @JsonResultFilter(allow = @AllowProperty(pojo = PayConfig.class, name = {"id", "pay_product_id", "name", "platforms", "default","disabled"}))
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
     public ResultResourceSupport save(@RequestBody Transaction transaction) {
@@ -65,10 +65,13 @@ public class TransactionController {
         return transform(transactionService.save(transaction));
     }
 
-    //transactionService.transfer(tx.getFrom(), tx.getTo(), tx.getAmount(), tx.getNotes());
-    /** 获取交易详情 **/
+    /**
+     * 获取交易详情
+     * @param sn 交易流水
+     * @return Transaction
+     */
     @RequestMapping(method = RequestMethod.GET, value = "/{id}")
-    @JsonResultFilter(allow = @AllowProperty(pojo = PayConfig.class, name = {"id", "pay_product_id", "name", "platforms", "default"}))
+    @JsonResultFilter(allow = @AllowProperty(pojo = PayConfig.class, name = {"id", "pay_product_id", "name", "platforms", "default","disabled"}))
     @ResponseBody
     public ResultResourceSupport view(@PathVariable("id") String sn) {
         return transform(get(sn));
@@ -89,7 +92,7 @@ public class TransactionController {
 
     private ResultResourceSupport transform(Transaction transaction) {
         ResultResourceSupport resource = assembler.toResource(transaction);
-        OAuthUserDetails user = SpringSecurityUtils.getCurrentUser(OAuthUserDetails.class);
+        final OAuthUserDetails user = SpringSecurityUtils.getCurrentUser(OAuthUserDetails.class);
 
         if (user == null) {
             return resource;
@@ -103,16 +106,16 @@ public class TransactionController {
                         break;
                     }
 
-                    List<PayConfig> payconfigs = configService.find();
-                    Iterator<PayConfig> iterator = payconfigs.iterator();
-
                     // 按平台过滤掉不能使用的支付方式
-                    while (iterator.hasNext()) {
-                        PayConfig payConfig = iterator.next();
-                        if (!payConfig.getPlatforms().contains(user.getPlatform())) {
-                            iterator.remove();
+                    ObjectUtil.filter(configService.find(),new BeanFilter<PayConfig>() {
+                        @Override
+                        public boolean accept(PayConfig item) {
+                            return item.getPlatforms().contains(user.getPlatform());
                         }
-                    }
+                    });
+
+                    List<PayConfig> payconfigs = configService.find();
+
                     // 判断余额支付，金额是否可以支付
                     PayConfig payConfig = ObjectUtil.find(payconfigs, "payProductId", "walletpay");
                     if (payConfig != null && accountService.get(transaction.getFrom()).getAmount().compareTo(transaction.getAmount()) < 0) {
@@ -137,6 +140,7 @@ public class TransactionController {
                     break;
                 case Transaction.STAGE_REFUND:
                     break;
+                default:
             }
         }
         return resource;
