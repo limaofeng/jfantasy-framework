@@ -37,7 +37,8 @@ import java.util.List;
 @Transactional
 public class MemberService {
 
-    private final static String DEFAULT_ROLE_CODE = "MEMBER";
+    private static final String DEFAULT_ROLE_CODE = "MEMBER";
+    private static final String NONCE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
     @Autowired
     private MemberDao memberDao;
@@ -77,11 +78,20 @@ public class MemberService {
                 }
                 break;
             case macode:
-                if (member == null || !smsCodeEncoder.matches(username, password)) {
+                if (!smsCodeEncoder.matches(username + ":login", password)) {
                     throw new ValidationException(203.1f, "短信验证失败!");
                 }
+                if (member == null) {
+                    member = new Member();
+                    member.setType(Member.MEMBER_TYPE_PERSONAL);
+                    member.setUsername(username);
+                    member.setPassword(generateNonceString(20));
+                    member = this.save(member);
+                }
                 break;
+            default:
         }
+
         if (!member.getEnabled()) {
             throw new ValidationException(203.1f, "用户被禁用");
         }
@@ -92,6 +102,15 @@ public class MemberService {
         this.memberDao.save(member);
         this.applicationContext.publishEvent(new LoginEvent(member));
         return member;
+    }
+
+    private static String generateNonceString(int length) {
+        int maxPos = NONCE_CHARS.length();
+        String noceStr = "";
+        for (int i = 0; i < length; i++) {
+            noceStr += NONCE_CHARS.charAt((int) Math.floor(Math.random() * maxPos));
+        }
+        return noceStr;
     }
 
     /**
@@ -137,7 +156,8 @@ public class MemberService {
         member.setAccountNonExpired(true);
         member.setCredentialsNonExpired(true);
         // 保存用户
-        applicationContext.publishEvent(new RegisterEvent(member = this.memberDao.save(member)));
+        member = this.memberDao.save(member);
+        applicationContext.publishEvent(new RegisterEvent(member));
         return member;
     }
 
@@ -167,7 +187,11 @@ public class MemberService {
                 }
                 break;
             case macode:
+                if (!smsCodeEncoder.matches(member.getUsername() + ":password", oldPassword)) {
+                    throw new ValidationException(203.1f, "短信验证失败!");
+                }
                 break;
+            default:
         }
         member.setPassword(passwordEncoder.encode(newPassword));
         this.memberDao.update(member);
