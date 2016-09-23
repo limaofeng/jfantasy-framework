@@ -36,14 +36,14 @@ public class Alipay extends PayProductSupport {
     /**
      * 支付宝消息验证地址
      */
-    private final static String input_charset = "utf-8";
+    private static final String INPUT_CHARSET = "utf-8";
     private static final DecimalFormat RMB_YUAN_FORMAT = new DecimalFormat("#0.00");
     public static final String EXT_SELLER_EMAIL = "sellerEmail";
     private static final String HTTPS_VERIFY_URL = "https://mapi.alipay.com/gateway.do?service=notify_verify&";
 
     private Urls urls = new Urls() {
         {
-            this.paymentUrl = "https://mapi.alipay.com/gateway.do?_input_charset=" + input_charset;// 支付请求URL
+            this.paymentUrl = "https://mapi.alipay.com/gateway.do?_input_charset=" + INPUT_CHARSET;// 支付请求URL
             this.refundUrl = "https://mapi.alipay.com/gateway.do";//统一收单交易退款接口
             this.queryUrl = "https://openapi.alipay.com/gateway.do";
         }
@@ -103,7 +103,7 @@ public class Alipay extends PayProductSupport {
         try {
             // 常规参数
             data.put("service", "create_direct_pay_by_user");// 接口类型（create_direct_pay_by_user：即时交易）
-            data.put("_input_charset", input_charset);//字符编码格式
+            data.put("_input_charset", INPUT_CHARSET);//字符编码格式
             data.put("payment_type", "1");// 支付类型（固定值：1）
             data.put("notify_url", paySettings.getUrl() + "/pays/" + payment.getSn() + "/notify");// 消息通知URL
 
@@ -143,8 +143,8 @@ public class Alipay extends PayProductSupport {
             data.put("sign_type", "MD5");
             data.put("sign", sign(data, config.getBargainorKey()));
 
-            data.put("subject", WebUtil.transformCoding(order.getSubject(), "utf-8", "utf-8"));// 订单的名称、标题、关键字等
-            data.put("body", WebUtil.transformCoding(order.getBody(), "utf-8", "utf-8"));// 订单描述
+            data.put("subject", WebUtil.transformCoding(order.getSubject(), INPUT_CHARSET, INPUT_CHARSET));// 订单的名称、标题、关键字等
+            data.put("body", WebUtil.transformCoding(order.getBody(), INPUT_CHARSET, INPUT_CHARSET));// 订单描述
 
             //拼接支付表单
             return HandlebarsTemplateUtils.processTemplateIntoString(HandlebarsTemplateUtils.template("/org.jfantasy.pay.product.template/pay"), new HashMap<String, Object>() {
@@ -165,7 +165,7 @@ public class Alipay extends PayProductSupport {
         Map<String, String> data = new TreeMap<>();
         data.put("service", "mobile.securitypay.pay");//接口名称
         data.put("partner", config.getBargainorId());//合作者身份ID
-        data.put("_input_charset", input_charset);//参数编码字符集
+        data.put("_input_charset", INPUT_CHARSET);//参数编码字符集
         data.put("notify_url", paySettings.getUrl() + "/pays/" + payment.getSn() + "/notify");//服务器异步通知页面路径
 
         data.put("out_trade_no", payment.getSn());//商户网站唯一订单号
@@ -192,33 +192,38 @@ public class Alipay extends PayProductSupport {
         }
 
         data.put("sign_type", "RSA");//签名方式
-        data.put("sign", StringUtil.encodeURI(sign(data, getPrivateKey(config, data.get("sign_type"))),input_charset));
+        data.put("sign", StringUtil.encodeURI(sign(data, getPrivateKey(config, data.get("sign_type"))),INPUT_CHARSET));
 
         return SignUtil.coverMapString(data);
     }
 
-    public String payNotify(Payment payment, String result) throws PayException {
-        PayConfig config = payment.getPayConfig();
+    private static final String REGEXP_PARSE = "^\\{(.*)\\}$";
 
-        try {
-            Map<String, String> appdata = new HashMap<>();
-            if (result.contains("result")) {//为手机同步支付通知
-                if (RegexpUtil.isMatch(result, "^\\{(.*)\\}$")) { // ios 先去掉 首尾 的括号
-                    result = RegexpUtil.parseGroup(result, "^\\{(.*)\\}$", 1);
-                }
-                assert result != null;
-                for (String _ps : result.split(";")) {
-                    String key = _ps.substring(0, _ps.indexOf("="));
-                    String value = _ps.substring(_ps.indexOf("=") + 1);
-                    if (RegexpUtil.isMatch(value, "^\\{(.*)\\}$")) {
-                        appdata.put(key, RegexpUtil.parseGroup(value, "^\\{(.*)\\}$", 1));
-                    } else {
-                        appdata.put(key, value);
-                    }
+    private static Map<String, String> parse(String result){
+        String tresult = result;
+        Map<String, String> appdata = new HashMap<>();
+        if (result.contains("result")) {//为手机同步支付通知
+            if (RegexpUtil.isMatch(tresult, REGEXP_PARSE)) { // ios 先去掉 首尾 的括号
+                tresult = RegexpUtil.parseGroup(result, REGEXP_PARSE, 1);
+            }
+            assert tresult != null;
+            for (String _ps : tresult.split(";")) {
+                String key = _ps.substring(0, _ps.indexOf("="));
+                String value = _ps.substring(_ps.indexOf("=") + 1);
+                if (RegexpUtil.isMatch(value, REGEXP_PARSE)) {
+                    appdata.put(key, RegexpUtil.parseGroup(value, REGEXP_PARSE, 1));
+                } else {
+                    appdata.put(key, value);
                 }
             }
+        }
+        return SignUtil.parseQuery(appdata.isEmpty() ? result : appdata.get("result"), appdata.isEmpty());
+    }
 
-            Map<String, String> data = SignUtil.parseQuery(appdata.isEmpty() ? result : appdata.get("result"), appdata.isEmpty());
+    public String payNotify(Payment payment, String result) throws PayException {
+        PayConfig config = payment.getPayConfig();
+        try {
+            Map<String, String> data = parse(result);
 
             if (!verifyNotifyId(config.getBargainorId(), data.get("notify_id"))) {
                 throw new RestException("支付宝 notify_id 验证失败");
@@ -234,9 +239,9 @@ public class Alipay extends PayProductSupport {
                 LOG.debug("WAIT_BUYER_PAY ... ");
             } else if ("TRADE_SUCCESS".equals(data.get("trade_status"))) {//交易成功，且可对该交易做操作，如：多级分润、退款等。
                 if (data.containsKey("gmt_payment")) {
-                    payment.setTradeTime(DateUtil.parse(data.get("gmt_payment"), "yyyy-MM-dd HH:mm:dd"));
+                    payment.setTradeTime(DateUtil.parse(data.get("gmt_payment"), "yyyy-MM-dd HH:mm:ss"));
                 } else {//TODO 如果为同步通知,可以发起一笔查询交易来获取交易时间
-                    payment.setTradeTime(DateUtil.parse(data.get("notify_time"), "yyyy-MM-dd HH:mm:dd"));
+                    payment.setTradeTime(DateUtil.parse(data.get("notify_time"), "yyyy-MM-dd HH:mm:ss"));
                 }
                 payment.setStatus(PaymentStatus.success);
             } else if ("TRADE_FINISHED".equals(data.get("trade_status"))) {//交易成功且结束，即不可再做任何操作。
@@ -259,7 +264,7 @@ public class Alipay extends PayProductSupport {
         try {
             data.put("service", "refund_fastpay_by_platform_pwd");
             data.put("partner", config.getBargainorId());
-            data.put("_input_charset", input_charset);
+            data.put("_input_charset", INPUT_CHARSET);
             data.put("sign_type", "MD5");
             data.put("notify_url", paySettings.getUrl() + "/pays/" + refund.getSn() + "/notify");
             data.put("seller_email", config.get(EXT_SELLER_EMAIL, String.class));
@@ -362,7 +367,7 @@ public class Alipay extends PayProductSupport {
         data.put("app_id", "2088021598024164");//支付宝分配给开发者的应用Id
         data.put("method", "alipay.trade.query");
         data.put("format", "JSON");
-        data.put("charset", input_charset);
+        data.put("charset", INPUT_CHARSET);
         data.put("sign_type", "RSA");
         data.put("timestamp", DateUtil.format("yyyy-MM-dd HH:mm:ss"));
         data.put("version", "1.0");//调用的接口版本，固定为：1.0
@@ -551,9 +556,9 @@ public class Alipay extends PayProductSupport {
         }
         String signType = data.get("sign_type");
         if ("MD5".equals(signType)) {
-            return MD5.sign(SignUtil.coverMapString(data, "sign", "sign_type"), key, input_charset);
+            return MD5.sign(SignUtil.coverMapString(data, "sign", "sign_type"), key, INPUT_CHARSET);
         } else if ("RSA".equals(signType)) {
-            return RSA.sign(SignUtil.coverMapString(data, "sign", "sign_type"), key, input_charset);
+            return RSA.sign(SignUtil.coverMapString(data, "sign", "sign_type"), key, INPUT_CHARSET);
         } else if ("DSA".equals(signType)) {
             throw new PayException("DSA 签名方式还未实现");
         }
@@ -563,9 +568,9 @@ public class Alipay extends PayProductSupport {
     public static boolean verify(Map<String, String> data, String key) {
         String signType = data.get("sign_type");
         if ("MD5".equals(signType)) {
-            return MD5.verify(SignUtil.coverMapString(data, "sign", "sign_type"), data.get("sign"), key, input_charset);
+            return MD5.verify(SignUtil.coverMapString(data, "sign", "sign_type"), data.get("sign"), key, INPUT_CHARSET);
         } else if ("RSA".equals(signType)) {
-            return RSA.verify(SignUtil.coverMapString(data, "sign", "sign_type"), data.get("sign"), key, input_charset);
+            return RSA.verify(SignUtil.coverMapString(data, "sign", "sign_type"), data.get("sign"), key, INPUT_CHARSET);
         } else if ("DSA".equals(signType)) {
             throw new PayException("DSA 签名方式还未实现");
         }

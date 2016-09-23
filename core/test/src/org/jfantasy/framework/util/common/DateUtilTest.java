@@ -72,22 +72,11 @@ public class DateUtilTest {
 
     @Test
     public void parse() throws Exception {
-
-    }
-
-    @Test
-    public void parse1() throws Exception {
-
-    }
-
-    @Test
-    public void parse2() throws Exception {
-
-    }
-
-    @Test
-    public void parse3() throws Exception {
-
+        String str = "2016-09-23 17:02:02";
+        Date date = DateUtil.parse(str, "yyyy-MM-dd HH:mm:ss");
+        String strNew = DateUtil.format(date, "yyyy-MM-dd HH:mm:ss");
+        LOGGER.debug(strNew);
+        Assert.assertEquals(str,strNew);
     }
 
     @Test
