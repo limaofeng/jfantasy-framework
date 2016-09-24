@@ -63,13 +63,13 @@ public class FormModelMethodArgumentResolver implements HandlerMethodArgumentRes
         }
 
         target = binder.convertIfNecessary(binder.getTarget(), parameter.getParameterType());
-        if(StringUtil.isNotBlank(name)) {
+        if (StringUtil.isNotBlank(name)) {
             mavContainer.addAttribute(name, target);
         }
         return target;
     }
 
-    protected String getParameterName(MethodParameter parameter){
+    protected String getParameterName(MethodParameter parameter) {
         return parameter.getParameterAnnotation(FormModel.class).value();
     }
 
@@ -266,10 +266,11 @@ public class FormModelMethodArgumentResolver implements HandlerMethodArgumentRes
         if (multipartRequest != null) {
             MockMultipartHttpServletRequest mockMultipartRequest = new MockMultipartHttpServletRequest();
             mockMultipartRequest.getMultiFileMap().putAll(multipartRequest.getMultiFileMap());
+            mockRequest = mockMultipartRequest;
         } else {
             mockRequest = new MockHttpServletRequest();
         }
-        assert mockRequest != null;
+
         for (Entry<String, String> entry : getUriTemplateVariables(request).entrySet()) {
             String parameterName = entry.getKey();
             String value = entry.getValue();

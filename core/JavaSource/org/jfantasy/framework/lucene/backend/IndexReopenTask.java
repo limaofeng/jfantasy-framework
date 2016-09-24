@@ -15,6 +15,7 @@ public class IndexReopenTask implements Runnable {
     private static final Logger LOGGER = Logger.getLogger(IndexReopenTask.class);
     private static final Lock reopenLock = new ReentrantLock();
 
+    @Override
     public void run() {
         if (!reopenLock.tryLock()) {
             return;

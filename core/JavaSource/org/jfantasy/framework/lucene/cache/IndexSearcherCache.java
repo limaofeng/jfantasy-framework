@@ -1,7 +1,6 @@
 package org.jfantasy.framework.lucene.cache;
 
 import org.apache.log4j.Logger;
-import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.search.IndexSearcher;
@@ -38,8 +37,6 @@ public class IndexSearcherCache {
                     IndexReader reader = null;
                     try {
                         reader = IndexReader.open(writer, true);
-                    } catch (CorruptIndexException ex) {
-                        LOGGER.error("Something is wrong when open lucene IndexWriter", ex);
                     } catch (IOException ex) {
                         LOGGER.error("Something is wrong when open lucene IndexWriter", ex);
                     }

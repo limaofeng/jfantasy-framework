@@ -8,7 +8,7 @@ import java.io.IOException;
 
 public class DelegatingServletProxy extends GenericServlet {
     private String targetBean;
-    private Servlet proxy;
+    private transient Servlet proxy;
 
     @Override
     public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {

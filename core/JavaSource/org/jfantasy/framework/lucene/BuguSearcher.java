@@ -96,7 +96,7 @@ public abstract class BuguSearcher<T> {
      */
     public List<T> search(Query query, int size) {
         IndexSearcher searcher = open();
-        List<T> data = new ArrayList<T>();
+        List<T> data = new ArrayList<>();
         try {
             TopDocs topDocs = searcher.search(query, size);
             for (int i = 0; i < topDocs.scoreDocs.length; i++) {

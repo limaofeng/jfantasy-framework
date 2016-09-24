@@ -71,7 +71,10 @@ public class CompareChecker {
         if ((DataType.isFloat(type)) || (DataType.isFloatObject(type))) {
             return Float.parseFloat(objStr) == Float.parseFloat(value);
         }
-        return ((DataType.isDouble(type)) || (DataType.isDoubleObject(type))) && Double.parseDouble(objStr) == Double.parseDouble(value);
+        if (DataType.isDouble(type) || DataType.isDoubleObject(type)) {
+            return Double.parseDouble(objStr) == Double.parseDouble(value);
+        }
+        return false;
 
     }
 
