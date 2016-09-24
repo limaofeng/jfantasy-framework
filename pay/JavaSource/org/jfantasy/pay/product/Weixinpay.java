@@ -76,7 +76,7 @@ public class Weixinpay extends PayProductSupport {
             Map<String, String> result = new HashMap<>();
             result.put("return_code", data.get("return_code"));
             result.put("result_code", data.get("result_code"));
-            result.put("appid", data.get("appid"));
+            result.put("appid", data.get(EXT_APPID));
             result.put("mch_id", data.get("mch_id"));
             result.put("nonce_str", generateNonceString(32));
             result.put("prepay_id", data.get("prepay_id"));
@@ -84,7 +84,7 @@ public class Weixinpay extends PayProductSupport {
             return StringUtil.isNotBlank(openid) ? mapToXml(result) : data.get("code_url");
         } else if ("JSAPI".equals(data.get("trade_type"))) {
             Map<String, String> result = new HashMap<>();
-            result.put("appId", data.get("appid"));
+            result.put("appId", data.get(EXT_APPID));
             result.put("timeStamp", (DateUtil.now().getTime() / 1000) + "");
             result.put("nonceStr", generateNonceString(32));
             result.put("package", "prepay_id=" + data.get("prepay_id"));
@@ -103,7 +103,7 @@ public class Weixinpay extends PayProductSupport {
         Map<String, String> data = unifiedorder(payment, order, properties);
         if ("APP".equals(data.get("trade_type"))) {//APP支付
             Map<String, String> result = new TreeMap<>();
-            result.put("appid", config.get("appid", String.class));
+            result.put("appid", config.get(EXT_APPID, String.class));
             result.put("partnerid", config.getBargainorId());
             result.put("prepayid", data.get("prepay_id"));
             result.put("package", "Sign=WXPay");
@@ -149,7 +149,7 @@ public class Weixinpay extends PayProductSupport {
         try {
             //组装数据
             Map<String, String> data = new TreeMap<>();
-            data.put("appid", config.get("appid", String.class));
+            data.put("appid", config.get(EXT_APPID, String.class));
             data.put("mch_id", config.getBargainorId());
             data.put("nonce_str", generateNonceString(16));
             data.put("transaction_id", payment.getTradeNo());
@@ -209,7 +209,7 @@ public class Weixinpay extends PayProductSupport {
         try {
             //组装数据
             Map<String, String> data = new TreeMap<>();
-            data.put("appid", config.get("appid", String.class));
+            data.put("appid", config.get(EXT_APPID, String.class));
             data.put("mch_id", config.getBargainorId());
             data.put("device_info", "WEB");
             data.put("body", order.getSubject());
@@ -270,7 +270,7 @@ public class Weixinpay extends PayProductSupport {
             PayConfig paymentConfig = payment.getPayConfig();
             //组装数据
             Map<String, String> data = new TreeMap<>();
-            data.put("appid", config.get("appid", String.class));
+            data.put("appid", config.get(EXT_APPID, String.class));
             data.put("mch_id", paymentConfig.getBargainorId());
             data.put("out_trade_no", payment.getSn());
             data.put("nonce_str", generateNonceString(16));
@@ -321,7 +321,7 @@ public class Weixinpay extends PayProductSupport {
         try {
             //组装数据
             Map<String, String> data = new TreeMap<>();
-            data.put("appid", config.get("appid", String.class));
+            data.put("appid", config.get(EXT_APPID, String.class));
             data.put("mch_id", config.getBargainorId());
             data.put("nonce_str", generateNonceString(16));
             data.put("out_trade_no", payment.getSn());

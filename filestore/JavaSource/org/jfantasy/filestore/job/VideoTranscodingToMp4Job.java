@@ -34,9 +34,7 @@ public class VideoTranscodingToMp4Job implements Job {
             int exitVal = proc.waitFor();
             StreamUtil.closeQuietly(stderr);
             LOGGER.debug("Process exitValue:" + exitVal);
-        } catch (IOException e) {
-            LOGGER.error(e.getMessage(), e);
-        } catch (InterruptedException e) {
+        } catch (IOException | InterruptedException e) {
             LOGGER.error(e.getMessage(), e);
         }
     }

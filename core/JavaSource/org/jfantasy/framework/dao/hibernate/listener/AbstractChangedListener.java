@@ -6,9 +6,9 @@ import org.hibernate.event.spi.PostInsertEvent;
 import org.hibernate.event.spi.PostUpdateEvent;
 import org.hibernate.persister.entity.EntityPersister;
 import org.jfantasy.framework.dao.hibernate.util.ReflectionUtils;
-import org.jfantasy.framework.spring.SpringContextUtil;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
 import java.util.Arrays;
@@ -19,13 +19,17 @@ public abstract class AbstractChangedListener<T> implements PostCommitUpdateEven
 
     private Class<T> entityClass;
 
+    protected transient ApplicationContext applicationContext;
+
     protected AbstractChangedListener() {
         this.entityClass = ReflectionUtils.getSuperClassGenricType(getClass());
     }
 
+    @Override
     public void onPostUpdateCommitFailed(PostUpdateEvent event){
     }
 
+    @Override
     public void onPostInsertCommitFailed(PostInsertEvent event){
     }
 
@@ -78,13 +82,9 @@ public abstract class AbstractChangedListener<T> implements PostCommitUpdateEven
         return index != -1 && !event.getState()[index].equals(event.getOldState()[index]);
     }
 
-    private ApplicationContext applicationContext;
-
-    protected ApplicationContext getApplicationContext() {
-        if (applicationContext == null) {
-            return this.applicationContext = SpringContextUtil.getApplicationContext();
-        }
-        return this.applicationContext;
+    @Autowired
+    public void setApplicationContext(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
     }
 
 }

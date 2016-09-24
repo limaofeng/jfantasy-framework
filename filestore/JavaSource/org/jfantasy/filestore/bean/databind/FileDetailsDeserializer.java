@@ -57,7 +57,10 @@ public class FileDetailsDeserializer extends JsonDeserializer<FileDetail[]> {
         return fileDetails;
     }
 
-    public FileService getFileService() {
-        return fileService == null ? fileService = SpringContextUtil.getBeanByType(FileService.class) : fileService;
+    private static FileService getFileService() {
+        if(fileService == null){
+            fileService = SpringContextUtil.getBeanByType(FileService.class);
+        }
+        return  fileService;
     }
 }

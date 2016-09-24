@@ -22,9 +22,9 @@ public class ImagesDeserializer extends JsonDeserializer<Image[]> {
     public Image[] deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
         String values = jp.getValueAsString();
         if (StringUtil.isBlank(values)) {
-            return null;
+            return new Image[0];
         }
-        List<Image> images = new ArrayList<Image>();
+        List<Image> images = new ArrayList<>();
         for (String value : StringUtil.tokenizeToStringArray(values)) {
             String[] arry = value.split(":");
             FileDetail fileDetail = getFileService().getFileDetail(arry[1], arry[0]);
@@ -36,8 +36,11 @@ public class ImagesDeserializer extends JsonDeserializer<Image[]> {
         return images.toArray(new Image[images.size()]);
     }
 
-    public FileService getFileService() {
-        return fileService == null ? fileService = SpringContextUtil.getBeanByType(FileService.class) : fileService;
+    private static FileService getFileService() {
+        if (fileService == null) {
+            fileService = SpringContextUtil.getBeanByType(FileService.class);
+        }
+        return fileService;
     }
 
 }

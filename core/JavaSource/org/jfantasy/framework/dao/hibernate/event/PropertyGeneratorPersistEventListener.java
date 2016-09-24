@@ -1,6 +1,5 @@
 package org.jfantasy.framework.dao.hibernate.event;
 
-import org.hibernate.HibernateException;
 import org.hibernate.engine.spi.EntityEntry;
 import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.event.internal.DefaultPersistEventListener;
@@ -14,14 +13,14 @@ public class PropertyGeneratorPersistEventListener extends DefaultPersistEventLi
 
     private static final long serialVersionUID = 6221651283085589379L;
 
-    private IdentifierGeneratorFactory identifierGeneratorFactory;
+    private transient IdentifierGeneratorFactory identifierGeneratorFactory;
 
     public PropertyGeneratorPersistEventListener(IdentifierGeneratorFactory identifierGeneratorFactory){
         this.identifierGeneratorFactory = identifierGeneratorFactory;
     }
 
     @Override
-    public void onPersist(PersistEvent event, Map createCache) throws HibernateException {
+    public void onPersist(PersistEvent event, Map createCache) {
         final SessionImplementor source = event.getSession();
         final Object object = event.getObject();
         if (!IdentifierGeneratorUtil.reassociateIfUninitializedProxy(object, source)) {

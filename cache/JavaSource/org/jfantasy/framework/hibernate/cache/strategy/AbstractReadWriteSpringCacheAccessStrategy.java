@@ -2,7 +2,6 @@ package org.jfantasy.framework.hibernate.cache.strategy;
 
 
 import org.hibernate.boot.spi.SessionFactoryOptions;
-import org.hibernate.cache.CacheException;
 import org.hibernate.cache.spi.access.SoftLock;
 import org.hibernate.engine.spi.SessionImplementor;
 import org.jboss.logging.Logger;
@@ -28,7 +27,7 @@ abstract class AbstractReadWriteSpringCacheAccessStrategy<T extends SpringCacheT
         this.versionComparator = region.getCacheDataDescription().getVersionComparator();
     }
 
-    public final Object get(SessionImplementor session, Object key, long txTimestamp) throws CacheException {
+    public final Object get(SessionImplementor session, Object key, long txTimestamp) {
         readLockIfNeeded(key);
         try {
             final Lockable item = (Lockable) region().get(key);
@@ -44,7 +43,7 @@ abstract class AbstractReadWriteSpringCacheAccessStrategy<T extends SpringCacheT
     }
 
     @Override
-    public final boolean putFromLoad(SessionImplementor session, Object key, Object value, long txTimestamp, Object version, boolean minimalPutOverride) throws CacheException {
+    public final boolean putFromLoad(SessionImplementor session, Object key, Object value, long txTimestamp, Object version, boolean minimalPutOverride) {
         region().writeLock(key);
         try {
             final Lockable item = (Lockable) region().get(key);
@@ -60,7 +59,7 @@ abstract class AbstractReadWriteSpringCacheAccessStrategy<T extends SpringCacheT
         }
     }
 
-    public final SoftLock lockItem(SessionImplementor session, Object key, Object version) throws CacheException {
+    public final SoftLock lockItem(SessionImplementor session, Object key, Object version) {
         region().writeLock(key);
         try {
             final Lockable item = (Lockable) region().get(key);
@@ -73,7 +72,7 @@ abstract class AbstractReadWriteSpringCacheAccessStrategy<T extends SpringCacheT
         }
     }
 
-    public final void unlockItem(SessionImplementor session, Object key, SoftLock lock) throws CacheException {
+    public final void unlockItem(SessionImplementor session, Object key, SoftLock lock) {
         region().writeLock(key);
         try {
             final Lockable item = (Lockable) region().get(key);
@@ -131,8 +130,8 @@ abstract class AbstractReadWriteSpringCacheAccessStrategy<T extends SpringCacheT
 
     protected static final class Item implements Serializable, Lockable {
         private static final long serialVersionUID = 1L;
-        private final Object value;
-        private final Object version;
+        private final transient Object value;
+        private final transient Object version;
         private final long timestamp;
 
         Item(Object value, Object version, long timestamp) {
@@ -173,7 +172,7 @@ abstract class AbstractReadWriteSpringCacheAccessStrategy<T extends SpringCacheT
 
         private final UUID sourceUuid;
         private final long lockId;
-        private final Object version;
+        private final transient Object version;
 
         private long timeout;
         private boolean concurrent;
@@ -230,7 +229,7 @@ abstract class AbstractReadWriteSpringCacheAccessStrategy<T extends SpringCacheT
 
         @Override
         public int hashCode() {
-            final int hash = (sourceUuid != null ? sourceUuid.hashCode() : 0);
+            final int hash = sourceUuid != null ? sourceUuid.hashCode() : 0;
             int temp = (int) lockId;
             for (int i = 1; i < Long.SIZE / Integer.SIZE; i++) {
                 temp ^= (lockId >>> (i * Integer.SIZE));

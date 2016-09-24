@@ -21,11 +21,11 @@ public class Pager<T> implements Serializable {
     /**
      * 排序 - 升序
      */
-    public final static String SORT_ASC = "asc";
+    public static final String SORT_ASC = "asc";
     /**
      * 排序 - 降序
      */
-    public final static String SORT_DESC = "desc";
+    public static final String SORT_DESC = "desc";
 
     private static final long serialVersionUID = -2343309063338998483L;
     /**
@@ -61,7 +61,7 @@ public class Pager<T> implements Serializable {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String order;
     @JsonProperty("items")
-    private List<T> pageItems;
+    private transient List<T> pageItems;
 
     public Pager() {
         this.pageSize = 15;

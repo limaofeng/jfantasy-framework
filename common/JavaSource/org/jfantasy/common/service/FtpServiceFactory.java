@@ -30,14 +30,14 @@ public class FtpServiceFactory {
     @Autowired
     private FtpConfigService ftpConfigService;
 
-    private final static ConcurrentMap<Long, FTPService> ftpServiceCache = new ConcurrentHashMap<Long, FTPService>();
+    private static final ConcurrentMap<Long, FTPService> FTP_SERVICE_CACHE = new ConcurrentHashMap<>();
 
     public static String getFtpServiceBeanId(Long configId) {
         return "ftpService-" + configId;
     }
 
     private FTPService initialize(FtpConfig config) {
-        Map<String, Object> propertyValues = new HashMap<String, Object>();
+        Map<String, Object> propertyValues = new HashMap<>();
         propertyValues.put("hostname", config.getHostname());
         propertyValues.put("port", config.getPort());
         propertyValues.put("username", config.getUsername());
@@ -71,9 +71,9 @@ public class FtpServiceFactory {
      * @功能描述
      */
     public void removeFtpService(FtpConfig config) {
-        if (ftpServiceCache.containsKey(config.getId())) {
+        if (FTP_SERVICE_CACHE.containsKey(config.getId())) {
             SpringContextUtil.removeBeanDefinition(getFtpServiceBeanId(config.getId()));
-            ftpServiceCache.remove(config.getId());
+            FTP_SERVICE_CACHE.remove(config.getId());
         }
     }
 
@@ -85,10 +85,10 @@ public class FtpServiceFactory {
      * @功能描述
      */
     public FTPService getFtpService(Long id) {
-        if (!ftpServiceCache.containsKey(id)) {
-            ftpServiceCache.put(id, this.initialize(ftpConfigService.get(id)));
+        if (!FTP_SERVICE_CACHE.containsKey(id)) {
+            FTP_SERVICE_CACHE.put(id, this.initialize(ftpConfigService.get(id)));
         }
-        return ftpServiceCache.get(id);
+        return FTP_SERVICE_CACHE.get(id);
     }
 
     public static class FtpConfigEventListener implements PostInsertEventListener, PostUpdateEventListener, PostDeleteEventListener {
@@ -96,25 +96,28 @@ public class FtpServiceFactory {
         private static final long serialVersionUID = -8410630987365469163L;
 
         @Autowired
-        private FtpServiceFactory ftpServiceFactory;
+        private transient FtpServiceFactory ftpServiceFactory;
 
         @Override
-        public boolean requiresPostCommitHanding(EntityPersister persister) {//TODO 啥意思
+        public boolean requiresPostCommitHanding(EntityPersister persister) {
             return false;
         }
 
+        @Override
         public void onPostInsert(PostInsertEvent event) {
             if (event.getEntity() instanceof FtpConfig) {
                 ftpServiceFactory.initialize((FtpConfig) event.getEntity());
             }
         }
 
+        @Override
         public void onPostUpdate(PostUpdateEvent event) {
             if (event.getEntity() instanceof FtpConfig) {
                 ftpServiceFactory.updateFtpService((FtpConfig) event.getEntity());
             }
         }
 
+        @Override
         public void onPostDelete(PostDeleteEvent event) {
             if (event.getEntity() instanceof FtpConfig) {
                 ftpServiceFactory.removeFtpService((FtpConfig) event.getEntity());

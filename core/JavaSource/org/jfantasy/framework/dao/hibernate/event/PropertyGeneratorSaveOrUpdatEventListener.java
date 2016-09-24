@@ -1,6 +1,5 @@
 package org.jfantasy.framework.dao.hibernate.event;
 
-import org.hibernate.HibernateException;
 import org.hibernate.engine.spi.EntityEntry;
 import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.event.internal.DefaultSaveOrUpdateEventListener;
@@ -22,13 +21,14 @@ public class PropertyGeneratorSaveOrUpdatEventListener extends DefaultSaveOrUpda
 
     private static final long serialVersionUID = -2369176546449741726L;
 
-    private IdentifierGeneratorFactory identifierGeneratorFactory;
+    private transient IdentifierGeneratorFactory identifierGeneratorFactory;
 
     public PropertyGeneratorSaveOrUpdatEventListener(IdentifierGeneratorFactory identifierGeneratorFactory){
         this.identifierGeneratorFactory = identifierGeneratorFactory;
     }
 
-    public void onSaveOrUpdate(SaveOrUpdateEvent event) throws HibernateException {
+    @Override
+    public void onSaveOrUpdate(SaveOrUpdateEvent event) {
         final SessionImplementor source = event.getSession();
         final Object object = event.getObject();
         final Serializable requestedId = event.getRequestedId();
