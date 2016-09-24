@@ -19,7 +19,6 @@ import org.jfantasy.rpc.dto.RpcRequest;
 import org.jfantasy.rpc.dto.RpcResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
@@ -36,7 +35,7 @@ public class NettyServer implements ApplicationContextAware {
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
 
-    private Map<String, Object> exportServiceMap = new HashMap<String, Object>();
+    private Map<String, Object> exportServiceMap = new HashMap<>();
 
     public NettyServer(int port) {
         this.port = port;
@@ -95,6 +94,7 @@ public class NettyServer implements ApplicationContextAware {
         logger.info("destroy server resources");
         if (null == channel) {
             logger.error("server channel is null");
+            return;
         }
         bossGroup.shutdownGracefully();
         workerGroup.shutdownGracefully();
@@ -108,9 +108,9 @@ public class NettyServer implements ApplicationContextAware {
      * 利用此方法获取spring ioc接管的所有bean
      *
      * @param ctx ApplicationContext
-     * @throws BeansException
      */
-    public void setApplicationContext(ApplicationContext ctx) throws BeansException {
+    @Override
+    public void setApplicationContext(ApplicationContext ctx) {
         Map<String, Object> serviceMap = ctx.getBeansWithAnnotation(ServiceExporter.class); // 获取所有带有 ServiceExporter 注解的 Spring Bean
         logger.info("获取到所有的RPC服务:{}", serviceMap);
         if (serviceMap != null && serviceMap.size() > 0) {

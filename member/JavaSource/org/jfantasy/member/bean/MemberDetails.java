@@ -107,7 +107,7 @@ public class MemberDetails implements Serializable {
 
     @Convert(converter = MapConverter.class)
     @Column(name = "PROPERTIES", columnDefinition = "Text")
-    private Map<String, Object> properties;
+    private Map<String, Object> properties;//NOSONAR
 
     public String getName() {
         return name;

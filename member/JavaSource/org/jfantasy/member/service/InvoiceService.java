@@ -44,36 +44,37 @@ public class InvoiceService {
             }
             //自动拆单逻辑
             String targetKey = order.getTargetType() + ":" + order.getTargetId();
-            Invoice _invoice = invoices.get(targetKey);
-            if (_invoice == null) {
-                invoices.put(targetKey, _invoice = BeanUtil.copyProperties(new Invoice(), invoice));
-                _invoice.setTargetId(order.getTargetId());
-                _invoice.setTargetType(order.getTargetType());
-                _invoice.setAmount(BigDecimal.ZERO);
+            Invoice tinvoice = invoices.get(targetKey);
+            if (tinvoice == null) {
+                tinvoice = BeanUtil.copyProperties(new Invoice(), invoice);
+                invoices.put(targetKey, tinvoice);
+                tinvoice.setTargetId(order.getTargetId());
+                tinvoice.setTargetType(order.getTargetType());
+                tinvoice.setAmount(BigDecimal.ZERO);
             }
             //设置发票
-            item.setInvoice(_invoice);
+            item.setInvoice(tinvoice);
             item.setOrder(order);
             //更新订单状态
             order.setStatus(InvoiceOrder.InvoiceOrderStatus.IN_PROGRESS);
             this.invoiceOrderDao.save(order);
             //开票金额
-            _invoice.setAmount(_invoice.getAmount().add(order.getInvoiceAmount()));
+            tinvoice.setAmount(tinvoice.getAmount().add(order.getInvoiceAmount()));
         }
         //保存发票
         for (Map.Entry<String, Invoice> entry : invoices.entrySet()) {
-            Invoice _invoice = entry.getValue();
-            _invoice.setAmount(_invoice.getAmount().setScale(2, 0));
-            _invoice.setStatus(InvoiceStatus.NONE);
-            this.invoiceDao.save(invoice = _invoice);
+            Invoice tinvoice = entry.getValue();
+            tinvoice.setAmount(tinvoice.getAmount().setScale(2, 0));
+            tinvoice.setStatus(InvoiceStatus.NONE);
+            this.invoiceDao.save(tinvoice);
         }
         return invoice;
     }
 
     @Transactional
     public Invoice update(Invoice invoice) {
-        Invoice _invoice = this.get(invoice.getId());
-        if (_invoice.getStatus() == InvoiceStatus.COMPLETE || invoice.getStatus() == InvoiceStatus.NONE) {
+        Invoice tinvoice = this.get(invoice.getId());
+        if (tinvoice.getStatus() == InvoiceStatus.COMPLETE || invoice.getStatus() == InvoiceStatus.NONE) {
             throw new ValidationException(102.2f, "发票状态不符,不允许修改");
         }
         return this.invoiceDao.update(invoice, true);
