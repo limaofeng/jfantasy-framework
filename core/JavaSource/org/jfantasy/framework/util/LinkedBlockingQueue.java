@@ -1,18 +1,11 @@
 package org.jfantasy.framework.util;
 
-import org.jfantasy.framework.error.IgnoreException;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.lang.reflect.Array;
-import java.util.AbstractQueue;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.NoSuchElementException;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -923,7 +916,7 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E> implements Blocking
 
         @Override
         public boolean addAll(int index, Collection<? extends E> c) {
-            throw new IgnoreException("addAll method unrealized");
+            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -958,17 +951,17 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E> implements Blocking
 
         @Override
         public int lastIndexOf(Object o) {
-            throw new IgnoreException("lastIndexOf method unrealized");
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public ListIterator<E> listIterator() {
-            throw new IgnoreException("method unrealized");
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public ListIterator<E> listIterator(int index) {
-            throw new IgnoreException("method unrealized");
+            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -1009,7 +1002,7 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E> implements Blocking
 
         @Override
         public List<E> subList(int fromIndex, int toIndex) {
-            throw new IgnoreException(" subList method unrealized");
+            throw new UnsupportedOperationException();
         }
 
         @Override

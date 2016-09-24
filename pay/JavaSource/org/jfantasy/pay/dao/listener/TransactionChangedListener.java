@@ -16,13 +16,13 @@ public class TransactionChangedListener extends AbstractChangedListener<Transact
 
     @Override
     public void onPostInsert(Transaction transaction, PostInsertEvent event) {
-        getApplicationContext().publishEvent(new TransactionChangedEvent(transaction.getStatus(), transaction));
+        applicationContext.publishEvent(new TransactionChangedEvent(transaction.getStatus(), transaction));
     }
 
     @Override
     public void onPostUpdate(Transaction transaction, PostUpdateEvent event) {
         if (modify(event, "status")) {
-            getApplicationContext().publishEvent(new TransactionChangedEvent(transaction.getStatus(), transaction));
+            applicationContext.publishEvent(new TransactionChangedEvent(transaction.getStatus(), transaction));
         }
     }
 

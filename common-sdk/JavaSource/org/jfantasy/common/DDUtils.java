@@ -11,7 +11,10 @@ import org.jfantasy.framework.util.common.StringUtil;
 
 public class DDUtils {
 
-    private static Log LOG = LogFactory.getLog(DDUtils.class);
+    private static final Log LOG = LogFactory.getLog(DDUtils.class);
+
+    private DDUtils(){
+    }
 
     public static String get(String key) {
         if (StringUtil.isBlank(key) || !key.contains(":")) {

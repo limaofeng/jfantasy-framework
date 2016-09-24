@@ -19,13 +19,13 @@ public class PointChangedListener extends AbstractChangedListener<Point> {
         if (missing(event)) {
             return;
         }
-        getApplicationContext().publishEvent(new PointChangedEvent(point));
+        applicationContext.publishEvent(new PointChangedEvent(point));
     }
 
     @Override
     public void onPostUpdate(Point point,PostUpdateEvent event) {
         if (modify(event, "status")) {
-            getApplicationContext().publishEvent(new PointChangedEvent(point));
+            applicationContext.publishEvent(new PointChangedEvent(point));
         }
     }
 

@@ -16,13 +16,13 @@ public class AccountChangedListener extends AbstractChangedListener<Account> {
 
     @Override
     public void onPostInsert(Account account, PostInsertEvent event) {
-        getApplicationContext().publishEvent(new AccountChangedEvent(account));
+        applicationContext.publishEvent(new AccountChangedEvent(account));
     }
 
     @Override
     public void onPostUpdate(Account account, PostUpdateEvent event) {
         if (modify(event, "amount")) {
-            getApplicationContext().publishEvent(new AccountChangedEvent(account));
+            applicationContext.publishEvent(new AccountChangedEvent(account));
         }
     }
 
