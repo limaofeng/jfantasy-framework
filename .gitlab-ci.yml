@@ -18,7 +18,7 @@ build:
 sonar:
   stage: test
   script:
-    - gradle sonar -x test
+    - gradle sonar -x test -Dsonar.host.url=http://sonar.zbsg.com.cn -Dsonar.login=admin -Dsonar.password=ZkT7tno9h2wK8BN -Dsonar.verbose=true
   only:
     - tags
 
