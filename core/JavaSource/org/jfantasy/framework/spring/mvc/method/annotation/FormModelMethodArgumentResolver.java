@@ -255,14 +255,14 @@ public class FormModelMethodArgumentResolver implements HandlerMethodArgumentRes
     }
 
     @SuppressWarnings("unchecked")
-    private ServletRequest prepareServletRequest(Object target, NativeWebRequest request, MethodParameter parameter) {
+    protected ServletRequest prepareServletRequest(Object target, NativeWebRequest request, MethodParameter parameter) {
 
         String modelPrefixName = parameter.getParameterAnnotation(FormModel.class).value();
 
         HttpServletRequest nativeRequest = (HttpServletRequest) request.getNativeRequest();
         MultipartRequest multipartRequest = WebUtils.getNativeRequest(nativeRequest, MultipartRequest.class);
 
-        MockHttpServletRequest mockRequest = null;
+        MockHttpServletRequest mockRequest;
         if (multipartRequest != null) {
             MockMultipartHttpServletRequest mockMultipartRequest = new MockMultipartHttpServletRequest();
             mockMultipartRequest.getMultiFileMap().putAll(multipartRequest.getMultiFileMap());

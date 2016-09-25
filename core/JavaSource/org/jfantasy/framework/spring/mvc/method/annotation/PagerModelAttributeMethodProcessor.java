@@ -33,6 +33,7 @@ public class PagerModelAttributeMethodProcessor extends FormModelMethodArgumentR
         return parameter.getParameterName();
     }
 
+    @Override
     protected Object createAttribute(String attributeName, MethodParameter parameter, WebDataBinderFactory binderFactory, NativeWebRequest request) throws Exception {
         String value = getRequestValueForAttribute(attributeName, request);
         if (value != null) {
@@ -48,6 +49,7 @@ public class PagerModelAttributeMethodProcessor extends FormModelMethodArgumentR
         return BeanUtils.instantiateClass(parameter.getParameterType());
     }
 
+    @Override
     protected void bindRequestParameters(ModelAndViewContainer mavContainer, WebDataBinderFactory binderFactory, WebDataBinder binder, NativeWebRequest request, MethodParameter parameter) throws Exception {
         ServletRequest servletRequest = prepareServletRequest(binder.getTarget(), request, parameter);
         Pager target = (Pager) binder.getTarget();
@@ -81,28 +83,29 @@ public class PagerModelAttributeMethodProcessor extends FormModelMethodArgumentR
         }
     }
 
-    private ServletRequest prepareServletRequest(Object target, NativeWebRequest request, MethodParameter parameter) {
+    @Override
+    protected ServletRequest prepareServletRequest(Object target, NativeWebRequest request, MethodParameter parameter) {
         HttpServletRequest nativeRequest = (HttpServletRequest) request.getNativeRequest();
         MultipartRequest multipartRequest = WebUtils.getNativeRequest(nativeRequest, MultipartRequest.class);
-        MockHttpServletRequest mockRequest = null;
+        MockHttpServletRequest mockRequest;
         if (multipartRequest != null) {
             MockMultipartHttpServletRequest mockMultipartRequest = new MockMultipartHttpServletRequest();
             mockMultipartRequest.getMultiFileMap().putAll(multipartRequest.getMultiFileMap());
+            mockRequest = mockMultipartRequest;
         } else {
             mockRequest = new MockHttpServletRequest();
         }
-        assert mockRequest != null;
         for (Map.Entry<String, String> entry : getUriTemplateVariables(request).entrySet()) {
             String parameterName = entry.getKey();
             String value = entry.getValue();
-            if (isPagerModelAttribute(parameterName, getModelNames())) {//TODO "true".equalsIgnoreCase(request.getHeader(JacksonResponseBodyAdvice.X_Page_Fields)))
+            if (isPagerModelAttribute(parameterName, getModelNames())) {
                 mockRequest.setParameter(parameterName, value);
             }
         }
         for (Map.Entry<String, String[]> entry : nativeRequest.getParameterMap().entrySet()) {
             String parameterName = entry.getKey();
             String[] value = entry.getValue();
-            if (isPagerModelAttribute(parameterName, getModelNames())) {//TODO "true".equalsIgnoreCase(request.getHeader(JacksonResponseBodyAdvice.X_Page_Fields))
+            if (isPagerModelAttribute(parameterName, getModelNames())) {
                 mockRequest.setParameter(parameterName, value);
             }
         }

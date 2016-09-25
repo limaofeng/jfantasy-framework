@@ -7,7 +7,7 @@ import org.springframework.aop.support.DefaultPointcutAdvisor;
 @SuppressWarnings("serial")
 public class LogProxyFactoryBean extends AbstractSingletonProxyFactoryBean {
 	private final LogInterceptor logInterceptor = new LogInterceptor();
-	private Pointcut pointcut;
+	private transient Pointcut pointcut;
 
 	public void setPointcut(Pointcut pointcut) {
 		this.pointcut = pointcut;

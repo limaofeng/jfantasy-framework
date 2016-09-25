@@ -342,7 +342,9 @@ public class FTPService {
                     if (file.isDirectory()) {
                         uploadFolder(file, remote + file.getName() + "/", ftpClient);
                     } else {
-                        uploadFile(new FileInputStream(file), remote.concat(file.getName()), ftpClient);
+                        try(FileInputStream out = new FileInputStream(file)) {
+                            uploadFile(out, remote.concat(file.getName()), ftpClient);
+                        }
                     }
                 }
             }

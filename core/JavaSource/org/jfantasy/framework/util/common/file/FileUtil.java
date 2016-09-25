@@ -23,6 +23,7 @@ import java.util.zip.*;
 public class FileUtil {
 
     private static final Log LOGGER = LogFactory.getLog(FileUtil.class);
+    private static final String REGEXP_START = "[^\\/]+$";
 
     static {
         MimeUtil.registerMimeDetector("eu.medsea.mimeutil.detector.MagicMimeMimeDetector");
@@ -129,7 +130,7 @@ public class FileUtil {
     }
 
     public static File createFolder(String path) {
-        return createFolder(new File(path(path).replaceFirst("[^\\/]+$", "")));
+        return createFolder(new File(path(path).replaceFirst(REGEXP_START, "")));
     }
 
     public static File createFolder(File file) {
@@ -158,8 +159,8 @@ public class FileUtil {
      */
     public static File createFile(String pathname) {
         String tpathname = path(pathname);
-        String fileName = RegexpUtil.parseGroup(tpathname, "[^\\/]+$", 0);
-        String parentDir = RegexpUtil.parseGroup(tpathname, "[^\\/]+$", 0);
+        String fileName = RegexpUtil.parseGroup(tpathname, REGEXP_START, 0);
+        String parentDir = RegexpUtil.parseGroup(tpathname, REGEXP_START, 0);
         assert parentDir != null;
         return fileName == null ? createFolder(tpathname) : new File(createFolder(tpathname), parentDir);
     }
@@ -306,8 +307,7 @@ public class FileUtil {
             throw new IgnoreException("删除文件" + targetFile.getAbsolutePath() + "失败");
         }
 
-        boolean flag = sourceFile.renameTo(targetFile);
-        if (!flag) {
+        if (!sourceFile.renameTo(targetFile)) {
             try {
                 copyFile(sourceFile, targetFile);
                 if (sourceFile.exists()) {

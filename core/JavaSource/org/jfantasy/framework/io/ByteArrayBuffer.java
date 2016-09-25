@@ -8,7 +8,10 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 
 public class ByteArrayBuffer extends AbstractBuffer {
-    protected byte[] _bytes;
+
+    private static final String  READONLY_EXCEPTION_MESSAGE = "READONLY";
+
+    protected byte[] cacheBytes;
 
     protected ByteArrayBuffer(int access, boolean isVolatile) {
         super(access, isVolatile);
@@ -24,7 +27,7 @@ public class ByteArrayBuffer extends AbstractBuffer {
 
     public ByteArrayBuffer(byte[] bytes, int index, int length, int access) {
         super(2, false);
-        this._bytes = bytes;
+        this.cacheBytes = bytes;
         setPutIndex(index + length);
         setGetIndex(index);
         this._access = access;
@@ -32,7 +35,7 @@ public class ByteArrayBuffer extends AbstractBuffer {
 
     public ByteArrayBuffer(byte[] bytes, int index, int length, int access, boolean isVolatile) {
         super(2, isVolatile);
-        this._bytes = bytes;
+        this.cacheBytes = bytes;
         setPutIndex(index + length);
         setGetIndex(index);
         this._access = access;
@@ -45,39 +48,42 @@ public class ByteArrayBuffer extends AbstractBuffer {
 
     public ByteArrayBuffer(String value) {
         super(2, false);
-        this._bytes = StringUtil.getBytes(value);
+        this.cacheBytes = StringUtil.getBytes(value);
         setGetIndex(0);
-        setPutIndex(this._bytes.length);
+        setPutIndex(this.cacheBytes.length);
         this._access = 0;
         this._string = value;
     }
 
     public ByteArrayBuffer(String value, String encoding) throws UnsupportedEncodingException {
         super(2, false);
-        this._bytes = value.getBytes(encoding);
+        this.cacheBytes = value.getBytes(encoding);
         setGetIndex(0);
-        setPutIndex(this._bytes.length);
+        setPutIndex(this.cacheBytes.length);
         this._access = 0;
         this._string = value;
     }
 
+    @Override
     public byte[] array() {
-        return this._bytes;
+        return this.cacheBytes;
     }
 
+    @Override
     public int capacity() {
-        return this._bytes.length;
+        return this.cacheBytes.length;
     }
 
+    @Override
     public void compact() {
         if (isReadOnly()){
-            throw new IllegalStateException("READONLY");
+            throw new IllegalStateException(READONLY_EXCEPTION_MESSAGE);
         }
         int s = markIndex() >= 0 ? markIndex() : getIndex();
         if (s > 0) {
             int length = putIndex() - s;
             if (length > 0) {
-                System.arraycopy(this._bytes, s, this._bytes, 0, length);
+                System.arraycopy(this.cacheBytes, s, this.cacheBytes, 0, length);
             }
             if (markIndex() > 0){
                 setMarkIndex(markIndex() - s);
@@ -87,6 +93,7 @@ public class ByteArrayBuffer extends AbstractBuffer {
         }
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
@@ -114,7 +121,7 @@ public class ByteArrayBuffer extends AbstractBuffer {
         int get = getIndex();
         int bi = b.putIndex();
         for (int i = putIndex(); i-- > get; ) {
-            byte b1 = this._bytes[i];
+            byte b1 = this.cacheBytes[i];
             bi--;
             byte b2 = b.peek(bi);
             if (b1 != b2){
@@ -125,6 +132,7 @@ public class ByteArrayBuffer extends AbstractBuffer {
         return true;
     }
 
+    @Override
     public boolean equalsIgnoreCase(Buffer b) {
         if (b == this) {
             return true;
@@ -147,7 +155,7 @@ public class ByteArrayBuffer extends AbstractBuffer {
         int i;
         if (barray == null) {
             for (i = putIndex(); i-- > get; ) {
-                byte b1 = this._bytes[i];
+                byte b1 = this.cacheBytes[i];
                 bi--;
                 byte b2 = b.peek(bi);
                 if (b1 != b2) {
@@ -164,7 +172,7 @@ public class ByteArrayBuffer extends AbstractBuffer {
             }
         } else {
             for (i = putIndex(); i-- > get; ) {
-                byte b1 = this._bytes[i];
+                byte b1 = this.cacheBytes[i];
                 bi--;
                 byte b2 = barray[bi];
                 if (b1 != b2) {
@@ -185,19 +193,21 @@ public class ByteArrayBuffer extends AbstractBuffer {
         return true;
     }
 
+    @Override
     public byte get() {
-        return this._bytes[this._get++];
+        return this.cacheBytes[this._get++];
     }
 
+    @Override
     public int hashCode() {
         if ((this._hash == 0) || (this._hashGet != this._get) || (this._hashPut != this._put)) {
             int get = getIndex();
             for (int i = putIndex(); i-- > get; ) {
-                byte b = this._bytes[i];
+                byte b = this.cacheBytes[i];
                 if ((97 <= b) && (b <= 122)){
                     b = (byte) (b - 97 + 65);
                 }
-                this._hash = (31 * this._hash + b);
+                this._hash = 31 * this._hash + b;
             }
             if (this._hash == 0){
                 this._hash = -1;
@@ -208,10 +218,12 @@ public class ByteArrayBuffer extends AbstractBuffer {
         return this._hash;
     }
 
+    @Override
     public byte peek(int index) {
-        return this._bytes[index];
+        return this.cacheBytes[index];
     }
 
+    @Override
     public int peek(int index, byte[] b, int offset, int length) {
         int l = length;
         if (index + l > capacity()) {
@@ -223,14 +235,16 @@ public class ByteArrayBuffer extends AbstractBuffer {
         if (l < 0) {
             return -1;
         }
-        System.arraycopy(this._bytes, index, b, offset, l);
+        System.arraycopy(this.cacheBytes, index, b, offset, l);
         return l;
     }
 
+    @Override
     public void poke(int index, byte b) {
-        this._bytes[index] = b;
+        this.cacheBytes[index] = b;
     }
 
+    @Override
     public int poke(int index, Buffer src) {
         this._hash = 0;
 
@@ -241,16 +255,17 @@ public class ByteArrayBuffer extends AbstractBuffer {
 
         byte[] srcArray = src.array();
         if (srcArray != null) {
-            System.arraycopy(srcArray, src.getIndex(), this._bytes, index, length);
+            System.arraycopy(srcArray, src.getIndex(), this.cacheBytes, index, length);
         } else {
             int s = src.getIndex();
             for (int i = 0; i < length; i++) {
-                this._bytes[index++] = src.peek(s++);
+                this.cacheBytes[index++] = src.peek(s++);
             }
         }
         return length;
     }
 
+    @Override
     public int poke(int index, byte[] b, int offset, int length) {
         this._hash = 0;
 
@@ -258,7 +273,7 @@ public class ByteArrayBuffer extends AbstractBuffer {
             length = capacity() - index;
         }
 
-        System.arraycopy(b, offset, this._bytes, index, length);
+        System.arraycopy(b, offset, this.cacheBytes, index, length);
 
         return length;
     }
@@ -268,12 +283,12 @@ public class ByteArrayBuffer extends AbstractBuffer {
             throw new IllegalArgumentException();
         }
         if (isReadOnly()){
-            throw new IllegalStateException("READONLY");
+            throw new IllegalStateException(READONLY_EXCEPTION_MESSAGE);
         }
         if (isImmutable()){
             throw new IllegalStateException("IMMUTABLE");
         }
-        this._bytes = b;
+        this.cacheBytes = b;
         clear();
         setGetIndex(off);
         setPutIndex(off + len);
@@ -281,21 +296,23 @@ public class ByteArrayBuffer extends AbstractBuffer {
 
     public void wrap(byte[] b) {
         if (isReadOnly()){
-            throw new IllegalStateException("READONLY");
+            throw new IllegalStateException(READONLY_EXCEPTION_MESSAGE);
         }
         if (isImmutable()){
             throw new IllegalStateException("IMMUTABLE");
         }
-        this._bytes = b;
+        this.cacheBytes = b;
         setGetIndex(0);
         setPutIndex(b.length);
     }
 
+    @Override
     public void writeTo(OutputStream out) throws IOException {
-        out.write(this._bytes, getIndex(), length());
+        out.write(this.cacheBytes, getIndex(), length());
         clear();
     }
 
+    @Override
     public int readFrom(InputStream in, int max) throws IOException {
         if ((max < 0) || (max > space())){
             max = space();
@@ -306,7 +323,7 @@ public class ByteArrayBuffer extends AbstractBuffer {
         int total = 0;
         int available = max;
         while (total < max) {
-            len = in.read(this._bytes, p, available);
+            len = in.read(this.cacheBytes, p, available);
             if (len < 0){
                 break;
             }
@@ -326,8 +343,9 @@ public class ByteArrayBuffer extends AbstractBuffer {
         return total;
     }
 
+    @Override
     public int space() {
-        return this._bytes.length - this._put;
+        return this.cacheBytes.length - this._put;
     }
 
     public static class CaseInsensitive extends ByteArrayBuffer implements Buffer.CaseInsensitve {
@@ -338,16 +356,6 @@ public class ByteArrayBuffer extends AbstractBuffer {
 
         public CaseInsensitive(byte[] b, int o, int l, int rw) {
             super(b, o, l, rw);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            return (obj instanceof Buffer) ? equalsIgnoreCase((Buffer) obj) : super.equals(obj);
-        }
-
-        @Override
-        public int hashCode() {
-            return super.hashCode();
         }
 
     }
