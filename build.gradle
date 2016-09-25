@@ -45,10 +45,6 @@ subprojects {
         properties {
             //noinspection GroovyAssignabilityCheck
             property "sonar.sourceEncoding", "UTF-8"
-            //noinspection GroovyAssignabilityCheck
-            properties["sonar.sources"] += sourceSets.main.allSource.srcDirs
-            //noinspection GroovyAssignabilityCheck
-            properties["sonar.tests"] += sourceSets.test.allSource.srcDirs
         }
     }
 
