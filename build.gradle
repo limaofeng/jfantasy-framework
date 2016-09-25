@@ -45,6 +45,12 @@ subprojects {
         properties {
             //noinspection GroovyAssignabilityCheck
             property "sonar.sourceEncoding", "UTF-8"
+            //noinspection GroovyAssignabilityCheck
+            property "sonar.links.ci", "http://git.zbsg.com.cn/ci"
+            //noinspection GroovyAssignabilityCheck
+            property "sonar.links.issue", "http://git.zbsg.com.cn/apis/framework/issues"
+            //noinspection GroovyAssignabilityCheck
+            property "sonar.links.scm", "http://git.zbsg.com.cn/apis/framework.git"
         }
     }
 
