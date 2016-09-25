@@ -5,7 +5,6 @@ package org.jfantasy.framework.lucene.annotations;
  *
  * @author 李茂峰
  * @version 1.0
- * @功能描述
  * @since 2013-1-23 下午03:11:40
  */
 public enum Compare {

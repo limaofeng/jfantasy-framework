@@ -70,10 +70,6 @@ public class DateUtil {
         }
     }
 
-    private static DateFormatCache getDateFormat(String format, Locale locale) {
-        return getDateFormat(format, locale, null);
-    }
-
     /**
      * 获取 SimpleDateFormat 对象
      *
@@ -628,6 +624,7 @@ public class DateUtil {
      */
     public static class SimpleDateDriver implements DateDriver {
 
+        @Override
         public Date getTime() {
             return new Date();
         }

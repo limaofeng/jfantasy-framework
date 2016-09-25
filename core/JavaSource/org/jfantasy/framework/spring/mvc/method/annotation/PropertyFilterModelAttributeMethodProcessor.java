@@ -28,18 +28,6 @@ import java.util.*;
 
 public class PropertyFilterModelAttributeMethodProcessor extends FormModelMethodArgumentResolver {
 
-    private String[] modelPrefixNames;
-
-    {
-        List<String> modelPrefixNameList = new ArrayList<String>();
-        for (PropertyFilter.MatchType matchType : PropertyFilter.MatchType.values()) {
-            for (PropertyFilter.PropertyType propertyType : PropertyFilter.PropertyType.values()) {
-                modelPrefixNameList.add(matchType.name() + propertyType.name());
-            }
-        }
-        modelPrefixNames = modelPrefixNameList.toArray(new String[modelPrefixNameList.size()]);
-    }
-
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
         return "filters".equals(parameter.getParameterName()) && List.class.isAssignableFrom(parameter.getParameterType()) && isPropertyFilterParameter(parameter.getGenericParameterType());
@@ -58,6 +46,7 @@ public class PropertyFilterModelAttributeMethodProcessor extends FormModelMethod
         return parameter.getParameterName();
     }
 
+    @Override
     protected Object createAttribute(String attributeName, MethodParameter parameter, WebDataBinderFactory binderFactory, NativeWebRequest request) throws Exception {
         String value = getRequestValueForAttribute(attributeName, request);
         if (value != null) {
@@ -74,6 +63,7 @@ public class PropertyFilterModelAttributeMethodProcessor extends FormModelMethod
     }
 
     @SuppressWarnings("unchecked")
+    @Override
     protected final Map<String, String> getUriTemplateVariables(NativeWebRequest request) {
         Map<String, String> variables = (Map<String, String>) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE, RequestAttributes.SCOPE_REQUEST);
         return (variables != null) ? variables : Collections.<String, String>emptyMap();
@@ -109,6 +99,7 @@ public class PropertyFilterModelAttributeMethodProcessor extends FormModelMethod
         return params;
     }
 
+    @Override
     protected void bindRequestParameters(ModelAndViewContainer mavContainer, WebDataBinderFactory binderFactory, WebDataBinder binder, NativeWebRequest request, MethodParameter parameter) throws Exception {
         ServletRequest servletRequest = prepareServletRequest(binder.getTarget(), request, parameter);
         @SuppressWarnings("unchecked")
@@ -120,54 +111,54 @@ public class PropertyFilterModelAttributeMethodProcessor extends FormModelMethod
             if (matchType.isNone()) {
                 target.add(new PropertyFilter(paramName));
             } else if (matchType.isMulti()) {
-                List<String> _values = new ArrayList<>();
-                for(String val : values){
-                    _values.addAll(Arrays.asList(StringUtil.tokenizeToStringArray(val)));
+                List<String> tvalues = new ArrayList<>();
+                for (String val : values) {
+                    tvalues.addAll(Arrays.asList(StringUtil.tokenizeToStringArray(val)));
                 }
-                target.add(new PropertyFilter(paramName,_values.toArray(new String[_values.size()])));
+                target.add(new PropertyFilter(paramName, tvalues.toArray(new String[tvalues.size()])));
             } else if (values.length != 0 && StringUtil.isNotBlank(values[0])) {
                 target.add(new PropertyFilter(paramName, values[0]));
             }
         }
     }
 
-    private ServletRequest prepareServletRequest(Object target, NativeWebRequest request, MethodParameter parameter) {
+    @Override
+    protected ServletRequest prepareServletRequest(Object target, NativeWebRequest request, MethodParameter parameter) {
         HttpServletRequest nativeRequest = (HttpServletRequest) request.getNativeRequest();
         MultipartRequest multipartRequest = WebUtils.getNativeRequest(nativeRequest, MultipartRequest.class);
-        MockHttpServletRequest mockRequest = null;
+        MockHttpServletRequest mockRequest;
         if (multipartRequest != null) {
             MockMultipartHttpServletRequest mockMultipartRequest = new MockMultipartHttpServletRequest();
             mockMultipartRequest.getMultiFileMap().putAll(multipartRequest.getMultiFileMap());
+            mockRequest = mockMultipartRequest;
         } else {
             mockRequest = new MockHttpServletRequest();
         }
-        assert mockRequest != null;
         for (Map.Entry<String, String> entry : getUriTemplateVariables(request).entrySet()) {
             String parameterName = entry.getKey();
             String value = entry.getValue();
-            if (isPropertyFilterModelAttribute(parameterName, modelPrefixNames)) {
+            if (isPropertyFilterModelAttribute(parameterName)) {
                 mockRequest.setParameter(parameterName, value);
             }
         }
         for (Map.Entry<String, String[]> entry : nativeRequest.getParameterMap().entrySet()) {
             String parameterName = entry.getKey();
             String[] value = entry.getValue();
-            if (isPropertyFilterModelAttribute(parameterName, modelPrefixNames)) {
+            if (isPropertyFilterModelAttribute(parameterName)) {
                 mockRequest.setParameter(parameterName, value);
             }
         }
-        /*
         for (Map.Entry<String, String> entry : getUriQueryVariables(request).entrySet()) {
             String parameterName = entry.getKey();
             String value = entry.getValue();
-            if (isPropertyFilterModelAttribute(parameterName, modelPrefixNames)) {
+            if (isPropertyFilterModelAttribute(parameterName)) {
                 mockRequest.setParameter(parameterName, value);
             }
-        }*/
+        }
         return mockRequest;
     }
 
-    private boolean isPropertyFilterModelAttribute(String parameterName, String[] modelPrefixNames) {
+    private boolean isPropertyFilterModelAttribute(String parameterName) {
         return PropertyFilter.MatchType.is(parameterName);
     }
 

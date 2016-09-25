@@ -12,9 +12,9 @@ public class BufferCache {
     private final ArrayList<CachedBuffer> _index;
 
     public BufferCache() {
-        this._bufferMap = new HashMap<Buffer, CachedBuffer>();
-        this._stringMap = new StringMap<CachedBuffer>(true);
-        this._index = new ArrayList<CachedBuffer>();
+        this._bufferMap = new HashMap<>();
+        this._stringMap = new StringMap<>(true);
+        this._index = new ArrayList<>();
     }
 
     public CachedBuffer add(String value, int ordinal) {
@@ -89,6 +89,7 @@ public class BufferCache {
         return -1;
     }
 
+    @Override
     public String toString() {
         return "CACHE[bufferMap=" + this._bufferMap + ",stringMap=" + this._stringMap + ",index=" + this._index + "]";
     }

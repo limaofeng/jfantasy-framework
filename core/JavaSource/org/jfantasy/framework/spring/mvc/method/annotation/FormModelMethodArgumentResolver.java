@@ -37,14 +37,12 @@ import java.util.Map.Entry;
 
 public class FormModelMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
-    public FormModelMethodArgumentResolver() {
-    }
-
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
         return parameter.hasParameterAnnotation(FormModel.class);
     }
 
+    @Override
     public final Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
         String name = getParameterName(parameter);
 
@@ -55,10 +53,8 @@ public class FormModelMethodArgumentResolver implements HandlerMethodArgumentRes
             bindRequestParameters(mavContainer, binderFactory, binder, request, parameter);
 
             validateIfApplicable(binder, parameter);
-            if (binder.getBindingResult().hasErrors()) {
-                if (isBindExceptionRequired(binder, parameter)) {
-                    throw new BindException(binder.getBindingResult());
-                }
+            if (binder.getBindingResult().hasErrors() && isBindExceptionRequired(binder, parameter)) {
+                throw new BindException(binder.getBindingResult());
             }
         }
 
@@ -165,10 +161,8 @@ public class FormModelMethodArgumentResolver implements HandlerMethodArgumentRes
                         ServletRequestParameterPropertyValues pvs = new ServletRequestParameterPropertyValues(servletRequest, prefixName, "");
                         componentBinder.bind(pvs);
                         validateIfApplicable(componentBinder, parameter);
-                        if (componentBinder.getBindingResult().hasErrors()) {
-                            if (isBindExceptionRequired(componentBinder, parameter)) {
-                                throw new BindException(componentBinder.getBindingResult());
-                            }
+                        if (componentBinder.getBindingResult().hasErrors() && isBindExceptionRequired(componentBinder, parameter)) {
+                            throw new BindException(componentBinder.getBindingResult());
                         }
                         target.add(component);
                     }
@@ -334,10 +328,8 @@ public class FormModelMethodArgumentResolver implements HandlerMethodArgumentRes
             }
         }
 
-        if (binder.getBindingResult().hasErrors()) {
-            if (isBindExceptionRequired(binder, parameter)) {
-                throw new BindException(binder.getBindingResult());
-            }
+        if (binder.getBindingResult().hasErrors() && isBindExceptionRequired(binder, parameter)) {
+            throw new BindException(binder.getBindingResult());
         }
     }
 

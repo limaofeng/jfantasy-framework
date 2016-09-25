@@ -18,7 +18,7 @@ import java.util.Set;
 @Table(name = "AUTH_PERMISSION")
 @TableGenerator(name = "permission_gen", table = "sys_sequence",pkColumnName = "gen_name",pkColumnValue = "auth_permission:id",valueColumnName = "gen_value")
 @JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "userGroups", "roles"})
-public class Permission extends BaseBusEntity implements Cloneable {
+public class Permission extends BaseBusEntity {
 
     private static final long serialVersionUID = 2224908963065749499L;
     @Id
@@ -57,7 +57,7 @@ public class Permission extends BaseBusEntity implements Cloneable {
      */
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "AUTH_USERGROUP_PERMISSION", joinColumns = @JoinColumn(name = "PERMISSION_ID"), inverseJoinColumns = @JoinColumn(name = "USERGROUP_ID"))
-    public List<UserGroup> userGroups;
+    private List<UserGroup> userGroups;
     /**
      * 角色
      */
