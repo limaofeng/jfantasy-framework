@@ -16,7 +16,7 @@ build:
 sonar:
   stage: test
   script:
-    - gradle testClasses sonarqube -x test -Dsonar.host.url=http://sonar.zbsg.com.cn -Dsonar.login=admin -Dsonar.password=ZkT7tno9h2wK8BN -Dsonar.verbose=true
+    - gradle testClasses sonarqube -x test -Dsonar.host.url=http://sonar.zbsg.com.cn -Dsonar.login=73a8b67fc7e883346be1f4d9b8fe7e0ab8cb904a -Dsonar.verbose=true
   only:
     - tags
 
