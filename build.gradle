@@ -45,14 +45,8 @@ subprojects {
         properties {
             //noinspection GroovyAssignabilityCheck
             property "sonar.sourceEncoding", "UTF-8"
-            //noinspection GroovyAssignabilityCheck
-            property "sonar.tests", "test"
-            //noinspection GroovyAssignabilityCheck
-            property "sonar.host.url", "http://sonar.zbsg.com.cn"
-            //noinspection GroovyAssignabilityCheck
-            property "sonar.login", "admin"
-            //noinspection GroovyAssignabilityCheck
-            property "sonar.password", "ZkT7tno9h2wK8BN"
+            properties["sonar.sources"] += sourceSets.main.java.srcDirs
+            properties["sonar.tests"] += sourceSets.test.java.srcDirs
         }
     }
 
