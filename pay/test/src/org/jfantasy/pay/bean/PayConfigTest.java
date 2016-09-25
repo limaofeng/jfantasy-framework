@@ -3,7 +3,7 @@ package org.jfantasy.pay.bean;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.jackson.JSON;
-import org.jfantasy.pay.product.AlipayPayProductSupport;
+import org.jfantasy.pay.product.Alipay;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -20,7 +20,7 @@ public class PayConfigTest {
         payConfig.setName("支付宝");
         payConfig.setBargainorId("0123123");
         payConfig.setBargainorKey("123123123123");
-        payConfig.set(AlipayPayProductSupport.EXT_SELLER_EMAIL,"limaofeng@msm.com");
+        payConfig.set(Alipay.EXT_SELLER_EMAIL,"limaofeng@msm.com");
     }
 
     @Test
@@ -36,7 +36,7 @@ public class PayConfigTest {
         PayConfig config = JSON.deserialize(JSON_DATA,PayConfig.class);
 
         assert config != null;
-        Assert.assertEquals(config.getProperties().get(AlipayPayProductSupport.EXT_SELLER_EMAIL),"limaofeng@msm.com");
+        Assert.assertEquals(config.getProperties().get(Alipay.EXT_SELLER_EMAIL),"limaofeng@msm.com");
     }
 
 }

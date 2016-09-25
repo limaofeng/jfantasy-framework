@@ -4,15 +4,6 @@ configurations{
     compile.exclude module: "spring-boot-starter-tomcat"
 }
 
-sonarqube {
-    //noinspection GroovyAssignabilityCheck
-    properties {
-        //noinspection GroovyAssignabilityCheck
-        property "sonar.sources", sourceSets.main.allSource.srcDirs
-        //noinspection GroovyAssignabilityCheck
-        property "sonar.tests", sourceSets.test.allSource.srcDirs
-    }
-}
 
 dependencies {
     optional "org.springframework.boot:spring-boot-configuration-processor:1.4.0.RELEASE"

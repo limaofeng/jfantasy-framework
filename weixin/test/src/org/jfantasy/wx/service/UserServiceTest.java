@@ -1,36 +1,25 @@
-package org.jfantasy.wx.user.service;
+package org.jfantasy.wx.service;
 
-import junit.framework.Assert;
-import me.chanjar.weixin.mp.bean.WxMpXmlMessage;
-import me.chanjar.weixin.mp.util.xml.XStreamTransformer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
-import org.jfantasy.framework.jackson.JSON;
 import org.jfantasy.security.bean.enums.Sex;
 import org.jfantasy.wx.bean.User;
-import org.jfantasy.wx.bean.UserKey;
-import org.jfantasy.wx.service.UserService;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
-@ContextConfiguration(locations = {"classpath:spring/applicationContext.xml"})
-public class UserWeiXinServiceTest {
+public class UserServiceTest {
 
     private static final Log logger = LogFactory.getLog(User.class);
     @Autowired
@@ -70,34 +59,4 @@ public class UserWeiXinServiceTest {
 
     }
 
-    @Test
-    public void testRefresh() throws Exception {
-        XStreamTransformer xStreamTransformer = new XStreamTransformer();
-        InputStream is = new FileInputStream("");
-        XStreamTransformer.fromXml(WxMpXmlMessage.class, is);
-        userService.refresh();
-        Pager<User> p = testFindPager("test");
-        Assert.assertNotNull(p.getPageItems());
-        logger.debug(JSON.serialize(p));
-    }
-
-    @Test
-    public void testCountUnReadSize() throws Exception {
-        Pager<User> p = testFindPager();
-        userService.countUnReadSize(p.getPageItems());
-        for (User u : p.getPageItems()) {
-            Assert.assertNotNull(u.getUnReadSize());
-            logger.debug(u.getUnReadSize());
-        }
-    }
-
-    @Test
-    public void testRefreshMessage() throws Exception {
-        User ui = userService.get(new UserKey("","test"));
-        Assert.assertNotNull(ui);
-        logger.debug(JSON.serialize(ui));
-        userService.refreshMessage(ui);
-        Assert.assertEquals(ui.getLastLookTime(), ui.getLastMessageTime());
-        logger.debug(JSON.serialize(ui));
-    }
 }

@@ -7,6 +7,7 @@ import org.jfantasy.framework.util.common.DateUtil;
 import org.jfantasy.pay.bean.Order;
 import org.jfantasy.pay.bean.PayConfig;
 import org.jfantasy.pay.bean.Payment;
+import org.jfantasy.pay.order.entity.enums.PaymentStatus;
 import org.jfantasy.pay.service.PayConfigService;
 import org.junit.After;
 import org.junit.Before;
@@ -88,7 +89,7 @@ public class UnionpayTest {
         payment.setTotalAmount(BigDecimal.valueOf(0.01));
         payment.setCreateTime(DateUtil.parse("20160307143026","yyyyMMddHHmmss"));
 
-        String result = unionpay.query(payment);
+        PaymentStatus result = unionpay.query(payment);
 
         LOG.debug(result);
     }

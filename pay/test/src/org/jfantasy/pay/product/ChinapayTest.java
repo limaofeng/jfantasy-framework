@@ -5,11 +5,11 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.criterion.Restrictions;
 import org.jfantasy.framework.util.common.DateUtil;
 import org.jfantasy.framework.util.common.PathUtil;
-import org.jfantasy.framework.util.web.WebUtil;
 import org.jfantasy.pay.bean.PayConfig;
 import org.jfantasy.pay.bean.Payment;
 import org.jfantasy.pay.bean.Refund;
 import org.jfantasy.pay.order.entity.OrderDetails;
+import org.jfantasy.pay.order.entity.enums.PaymentStatus;
 import org.jfantasy.pay.product.sign.SignUtil;
 import org.jfantasy.pay.service.PayConfigService;
 import org.junit.After;
@@ -128,10 +128,7 @@ public class ChinapayTest {
         payment.setPayConfig(payConfigService.get(2L));
         payment.setCreateTime(DateUtil.parse("2016-01-21 14:32:30","yyyy-MM-dd HH:mm:ss"));
 
-        String text = chinapay.query(payment);
-
-
-        Map<String,String> data = WebUtil.parseQuery(text,true);
+        PaymentStatus text = chinapay.query(payment);
 
 //        SecssUtil secssUtil = new SecssUtil();
 //
