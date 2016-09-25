@@ -8,8 +8,6 @@ sonarqube {
     //noinspection GroovyAssignabilityCheck
     properties {
         //noinspection GroovyAssignabilityCheck
-        property "sonar.sourceEncoding", "UTF-8"
-        //noinspection GroovyAssignabilityCheck
         property "sonar.sources", sourceSets.main.allSource.srcDirs
         //noinspection GroovyAssignabilityCheck
         property "sonar.tests", sourceSets.test.allSource.srcDirs
