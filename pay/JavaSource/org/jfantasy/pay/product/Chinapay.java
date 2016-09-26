@@ -33,24 +33,24 @@ public class Chinapay extends PayProductSupport {
 
     private static final Logger LOG = Logger.getLogger(Chinapay.class);
 
-    private Urls urls = new Urls() {
-        {
-            this.setFrontTransUrl("https://payment.chinapay.com/CTITS/service/rest/page/nref/000000000017/0/0/0/0/0");
-            this.setBackTransUrl("https://payment.chinapay.com/CTITS/service/rest/forward/sta/000000000017/0/0/0/0/0");
-            this.setQueryTransUrl("https://payment.chinapay.com/CTITS/service/rest/forward/syn/000000000060/0/0/0/0/0");
-            //0401退款、0402退款撤销、0409退款重汇、9908通知分账的交易接收地址
-            this.setAfterTransUrl("https://payment.chinapay.com/CTITS/service/rest/forward/syn/000000000065/0/0/0/0/0", "0401", "0402", "0409", "9908");
-            //0403消费撤销、0203预授权撤销、0204预授权完成撤销、0202预授权完成的交易接收地址
-            this.setAfterTransUrl("https://payment.chinapay.com/CTITS/service/rest/page/nref/000000000017/0/0/0/0/0", "0403", "0203", "0204", "0202");
-        }
-    };
+    private static Urls urls = new Urls();
+
+    static {
+        urls.setFrontTransUrl("https://payment.chinapay.com/CTITS/service/rest/page/nref/000000000017/0/0/0/0/0");
+        urls.setBackTransUrl("https://payment.chinapay.com/CTITS/service/rest/forward/sta/000000000017/0/0/0/0/0");
+        urls.setQueryTransUrl("https://payment.chinapay.com/CTITS/service/rest/forward/syn/000000000060/0/0/0/0/0");
+        //0401退款、0402退款撤销、0409退款重汇、9908通知分账的交易接收地址
+        urls.setAfterTransUrl("https://payment.chinapay.com/CTITS/service/rest/forward/syn/000000000065/0/0/0/0/0", "0401", "0402", "0409", "9908");
+        //0403消费撤销、0203预授权撤销、0204预授权完成撤销、0202预授权完成的交易接收地址
+        urls.setAfterTransUrl("https://payment.chinapay.com/CTITS/service/rest/page/nref/000000000017/0/0/0/0/0", "0403", "0203", "0204", "0202");
+    }
 
     @Override
     public String web(Payment payment, Order order, Properties properties) throws PayException {
         //支付配置
         PayConfig config = payment.getPayConfig();
 
-        final Map<String, String> data = new TreeMap<String, String>();
+        final Map<String, String> data = new TreeMap<>();
 
         try {
             String merId = config.getBargainorId();//商户号
@@ -63,30 +63,28 @@ public class Chinapay extends PayProductSupport {
             data.put("MerOrderNo", payment.getSn());//商户订单号
             data.put("TranDate", DateUtil.format(payment.getCreateTime(), "yyyyMMdd"));//商户交易日期
             data.put("TranTime", DateUtil.format(payment.getCreateTime(), "HHmmss"));//商户交易日期
-            data.put("OrderAmt", payment.getTotalAmount().multiply(BigDecimal.valueOf(100d)).intValue() + "");//商户交易金额
+            data.put("OrderAmt", String.valueOf(payment.getTotalAmount().multiply(BigDecimal.valueOf(100d))));//商户交易金额
             data.put("BusiType", "0001");//业务类型
             data.put("MerBgUrl", paySettings.getUrl() + "/pays/" + payment.getSn() + "/notify");
 
             //额外参数
-            if (properties != null) {
-                if (StringUtil.isNotBlank(properties.getProperty(PROPERTIES_BACKURL))) {
-                    data.put("MerPageUrl", properties.getProperty(PROPERTIES_BACKURL));//同步通知
-                    LOG.debug("添加参数 MerPageUrl = " + data.get("MerPageUrl"));
-                }
+            if (properties != null && StringUtil.isNotBlank(properties.getProperty(PROPERTIES_BACKURL))) {
+                data.put("MerPageUrl", properties.getProperty(PROPERTIES_BACKURL));//同步通知
+                LOG.debug("添加参数 MerPageUrl = " + data.get("MerPageUrl"));
             }
 
             //签名
             data.put("Signature", signature(data, keyStore, certPwd));
 
+            Map<String, Object> tdata = new HashMap<>();
+            tdata.put("url", urls.getFrontTransUrl());
+            tdata.put("params", data.entrySet());
+
             //拼接支付表单
-            return HandlebarsTemplateUtils.processTemplateIntoString(HandlebarsTemplateUtils.template("/org.jfantasy.pay.product.template/pay"), new HashMap<String, Object>() {
-                {
-                    this.put("url", urls.getFrontTransUrl());
-                    this.put("params", data.entrySet());
-                }
-            });
+            return HandlebarsTemplateUtils.processTemplateIntoString(HandlebarsTemplateUtils.template("/org.jfantasy.pay.product.template/pay"), tdata);
         } catch (IOException e) {
-            throw new PayException("支付过程发生错误，错误信息为:" + e.getMessage());
+            LOG.error(e);
+            throw new PayException(e.getMessage());
         } finally {
             //记录支付日志
             this.log("out", "web", payment, config, "curl -X POST --data \"" + SignUtil.coverMapString(data) + "\" " + urls.getFrontTransUrl());
@@ -97,6 +95,7 @@ public class Chinapay extends PayProductSupport {
         try {
             return SignUtil.encodeBase64(SecureUtil.sign(SignUtil.coverMapString(params, "Signature", "CertId").getBytes("UTF-8"), CertUtil.getCertPrivateKey(keyStore, certPwd), "SHA512WithRSA"), "UTF-8");
         } catch (Exception e) {
+            LOG.error(e);
             throw new PayException("签名过程发生错误，错误信息为:" + e.getMessage());
         }
     }
@@ -105,6 +104,7 @@ public class Chinapay extends PayProductSupport {
         try {
             return SecureUtil.verify(SignUtil.coverMapString(result, "Signature", "CertId").getBytes("UTF-8"), Base64.decodeBase64(result.get("Signature").getBytes("UTF-8")), publicKey, "SHA512WithRSA");
         } catch (Exception e) {
+            LOG.error(e);
             LOG.error("签名过程发生错误，错误信息为:" + e.getMessage());
             return false;
         }
@@ -145,7 +145,7 @@ public class Chinapay extends PayProductSupport {
                 throw new PayException("验证签名失败");
             }
 
-            if (!data.get("RefundAmt").equals(refund.getTotalAmount().multiply(BigDecimal.valueOf(100d)).intValue() + "")) {
+            if (!data.get("RefundAmt").equals(String.valueOf(refund.getTotalAmount().multiply(BigDecimal.valueOf(100d))))) {
                 throw new PayException("交易金额不匹配");
             }
 
@@ -158,7 +158,8 @@ public class Chinapay extends PayProductSupport {
         }
     }
 
-    public PaymentStatus query(Payment payment) {
+    @Override
+    public PaymentStatus query(Payment payment) throws PayException {
         try {
             //支付配置
             PayConfig config = payment.getPayConfig();
@@ -167,13 +168,13 @@ public class Chinapay extends PayProductSupport {
             KeyStore keyStore = CertUtil.loadKeyStore(new RAMFileProxy(config, "signCert"), config.getBargainorKey());
             String certPwd = config.getBargainorKey();//签名证书密码
 
-            final Map<String, String> data = new TreeMap<String, String>();
+            final Map<String, String> data = new TreeMap<>();
             data.put("Version", "20140728");
             data.put("MerId", merId);//商户号
             data.put("MerOrderNo", payment.getSn());//商户订单号
             data.put("TranDate", DateUtil.format(payment.getCreateTime(), "yyyyMMdd"));//商户交易日期
             data.put("TranTime", DateUtil.format(payment.getCreateTime(), "HHmmss"));//商户交易日期
-            data.put("TranType", "0502");//交易类型 TODO 发起交易时非必填,为什么查询交易时必填
+            data.put("TranType", "0502");//交易类型
             data.put("BusiType", "0001");//业务类型
 
             data.put("Signature", signature(data, keyStore, certPwd));//签名
@@ -196,22 +197,20 @@ public class Chinapay extends PayProductSupport {
 
             payment.setTradeNo(result.get("AcqSeqId"));
             payment.setTradeTime(DateUtil.now());
-            return null;//response.text();
-
+            return PaymentStatus.valueOf(response.text());
         } catch (IOException e) {
-
-
             LOG.error(e.getMessage(), e);
             throw new PayException("支付过程发生错误，错误信息为:" + e.getMessage());
         }
     }
 
     @Override
-    public void close(Payment payment) throws PayException {
-
+    public void close(Payment payment) {
+        // Do nothing
     }
 
-    public String refund(Refund refund) {
+    @Override
+    public String refund(Refund refund) throws PayException {
         String url = urls.getAfterTransUrl("0401");
         Payment payment = refund.getPayment();
         try {
@@ -222,7 +221,7 @@ public class Chinapay extends PayProductSupport {
             KeyStore keyStore = CertUtil.loadKeyStore(new RAMFileProxy(config, "signCert"), config.getBargainorKey());
             String certPwd = config.getBargainorKey();//签名证书密码
 
-            final Map<String, String> data = new TreeMap<String, String>();
+            final Map<String, String> data = new TreeMap<>();
             data.put("Version", "20140728");
             data.put("MerId", merId);//商户号
             data.put("MerOrderNo", refund.getSn());//商户订单号
@@ -232,7 +231,7 @@ public class Chinapay extends PayProductSupport {
             data.put("OriOrderNo", payment.getSn());
             data.put("OriTranDate", DateUtil.format(payment.getCreateTime(), "yyyyMMdd"));
             //退款金额
-            data.put("RefundAmt", refund.getTotalAmount().multiply(BigDecimal.valueOf(100d)).intValue() + "");
+            data.put("RefundAmt", String.valueOf(refund.getTotalAmount().multiply(BigDecimal.valueOf(100d))));
 
             data.put("TranType", "0401");//交易类型
             data.put("BusiType", "0001");//业务类型
@@ -268,7 +267,7 @@ public class Chinapay extends PayProductSupport {
         }
     }
 
-    private class Urls {
+    private static class Urls {
         /**
          * 前台交易请求地址
          */
@@ -284,7 +283,7 @@ public class Chinapay extends PayProductSupport {
         /**
          * 后续接口
          */
-        private Map<String, String> afterTransUrls = new HashMap<String, String>();
+        private Map<String, String> afterTransUrls = new HashMap<>();
 
         String getFrontTransUrl() {
             return frontTransUrl;

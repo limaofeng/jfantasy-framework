@@ -26,7 +26,7 @@ public class AlipayOpenController {
 
     @RequestMapping(value = "/auth",method = RequestMethod.GET)
     @ResponseBody
-    public Object auth(HttpServletRequest request) throws IOException {
+    public Object auth(HttpServletRequest request) throws IOException, PayException {
         Map<String,String> data = SignUtil.parseQuery(request.getQueryString(),true);
         System.out.println(data);
 
@@ -81,7 +81,7 @@ public class AlipayOpenController {
         return data;
     }
 
-    public static boolean verify(Map<String, String> data,String sign, String key) {
+    public static boolean verify(Map<String, String> data,String sign, String key) throws PayException {
         String signType = data.get("sign_type");
         if ("MD5".equals(signType)) {
             return MD5.verify(SignUtil.coverMapString(data, "sign", "sign_type"), sign, key, "utf-8");
@@ -100,7 +100,7 @@ public class AlipayOpenController {
      * @param key  sign_type = MD5 时为 安全校验码 如果为 sign_type = RSA 时为
      * @return 签名结果字符串
      */
-    public static String sign(Map<String, String> data, String key) {
+    public static String sign(Map<String, String> data, String key) throws PayException {
         if (!data.containsKey("sign_type")) {
             data.put("sign_type", "MD5");
         }

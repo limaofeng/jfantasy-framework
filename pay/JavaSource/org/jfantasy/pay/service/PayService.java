@@ -127,7 +127,7 @@ public class PayService {
      * @return Refund
      */
     @Transactional
-    public Refund refund(String paymentSn, BigDecimal amount, String remark) {
+    public Refund refund(String paymentSn, BigDecimal amount, String remark) throws PayException {
         Refund refund = refundService.ready(paymentService.get(paymentSn), amount.scale() != 2 ?  amount.setScale(2, BigDecimal.ROUND_DOWN) : amount, remark);
         Hibernate.initialize(refund.getPayConfig());
         Hibernate.initialize(refund.getOrder());
@@ -146,7 +146,7 @@ public class PayService {
      * @return Refund
      */
     @Transactional
-    public ToRefund refund(String sn, RefundStatus status, String remark) {
+    public ToRefund refund(String sn, RefundStatus status, String remark) throws PayException {
         Refund refund = refundService.get(sn);
         if (refund.getType() == PaymentType.online) {
             if (refund.getStatus() != RefundStatus.ready) {
@@ -179,7 +179,7 @@ public class PayService {
         }
     }
 
-    public boolean query(String sn) {
+    public boolean query(String sn) throws PayException {
         Payment payment = this.paymentService.get(sn);
         PayConfig payConfig = payment.getPayConfig();
         //获取支付产品
@@ -196,7 +196,7 @@ public class PayService {
      * @return Object
      */
     @Transactional
-    public Object paymentNotify(String sn, String body) {
+    public Object paymentNotify(String sn, String body) throws PayException {
         Payment payment = this.paymentService.get(sn);
         Transaction transaction = payment.getTransaction();
         PayConfig payConfig = payment.getPayConfig();
@@ -263,7 +263,7 @@ public class PayService {
      * @return Object
      */
     @Transactional
-    public Object refundNotify(String sn, String body) {
+    public Object refundNotify(String sn, String body) throws PayException {
         Refund refund = this.refundService.get(sn);
         PayConfig payConfig = refund.getPayConfig();
 

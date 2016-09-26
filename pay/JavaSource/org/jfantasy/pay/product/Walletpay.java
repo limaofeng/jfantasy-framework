@@ -19,33 +19,33 @@ import java.util.Properties;
  */
 public class Walletpay extends PayProductSupport {
 
+    private static final String PROPERTY_PW_NAME = "password";
+
+    private PayService payService;
     private AccountService accountService;
 
     private AccountService accountService() {
         if (accountService == null) {
-            return accountService = SpringContextUtil.getBeanByType(AccountService.class);
+            accountService = SpringContextUtil.getBeanByType(AccountService.class);
         }
         return accountService;
     }
 
-    private PayService payService;
-
     private PayService payService() {
         if (payService == null) {
-            return payService = SpringContextUtil.getBeanByType(PayService.class);
+            payService = SpringContextUtil.getBeanByType(PayService.class);
         }
         return payService;
     }
 
     @Override
     public Object web(Payment payment, Order order, Properties properties) throws PayException {
-        return this.transaction(payment, order, properties);
+        return this.transaction(payment, properties);
     }
 
-    public Object transaction(Payment payment, Order order, Properties properties) {
+    public Object transaction(Payment payment, Properties properties) throws PayException {
         //获取支付账户 与 支付密码
-        String PROPERTY_PASSWORD = "password";
-        String password = properties.getProperty(PROPERTY_PASSWORD);
+        String password = properties.getProperty(PROPERTY_PW_NAME);
         Transaction transaction = (Transaction) properties.get(PROPERTY_TRANSACTION);
         //进行划账操作
         this.accountService().transfer(transaction.getSn(), password, transaction.getNotes());
@@ -55,7 +55,7 @@ public class Walletpay extends PayProductSupport {
 
     @Override
     public Object app(Payment payment, Order order, Properties properties) throws PayException {
-        return this.transaction(payment, order, properties);
+        return this.transaction(payment, properties);
     }
 
     @Override
@@ -67,7 +67,7 @@ public class Walletpay extends PayProductSupport {
     }
 
     @Override
-    public Object refund(Refund refund) {
+    public Object refund(Refund refund) throws PayException {
         refund.setStatus(RefundStatus.success);
         this.accountService().refund(refund.getPayment().getTransaction().getSn(), refund.getTotalAmount(), "退款");
         return this.payService().refundNotify(refund.getSn(), "");
@@ -85,7 +85,7 @@ public class Walletpay extends PayProductSupport {
 
     @Override
     public void close(Payment payment) throws PayException {
-
+        // Do nothing
     }
 
 }

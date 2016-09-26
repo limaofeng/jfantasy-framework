@@ -52,7 +52,7 @@ public class RefundService {
      * @param remark  备注
      * @return Refund
      */
-    Refund ready(Payment payment, BigDecimal amount, String remark) {
+    Refund ready(Payment payment, BigDecimal amount, String remark) throws PayException {
         if (payment.getStatus() != PaymentStatus.success) {
             throw new PayException("原交易[" + payment.getSn() + "]未支付成功,不能发起退款操作");
         }

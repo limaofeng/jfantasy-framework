@@ -59,7 +59,7 @@ public interface PayProduct {
      * @param refund 退款对象
      * @return String
      */
-    Object refund(Refund refund);
+    Object refund(Refund refund) throws PayException;
 
     /**
      * 查询支付状态

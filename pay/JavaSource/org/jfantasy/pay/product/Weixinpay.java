@@ -27,10 +27,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.KeyStore;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * 订单 err_code 一览:
@@ -143,7 +140,7 @@ public class Weixinpay extends PayProductSupport {
     }
 
     @Override
-    public String refund(Refund refund) {
+    public String refund(Refund refund) throws PayException {
         PayConfig config = refund.getPayConfig();
         Payment payment = refund.getPayment();
         try {
@@ -154,8 +151,8 @@ public class Weixinpay extends PayProductSupport {
             data.put("nonce_str", generateNonceString(16));
             data.put("transaction_id", payment.getTradeNo());
             data.put("out_refund_no", refund.getSn());
-            data.put("total_fee", payment.getTotalAmount().multiply(BigDecimal.valueOf(100d)).intValue() + "");
-            data.put("refund_fee", refund.getTotalAmount().multiply(BigDecimal.valueOf(100d)).intValue() + "");
+            data.put("total_fee", String.valueOf(payment.getTotalAmount().multiply(BigDecimal.valueOf(100d))));
+            data.put("refund_fee", String.valueOf(refund.getTotalAmount().multiply(BigDecimal.valueOf(100d))));
             data.put("refund_fee_type", "CNY");//货币类型
             data.put("op_user_id", config.getBargainorId());
             data.put("sign", sign(data, config.getBargainorKey()));
@@ -189,9 +186,7 @@ public class Weixinpay extends PayProductSupport {
             //TODO 微信退款是否成功必须调用退款查询接口, 提交退款申请后，通过调用该接口查询退款状态。退款有一定延时，用零钱支付的退款20分钟内到账，银行卡支付的退款3个工作日后重新查询退款状态。
             return null;
         } catch (IOException e) {
-            throw new RestException("调用微信接口,网络错误!");
-        } catch (PayException e) {
-            throw new RestException(e.getMessage());
+            throw new PayException("调用微信接口,网络错误!");
         }
     }
 
@@ -203,7 +198,7 @@ public class Weixinpay extends PayProductSupport {
     /**
      * 微信支付 - 统一下单接口
      */
-    private Map<String, String> unifiedorder(Payment payment, Order order, Properties prop) {
+    private Map<String, String> unifiedorder(Payment payment, Order order, Properties prop) throws PayException {
         PayConfig config = payment.getPayConfig();
         //获取订单信息
         try {
@@ -228,7 +223,7 @@ public class Weixinpay extends PayProductSupport {
             data.put("out_trade_no", payment.getSn());
             String[] serverIps = WebUtil.getServerIps();
             data.put("spbill_create_ip", serverIps.length == 0 ? "127.0.0.1" : serverIps[0]);
-            data.put("total_fee", payment.getTotalAmount().multiply(BigDecimal.valueOf(100d)).intValue() + "");
+            data.put("total_fee", String.valueOf(payment.getTotalAmount().multiply(BigDecimal.valueOf(100d))));
             data.put("sign", sign(data, config.getBargainorKey()));
 
             Response response = HttpClientUtil.doPost(urls.getUnifiedorderUrl(), new Request(new StringEntity(WebUtil.transformCoding(mapToXml(data), "utf-8", "ISO8859-1"), ContentType.TEXT_XML)));
@@ -252,9 +247,8 @@ public class Weixinpay extends PayProductSupport {
 
             return data;
         } catch (IOException e) {
-            throw new RestException("调用微信接口,网络错误!");
-        } catch (PayException e) {
-            throw new RestException(e.getMessage());
+            LOG.error(e);
+            throw new PayException("调用微信接口,网络错误!");
         }
     }
 
@@ -264,7 +258,7 @@ public class Weixinpay extends PayProductSupport {
      * @param payment 支付记录
      * @return PrePayment
      */
-    public PaymentStatus query(Payment payment) {
+    public PaymentStatus query(Payment payment) throws PayException {
         try {
             PayConfig config = payment.getPayConfig();
             PayConfig paymentConfig = payment.getPayConfig();
@@ -305,9 +299,8 @@ public class Weixinpay extends PayProductSupport {
             }
             return payment.getStatus();
         } catch (IOException e) {
-            throw new RestException("调用微信接口,网络错误!");
-        } catch (PayException e) {
-            throw new RestException(e.getMessage());
+            LOG.error(e);
+            throw new PayException("调用微信接口,网络错误!");
         }
     }
 
@@ -316,7 +309,7 @@ public class Weixinpay extends PayProductSupport {
      *
      * @param payment 支付对象
      */
-    public void close(Payment payment) {
+    public void close(Payment payment) throws PayException {
         PayConfig config = payment.getPayConfig();
         try {
             //组装数据
@@ -346,9 +339,8 @@ public class Weixinpay extends PayProductSupport {
 
             payment.setStatus(PaymentStatus.close);
         } catch (IOException e) {
-            throw new RestException("调用微信接口,网络错误!");
-        } catch (PayException e) {
-            throw new RestException(e.getMessage());
+            LOG.error(e);
+            throw new PayException("调用微信接口,网络错误!");
         }
     }
 
@@ -388,11 +380,12 @@ public class Weixinpay extends PayProductSupport {
 
     public static String generateNonceString(int length) {
         int maxPos = NONCE_CHARS.length();
-        String noceStr = "";
+        StringBuilder noceStr = new StringBuilder();
+        Random random = new Random();
         for (int i = 0; i < length; i++) {
-            noceStr += NONCE_CHARS.charAt((int) Math.floor(Math.random() * maxPos));
+            noceStr.append(NONCE_CHARS.charAt(random.nextInt(maxPos)));
         }
-        return noceStr;
+        return noceStr.toString();
     }
 
     private static class Urls {

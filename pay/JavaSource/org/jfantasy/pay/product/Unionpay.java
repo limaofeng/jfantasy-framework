@@ -30,37 +30,37 @@ import java.util.TreeMap;
 
 public class Unionpay extends PayProductSupport {
 
-    private final static Log LOG = LogFactory.getLog(Unionpay.class);
+    private static final Log LOG = LogFactory.getLog(Unionpay.class);
 
     private DeployStatus deployStatus;
-    private Map<DeployStatus, Unionpay.Urls> urlsMap;
+    private static Map<DeployStatus, Unionpay.Urls> urlsMap = new HashMap<>();
+
+    static {
+        Unionpay.Urls devUrls = new Urls();
+        devUrls.setFrontTransUrl("https://101.231.204.80:5000/gateway/api/frontTransReq.do");
+        devUrls.setAppTransUrl("https://101.231.204.80:5000/gateway/api/appTransReq.do");
+        devUrls.setBackTransUrl("https://101.231.204.80:5000/gateway/api/backTrans.do");
+        devUrls.setCardTransUrl("https://101.231.204.80:5000/gateway/api/cardTransReq.do");
+        devUrls.setSingleQueryUrl("https://101.231.204.80:5000/gateway/api/queryTrans.do");
+        devUrls.setBatchTransUrl("https://101.231.204.80:5000/gateway/api/batchTransReq.do");
+        devUrls.setFileTransUrl("https://101.231.204.80:9080/");
+        devUrls.setQueryTransUrl("https://101.231.204.80:5000/gateway/api/queryTrans.do");
+        urlsMap.put(DeployStatus.Develop, devUrls);
+
+        Unionpay.Urls urls = new Urls();
+        urls.setFrontTransUrl("https://gateway.95516.com/gateway/api/frontTransReq.do");
+        urls.setAppTransUrl("https://gateway.95516.com/gateway/api/appTransReq.do");
+        urls.setBackTransUrl("https://gateway.95516.com/gateway/api/backTransReq.do");
+        urls.setCardTransUrl("https://gateway.95516.com/gateway/api/cardTransReq.do");
+        urls.setSingleQueryUrl("https://gateway.95516.com/gateway/api/queryTrans.do");
+        urls.setBatchTransUrl("https://gateway.95516.com/gateway/api/batchTrans.do");
+        urls.setFileTransUrl("https://filedownload.95516.com/");
+        urls.setQueryTransUrl("https://gateway.95516.com/gateway/api/queryTrans.do");
+        urlsMap.put(DeployStatus.Production, urls);
+    }
 
     public Unionpay() {
         this.deployStatus = DeployStatus.Production;
-        this.urlsMap = new HashMap<DeployStatus, Unionpay.Urls>() {
-            {
-                Unionpay.Urls urls = Unionpay.this.new Urls();
-                urls.setFrontTransUrl("https://101.231.204.80:5000/gateway/api/frontTransReq.do");
-                urls.setAppTransUrl("https://101.231.204.80:5000/gateway/api/appTransReq.do");
-                urls.setBackTransUrl("https://101.231.204.80:5000/gateway/api/backTrans.do");
-                urls.setCardTransUrl("https://101.231.204.80:5000/gateway/api/cardTransReq.do");
-                urls.setSingleQueryUrl("https://101.231.204.80:5000/gateway/api/queryTrans.do");
-                urls.setBatchTransUrl("https://101.231.204.80:5000/gateway/api/batchTransReq.do");
-                urls.setFileTransUrl("https://101.231.204.80:9080/");
-                urls.setQueryTransUrl("https://101.231.204.80:5000/gateway/api/queryTrans.do");
-                this.put(DeployStatus.Develop, urls);
-                urls = Unionpay.this.new Urls();
-                urls.setFrontTransUrl("https://gateway.95516.com/gateway/api/frontTransReq.do");
-                urls.setAppTransUrl("https://gateway.95516.com/gateway/api/appTransReq.do");
-                urls.setBackTransUrl("https://gateway.95516.com/gateway/api/backTransReq.do");
-                urls.setCardTransUrl("https://gateway.95516.com/gateway/api/cardTransReq.do");
-                urls.setSingleQueryUrl("https://gateway.95516.com/gateway/api/queryTrans.do");
-                urls.setBatchTransUrl("https://gateway.95516.com/gateway/api/batchTrans.do");
-                urls.setFileTransUrl("https://filedownload.95516.com/");
-                urls.setQueryTransUrl("https://gateway.95516.com/gateway/api/queryTrans.do");
-                this.put(DeployStatus.Production, urls);
-            }
-        };
     }
 
     private Urls getUrls() {
@@ -168,7 +168,7 @@ public class Unionpay extends PayProductSupport {
     }
 
     @Override
-    public String refund(Refund refund) {
+    public String refund(Refund refund) throws PayException {
         Payment payment = refund.getPayment();
         //支付配置
         PayConfig config = refund.getPayConfig();
@@ -256,7 +256,7 @@ public class Unionpay extends PayProductSupport {
 
     }
 
-    public PaymentStatus query(Payment payment) {
+    public PaymentStatus query(Payment payment) throws PayException {
         //请求地址集
         Urls urls = this.getUrls();
         try {
@@ -314,7 +314,7 @@ public class Unionpay extends PayProductSupport {
         this.deployStatus = deployStatus;
     }
 
-    class Urls {
+    static class Urls {
         /**
          * 前台交易请求地址
          */

@@ -256,7 +256,7 @@ public class Alipay extends PayProductSupport {
     }
 
     @Override
-    public String refund(Refund refund) {
+    public String refund(Refund refund) throws PayException {
         PayConfig config = refund.getPayConfig();
         Payment payment = refund.getPayment();
 
@@ -428,7 +428,7 @@ public class Alipay extends PayProductSupport {
         }
     }
 
-    private String getPrivateKey(PayConfig config, String type) {
+    private String getPrivateKey(PayConfig config, String type) throws PayException {
         switch (type) {
             case "MD5":
                 return config.getBargainorKey();
@@ -439,7 +439,7 @@ public class Alipay extends PayProductSupport {
         }
     }
 
-    private String getPublicKey(PayConfig config, String type) {
+    private String getPublicKey(PayConfig config, String type) throws PayException {
         switch (type) {
             case "MD5":
                 return config.getBargainorKey();
@@ -457,7 +457,7 @@ public class Alipay extends PayProductSupport {
      * @param key  sign_type = MD5 时为 安全校验码 如果为 sign_type = RSA 时为
      * @return 签名结果字符串
      */
-    public static String sign(Map<String, String> data, String key) {
+    public static String sign(Map<String, String> data, String key) throws PayException {
         if (!data.containsKey("sign_type")) {
             data.put("sign_type", "MD5");
         }
@@ -472,7 +472,7 @@ public class Alipay extends PayProductSupport {
         throw new PayException("不支持的签名方式 => " + signType);
     }
 
-    public static boolean verify(Map<String, String> data, String key) {
+    public static boolean verify(Map<String, String> data, String key) throws PayException {
         String signType = data.get("sign_type");
         if ("MD5".equals(signType)) {
             return MD5.verify(SignUtil.coverMapString(data, "sign", "sign_type"), data.get("sign"), key, INPUT_CHARSET);

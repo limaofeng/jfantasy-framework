@@ -1,12 +1,15 @@
 package org.jfantasy.pay.order;
 
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.criterion.Restrictions;
 import org.jfantasy.framework.spring.mvc.error.RestException;
 import org.jfantasy.framework.util.common.BeanUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.pay.bean.Payment;
 import org.jfantasy.pay.bean.Refund;
+import org.jfantasy.pay.error.PayException;
 import org.jfantasy.pay.order.entity.OrderKey;
 import org.jfantasy.pay.order.entity.RefundDetails;
 import org.jfantasy.pay.order.entity.enums.PaymentStatus;
@@ -21,6 +24,8 @@ import java.util.List;
 @ServiceExporter(targetInterface = OrderProcessor.class)
 public class OrderProcessorImpl implements OrderProcessor {
 
+    private static final Log LOG = LogFactory.getLog(OrderProcessorImpl.class);
+
     @Autowired
     private PayService payService;
     @Autowired
@@ -33,7 +38,13 @@ public class OrderProcessorImpl implements OrderProcessor {
         if (payment == null) {
             throw new RestException(" 订单可能未支付成功或者已经退款! ");
         }
-        Refund refund = payService.refund(payment.getSn(), amount, remark);
+        Refund refund;
+        try {
+            refund = payService.refund(payment.getSn(), amount, remark);
+        }catch (PayException e){
+            LOG.error(e);
+            throw new RestException(e.getMessage());
+        }
         RefundDetails details = new RefundDetails();
         BeanUtil.copyProperties(details, refund);
         details.setOrderKey(OrderKey.newInstance(payment.getOrder().getType(),payment.getOrder().getSn()));

@@ -40,7 +40,7 @@ public abstract class PayProductSupport implements PayProduct {
     protected String examples;//集成示例
 
     @Override
-    public Object refund(Refund refund) {
+    public Object refund(Refund refund) throws PayException {
         throw new PayException(this.getName() + " 的退款逻辑未实现");
     }
 

@@ -1,16 +1,20 @@
 package org.jfantasy.pay.rest;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.jackson.annotation.AllowProperty;
 import org.jfantasy.framework.jackson.annotation.IgnoreProperty;
 import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
 import org.jfantasy.framework.spring.mvc.error.NotFoundException;
+import org.jfantasy.framework.spring.mvc.error.RestException;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
 import org.jfantasy.pay.bean.Order;
 import org.jfantasy.pay.bean.PayConfig;
 import org.jfantasy.pay.bean.Payment;
 import org.jfantasy.pay.bean.Refund;
+import org.jfantasy.pay.error.PayException;
 import org.jfantasy.pay.rest.models.RefundForm01;
 import org.jfantasy.pay.rest.models.assembler.RefundResourceAssembler;
 import org.jfantasy.pay.service.PayService;
@@ -28,6 +32,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/refunds")
 public class RefundController {
+
+    private static final Log LOG = LogFactory.getLog(RefundController.class);
 
     private RefundResourceAssembler assembler = new RefundResourceAssembler();
 
@@ -47,12 +53,18 @@ public class RefundController {
         this.refundService = refundService;
     }
 
+    /**
+     * 查询退款记录
+     *
+     * @param pager
+     * @param filters
+     * @return
+     */
     @JsonResultFilter(allow = {
             @AllowProperty(pojo = Order.class, name = {"key", "status", "type", "sn"}),
             @AllowProperty(pojo = Payment.class, name = {"sn", "total_amount", "status"}),
             @AllowProperty(pojo = PayConfig.class, name = {"id", "pay_product_id", "name"})
     })
-    /** 查询退款记录 **/
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
     public Pager<ResultResourceSupport> search(Pager<Refund> pager, List<PropertyFilter> filters) {
@@ -75,7 +87,12 @@ public class RefundController {
     @RequestMapping(value = "/{sn}/status", method = RequestMethod.PUT)
     @ResponseBody
     public ToRefund update(@PathVariable("sn") String sn, @RequestBody RefundForm01 form) {
-        return payService.refund(sn, form.getStatus(), form.getRemark());
+        try {
+            return payService.refund(sn, form.getStatus(), form.getRemark());
+        } catch (PayException e) {
+            LOG.error(e);
+            throw new RestException(e.getMessage());
+        }
     }
 
     @JsonResultFilter(allow = {
