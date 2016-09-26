@@ -42,7 +42,7 @@ public class ONSByCardBindListener implements ApplicationListener<CardBindEvent>
             Card card = event.getCard();
             ThreadJacksonMixInHolder holder = ThreadJacksonMixInHolder.getMixInHolder();
             holder.addAllowPropertyNames(CardDesign.class, "styles", "extras");
-            holder.addIgnorePropertyNames(Card.class, "type","batch", Card.BASE_FIELDS);
+            holder.addIgnorePropertyNames(Card.class, "type","batch", Card.BASE_JSONFIELDS);
             Message msg = new Message(aliyunSettings.getTopicId(), PayAutoConfiguration.ONS_TAGS_CARDBIND_KEY, card.getNo(), JSON.serialize(card).getBytes());
             producer.send(msg);
         } finally {

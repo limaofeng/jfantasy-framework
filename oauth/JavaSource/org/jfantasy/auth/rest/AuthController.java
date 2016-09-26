@@ -39,7 +39,7 @@ public class AuthController {
      */
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     @JsonResultFilter(ignore = {
-            @IgnoreProperty(pojo = Member.class, name = {Member.BASE_FIELDS})
+            @IgnoreProperty(pojo = Member.class, name = {Member.BASE_JSONFIELDS})
     })
     @ResponseBody
     public ResultResourceSupport login(@Validated(RESTful.POST.class) @RequestBody LoginForm loginForm) {

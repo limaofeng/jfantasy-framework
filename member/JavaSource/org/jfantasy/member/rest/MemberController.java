@@ -178,7 +178,7 @@ public class MemberController {
     public Pager<ResultResourceSupport> comments(@PathVariable("memid") Long memberId, Pager<Comment> pager, List<PropertyFilter> filters) {
         filters.add(new PropertyFilter(FILTERS_EQ_MEMBER_ID, memberId.toString()));
         if (!pager.isOrderBySetted()) {
-            pager.setOrderBy(Comment.FIELDNAME_BY_CREATE_TIME);
+            pager.setOrderBy(Comment.FIELDS_BY_CREATE_TIME);
             pager.setOrder(Pager.SORT_DESC);
         }
         return this.commentController.search(pager, filters);

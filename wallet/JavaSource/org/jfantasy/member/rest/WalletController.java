@@ -59,7 +59,7 @@ public class WalletController {
         return walletBillController.search(pager, filters);
     }
 
-    @JsonResultFilter(ignore = @IgnoreProperty(pojo = Card.class, name = Card.BASE_FIELDS))
+    @JsonResultFilter(ignore = @IgnoreProperty(pojo = Card.class, name = Card.BASE_JSONFIELDS))
     /** 查询钱包中的卡片 - 卡列表 **/
     @RequestMapping(value = "/{id}/cards", method = RequestMethod.GET)
     public List<Card> cards(@PathVariable("id") Long walletId) {
