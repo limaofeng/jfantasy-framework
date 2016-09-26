@@ -5,6 +5,6 @@ package org.jfantasy.member.service;
  */
 public interface SMSCodeEncoder {
 
-    boolean matches(String phone, String encodedPassword);
+    boolean matches(String session, String encodedPassword);
 
 }

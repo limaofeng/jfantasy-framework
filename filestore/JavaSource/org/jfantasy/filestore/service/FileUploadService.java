@@ -41,16 +41,15 @@ public class FileUploadService {
 
     private FileDetail uploadPart(FilePart part, FilePart filePart, List<FilePart> fileParts, String contentType, String entireFileName, String entireFileDir, String entireFileHash, Integer total, FileManager fileManager) throws IOException {
         FileDetail fileDetail = null;
-        try {
-            if (part == null) {
-                List<FilePart> joinFileParts = new ArrayList<>();
-                ObjectUtil.join(joinFileParts, fileParts, "index");
+        if (part == null) {
+            List<FilePart> joinFileParts = new ArrayList<>();
+            ObjectUtil.join(joinFileParts, fileParts, "index");
 
-                if (joinFileParts.size() == total) {
-                    //临时文件
-                    File tmp = FileUtil.tmp();
-                    //合并 Part 文件
-                    FileOutputStream out = new FileOutputStream(tmp);
+            if (joinFileParts.size() == total) {
+                //临时文件
+                File tmp = FileUtil.tmp();
+                //合并 Part 文件
+                try (FileOutputStream out = new FileOutputStream(tmp)) {
                     for (FilePart filesPart : joinFileParts) {
                         InputStream in = fileManager.readFile(filesPart.getAbsolutePath());
                         StreamUtil.copy(in, out);
@@ -58,31 +57,27 @@ public class FileUploadService {
                         fileManager.removeFile(filesPart.getAbsolutePath());
                         ObjectUtil.remove(fileParts, SpELUtil.getExpression(" absolutePath == #value.getAbsolutePath() and fileManagerId == #value.getFileManagerId() "), filePart);
                     }
-                    StreamUtil.closeQuietly(out);
-
-                    //保存合并后的新文件
-                    fileDetail = this.upload(tmp, contentType, entireFileName, entireFileDir);
-
-                    //删除临时文件
-                    FileUtil.delFile(tmp);
-
-                    //删除 Part 文件
-                    for (FilePart filesPart : fileParts) {
-                        fileManager.removeFile(filesPart.getAbsolutePath());
-                    }
-
-                    //在File_PART 表冗余一条数据 片段为 0
-                    filePartService.save(FileDetailKey.newInstance(fileDetail.getAbsolutePath(), fileDetail.getFileManagerId()), entireFileHash, entireFileHash, total, 0);
                 }
-            } else {
+
+                //保存合并后的新文件
+                fileDetail = this.upload(tmp, contentType, entireFileName, entireFileDir);
+
+                //删除临时文件
+                FileUtil.delFile(tmp);
+
                 //删除 Part 文件
                 for (FilePart filesPart : fileParts) {
                     fileManager.removeFile(filesPart.getAbsolutePath());
                 }
+
+                //在File_PART 表冗余一条数据 片段为 0
+                filePartService.save(FileDetailKey.newInstance(fileDetail.getAbsolutePath(), fileDetail.getFileManagerId()), entireFileHash, entireFileHash, total, 0);
             }
-        } catch (IOException e) {
-            LOG.error(e.getMessage(), e);
-            throw e;
+        } else {
+            //删除 Part 文件
+            for (FilePart filesPart : fileParts) {
+                fileManager.removeFile(filesPart.getAbsolutePath());
+            }
         }
         return fileDetail;
     }

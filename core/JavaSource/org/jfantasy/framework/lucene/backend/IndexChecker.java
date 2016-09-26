@@ -33,8 +33,16 @@ public class IndexChecker {
             property = PropertysCache.getInstance().getProperty(clazz, key);
         } catch (PropertyException ex) {
             LOGGER.error(ex.getMessage(), ex);
+            return false;
         }
-        if ((property.getAnnotation(IndexProperty.class) != null) || (property.getAnnotation(IndexEmbed.class) != null) || (property.getAnnotation(IndexEmbedList.class) != null) || (property.getAnnotation(IndexRef.class) != null) || (property.getAnnotation(IndexRefList.class) != null) || (property.getAnnotation(IndexRefBy.class) != null) || (property.getAnnotation(BoostSwitch.class) != null) || (property.getAnnotation(IndexFilter.class) != null)) {
+        if ((property.getAnnotation(IndexProperty.class) != null) ||
+                (property.getAnnotation(IndexEmbed.class) != null) ||
+                (property.getAnnotation(IndexEmbedList.class) != null) ||
+                (property.getAnnotation(IndexRef.class) != null) ||
+                (property.getAnnotation(IndexRefList.class) != null) ||
+                (property.getAnnotation(IndexRefBy.class) != null) ||
+                (property.getAnnotation(BoostSwitch.class) != null) ||
+                (property.getAnnotation(IndexFilter.class) != null)) {
             result = true;
         }
         return result;
