@@ -112,7 +112,7 @@ public class TransactionController {
 
     private ResultResourceSupport transform(Transaction transaction) {
         ResultResourceSupport resource = assembler.toResource(transaction);
-        final OAuthUserDetails user = SpringSecurityUtils.getCurrentUser(OAuthUserDetails.class);
+        OAuthUserDetails user = SpringSecurityUtils.getCurrentUser(OAuthUserDetails.class);
 
         if (user == null) {
             return resource;
@@ -121,40 +121,10 @@ public class TransactionController {
         if (transaction.getProject().getType() == ProjectType.order) {
             switch (transaction.get(Transaction.STAGE)) {
                 case Transaction.STAGE_PAYMENT:
-
                     if (!ThreadJacksonMixInHolder.getMixInHolder().isReturnProperty(PayConfig.class, "payconfigs")) {
                         break;
                     }
-
-                    // 按平台过滤掉不能使用的支付方式
-                    List<PayConfig> payconfigs = ObjectUtil.filter(configService.find(), new BeanFilter<PayConfig>() {
-                        @Override
-                        public boolean accept(PayConfig item) {
-                            return item.getPlatforms().contains(user.getPlatform());
-                        }
-                    });
-
-                    // 判断余额支付，金额是否可以支付
-                    PayConfig payConfig = ObjectUtil.find(payconfigs, "payProductId", "walletpay");
-                    if (payConfig != null && accountService.get(transaction.getFrom()).getAmount().compareTo(transaction.getAmount()) < 0) {
-                        payconfigs.remove(payConfig);
-                        payConfig.setDisabled(true);
-                        payconfigs.add(payConfig);
-                    }
-                    // 设置默认支付方式
-                    String payment_sn = transaction.get("payment_sn");
-                    if (StringUtil.isNotBlank(payment_sn)) {
-                        Payment payment = ObjectUtil.find(transaction.getPayments(), "sn", payment_sn);
-                        if (payment.getStatus() == PaymentStatus.ready) { // 加载支付方式
-                            payConfig = ObjectUtil.find(payconfigs, "payProductId", payment.getPayConfig().getPayProductId());
-                            if (payConfig.getDisabled() != Boolean.TRUE) {
-                                payConfig.setDefault(true);
-                            }
-                        }
-                    } else if (!payconfigs.isEmpty()) {
-                        payconfigs.get(0).setDefault(true);
-                    }
-                    resource.set("payconfigs", payconfigs);
+                    resource.set("payconfigs", payconfigs(transaction, user));
                     break;
                 case Transaction.STAGE_REFUND:
                     break;
@@ -162,6 +132,37 @@ public class TransactionController {
             }
         }
         return resource;
+    }
+
+    private List<PayConfig> payconfigs(Transaction transaction, final OAuthUserDetails user) {
+        // 按平台过滤掉不能使用的支付方式
+        List<PayConfig> payconfigs = ObjectUtil.filter(configService.find(), new BeanFilter<PayConfig>() {
+            @Override
+            public boolean accept(PayConfig item) {
+                return item.getPlatforms().contains(user.getPlatform());
+            }
+        });
+        // 判断余额支付，金额是否可以支付
+        PayConfig payConfig = ObjectUtil.find(payconfigs, "payProductId", "walletpay");
+        if (payConfig != null && accountService.get(transaction.getFrom()).getAmount().compareTo(transaction.getAmount()) < 0) {
+            payconfigs.remove(payConfig);
+            payConfig.setDisabled(true);
+            payconfigs.add(payConfig);
+        }
+        // 设置默认支付方式
+        String paymentsn = transaction.get("payment_sn");
+        if (StringUtil.isNotBlank(paymentsn)) {
+            Payment payment = ObjectUtil.find(transaction.getPayments(), "sn", paymentsn);
+            if (payment.getStatus() == PaymentStatus.ready) { // 加载支付方式
+                payConfig = ObjectUtil.find(payconfigs, "payProductId", payment.getPayConfig().getPayProductId());
+                if (payConfig.getDisabled() != Boolean.TRUE) {
+                    payConfig.setDefault(true);
+                }
+            }
+        } else if (!payconfigs.isEmpty()) {
+            payconfigs.get(0).setDefault(true);
+        }
+        return payconfigs;
     }
 
 }
