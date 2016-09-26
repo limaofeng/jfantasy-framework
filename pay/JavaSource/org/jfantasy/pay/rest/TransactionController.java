@@ -127,14 +127,12 @@ public class TransactionController {
                     }
 
                     // 按平台过滤掉不能使用的支付方式
-                    ObjectUtil.filter(configService.find(), new BeanFilter<PayConfig>() {
+                    List<PayConfig> payconfigs = ObjectUtil.filter(configService.find(), new BeanFilter<PayConfig>() {
                         @Override
                         public boolean accept(PayConfig item) {
                             return item.getPlatforms().contains(user.getPlatform());
                         }
                     });
-
-                    List<PayConfig> payconfigs = configService.find();
 
                     // 判断余额支付，金额是否可以支付
                     PayConfig payConfig = ObjectUtil.find(payconfigs, "payProductId", "walletpay");
