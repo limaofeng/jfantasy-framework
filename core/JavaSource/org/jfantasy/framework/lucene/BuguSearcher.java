@@ -39,6 +39,10 @@ public abstract class BuguSearcher<T> {
 
     private LuceneDao luceneDao;
 
+    protected BuguSearcher() {
+        this(LoadEntityMode.DAO);
+    }
+
     protected BuguSearcher(LoadEntityMode loadMode) {
         this.loadMode = loadMode;
         // 通过泛型获取需要查询的对象
@@ -51,12 +55,11 @@ public abstract class BuguSearcher<T> {
         }
     }
 
-    private LuceneDao luceneDao(){
-        return this.luceneDao == null ? this.luceneDao = DaoCache.getInstance().get(this.entityClass) : this.luceneDao;
-    }
-
-    protected BuguSearcher() {
-        this(LoadEntityMode.dao);
+    private LuceneDao luceneDao() {
+        if (this.luceneDao == null) {
+            this.luceneDao = DaoCache.getInstance().get(this.entityClass);
+        }
+        return this.luceneDao;
     }
 
     /**
@@ -125,7 +128,7 @@ public abstract class BuguSearcher<T> {
         int between = 0;
         try {
             TopDocs hits;
-            if (pager.isOrderBySetted()) {// TODO 多重排序等HIbernateDao优化好之后再实现
+            if (pager.isOrderBySetted()) {//多重排序等HIbernateDao优化好之后再实现
                 hits = searcher.search(query, pager.getCurrentPage() * pager.getPageSize(), new Sort(new SortField(pager.getOrderBy(), getSortField(pager.getOrderBy()), Pager.SORT_ASC.equals(pager.getOrder()))));
             } else {
                 hits = searcher.search(query, pager.getCurrentPage() * pager.getPageSize());
@@ -137,7 +140,7 @@ public abstract class BuguSearcher<T> {
                 between = index;
             }
             pager.setTotalCount(hits.totalHits);
-            List<T> data = new ArrayList<T>();
+            List<T> data = new ArrayList<>();
             for (int i = pager.getFirst() - between; i < hits.scoreDocs.length && hits.totalHits > 0; i++) {
                 ScoreDoc sdoc = hits.scoreDocs[i];
                 Document doc = searcher.doc(sdoc.doc);
@@ -210,53 +213,58 @@ public abstract class BuguSearcher<T> {
     private void highlightObject(BuguHighlighter highlighter, Object obj) {
         String[] fields = highlighter.getFields();
         for (String fieldName : fields) {
-            if (!fieldName.contains(".")) {
-                Property property = null;
-                try {
-                    property = PropertysCache.getInstance().getProperty(this.entityClass, fieldName);
-                } catch (PropertyException ex) {
-                    LOGGER.error(ex.getMessage(), ex);
-                }
-                assert property != null;
-                Object fieldValue = property.getValue(obj);
-                if (fieldValue != null) {
-                    String result = null;
-                    try {
-                        result = highlighter.getResult(fieldName, fieldValue.toString());
-                    } catch (Exception ex) {
-                        LOGGER.error("Something is wrong when getting the highlighter result", ex);
-                    }
-                    if (!StringUtil.isEmpty(result)) {
-                        property.setValue(obj, result);
-                    }
-                }
+            if (fieldName.contains(".")) {
+                continue;
+            }
+            Property property;
+            try {
+                property = PropertysCache.getInstance().getProperty(this.entityClass, fieldName);
+            } catch (PropertyException ex) {
+                LOGGER.error(ex.getMessage(), ex);
+                continue;
+            }
+            Object value = property.getValue(obj);
+            if (value == null) {
+                continue;
+            }
+            String result;
+            try {
+                result = highlighter.getResult(fieldName, value.toString());
+            } catch (Exception ex) {
+                LOGGER.error("Something is wrong when getting the highlighter result", ex);
+                continue;
+            }
+            if (!StringUtil.isEmpty(result)) {
+                property.setValue(obj, result);
             }
         }
     }
 
     private T build(Document doc) {
-        if (LoadEntityMode.dao == this.loadMode) {
+        if (LoadEntityMode.DAO == this.loadMode) {
             return this.luceneDao().getById(doc.get(idName));
         } else {
             T object = ClassUtil.newInstance(this.entityClass);
             for (Fieldable fieldable : doc.getFields()) {
+                Property property;
                 try {
-                    Property property = PropertysCache.getInstance().getProperty(this.entityClass, fieldable.name());
-                    if (Date.class.isAssignableFrom(property.getPropertyType())) {
-                        property.setValue(object, new Date(Long.valueOf(fieldable.stringValue())));
-                    } else {
-                        property.setValue(object, fieldable.stringValue());
-                    }
+                    property = PropertysCache.getInstance().getProperty(this.entityClass, fieldable.name());
                 } catch (PropertyException e) {
                     LOGGER.error(e.getMessage(), e);
+                    continue;
+                }
+                if (Date.class.isAssignableFrom(property.getPropertyType())) {
+                    property.setValue(object, new Date(Long.valueOf(fieldable.stringValue())));
+                } else {
+                    property.setValue(object, fieldable.stringValue());
                 }
             }
             return object;
         }
     }
 
-    public enum LoadEntityMode {
-        lucene, dao
+    private enum LoadEntityMode {
+        LUCENE, DAO
     }
 
 }
