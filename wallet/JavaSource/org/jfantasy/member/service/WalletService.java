@@ -125,6 +125,7 @@ public class WalletService {
         switch (asr[0]) {
             case "member":
                 return this.save(memberDao.findUnique(Restrictions.eq("username", username)));
+            default:
         }
         return null;
     }
@@ -241,9 +242,31 @@ public class WalletService {
 
     @Transactional
     public void addCard(String owner, Card card) {
+        // 关联卡
         Wallet wallet = this.getWalletByOwner(owner);
+        if (wallet == null) {
+            LOG.error("绑卡时，账号：" + owner + "未发现");
+            return;
+        }
         card.setWallet(wallet);
         this.cardDao.save(card);
+        // 计算附加服务
+        Map<String, Object> data = card.getExtras();
+        //添加成长值
+        if (data.containsKey("growth")) {
+            if (wallet.getGrowth() == null) {
+                wallet.setGrowth(0L);
+            }
+            wallet.setGrowth(wallet.getGrowth() + Long.valueOf(data.get("growth").toString()));
+        }
+        //添加积分
+        if (data.containsKey("point")) {
+            if (wallet.getPoints() == null) {
+                wallet.setPoints(0L);
+            }
+            wallet.setGrowth(wallet.getPoints() + Long.valueOf(data.get("point").toString()));
+        }
+
     }
 
 }
