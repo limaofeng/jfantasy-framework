@@ -165,7 +165,7 @@ public class MemberService {
 
     public MemberDetails update(MemberDetails details) {
         Member member = this.memberDao.get(details.getMemberId());
-        BeanUtil.copyProperties(member.getDetails(), details, "memberId", "member");
+        BeanUtil.copyProperties(member.getDetails(), details, "memberId", "member","level","mobileValid","mailValid");
         this.memberDao.update(member);
         return member.getDetails();
     }
