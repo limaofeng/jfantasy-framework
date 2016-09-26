@@ -3,12 +3,12 @@ package org.jfantasy.pay.service;
 import org.hibernate.criterion.Restrictions;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
+import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.pay.bean.Project;
 import org.jfantasy.pay.bean.Transaction;
 import org.jfantasy.pay.bean.enums.ProjectType;
 import org.jfantasy.pay.bean.enums.TxChannel;
 import org.jfantasy.pay.bean.enums.TxStatus;
-import org.jfantasy.pay.dao.ProjectDao;
 import org.jfantasy.pay.dao.TransactionDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,12 +22,10 @@ import java.util.Map;
 public class TransactionService {
 
     private final TransactionDao transactionDao;
-    private final ProjectDao projectDao;
 
     @Autowired
-    public TransactionService(TransactionDao transactionDao, ProjectDao projectDao) {
+    public TransactionService(TransactionDao transactionDao) {
         this.transactionDao = transactionDao;
-        this.projectDao = projectDao;
     }
 
     /**
@@ -40,8 +38,7 @@ public class TransactionService {
      * @param notes   备注
      * @return Transaction
      */
-    @Transactional
-    public Transaction thirdparty(Project project, String from, String to, BigDecimal amount, String notes, Map<String,Object> properties) {
+    public Transaction thirdparty(Project project, String from, String to, BigDecimal amount, String notes, Map<String, Object> properties) {
         Transaction transaction = new Transaction();
         transaction.setFrom(from);
         transaction.setTo(to);
@@ -68,10 +65,17 @@ public class TransactionService {
         return this.transactionDao.findPager(pager, filters);
     }
 
+    /**
+     * 保存交易接口
+     *
+     * @param transaction 交易对象
+     *                    必填字段为: from 、to 、amount
+     * @return Transaction
+     */
     @Transactional
     public Transaction save(Transaction transaction) {
         Project project = transaction.getProject();
-        String key = transaction.get(Transaction.ORDER_KEY);
+        String key = StringUtil.defaultValue(transaction.get(Transaction.UNION_KEY), transaction.get(Transaction.ORDER_KEY));
         String unionid = Transaction.generateUnionid(transaction.getProject().getKey(), key);
         Transaction src = this.transactionDao.findUnique(Restrictions.eq("unionId", unionid));
         if (src != null) {
@@ -83,8 +87,10 @@ public class TransactionService {
             case order:
                 transaction.set("stage", Transaction.STAGE_PAYMENT);
                 break;
-            case transfer:
+            case transfer://如果为转账交易，默认为内部交易
+                transaction.setChannel(TxChannel.internal);
                 break;
+            default:
         }
         transaction.setStatus(TxStatus.unprocessed);
         transaction.setStatusText(transaction.getProject().getType() == ProjectType.order ? "等待付款" : "待处理");

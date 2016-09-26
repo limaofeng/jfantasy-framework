@@ -30,13 +30,15 @@ public class Transaction extends BaseBusEntity {
 
     private static final long serialVersionUID = 3296031463173407900L;
 
-    public final static String STAGE = "stage";
-    public final static String STAGE_PAYMENT = "stage_payment";
-    public final static String STAGE_REFUND = "stage_refund";
-    public final static String ORDER_KEY = "order_key";
+    public static final String UNION_KEY = "union_key";
+
+    public static final String STAGE = "stage";
+    public static final String STAGE_PAYMENT = "stage_payment";
+    public static final String STAGE_REFUND = "stage_refund";
+    public static final String ORDER_KEY = "order_key";
     public static final String ORDER_SUBJECT = "order_subject";
 
-    public final static String CARD_ID = "card_id";
+    public static final String CARD_ID = "card_id";
     public static final String CARD_SUBJECT = "card_subject";
 
     /**

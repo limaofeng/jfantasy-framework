@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/** 微信公众账号 **/
+/**
+ * 微信公众账号
+ */
 @RestController("weixin.accountController")
 @RequestMapping("/weixin/accounts")
 public class AccountController {

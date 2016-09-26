@@ -237,6 +237,7 @@ public class PayService {
                 break;
             case failure:
                 break;
+            default:
         }
 
         // 如果为完成 或者 初始状态 不触发事件
