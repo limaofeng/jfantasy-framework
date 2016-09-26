@@ -2,7 +2,7 @@ package org.jfantasy.member.service.vo;
 
 public enum AuthType {
     /**
-     * 通过Token授权
+     * token 授权修改
      */
     token,
     /**

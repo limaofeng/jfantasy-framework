@@ -193,6 +193,9 @@ public class MemberService {
                     throw new ValidationException(203.1f, "短信验证失败!");
                 }
                 break;
+            case token:
+                // TODO token 用于超级管理员修改。 暂时以实现功能为目的。未做具体实现
+                break;
             default:
         }
         member.setPassword(passwordEncoder.encode(newPassword));
