@@ -59,8 +59,8 @@ public class InvoiceController {
      */
     @RequestMapping(method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
-    public ResultResourceSupport create(@Validated(RESTful.POST.class) @RequestBody Invoice invoice) {
-        return assembler.toResource(this.invoiceService.save(invoice));
+    public List<ResultResourceSupport> create(@Validated(RESTful.POST.class) @RequestBody Invoice invoice) {
+        return assembler.toResources(this.invoiceService.save(invoice));
     }
 
     /**

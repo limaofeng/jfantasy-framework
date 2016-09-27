@@ -1,6 +1,5 @@
 package org.jfantasy.pay.product;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.jfantasy.framework.httpclient.HttpClientUtil;
 import org.jfantasy.framework.httpclient.Response;
 import org.jfantasy.framework.jackson.JSON;
@@ -42,59 +41,12 @@ public class Alipay extends PayProductSupport {
     private static final String HTTPS_VERIFY_URL = "https://mapi.alipay.com/gateway.do?service=notify_verify&";
     private static final String REGEXP_PARSE = "^\\{(.*)\\}$";
 
-    private Urls urls = new Urls() {
-        {
-            this.paymentUrl = "https://mapi.alipay.com/gateway.do?_input_charset=" + INPUT_CHARSET;// 支付请求URL
-            this.refundUrl = "https://mapi.alipay.com/gateway.do";//统一收单交易退款接口
-            this.queryUrl = "https://openapi.alipay.com/gateway.do";
-        }
-    };
+    private static final Urls urls = new Urls();
 
-    private final List<BankCode> creditBankCodes = new LinkedList<>();
-    private final List<BankCode> debitBankCodes = new LinkedList<>();
-
-    {
-        //银行简码——混合渠道
-        creditBankCodes.add(new BankCode("ICBCBTB", "中国工商银行（B2B）"));
-        creditBankCodes.add(new BankCode("ABCBTB", "中国农业银行（B2B）"));
-        creditBankCodes.add(new BankCode("CCBBTB", "中国建设银行（B2B）"));
-        creditBankCodes.add(new BankCode("SPDBB2B", "上海浦东发展银行（B2B）"));
-        creditBankCodes.add(new BankCode("BOCBTB", "中国银行（B2B）"));
-        creditBankCodes.add(new BankCode("CMBBTB", "招商银行（B2B）"));
-        creditBankCodes.add(new BankCode("BOCB2C", "中国银行"));
-        creditBankCodes.add(new BankCode("ICBCB2C", "中国工商银行"));
-        creditBankCodes.add(new BankCode("CMB", "招商银行"));
-        creditBankCodes.add(new BankCode("CCB", "中国建设银行"));
-        creditBankCodes.add(new BankCode("ABC", "中国农业银行"));
-        creditBankCodes.add(new BankCode("SPDB", "上海浦东发展银行"));
-        creditBankCodes.add(new BankCode("CIB", "兴业银行"));
-        creditBankCodes.add(new BankCode("GDB", "广发银行"));
-        creditBankCodes.add(new BankCode("CMBC", "中国民生银行"));
-        creditBankCodes.add(new BankCode("CITIC", "中信银行"));
-        creditBankCodes.add(new BankCode("HZCBB2C", "杭州银行"));
-        creditBankCodes.add(new BankCode("CEBBANK", "中国光大银行"));
-        creditBankCodes.add(new BankCode("SHBANK", "上海银行"));
-        creditBankCodes.add(new BankCode("NBBANK", "宁波银行"));
-        creditBankCodes.add(new BankCode("SPABANK", "平安银行"));
-        creditBankCodes.add(new BankCode("BJRCB", "北京农村商业银行"));
-        creditBankCodes.add(new BankCode("FDB", "富滇银行"));
-        creditBankCodes.add(new BankCode("POSTGC", "中国邮政储蓄银行"));
-        creditBankCodes.add(new BankCode("abc1003", "visa"));
-        creditBankCodes.add(new BankCode("abc1004", "master"));
-        //银行简码——纯借记卡渠道
-        debitBankCodes.add(new BankCode("CMB-DEBIT", "招商银行"));
-        debitBankCodes.add(new BankCode("CCB-DEBIT", "中国建设银行"));
-        debitBankCodes.add(new BankCode("ICBC-DEBIT", "中国工商银行"));
-        debitBankCodes.add(new BankCode("COMM-DEBIT", "交通银行"));
-        debitBankCodes.add(new BankCode("GDB-DEBIT", "广发银行"));
-        debitBankCodes.add(new BankCode("BOC-DEBIT", "中国银行"));
-        debitBankCodes.add(new BankCode("CEB-DEBIT", "中国光大银行"));
-        debitBankCodes.add(new BankCode("SPDB-DEBIT", "上海浦东发展银行"));
-        debitBankCodes.add(new BankCode("PSBC-DEBIT", "中国邮政储蓄银行"));
-        debitBankCodes.add(new BankCode("BJBANK", "北京银行"));
-        debitBankCodes.add(new BankCode("SHRCB", "上海农商银行"));
-        debitBankCodes.add(new BankCode("WZCBB2C-DEBIT", "温州银行"));
-        debitBankCodes.add(new BankCode("COMM", "交通银行"));
+    static {
+        urls.paymentUrl = "https://mapi.alipay.com/gateway.do?_input_charset=" + INPUT_CHARSET;// 支付请求URL
+        urls.refundUrl = "https://mapi.alipay.com/gateway.do";//统一收单交易退款接口
+        urls.queryUrl = "https://openapi.alipay.com/gateway.do";
     }
 
     @Override
@@ -147,13 +99,11 @@ public class Alipay extends PayProductSupport {
             data.put("subject", WebUtil.transformCoding(order.getSubject(), INPUT_CHARSET, INPUT_CHARSET));// 订单的名称、标题、关键字等
             data.put("body", WebUtil.transformCoding(order.getBody(), INPUT_CHARSET, INPUT_CHARSET));// 订单描述
 
+            Map<String, Object> tdata = new HashMap<>();
+            tdata.put("url", urls.paymentUrl);
+            tdata.put("params", data.entrySet());
             //拼接支付表单
-            return HandlebarsTemplateUtils.processTemplateIntoString(HandlebarsTemplateUtils.template("/org.jfantasy.pay.product.template/pay"), new HashMap<String, Object>() {
-                {
-                    this.put("url", urls.paymentUrl);
-                    this.put("params", data.entrySet());
-                }
-            });
+            return HandlebarsTemplateUtils.processTemplateIntoString(HandlebarsTemplateUtils.template("/org.jfantasy.pay.product.template/pay"), tdata);
         } catch (IOException e) {
             LOG.error(e);
             throw new PayException("支付过程发生错误，错误信息为:" + e.getMessage());
@@ -208,8 +158,8 @@ public class Alipay extends PayProductSupport {
             }
             assert tresult != null;
             for (String _ps : tresult.split(";")) {
-                String key = _ps.substring(0, _ps.indexOf("="));
-                String value = _ps.substring(_ps.indexOf("=") + 1);
+                String key = _ps.substring(0, _ps.indexOf('='));
+                String value = _ps.substring(_ps.indexOf('=') + 1);
                 if (RegexpUtil.isMatch(value, REGEXP_PARSE)) {
                     appdata.put(key, RegexpUtil.parseGroup(value, REGEXP_PARSE, 1));
                 } else {
@@ -220,6 +170,7 @@ public class Alipay extends PayProductSupport {
         return SignUtil.parseQuery(appdata.isEmpty() ? result : appdata.get("result"), appdata.isEmpty());
     }
 
+    @Override
     public String payNotify(Payment payment, String result) throws PayException {
         PayConfig config = payment.getPayConfig();
         try {
@@ -234,14 +185,14 @@ public class Alipay extends PayProductSupport {
             }
             //记录交易流水
             payment.setTradeNo(data.get("trade_no"));
-            if ("WAIT_BUYER_PAY".equals(data.get("trade_status"))) {//交易创建，等待买家付款。
-                //TODO 如果有支付过期定时器的话,现在可以启动了
+            if ("WAIT_BUYER_PAY".equals(data.get("trade_status"))) {//交易创建，等待买家付款。如果有支付过期定时器的话,现在可以启动了
+                // Do Nothing
                 LOG.debug("WAIT_BUYER_PAY ... ");
             } else if ("TRADE_SUCCESS".equals(data.get("trade_status"))) {//交易成功，且可对该交易做操作，如：多级分润、退款等。
                 if (data.containsKey("gmt_payment")) {
                     payment.setTradeTime(DateUtil.parse(data.get("gmt_payment"), "yyyy-MM-dd HH:mm:ss"));
-                } else {//TODO 如果为同步通知,可以发起一笔查询交易来获取交易时间
-                    payment.setTradeTime(DateUtil.parse(data.get("notify_time"), "yyyy-MM-dd HH:mm:ss"));
+                } else {
+                    payment.setTradeTime(DateUtil.parse(data.get("notify_time"), "yyyy-MM-dd HH:mm:ss"));// 如果为同步通知,可以发起一笔查询交易来获取交易时间
                 }
                 payment.setStatus(PaymentStatus.success);
             } else if ("TRADE_FINISHED".equals(data.get("trade_status"))) {//交易成功且结束，即不可再做任何操作。
@@ -320,29 +271,7 @@ public class Alipay extends PayProductSupport {
 
     @Override
     public void close(Payment payment) throws PayException {
-
-    }
-
-    /**
-     * 支付宝网银直连接口已下线
-     *
-     * @return List<BankCode>
-     */
-    @JsonIgnore
-    @Deprecated
-    public List<BankCode> getCreditBankCodes() {
-        return creditBankCodes;
-    }
-
-    /**
-     * 支付宝网银直连接口已下线
-     *
-     * @return List<BankCode>
-     */
-    @JsonIgnore
-    @Deprecated
-    public List<BankCode> getDebitBankCodes() {
-        return debitBankCodes;
+        // Do Nothing
     }
 
     @Override
@@ -388,7 +317,7 @@ public class Alipay extends PayProductSupport {
         }
     }
 
-    private class Urls {
+    private static class Urls {
         /**
          * 支付接口
          */

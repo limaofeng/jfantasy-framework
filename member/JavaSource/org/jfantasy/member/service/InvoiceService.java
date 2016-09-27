@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +33,7 @@ public class InvoiceService {
     }
 
     @Transactional
-    public Invoice save(Invoice invoice) {
+    public List<Invoice> save(Invoice invoice) {
         Map<String, Invoice> invoices = new HashMap<>();
         for (InvoiceItem item : invoice.getItems()) {
             InvoiceOrder order = invoiceOrderDao.get(item.getOrder().getId());
@@ -61,6 +62,7 @@ public class InvoiceService {
             //开票金额
             tinvoice.setAmount(tinvoice.getAmount().add(order.getInvoiceAmount()));
         }
+
         //保存发票
         for (Map.Entry<String, Invoice> entry : invoices.entrySet()) {
             Invoice tinvoice = entry.getValue();
@@ -68,7 +70,7 @@ public class InvoiceService {
             tinvoice.setStatus(InvoiceStatus.NONE);
             this.invoiceDao.save(tinvoice);
         }
-        return invoice;
+        return new ArrayList<>(invoices.values());
     }
 
     @Transactional
