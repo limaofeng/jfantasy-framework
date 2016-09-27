@@ -52,8 +52,28 @@ public class WalletService {
     @Autowired
     private ApiGatewaySettings apiGatewaySettings;
 
-    private Wallet newWallet(String account, BigDecimal amount) {
-        return newWallet(null, account, amount);
+    private Wallet loadByAccount(String accountNo) {
+        try {
+            Response response = HttpClientUtil.doGet(apiGatewaySettings.getUrl() + "/accounts/" + accountNo);
+            if (response.getStatusCode() != 200) {
+                throw new ValidationException(203.1f, "检查账号出错");
+            }
+            JsonNode account = response.json();
+            String owner = account.get("owner").asText();
+            String type = account.get("type").asText();
+            BigDecimal amount = account.get("amount").decimalValue();
+            if (!type.equals("platform")) {
+                String[] asr = owner.split(":");
+                String username = asr[1];
+                return newWallet(memberDao.findUnique(Restrictions.eq("username", username)), accountNo, amount);
+            } else {
+                return newWallet(null, accountNo, amount);
+            }
+        } catch (IOException e) {
+            LOG.error(e.getMessage(), e);
+            throw new ValidationException(203.3f, "网络问题!");
+        }
+
     }
 
     /**
@@ -73,6 +93,7 @@ public class WalletService {
         //初始化积分与成长值
         wallet.setGrowth(0L);
         wallet.setPoints(0L);
+        wallet.setBills(Collections.<WalletBill>emptyList());
         //初始化账单 并 计算收益
         return walletDao.insert(wallet);
     }
@@ -101,15 +122,7 @@ public class WalletService {
                     }
                     account = response.json();
                 }
-                wallet = new Wallet();
-                wallet.setMember(member);
-                wallet.setAccount(account.get("sn").asText());
-                wallet.setAmount(BigDecimal.valueOf(account.get("amount").asDouble()));
-                wallet.setIncome(BigDecimal.ZERO);
-                wallet.setGrowth(0L);
-                wallet.setPoints(0L);
-                wallet.setBills(Collections.<WalletBill>emptyList());
-                this.walletDao.save(wallet);
+                return newWallet(member, account.get("sn").asText(), BigDecimal.valueOf(account.get("amount").asDouble()));
             } catch (IOException e) {
                 LOG.error(e.getMessage(), e);
                 throw new ValidationException(203.3f, "网络问题!");
@@ -142,7 +155,7 @@ public class WalletService {
     private Wallet getWallet(String account) {
         Wallet wallet = this.walletDao.findUnique(Restrictions.eq("account", account));
         if (wallet == null) {
-            return newWallet(account, BigDecimal.ZERO);
+            return loadByAccount(account);
         }
         return wallet;
     }
@@ -170,7 +183,8 @@ public class WalletService {
                     return newWallet(member, account_sn, account_amount);
                 case "platform":
                 case "enterprise":
-                    return newWallet(account_sn, account_amount);
+                    return newWallet(null, account_sn, account_amount);
+                default:
             }
         } else {
             return updateWallet(wallet.getId(), account_amount);
