@@ -21,7 +21,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/** 订单 **/
+/**
+ * 订单
+ **/
 @RestController
 @RequestMapping("/orders")
 public class OrderController {
@@ -58,14 +60,20 @@ public class OrderController {
     @ResponseBody
     public ResultResourceSupport view(@PathVariable("id") String key) {
         Order order = orderService.get(OrderKey.newInstance(key));
-        if(order == null){
-            throw new NotFoundException("[ID="+key+"]的订单不存在");
+        if (order == null) {
+            throw new NotFoundException("[ID=" + key + "]的订单不存在");
         }
         return assembler.toResource(order);
     }
 
-    @JsonResultFilter(allow = @AllowProperty(pojo = PayConfig.class, name = {"id", "pay_product_id", "name", "platforms","default"}))
-    /** 创建订单交易 - 该接口会判断交易是否创建,如果没有交易记录会添加交易订单到交易记录 **/
+    /**
+     * 创建订单交易 - 该接口会判断交易是否创建,如果没有交易记录会添加交易订单到交易记录
+     *
+     * @param key 订单 key
+     * @param orderTransaction 交易类型
+     * @return Transaction
+     */
+    @JsonResultFilter(allow = @AllowProperty(pojo = PayConfig.class, name = {"id", "pay_product_id", "name", "platforms", "default", "disabled"}))
     @RequestMapping(value = "/{id}/transactions", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
@@ -85,19 +93,23 @@ public class OrderController {
     }
 
     @JsonResultFilter(allow = @AllowProperty(pojo = PayConfig.class, name = {"id", "payProductId", "name", "platforms"}))
-    /** 获取订单交易 - 该接口会判断交易是否创建,如果没有交易记录会添加交易订单到交易记录 **/
     @RequestMapping(value = "/{id}/transactions", method = RequestMethod.GET)
     @ResponseBody
-    public List<ResultResourceSupport> transactions(@PathVariable("id") String key,List<PropertyFilter> filters) {
+    public List<ResultResourceSupport> transactions(@PathVariable("id") String key, List<PropertyFilter> filters) {
         filters.add(new PropertyFilter("INS_unionId", Transaction.generateUnionid(OrderTransaction.Type.payment.getValue(), key), Transaction.generateUnionid(OrderTransaction.Type.refund.getValue(), key)));
         return transactionController.seach(new Pager<Transaction>(), filters).getPageItems();
     }
 
+    /**
+     * 获取订单信息的付款信息
+     *
+     * @param id
+     * @return
+     */
     @JsonResultFilter(
             ignore = @IgnoreProperty(pojo = Payment.class, name = {"payConfig", "orderKey"}),
             allow = @AllowProperty(pojo = Order.class, name = {"key", "subject"})
     )
-    /** 获取订单信息的付款信息 **/
     @RequestMapping(value = "/{id}/payments", method = RequestMethod.GET)
     @ResponseBody
     public Pager<ResultResourceSupport> payments(@PathVariable("id") String id) {
@@ -120,7 +132,9 @@ public class OrderController {
         return refundController.search(new Pager<Refund>(), filters);
     }
 
-    /** 获取订单信息的明细信息 **/
+    /**
+     * 获取订单信息的明细信息
+     **/
     @RequestMapping(value = "/{id}/items", method = RequestMethod.GET)
     @ResponseBody
     public List<OrderItem> items(@PathVariable("id") String id) {
