@@ -20,21 +20,19 @@ public class IndexReopenTask implements Runnable {
         if (!reopenLock.tryLock()) {
             return;
         }
-        try {
+        try {//NOSONAR
             IndexSearcherCache searcherCache = IndexSearcherCache.getInstance();
             for (Map.Entry<String, IndexSearcher> entry : searcherCache.getAll().entrySet()) {
                 IndexSearcher searcher = entry.getValue();
                 IndexReader reader = searcher.getIndexReader();
-                try (IndexReader newReader = IndexReader.openIfChanged(reader)) {
-                    if ((newReader != null) && (newReader != reader)) {
-                        reader.decRef();
-                        IndexSearcher newSearcher = new IndexSearcher(newReader);
-                        searcherCache.put(entry.getKey(), newSearcher);
-                    }
-                } catch (IOException ex) {
-                    LOGGER.error("Something is wrong when reopen the Lucene IndexReader", ex);
+                IndexReader newReader = IndexReader.openIfChanged(reader);//NOSONAR
+                if (newReader != reader) {
+                    IndexSearcher newSearcher = new IndexSearcher(newReader);
+                    searcherCache.put(entry.getKey(), newSearcher);
                 }
             }
+        } catch (IOException ex) {
+            LOGGER.error("Something is wrong when reopen the Lucene IndexReader", ex);
         } finally {
             reopenLock.unlock();
         }
