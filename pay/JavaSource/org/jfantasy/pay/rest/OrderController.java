@@ -92,7 +92,7 @@ public class OrderController {
         return transactionController.save(transaction);
     }
 
-    @JsonResultFilter(allow = @AllowProperty(pojo = PayConfig.class, name = {"id", "payProductId", "name", "platforms"}))
+    @JsonResultFilter(allow = @AllowProperty(pojo = PayConfig.class, name = {"id", "pay_product_id", "name", "platforms", "default", "disabled"}))
     @RequestMapping(value = "/{id}/transactions", method = RequestMethod.GET)
     @ResponseBody
     public List<ResultResourceSupport> transactions(@PathVariable("id") String key, List<PropertyFilter> filters) {
