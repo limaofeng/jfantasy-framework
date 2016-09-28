@@ -340,8 +340,10 @@ public class DateUtil {
             case Calendar.DATE://NOSONAR
                 smallCalendar.clear(Calendar.HOUR);
                 smallCalendar.clear(Calendar.HOUR_OF_DAY);
+                smallCalendar.clear(Calendar.AM_PM);
                 bigCalendar.clear(Calendar.HOUR);
                 bigCalendar.clear(Calendar.HOUR_OF_DAY);
+                bigCalendar.clear(Calendar.AM_PM);
             case Calendar.HOUR_OF_DAY:
                 smallCalendar.clear(Calendar.MINUTE);
                 bigCalendar.clear(Calendar.MINUTE);
