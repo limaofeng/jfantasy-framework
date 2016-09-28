@@ -51,20 +51,12 @@ public class DaoConfig {
         return bean;
     }
 
-    private <T> T createListenerInstance(Class<T> clazz) {
-        return clazz.cast(createListenerInstance(ClassUtil.newInstance(clazz)));
-    }
-
     @Bean(name = "sessionFactory")
     public SessionFactory sessionFactory() {
         SessionFactoryImplementor sessionFactory = entityManagerFactory.unwrap(SessionFactoryImplementor.class);
         EventListenerRegistry registry = sessionFactory.getServiceRegistry().getService(EventListenerRegistry.class);
 
         MutableIdentifierGeneratorFactory identifierGeneratorFactory = sessionFactory.getServiceRegistry().getService(MutableIdentifierGeneratorFactory.class);
-        /*
-        identifierGeneratorFactory.register("fantasy-sequence", SequenceGenerator.class);
-        identifierGeneratorFactory.register("serialnumber", SerialNumberGenerator.class);
-        */
         // 默认监听器
         registry.prependListeners(EventType.SAVE_UPDATE, createListenerInstance(new PropertyGeneratorSaveOrUpdatEventListener(identifierGeneratorFactory)));
         registry.prependListeners(EventType.PERSIST, createListenerInstance(new PropertyGeneratorPersistEventListener(identifierGeneratorFactory)));
