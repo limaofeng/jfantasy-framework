@@ -23,7 +23,7 @@ public class Account extends BaseBusEntity {
     @Id
     @Column(name = "ID", updatable = false)
     @GeneratedValue(generator = "serialnumber")
-    @GenericGenerator(name = "serialnumber", strategy = "serialnumber", parameters = {@Parameter(name = "expression", value = "#StringUtil.addZeroLeft(#SequenceInfo.nextValue('PAY-ACCOUNT-SN' + #DateUtil.format('yyyyMMdd')), 8)")})
+    @GenericGenerator(name = "serialnumber", strategy = "serialnumber", parameters = {@Parameter(name = "expression", value = "#DateUtil.format('yyyyMMdd') + #StringUtil.addZeroLeft(#SequenceInfo.nextValue('PAY-ACCOUNT-SN' + #DateUtil.format('yyyyMMdd')), 8)")})
     private String sn;
     /**
      * 账号类型
