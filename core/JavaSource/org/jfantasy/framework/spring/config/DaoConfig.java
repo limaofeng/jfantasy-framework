@@ -21,7 +21,6 @@ import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.springframework.transaction.annotation.TransactionManagementConfigurer;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
@@ -34,7 +33,7 @@ import java.util.Map;
 @EnableTransactionManagement(proxyTargetClass = true)
 @EnableJpaRepositories(transactionManagerRef = "jpaTransactionManager", includeFilters = {@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {JpaRepository.class})}, basePackages = "org.jfantasy.*.dao")
 @Import({DataSourceConfig.class,MyBatisConfig.class})
-public class DaoConfig implements TransactionManagementConfigurer {
+public class DaoConfig {
 
     private static final Log LOG = LogFactory.getLog(DaoConfig.class);
 
@@ -86,6 +85,7 @@ public class DaoConfig implements TransactionManagementConfigurer {
         return dataSourceTransactionManager;
     }
 
+    @Primary
     @Bean(name = "hibernateTransactionManager")
     public PlatformTransactionManager hibernateTransactionManager() {
         HibernateTransactionManager hibernateTransactionManager = new HibernateTransactionManager();
@@ -96,11 +96,6 @@ public class DaoConfig implements TransactionManagementConfigurer {
     @Bean(name = "jpaTransactionManager")
     public PlatformTransactionManager jpaTransactionManager() {
         return new JpaTransactionManager(entityManagerFactory);
-    }
-
-    @Override
-    public PlatformTransactionManager annotationDrivenTransactionManager() {
-        return hibernateTransactionManager();
     }
 
 }
