@@ -281,7 +281,7 @@ public class WalletService {
             if (wallet.getPoints() == null) {
                 wallet.setPoints(0L);
             }
-            wallet.setGrowth(wallet.getPoints() + Long.valueOf(data.get("point").toString()));
+            wallet.setPoints(wallet.getPoints() + Long.valueOf(data.get("point").toString()));
         }
         this.walletDao.update(wallet);
     }
