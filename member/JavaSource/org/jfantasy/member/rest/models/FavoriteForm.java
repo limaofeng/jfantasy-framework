@@ -1,16 +1,24 @@
 package org.jfantasy.member.rest.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.jfantasy.framework.spring.validation.RESTful;
 import org.jfantasy.member.bean.Favorite;
 
+import javax.validation.constraints.NotNull;
+
 public class FavoriteForm {
+    @NotNull(groups = RESTful.POST.class)
     private Long memberId;
+    @NotNull(groups = RESTful.POST.class)
     private String type;
+    @NotNull(groups = RESTful.POST.class)
     private String targetType;
+    @NotNull(groups = RESTful.POST.class)
     private String targetId;
+    @NotNull(groups = RESTful.POST.class)
     private boolean watch;
 
-    public FavoriteForm(){
+    public FavoriteForm() {
     }
 
     public FavoriteForm(Long memberId, String type, String targetType, String targetId, boolean watch) {
