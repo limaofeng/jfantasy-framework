@@ -266,6 +266,9 @@ public class WalletService {
         this.cardDao.save(card);
         // 计算附加服务
         Map<String, Object> data = card.getExtras();
+        if(data == null || data.isEmpty()){
+            return;
+        }
         //添加成长值
         if (data.containsKey("growth")) {
             if (wallet.getGrowth() == null) {
@@ -280,7 +283,7 @@ public class WalletService {
             }
             wallet.setGrowth(wallet.getPoints() + Long.valueOf(data.get("point").toString()));
         }
-
+        this.walletDao.update(wallet);
     }
 
 }
