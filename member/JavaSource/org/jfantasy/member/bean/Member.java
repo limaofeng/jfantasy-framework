@@ -3,6 +3,7 @@ package org.jfantasy.member.bean;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.validator.constraints.Length;
 import org.jfantasy.framework.dao.BaseBusEntity;
 import org.jfantasy.framework.spring.validation.RESTful.POST;
@@ -31,6 +32,7 @@ import java.util.*;
 @TableGenerator(name = "member_gen", table = "sys_sequence", pkColumnName = "gen_name", pkColumnValue = "mem_member:id", valueColumnName = "gen_value")
 @JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "user_groups", "roles", "authorities"})
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@DynamicUpdate
 public class Member extends BaseBusEntity {
 
     public static final String MEMBER_TYPE_PERSONAL = "personal";
