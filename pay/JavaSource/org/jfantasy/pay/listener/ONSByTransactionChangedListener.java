@@ -6,6 +6,7 @@ import org.jfantasy.aliyun.AliyunSettings;
 import org.jfantasy.framework.autoconfigure.PayAutoConfiguration;
 import org.jfantasy.framework.jackson.JSON;
 import org.jfantasy.pay.bean.Transaction;
+import org.jfantasy.pay.bean.enums.TxStatus;
 import org.jfantasy.pay.event.TransactionChangedEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
@@ -32,6 +33,9 @@ public class ONSByTransactionChangedListener implements ApplicationListener<Tran
     @Override
     public void onApplicationEvent(TransactionChangedEvent event) {
         Transaction transaction = event.getTransaction();
+        if (transaction.getStatus() == TxStatus.unprocessed) {
+            return;
+        }
         Message msg = new Message(aliyunSettings.getTopicId(), PayAutoConfiguration.ONS_TAGS_TRANSACTION_KEY, transaction.getSn(), JSON.serialize(transaction).getBytes());
         producer.send(msg);
     }

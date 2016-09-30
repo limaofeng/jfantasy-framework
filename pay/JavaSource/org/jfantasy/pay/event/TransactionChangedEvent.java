@@ -21,4 +21,5 @@ public class TransactionChangedEvent extends ApplicationEvent {
     public Transaction getTransaction() {
         return ((TxnSource)this.getSource()).getTransaction();
     }
+
 }

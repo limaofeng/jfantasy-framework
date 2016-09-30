@@ -166,28 +166,28 @@ public class WalletService {
 
     @Transactional
     public Wallet saveOrUpdateWallet(JsonNode account) {
-        String account_sn = account.get("sn").asText();
-        BigDecimal account_amount = account.get("amount").decimalValue();
-        String account_type = account.get("type").asText();
-        String account_owner = account.get("owner").asText();
+        String accountSn = account.get("sn").asText();
+        BigDecimal accountAmount = account.get("amount").decimalValue();
+        String accountType = account.get("type").asText();
+        String accountOwner = account.get("owner").asText();
 
-        Wallet wallet = this.walletDao.findUnique(Restrictions.eq("account", account_sn));
+        Wallet wallet = this.walletDao.findUnique(Restrictions.eq("account", accountSn));
         if (wallet == null) {
-            switch (account_type) {
+            switch (accountType) {
                 case "personal":
-                    String username = account_owner.replaceAll("^[^:]+:", "");
+                    String username = accountOwner.replaceAll("^[^:]+:", "");
                     Member member = memberDao.findUnique(Restrictions.eq("username", username));
                     if (member == null) {
                         throw new RestException("用户不存在!");
                     }
-                    return newWallet(member, account_sn, account_amount);
+                    return newWallet(member, accountSn, accountAmount);
                 case "platform":
                 case "enterprise":
-                    return newWallet(null, account_sn, account_amount);
+                    return newWallet(null, accountSn, accountAmount);
                 default:
             }
         } else {
-            return updateWallet(wallet.getId(), account_amount);
+            return updateWallet(wallet.getId(), accountAmount);
         }
         throw new RestException("创建账号失败!");
     }
@@ -215,6 +215,9 @@ public class WalletService {
 
         if (from != null) {//添加转出交易
             WalletBill bill = this.walletBillDao.findUnique(Restrictions.eq("wallet.id", from.getId()), Restrictions.eq("tradeNo", tradeSn));
+            if (bill != null && (bill.getStatus() == BillStatus.success || bill.getStatus() == BillStatus.close)) {
+                return;
+            }
             if (bill == null) {
                 bill = new WalletBill();
                 bill.setTradeNo(tradeSn);
@@ -231,6 +234,9 @@ public class WalletService {
 
         if (to != null) {//添加转入交易
             WalletBill bill = this.walletBillDao.findUnique(Restrictions.eq("wallet.id", to.getId()), Restrictions.eq("tradeNo", tradeSn));
+            if (bill != null && (bill.getStatus() == BillStatus.success || bill.getStatus() == BillStatus.close)) {
+                return;
+            }
             if (bill == null) {
                 bill = new WalletBill();
                 bill.setTradeNo(tradeSn);
@@ -266,7 +272,7 @@ public class WalletService {
         this.cardDao.save(card);
         // 计算附加服务
         Map<String, Object> data = card.getExtras();
-        if(data == null || data.isEmpty()){
+        if (data == null || data.isEmpty()) {
             return;
         }
         //添加成长值

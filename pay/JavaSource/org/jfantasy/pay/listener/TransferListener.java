@@ -14,17 +14,25 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 public class TransferListener implements ApplicationListener<TransactionChangedEvent> {
 
-    @Autowired
     private AccountService accountService;
 
-    @Override
     @Async
+    @Override
     @Transactional
     public void onApplicationEvent(TransactionChangedEvent event) {
         Transaction transaction = event.getTransaction();
-        if (transaction.getProject().getType() == ProjectType.transfer && transaction.getStatus() == TxStatus.unprocessed) {
-            accountService.transfer(transaction.getSn(), "NONE", "自动转账");
+        if (transaction.getStatus() != TxStatus.unprocessed) {
+            return;
         }
+        if (transaction.getProject().getType() != ProjectType.transfer) {
+            return;
+        }
+        accountService.transfer(transaction.getSn(), "NONE", "自动转账");
+    }
+
+    @Autowired
+    public void setAccountService(AccountService accountService) {
+        this.accountService = accountService;
     }
 
 }
