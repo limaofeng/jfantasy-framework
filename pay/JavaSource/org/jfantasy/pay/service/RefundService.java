@@ -5,12 +5,12 @@ import org.hibernate.criterion.Restrictions;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.spring.SpELUtil;
+import org.jfantasy.framework.spring.mvc.error.RestException;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.pay.bean.Order;
 import org.jfantasy.pay.bean.Payment;
 import org.jfantasy.pay.bean.Refund;
 import org.jfantasy.pay.dao.RefundDao;
-import org.jfantasy.pay.error.PayException;
 import org.jfantasy.pay.order.entity.enums.PaymentStatus;
 import org.jfantasy.pay.order.entity.enums.RefundStatus;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,9 +52,10 @@ public class RefundService {
      * @param remark  备注
      * @return Refund
      */
-    Refund ready(Payment payment, BigDecimal amount, String remark) throws PayException {
+    @Transactional
+    public Refund create(Payment payment, BigDecimal amount, String remark) {
         if (payment.getStatus() != PaymentStatus.success) {
-            throw new PayException("原交易[" + payment.getSn() + "]未支付成功,不能发起退款操作");
+            throw new RestException("原交易[" + payment.getSn() + "]未支付成功,不能发起退款操作");
         }
         List<Refund> refunds = this.refundDao.find(Restrictions.eq("payment.sn", payment.getSn()));
         Refund refund = ObjectUtil.find(refunds, REFUND_FIELDS_STATUS, RefundStatus.wait);
@@ -77,7 +78,7 @@ public class RefundService {
             }
             totalRefunded = totalRefunded.add(amount);
             if (totalRefunded.compareTo(payment.getTotalAmount()) > 0) {
-                throw new PayException("退款金额[" + totalRefunded + "]已经大于付款金额[" + payment.getTotalAmount() + "],不能执行退款操作");
+                throw new RestException("退款金额[" + totalRefunded + "]已经大于付款金额[" + payment.getTotalAmount() + "],不能执行退款操作");
             }
             refund = new Refund(payment);
             refund.setTotalAmount(amount);

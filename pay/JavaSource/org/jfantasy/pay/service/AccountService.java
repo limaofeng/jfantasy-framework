@@ -97,15 +97,30 @@ public class AccountService {
     }
 
     @Transactional
-    public Transaction transfer(String trx_no, String password, String notes) {
-        return transfer(transactionDao.get(trx_no), password, notes);
+    public Transaction transfer(String trxNo, String password, String notes) {
+        return transfer(transactionDao.get(trxNo), password, notes);
     }
 
     @Transactional
-    public Transaction refund(String original_trx_no, BigDecimal amount, String notes) {
+    public Transaction refund(String originalTrxNo, BigDecimal amount, String notes) {
+        Transaction original = this.transactionDao.get(originalTrxNo);
         //创建退款交易
         Transaction transaction = new Transaction();
-
+        String key = StringUtil.defaultValue(original.get(Transaction.UNION_KEY), transaction.get(Transaction.ORDER_KEY));
+        //
+        String unionid = Transaction.generateUnionid("", key);
+        Transaction src = this.transactionDao.findUnique(Restrictions.eq("unionId", unionid));
+        if (src != null) {
+            return src;
+        }
+        // 设置额外参数
+        transaction.setUnionId(unionid);
+        transaction.setFrom(original.getTo());
+        transaction.setTo(original.getFrom());
+        transaction.setAmount(amount);
+        transaction.setChannel(original.getChannel());
+        transaction.setNotes("退款");
+        transaction.setStatus(TxStatus.unprocessed);
         Account from = this.get(transaction.getFrom());
         //进行退款操作
         return transfer(transaction, from.getPassword(), notes);

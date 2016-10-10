@@ -14,12 +14,15 @@ import org.jfantasy.pay.rest.models.OrderTransaction;
 import org.jfantasy.pay.rest.models.assembler.OrderResourceAssembler;
 import org.jfantasy.pay.service.AccountService;
 import org.jfantasy.pay.service.OrderService;
+import org.jfantasy.pay.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 订单
@@ -30,16 +33,12 @@ public class OrderController {
 
     private OrderResourceAssembler assembler = new OrderResourceAssembler();
 
-    @Autowired
     private OrderService orderService;
-    @Autowired
-    private PaymentController paymentController;
-    @Autowired
-    private RefundController refundController;
-    @Autowired
-    private TransactionController transactionController;
-    @Autowired
     private AccountService accountService;
+    private TransactionService transactionService;
+    private PaymentController paymentController;
+    private RefundController refundController;
+    private TransactionController transactionController;
 
     @JsonResultFilter(
             ignore = @IgnoreProperty(pojo = Order.class, name = {"refunds", "orderItems", "payments"}),
@@ -51,11 +50,16 @@ public class OrderController {
         return assembler.toResources(orderService.findPager(pager, filters));
     }
 
+    /**
+     * 获取订单信息
+     *
+     * @param key 订单KEY
+     * @return Order
+     */
     @JsonResultFilter(
             ignore = @IgnoreProperty(pojo = Order.class, name = {"refunds", "orderItems", "payments"}),
             allow = @AllowProperty(pojo = PayConfig.class, name = {"id", "name"})
     )
-    /** 获取订单信息 **/
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     @ResponseBody
     public ResultResourceSupport view(@PathVariable("id") String key) {
@@ -69,7 +73,7 @@ public class OrderController {
     /**
      * 创建订单交易 - 该接口会判断交易是否创建,如果没有交易记录会添加交易订单到交易记录
      *
-     * @param key 订单 key
+     * @param key              订单 key
      * @param orderTransaction 交易类型
      * @return Transaction
      */
@@ -78,18 +82,20 @@ public class OrderController {
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
     public ResultResourceSupport transaction(@PathVariable("id") String key, @RequestBody OrderTransaction orderTransaction) {
+        // 付款方
         String from = accountService.findUniqueByCurrentUser().getSn();
-        String to = accountService.platform().getSn();
+        // 订单
         Order order = orderService.getOrder(OrderKey.newInstance(key));
-        Transaction transaction = new Transaction();
-        transaction.setFrom(from);
-        transaction.setTo(to);
-        transaction.setAmount(order.getPayableFee());
-        transaction.set(Transaction.ORDER_KEY, key);
-        transaction.set(Transaction.ORDER_SUBJECT, order.getSubject());
-        transaction.setProject(new Project(orderTransaction.getType().getValue()));
-        transaction.setNotes(order.getSubject());
-        return transactionController.save(transaction);
+        // 保持到交易表的数据
+        Map<String, String> data = new HashMap<>();
+        data.put(Transaction.ORDER_KEY, key);
+        data.put(Transaction.ORDER_SUBJECT, order.getSubject());
+        // 判断交易类型
+        if (orderTransaction.getType() == OrderTransaction.Type.payment) {
+            return transactionController.transform(this.transactionService.payment(from, order.getPayableFee(), "", data));
+        } else {
+            return TransactionController.assembler.toResource(this.transactionService.refund(order.getKey(), orderTransaction.getAmount(), ""));
+        }
     }
 
     @JsonResultFilter(allow = @AllowProperty(pojo = PayConfig.class, name = {"id", "pay_product_id", "name", "platforms", "default", "disabled"}))
@@ -103,8 +109,8 @@ public class OrderController {
     /**
      * 获取订单信息的付款信息
      *
-     * @param id
-     * @return
+     * @param id orderKey
+     * @return Pager<Payment>
      */
     @JsonResultFilter(
             ignore = @IgnoreProperty(pojo = Payment.class, name = {"payConfig", "orderKey"}),
@@ -120,8 +126,12 @@ public class OrderController {
         return paymentController.search(new Pager<Payment>(), filters);
     }
 
+    /**
+     * 获取订单信息的付款信息
+     * @param id orderKey
+     * @return Pager<Refund>
+     */
     @JsonResultFilter(ignore = @IgnoreProperty(pojo = Refund.class, name = {"order", "payConfig", "payment"}))
-    /** 获取订单信息的付款信息 **/
     @RequestMapping(value = "/{id}/refunds", method = RequestMethod.GET)
     @ResponseBody
     public Pager<ResultResourceSupport> refunds(@PathVariable("id") String id) {
@@ -145,4 +155,33 @@ public class OrderController {
         return orderService.get(OrderKey.newInstance(id));
     }
 
+    @Autowired
+    public void setOrderService(OrderService orderService) {
+        this.orderService = orderService;
+    }
+
+    @Autowired
+    public void setAccountService(AccountService accountService) {
+        this.accountService = accountService;
+    }
+
+    @Autowired
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
+    }
+
+    @Autowired
+    public void setPaymentController(PaymentController paymentController) {
+        this.paymentController = paymentController;
+    }
+
+    @Autowired
+    public void setRefundController(RefundController refundController) {
+        this.refundController = refundController;
+    }
+
+    @Autowired
+    public void setTransactionController(TransactionController transactionController) {
+        this.transactionController = transactionController;
+    }
 }

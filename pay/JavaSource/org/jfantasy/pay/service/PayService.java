@@ -2,7 +2,6 @@ package org.jfantasy.pay.service;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Hibernate;
 import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.util.common.BeanUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
@@ -32,7 +31,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.Properties;
 
 /**
@@ -41,7 +39,7 @@ import java.util.Properties;
 @Service
 public class PayService {
 
-    private final static Log LOG = LogFactory.getLog(PayService.class);
+    private static final Log LOG = LogFactory.getLog(PayService.class);
 
     private final PayProductConfiguration payProductConfiguration;
     private final PayConfigService payConfigService;
@@ -116,22 +114,6 @@ public class PayService {
             paymentService.save(payment);
         }
         return toPayment;
-    }
-
-    /**
-     * 发起退款
-     *
-     * @param paymentSn 原支付交易
-     * @param amount    退款金额
-     * @param remark    备注
-     * @return Refund
-     */
-    @Transactional
-    public Refund refund(String paymentSn, BigDecimal amount, String remark) throws PayException {
-        Refund refund = refundService.ready(paymentService.get(paymentSn), amount.scale() != 2 ?  amount.setScale(2, BigDecimal.ROUND_DOWN) : amount, remark);
-        Hibernate.initialize(refund.getPayConfig());
-        Hibernate.initialize(refund.getOrder());
-        return refund;
     }
 
     /**

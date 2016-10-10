@@ -105,7 +105,7 @@ public class Transaction extends BaseBusEntity {
      */
     @Convert(converter = MapConverter.class)
     @Column(name = "PROPERTIES", columnDefinition = "Text")
-    private Map<String, Object> properties;
+    private Map<String, String> properties;
     /**
      * 支付记录
      **/
@@ -206,7 +206,7 @@ public class Transaction extends BaseBusEntity {
     }
 
     @JsonAnyGetter
-    public Map<String, Object> getProperties() {
+    public Map<String, String> getProperties() {
         if (ThreadJacksonMixInHolder.getMixInHolder().isIgnoreProperty(PayConfig.class, "properties")) {
             return null;
         }
@@ -223,11 +223,13 @@ public class Transaction extends BaseBusEntity {
 
     @Transient
     public String get(String key) {
-        if (this.properties == null || !this.properties.containsKey(key)) return null;
-        return this.properties.get(key).toString();
+        if (this.properties == null || !this.properties.containsKey(key)) {
+            return null;
+        }
+        return this.properties.get(key);
     }
 
-    public void setProperties(Map<String, Object> properties) {
+    public void setProperties(Map<String, String> properties) {
         this.properties = properties;
     }
 

@@ -2,11 +2,13 @@ package org.jfantasy.pay.rest.models;
 
 import org.jfantasy.pay.bean.Project;
 
+import java.math.BigDecimal;
+
 public class OrderTransaction {
 
     public enum Type {
 
-        payment(Project.ORDER_PAYMENT), refund(Project.ORDER_REFUND);
+        payment(Project.ORDER_PAYMENT), refund(Project.ORDER_REFUND);//NOSONAR
 
         private String value;
 
@@ -21,6 +23,7 @@ public class OrderTransaction {
     }
 
     private Type type;
+    private BigDecimal amount;
 
     public Type getType() {
         return type;
@@ -28,6 +31,15 @@ public class OrderTransaction {
 
     public void setType(Type type) {
         this.type = type;
+    }
+
+
+    public BigDecimal getAmount() {
+        return amount;
+    }
+
+    public void setAmount(BigDecimal amount) {
+        this.amount = amount;
     }
 
 }

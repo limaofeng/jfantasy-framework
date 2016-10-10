@@ -25,7 +25,6 @@ import org.jfantasy.pay.rest.models.assembler.TransactionResourceAssembler;
 import org.jfantasy.pay.service.*;
 import org.jfantasy.pay.service.vo.ToPayment;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -39,19 +38,17 @@ public class TransactionController {
 
     private static final Log LOG = LogFactory.getLog(TransactionController.class);
 
-    private TransactionResourceAssembler assembler = new TransactionResourceAssembler();
+    public static final TransactionResourceAssembler assembler = new TransactionResourceAssembler();
 
     private final TransactionService transactionService;
     private final PayService payService;
-    private final ProjectService projectService;
     private final PayConfigService configService;
     private final AccountService accountService;
 
     @Autowired
-    public TransactionController(PayConfigService configService, PayService payService, ProjectService projectService, TransactionService transactionService, AccountService accountService) {
+    public TransactionController(PayConfigService configService, PayService payService, TransactionService transactionService, AccountService accountService) {
         this.configService = configService;
         this.payService = payService;
-        this.projectService = projectService;
         this.transactionService = transactionService;
         this.accountService = accountService;
     }
@@ -63,18 +60,6 @@ public class TransactionController {
     @ResponseBody
     public Pager<ResultResourceSupport> seach(Pager<Transaction> pager, List<PropertyFilter> filters) {
         return assembler.toResources(transactionService.findPager(pager, filters));
-    }
-
-    /**
-     * 创建交易
-     **/
-    @RequestMapping(method = RequestMethod.POST)
-    @JsonResultFilter(allow = @AllowProperty(pojo = PayConfig.class, name = {"id", "pay_product_id", "name", "platforms", "default", "disabled"}))
-    @ResponseStatus(HttpStatus.CREATED)
-    @ResponseBody
-    public ResultResourceSupport save(@RequestBody Transaction transaction) {
-        transaction.setProject(this.projectService.get(transaction.getProject().getKey()));
-        return transform(transactionService.save(transaction));
     }
 
     /**
@@ -110,7 +95,7 @@ public class TransactionController {
         return transactionService.get(id);
     }
 
-    private ResultResourceSupport transform(Transaction transaction) {
+    ResultResourceSupport transform(Transaction transaction) {
         ResultResourceSupport resource = assembler.toResource(transaction);
         OAuthUserDetails user = SpringSecurityUtils.getCurrentUser(OAuthUserDetails.class);
 
