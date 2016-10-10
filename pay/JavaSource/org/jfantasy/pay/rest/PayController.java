@@ -6,12 +6,13 @@ import org.jfantasy.pay.bean.Order;
 import org.jfantasy.pay.bean.Payment;
 import org.jfantasy.pay.bean.Refund;
 import org.jfantasy.pay.error.PayException;
-import org.jfantasy.pay.rest.models.RefundForm;
 import org.jfantasy.pay.service.PayService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-/** 支付操作 **/
+/**
+ * 支付操作
+ **/
 @RestController
 @RequestMapping("/pays")
 public class PayController {
@@ -23,20 +24,19 @@ public class PayController {
         this.payService = payService;
     }
 
-    @JsonResultFilter(ignore = {@IgnoreProperty(pojo = Refund.class, name = {"order", "payment", "payConfig"})})
-    /** 支付退款 **/
-    @RequestMapping(value = "/{sn}/refund", method = RequestMethod.POST)
-    @ResponseBody
-    public Refund refund(@PathVariable("sn") String sn, @RequestBody RefundForm refundForm) throws PayException {
-        return payService.refund(sn, refundForm.getAmount(), refundForm.getRemark());
-    }
-
+    /**
+     * 支付通知 - 用于第三方支付通知系统
+     *
+     * @param sn   交易单号
+     * @param body 通知内容
+     * @return Object
+     * @throws PayException
+     */
     @JsonResultFilter(ignore = {
             @IgnoreProperty(pojo = Order.class, name = {"payConfig"}),
             @IgnoreProperty(pojo = Payment.class, name = {"order", "payConfig"}),
             @IgnoreProperty(pojo = Refund.class, name = {"order", "payment", "payConfig"})
     })
-    /** 支付通知 - 用于第三方支付通知系统 **/
     @RequestMapping(value = "/{sn}/notify", method = RequestMethod.POST)
     @ResponseBody
     public Object notify(@PathVariable("sn") String sn, @RequestBody String body) throws PayException {

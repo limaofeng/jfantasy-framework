@@ -8,7 +8,6 @@ import org.jfantasy.pay.bean.Refund;
 import org.jfantasy.pay.bean.Transaction;
 import org.jfantasy.pay.error.PayException;
 import org.jfantasy.pay.order.entity.enums.PaymentStatus;
-import org.jfantasy.pay.order.entity.enums.RefundStatus;
 import org.jfantasy.pay.service.AccountService;
 import org.jfantasy.pay.service.PayService;
 
@@ -68,8 +67,11 @@ public class Walletpay extends PayProductSupport {
 
     @Override
     public Object refund(Refund refund) throws PayException {
-        refund.setStatus(RefundStatus.success);
-        this.accountService().refund(refund.getPayment().getTransaction().getSn(), refund.getTotalAmount(), "退款");
+        //获取支付账户 与 支付密码
+        Transaction transaction = refund.getTransaction();
+        //进行划账操作
+        this.accountService().transfer(transaction.getSn(), transaction.getNotes());
+        //触发通知
         return this.payService().refundNotify(refund.getSn(), "");
     }
 

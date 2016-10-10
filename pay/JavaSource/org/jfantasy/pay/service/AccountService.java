@@ -96,52 +96,19 @@ public class AccountService {
         return account == null ? save(AccountType.personal, key, "") : account;
     }
 
-    @Transactional
-    public Transaction transfer(String trxNo, String password, String notes) {
-        return transfer(transactionDao.get(trxNo), password, notes);
-    }
-
-    @Transactional
-    public Transaction refund(String originalTrxNo, BigDecimal amount, String notes) {
-        Transaction original = this.transactionDao.get(originalTrxNo);
-        //创建退款交易
-        Transaction transaction = new Transaction();
-        String key = StringUtil.defaultValue(original.get(Transaction.UNION_KEY), transaction.get(Transaction.ORDER_KEY));
-        //
-        String unionid = Transaction.generateUnionid("", key);
-        Transaction src = this.transactionDao.findUnique(Restrictions.eq("unionId", unionid));
-        if (src != null) {
-            return src;
-        }
-        // 设置额外参数
-        transaction.setUnionId(unionid);
-        transaction.setFrom(original.getTo());
-        transaction.setTo(original.getFrom());
-        transaction.setAmount(amount);
-        transaction.setChannel(original.getChannel());
-        transaction.setNotes("退款");
-        transaction.setStatus(TxStatus.unprocessed);
-        Account from = this.get(transaction.getFrom());
-        //进行退款操作
-        return transfer(transaction, from.getPassword(), notes);
-    }
-
     /**
      * 划账接口
      *
-     * @param transaction 如果为 internal 内部付款需呀提供支付密码
-     * @param password    支付密码
+     * @param trxNo    交易单号
+     * @param password 如果为 internal 内部付款需要提供支付密码
+     * @param notes    描述
+     * @return Transaction
      */
-    private Transaction transfer(Transaction transaction, String password, String notes) {
-        if (transaction.getStatus() == TxStatus.close) {
-            throw new RestException("交易已经关闭,不能划账");
-        }
-        if (transaction.getStatus() == TxStatus.success) {
-            throw new RestException("交易已经完成,不能划账");
-        }
-        if (transaction.getChannel() == TxChannel.internal) {//需要计算转出账户
+    @Transactional
+    public Transaction transfer(String trxNo, String password, String notes) {
+        Transaction transaction = transactionDao.get(trxNo);
+        if (transaction.getChannel() == TxChannel.internal) {
             Account from = this.accountDao.get(transaction.getFrom());
-            /*
             if (from.getStatus() != AccountStatus.activated) {
                 throw new RestException("账户未激活不能进行付款操作");
             }
@@ -151,7 +118,28 @@ public class AccountService {
             if (!passwordEncoder.matches(from.getPassword(), password)) {
                 throw new RestException("支付密码错误");
             }
-            */
+        }
+        return this.transfer(trxNo, notes);
+    }
+
+    /**
+     * 划账接口
+     *
+     * @param trxNo 交易单号
+     * @param notes 描述
+     * @return Transaction
+     */
+    @Transactional
+    public Transaction transfer(String trxNo, String notes) {
+        Transaction transaction = transactionDao.get(trxNo);
+        if (transaction.getStatus() == TxStatus.close) {
+            throw new RestException("交易已经关闭,不能划账");
+        }
+        if (transaction.getStatus() == TxStatus.success) {
+            throw new RestException("交易已经完成,不能划账");
+        }
+        if (transaction.getChannel() == TxChannel.internal) {
+            Account from = this.accountDao.get(transaction.getFrom());
             if (from.getAmount().compareTo(transaction.getAmount()) < 0) {
                 throw new RestException("账户余额不足,支付失败");
             }

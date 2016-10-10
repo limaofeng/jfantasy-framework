@@ -21,7 +21,7 @@ public class Order extends BaseBusEntity {
 
     // 付款状态（未支付、部分支付、已支付、部分退款、全额退款）
     public enum PaymentStatus {
-        unpaid("未支付"), /*partPayment("部分支付"),*/ paid("已支付"), partRefund("部分退款"), refunded("全额退款");
+        unpaid("未支付"), paid("已支付"), partRefund("部分退款"), refunded("全额退款");//NOSONAR
 
         private String value;
 
@@ -53,13 +53,13 @@ public class Order extends BaseBusEntity {
     /**
      * 订单摘要
      */
-    @Column(name = "subject", length = 250)
+    @Column(name = "SUBJECT", length = 250)
     private String subject;
     /**
      * 订单详情
      */
-    @Column(name = "Body", length = 500)
-    private String Body;
+    @Column(name = "BODY", length = 500)
+    private String body;
     /**
      * 订单总金额
      */
@@ -70,6 +70,32 @@ public class Order extends BaseBusEntity {
      */
     @Column(name = "PAYABLE_FEE", nullable = false, updatable = false, precision = 15, scale = 2)
     private BigDecimal payableFee;
+    /**
+     * 支付配置名称
+     */
+    @Column(name = "PAYMENT_CONFIG_NAME")
+    private String payConfigName;
+    /**
+     * 付款时间
+     */
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "PAYMENT_TIME")
+    private Date paymentTime;
+    /**
+     * 退款时间
+     */
+    @Column(name = "REFUND_TIME")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date refundTime;
+    /**
+     * 退款金额
+     */
+    @Column(name = "REFUND_AMOUNT", precision = 15, scale = 2)
+    private BigDecimal refundAmount;
+    @Column(name = "MEMBER_ID", nullable = false, updatable = false)
+    private Long memberId;
+    @Transient
+    private transient OrderDetails details;
     /**
      * 订单项
      */
@@ -86,25 +112,6 @@ public class Order extends BaseBusEntity {
      */
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE})
     private List<Refund> refunds = new ArrayList<>();
-    /**
-     * 付款时间
-     */
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "PAYMENT_TIME")
-    private Date paymentTime;
-    /**
-     * 退款时间
-     */
-    @Column(name = "REFUND_TIME")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date refundTime;
-    /**
-     * 退款金额
-     */
-    @Column(name = "refund_amount", precision = 15, scale = 2)
-    private BigDecimal refundAmount;
-    @Column(name = "MEMBER_ID", nullable = false, updatable = false)
-    private Long memberId;
 
     public String getSn() {
         return sn;
@@ -131,11 +138,11 @@ public class Order extends BaseBusEntity {
     }
 
     public String getBody() {
-        return Body;
+        return this.body;
     }
 
     public void setBody(String body) {
-        Body = body;
+        this.body = body;
     }
 
     public BigDecimal getTotalFee() {
@@ -199,9 +206,6 @@ public class Order extends BaseBusEntity {
         return OrderKey.newInstance(this.type, this.sn).toString();
     }
 
-    @Transient
-    private OrderDetails details;
-
     public void setDetails(OrderDetails details) {
         this.details = details;
     }
@@ -232,5 +236,13 @@ public class Order extends BaseBusEntity {
 
     public void setRefundAmount(BigDecimal refundAmount) {
         this.refundAmount = refundAmount;
+    }
+
+    public String getPayConfigName() {
+        return payConfigName;
+    }
+
+    public void setPayConfigName(String payConfigName) {
+        this.payConfigName = payConfigName;
     }
 }

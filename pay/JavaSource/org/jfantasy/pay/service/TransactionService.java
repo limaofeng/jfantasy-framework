@@ -7,7 +7,6 @@ import org.jfantasy.framework.spring.mvc.error.RestException;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.pay.bean.Project;
 import org.jfantasy.pay.bean.Transaction;
-import org.jfantasy.pay.bean.enums.ProjectType;
 import org.jfantasy.pay.bean.enums.TxChannel;
 import org.jfantasy.pay.bean.enums.TxStatus;
 import org.jfantasy.pay.dao.ProjectDao;
@@ -38,8 +37,8 @@ public class TransactionService {
         return transactionDao.get(sn);
     }
 
-    public Transaction getByUnionId(String unionId) {
-        return this.transactionDao.findUnique();
+    private Transaction getByUnionId(String unionId) {
+        return this.transactionDao.findUnique(Restrictions.eq("unionId",unionId));
     }
 
     public Pager<Transaction> findPager(Pager<Transaction> pager, List<PropertyFilter> filters) {
@@ -56,6 +55,7 @@ public class TransactionService {
      * @param properties 额外记录
      * @return Transaction
      */
+    @Transactional
     public Transaction payment(String from, BigDecimal amount, String notes, Map<String, String> properties) {
         String to = accountService.platform().getSn();// 平台收款
         return this.save(Project.ORDER_PAYMENT, from, to, amount, notes, properties);
@@ -69,8 +69,9 @@ public class TransactionService {
      * @param notes    备注
      * @return Transaction
      */
+    @Transactional
     public Transaction refund(String orderKey, BigDecimal amount, String notes) {
-        Transaction original = this.getByUnionId(Transaction.generateUnionid(OrderTransaction.Type.refund.getValue(), orderKey));
+        Transaction original = this.getByUnionId(Transaction.generateUnionid(OrderTransaction.Type.payment.getValue(), orderKey));
         if (original == null || original.getStatus() != TxStatus.success) {
             throw new RestException("原交易不存在或者未支付成功");
         }
@@ -88,7 +89,6 @@ public class TransactionService {
      * @param properties 扩展属性
      * @return Transaction
      */
-    @Transactional
     public Transaction save(String projectKey, String from, String to, BigDecimal amount, String notes, Map<String, String> properties) {
         Project project = projectDao.get(projectKey);
         // 生成 unionid
@@ -118,7 +118,7 @@ public class TransactionService {
             default:
         }
         transaction.setStatus(TxStatus.unprocessed);
-        transaction.setStatusText(transaction.getProject().getType() == ProjectType.order ? "等待付款" : "待处理");
+        transaction.setStatusText(projectKey.equals(Project.ORDER_PAYMENT) ? "等待付款" : "待处理");
         return this.transactionDao.save(transaction);
     }
 

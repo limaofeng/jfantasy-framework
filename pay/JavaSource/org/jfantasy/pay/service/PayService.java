@@ -198,28 +198,21 @@ public class PayService {
             return result == null ? order : result;
         }
 
-        //更新支付状态
+        // 更新支付状态
         paymentService.save(payment);
         this.applicationContext.publishEvent(new PayStatusEvent(new PayStatus(payment.getStatus(), payment, order)));
 
-        switch (payment.getStatus()) {
-            case close:
-                break;
-            case success:
-                // 更新交易状态
-                transaction.setChannel(payConfig.getPayMethod() == PayMethod.thirdparty ? TxChannel.thirdparty : TxChannel.internal);
-                transaction.setStatus(TxStatus.success);
-                transactionService.update(transaction);
-                // 更新订单状态
-                order.setStatus(Order.PaymentStatus.paid);
-                order.setPaymentTime(payment.getTradeTime());
-                orderService.update(order);
-                break;
-            case finished:
-                break;
-            case failure:
-                break;
-            default:
+        // 更新订单信息
+        if (payment.getStatus() == PaymentStatus.success) {
+            // 更新交易状态
+            transaction.setChannel(payConfig.getPayMethod() == PayMethod.thirdparty ? TxChannel.thirdparty : TxChannel.internal);
+            transaction.setStatus(TxStatus.success);
+            transactionService.update(transaction);
+            // 更新订单状态
+            order.setStatus(Order.PaymentStatus.paid);
+            order.setPaymentTime(payment.getTradeTime());
+            order.setPayConfigName(payConfig.getName());
+            orderService.update(order);
         }
 
         // 如果为完成 或者 初始状态 不触发事件

@@ -15,9 +15,9 @@ import javax.persistence.*;
 @JsonIgnoreProperties({"hibernate_lazy_initializer", "handler"})
 public class Project extends BaseBusEntity {
 
-    public final static String ORDER_PAYMENT = "payment";
-    public final static String ORDER_REFUND = "refund";
-    public final static String CARD_INPOUR = "card_inpour";
+    public static final String ORDER_PAYMENT = "payment";
+    public static final String ORDER_REFUND = "refund";
+    public static final String CARD_INPOUR = "card_inpour";
 
     private static final long serialVersionUID = -2461534613032864306L;
 
