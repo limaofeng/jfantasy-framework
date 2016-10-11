@@ -25,7 +25,6 @@ public class TestOrderService implements OrderService {
         order.setBody("商品详情");
         order.setTotalFee(BigDecimal.valueOf(0.01));
         order.setPayableFee(BigDecimal.valueOf(0.01));
-        order.setPayment(true);
         order.setOrderItems(new ArrayList<OrderItem>() {
             {
                 OrderItem item = new OrderItem();

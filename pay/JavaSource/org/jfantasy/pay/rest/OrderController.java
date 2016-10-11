@@ -82,17 +82,23 @@ public class OrderController {
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
     public ResultResourceSupport transaction(@PathVariable("id") String key, @RequestBody OrderTransaction orderTransaction) {
-        // 订单
-        Order order = orderService.get(OrderKey.newInstance(key));
-        // 保持到交易表的数据
-        Map<String, String> data = new HashMap<>();
-        data.put(Transaction.ORDER_KEY, key);
-        data.put(Transaction.ORDER_SUBJECT, order.getSubject());
         // 判断交易类型
         if (orderTransaction.getType() == OrderTransaction.Type.payment) {
+            // 订单
+            Order order = orderService.getOrder(OrderKey.newInstance(key));
+            // 保持到交易表的数据
+            Map<String, String> data = new HashMap<>();
+            data.put(Transaction.ORDER_KEY, key);
+            data.put(Transaction.ORDER_SUBJECT, order.getSubject());
             String from = accountService.findUniqueByCurrentUser().getSn();// 付款方
             return transactionController.transform(this.transactionService.payment(from, order.getPayableFee(), "", data));
         } else {
+            // 订单
+            Order order = orderService.get(OrderKey.newInstance(key));
+            // 保持到交易表的数据
+            Map<String, String> data = new HashMap<>();
+            data.put(Transaction.ORDER_KEY, key);
+            data.put(Transaction.ORDER_SUBJECT, order.getSubject());
             return TransactionController.assembler.toResource(this.transactionService.refund(order.getKey(), orderTransaction.getAmount(), ""));
         }
     }

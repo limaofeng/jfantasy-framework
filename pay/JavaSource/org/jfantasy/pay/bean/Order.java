@@ -3,7 +3,6 @@ package org.jfantasy.pay.bean;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.jfantasy.framework.dao.BaseBusEntity;
 import org.jfantasy.pay.bean.converter.OrderItemConverter;
-import org.jfantasy.pay.order.entity.OrderDetails;
 import org.jfantasy.pay.order.entity.OrderItem;
 import org.jfantasy.pay.order.entity.OrderKey;
 
@@ -94,8 +93,6 @@ public class Order extends BaseBusEntity {
     private BigDecimal refundAmount;
     @Column(name = "MEMBER_ID", nullable = false, updatable = false)
     private Long memberId;
-    @Transient
-    private transient OrderDetails details;
     /**
      * 订单项
      */
@@ -204,14 +201,6 @@ public class Order extends BaseBusEntity {
     @Transient
     public String getKey() {
         return OrderKey.newInstance(this.type, this.sn).toString();
-    }
-
-    public void setDetails(OrderDetails details) {
-        this.details = details;
-    }
-
-    public OrderDetails getDetails() {
-        return details;
     }
 
     public Long getMemberId() {

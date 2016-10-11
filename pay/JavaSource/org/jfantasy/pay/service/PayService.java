@@ -16,7 +16,6 @@ import org.jfantasy.pay.event.PayRefundNotifyEvent;
 import org.jfantasy.pay.event.PayStatusEvent;
 import org.jfantasy.pay.event.context.PayContext;
 import org.jfantasy.pay.event.context.PayStatus;
-import org.jfantasy.pay.order.entity.OrderDetails;
 import org.jfantasy.pay.order.entity.OrderKey;
 import org.jfantasy.pay.order.entity.enums.PaymentStatus;
 import org.jfantasy.pay.order.entity.enums.PaymentType;
@@ -82,13 +81,9 @@ public class PayService {
         String orderKey = transaction.get("order_key");
         //验证业务订单
         OrderKey key = OrderKey.newInstance(orderKey);
-        Order order = orderService.getOrder(key);
-        OrderDetails orderDetails = order.getDetails();
+        Order order = orderService.get(key);
         if (order.getStatus() != Order.PaymentStatus.unpaid) {
             throw new ValidationException(000.0f, "订单状态为[" + order.getStatus().getValue() + "],不满足付款的必要条件");
-        }
-        if (!orderDetails.isPayment()) {
-            throw new ValidationException(000.0f, "业务系统异常,不能继续支付");
         }
         //获取支付配置
         PayConfig payConfig = payConfigService.get(payConfigId);

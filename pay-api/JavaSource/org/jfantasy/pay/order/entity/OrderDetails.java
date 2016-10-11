@@ -22,7 +22,7 @@ public class OrderDetails {
     /**
      * 订单详情
      */
-    private String Body;
+    private String body;
     /**
      * 订单总金额
      */
@@ -31,10 +31,6 @@ public class OrderDetails {
      * 订单应付金额
      */
     private BigDecimal payableFee;
-    /**
-     * 订单是否可以进行支付
-     */
-    private boolean payment;
     /**
      * 订单项
      */
@@ -69,11 +65,11 @@ public class OrderDetails {
     }
 
     public String getBody() {
-        return Body;
+        return body;
     }
 
     public void setBody(String body) {
-        Body = body;
+        this.body = body;
     }
 
     public BigDecimal getTotalFee() {
@@ -90,14 +86,6 @@ public class OrderDetails {
 
     public void setPayableFee(BigDecimal payableFee) {
         this.payableFee = payableFee;
-    }
-
-    public boolean isPayment() {
-        return payment;
-    }
-
-    public void setPayment(boolean payment) {
-        this.payment = payment;
     }
 
     public List<OrderItem> getOrderItems() {
@@ -122,10 +110,9 @@ public class OrderDetails {
                 "sn='" + sn + '\'' +
                 ", type='" + type + '\'' +
                 ", subject='" + subject + '\'' +
-                ", Body='" + Body + '\'' +
+                ", Body='" + body + '\'' +
                 ", totalFee=" + totalFee +
                 ", payableFee=" + payableFee +
-                ", payment=" + payment +
                 ", orderItems=" + orderItems +
                 ", memberId=" + memberId +
                 '}';

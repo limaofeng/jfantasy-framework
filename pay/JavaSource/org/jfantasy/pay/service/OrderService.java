@@ -59,21 +59,17 @@ public class OrderService {
     @Transactional
     public Order getOrder(OrderKey key) {
         Order order = this.orderDao.get(key);
-        OrderDetails orderDetails;
         if (order == null) {
             if (!orderServiceFactory.containsType(key.getType())) {
                 throw new RestException("orderType[" + key.getType() + "] 对应的 PaymentOrderService 未配置！");
             }
             //获取订单信息
-            orderDetails = orderServiceFactory.getOrderService(key.getType()).loadOrder(key);
+            OrderDetails orderDetails = orderServiceFactory.getOrderService(key.getType()).loadOrder(key);
             if (orderDetails == null) {
                 throw new RestException("order = [" + key + "] 不存在,请核对后,再继续操作!");
             }
             order = this.save(orderDetails);
-        } else {
-            orderDetails = orderServiceFactory.getOrderService(key.getType()).loadOrder(key);
         }
-        order.setDetails(orderDetails);
         return order;
     }
 

@@ -16,7 +16,15 @@ public class DDUtils {
     private DDUtils(){
     }
 
-    public static String get(String key) {
+    public static String getName(String key) {
+        if (StringUtil.isBlank(key) || !key.contains(":")) {
+            return null;
+        }
+        DataDict dd = getDataDict(key);
+        return dd == null ? null : dd.getName();
+    }
+
+    public static String getValue(String key) {
         if (StringUtil.isBlank(key) || !key.contains(":")) {
             return null;
         }
@@ -24,8 +32,8 @@ public class DDUtils {
         return dd == null ? null : dd.getDescription();
     }
 
-    public static <T> T get(String key, Class<T> clazz) {
-        String value = get(key);
+    public static <T> T getValue(String key, Class<T> clazz) {
+        String value = getValue(key);
         if (!ClassUtil.isBasicType(clazz)) {
             throw new ClassCastException(value + " 不能正确的转换为 " + clazz);
         }
@@ -33,7 +41,7 @@ public class DDUtils {
     }
 
     public static <T> T get(String key, T zero, Class<T> clazz) {
-        return ObjectUtil.defaultValue(get(key,clazz),zero);
+        return ObjectUtil.defaultValue(getValue(key,clazz),zero);
     }
 
     private static DataDict getDataDict(String id) {
