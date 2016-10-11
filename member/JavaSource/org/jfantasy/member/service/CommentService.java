@@ -24,7 +24,7 @@ public class CommentService {
     public Comment save(Comment comment) {
         Member member = memberDao.get(comment.getMemberId());
         comment.setUsername(member.getUsername());
-        comment.setShow(true);
+        comment.setShow(false);
         return commentDao.save(comment);
     }
 

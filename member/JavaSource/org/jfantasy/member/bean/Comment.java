@@ -42,7 +42,7 @@ public class Comment extends BaseBusEntity {
     @Column(name = "IP", updatable = false, nullable = false, length = 15)
     private String ip;
     @Column(name = "IS_SHOW", nullable = false)
-    private boolean show;
+    private Boolean show;
     @NotNull(groups = RESTful.POST.class)
     @Column(name = "TARGET_TYPE", updatable = false, nullable = false)
     private String targetType;
@@ -100,11 +100,11 @@ public class Comment extends BaseBusEntity {
         this.ip = ip;
     }
 
-    public boolean isShow() {
+    public Boolean getShow() {
         return show;
     }
 
-    public void setShow(boolean show) {
+    public void setShow(Boolean show) {
         this.show = show;
     }
 
