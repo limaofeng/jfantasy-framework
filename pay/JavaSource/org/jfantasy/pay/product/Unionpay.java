@@ -99,13 +99,13 @@ public class Unionpay extends PayProductSupport {
             data.put("bizType", "000201");//填写000201
             data.put("channelType", "08");//渠道类型 08手机
 
-            /***商户接入参数***/
+            // 商户接入参数
             data.put("merId", merId);//商户号码，请改成自己申请的商户号或者open上注册得来的777商户号测试
             data.put("accessType", "0");//接入类型，商户接入填0 ，不需修改（0：直连商户， 1： 收单机构 2：平台商户）
             data.put("orderId", payment.getSn());//商户订单号，8-40位数字字母，不能含“-”或“_”，可以自行定制规则
             data.put("txnTime", DateUtil.format(payment.getCreateTime(), "yyyyMMddHHmmss"));//订单发送时间，取系统时间，格式为YYYYMMDDhhmmss，必须取当前时间，否则会报txnTime无效
             data.put("accType", "01");//账号类型 01：银行卡02：存折03：IC卡帐号类型(卡介质)
-            data.put("txnAmt", payment.getTotalAmount().multiply(BigDecimal.valueOf(100d)).intValue() + "");//交易金额 单位为分，不能带小数点
+            data.put("txnAmt", String.valueOf(payment.getTotalAmount().multiply(BigDecimal.valueOf(100d)).setScale(0,BigDecimal.ROUND_DOWN)));//交易金额 单位为分，不能带小数点
             data.put("currencyCode", "156");//境内商户固定 156 人民币
 
             //后台通知地址

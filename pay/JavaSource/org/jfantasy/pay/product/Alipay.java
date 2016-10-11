@@ -69,7 +69,7 @@ public class Alipay extends PayProductSupport {
             data.put("out_trade_no", payment.getSn());// 支付编号
             data.put("subject", order.getSubject());// 订单的名称、标题、关键字等
             data.put("body", order.getBody());// 订单描述
-            data.put("total_fee", RMB_YUAN_FORMAT.format(order.getPayableFee()));// 总金额（单位：元）
+            data.put("total_fee", RMB_YUAN_FORMAT.format(payment.getTotalAmount()));// 总金额（单位：元）
 
             //额外参数
             if (StringUtil.isNotBlank(properties.getProperty(PROPERTIES_BACKURL))) {

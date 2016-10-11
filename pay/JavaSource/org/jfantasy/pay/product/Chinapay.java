@@ -63,7 +63,7 @@ public class Chinapay extends PayProductSupport {
             data.put("MerOrderNo", payment.getSn());//商户订单号
             data.put("TranDate", DateUtil.format(payment.getCreateTime(), "yyyyMMdd"));//商户交易日期
             data.put("TranTime", DateUtil.format(payment.getCreateTime(), "HHmmss"));//商户交易日期
-            data.put("OrderAmt", String.valueOf(payment.getTotalAmount().multiply(BigDecimal.valueOf(100d))));//商户交易金额
+            data.put("OrderAmt", String.valueOf(payment.getTotalAmount().multiply(BigDecimal.valueOf(100d)).setScale(0,BigDecimal.ROUND_DOWN)));//商户交易金额
             data.put("BusiType", "0001");//业务类型
             data.put("MerBgUrl", paySettings.getUrl() + "/pays/" + payment.getSn() + "/notify");
 
