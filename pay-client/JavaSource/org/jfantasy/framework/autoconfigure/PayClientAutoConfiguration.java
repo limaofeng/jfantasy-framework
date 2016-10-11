@@ -5,14 +5,12 @@ import com.aliyun.openservices.ons.api.bean.ConsumerBean;
 import com.aliyun.openservices.ons.api.bean.Subscription;
 import org.jfantasy.aliyun.AliyunSettings;
 import org.jfantasy.pay.ons.PayMessageListener;
-import org.jfantasy.pay.order.OrderProcessor;
 import org.jfantasy.pay.order.OrderServiceRegistry;
 import org.jfantasy.pay.order.OrderServiceRegistryRunner;
 import org.jfantasy.rpc.client.NettyClientFactory;
 import org.jfantasy.rpc.config.NettyClientSettings;
 import org.jfantasy.rpc.proxy.RpcProxyFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -48,12 +46,6 @@ public class PayClientAutoConfiguration {
     public OrderServiceRegistry buildOrderServiceRegistry() {
         RpcProxyFactory rpcProxyFactory = new RpcProxyFactory(new NettyClientFactory(nettyClientSettings().getHost(), nettyClientSettings().getPort()));
         return rpcProxyFactory.proxyBean(OrderServiceRegistry.class, 10000);
-    }
-
-    @Bean(name = "orderProcessor")
-    public OrderProcessor buildOrderProcessor() {
-        RpcProxyFactory rpcProxyFactory = new RpcProxyFactory(new NettyClientFactory(nettyClientSettings().getHost(), nettyClientSettings().getPort()));
-        return rpcProxyFactory.proxyBean(OrderProcessor.class, 10000);
     }
 
     @Bean(initMethod = "start", destroyMethod = "shutdown")
