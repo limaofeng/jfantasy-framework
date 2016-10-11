@@ -89,6 +89,7 @@ public class TransactionService {
      * @param properties 扩展属性
      * @return Transaction
      */
+    @Transactional
     public Transaction save(String projectKey, String from, String to, BigDecimal amount, String notes, Map<String, String> properties) {
         Project project = projectDao.get(projectKey);
         // 生成 unionid
