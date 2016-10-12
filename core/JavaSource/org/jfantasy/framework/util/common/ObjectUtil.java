@@ -523,6 +523,35 @@ public final class ObjectUtil {
         return rootMap;
     }
 
+    /**
+     * 合并数组 并去除重复项
+     *
+     * @param dest  原数组
+     * @param items 要合并的数组
+     * @param <T>   泛型
+     * @return T[]
+     */
+    public static <T> T[] merge(T[] dest, T... items) {
+        if (items.length == 0) {
+            return dest;
+        }
+        List<T> ts = new ArrayList<>();
+        for (T t : items) {
+            if (exists(dest, t) || exists(ts, t)) {
+                continue;
+            }
+            ts.add(t);
+        }
+        Object array = Array.newInstance(dest.getClass().getComponentType(), dest.length + items.length);
+        for (int i = 0; i < dest.length; i++) {
+            Array.set(array, i, dest[i]);
+        }
+        for (int i = 0; i < ts.size(); i++) {
+            Array.set(array, dest.length + i, ts.get(i));
+        }
+        return (T[]) array;
+    }
+
     public static <T> T[] join(T[] dest, T... items) {
         if (items.length == 0) {
             return dest;
