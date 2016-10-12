@@ -67,6 +67,16 @@ public class ObjectUtilTest {
     }
 
     @Test
+    public void merge() throws Exception {
+        String[] dest = {"中国","美国"};
+        String[] items = {"中国","英国"};
+
+        String[] array = ObjectUtil.merge(dest,items);
+
+        Assert.assertArrayEquals(array,new String[]{"中国","美国","英国"});
+    }
+
+    @Test
     public void testAnalyze() throws Exception {
         LOG.debug(ObjectUtil.analyze("上海昊略公司，提供应用软件和服务"));
     }

@@ -542,7 +542,7 @@ public final class ObjectUtil {
             }
             ts.add(t);
         }
-        Object array = Array.newInstance(dest.getClass().getComponentType(), dest.length + items.length);
+        Object array = Array.newInstance(dest.getClass().getComponentType(), dest.length + ts.size());
         for (int i = 0; i < dest.length; i++) {
             Array.set(array, i, dest[i]);
         }
