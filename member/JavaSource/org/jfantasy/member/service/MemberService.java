@@ -102,7 +102,7 @@ public class MemberService {
         this.memberDao.save(member);
         this.applicationContext.publishEvent(new LoginEvent(member));
         LOG.debug(member);
-        return member;
+        return ObjectUtil.clone(member);
     }
 
     private static String generateNonceString(int length) {
