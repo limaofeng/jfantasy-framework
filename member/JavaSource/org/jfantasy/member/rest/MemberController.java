@@ -211,6 +211,10 @@ public class MemberController {
     @ResponseBody
     public Pager<ResultResourceSupport> invoices(@PathVariable("memid") Long memberId, Pager<Invoice> pager, List<PropertyFilter> filters) {
         filters.add(new PropertyFilter(FILTERS_EQ_MEMBER_ID, memberId.toString()));
+        if (!pager.isOrderBySetted()) {
+            pager.setOrderBy(Invoice.FIELDS_BY_CREATE_TIME);
+            pager.setOrder(Pager.SORT_DESC);
+        }
         return this.invoiceController.search(pager, filters);
     }
 
