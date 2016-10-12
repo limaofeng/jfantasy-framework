@@ -9,9 +9,7 @@ backup
 *.war
 *.ear
 *.iml
-*.class
 target
-classes
 build
 LOG_PATH_IS_UNDEFINED
 api-docs/node_modules
