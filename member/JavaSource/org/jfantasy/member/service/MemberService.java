@@ -1,5 +1,7 @@
 package org.jfantasy.member.service;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.criterion.Criterion;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
@@ -41,15 +43,12 @@ public class MemberService {
     private static final String DEFAULT_ROLE_CODE = "MEMBER";
     private static final String NONCE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-    @Autowired
-    private MemberDao memberDao;
-    @Autowired
-    private RoleService roleService;
-    @Autowired
-    private ApplicationContext applicationContext;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private static final Log LOG = LogFactory.getLog(MemberService.class);
 
+    private MemberDao memberDao;
+    private RoleService roleService;
+    private ApplicationContext applicationContext;
+    private PasswordEncoder passwordEncoder;
     private SMSCodeEncoder smsCodeEncoder;
 
     /**
@@ -102,6 +101,7 @@ public class MemberService {
         member.setLastLoginTime(DateUtil.now());
         this.memberDao.save(member);
         this.applicationContext.publishEvent(new LoginEvent(member));
+        LOG.debug(member);
         return member;
     }
 
@@ -256,6 +256,26 @@ public class MemberService {
     @Autowired(required = false)
     public void setSmsCodeEncoder(SMSCodeEncoder smsCodeEncoder) {
         this.smsCodeEncoder = smsCodeEncoder;
+    }
+
+    @Autowired
+    public void setMemberDao(MemberDao memberDao) {
+        this.memberDao = memberDao;
+    }
+
+    @Autowired
+    public void setRoleService(RoleService roleService) {
+        this.roleService = roleService;
+    }
+
+    @Autowired
+    public void setApplicationContext(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+    }
+
+    @Autowired
+    public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
     }
 
 }

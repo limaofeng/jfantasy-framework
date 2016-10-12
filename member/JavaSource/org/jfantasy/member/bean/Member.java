@@ -310,6 +310,7 @@ public class Member extends BaseBusEntity {
     public String toString() {
         return "Member{" +
                 "id=" + id +
+                ", type='" + type + '\'' +
                 ", username='" + username + '\'' +
                 ", nickName='" + nickName + '\'' +
                 ", enabled=" + enabled +
@@ -318,9 +319,9 @@ public class Member extends BaseBusEntity {
                 ", credentialsNonExpired=" + credentialsNonExpired +
                 ", lockTime=" + lockTime +
                 ", lastLoginTime=" + lastLoginTime +
-                ", userGroups=" + userGroups +
-                ", roles=" + roles +
-                ", details=" + details +
+                ", targetId='" + targetId + '\'' +
+                ", targetType='" + targetType + '\'' +
+                ", code='" + code + '\'' +
                 '}';
     }
 }
