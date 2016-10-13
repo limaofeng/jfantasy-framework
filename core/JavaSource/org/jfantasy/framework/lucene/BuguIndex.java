@@ -160,7 +160,7 @@ public class BuguIndex implements ApplicationListener<ContextRefreshedEvent> {
      */
     public void open() {
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-        scheduler.scheduleAtFixedRate(new IndexReopenTask(), this.period, this.period, TimeUnit.MILLISECONDS);
+        scheduler.scheduleAtFixedRate(new IndexReopenTask(), this.period, this.period * 5, TimeUnit.MILLISECONDS);
         if (this.clusterConfig != null) {
             this.clusterConfig.validate();
         }
