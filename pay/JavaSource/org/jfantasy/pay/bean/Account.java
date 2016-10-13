@@ -55,7 +55,7 @@ public class Account extends BaseBusEntity {
     /**
      * 所有者
      */
-    @Column(name = "owner")
+    @Column(name = "owner", nullable = false, updatable = false)
     private String owner;
     @Version
     @Column(name = "OPTLOCK")
