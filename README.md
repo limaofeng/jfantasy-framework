@@ -34,6 +34,7 @@ jfantasy 整合了一些开源常用的java开发框架. 主要为了方便开�
 
 ### 3.3.17 升级日志
 * Pager 对象 json 格式调整为 ：
+
 ```json
  {
      "count": 4,
@@ -47,6 +48,7 @@ jfantasy 整合了一些开源常用的java开发框架. 主要为了方便开�
          ]
  }
 ```
+
 * 升级 spring-swagger 到 springfox
 * RESTful 添加 X-Page-Fields 请求头
   ```条件查询返回多条数据时，默认返回list。如果需要分页支持需要在请求头中添加 X-Page-Fields：true。注：后端java实现全部返回Pager对象。```
