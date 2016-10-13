@@ -36,16 +36,15 @@ public class IndexReopenTask implements Runnable {
 
     private IndexSearcher reopen(IndexSearcher searcher) {
         IndexReader reader = searcher.getIndexReader();
-        IndexReader newReader;
         try {
-            newReader = IndexReader.openIfChanged(reader);//NOSONAR
+            IndexReader newReader = IndexReader.openIfChanged(reader);//NOSONAR
+            if (newReader != null && newReader != reader) {//NOSONAR
+                close(reader);
+                return new IndexSearcher(newReader);
+            }
         } catch (IOException ex) {
             LOGGER.error("Something is wrong when reopen the Lucene IndexReader", ex);
             return null;
-        }
-        if (newReader != reader) {
-            close(reader);
-            return new IndexSearcher(newReader);
         }
         return null;
     }
