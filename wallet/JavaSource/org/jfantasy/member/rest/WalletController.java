@@ -68,6 +68,10 @@ public class WalletController {
      */
     @RequestMapping(value = "/{id}/bills", method = RequestMethod.GET)
     public Pager<ResultResourceSupport> bills(@PathVariable("id") String walletId, Pager<WalletBill> pager, List<PropertyFilter> filters) {
+        if(!pager.isOrderBySetted()){
+            pager.setOrderBy("tradeTime");
+            pager.setOrder(Pager.SORT_DESC);
+        }
         filters.add(new PropertyFilter("EQL_wallet.id", walletId));
         return walletBillController.search(pager, filters);
     }
