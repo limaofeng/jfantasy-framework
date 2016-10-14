@@ -237,6 +237,7 @@ public class PayService {
     public Object refundNotify(String sn, String body) throws PayException {
         Refund refund = this.refundService.get(sn);
         PayConfig payConfig = refund.getPayConfig();
+        Transaction transaction = refund.getTransaction();
 
         //获取支付产品
         PayProduct payProduct = payProductConfiguration.loadPayProduct(payConfig.getPayProductId());
@@ -256,8 +257,13 @@ public class PayService {
         //更新状态
         refundService.result(refund, order);
 
-        // 更新订单状态
+
         if (refund.getStatus() == RefundStatus.success) {
+            // 更新交易状态
+            transaction.setChannel(payConfig.getPayMethod() == PayMethod.thirdparty ? TxChannel.thirdparty : TxChannel.internal);
+            transaction.setStatus(TxStatus.success);
+            transactionService.update(transaction);
+            // 更新订单状态
             order.setStatus(order.getPayableFee().equals(refund.getTotalAmount()) ? Order.PaymentStatus.refunded : Order.PaymentStatus.partRefund);
             order.setRefundAmount(refund.getTotalAmount());
             order.setRefundTime(refund.getTradeTime());

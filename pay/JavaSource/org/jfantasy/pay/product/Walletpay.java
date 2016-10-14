@@ -8,6 +8,7 @@ import org.jfantasy.pay.bean.Refund;
 import org.jfantasy.pay.bean.Transaction;
 import org.jfantasy.pay.error.PayException;
 import org.jfantasy.pay.order.entity.enums.PaymentStatus;
+import org.jfantasy.pay.order.entity.enums.RefundStatus;
 import org.jfantasy.pay.service.AccountService;
 import org.jfantasy.pay.service.PayService;
 
@@ -77,6 +78,9 @@ public class Walletpay extends PayProductSupport {
 
     @Override
     public Object payNotify(Refund refund, String result) throws PayException {
+        refund.setTradeNo(refund.getTransaction().getSn());
+        refund.setTradeTime(DateUtil.now());
+        refund.setStatus(RefundStatus.success);
         return "success";
     }
 

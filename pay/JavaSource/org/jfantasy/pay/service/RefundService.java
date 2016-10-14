@@ -16,6 +16,7 @@ import org.jfantasy.pay.order.entity.enums.PaymentStatus;
 import org.jfantasy.pay.order.entity.enums.RefundStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -53,7 +54,7 @@ public class RefundService {
      * @param remark  备注
      * @return Refund
      */
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Refund create(Payment payment, BigDecimal amount, Transaction transaction, String remark) {
         if (payment.getStatus() != PaymentStatus.success) {
             throw new RestException("原交易[" + payment.getSn() + "]未支付成功,不能发起退款操作");

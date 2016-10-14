@@ -27,7 +27,7 @@ public class TransferListener implements ApplicationListener<TransactionChangedE
         if (transaction.getProject().getType() != ProjectType.transfer) {
             return;
         }
-        accountService.transfer(transaction.getSn(), "NONE", "自动转账");
+        accountService.transfer(transaction.getSn(), "自动转账");
     }
 
     @Autowired
