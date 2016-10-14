@@ -10,6 +10,7 @@ import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.pay.bean.Order;
 import org.jfantasy.pay.bean.Payment;
 import org.jfantasy.pay.bean.Refund;
+import org.jfantasy.pay.bean.Transaction;
 import org.jfantasy.pay.dao.RefundDao;
 import org.jfantasy.pay.order.entity.enums.PaymentStatus;
 import org.jfantasy.pay.order.entity.enums.RefundStatus;
@@ -53,7 +54,7 @@ public class RefundService {
      * @return Refund
      */
     @Transactional
-    public Refund create(Payment payment, BigDecimal amount, String remark) {
+    public Refund create(Payment payment, BigDecimal amount, Transaction transaction, String remark) {
         if (payment.getStatus() != PaymentStatus.success) {
             throw new RestException("原交易[" + payment.getSn() + "]未支付成功,不能发起退款操作");
         }
@@ -83,6 +84,7 @@ public class RefundService {
             refund = new Refund(payment);
             refund.setTotalAmount(amount);
             refund.setMemo(remark);
+            refund.setTransaction(transaction);
             refund = this.refundDao.save(refund);
             return refund;
         } finally {

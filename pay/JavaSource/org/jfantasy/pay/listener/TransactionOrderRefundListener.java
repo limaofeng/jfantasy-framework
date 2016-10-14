@@ -41,7 +41,7 @@ public class TransactionOrderRefundListener implements ApplicationListener<Trans
                 LOG.error(" 订单可能未支付成功或者已经退款! ");
                 return;
             }
-            refundService.create(payment, transaction.getAmount(), "退款");
+            refundService.create(payment, transaction.getAmount(), transaction, "退款");
         }
     }
 

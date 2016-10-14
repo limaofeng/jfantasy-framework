@@ -95,12 +95,16 @@ public class RefundController {
         }
     }
 
+    /**
+     * 获取退款记录
+     * @param sn
+     * @return
+     */
     @JsonResultFilter(allow = {
             @AllowProperty(pojo = Order.class, name = {"key", "status", "type", "sn"}),
             @AllowProperty(pojo = Payment.class, name = {"sn", "total_amount", "status"}),
             @AllowProperty(pojo = PayConfig.class, name = {"id", "pay_product_id", "name"})
     })
-    /** 获取退款记录 **/
     @RequestMapping(value = "/{sn}", method = RequestMethod.GET)
     @ResponseBody
     public ResultResourceSupport view(@PathVariable("sn") String sn) {
