@@ -50,3 +50,6 @@ project(':jfantasy-aliyun-ons').projectDir = "$rootDir/aliyun-ons" as File
 project(':jfantasy-rpc-common').projectDir = "$rootDir/rpc-common" as File
 project(':jfantasy-rpc-server').projectDir = "$rootDir/rpc-server" as File
 project(':jfantasy-rpc-client').projectDir = "$rootDir/rpc-client" as File
+
+include ':jfantasy-pay-test'
+project(':jfantasy-pay-test').projectDir = "$rootDir/pay-test" as File
