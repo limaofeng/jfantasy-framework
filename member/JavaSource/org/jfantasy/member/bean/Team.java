@@ -22,7 +22,7 @@ import java.util.Map;
  */
 @Entity
 @Table(name = "MEM_TEAM")
-@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "team_members"})
+@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "team_members", "member"})
 public class Team extends BaseBusEntity {
 
     private static final long serialVersionUID = 4465203760129454882L;
@@ -182,5 +182,14 @@ public class Team extends BaseBusEntity {
     public void setMemberId(Long id) {
         this.member = new Member(id);
     }
+
+    @Transient
+    public Long getMemberId() {
+        if (this.member == null) {
+            return null;
+        }
+        return this.member.getId();
+    }
+
 
 }
