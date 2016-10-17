@@ -63,7 +63,7 @@ public class Team extends BaseBusEntity {
      */
     @Convert(converter = MapConverter.class)
     @Column(name = "PROPERTIES", columnDefinition = "Text")
-    private Map<String,Object> properties;
+    private Map<String, Object> properties;
     /**
      * 目标Id
      */
@@ -135,14 +135,14 @@ public class Team extends BaseBusEntity {
     }
 
     @JsonAnyGetter
-    public Map<String,Object> getProperties() {
+    public Map<String, Object> getProperties() {
         if (ThreadJacksonMixInHolder.getMixInHolder().isIgnoreProperty(Invite.class, "properties")) {
             return null;
         }
         return properties;
     }
 
-    public void setProperties(Map<String,Object> properties) {
+    public void setProperties(Map<String, Object> properties) {
         this.properties = properties;
     }
 
@@ -176,6 +176,11 @@ public class Team extends BaseBusEntity {
 
     public void setTeamMembers(List<TeamMember> teamMembers) {
         this.teamMembers = teamMembers;
+    }
+
+    @Transient
+    public void setMemberId(Long id) {
+        this.member = new Member(id);
     }
 
 }

@@ -7,6 +7,7 @@ import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
 import org.jfantasy.framework.spring.mvc.error.NotFoundException;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
 import org.jfantasy.framework.spring.validation.RESTful;
+import org.jfantasy.framework.util.web.WebUtil;
 import org.jfantasy.member.bean.Address;
 import org.jfantasy.member.bean.Invite;
 import org.jfantasy.member.bean.Team;
@@ -20,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -73,10 +75,10 @@ public class TeamController {
     /**
      * 更新团队 - 更新团队地址
      **/
-    @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
-    public ResultResourceSupport update(@PathVariable("id") String id, @RequestBody Team team) {
+    @RequestMapping(value = "/{id}", method = {RequestMethod.PUT, RequestMethod.PATCH})
+    public ResultResourceSupport update(@PathVariable("id") String id, @RequestBody Team team, HttpServletRequest request) {
         team.setKey(id);
-        return assembler.toResource(this.teamService.update(team));
+        return assembler.toResource(this.teamService.update(team, WebUtil.has(request,RequestMethod.PATCH)));
     }
 
     /**

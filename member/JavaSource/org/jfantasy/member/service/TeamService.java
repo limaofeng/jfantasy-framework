@@ -13,7 +13,6 @@ import java.util.List;
 @Service
 public class TeamService {
 
-    @Autowired
     private TeamDao teamDao;
 
     public Pager<Team> findPager(Pager<Team> pager, List<PropertyFilter> filters) {
@@ -26,8 +25,8 @@ public class TeamService {
     }
 
     @Transactional
-    public Team update(Team team) {
-        return this.teamDao.update(team);
+    public Team update(Team team, boolean patch) {
+        return this.teamDao.update(team, patch);
     }
 
     @Transactional
@@ -39,6 +38,11 @@ public class TeamService {
 
     public Team get(String id) {
         return this.teamDao.get(id);
+    }
+
+    @Autowired
+    public void setTeamDao(TeamDao teamDao) {
+        this.teamDao = teamDao;
     }
 
 }
