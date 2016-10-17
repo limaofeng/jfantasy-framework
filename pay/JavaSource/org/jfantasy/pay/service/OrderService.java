@@ -47,6 +47,7 @@ public class OrderService {
         order.setStatus(Order.PaymentStatus.unpaid);
         order.setOrderItems(details.getOrderItems());
         order.setMemberId(details.getMemberId());
+        order.setProperties(details.getProperties());
         return this.orderDao.save(order);
     }
 

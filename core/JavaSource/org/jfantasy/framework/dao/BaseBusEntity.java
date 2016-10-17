@@ -18,7 +18,7 @@ public abstract class BaseBusEntity implements Serializable {
     public static final String FIELDS_BY_CREATE_TIME = "createTime";
     public static final String FIELDS_BY_MODIFIER = "modifier";
     public static final String FIELDS_BY_MODIFY_TIME = "modifyTime";
-
+    public static final String[] BASE_FIELDS = {FIELDS_BY_CREATOR, FIELDS_BY_CREATE_TIME, FIELDS_BY_MODIFIER, FIELDS_BY_MODIFY_TIME};
     public static final String BASE_JSONFIELDS = FIELDS_BY_CREATOR + ",create_time," + FIELDS_BY_MODIFIER + ",modify_time";
 
     /**

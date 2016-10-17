@@ -2,6 +2,7 @@ package org.jfantasy.pay.order.entity;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 订单接口类
@@ -39,6 +40,10 @@ public class OrderDetails {
      * 订单关联的会员
      */
     private Long memberId;
+    /**
+     * 扩展属性
+     */
+    private Map<String, Object> properties;
 
     public String getSn() {
         return sn;
@@ -104,6 +109,14 @@ public class OrderDetails {
         this.memberId = memberId;
     }
 
+    public Map<String, Object> getProperties() {
+        return properties;
+    }
+
+    public void setProperties(Map<String, Object> properties) {
+        this.properties = properties;
+    }
+
     @Override
     public String toString() {
         return "OrderDetails{" +
@@ -115,6 +128,7 @@ public class OrderDetails {
                 ", payableFee=" + payableFee +
                 ", orderItems=" + orderItems +
                 ", memberId=" + memberId +
+                ", properties=" + properties +
                 '}';
     }
 }

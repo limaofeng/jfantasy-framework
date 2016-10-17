@@ -1,16 +1,18 @@
 package org.jfantasy.pay.bean;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.jfantasy.framework.dao.BaseBusEntity;
+import org.jfantasy.framework.dao.hibernate.converter.MapConverter;
+import org.jfantasy.framework.jackson.ThreadJacksonMixInHolder;
 import org.jfantasy.pay.bean.converter.OrderItemConverter;
 import org.jfantasy.pay.order.entity.OrderItem;
 import org.jfantasy.pay.order.entity.OrderKey;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Entity
 @IdClass(OrderKey.class)
@@ -109,6 +111,12 @@ public class Order extends BaseBusEntity {
      */
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE})
     private List<Refund> refunds = new ArrayList<>();
+    /**
+     * 扩展属性
+     */
+    @Convert(converter = MapConverter.class)
+    @Column(name = "PROPERTIES", columnDefinition = "Text")
+    private Map<String, Object> properties;//NOSONAR
 
     public String getSn() {
         return sn;
@@ -234,4 +242,28 @@ public class Order extends BaseBusEntity {
     public void setPayConfigName(String payConfigName) {
         this.payConfigName = payConfigName;
     }
+
+    public void setProperties(Map<String, Object> properties) {
+        this.properties = properties;
+    }
+
+    @JsonAnySetter
+    public void set(String key, Object value) {
+        if (value == null) {
+            return;
+        }
+        if (this.properties == null) {
+            this.properties = new HashMap<>();
+        }
+        this.properties.put(key, value);
+    }
+
+    @JsonAnyGetter
+    public Map<String, Object> getProperties() {
+        if (ThreadJacksonMixInHolder.getMixInHolder().isIgnoreProperty(Order.class, "properties")) {
+            return null;
+        }
+        return properties;
+    }
+
 }
