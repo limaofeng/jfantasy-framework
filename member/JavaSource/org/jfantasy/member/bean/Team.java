@@ -51,7 +51,7 @@ public class Team extends BaseBusEntity {
      * 所有者账号
      */
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "MEMBER_ID", foreignKey = @ForeignKey(name = "FK_TEAM_MEMBER"))
+    @JoinColumn(name = "MEMBER_ID", nullable = false, foreignKey = @ForeignKey(name = "FK_TEAM_MEMBER"))
     private Member member;
     /**
      * 描述
