@@ -50,6 +50,7 @@ public class Team extends BaseBusEntity {
     /**
      * 所有者账号
      */
+    @NotNull(groups = RESTful.POST.class)
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MEMBER_ID", nullable = false, foreignKey = @ForeignKey(name = "FK_TEAM_MEMBER"))
     private Member member;
