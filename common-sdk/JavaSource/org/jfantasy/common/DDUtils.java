@@ -32,12 +32,14 @@ public class DDUtils {
         return dd == null ? null : dd.getDescription();
     }
 
+    @SuppressWarnings("unchecked")
     public static <T> T getValue(String key, Class<T> clazz) {
         String value = getValue(key);
         if (!ClassUtil.isBasicType(clazz)) {
             throw new ClassCastException(value + " 不能正确的转换为 " + clazz);
         }
-        return value == null ? null : (T) ClassUtil.newInstance(clazz.isPrimitive() ? ClassUtil.resolvePrimitiveIfNecessary(clazz) : clazz, value);
+        Class laz = clazz.isPrimitive() ? ClassUtil.resolvePrimitiveIfNecessary(clazz) : clazz;
+        return value == null ? null : (T) ClassUtil.newInstance(laz, value);
     }
 
     public static <T> T get(String key, T zero, Class<T> clazz) {

@@ -103,12 +103,14 @@ public class DDUtils {
      * @param clazz 类型
      * @return 值
      */
+    @SuppressWarnings("unchecked")
     public static <T> T get(String key, Class<T> clazz) {
         String value = get(key);
         if (!ClassUtil.isBasicType(clazz)) {
             throw new ClassCastException(value + " 不能正确的转换为 " + clazz);
         }
-        return value == null ? null : (T) ClassUtil.newInstance(clazz.isPrimitive() ? ClassUtil.resolvePrimitiveIfNecessary(clazz) : clazz, value);
+        Class laz = clazz.isPrimitive() ? ClassUtil.resolvePrimitiveIfNecessary(clazz) : clazz;
+        return value == null ? null : (T) ClassUtil.newInstance(laz, value);
     }
 
     /**
