@@ -18,7 +18,9 @@ import java.util.concurrent.atomic.AtomicReference;
  * 通用过滤器
  */
 public class PropertyFilter {
-    public static final String OR_SEPARATOR = "_OR_";
+
+    private static final String OR_SEPARATOR = "_OR_";
+
     /**
      * 名称
      */
@@ -157,11 +159,12 @@ public class PropertyFilter {
         return (T) getPropertyValue(o.getClass());
     }
 
+    @SuppressWarnings("unchecked")
     public <T> T getPropertyValue(Class<T> clazz) {
         if (this.getPropertyType().isAssignableFrom(Enum.class)) {
-            AtomicReference<Class> enumClass = new AtomicReference<Class>(clazz.isArray() ? clazz.getComponentType() : clazz);
+            AtomicReference<Class> enumClass = new AtomicReference<>(clazz.isArray() ? clazz.getComponentType() : clazz);
             if (propertyValue instanceof String) {
-                return clazz.cast(Enum.valueOf(enumClass.get(), (String) propertyValue));
+                return (T)Enum.valueOf(enumClass.get(), (String) propertyValue);
             } else if (propertyValue instanceof String[]) {
                 Object array = ClassUtil.newInstance(enumClass.get(), Array.getLength(propertyValue));
                 for (int i = 0; i < Array.getLength(propertyValue); i++) {
@@ -173,6 +176,7 @@ public class PropertyFilter {
         return ReflectionUtils.convert(this.getPropertyValue(), clazz);
     }
 
+    @SuppressWarnings("unchecked")
     public <T> Class<T> getPropertyType() {
         return (Class<T>) this.propertyType;
     }

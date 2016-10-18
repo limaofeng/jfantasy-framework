@@ -123,15 +123,6 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
         return null;
     }
 
-    public static <T> T newInstance(String className, Class<T> tClass) {
-        try {
-            return tClass.cast(newInstance(FantasyClassLoader.getClassLoader().loadClass(className)));
-        } catch (ClassNotFoundException e) {
-            LOGGER.error(e);
-        }
-        return null;
-    }
-
     public static Property[] getPropertys(Object target) {
         return getPropertys(target.getClass());
     }
@@ -152,7 +143,7 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
         try {
             return StringUtil.isNotBlank(className) ? (Class<T>) forName(className, FantasyClassLoader.getClassLoader()) : null;
         } catch (ClassNotFoundException e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error(e.getMessage(), e);
         }
         return null;
     }

@@ -37,8 +37,8 @@ subprojects {
     apply plugin: 'idea'
     apply plugin: 'spring-boot'
 
-    sourceCompatibility = 1.7
-    targetCompatibility = 1.7
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
 
     sonarqube {
         //noinspection GroovyAssignabilityCheck

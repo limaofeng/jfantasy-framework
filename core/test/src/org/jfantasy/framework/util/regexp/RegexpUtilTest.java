@@ -7,7 +7,6 @@ import org.jfantasy.framework.util.json.bean.User;
 import org.junit.Test;
 
 import java.lang.reflect.Array;
-import java.util.regex.Matcher;
 
 
 public class RegexpUtilTest {
@@ -83,14 +82,11 @@ public class RegexpUtilTest {
 
     @Test
     public void testReplace() throws Exception {
-        String newName = RegexpUtil.replace("nameSpaceWat", "[A-Z]", new RegexpUtil.AbstractReplaceCallBack() {
-            @Override
-            public String doReplace(String text, int index, Matcher matcher) {
-                return "_" + text.toLowerCase();
-            }
-        });
+        String newName = RegexpUtil.replace("nameSpaceWat", "[A-Z]", (text,index,matcher) -> "_" + text.toLowerCase());
         LOG.debug(newName);
         Assert.assertEquals(newName, "name_space_wat");
+
+
     }
 
 
