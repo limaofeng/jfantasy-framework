@@ -7,6 +7,7 @@ import org.jfantasy.framework.util.json.bean.User;
 import org.junit.Test;
 
 import java.lang.reflect.Array;
+import java.util.regex.Matcher;
 
 
 public class RegexpUtilTest {
@@ -31,7 +32,7 @@ public class RegexpUtilTest {
     @Test
     public void testIsMatch() throws Exception {
 
-        String className = Array.newInstance(User.class,0).getClass().getName();
+        String className = Array.newInstance(User.class, 0).getClass().getName();
 
         Assert.assertTrue(RegexpUtil.isMatch(className, "^\\[L|;$"));
 
@@ -58,11 +59,11 @@ public class RegexpUtilTest {
 
     @Test
     public void testParseFirst() throws Exception {
-        LOG.debug(RegexpUtil.parseGroup("ddd/", "([^/]+)/$",1));
+        LOG.debug(RegexpUtil.parseGroup("ddd/", "([^/]+)/$", 1));
 
-        LOG.debug(RegexpUtil.parseGroup("aaa/bbb/ccc/ddd/", "([^/]+)/$",1));
+        LOG.debug(RegexpUtil.parseGroup("aaa/bbb/ccc/ddd/", "([^/]+)/$", 1));
 
-        LOG.debug(RegexpUtil.parseGroup("qqqq/", "([^/]+)/$",1));
+        LOG.debug(RegexpUtil.parseGroup("qqqq/", "([^/]+)/$", 1));
     }
 
     @Test
@@ -77,15 +78,19 @@ public class RegexpUtilTest {
 
     @Test
     public void testReplaceFirst() throws Exception {
-        LOG.debug("member:15921884771".replaceAll("^[^:]+:",""));
+        LOG.debug("member:15921884771".replaceAll("^[^:]+:", ""));
     }
 
     @Test
     public void testReplace() throws Exception {
-        String filePath = "E:\\gitprogram\\hbao-server\\web-server\\target\\hbao-web-webserver-1.0-SNAPSHOT\\assets\\js\\minified\\aui-production.js";
-        String dirPath = "E:\\gitprogram\\hbao-server\\web-server\\target\\hbao-web-webserver-1.0-SNAPSHOT\\";
-        LOG.debug(dirPath.replace("\\","/"));
-        //LOG.debug(RegexpUtil.replace(filePath,dirPath,""));
+        String newName = RegexpUtil.replace("nameSpaceWat", "[A-Z]", new RegexpUtil.AbstractReplaceCallBack() {
+            @Override
+            public String doReplace(String text, int index, Matcher matcher) {
+                return "_" + text.toLowerCase();
+            }
+        });
+        LOG.debug(newName);
+        Assert.assertEquals(newName, "name_space_wat");
     }
 
 
@@ -95,7 +100,7 @@ public class RegexpUtilTest {
     }
 
     @Test
-    public void matches(){
+    public void matches() {
         String regex = "[/].+";
         LOG.debug("/".matches(regex));
         LOG.debug("/error".matches(regex));

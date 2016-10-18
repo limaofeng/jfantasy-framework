@@ -41,7 +41,7 @@ public class RegexpUtil {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("缓存正则表达式:" + patternString);
             }
-            patternCache.putIfAbsent(patternString, Pattern.compile(patternString, Pattern.CASE_INSENSITIVE));
+            patternCache.putIfAbsent(patternString, Pattern.compile(patternString));
         }
         return patternCache.get(patternString);
     }
