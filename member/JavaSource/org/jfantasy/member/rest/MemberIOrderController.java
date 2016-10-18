@@ -37,6 +37,10 @@ public class MemberIOrderController {
     public Pager<ResultResourceSupport> search(@PathVariable("id") Long id, Pager<InvoiceOrder> pager, List<PropertyFilter> filters) {
         filters.add(new PropertyFilter("EQL_member.id",id));
         filters.add(new PropertyFilter("EQE_status", InvoiceOrder.InvoiceOrderStatus.NONE));
+        if(pager.isOrderBySetted()){
+            pager.setOrderBy(InvoiceOrder.FIELDS_BY_CREATE_TIME);
+            pager.setOrder(Pager.SORT_DESC);
+        }
         return controller.search(pager, filters);
     }
 
