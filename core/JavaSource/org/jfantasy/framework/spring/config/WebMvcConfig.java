@@ -3,19 +3,10 @@ package org.jfantasy.framework.spring.config;
 
 import com.alibaba.druid.support.http.StatViewServlet;
 import com.alibaba.druid.support.http.WebStatFilter;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.hibernate.validator.HibernateValidator;
 import org.jfantasy.framework.jackson.JSON;
-import org.jfantasy.framework.jackson.MappingJacksonHttpMessageConverter;
 import org.jfantasy.framework.jackson.ThreadJacksonMixInHolder;
-import org.jfantasy.framework.jackson.deserializer.DateDeserializer;
-import org.jfantasy.framework.jackson.serializer.DateSerializer;
 import org.jfantasy.framework.spring.mvc.method.annotation.FormModelMethodArgumentResolver;
 import org.jfantasy.framework.spring.mvc.method.annotation.PagerModelAttributeMethodProcessor;
 import org.jfantasy.framework.spring.mvc.method.annotation.PropertyFilterModelAttributeMethodProcessor;
@@ -119,22 +110,9 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter implements Environment
     @Bean
     public ObjectMapper objectMapper() {
         ObjectMapper objectMapper = applicationContext.getBean("_halObjectMapper", ObjectMapper.class);
-
-        if (objectMapper == null) {
-            objectMapper = JSON.getObjectMapper();
-        } else {
-            //TODO 与 JSON 中代码重复
-            JSON.register(JSON.DEFAULT_KEY, objectMapper
-                    .setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
-                    .setSerializationInclusion(JsonInclude.Include.NON_NULL)//为空的字段不序列化
-                    .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)// 当找不到对应的序列化器时 忽略此字段
-                    .enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES)// 允许非空字段
-                    .enable(JsonParser.Feature.ALLOW_SINGLE_QUOTES)// 允许单引号
-                    .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)// 设置输入时忽略在JSON字符串中存在但Java对象实际没有的属性
-                    .registerModule(new SimpleModule()// 默认日期转换方式
-                            .addSerializer(Date.class, new DateSerializer("yyyy-MM-dd HH:mm:ss"))
-                            .addDeserializer(Date.class, new DateDeserializer())));
-        }
+        // 将 objectMapper 设置到 JSON 中
+        JSON.initialize(objectMapper);
+        // 读取 spring.jackson.mixin.packages
         PropertiesHelper helper = PropertiesHelper.load("application.properties");
         Set<String> packages = new HashSet<>();
         for (String _packages : helper.getMergeProperty("spring.jackson.mixin.packages")) {
@@ -156,7 +134,7 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter implements Environment
                 iterator.remove();
             }
         }
-        converters.add(0, new MappingJacksonHttpMessageConverter(objectMapper()));
+        converters.add(0, new MappingJackson2HttpMessageConverter(objectMapper()));
         converters.add(0, new StringHttpMessageConverter(Charset.forName("utf-8")));
         super.configureMessageConverters(converters);
     }

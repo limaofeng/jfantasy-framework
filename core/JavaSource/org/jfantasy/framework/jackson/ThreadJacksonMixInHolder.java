@@ -24,10 +24,10 @@ public class ThreadJacksonMixInHolder {
     private static final Log LOG = LogFactory.getLog(ThreadJacksonMixInHolder.class);
 
     private static ThreadLocal<ThreadJacksonMixInHolder> holderThreadLocal = new ThreadLocal<ThreadJacksonMixInHolder>();
-    private final static Map<Class<?>, MixInSource> mixInSourceMap = new HashMap<Class<?>, MixInSource>();
+    private static final Map<Class<?>, MixInSource> mixInSourceMap = new HashMap<Class<?>, MixInSource>();
 
     private ObjectMapper objectMapper;
-    private Map<String, Set<String>> ignorePropertyNames = new HashMap<String, Set<String>>();
+    private Map<String, Set<String>> ignorePropertyNames = new HashMap<>();
     private Map<String, Set<String>> allowPropertyNames = new HashMap<>();
 
     private ThreadJacksonMixInHolder(ObjectMapper objectMapper) {
@@ -96,7 +96,7 @@ public class ThreadJacksonMixInHolder {
             provider.addFilter(entry.getKey(), SimpleBeanPropertyFilter.filterOutAllExcept(entry.getValue()));
         }
         for (Map.Entry<String, Set<String>> entry : this.ignorePropertyNames.entrySet()) {
-            if(!this.allowPropertyNames.containsKey(entry.getKey())) {
+            if (!this.allowPropertyNames.containsKey(entry.getKey())) {
                 provider.addFilter(entry.getKey(), SimpleBeanPropertyFilter.serializeAllExcept(entry.getValue()));
             }
         }
@@ -121,7 +121,7 @@ public class ThreadJacksonMixInHolder {
     }
 
     public boolean isReturnProperty(Class<?> target, String name) {
-        return isAllowProperty(target,name) || !isIgnoreProperty(target,name);
+        return isAllowProperty(target, name) || !isIgnoreProperty(target, name);
     }
 
     /**

@@ -6,7 +6,6 @@ import org.jfantasy.auth.rest.models.LoginForm;
 import org.jfantasy.auth.rest.models.Scope;
 import org.jfantasy.framework.jackson.JSON;
 import org.jfantasy.framework.jackson.ThreadJacksonMixInHolder;
-import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
 import org.jfantasy.member.bean.Member;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,7 +39,7 @@ public class AuthControllerTest {
 
         while (true) {
             ThreadJacksonMixInHolder.getMixInHolder().addIgnorePropertyNames(Member.class,Member.BASE_JSONFIELDS);
-            ResultResourceSupport result = this.authController.login(loginForm);
+            Object result = this.authController.login(loginForm);
             String json = JSON.serialize(result);
             LOG.debug(json);
 

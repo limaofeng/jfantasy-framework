@@ -6,14 +6,11 @@ import org.jfantasy.auth.rest.models.Scope;
 import org.jfantasy.framework.jackson.annotation.IgnoreProperty;
 import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
 import org.jfantasy.framework.spring.mvc.error.RestException;
-import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
 import org.jfantasy.framework.spring.validation.RESTful;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.member.bean.Member;
-import org.jfantasy.member.rest.MemberController;
 import org.jfantasy.member.service.MemberService;
 import org.jfantasy.security.bean.User;
-import org.jfantasy.security.rest.UserController;
 import org.jfantasy.security.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -42,7 +39,7 @@ public class AuthController {
             @IgnoreProperty(pojo = Member.class, name = {Member.BASE_JSONFIELDS})
     })
     @ResponseBody
-    public ResultResourceSupport login(@Validated(RESTful.POST.class) @RequestBody LoginForm loginForm) {
+    public Object login(@Validated(RESTful.POST.class) @RequestBody LoginForm loginForm) {
         if (StringUtil.isBlank(loginForm.getUserType())) {
             loginForm.setUserType(Scope.member == loginForm.getScope() ? Member.MEMBER_TYPE_PERSONAL : null);
         }
@@ -52,13 +49,13 @@ public class AuthController {
                 if (StringUtil.isNotBlank(loginForm.getUserType()) && !loginForm.getUserType().equals(user.getUserType())) {
                     throw new RestException("UserType 不一致");
                 }
-                return UserController.assembler.toResource(user);
+                return user;
             case member:
                 Member member = memberService.login(loginForm.getType(), loginForm.getUsername(), loginForm.getPassword());
                 if (StringUtil.isNotBlank(loginForm.getUserType()) && !loginForm.getUserType().equals(member.getType())) {
                     throw new RestException("UserType 不一致");
                 }
-                return MemberController.assembler.toResource(member);
+                return member;
             default:
                 throw new RestException("不能识别的 scope 类型");
         }

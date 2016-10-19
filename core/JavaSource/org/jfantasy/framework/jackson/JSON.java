@@ -9,25 +9,22 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.jackson.deserializer.DateDeserializer;
 import org.jfantasy.framework.jackson.serializer.DateSerializer;
-import org.jfantasy.framework.jackson.serializer.StringUnicodeSerializer;
 import org.jfantasy.framework.util.common.ClassUtil;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class JSON {
 
     private static final Log LOG = LogFactory.getLog(JSON.class);
 
-    public static final String DEFAULT_KEY = "default";
-    private static final String UNICODE_KEY = "unicode";
-    private static final ConcurrentHashMap<String, ObjectMapper> OBJECT_MAPPER_CACHE = new ConcurrentHashMap<>();
+    private static ObjectMapper objectMapper;
 
-    static {
-        //默认
-        register(DEFAULT_KEY, new ObjectMapper()
-                .setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
+    public static synchronized ObjectMapper initialize(ObjectMapper objectMapper) {
+        if (JSON.objectMapper != null) {
+            LOG.warn("重置 JSON 工具类中的 ObjectMapper 对象.");
+        }
+        JSON.objectMapper = objectMapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
                 .setSerializationInclusion(JsonInclude.Include.NON_NULL)//为空的字段不序列化
                 .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)// 当找不到对应的序列化器时 忽略此字段
                 .enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES)// 允许非空字段
@@ -35,20 +32,8 @@ public class JSON {
                 .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)// 设置输入时忽略在JSON字符串中存在但Java对象实际没有的属性
                 .registerModule(new SimpleModule()// 默认日期转换方式
                         .addSerializer(Date.class, new DateSerializer("yyyy-MM-dd HH:mm:ss"))
-                        .addDeserializer(Date.class, new DateDeserializer())));
-        //将中文转为 Unicode 编码
-        register(UNICODE_KEY, new ObjectMapper().disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)// 当找不到对应的序列化器时 忽略此字段
-                .enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES)// 允许非空字段
-                .enable(JsonParser.Feature.ALLOW_SINGLE_QUOTES)// 允许单引号
-                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)// 失败在未知属性
-                .registerModule(new SimpleModule()//使Jackson JSON支持Unicode编码非ASCII字符
-                        .addSerializer(String.class, new StringUnicodeSerializer())
-                        .addSerializer(Date.class, new DateSerializer("yyyy-MM-dd HH:mm:ss"))
-                        .addDeserializer(Date.class, new DateDeserializer())));
-    }
-
-    public synchronized static void register(String key, ObjectMapper objectMapper) {
-        OBJECT_MAPPER_CACHE.putIfAbsent(key, objectMapper);
+                        .addDeserializer(Date.class, new DateDeserializer()));
+        return objectMapper;
     }
 
     public static String serialize(Object object, String... ignoreProperties) {
@@ -80,7 +65,7 @@ public class JSON {
     }
 
     public static ObjectMapper getObjectMapper() {
-        return OBJECT_MAPPER_CACHE.get(DEFAULT_KEY);
+        return objectMapper != null ? objectMapper : initialize(new ObjectMapper());
     }
 
     public static <T> T deserialize(String json, Class<T> classed) {

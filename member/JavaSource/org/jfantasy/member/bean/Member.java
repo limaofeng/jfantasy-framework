@@ -141,13 +141,16 @@ public class Member extends BaseBusEntity {
     private String targetType;
     @Transient
     private String code;
+    @Transient
+    private String[] authorities;
 
-    public Member() {
-    }
+    public Member() {//NOSONAR
+    }//NOSONAR
 
-    public Member(Long id) {
-        this.id = id;
-    }
+
+    public Member(Long id) {//NOSONAR
+        this.id = id;//NOSONAR
+    }//NOSONAR
 
     public Long getId() {
         return id;
@@ -257,29 +260,27 @@ public class Member extends BaseBusEntity {
     }
 
     @Transient
-    private String[] authorities;
-
-    @Transient
     public String[] getAuthorities() {
         if (this.authorities != null) {
             return this.authorities;
         }
-        Set<String> authorities = new LinkedHashSet<>();
+        Set<String> authoritieSet = new LinkedHashSet<>();
         for (UserGroup userGroup : this.getUserGroups()) {
             if (!userGroup.isEnabled()) {
                 continue;
             }
-            authorities.add(userGroup.getAuthority());
-            authorities.addAll(Arrays.asList(userGroup.getRoleAuthorities()));
+            authoritieSet.add(userGroup.getAuthority());
+            authoritieSet.addAll(Arrays.asList(userGroup.getRoleAuthorities()));
         }
         // 添加角色权限
         for (Role role : this.getRoles()) {
             if (!role.isEnabled()) {
                 continue;
             }
-            authorities.add(role.getAuthority());
+            authoritieSet.add(role.getAuthority());
         }
-        return this.authorities = authorities.toArray(new String[authorities.size()]);
+        this.authorities = authoritieSet.toArray(new String[authoritieSet.size()]);
+        return this.authorities;
     }
 
     public void setAuthorities(String[] authorities) {
