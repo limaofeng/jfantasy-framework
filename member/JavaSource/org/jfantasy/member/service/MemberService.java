@@ -100,9 +100,10 @@ public class MemberService {
         }
         member.setLastLoginTime(DateUtil.now());
         this.memberDao.save(member);
-        this.applicationContext.publishEvent(new LoginEvent(member));
-        LOG.debug(member);
-        return ObjectUtil.clone(member);
+        Member mirror = ObjectUtil.clone(member);
+        this.applicationContext.publishEvent(new LoginEvent(mirror));
+        LOG.debug(mirror);
+        return mirror;
     }
 
     private static String generateNonceString(int length) {

@@ -2,6 +2,7 @@ package org.jfantasy.member.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.validator.constraints.Length;
@@ -29,6 +30,7 @@ import java.util.*;
 @Table(name = "MEM_MEMBER", uniqueConstraints = {
         @UniqueConstraint(name = "UK_MEMBER_TARGET", columnNames = {"TARGET_TYPE", "TARGET_ID"})
 })
+@JsonPropertyOrder({"id", "type", "username", "nick_name", "enabled", "non_locked", "non_expired", "credentials_non_expired", "lock_time", "last_login_time", "code", "target_id", "target_type"})
 @TableGenerator(name = "member_gen", table = "sys_sequence", pkColumnName = "gen_name", pkColumnValue = "mem_member:id", valueColumnName = "gen_value")
 @JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "user_groups", "roles", "authorities"})
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
@@ -255,7 +257,13 @@ public class Member extends BaseBusEntity {
     }
 
     @Transient
+    private String[] authorities;
+
+    @Transient
     public String[] getAuthorities() {
+        if (this.authorities != null) {
+            return this.authorities;
+        }
         Set<String> authorities = new LinkedHashSet<>();
         for (UserGroup userGroup : this.getUserGroups()) {
             if (!userGroup.isEnabled()) {
@@ -271,7 +279,11 @@ public class Member extends BaseBusEntity {
             }
             authorities.add(role.getAuthority());
         }
-        return authorities.toArray(new String[authorities.size()]);
+        return this.authorities = authorities.toArray(new String[authorities.size()]);
+    }
+
+    public void setAuthorities(String[] authorities) {
+        this.authorities = authorities;
     }
 
     public String getCode() {

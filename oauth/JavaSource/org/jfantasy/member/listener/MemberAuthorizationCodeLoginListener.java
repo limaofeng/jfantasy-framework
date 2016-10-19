@@ -26,7 +26,6 @@ public class MemberAuthorizationCodeLoginListener implements ApplicationListener
     public void onApplicationEvent(LoginEvent event) {
         ValueOperations valueOper = redisTemplate.opsForValue();
         Member member = event.getMember();
-        member.getAuthorities();// 防止因为 LAZY 导致的 hibernate 问题 , 这个方法会调用 getRoles() 与 getUserGroups() 方法
         member.setCode(UUID.randomUUID().toString());
         valueOper.set(SecurityStorage.AUTHORIZATION_CODE_PREFIX + member.getCode(), member);
     }

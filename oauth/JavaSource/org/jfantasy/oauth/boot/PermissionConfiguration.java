@@ -22,6 +22,7 @@ import org.springframework.security.access.SecurityConfig;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 负责在应用启动时,将权限记录写入 redis 缓存中
@@ -69,10 +70,7 @@ public class PermissionConfiguration implements CommandLineRunner {
                         }
                     }
 
-                    List<ConfigAttribute> securityConfigs = new ArrayList<>();
-                    for (String authority : authorities) {
-                        securityConfigs.add(new SecurityConfig(authority));
-                    }
+                    List<ConfigAttribute> securityConfigs = authorities.stream().map(SecurityConfig::new).collect(Collectors.toList());
                     rule.setSecurityConfigs(securityConfigs);
 
                     urlResource.addRule(rule);
