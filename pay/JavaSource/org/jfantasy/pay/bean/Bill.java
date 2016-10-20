@@ -42,7 +42,7 @@ public class Bill extends BaseBusEntity {
     /**
      * 本次结余
      */
-    @Column(name = "AMOUNT", nullable = false, updatable = false)
+    @Column(name = "BALANCE", nullable = false, updatable = false)
     private BigDecimal balance;
     /**
      * 关联账户
@@ -111,5 +111,5 @@ public class Bill extends BaseBusEntity {
     public void setBalance(BigDecimal balance) {
         this.balance = balance;
     }
-    
+
 }
