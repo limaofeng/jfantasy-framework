@@ -23,6 +23,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("unchecked")
 public final class ObjectUtil {
@@ -126,27 +127,22 @@ public final class ObjectUtil {
     }
 
     public static <T> T[] filter(T[] objs, String fieldName, Object... values) {
-        if (values.length == 1 && ClassUtil.isArray(Array.get(values, 0))) {
-            values = (T[]) Array.get(values, 0);
-        }
         List<T> filter = new ArrayList<>();
         for (T t : objs) {
-            if (ObjectUtil.exists(values, OgnlUtil.getInstance().getValue(fieldName, t))) {
+            if (ObjectUtil.exists(values,OgnlUtil.getInstance().getValue(fieldName, t))) {
                 filter.add(t);
             }
         }
-        return (T[]) filter.toArray();
+        return toArray(filter, (Class<T>) objs.getClass().getComponentType());
+    }
+
+    public static <T> T[] toArray(List<T> list,Class<T> type){
+        return list.toArray((T[])ClassUtil.newInstance(type,list.size()));
     }
 
     public static <T> List<T> filter(List<T> list, String spel) {
         Expression expression = SpELUtil.getExpression(spel);
-        List<T> filter = new ArrayList<T>();
-        for (T v : list) {
-            if (expression.getValue(SpELUtil.createEvaluationContext(v), Boolean.class)) {
-                filter.add(v);
-            }
-        }
-        return filter;
+        return list.stream().filter(v -> expression.getValue(SpELUtil.createEvaluationContext(v), Boolean.class)).collect(Collectors.toList());
     }
 
     public static <T> String toString(T[] objs, String fieldName, String sign) {
@@ -157,7 +153,7 @@ public final class ObjectUtil {
                 return toString((List<T>) objs[0], fieldName, sign);
             }
         }
-        AtomicReference<StringBuffer> stringBuffer = new AtomicReference<StringBuffer>(new StringBuffer());
+        AtomicReference<StringBuffer> stringBuffer = new AtomicReference<>(new StringBuffer());
         for (T t : objs) {
             String temp = StringUtil.isBlank(fieldName) ? t.toString() : StringUtil.defaultValue(OgnlUtil.getInstance().getValue(fieldName, t), "");
             if (StringUtil.isBlank(temp)) {
@@ -318,6 +314,10 @@ public final class ObjectUtil {
         return null;
     }
 
+    public static <T> boolean exists(T[] objs, String field, Object value) {
+        return find(objs, field, value) != null;
+    }
+
     public static <T> boolean exists(List<T> list, String field, Object value) {
         return find(list, field, value) != null;
     }
@@ -430,19 +430,14 @@ public final class ObjectUtil {
      * @return T
      */
     public static <T> Collection<T> sort(Collection<T> collectoin, String orderBy, String order) {
-        List<T> list = new ArrayList<T>();
+        List<T> list = new ArrayList<>();
         if ((collectoin == null) || (collectoin.isEmpty())) {
             return list;
         }
         String key = collectoin.iterator().next().getClass().toString().concat("|").concat(orderBy);
         if (!COMPARATOR_MAP.containsKey(key)) {
             final String orderBys = orderBy;
-            COMPARATOR_MAP.put(key, new Comparator<T>() {
-                @Override
-                public int compare(Object o1, Object o2) {
-                    return compareField(o1, o2, orderBys);
-                }
-            });
+            COMPARATOR_MAP.put(key, (o1, o2) -> compareField(o1, o2, orderBys));
         }
         list.addAll(collectoin);
         Collections.sort(list, (Comparator<T>) COMPARATOR_MAP.get(key));
@@ -457,14 +452,7 @@ public final class ObjectUtil {
     }
 
     public static <T> List<T> sort(List<T> collectoin, String[] customSort, String idFieldName) {
-        if (collectoin instanceof PersistentBag) {
-            List<T> dest = new ArrayList<T>(collectoin.size());
-            for (T t : collectoin) {
-                dest.add(t);
-            }
-            collectoin = dest;
-        }
-        Collections.sort(collectoin, new CustomSortOrderComparator(customSort, idFieldName));
+        Collections.sort(collectoin instanceof PersistentBag ? new ArrayList<>(collectoin) : collectoin, new CustomSortOrderComparator(customSort, idFieldName));
         return collectoin;
     }
 
@@ -578,11 +566,9 @@ public final class ObjectUtil {
     }
 
     public static <T> void join(List<T> dest, List<T> orig, String property) {
-        List<T> news = new ArrayList<T>();
+        List<T> news = new ArrayList<>();
         for (T o : orig) {
-            if (StringUtil.isNotBlank(property) && (indexOf(dest, o, property) == -1)) {
-                news.add(o);
-            } else if (dest.indexOf(o) == -1) {
+            if ((StringUtil.isNotBlank(property) && (indexOf(dest, o, property) == -1)) || dest.indexOf(o) == -1) {
                 news.add(o);
             }
         }
@@ -590,11 +576,9 @@ public final class ObjectUtil {
     }
 
     public static <T> void join(List<T> dest, List<T> orig, Expression exper) {
-        List<T> news = new ArrayList<T>();
+        List<T> news = new ArrayList<>();
         for (T o : orig) {
-            if (isNotNull(exper) && (indexOf(dest, exper, o) == -1)) {
-                news.add(o);
-            } else if (dest.indexOf(o) == -1) {
+            if ((isNotNull(exper) && (indexOf(dest, exper, o) == -1)) || dest.indexOf(o) == -1) {
                 news.add(o);
             }
         }
@@ -612,9 +596,7 @@ public final class ObjectUtil {
      */
     public static <T> Boolean exists(List<T> list, T object) {
         for (Object t : list) {
-            if (t.getClass().isEnum() && t.toString().equals(object)) {
-                return true;
-            } else if (t.equals(object)) {
+            if ((t.getClass().isEnum() && t.toString().equals(object)) || t.equals(object)) {
                 return true;
             }
         }
@@ -664,18 +646,11 @@ public final class ObjectUtil {
      * @return T
      */
     public static <T> T[] remove(T[] dest, T orig) {
-        List<T> array = new ArrayList<T>(Arrays.asList(dest));
+        List<T> array = new ArrayList<>(Arrays.asList(dest));
         while (array.indexOf(orig) != -1) {
             array.remove(orig);
         }
         return array.toArray((T[]) Array.newInstance(dest.getClass().getComponentType(), array.size()));
-    }
-
-    public static <T> T[] removeFirst(T[] dest, T orig) {
-        if (indexOf(dest, orig) != -1) {
-            dest = remove(dest, orig);
-        }
-        return dest;
     }
 
     /**
@@ -767,12 +742,12 @@ public final class ObjectUtil {
         return list;
     }
 
-    public static class CustomSortOrderComparator implements Comparator<Object>, Serializable {
+    private static class CustomSortOrderComparator implements Comparator<Object>, Serializable {
 
         private String[] customSort;
         private String idFieldName;
 
-        public CustomSortOrderComparator(String[] customSort, String idFieldName) {
+        private CustomSortOrderComparator(String[] customSort, String idFieldName) {
             this.customSort = Arrays.copyOf(customSort, customSort.length);
             this.idFieldName = idFieldName;
         }
