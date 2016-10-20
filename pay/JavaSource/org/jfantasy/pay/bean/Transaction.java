@@ -101,6 +101,11 @@ public class Transaction extends BaseBusEntity {
     @JsonDeserialize(using = ProjectDeserializer.class)
     private Project project;
     /**
+     * 支付配置名称
+     */
+    @Column(name = "PAYMENT_CONFIG_NAME")
+    private String payConfigName;
+    /**
      * 扩展字段,用于存储不同项目的关联信息
      */
     @Convert(converter = MapConverter.class)
@@ -245,4 +250,12 @@ public class Transaction extends BaseBusEntity {
         return projectKey + ">" + orderKey;
     }
 
+    public String getPayConfigName() {
+        return payConfigName;
+    }
+
+    public void setPayConfigName(String payConfigName) {
+        this.payConfigName = payConfigName;
+    }
+    
 }

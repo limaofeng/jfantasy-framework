@@ -1,5 +1,6 @@
 package org.jfantasy.pay.listener;
 
+import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.pay.bean.Transaction;
 import org.jfantasy.pay.bean.enums.ProjectType;
 import org.jfantasy.pay.bean.enums.TxStatus;
@@ -16,6 +17,8 @@ public class TransferListener implements ApplicationListener<TransactionChangedE
 
     private AccountService accountService;
 
+    private ProjectType[] projectTypes = new ProjectType[]{ProjectType.transfer, ProjectType.card};
+
     @Async
     @Override
     @Transactional
@@ -24,7 +27,7 @@ public class TransferListener implements ApplicationListener<TransactionChangedE
         if (transaction.getStatus() != TxStatus.unprocessed) {
             return;
         }
-        if (transaction.getProject().getType() != ProjectType.transfer) {
+        if (!ObjectUtil.exists(projectTypes, transaction.getProject().getType())) {
             return;
         }
         accountService.transfer(transaction.getSn(), "自动转账");

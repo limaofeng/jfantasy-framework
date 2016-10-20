@@ -8,15 +8,10 @@ import org.jfantasy.framework.spring.mvc.error.RestException;
 import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.oauth.userdetails.OAuthUserDetails;
-import org.jfantasy.pay.bean.Account;
-import org.jfantasy.pay.bean.Card;
-import org.jfantasy.pay.bean.Project;
-import org.jfantasy.pay.bean.Transaction;
-import org.jfantasy.pay.bean.enums.AccountStatus;
-import org.jfantasy.pay.bean.enums.AccountType;
-import org.jfantasy.pay.bean.enums.TxChannel;
-import org.jfantasy.pay.bean.enums.TxStatus;
+import org.jfantasy.pay.bean.*;
+import org.jfantasy.pay.bean.enums.*;
 import org.jfantasy.pay.dao.AccountDao;
+import org.jfantasy.pay.dao.BillDao;
 import org.jfantasy.pay.dao.ProjectDao;
 import org.jfantasy.pay.dao.TransactionDao;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +32,8 @@ public class AccountService {
     private TransactionDao transactionDao;
     @Autowired
     private ProjectDao projectDao;
+    @Autowired
+    private BillDao billDao;
 
     private PasswordEncoder passwordEncoder = new StandardPasswordEncoder();
 
@@ -108,7 +105,6 @@ public class AccountService {
     public Transaction transfer(String trxNo, String password, String notes) {
         Transaction transaction = transactionDao.get(trxNo);
         if (transaction.getChannel() == TxChannel.internal) {
-            /*
             Account from = this.accountDao.get(transaction.getFrom());
             if (from.getStatus() != AccountStatus.activated) {
                 throw new RestException("账户未激活不能进行付款操作");
@@ -119,7 +115,6 @@ public class AccountService {
             if (!passwordEncoder.matches(from.getPassword(), password)) {
                 throw new RestException("支付密码错误");
             }
-            */
         }
         return this.transfer(trxNo, notes);
     }
@@ -146,16 +141,32 @@ public class AccountService {
                 throw new RestException("账户余额不足,支付失败");
             }
             from.setAmount(from.getAmount().subtract(transaction.getAmount()));
+            this.addBill(BillType.debit, transaction, from);//添加对应账单
             this.accountDao.update(from);
         }
         //转入账户
         Account to = this.accountDao.get(transaction.getTo());
         to.setAmount(to.getAmount().add(transaction.getAmount()));
+        this.addBill(BillType.credit, transaction, to);//添加对应账单
         this.accountDao.update(to);
+
         //更新交易状态
         transaction.setStatus(TxStatus.success);
+        transaction.setStatusText(transaction.getStatus().name());
         transaction.setNotes(notes);
         return transactionDao.save(transaction);
+    }
+
+    private void addBill(BillType type, Transaction transaction, Account account) {
+        Project project = transaction.getProject();
+        Bill bill = new Bill();
+        bill.setAccount(account);
+        bill.setType(type);
+        bill.setAmount(transaction.getAmount());
+        bill.setProject(project.getName());
+        bill.setPaymentMethod(transaction.getPayConfigName());
+        bill.setBalance(account.getAmount());
+        this.billDao.save(bill);
     }
 
     @Transactional
@@ -181,13 +192,11 @@ public class AccountService {
         transaction.set(Transaction.CARD_ID, card.getNo());
         transaction.setProject(projectDao.get(Project.CARD_INPOUR));
         transaction.setUnionId(Transaction.generateUnionid(transaction.getProject().getKey(), card.getNo()));
-        transaction.setStatus(TxStatus.success);
-        transaction.setStatusText(TxStatus.success.name());
+        transaction.setStatus(TxStatus.unprocessed);
+        transaction.setStatusText(TxStatus.unprocessed.name());
         transaction.setNotes("会员卡充值");
+        transaction.setPayConfigName("会员卡充值");
         this.transactionDao.save(transaction);
-        //修改金额
-        to.setAmount(to.getAmount().add(card.getAmount()));
-        accountDao.save(to);
     }
 
 }

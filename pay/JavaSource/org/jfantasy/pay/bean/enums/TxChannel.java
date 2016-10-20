@@ -7,14 +7,14 @@ public enum TxChannel {
     /**
      * 线下交易
      */
-    offline,
+    offline,//NOSONAR
     /**
-     * 内部交易
+     * 内部交易（余额支付）
      */
-    internal,
+    internal,//NOSONAR
     /**
      * 第三方交易平台
      */
-    thirdparty
+    thirdparty//NOSONAR
 
 }
