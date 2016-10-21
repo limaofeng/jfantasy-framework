@@ -3,8 +3,6 @@ package org.jfantasy.auth.rest;
 import org.jfantasy.auth.rest.models.LoginForm;
 import org.jfantasy.auth.rest.models.LogoutForm;
 import org.jfantasy.auth.rest.models.Scope;
-import org.jfantasy.framework.jackson.annotation.IgnoreProperty;
-import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
 import org.jfantasy.framework.spring.mvc.error.RestException;
 import org.jfantasy.framework.spring.validation.RESTful;
 import org.jfantasy.framework.util.common.StringUtil;
@@ -20,24 +18,29 @@ import org.springframework.web.bind.annotation.*;
 /**
  * 用于处理登陆及退出
  */
-/** 用户登录退出 **/
+
+/**
+ * 用户登录退出
+ **/
 @RestController
 public class AuthController {
 
+    private final UserService userService;
+    private final MemberService memberService;
+
     @Autowired
-    private UserService userService;
-    @Autowired
-    private MemberService memberService;
+    public AuthController(MemberService memberService, UserService userService) {
+        this.memberService = memberService;
+        this.userService = userService;
+    }
 
     /**
      * 用户登录 - 用户登录接口
-     * @param loginForm
-     * @return
+     *
+     * @param loginForm 登陆表单
+     * @return Object
      */
     @RequestMapping(value = "/login", method = RequestMethod.POST)
-    @JsonResultFilter(ignore = {
-            @IgnoreProperty(pojo = Member.class, name = {Member.BASE_JSONFIELDS})
-    })
     @ResponseBody
     public Object login(@Validated(RESTful.POST.class) @RequestBody LoginForm loginForm) {
         if (StringUtil.isBlank(loginForm.getUserType())) {
@@ -45,23 +48,35 @@ public class AuthController {
         }
         switch (loginForm.getScope()) {
             case user:
-                User user = this.userService.login(loginForm.getUsername(), loginForm.getPassword());
-                if (StringUtil.isNotBlank(loginForm.getUserType()) && !loginForm.getUserType().equals(user.getUserType())) {
-                    throw new RestException("UserType 不一致");
-                }
-                return user;
+                return userLogin(loginForm);
             case member:
-                Member member = memberService.login(loginForm.getType(), loginForm.getUsername(), loginForm.getPassword());
-                if (StringUtil.isNotBlank(loginForm.getUserType()) && !loginForm.getUserType().equals(member.getType())) {
-                    throw new RestException("UserType 不一致");
-                }
-                return member;
+                return memberLogin(loginForm);
             default:
                 throw new RestException("不能识别的 scope 类型");
         }
     }
 
-    /** 用户登出 - 用户登出接口 **/
+    private User userLogin(LoginForm loginForm) {
+        User user = this.userService.login(loginForm.getUsername(), loginForm.getPassword());
+        if (StringUtil.isNotBlank(loginForm.getUserType()) && !loginForm.getUserType().equals(user.getUserType())) {
+            throw new RestException("UserType 不一致");
+        }
+        return user;
+    }
+
+    private Member memberLogin(LoginForm loginForm) {
+        Member member = memberService.login(loginForm.getType(), loginForm.getUsername(), loginForm.getPassword());
+        if (StringUtil.isNotBlank(loginForm.getUserType()) && !loginForm.getUserType().equals(member.getType())) {
+            throw new RestException("UserType 不一致");
+        }
+        return member;
+    }
+
+    /**
+     * 用户登出 - 用户登出接口
+     *
+     * @param loginForm 退出表达
+     */
     @RequestMapping(value = "/logout", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void logout(@RequestBody LogoutForm loginForm) {
@@ -76,7 +91,6 @@ public class AuthController {
                 throw new RestException("不能识别的 scope 类型");
         }
     }
-
 
 
 }
