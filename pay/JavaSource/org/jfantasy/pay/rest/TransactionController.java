@@ -8,7 +8,7 @@ import org.jfantasy.framework.jackson.ThreadJacksonMixInHolder;
 import org.jfantasy.framework.jackson.annotation.AllowProperty;
 import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
 import org.jfantasy.framework.security.SpringSecurityUtils;
-import org.jfantasy.framework.spring.mvc.error.RestException;
+import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
 import org.jfantasy.framework.util.common.BeanFilter;
 import org.jfantasy.framework.util.common.ObjectUtil;
@@ -22,7 +22,10 @@ import org.jfantasy.pay.error.PayException;
 import org.jfantasy.pay.order.entity.enums.PaymentStatus;
 import org.jfantasy.pay.rest.models.PayForm;
 import org.jfantasy.pay.rest.models.assembler.TransactionResourceAssembler;
-import org.jfantasy.pay.service.*;
+import org.jfantasy.pay.service.AccountService;
+import org.jfantasy.pay.service.PayConfigService;
+import org.jfantasy.pay.service.PayService;
+import org.jfantasy.pay.service.TransactionService;
 import org.jfantasy.pay.service.vo.ToPayment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -81,14 +84,12 @@ public class TransactionController {
     @RequestMapping(method = RequestMethod.POST, value = "/{id}/pay-form")
     @ResponseBody
     @JsonResultFilter(allow = @AllowProperty(pojo = Payment.class, name = {"sn", "type", "pay_config_name", "total_amount", "payment_fee", "status", "source"}))
-    public ToPayment payForm(@PathVariable("id") String sn, @RequestBody PayForm payForm) {
-        try {
-            Transaction transaction = get(sn);
-            return payService.pay(transaction, payForm.getPayconfigId(), payForm.getPayType(), payForm.getPayer(), payForm.getProperties());
-        } catch (PayException e) {
-            LOG.error(e);
-            throw new RestException(e.getMessage());
+    public ToPayment payForm(@PathVariable("id") String sn, @RequestBody PayForm payForm) throws PayException {
+        Transaction transaction = get(sn);
+        if (transaction == null) {
+            throw new ValidationException(404, "[" + sn + "]交易不存在");
         }
+        return payService.pay(transaction, payForm.getPayconfigId(), payForm.getPayType(), payForm.getPayer(), payForm.getProperties());
     }
 
     private Transaction get(String id) {

@@ -98,6 +98,8 @@ public class PayService {
         toPayment.setType(payment.getType());
         //设置交易的渠道
         transaction.setChannel(payConfig.getPayMethod() == PayMethod.thirdparty ? TxChannel.thirdparty : TxChannel.internal);
+        transaction.setPayConfigName(payConfig.getName());
+        transactionService.update(transaction);
         //调用第三方支付产品
         if (PayType.web == payType) {
             toPayment.setSource(payProduct.web(payment, order, properties));
@@ -125,6 +127,8 @@ public class PayService {
     @Transactional
     public ToRefund refund(String sn, RefundStatus status, String remark) throws PayException {
         Refund refund = refundService.get(sn);
+        Transaction transaction = refund.getTransaction();
+
         if (refund.getType() == PaymentType.online) {
             if (refund.getStatus() != RefundStatus.ready) {
                 throw new PayException("退款状态为:" + refund.getStatus() + ",不能进行操作");
@@ -135,6 +139,10 @@ public class PayService {
                 PayConfig payConfig = refund.getPayConfig();
                 //获取支付产品
                 PayProduct payProduct = payProductConfiguration.loadPayProduct(payConfig.getPayProductId());
+                //设置交易的渠道
+                transaction.setChannel(payConfig.getPayMethod() == PayMethod.thirdparty ? TxChannel.thirdparty : TxChannel.internal);
+                transaction.setPayConfigName(payConfig.getName());
+                transactionService.update(transaction);
                 Object result = payProduct.refund(refund);
                 this.refundService.save(refund);
                 ToRefund toRefund = BeanUtil.copyProperties(new ToRefund(), refund);
