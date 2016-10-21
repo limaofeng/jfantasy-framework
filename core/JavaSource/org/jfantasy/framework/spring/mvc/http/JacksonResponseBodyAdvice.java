@@ -35,6 +35,13 @@ public class JacksonResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 
     private static final Log LOGGER = LogFactory.getLog(JacksonResponseBodyAdvice.class);
 
+    private static final String DEFAULT_PROVIDER_KEY = "default_provider_key";
+
+    private static final Map<String, FilterProvider> PROVIDERS = new HashMap<>();
+    static {
+        PROVIDERS.put(DEFAULT_PROVIDER_KEY,new SimpleFilterProvider().setFailOnUnknownId(false));
+    }
+
     @Override
     public boolean supports(MethodParameter methodParameter, Class<? extends HttpMessageConverter<?>> converterType) {
         Class returnType = methodParameter.getMethod().getReturnType();
@@ -44,9 +51,6 @@ public class JacksonResponseBodyAdvice implements ResponseBodyAdvice<Object> {
     @Override
     public Object beforeBodyWrite(Object returnValue, MethodParameter methodParameter, MediaType mediaType, Class<? extends HttpMessageConverter<?>> converterType, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
         if (mediaType.isCompatibleWith(MediaTypes.HAL_JSON) || mediaType.isCompatibleWith(MediaType.APPLICATION_JSON)) {
-            if (!isFilterProvider(methodParameter)) {
-                return returnValue;
-            }
             LOGGER.debug("启用自定义 FilterProvider ");
             MappingJacksonValue mappingJacksonValue = new MappingJacksonValue(returnValue);
             mappingJacksonValue.setFilters(getFilterProvider(methodParameter));
@@ -56,19 +60,22 @@ public class JacksonResponseBodyAdvice implements ResponseBodyAdvice<Object> {
     }
 
     private FilterProvider getFilterProvider(JsonResultFilter jsonResultFilter) {
+        String key = jsonResultFilter.toString();
+        if (PROVIDERS.containsKey(key)) {
+            return PROVIDERS.get(key);
+        }
         SimpleFilterProvider provider = new SimpleFilterProvider().setFailOnUnknownId(false);
-
+        //获取 allows 和 ignores
         AllowProperty[] allowProperties = jsonResultFilter.allow();
         IgnoreProperty[] ignoreProperties = jsonResultFilter.ignore();
-
-
+        //准备数据
         Map<String, Set<String>> ignorePropertyNames = new HashMap<>();
         Map<String, Set<String>> allowPropertyNames = new HashMap<>();
-
+        //将配置信息配置到 mixin
         for (AllowProperty property : allowProperties) {
             Class<?> target = property.pojo();
             String[] names = StringUtil.tokenizeToStringArray(property.name());
-
+            //添加到FilterProvider
             ThreadJacksonMixInHolder.MixInSource mixInSource = ThreadJacksonMixInHolder.createMixInSource(target);
             if (!allowPropertyNames.containsKey(mixInSource.getFilterName())) {
                 allowPropertyNames.put(mixInSource.getFilterName(), new HashSet<>(Arrays.asList(names)));
@@ -76,10 +83,11 @@ public class JacksonResponseBodyAdvice implements ResponseBodyAdvice<Object> {
                 allowPropertyNames.get(mixInSource.getFilterName()).addAll(Arrays.asList(names));
             }
         }
+        //将配置信息配置到 mixin
         for (IgnoreProperty property : ignoreProperties) {
             Class<?> target = property.pojo();
             String[] names = StringUtil.tokenizeToStringArray(property.name());
-
+            //添加到FilterProvider
             ThreadJacksonMixInHolder.MixInSource mixInSource = ThreadJacksonMixInHolder.createMixInSource(target);
             if (!ignorePropertyNames.containsKey(mixInSource.getFilterName())) {
                 ignorePropertyNames.put(mixInSource.getFilterName(), new HashSet<>(Arrays.asList(names)));
@@ -87,23 +95,20 @@ public class JacksonResponseBodyAdvice implements ResponseBodyAdvice<Object> {
                 ignorePropertyNames.get(mixInSource.getFilterName()).addAll(Arrays.asList(names));
             }
         }
-
+        //添加到
         for (Map.Entry<String, Set<String>> entry : allowPropertyNames.entrySet()) {
             provider.addFilter(entry.getKey(), SimpleBeanPropertyFilter.filterOutAllExcept(entry.getValue()));
         }
         ignorePropertyNames.entrySet().stream().filter(entry -> !allowPropertyNames.containsKey(entry.getKey())).forEach(entry -> provider.addFilter(entry.getKey(), SimpleBeanPropertyFilter.serializeAllExcept(entry.getValue())));
         LOGGER.debug(provider);
+        PROVIDERS.put(key, provider);
         return provider;
-    }
-
-    private boolean isFilterProvider(MethodParameter methodParameter) {
-        return methodParameter.getMethod().getAnnotation(JsonResultFilter.class) != null;
     }
 
     private FilterProvider getFilterProvider(MethodParameter methodParameter) {
         JsonResultFilter jsonResultFilter = methodParameter.getMethod().getAnnotation(JsonResultFilter.class);
         if (jsonResultFilter == null) {
-            return null;
+            return PROVIDERS.get(DEFAULT_PROVIDER_KEY);
         }
         return getFilterProvider(jsonResultFilter);
     }
