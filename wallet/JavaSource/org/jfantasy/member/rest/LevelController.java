@@ -1,10 +1,6 @@
 package org.jfantasy.member.rest;
 
-import org.jfantasy.framework.dao.BaseBusEntity;
-import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
-import org.jfantasy.framework.jackson.annotation.AllowProperty;
-import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
 import org.jfantasy.member.bean.Level;
 import org.jfantasy.member.bean.Member;
@@ -19,24 +15,33 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/** 会员等级 **/
+/**
+ * 会员等级
+ */
 @RestController
 public class LevelController {
 
     private LevelResourceAssembler assembler = new LevelResourceAssembler();
 
-    @Autowired
-    private LevelService levelService;
-    @Autowired
-    private WalletService walletService;
-    @Autowired
-    private MemberService memberService;
+    private final LevelService levelService;
+    private final WalletService walletService;
+    private final MemberService memberService;
 
-    @JsonResultFilter(List.class)
-    /** 会员等级 **/
+    @Autowired
+    public LevelController(LevelService levelService, MemberService memberService, WalletService walletService) {
+        this.levelService = levelService;
+        this.memberService = memberService;
+        this.walletService = walletService;
+    }
+
+    /**
+     * 会员等级
+     * @param filters 筛选条件
+     * @return List<Level>
+     */
     @RequestMapping(value = "/levels", method = RequestMethod.GET)
-    public Pager<ResultResourceSupport> search(Pager<Level> pager, List<PropertyFilter> filters) {
-        return assembler.toResources(levelService.search(pager, filters));
+    public List<ResultResourceSupport> search(List<PropertyFilter> filters) {
+        return assembler.toResources(levelService.search(filters));
     }
 
     /** 添加等级 **/
@@ -61,8 +66,11 @@ public class LevelController {
         levelService.delete(id);
     }
 
-    @JsonResultFilter(allow = @AllowProperty(pojo = BaseBusEntity.class, name = {""}))
-    /** 用户的会员等级 **/
+    /**
+     * 用户的会员等级
+     * @param id ID
+     * @return Level
+     */
     @RequestMapping(value = "/members/{memid}/level", method = RequestMethod.GET)
     @ResponseBody
     public ResultResourceSupport level(@PathVariable("memid") Long id) {

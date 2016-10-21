@@ -5,7 +5,6 @@ import org.jfantasy.common.rest.models.assembler.AreaResourceAssembler;
 import org.jfantasy.common.service.AreaService;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
-import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,8 +22,12 @@ public class AreaController {
     @Autowired
     private AreaService areaService;
 
-    @JsonResultFilter(value = List.class)
-    /** 查询地区 - 筛选地区，返回通用分页对象 **/
+    /**
+     * 查询地区 - 筛选地区，返回通用分页对象
+     * @param pager 分页
+     * @param filters 筛选
+     * @return Pager<Area>
+     */
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
     public Pager<ResultResourceSupport> search(Pager<Area> pager, List<PropertyFilter> filters) {

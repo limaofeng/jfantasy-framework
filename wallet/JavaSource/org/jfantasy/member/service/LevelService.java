@@ -1,6 +1,5 @@
 package org.jfantasy.member.service;
 
-import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.member.bean.Level;
 import org.jfantasy.member.dao.LevelDao;
@@ -16,8 +15,8 @@ public class LevelService {
     @Autowired
     private LevelDao levelDao;
 
-    public Pager<Level> search(Pager<Level> pager, List<PropertyFilter> filters) {
-        return levelDao.findPager(pager, filters);
+    public List<Level> search(List<PropertyFilter> filters) {
+        return levelDao.find(filters);
     }
 
     public Level get(Long id) {
