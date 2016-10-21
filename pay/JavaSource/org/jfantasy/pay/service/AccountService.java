@@ -105,6 +105,7 @@ public class AccountService {
     public Transaction transfer(String trxNo, String password, String notes) {
         Transaction transaction = transactionDao.get(trxNo);
         if (transaction.getChannel() == TxChannel.internal) {
+            /*
             Account from = this.accountDao.get(transaction.getFrom());
             if (from.getStatus() != AccountStatus.activated) {
                 throw new RestException("账户未激活不能进行付款操作");
@@ -114,7 +115,7 @@ public class AccountService {
             }
             if (!passwordEncoder.matches(from.getPassword(), password)) {
                 throw new RestException("支付密码错误");
-            }
+            }*/
         }
         return this.transfer(trxNo, notes);
     }
