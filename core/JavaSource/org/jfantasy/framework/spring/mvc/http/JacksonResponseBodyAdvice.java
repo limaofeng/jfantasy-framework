@@ -44,7 +44,7 @@ public class JacksonResponseBodyAdvice implements ResponseBodyAdvice<Object> {
     @Override
     public Object beforeBodyWrite(Object returnValue, MethodParameter methodParameter, MediaType mediaType, Class<? extends HttpMessageConverter<?>> converterType, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
         if (mediaType.isCompatibleWith(MediaTypes.HAL_JSON) || mediaType.isCompatibleWith(MediaType.APPLICATION_JSON)) {
-            if (isFilterProvider(methodParameter)) {
+            if (!isFilterProvider(methodParameter)) {
                 return returnValue;
             }
             LOGGER.debug("启用自定义 FilterProvider ");
