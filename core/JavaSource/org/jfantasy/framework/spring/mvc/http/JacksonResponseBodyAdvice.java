@@ -1,17 +1,14 @@
 package org.jfantasy.framework.spring.mvc.http;
 
-import com.fasterxml.jackson.databind.ser.PropertyFilter;
+import com.fasterxml.jackson.databind.ser.FilterProvider;
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.jackson.ThreadJacksonMixInHolder;
 import org.jfantasy.framework.jackson.annotation.AllowProperty;
 import org.jfantasy.framework.jackson.annotation.IgnoreProperty;
 import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
-import org.jfantasy.framework.spring.mvc.error.RestException;
-import org.jfantasy.framework.spring.mvc.http.jsonfilter.ExpendFieldsBeanPropertyFilter;
-import org.jfantasy.framework.spring.mvc.http.jsonfilter.ResultFieldsBeanPropertyFilter;
-import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.Order;
@@ -21,12 +18,10 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
-import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.List;
+import java.util.*;
 
 /**
  * 支持 REST 接口的响应头设置 <br/>
@@ -38,83 +33,79 @@ import java.util.List;
 @ControllerAdvice
 public class JacksonResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 
-    private final static Log LOGGER = LogFactory.getLog(JacksonResponseBodyAdvice.class);
-
-    public final static String X_Expansion_Fields = "X-Expansion-Fields";
-    public final static String X_Page_Fields = "X-Page-Fields";
-    public final static String X_Result_Fields = "X-Result-Fields";
-    public final static String X_Expend_Fields = "X-Expend-Fields";
-
-    private ThreadLocal<Class> responseBody = new ThreadLocal<>();
+    private static final Log LOGGER = LogFactory.getLog(JacksonResponseBodyAdvice.class);
 
     @Override
     public boolean supports(MethodParameter methodParameter, Class<? extends HttpMessageConverter<?>> converterType) {
         Class returnType = methodParameter.getMethod().getReturnType();
-        boolean supports = Object.class.isAssignableFrom(returnType);
-        if (supports) {
-            JsonResultFilter jsonResultFilter = methodParameter.getMethod().getAnnotation(JsonResultFilter.class);
-            if (jsonResultFilter != null) {
-                if (!ThreadJacksonMixInHolder.isContainsMixIn()) {
-                    ThreadJacksonMixInHolder mixInHolder = ThreadJacksonMixInHolder.getMixInHolder();
-                    AllowProperty[] allowProperties = jsonResultFilter.allow();
-                    IgnoreProperty[] ignoreProperties = jsonResultFilter.ignore();
-                    for (AllowProperty property : allowProperties) {
-                        mixInHolder.addAllowPropertyNames(property.pojo(), StringUtil.tokenizeToStringArray(property.name()));
-                    }
-                    for (IgnoreProperty property : ignoreProperties) {
-                        mixInHolder.addIgnorePropertyNames(property.pojo(), StringUtil.tokenizeToStringArray(property.name()));
-                    }
-                }
-                responseBody.set(jsonResultFilter.value());
-            }
-        }
-        return supports;
+        return Object.class.isAssignableFrom(returnType);
     }
 
     @Override
-    public Object beforeBodyWrite(Object obj, MethodParameter methodParameter, MediaType mediaType, Class<? extends HttpMessageConverter<?>> converterType, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
-        Object returnValue = obj;
-
-        Class bodyType = ObjectUtil.defaultValue(responseBody.get(), Object.class);
-        responseBody.set(null);
-
-        HttpServletRequest request = ((ServletServerHttpRequest) serverHttpRequest).getServletRequest();
+    public Object beforeBodyWrite(Object returnValue, MethodParameter methodParameter, MediaType mediaType, Class<? extends HttpMessageConverter<?>> converterType, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
         if (mediaType.isCompatibleWith(MediaTypes.HAL_JSON) || mediaType.isCompatibleWith(MediaType.APPLICATION_JSON)) {
-            Class returnType = methodParameter.getMethod().getReturnType();
-
-            if (!ObjectUtil.defaultValue(getHeaderAsBoolean(request, X_Page_Fields), !List.class.isAssignableFrom(bodyType)) && Pager.class.isAssignableFrom(returnType)) {
-                returnValue = ((Pager) returnValue).getPageItems();
+            if (isFilterProvider(methodParameter)) {
+                return returnValue;
             }
-
+            LOGGER.debug("启用自定义 FilterProvider ");
             MappingJacksonValue mappingJacksonValue = new MappingJacksonValue(returnValue);
-            mappingJacksonValue.setFilters(ThreadJacksonMixInHolder.getMixInHolder().getFilterProvider());
+            mappingJacksonValue.setFilters(getFilterProvider(methodParameter));
             return mappingJacksonValue;
         }
-        responseBody.set(Object.class);
-        return obj;
+        return returnValue;
     }
 
-    private Boolean getHeaderAsBoolean(HttpServletRequest request, String name) {
-        String value = request.getHeader(name);
-        return value != null ? Boolean.valueOf(value) : null;
-    }
+    private FilterProvider getFilterProvider(JsonResultFilter jsonResultFilter) {
+        SimpleFilterProvider provider = new SimpleFilterProvider().setFailOnUnknownId(false);
+
+        AllowProperty[] allowProperties = jsonResultFilter.allow();
+        IgnoreProperty[] ignoreProperties = jsonResultFilter.ignore();
 
 
-    public static boolean isCustomFilter(HttpServletRequest request) {
-        return StringUtil.isNotBlank(request.getHeader(X_Result_Fields)) || StringUtil.isNotBlank(request.getHeader(X_Expend_Fields));
-    }
+        Map<String, Set<String>> ignorePropertyNames = new HashMap<>();
+        Map<String, Set<String>> allowPropertyNames = new HashMap<>();
 
-    public static PropertyFilter getPropertyFilter(HttpServletRequest request) {
-        String xResultFields = request.getHeader(X_Result_Fields);
-        String xExpendFields = request.getHeader(X_Expend_Fields);
-        if (StringUtil.isNotBlank(xResultFields)) {
-            return new ResultFieldsBeanPropertyFilter(StringUtil.tokenizeToStringArray(xResultFields));
+        for (AllowProperty property : allowProperties) {
+            Class<?> target = property.pojo();
+            String[] names = StringUtil.tokenizeToStringArray(property.name());
+
+            ThreadJacksonMixInHolder.MixInSource mixInSource = ThreadJacksonMixInHolder.createMixInSource(target);
+            if (!allowPropertyNames.containsKey(mixInSource.getFilterName())) {
+                allowPropertyNames.put(mixInSource.getFilterName(), new HashSet<>(Arrays.asList(names)));
+            } else {
+                allowPropertyNames.get(mixInSource.getFilterName()).addAll(Arrays.asList(names));
+            }
         }
-        if (StringUtil.isNotBlank(xExpendFields)) {
-            return new ExpendFieldsBeanPropertyFilter(StringUtil.tokenizeToStringArray(xExpendFields));
+        for (IgnoreProperty property : ignoreProperties) {
+            Class<?> target = property.pojo();
+            String[] names = StringUtil.tokenizeToStringArray(property.name());
+
+            ThreadJacksonMixInHolder.MixInSource mixInSource = ThreadJacksonMixInHolder.createMixInSource(target);
+            if (!ignorePropertyNames.containsKey(mixInSource.getFilterName())) {
+                ignorePropertyNames.put(mixInSource.getFilterName(), new HashSet<>(Arrays.asList(names)));
+            } else {
+                ignorePropertyNames.get(mixInSource.getFilterName()).addAll(Arrays.asList(names));
+            }
         }
-        throw new RestException("不能初始化 BeanPropertyFilter 对象");
+
+        for (Map.Entry<String, Set<String>> entry : allowPropertyNames.entrySet()) {
+            provider.addFilter(entry.getKey(), SimpleBeanPropertyFilter.filterOutAllExcept(entry.getValue()));
+        }
+        ignorePropertyNames.entrySet().stream().filter(entry -> !allowPropertyNames.containsKey(entry.getKey())).forEach(entry -> provider.addFilter(entry.getKey(), SimpleBeanPropertyFilter.serializeAllExcept(entry.getValue())));
+        LOGGER.debug(provider);
+        return provider;
     }
 
+    private boolean isFilterProvider(MethodParameter methodParameter) {
+        return methodParameter.getMethod().getAnnotation(JsonResultFilter.class) != null;
+    }
+
+    private FilterProvider getFilterProvider(MethodParameter methodParameter) {
+        JsonResultFilter jsonResultFilter = methodParameter.getMethod().getAnnotation(JsonResultFilter.class);
+        if (jsonResultFilter == null) {
+            return null;
+        }
+        return getFilterProvider(jsonResultFilter);
+    }
 
 }

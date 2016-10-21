@@ -62,6 +62,7 @@ public class ThreadJacksonMixInHolder {
     public void removeIgnorePropertyNames(Class<?> target, String... names) {
     }
 
+    @Deprecated
     public void addIgnorePropertyNames(Class<?> target, String... names) {
         MixInSource mixInSource = createMixInSource(target);
         if (objectMapper.findMixInClassFor(target) == null) {
@@ -78,6 +79,7 @@ public class ThreadJacksonMixInHolder {
         }
     }
 
+    @Deprecated
     public void addAllowPropertyNames(Class<?> target, String... names) {
         MixInSource mixInSource = createMixInSource(target);
         if (objectMapper.findMixInClassFor(target) == null) {
@@ -90,6 +92,7 @@ public class ThreadJacksonMixInHolder {
         }
     }
 
+    @Deprecated
     public FilterProvider getFilterProvider() {
         SimpleFilterProvider provider = new SimpleFilterProvider().setFailOnUnknownId(false);
         for (Map.Entry<String, Set<String>> entry : this.allowPropertyNames.entrySet()) {
@@ -141,7 +144,7 @@ public class ThreadJacksonMixInHolder {
         return this.allowPropertyNames.containsKey(mixInSource.getFilterName()) && this.allowPropertyNames.get(mixInSource.getFilterName()).contains(name);
     }
 
-    private static MixInSource createMixInSource(Class<?> target) {
+    public static MixInSource createMixInSource(Class<?> target) {
         if (!mixInSourceMap.containsKey(target)) {
             String uuid = UUID.randomUUID().toString().replaceAll("-", "");
             Class mixIn = AsmUtil.makeInterface("org.jfantasy.framework.jackson.mixin." + target.getSimpleName() + "_" + uuid, AnnotationDescriptor.builder(JsonFilter.class).setValue("value", uuid).build(), FilterMixIn.class);
@@ -180,7 +183,7 @@ public class ThreadJacksonMixInHolder {
         return this.allowPropertyNames.containsKey(mixInSource.getFilterName());
     }
 
-    private static class MixInSource {
+    public static class MixInSource {
         private String filterName;
         private Class<?> target;
         private Class<?> mixIn;

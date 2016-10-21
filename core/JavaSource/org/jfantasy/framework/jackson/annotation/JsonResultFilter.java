@@ -25,9 +25,4 @@ public @interface JsonResultFilter {
      */
     AllowProperty[] allow() default {};
 
-    /**
-     * 当返回 pager 对象时,该参数有效。设置为 list 时只返回 pager.pageItems 内容。
-     * @return class
-     */
-    Class value() default Object.class;
 }

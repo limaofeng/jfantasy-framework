@@ -3,6 +3,8 @@ package org.jfantasy.auth.rest;
 import org.jfantasy.auth.rest.models.LoginForm;
 import org.jfantasy.auth.rest.models.LogoutForm;
 import org.jfantasy.auth.rest.models.Scope;
+import org.jfantasy.framework.jackson.annotation.IgnoreProperty;
+import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
 import org.jfantasy.framework.spring.mvc.error.RestException;
 import org.jfantasy.framework.spring.validation.RESTful;
 import org.jfantasy.framework.util.common.StringUtil;
@@ -41,6 +43,9 @@ public class AuthController {
      * @return Object
      */
     @RequestMapping(value = "/login", method = RequestMethod.POST)
+    @JsonResultFilter(ignore = {
+            @IgnoreProperty(pojo = Member.class, name = {Member.BASE_JSONFIELDS})
+    })
     @ResponseBody
     public Object login(@Validated(RESTful.POST.class) @RequestBody LoginForm loginForm) {
         if (StringUtil.isBlank(loginForm.getUserType())) {
