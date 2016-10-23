@@ -2,6 +2,8 @@ package org.jfantasy.framework.swagger;
 
 import com.google.common.base.Predicate;
 import org.jfantasy.framework.spring.config.WebMvcConfig;
+import org.jfantasy.schedule.rest.ScheduleController;
+import org.jfantasy.schedule.rest.TriggerController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.actuate.endpoint.mvc.*;
@@ -33,24 +35,26 @@ import static springfox.documentation.builders.PathSelectors.regex;
 @AutoConfigureAfter(WebMvcConfig.class)
 public class SwaggerAutoConfiguration implements EnvironmentAware {
 
-    private final Logger LOG = LoggerFactory.getLogger(SwaggerAutoConfiguration.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SwaggerAutoConfiguration.class);
     private static final String DEFAULT_INCLUDE_PATTERN = "/.*";
-    private static Set<Class<?>> excludes = new HashSet<Class<?>>() {
-        private static final long serialVersionUID = -25359758379153662L;
-        {
-            this.add(BasicErrorController.class);
-            this.add(HalJsonMvcEndpoint.class);
-            this.add(EndpointMvcAdapter.class);
-            this.add(HealthMvcEndpoint.class);
-            this.add(LogFileMvcEndpoint.class);
-            this.add(MetricsMvcEndpoint.class);
-            this.add(EnvironmentMvcEndpoint.class);
-        }
-    };
-    private static Predicate<RequestHandler> APIS = handler -> {
+    private static final Set<Class<?>> EXCLUDES = new HashSet<>();
+
+    static {
+        EXCLUDES.add(BasicErrorController.class);
+        EXCLUDES.add(HalJsonMvcEndpoint.class);
+        EXCLUDES.add(EndpointMvcAdapter.class);
+        EXCLUDES.add(HealthMvcEndpoint.class);
+        EXCLUDES.add(LogFileMvcEndpoint.class);
+        EXCLUDES.add(MetricsMvcEndpoint.class);
+        EXCLUDES.add(EnvironmentMvcEndpoint.class);
+        EXCLUDES.add(ScheduleController.class);
+        EXCLUDES.add(TriggerController.class);
+    }
+
+    private static final Predicate<RequestHandler> APIS = handler -> {
         assert handler != null;
         Class<?> beanType = handler.declaringClass();
-        return !excludes.contains(beanType);
+        return !EXCLUDES.contains(beanType);
     };
 
     private RelaxedPropertyResolver propertyResolver;
@@ -81,13 +85,13 @@ public class SwaggerAutoConfiguration implements EnvironmentAware {
 
     private ApiInfo apiInfo() {
         return new ApiInfo(
-                propertyResolver.getProperty("api.title",""),
-                propertyResolver.getProperty("api.description",""),
-                propertyResolver.getProperty("api.version","v1.0"),
-                propertyResolver.getProperty("api.termsOfServiceUrl",""),
-                new Contact(propertyResolver.getProperty("api.contact.name",""), propertyResolver.getProperty("api.contact.url", ""), propertyResolver.getProperty("api.contact.email","")),
-                propertyResolver.getProperty("api.license",""),
-                propertyResolver.getProperty("api.licenseUrl","")
+                propertyResolver.getProperty("api.title", ""),
+                propertyResolver.getProperty("api.description", ""),
+                propertyResolver.getProperty("api.version", "v1.0"),
+                propertyResolver.getProperty("api.termsOfServiceUrl", ""),
+                new Contact(propertyResolver.getProperty("api.contact.name", ""), propertyResolver.getProperty("api.contact.url", ""), propertyResolver.getProperty("api.contact.email", "")),
+                propertyResolver.getProperty("api.license", ""),
+                propertyResolver.getProperty("api.licenseUrl", "")
         );
     }
 
