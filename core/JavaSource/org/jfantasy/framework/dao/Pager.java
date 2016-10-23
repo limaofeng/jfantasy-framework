@@ -100,15 +100,6 @@ public class Pager<T> implements Serializable {
     }
 
     /**
-     * 设置总页数
-     *
-     * @param totalPage 总页数
-     */
-    public void setTotalPage(int totalPage) {
-        this.totalPage = totalPage == 0 ? 1 : totalPage;
-    }
-
-    /**
      * 获取每页显示的条数
      *
      * @return 每页显示条数
@@ -211,7 +202,7 @@ public class Pager<T> implements Serializable {
     public void reset(int totalCount) {
         this.totalCount = totalCount;
         int totalPages = totalCount % pageSize == 0 ? totalCount / pageSize : totalCount / pageSize + 1;
-        this.setTotalPage(totalPages);
+        this.totalPage = totalPage == 0 ? 1 : totalPage;
         if (currentPage >= totalPages) {
             setCurrentPage(totalPages);
             setFirst((totalPages - 1) * pageSize);
