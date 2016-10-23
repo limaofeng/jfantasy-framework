@@ -82,10 +82,10 @@ public class LimitInterceptor implements Interceptor {
         MappedStatement ms = (MappedStatement) queryArgs[MAPPED_STATEMENT_INDEX];
         Map<String, Object> parameter = (Map<String, Object>) queryArgs[PARAMETER_INDEX];
         Pager pager = getPager(parameter);
-        if (pager.getFirst() == 0) {//TODO 如果设置了，数据开始的位置，不通过页面计算开始位置,这个位置这样判断会不会有问题勒
-            pager.setTotalCount(executeForCount(ms, parameter));
+        if (pager.getFirst() == 0) {
+            pager.reset(executeForCount(ms, parameter));
         }
-        pager.setPageItems(executeForList(invocation, ms, parameter));
+        pager.reset(executeForList(invocation, ms, parameter));
         return pager.getPageItems();
     }
 

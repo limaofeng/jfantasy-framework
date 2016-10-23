@@ -139,14 +139,14 @@ public abstract class BuguSearcher<T> {
                 }
                 between = index;
             }
-            pager.setTotalCount(hits.totalHits);
+            pager.reset(hits.totalHits);
             List<T> data = new ArrayList<>();
             for (int i = pager.getFirst() - between; i < hits.scoreDocs.length && hits.totalHits > 0; i++) {
                 ScoreDoc sdoc = hits.scoreDocs[i];
                 Document doc = searcher.doc(sdoc.doc);
                 data.add(this.build(doc));
             }
-            pager.setPageItems(data);
+            pager.reset(data);
             if (highlighter != null) {
                 for (T obj : pager.getPageItems()) {
                     highlightObject(highlighter, obj);

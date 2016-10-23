@@ -43,13 +43,13 @@
     <!-- hibernate日志输入 -->
     <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="ERROR" />
     <logger name="org.hibernate.type.descriptor.sql.BasicExtractor" level="ERROR" />
-    <logger name="org.hibernate.SQL" level="DEBUG" />
+    <logger name="org.hibernate.SQL" level="ERROR" />
     <logger name="org.hibernate.engine.QueryParameters" level="ERROR" />
     <logger name="org.hibernate.engine.query.HQLQueryPlan" level="ERROR" />
     <logger name="org.org.jfantasy.framework" level="ERROR"/>
     <logger name="org.jfantasy.auth.rest" level="DEBUG"/>
 
-    <root level="DEBUG">
+    <root level="ERROR">
         <appender-ref ref="CONSOLE" />
         <appender-ref ref="INFO_FILE" />
         <appender-ref ref="ERROR_FILE" />

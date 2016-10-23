@@ -23,9 +23,7 @@ public class InvoiceResourceAssembler  extends ResourceAssemblerSupport<Invoice,
     }
 
     public Pager<ResultResourceSupport> toResources(Pager<Invoice> pager) {
-        Pager<ResultResourceSupport> rpager = new Pager<>(pager);
-        rpager.setPageItems(this.toResources(pager.getPageItems()));
-        return rpager;
+        return new Pager<>(pager,this.toResources(pager.getPageItems()));
     }
 
 }

@@ -26,9 +26,7 @@ public class BillResourceAssembler extends ResourceAssemblerSupport<WalletBill, 
     }
 
     public Pager<ResultResourceSupport> toResources(Pager<WalletBill> pager) {
-        Pager<ResultResourceSupport> _pager = new Pager<>(pager);
-        _pager.setPageItems(this.toResources(pager.getPageItems()));
-        return _pager;
+        return new Pager<>(pager,this.toResources(pager.getPageItems()));
     }
 
 }

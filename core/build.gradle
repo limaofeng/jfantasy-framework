@@ -21,6 +21,7 @@ dependencies {
     compile "org.mybatis:mybatis-spring:1.2.4"
     compile "org.quartz-scheduler:quartz:2.2.1"
     compile "org.quartz-scheduler:quartz-jobs:2.2.1"
+    compile "io.springfox:springfox-swagger2:2.6.0"
     compile "commons-net:commons-net:3.3"
     compile "org.apache.lucene:lucene-core:3.6.2"
     compile "org.apache.lucene:lucene-highlighter:3.6.2"

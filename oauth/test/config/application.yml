@@ -73,3 +73,8 @@ aliyun:
       topicId: T-PAY_TEST
       consumerId: CID-PAY_WALLET_TEST
 
+springfox:
+  documentation:
+    swagger:
+      v2:
+        path: /api-docs

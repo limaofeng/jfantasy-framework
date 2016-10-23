@@ -734,21 +734,19 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
 
     @SuppressWarnings("unchecked")
     public Pager<T> findPager(Pager<T> pager, String hql, Object... values) {
-        pager = ObjectUtil.defaultValue(pager, new Pager<T>());
         Query q = createQuery(hql, values);
-        pager.setTotalCount(countHqlResult(hql, values));
+        pager.reset(countHqlResult(hql, values));
         setPageParameter(q, pager);
-        pager.setPageItems(distinct(q).list());
+        pager.reset(distinct(q).list());
         return pager;
     }
 
     @SuppressWarnings("unchecked")
     public Pager<T> findPager(Pager<T> pager, String hql, Map<String, ?> values) {
-        pager = ObjectUtil.defaultValue(pager, new Pager<T>());
         Query q = createQuery(hql, values);
-        pager.setTotalCount(countHqlResult(hql, values));
+        pager.reset(countHqlResult(hql, values));
         setPageParameter(q, pager);
-        pager.setPageItems(distinct(q).list());
+        pager.reset(distinct(q).list());
         return pager;
     }
 
@@ -760,13 +758,12 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
      */
     @SuppressWarnings("unchecked")
     public Pager<T> findPager(Pager<T> pager, Criterion... criterions) {
-        pager = pager == null ? new Pager<T>() : pager;
         Criteria c = distinct(createCriteria(criterions, StringUtil.tokenizeToStringArray(pager.getOrderBy())));
         if (pager.getFirst() == 0) {
-            pager.setTotalCount(countCriteriaResult(c));
+            pager.reset(countCriteriaResult(c));
         }
         setPageParameter(c, pager);
-        pager.setPageItems(c.list());
+        pager.reset(c.list());
         return pager;
     }
 
@@ -863,7 +860,7 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
         CriteriaImpl impl = CriteriaImpl.class.cast(c);
         Projection projection = impl.getProjection();
         ResultTransformer transformer = impl.getResultTransformer();
-        List<OrderEntry> orderEntries = null;
+        List<OrderEntry> orderEntries;
         try {
             orderEntries = ReflectionUtils.getFieldValue(impl, "orderEntries");
             ReflectionUtils.setFieldValue(impl, "orderEntries", new ArrayList<OrderEntry>());
@@ -958,14 +955,12 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
     }
 
     public Pager<T> findPager(Pager<T> pager, List<PropertyFilter> filters) {
-        pager = pager == null ? new Pager<T>() : pager;
-        filters = filters == null ? new ArrayList<PropertyFilter>() : filters;
         Criterion[] criterions = buildPropertyFilterCriterions(filters);
         return findPager(pager, criterions);
     }
 
     protected Criterion[] buildPropertyFilterCriterions(List<PropertyFilter> filters) {
-        List<Criterion> criterionList = new ArrayList<Criterion>();
+        List<Criterion> criterionList = new ArrayList<>();
         for (PropertyFilter filter : filters) {
             if (StringUtil.isBlank(filter.getPropertyValue())) {
                 continue;
@@ -1015,7 +1010,8 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
     private String createAlias(Criteria criteria, Set<String> alias, String property) {
         String[] names = StringUtil.tokenizeToStringArray(property, ".");
         if (names.length > 1) {
-            String aliasName = "", objeactName = "";
+            String aliasName = "";
+            String objeactName = "";
             for (int i = 0; i < names.length - 1; i++) {
                 objeactName = objeactName + (StringUtils.isNotBlank(aliasName) ? "." : "") + names[i];
                 aliasName = "_" + objeactName.replaceAll("\\.", "_");

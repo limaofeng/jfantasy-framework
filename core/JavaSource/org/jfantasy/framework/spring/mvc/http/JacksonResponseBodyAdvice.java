@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * 支持 REST 接口的响应头设置 <br/>
@@ -37,7 +39,7 @@ public class JacksonResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 
     private static final String DEFAULT_PROVIDER_KEY = "default_provider_key";
 
-    private static final Map<String, FilterProvider> PROVIDERS = new HashMap<>();
+    private static final ConcurrentMap<String, FilterProvider> PROVIDERS = new ConcurrentHashMap<>();
     static {
         PROVIDERS.put(DEFAULT_PROVIDER_KEY,new SimpleFilterProvider().setFailOnUnknownId(false));
     }
@@ -101,7 +103,7 @@ public class JacksonResponseBodyAdvice implements ResponseBodyAdvice<Object> {
         }
         ignorePropertyNames.entrySet().stream().filter(entry -> !allowPropertyNames.containsKey(entry.getKey())).forEach(entry -> provider.addFilter(entry.getKey(), SimpleBeanPropertyFilter.serializeAllExcept(entry.getValue())));
         LOGGER.debug(provider);
-        PROVIDERS.put(key, provider);
+        PROVIDERS.putIfAbsent(key, provider);
         return provider;
     }
 

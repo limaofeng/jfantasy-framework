@@ -32,9 +32,7 @@ public class WalletResourceAssembler extends ResourceAssemblerSupport<Wallet, Re
     }
 
     public Pager<ResultResourceSupport> toResources(Pager<Wallet> pager) {
-        Pager<ResultResourceSupport> _pager = new Pager<>(pager);
-        _pager.setPageItems(this.toResources(pager.getPageItems()));
-        return _pager;
+        return new Pager<>(pager,this.toResources(pager.getPageItems()));
     }
 
 }

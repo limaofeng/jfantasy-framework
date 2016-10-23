@@ -34,9 +34,7 @@ public class CardTypeResourceAssembler extends ResourceAssemblerSupport<CardType
     }
 
     public Pager<ResultResourceSupport> toResources(Pager<CardType> pager) {
-        Pager<ResultResourceSupport> _pager = new Pager<>(pager);
-        _pager.setPageItems(this.toResources(pager.getPageItems()));
-        return _pager;
+        return new Pager<>(pager,this.toResources(pager.getPageItems()));
     }
 
 }

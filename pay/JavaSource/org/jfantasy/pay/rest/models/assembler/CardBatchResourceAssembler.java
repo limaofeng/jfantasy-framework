@@ -35,9 +35,7 @@ public class CardBatchResourceAssembler extends ResourceAssemblerSupport<CardBat
     }
 
     public Pager<ResultResourceSupport> toResources(Pager<CardBatch> pager) {
-        Pager<ResultResourceSupport> _pager = new Pager<>(pager);
-        _pager.setPageItems(this.toResources(pager.getPageItems()));
-        return _pager;
+        return new Pager<>(pager,this.toResources(pager.getPageItems()));
     }
 
 }

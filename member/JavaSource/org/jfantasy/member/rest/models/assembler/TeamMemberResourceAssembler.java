@@ -24,9 +24,7 @@ public class TeamMemberResourceAssembler extends ResourceAssemblerSupport<TeamMe
     }
 
     public Pager<ResultResourceSupport> toResources(Pager<TeamMember> pager) {
-        Pager<ResultResourceSupport> _pager = new Pager<>(pager);
-        _pager.setPageItems(this.toResources(pager.getPageItems()));
-        return _pager;
+        return new Pager<>(pager,this.toResources(pager.getPageItems()));
     }
 
 }

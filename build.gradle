@@ -1,6 +1,6 @@
 buildscript {
     repositories {
-        mavenLocal()
+        maven { url "http://maven.aliyun.com/nexus/content/groups/public/" }
         maven { url "http://maven.zbsg.com.cn/content/groups/public" }
         maven { url 'http://repo.spring.io/plugins-release' }
     }
@@ -111,7 +111,7 @@ subprojects {
     artifacts.archives packageSources
 
     repositories {
-        mavenLocal()
+        maven { url "http://maven.aliyun.com/nexus/content/groups/public/" }
         maven { url "http://maven.zbsg.com.cn/content/groups/public" }
     }
 

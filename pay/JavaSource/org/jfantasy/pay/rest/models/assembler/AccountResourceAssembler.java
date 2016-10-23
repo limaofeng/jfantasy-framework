@@ -34,9 +34,7 @@ public class AccountResourceAssembler extends ResourceAssemblerSupport<Account, 
     }
 
     public Pager<ResultResourceSupport> toResources(Pager<Account> pager) {
-        Pager<ResultResourceSupport> _pager = new Pager<>(pager);
-        _pager.setPageItems(this.toResources(pager.getPageItems()));
-        return _pager;
+        return new Pager<>(pager,this.toResources(pager.getPageItems()));
     }
 
 }

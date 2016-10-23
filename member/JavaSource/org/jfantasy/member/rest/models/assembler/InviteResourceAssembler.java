@@ -23,9 +23,7 @@ public class InviteResourceAssembler extends ResourceAssemblerSupport<Invite, Re
     }
 
     public Pager<ResultResourceSupport> toResources(Pager<Invite> pager) {
-        Pager<ResultResourceSupport> _pager = new Pager<>(pager);
-        _pager.setPageItems(this.toResources(pager.getPageItems()));
-        return _pager;
+        return new Pager<>(pager,this.toResources(pager.getPageItems()));
     }
 
 }

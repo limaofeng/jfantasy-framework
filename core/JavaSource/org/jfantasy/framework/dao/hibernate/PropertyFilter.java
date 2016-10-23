@@ -1,11 +1,11 @@
 package org.jfantasy.framework.dao.hibernate;
 
+import org.apache.commons.lang.StringUtils;
 import org.jfantasy.framework.dao.hibernate.util.ReflectionUtils;
 import org.jfantasy.framework.error.IgnoreException;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.framework.util.regexp.RegexpUtil;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
 import java.lang.reflect.Array;

@@ -83,7 +83,7 @@ public class MyBatisMapperMethod {
     public Object execute(Object[] args) {
         Map<String, Object> param = getParam(args);
         Pager<Object> pager = (Pager<Object>) param.get("pager");
-        pager.setPageItems(this.sqlSession.selectList(this.commandName, param));
+        pager.reset(this.sqlSession.selectList(this.commandName, param));
         return pager;
     }
 

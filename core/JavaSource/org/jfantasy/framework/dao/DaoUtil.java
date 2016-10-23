@@ -43,8 +43,7 @@ public class DaoUtil {
             totalCount += page.getTotalCount();
             pagers.put(page, callBack);
         }
-        pager.setTotalCount(totalCount);
-        pager.setPageItems(new ArrayList<T>());
+        pager.reset(totalCount,new ArrayList<T>());
         int first = pager.getFirst();
         int pageSize = pager.getPageSize();
         totalCount = 0;

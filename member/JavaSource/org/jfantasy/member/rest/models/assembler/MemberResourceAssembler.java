@@ -40,9 +40,7 @@ public class MemberResourceAssembler extends ResourceAssemblerSupport<Member, Re
     }
 
     public Pager<ResultResourceSupport> toResources(Pager<Member> pager) {
-        Pager<ResultResourceSupport> _pager = new Pager<>(pager);
-        _pager.setPageItems(this.toResources(pager.getPageItems()));
-        return _pager;
+        return new Pager<>(pager,this.toResources(pager.getPageItems()));
     }
 
 }

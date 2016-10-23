@@ -24,8 +24,6 @@ public class CommentResourceAssembler extends ResourceAssemblerSupport<Comment, 
     }
 
     public Pager<ResultResourceSupport> toResources(Pager<Comment> pager) {
-        Pager<ResultResourceSupport> _pager = new Pager<>(pager);
-        _pager.setPageItems(this.toResources(pager.getPageItems()));
-        return _pager;
+        return new Pager<>(pager,this.toResources(pager.getPageItems()));
     }
 }

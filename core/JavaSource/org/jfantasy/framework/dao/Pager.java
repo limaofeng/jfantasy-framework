@@ -80,6 +80,16 @@ public class Pager<T> implements Serializable {
         this.order = pager.order;
     }
 
+    public Pager(Pager pager,List<T> items) {
+        this.currentPage = pager.currentPage;
+        this.pageSize = pager.pageSize;
+        this.totalCount = pager.totalCount;
+        this.totalPage = pager.totalPage;
+        this.orderBy = pager.orderBy;
+        this.order = pager.order;
+        this.pageItems = items;
+    }
+
     /**
      * 获取总页码
      *
@@ -114,26 +124,6 @@ public class Pager<T> implements Serializable {
      */
     public void setCurrentPage(int currentPage) {
         this.currentPage = currentPage;
-    }
-
-    /**
-     * 设置总数据条数
-     *
-     * @param totalCount 总数据条数
-     */
-    public void setTotalCount(int totalCount) {
-        this.totalCount = totalCount;
-        int totalPages = totalCount % pageSize == 0 ? totalCount / pageSize : totalCount / pageSize + 1;
-        this.setTotalPage(totalPages);
-        if (currentPage >= totalPages) {
-            setCurrentPage(totalPages);
-            setFirst((totalPages - 1) * pageSize);
-        } else if (currentPage <= 0) {
-            setCurrentPage(1);
-            setFirst(first);
-        } else {
-            setFirst((currentPage - 1) * pageSize);
-        }
     }
 
     /**
@@ -180,10 +170,6 @@ public class Pager<T> implements Serializable {
         return pageItems;
     }
 
-    public void setPageItems(List<T> pageItems) {
-        this.pageItems = pageItems;
-    }
-
     public String getOrderBy() {
         return orderBy;
     }
@@ -215,6 +201,35 @@ public class Pager<T> implements Serializable {
     @Override
     public String toString() {
         return "Pager [totalCount=" + totalCount + ", first=" + first + ", pageSize=" + pageSize + ", totalPage=" + totalPage + ", currentPage=" + currentPage + ", orderBy=" + orderBy + ", order=" + order + "]";
+    }
+
+    /**
+     * 设置总数据条数
+     *
+     * @param totalCount 总数据条数
+     */
+    public void reset(int totalCount) {
+        this.totalCount = totalCount;
+        int totalPages = totalCount % pageSize == 0 ? totalCount / pageSize : totalCount / pageSize + 1;
+        this.setTotalPage(totalPages);
+        if (currentPage >= totalPages) {
+            setCurrentPage(totalPages);
+            setFirst((totalPages - 1) * pageSize);
+        } else if (currentPage <= 0) {
+            setCurrentPage(1);
+            setFirst(first);
+        } else {
+            setFirst((currentPage - 1) * pageSize);
+        }
+    }
+
+    public void reset(List<T> items) {
+        this.pageItems = items;
+    }
+
+    public void reset(int totalCount,List<T> items) {
+        this.reset(totalCount);
+        this.reset(items);
     }
 
 }

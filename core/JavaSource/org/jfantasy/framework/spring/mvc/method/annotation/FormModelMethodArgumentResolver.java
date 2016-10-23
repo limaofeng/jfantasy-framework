@@ -46,7 +46,7 @@ public class FormModelMethodArgumentResolver implements HandlerMethodArgumentRes
     public final Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
         String name = getParameterName(parameter);
 
-        Object target = (mavContainer.containsAttribute(name)) ? mavContainer.getModel().get(name) : createAttribute(name, parameter, binderFactory, request);
+        Object target = mavContainer.containsAttribute(name) ? mavContainer.getModel().get(name) : createAttribute(name, parameter, binderFactory, request);
         WebDataBinder binder = binderFactory.createBinder(request, target, name);
         target = binder.getTarget();
         if (target != null) {

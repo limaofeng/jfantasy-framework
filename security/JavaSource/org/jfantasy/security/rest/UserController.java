@@ -98,7 +98,7 @@ public class UserController {
      * @return
      */
     @RequestMapping(value = "/{id}", method = {RequestMethod.PATCH})
-    public ResultResourceSupport update(@PathVariable("id") Long id, User user) {
+    public ResultResourceSupport update(@PathVariable("id") Long id, @RequestBody User user) {
         user.setId(id);
         return assembler.toResource(this.userService.save(user));
     }
