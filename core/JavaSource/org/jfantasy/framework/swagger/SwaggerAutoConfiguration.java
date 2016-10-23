@@ -47,6 +47,7 @@ public class SwaggerAutoConfiguration implements EnvironmentAware {
         EXCLUDES.add(LogFileMvcEndpoint.class);
         EXCLUDES.add(MetricsMvcEndpoint.class);
         EXCLUDES.add(EnvironmentMvcEndpoint.class);
+        EXCLUDES.add(HeapdumpMvcEndpoint.class);
         EXCLUDES.add(ScheduleController.class);
         EXCLUDES.add(TriggerController.class);
     }
