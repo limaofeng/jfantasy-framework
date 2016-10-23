@@ -1,5 +1,7 @@
 package org.jfantasy.common.rest;
 
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiParam;
 import org.jfantasy.common.bean.Area;
 import org.jfantasy.common.rest.models.assembler.AreaResourceAssembler;
 import org.jfantasy.common.service.AreaService;
@@ -30,7 +32,8 @@ public class AreaController {
      */
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    public Pager<ResultResourceSupport> search(Pager<Area> pager, List<PropertyFilter> filters) {
+    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
+    public Pager<ResultResourceSupport> search(Pager<Area> pager,@ApiParam(hidden = true) List<PropertyFilter> filters) {
         return assembler.toResources(this.areaService.findPager(pager, filters));
     }
 

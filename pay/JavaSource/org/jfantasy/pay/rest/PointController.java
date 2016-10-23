@@ -1,5 +1,6 @@
 package org.jfantasy.pay.rest;
 
+import io.swagger.annotations.ApiImplicitParam;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.jackson.annotation.AllowProperty;
@@ -36,6 +37,7 @@ public class PointController {
     /** 积分查询 **/
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
+    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
     public Pager<ResultResourceSupport> search(Pager<Point> pager, List<PropertyFilter> filters) {
         return assembler.toResources(pointService.findPager(pager, filters));
     }

@@ -1,5 +1,6 @@
 package org.jfantasy.member.rest;
 
+import io.swagger.annotations.ApiImplicitParam;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.spring.mvc.error.NotFoundException;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
@@ -35,6 +36,7 @@ public class ReceiverController {
      */
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
+    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
     public List<ResultResourceSupport> search(List<PropertyFilter> filters) {
         return assembler.toResources(this.receiverService.find(filters, "isDefault", "desc"));
     }

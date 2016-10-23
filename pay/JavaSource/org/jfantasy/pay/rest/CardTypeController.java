@@ -1,5 +1,6 @@
 package org.jfantasy.pay.rest;
 
+import io.swagger.annotations.ApiImplicitParam;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
@@ -37,6 +38,7 @@ public class CardTypeController {
     /** 全部会员卡类型 **/
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
+    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
     public Pager<ResultResourceSupport> search(Pager<CardType> pager, List<PropertyFilter> filters) {
         return assembler.toResources(cardTypeService.findPager(pager, filters));
     }
@@ -81,6 +83,7 @@ public class CardTypeController {
      */
     @RequestMapping(method = RequestMethod.GET, value = "/{id}/batchs")
     @ResponseBody
+    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
     public Pager<ResultResourceSupport> batchs(@PathVariable("id") String id, Pager<CardBatch> pager, List<PropertyFilter> filters) {
         filters.add(new PropertyFilter("EQS_project.Key", id));
         return cardBatchController.search(pager, filters);
@@ -96,6 +99,7 @@ public class CardTypeController {
      */
     @RequestMapping(method = RequestMethod.GET, value = "/{id}/cards")
     @ResponseBody
+    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
     public Pager<ResultResourceSupport> cards(@PathVariable("id") String id, Pager<Card> pager, List<PropertyFilter> filters) {
         filters.add(new PropertyFilter("EQS_type.key", id));
         return cardController.search(pager, filters);

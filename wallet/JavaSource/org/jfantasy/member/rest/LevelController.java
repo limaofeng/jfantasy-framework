@@ -1,5 +1,6 @@
 package org.jfantasy.member.rest;
 
+import io.swagger.annotations.ApiImplicitParam;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
 import org.jfantasy.member.bean.Level;
@@ -40,6 +41,7 @@ public class LevelController {
      * @return List<Level>
      */
     @RequestMapping(value = "/levels", method = RequestMethod.GET)
+    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
     public List<ResultResourceSupport> search(List<PropertyFilter> filters) {
         return assembler.toResources(levelService.search(filters));
     }

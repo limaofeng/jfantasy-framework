@@ -1,5 +1,6 @@
 package org.jfantasy.security.rest;
 
+import io.swagger.annotations.ApiImplicitParam;
 import org.hibernate.criterion.Restrictions;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
@@ -24,6 +25,7 @@ public class ResourceController {
 
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
+    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
     public Pager<Resource> search(Pager<Resource> pager, List<PropertyFilter> filters) {
         return this.resourceService.findPager(pager, filters);
     }

@@ -1,5 +1,6 @@
 package org.jfantasy.member.rest;
 
+import io.swagger.annotations.ApiImplicitParam;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.jackson.annotation.IgnoreProperty;
@@ -113,6 +114,7 @@ public class MemberWalletController {
 
     /** 用户积分列表 **/
     @RequestMapping(value = "/members/{memid}/points", method = RequestMethod.GET)
+    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
     public Pager<ResultResourceSupport> _points(@PathVariable("memid") Long id, Pager<Point> pager, List<PropertyFilter> filters) {
         Wallet wallet = walletService.getWalletByMember(id);
         filters.add(new PropertyFilter("EQL_wallet.id", wallet.getId().toString()));

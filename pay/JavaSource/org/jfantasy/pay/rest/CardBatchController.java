@@ -1,5 +1,6 @@
 package org.jfantasy.pay.rest;
 
+import io.swagger.annotations.ApiImplicitParam;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.jackson.annotation.AllowProperty;
@@ -48,12 +49,14 @@ public class CardBatchController {
     /** 查询卡发行批次 **/
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
+    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
     public Pager<ResultResourceSupport> search(Pager<CardBatch> pager, List<PropertyFilter> filters) {
         return assembler.toResources(cardBatchService.findPager(pager, filters));
     }
 
     @RequestMapping(value = "/{id}/cards", method = RequestMethod.GET)
     @ResponseBody
+    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
     public Pager<ResultResourceSupport> cards(@PathVariable("id") String id, Pager<Card> pager, ArrayList<PropertyFilter> filters) {
         filters.add(new PropertyFilter("EQS_batch.no", id));
         return cardController.search(pager, filters);

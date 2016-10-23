@@ -1,5 +1,6 @@
 package org.jfantasy.pay.rest;
 
+import io.swagger.annotations.ApiImplicitParam;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.jackson.annotation.AllowProperty;
@@ -49,6 +50,7 @@ public class CardDesignController {
     /** 查询会员卡设计 **/
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
+    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
     public Pager<ResultResourceSupport> search(Pager<CardDesign> pager, List<PropertyFilter> filters) {
         return assembler.toResources(cardDesignService.findPager(pager, filters));
     }
@@ -131,6 +133,7 @@ public class CardDesignController {
 
     @RequestMapping(value = "/{id}/cards", method = RequestMethod.GET)
     @ResponseBody
+    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
     public Pager<ResultResourceSupport> cards(@PathVariable("id") String id, Pager<Card> pager, ArrayList<PropertyFilter> filters) {
         filters.add(new PropertyFilter("EQS_design.key", id));
         return cardController.search(pager, filters);
@@ -138,6 +141,7 @@ public class CardDesignController {
 
     @RequestMapping(value = "/{id}/batchs", method = RequestMethod.GET)
     @ResponseBody
+    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
     public Pager<ResultResourceSupport> batchs(@PathVariable("id") String id, Pager<CardBatch> pager, ArrayList<PropertyFilter> filters) {
         filters.add(new PropertyFilter("EQS_design.key", id));
         return cardBatchController.search(pager, filters);

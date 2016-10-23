@@ -1,6 +1,7 @@
 package org.jfantasy.pay.rest;
 
 
+import io.swagger.annotations.ApiImplicitParam;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.jackson.annotation.AllowProperty;
@@ -59,6 +60,7 @@ public class PayProductController {
     /** 适用于该支付产品的支付配置 - 查看产品的支付配置信息 **/
     @RequestMapping(value = "/{id}/payconfigs", method = RequestMethod.GET)
     @ResponseBody
+    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
     public Pager<ResultResourceSupport> payconfigs(@PathVariable("id") String id, Pager<PayConfig> pager, List<PropertyFilter> filters) {
         filters.add(new PropertyFilter("EQS_payProductId", id));
         return this.payConfigController.search(pager, filters);

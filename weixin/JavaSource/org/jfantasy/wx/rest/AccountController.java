@@ -1,5 +1,6 @@
 package org.jfantasy.wx.rest;
 
+import io.swagger.annotations.ApiImplicitParam;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.wx.bean.Account;
@@ -23,6 +24,7 @@ public class AccountController {
     /** 查询微信公众账号 - 筛选微信公众账号，返回通用分页对象 **/
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
+    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
     public Pager<Account> search(Pager<Account> pager, List<PropertyFilter> filters) {
         return this.accountService.findPager(pager, filters);
     }

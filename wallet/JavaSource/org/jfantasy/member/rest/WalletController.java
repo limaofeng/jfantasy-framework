@@ -1,5 +1,6 @@
 package org.jfantasy.member.rest;
 
+import io.swagger.annotations.ApiImplicitParam;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.jackson.annotation.AllowProperty;
@@ -43,6 +44,7 @@ public class WalletController {
      */
     @JsonResultFilter(allow = @AllowProperty(pojo = Member.class, name = {"id", "username", "nickName"}))
     @RequestMapping(method = RequestMethod.GET)
+    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
     public Pager<ResultResourceSupport> search(Pager<Wallet> pager, List<PropertyFilter> filters) {
         return assembler.toResources(this.walletService.findPager(pager, filters));
     }
@@ -67,6 +69,7 @@ public class WalletController {
      * @return Pager<Bill>
      */
     @RequestMapping(value = "/{id}/bills", method = RequestMethod.GET)
+    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
     public Pager<ResultResourceSupport> bills(@PathVariable("id") String walletId, Pager<WalletBill> pager, List<PropertyFilter> filters) {
         if(!pager.isOrderBySetted()){
             pager.setOrderBy("tradeTime");

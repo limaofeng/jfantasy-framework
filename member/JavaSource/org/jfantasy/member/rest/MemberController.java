@@ -1,5 +1,7 @@
 package org.jfantasy.member.rest;
 
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiParam;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.jackson.annotation.AllowProperty;
@@ -65,7 +67,8 @@ public class MemberController {
     )
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    public Pager<ResultResourceSupport> search(Pager<Member> pager, List<PropertyFilter> filters) {
+    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
+    public Pager<ResultResourceSupport> search(Pager<Member> pager,@ApiParam(hidden = true) List<PropertyFilter> filters) {
         return assembler.toResources(this.memberService.findPager(pager, filters));
     }
 
@@ -175,7 +178,8 @@ public class MemberController {
     )
     @RequestMapping(value = "/{memid}/comments", method = RequestMethod.GET)
     @ResponseBody
-    public Pager<ResultResourceSupport> comments(@PathVariable("memid") Long memberId, Pager<Comment> pager, List<PropertyFilter> filters) {
+    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
+    public Pager<ResultResourceSupport> comments(@PathVariable("memid") Long memberId, Pager<Comment> pager,@ApiParam(hidden = true) List<PropertyFilter> filters) {
         filters.add(new PropertyFilter(FILTERS_EQ_MEMBER_ID, memberId.toString()));
         if (!pager.isOrderBySetted()) {
             pager.setOrderBy(Comment.FIELDS_BY_CREATE_TIME);
@@ -193,7 +197,8 @@ public class MemberController {
      */
     @RequestMapping(value = "/{memid}/receivers", method = RequestMethod.GET)
     @ResponseBody
-    public List<ResultResourceSupport> receivers(@PathVariable("memid") Long memberId, List<PropertyFilter> filters) {
+    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
+    public List<ResultResourceSupport> receivers(@PathVariable("memid") Long memberId,@ApiParam(hidden = true) List<PropertyFilter> filters) {
         filters.add(new PropertyFilter(FILTERS_EQ_MEMBER_ID, memberId.toString()));
         return this.receiverController.search(filters);
     }
@@ -209,7 +214,8 @@ public class MemberController {
     @JsonResultFilter(allow = @AllowProperty(pojo = Member.class, name = {"id", "nick_name"}))
     @RequestMapping(value = "/{memid}/invoices", method = RequestMethod.GET)
     @ResponseBody
-    public Pager<ResultResourceSupport> invoices(@PathVariable("memid") Long memberId, Pager<Invoice> pager, List<PropertyFilter> filters) {
+    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
+    public Pager<ResultResourceSupport> invoices(@PathVariable("memid") Long memberId, Pager<Invoice> pager, @ApiParam(hidden = true) List<PropertyFilter> filters) {
         filters.add(new PropertyFilter(FILTERS_EQ_MEMBER_ID, memberId.toString()));
         if (!pager.isOrderBySetted()) {
             pager.setOrderBy(Invoice.FIELDS_BY_CREATE_TIME);
@@ -229,7 +235,8 @@ public class MemberController {
      */
     @RequestMapping(value = "/{memid}/teams", method = RequestMethod.GET)
     @ResponseBody
-    public List<ResultResourceSupport> teams(@PathVariable("memid") Long memberId, @RequestParam(value = "type", required = false) String type, List<PropertyFilter> filters) {
+    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
+    public List<ResultResourceSupport> teams(@PathVariable("memid") Long memberId, @RequestParam(value = "type", required = false) String type,@ApiParam(hidden = true) List<PropertyFilter> filters) {
         filters.add(new PropertyFilter("EQL_teamMembers.member.id", memberId.toString()));//包含当前会员
         filters.add(new PropertyFilter("EQE_teamMembers.status", TeamMemberStatus.activated));//状态有效
         return teamController.search(type, new Pager<Team>(1000), filters).getPageItems();

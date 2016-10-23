@@ -1,5 +1,7 @@
 package org.jfantasy.member.rest;
 
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiParam;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.jackson.annotation.AllowProperty;
@@ -48,7 +50,8 @@ public class InvoiceController {
             allow = @AllowProperty(pojo = InvoiceOrder.class, name = {"order_sn", "order_type", "name"})
     )
     @RequestMapping(method = RequestMethod.GET)
-    public Pager<ResultResourceSupport> search(Pager<Invoice> pager, List<PropertyFilter> filters) {
+    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
+    public Pager<ResultResourceSupport> search(Pager<Invoice> pager,@ApiParam(hidden = true) List<PropertyFilter> filters) {
         return assembler.toResources(this.invoiceService.findPager(pager, filters));
     }
 

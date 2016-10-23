@@ -1,5 +1,6 @@
 package org.jfantasy.security.rest;
 
+import io.swagger.annotations.ApiImplicitParam;
 import org.hibernate.criterion.Restrictions;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
@@ -32,6 +33,7 @@ public class RoleController {
      */
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
+    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
     public Pager<Role> search(Pager<Role> pager,List<PropertyFilter> filters) {
         return this.roleService.findPager(pager, filters);
     }

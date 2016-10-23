@@ -1,5 +1,7 @@
 package org.jfantasy.member.rest;
 
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiParam;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.jackson.annotation.AllowProperty;
@@ -34,7 +36,8 @@ public class MemberIOrderController {
     )
     /** 发票订单列表 **/
     @RequestMapping(method = RequestMethod.GET)
-    public Pager<ResultResourceSupport> search(@PathVariable("id") Long id, Pager<InvoiceOrder> pager, List<PropertyFilter> filters) {
+    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
+    public Pager<ResultResourceSupport> search(@PathVariable("id") Long id, Pager<InvoiceOrder> pager,@ApiParam(hidden = true) List<PropertyFilter> filters) {
         filters.add(new PropertyFilter("EQL_member.id",id));
         filters.add(new PropertyFilter("EQE_status", InvoiceOrder.InvoiceOrderStatus.NONE));
         if(pager.isOrderBySetted()){

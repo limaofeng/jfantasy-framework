@@ -1,5 +1,6 @@
 package org.jfantasy.member.rest;
 
+import io.swagger.annotations.ApiImplicitParam;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.jackson.annotation.AllowProperty;
@@ -38,11 +39,18 @@ public class TeamInvoiceController {
         this.teamService = teamService;
     }
 
+    /**
+     * 集团的发票申请列表
+     * @param teamId
+     * @param pager
+     * @param filters
+     * @return
+     */
     @JsonResultFilter(
             ignore = @IgnoreProperty(pojo = InvoiceItem.class, name = {"order_id"}),
             allow = @AllowProperty(pojo = InvoiceOrder.class, name = {"order_sn", "order_type", "name"})
     )
-    /** 集团的发票申请列表 **/
+    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
     @RequestMapping(method = RequestMethod.GET)
     public Pager<ResultResourceSupport> search(@PathVariable("id") String teamId, Pager<Invoice> pager, List<PropertyFilter> filters) {
         Team team = this.teamService.get(teamId);

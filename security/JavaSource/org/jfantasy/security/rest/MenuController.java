@@ -1,5 +1,6 @@
 package org.jfantasy.security.rest;
 
+import io.swagger.annotations.ApiImplicitParam;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.security.bean.Menu;
@@ -29,6 +30,7 @@ public class MenuController {
      */
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
+    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
     public List<Menu> search(Pager<Menu> pager, List<PropertyFilter> filters) {
         if (!pager.isOrderBySetted()) {
             pager.setOrder(Pager.SORT_ASC);

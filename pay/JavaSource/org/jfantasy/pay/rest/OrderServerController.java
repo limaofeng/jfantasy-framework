@@ -1,5 +1,6 @@
 package org.jfantasy.pay.rest;
 
+import io.swagger.annotations.ApiImplicitParam;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.pay.bean.OrderServer;
@@ -26,6 +27,7 @@ public class OrderServerController {
     /** 查询订单服务 **/
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
+    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
     public Pager<OrderServer> search(Pager<OrderServer> pager, List<PropertyFilter> filters) {
         return orderServerService.findPager(pager, filters);
     }

@@ -1,5 +1,6 @@
 package org.jfantasy.system.rest;
 
+import io.swagger.annotations.ApiImplicitParam;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.system.bean.DataDictionary;
@@ -62,6 +63,7 @@ public class DataDictionaryController {
      */
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
+    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
     public Pager<DataDictionary> search(Pager<DataDictionary> pager, List<PropertyFilter> filters) {
         return this.dataDictionaryService.findPager(pager, filters);
     }

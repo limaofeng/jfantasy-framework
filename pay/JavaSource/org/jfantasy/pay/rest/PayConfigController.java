@@ -1,5 +1,6 @@
 package org.jfantasy.pay.rest;
 
+import io.swagger.annotations.ApiImplicitParam;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.jackson.annotation.AllowProperty;
@@ -45,6 +46,7 @@ public class PayConfigController {
     @JsonResultFilter(ignore = @IgnoreProperty(pojo = PayConfig.class, name = {"properties"}))
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
+    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
     public Pager<ResultResourceSupport> search(Pager<PayConfig> pager, List<PropertyFilter> filters) {
         return assembler.toResources(this.configService.findPager(pager, filters));
     }
@@ -95,6 +97,7 @@ public class PayConfigController {
     /** 支付配置对应的支付记录 **/
     @RequestMapping(value = "/{id}/payments", method = RequestMethod.GET)
     @ResponseBody
+    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
     public Pager<ResultResourceSupport> payments(@PathVariable("id") String id, Pager<Payment> pager, List<PropertyFilter> filters) {
         filters.add(new PropertyFilter("EQL_payConfig.id", id));
         return paymentController.search(pager, filters);
@@ -110,6 +113,7 @@ public class PayConfigController {
     /** 支付配置对应的退款记录 **/
     @RequestMapping(value = "/{id}/refunds", method = RequestMethod.GET)
     @ResponseBody
+    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
     public Pager<ResultResourceSupport> refunds(@PathVariable("id") String id, Pager<Refund> pager, List<PropertyFilter> filters) {
         filters.add(new PropertyFilter("EQL_payConfig.id", id));
         return refundController.search(pager, filters);

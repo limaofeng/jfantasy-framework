@@ -1,5 +1,7 @@
 package org.jfantasy.member.rest;
 
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiParam;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.spring.mvc.error.NotFoundException;
@@ -25,7 +27,8 @@ public class AddressController {
 
     /** 地址列表 **/
     @RequestMapping(method = RequestMethod.GET)
-    public Pager<Address> search(Pager<Address> pager, List<PropertyFilter> filters) {
+    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
+    public Pager<Address> search(Pager<Address> pager,@ApiParam(hidden = true) List<PropertyFilter> filters) {
         return this.addressService.findPager(pager, filters);
     }
 

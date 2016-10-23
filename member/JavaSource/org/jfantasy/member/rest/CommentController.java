@@ -1,5 +1,7 @@
 package org.jfantasy.member.rest;
 
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiParam;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.jackson.annotation.AllowProperty;
@@ -46,7 +48,8 @@ public class CommentController {
     @JsonResultFilter(allow = @AllowProperty(pojo = Member.class, name = {"id", "nick_name"}))
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    public Pager<ResultResourceSupport> search(Pager<Comment> pager, List<PropertyFilter> filters) {
+    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
+    public Pager<ResultResourceSupport> search(Pager<Comment> pager,@ApiParam(hidden = true) List<PropertyFilter> filters) {
         filters.add(new PropertyFilter("NULL_forComment"));
         return assembler.toResources(this.commentService.findPager(pager, filters));
     }

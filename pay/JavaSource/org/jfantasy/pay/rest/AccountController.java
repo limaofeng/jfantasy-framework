@@ -1,5 +1,6 @@
 package org.jfantasy.pay.rest;
 
+import io.swagger.annotations.ApiImplicitParam;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
@@ -33,6 +34,7 @@ public class AccountController {
     /** 查询账户 **/
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
+    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
     public Pager<ResultResourceSupport> search(Pager<Account> pager, List<PropertyFilter> filters) {
         return assembler.toResources(accountService.findPager(pager, filters));
     }
@@ -62,6 +64,7 @@ public class AccountController {
     /** 账户交易详情 **/
     @RequestMapping(method = RequestMethod.GET, value = "/{id}/transactions")
     @ResponseBody
+    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
     public Pager<ResultResourceSupport> transactions(@PathVariable("id") String sn, Pager<Transaction> pager, List<PropertyFilter> filters) {
         filters.add(new PropertyFilter("EQS_account.sn", sn));
         return transactionController.seach(pager, filters);
@@ -70,6 +73,7 @@ public class AccountController {
     /** 积分记录 **/
     @RequestMapping(method = RequestMethod.GET, value = "/{id}/points")
     @ResponseBody
+    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
     public Pager<ResultResourceSupport> points(@PathVariable("id") String sn, Pager<Point> pager, List<PropertyFilter> filters) {
         filters.add(new PropertyFilter("EQS_account.sn", sn));
         return pointController.search(pager, filters);

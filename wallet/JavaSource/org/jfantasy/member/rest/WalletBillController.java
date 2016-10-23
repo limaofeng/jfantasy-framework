@@ -1,5 +1,6 @@
 package org.jfantasy.member.rest;
 
+import io.swagger.annotations.ApiImplicitParam;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.jackson.annotation.AllowProperty;
@@ -30,6 +31,7 @@ public class WalletBillController {
     @JsonResultFilter(allow = @AllowProperty(pojo = Wallet.class, name = {"id"}))
     /** 获取账单信息 - 返回账单详情 **/
     @RequestMapping(method = RequestMethod.GET)
+    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
     public Pager<ResultResourceSupport> search(Pager<WalletBill> pager, List<PropertyFilter> filters) {
         return assembler.toResources(this.walletService.findBillPager(pager, filters));
     }
