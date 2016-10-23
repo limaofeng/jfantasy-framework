@@ -12,6 +12,8 @@ build:
   stage: build
   script:
     - gradle clean classes -x test
+  tags:
+    - docker
 
 sonar:
   stage: test
@@ -19,6 +21,8 @@ sonar:
     - gradle testClasses sonarqube -x test -Dsonar.host.url=http://sonar.zbsg.com.cn -Dsonar.login=$SONAR_TOKEN -Dsonar.verbose=true
   only:
     - tags
+  tags:
+    - docker
 
 deploy:
   stage: deploy
@@ -26,3 +30,5 @@ deploy:
       - gradle upload -x test
   only:
     - tags
+  tags:
+    - docker
