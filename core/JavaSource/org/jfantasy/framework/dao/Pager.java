@@ -3,6 +3,7 @@ package org.jfantasy.framework.dao;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.ApiModelProperty;
 import org.apache.ibatis.type.Alias;
 import org.jfantasy.framework.util.common.StringUtil;
 
@@ -18,6 +19,9 @@ import java.util.List;
 @Alias("Pager")
 @JsonIgnoreProperties(value = {"orders", "first", "order_by_setted"})
 public class Pager<T> implements Serializable {
+
+    private static final long serialVersionUID = -2343309063338998483L;
+
     /**
      * 排序 - 升序
      */
@@ -26,41 +30,47 @@ public class Pager<T> implements Serializable {
      * 排序 - 降序
      */
     public static final String SORT_DESC = "desc";
-
-    private static final long serialVersionUID = -2343309063338998483L;
     /**
      * 最大数据条数
      */
     @JsonProperty("count")
+    @ApiModelProperty("最大数据条数")
     private int totalCount = 0;
     /**
      * 每页显示的数据条数
      */
     @JsonProperty("per_page")
+    @ApiModelProperty("每页显示的数据条数")
     private int pageSize = 0;
     /**
      * 总页数
      */
     @JsonProperty("total")
+    @ApiModelProperty("总页数")
     private int totalPage = 1;
     /**
      * 当前页码
      */
     @JsonProperty("page")
+    @ApiModelProperty("当前页码")
     private int currentPage = 1;
     /**
      * 开始数据索引
      */
+    @ApiModelProperty(hidden = true)
     private int first = 0;
     /**
      * 排序字段
      */
     @JsonProperty("sort")
     @JsonInclude(JsonInclude.Include.NON_NULL)
+    @ApiModelProperty("排序字段")
     private String orderBy;
     @JsonInclude(JsonInclude.Include.NON_NULL)
+    @ApiModelProperty(value = "排序规则", allowableValues = "asc,desc")
     private String order;
     @JsonProperty("items")
+    @ApiModelProperty("结果集")
     private transient List<T> pageItems;
 
     public Pager() {
@@ -80,7 +90,7 @@ public class Pager<T> implements Serializable {
         this.order = pager.order;
     }
 
-    public Pager(Pager pager,List<T> items) {
+    public Pager(Pager pager, List<T> items) {
         this.currentPage = pager.currentPage;
         this.pageSize = pager.pageSize;
         this.totalCount = pager.totalCount;
@@ -185,6 +195,7 @@ public class Pager<T> implements Serializable {
      *
      * @return boolean
      */
+    @ApiModelProperty(hidden = true)
     public boolean isOrderBySetted() {
         return StringUtil.isNotBlank(this.getOrderBy()) && StringUtil.isNotBlank(this.getOrder());
     }
@@ -218,7 +229,7 @@ public class Pager<T> implements Serializable {
         this.pageItems = items;
     }
 
-    public void reset(int totalCount,List<T> items) {
+    public void reset(int totalCount, List<T> items) {
         this.reset(totalCount);
         this.reset(items);
     }
