@@ -212,11 +212,10 @@ public class Pager<T> implements Serializable {
      */
     public void reset(int totalCount) {
         this.totalCount = totalCount;
-        int totalPages = totalCount % pageSize == 0 ? totalCount / pageSize : totalCount / pageSize + 1;
-        this.totalPage = totalPage == 0 ? 1 : totalPage;
-        if (currentPage >= totalPages) {
-            setCurrentPage(totalPages);
-            setFirst((totalPages - 1) * pageSize);
+        this.totalPage = totalCount % pageSize == 0 ? totalCount / pageSize : totalCount / pageSize + 1;
+        if (currentPage >= totalPage) {
+            setCurrentPage(totalPage);
+            setFirst((totalPage - 1) * pageSize);
         } else if (currentPage <= 0) {
             setCurrentPage(1);
             setFirst(first);
