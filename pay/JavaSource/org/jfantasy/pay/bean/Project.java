@@ -18,6 +18,7 @@ public class Project extends BaseBusEntity {
     public static final String ORDER_PAYMENT = "payment";
     public static final String ORDER_REFUND = "refund";
     public static final String CARD_INPOUR = "card_inpour";
+    public static final String WITHDRAWAL = "withdrawal";
 
     private static final long serialVersionUID = -2461534613032864306L;
 

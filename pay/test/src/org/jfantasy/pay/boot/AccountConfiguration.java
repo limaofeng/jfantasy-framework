@@ -5,9 +5,8 @@ import org.jfantasy.pay.bean.enums.AccountType;
 import org.jfantasy.pay.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
 
-@Component
+//@Component
 public class AccountConfiguration  implements CommandLineRunner {
 
     @Autowired

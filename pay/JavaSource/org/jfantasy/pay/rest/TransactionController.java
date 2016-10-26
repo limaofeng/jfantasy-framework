@@ -11,7 +11,6 @@ import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
 import org.jfantasy.framework.security.SpringSecurityUtils;
 import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
-import org.jfantasy.framework.util.common.BeanFilter;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.oauth.userdetails.OAuthUserDetails;
@@ -124,12 +123,7 @@ public class TransactionController {
 
     private List<PayConfig> payconfigs(Transaction transaction, final OAuthUserDetails user) {
         // 按平台过滤掉不能使用的支付方式
-        List<PayConfig> payconfigs = ObjectUtil.filter(configService.find(), new BeanFilter<PayConfig>() {
-            @Override
-            public boolean accept(PayConfig item) {
-                return item.getPlatforms().contains(user.getPlatform());
-            }
-        });
+        List<PayConfig> payconfigs = ObjectUtil.filter(configService.find(), item -> item.getPlatforms().contains(user.getPlatform()));
         // 判断余额支付，金额是否可以支付
         PayConfig payConfig = ObjectUtil.find(payconfigs, "payProductId", "walletpay");
         if (payConfig != null && accountService.get(transaction.getFrom()).getAmount().compareTo(transaction.getAmount()) < 0) {

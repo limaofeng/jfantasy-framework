@@ -5,7 +5,7 @@ package org.jfantasy.pay.bean.enums;
  */
 public enum TxChannel {
     /**
-     * 线下交易
+     * 线下交易(可用于余额提现)
      */
     offline,//NOSONAR
     /**

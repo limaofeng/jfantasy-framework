@@ -6,7 +6,7 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 import org.jfantasy.framework.jackson.JSON;
 import org.jfantasy.framework.util.common.BeanUtil;
-import org.jfantasy.pay.PayApplicationTest;
+import org.jfantasy.pay.PayServerApplication;
 import org.jfantasy.pay.bean.PayConfig;
 import org.jfantasy.pay.bean.Payment;
 import org.jfantasy.pay.bean.Refund;
@@ -18,15 +18,17 @@ import org.jfantasy.pay.service.vo.ToPayment;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Properties;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(PayApplicationTest.class)
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = PayServerApplication.class)
+@ActiveProfiles("dev")
 public class PayServiceTest {
 
     private final static Log LOG = LogFactory.getLog(PayServiceTest.class);

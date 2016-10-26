@@ -4,9 +4,8 @@ import org.jfantasy.pay.order.OrderServiceFactory;
 import org.jfantasy.pay.order.TestOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
 
-@Component
+//@Component
 public class OrderServiceConfiguration implements CommandLineRunner {
 
     @Autowired

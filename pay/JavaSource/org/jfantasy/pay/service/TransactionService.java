@@ -4,6 +4,8 @@ import org.hibernate.criterion.Restrictions;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.spring.mvc.error.RestException;
+import org.jfantasy.framework.spring.mvc.error.ValidationException;
+import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.pay.bean.Project;
 import org.jfantasy.pay.bean.Transaction;
@@ -38,7 +40,7 @@ public class TransactionService {
     }
 
     private Transaction getByUnionId(String unionId) {
-        return this.transactionDao.findUnique(Restrictions.eq("unionId",unionId));
+        return this.transactionDao.findUnique(Restrictions.eq("unionId", unionId));
     }
 
     public Pager<Transaction> findPager(Pager<Transaction> pager, List<PropertyFilter> filters) {
@@ -78,6 +80,11 @@ public class TransactionService {
         return this.save(Project.ORDER_REFUND, original.getTo(), original.getFrom(), amount, notes, original.getProperties());
     }
 
+    @Transactional
+    public Transaction save(String projectKey, String from, String to, BigDecimal amount, String notes, Map<String, String> properties) {
+        return this.save(projectKey, from, to, null, amount, notes, properties);
+    }
+
     /**
      * 保存交易接口
      *
@@ -90,7 +97,7 @@ public class TransactionService {
      * @return Transaction
      */
     @Transactional
-    public Transaction save(String projectKey, String from, String to, BigDecimal amount, String notes, Map<String, String> properties) {
+    public Transaction save(String projectKey, String from, String to, TxChannel channel, BigDecimal amount, String notes, Map<String, String> properties) {
         Project project = projectDao.get(projectKey);
         // 生成 unionid
         String key = StringUtil.defaultValue(properties.get(Transaction.UNION_KEY), properties.get(Transaction.ORDER_KEY));
@@ -99,6 +106,9 @@ public class TransactionService {
         Transaction src = this.transactionDao.findUnique(Restrictions.eq("unionId", unionid));
         if (src != null) {
             return src;
+        }
+        if (StringUtil.isBlank(from) && StringUtil.isBlank(to)) {
+            throw new ValidationException(4001, "交易账户全部为NULL，输入数据不合法");
         }
         // 创建交易
         Transaction transaction = new Transaction();
@@ -113,8 +123,8 @@ public class TransactionService {
             case order:
                 transaction.set("stage", Transaction.STAGE_PAYMENT);
                 break;
-            case transfer://如果为转账交易，默认为内部交易
-                transaction.setChannel(TxChannel.internal);
+            case transfer:
+                transaction.setChannel(ObjectUtil.defaultValue(channel, TxChannel.internal));
                 break;
             default:
         }

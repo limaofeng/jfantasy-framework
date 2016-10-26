@@ -8,23 +8,25 @@ import org.jfantasy.framework.jackson.JSON;
 import org.jfantasy.framework.util.common.PathUtil;
 import org.jfantasy.framework.util.common.StreamUtil;
 import org.jfantasy.framework.util.common.file.FileUtil;
-import org.jfantasy.pay.PayApplicationTest;
+import org.jfantasy.pay.PayServerApplication;
 import org.jfantasy.pay.bean.PayConfig;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(PayApplicationTest.class)
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = PayServerApplication.class)
+@ActiveProfiles("dev")
 public class PayConfigServiceTest {
 
     private final static Log LOG = LogFactory.getLog(PayConfigServiceTest.class);

@@ -4,7 +4,6 @@ import org.jfantasy.oauth.bean.enums.GrantType;
 import org.jfantasy.oauth.service.AccessTokenService;
 import org.jfantasy.oauth.service.vo.TokenRequest;
 import org.jfantasy.oauth.service.vo.TokenResponse;
-import org.jfantasy.oauth.userdetails.OAuthUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,12 +18,6 @@ public class OAuthController {
     @Autowired
     public OAuthController(AccessTokenService accessTokenService) {
         this.accessTokenService = accessTokenService;
-    }
-
-    @RequestMapping(value = "/user-details/{token}", method = RequestMethod.POST)
-    @ResponseBody
-    public OAuthUserDetails details(@PathVariable("token") String token) {
-        return accessTokenService.details(token);
     }
 
     @RequestMapping(value = "/token", method = RequestMethod.POST)

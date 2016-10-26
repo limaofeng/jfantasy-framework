@@ -136,7 +136,12 @@ public class AccountService {
         if (transaction.getStatus() == TxStatus.success) {
             throw new RestException("交易已经完成,不能划账");
         }
-        if (transaction.getChannel() == TxChannel.internal) {
+
+        if (StringUtil.isBlank(transaction.getPayConfigName())) {
+            transaction.setPayConfigName(transaction.getChannel() == TxChannel.internal ? "账户余额" : "未知");
+        }
+
+        if (StringUtil.isNotBlank(transaction.getFrom())) {
             Account from = this.accountDao.get(transaction.getFrom());
             if (from.getAmount().compareTo(transaction.getAmount()) < 0) {
                 throw new RestException("账户余额不足,支付失败");
@@ -145,11 +150,13 @@ public class AccountService {
             this.addBill(BillType.debit, transaction, from);//添加对应账单
             this.accountDao.update(from);
         }
-        //转入账户
-        Account to = this.accountDao.get(transaction.getTo());
-        to.setAmount(to.getAmount().add(transaction.getAmount()));
-        this.addBill(BillType.credit, transaction, to);//添加对应账单
-        this.accountDao.update(to);
+
+        if (StringUtil.isNotBlank(transaction.getTo())) {
+            Account to = this.accountDao.get(transaction.getTo());
+            to.setAmount(to.getAmount().add(transaction.getAmount()));
+            this.addBill(BillType.credit, transaction, to);//添加对应账单
+            this.accountDao.update(to);
+        }
 
         //更新交易状态
         transaction.setStatus(TxStatus.success);

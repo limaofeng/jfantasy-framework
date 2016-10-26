@@ -5,9 +5,8 @@ import org.jfantasy.pay.bean.Project;
 import org.jfantasy.pay.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
 
-@Component
+//@Component
 public class ProjectConfiguration implements CommandLineRunner {
 
     @Autowired

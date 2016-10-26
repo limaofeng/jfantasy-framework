@@ -25,7 +25,7 @@ import java.util.Map;
  */
 @Entity
 @Table(name = "PAY_TRANSACTION")
-@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "payments", "refunds", "unionId"})
+@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "payments", "refunds", "union_id"})
 public class Transaction extends BaseBusEntity {
 
     private static final long serialVersionUID = 3296031463173407900L;
@@ -64,8 +64,20 @@ public class Transaction extends BaseBusEntity {
     /**
      * 转入账号<br/>
      */
-    @Column(name = "TO_ACCOUNT", nullable = false)
+    @Column(name = "TO_ACCOUNT")
     private String to;
+    /**
+     * 交易项目(转账/提现等)
+     */
+    @Column(name = "PROJECT", length = 500, updatable = false)
+    @Convert(converter = ProjectConverter.class)
+    @JsonDeserialize(using = ProjectDeserializer.class)
+    private Project project;
+    /**
+     * 交易科目
+     */
+    @Column(name = "SUBJECT", updatable = false)
+    private String subject;
     /**
      * 金额
      */
@@ -94,13 +106,6 @@ public class Transaction extends BaseBusEntity {
     @Column(name = "NOTES")
     private String notes;
     /**
-     * 交易项目(转账/提现等)
-     */
-    @Column(name = "PROJECT", length = 500, updatable = false)
-    @Convert(converter = ProjectConverter.class)
-    @JsonDeserialize(using = ProjectDeserializer.class)
-    private Project project;
-    /**
      * 支付配置名称
      */
     @Column(name = "PAYMENT_CONFIG_NAME")
@@ -115,7 +120,7 @@ public class Transaction extends BaseBusEntity {
      * 支付记录
      **/
     @OneToMany(mappedBy = "transaction", fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE})
-    private List<Payment> payments = new ArrayList<Payment>();
+    private List<Payment> payments = new ArrayList<>();
     /**
      * 退款记录
      **/
@@ -234,6 +239,14 @@ public class Transaction extends BaseBusEntity {
         return this.properties.get(key);
     }
 
+    public String getSubject() {
+        return subject;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
+
     public void setProperties(Map<String, String> properties) {
         this.properties = properties;
     }
@@ -257,5 +270,5 @@ public class Transaction extends BaseBusEntity {
     public void setPayConfigName(String payConfigName) {
         this.payConfigName = payConfigName;
     }
-    
+
 }

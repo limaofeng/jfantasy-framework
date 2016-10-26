@@ -39,6 +39,13 @@ public class ProjectCommandLineRunner implements CommandLineRunner {
             project.setType(ProjectType.card);
             projectService.save(project);
         }
+        if (projectService.get(Project.WITHDRAWAL) == null) {
+            Project project = new Project(Project.WITHDRAWAL);
+            project.setName("提现");
+            project.setDescription("用户提现");
+            project.setType(ProjectType.transfer);
+            projectService.save(project);
+        }
     }
 
 }
