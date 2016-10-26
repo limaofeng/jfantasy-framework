@@ -5,8 +5,6 @@ import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.jackson.annotation.IgnoreProperty;
 import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
-import org.jfantasy.framework.security.SpringSecurityUtils;
-import org.jfantasy.framework.spring.mvc.error.RestException;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
 import org.jfantasy.member.bean.Member;
 import org.jfantasy.member.bean.Point;
@@ -18,8 +16,6 @@ import org.jfantasy.member.rest.models.assembler.WalletResourceAssembler;
 import org.jfantasy.member.service.CardService;
 import org.jfantasy.member.service.PointService;
 import org.jfantasy.member.service.WalletService;
-import org.jfantasy.oauth.userdetails.OAuthUserDetails;
-import org.jfantasy.oauth.userdetails.enums.Scope;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,8 +24,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-/** 钱包接口 **/
+
 @RestController
+@RequestMapping("/members")
 public class MemberWalletController {
 
     private PointDetailsResourceAssembler assembler = new PointDetailsResourceAssembler();
@@ -46,54 +43,13 @@ public class MemberWalletController {
     private CardService cardService;
 
     /**
-     * 用户钱包信息<br/>
-     * 必须通过用户授权访问
+     * 用户钱包信息 - 返回钱包详情
+     * @param id
      * @return
      */
-    @RequestMapping(value = "/wallet", method = RequestMethod.GET)
-    public ResultResourceSupport wallet() {
-        OAuthUserDetails user = SpringSecurityUtils.getCurrentUser(OAuthUserDetails.class);
-        if (user == null || user.getScope() != Scope.member) {
-            throw new RestException(401, "没有权限访问接口");
-        }
-        return walletAssembler.toResource(walletService.getWalletByMember(user.getId()));
-    }
-
-     /*
-    @ApiOperation(
-            value = "用户创建钱包",
-            notes = "必须通过用户授权访问",
-            authorizations =
-            @Authorization(value = "MEMBER",
-                    scopes = @AuthorizationScope(scope = "member", description = "会员")
-            )
-    )
-    @RequestMapping(value = "/wallet", method = RequestMethod.POST)
-    public ResultResourceSupport save() {
-        OAuthUserDetails user = SpringSecurityUtils.getCurrentUser(OAuthUserDetails.class);
-        if (user == null || user.getScope() != Scope.member) {
-            throw new RestException(401, "没有权限访问接口");
-        }
-        return walletAssembler.toResource(walletService.save(user.getId()));
-    }*/
-
-    /** 用户积分信息 **/
-    @RequestMapping(value = "/point-details", method = RequestMethod.GET)
-    public ResultResourceSupport pointDetails() {
-        OAuthUserDetails user = SpringSecurityUtils.getCurrentUser(OAuthUserDetails.class);
-        if (user == null || user.getScope() != Scope.member) {
-            throw new RestException(401, "没有权限访问接口");
-        }
-        PointDetails details = new PointDetails();
-        Wallet wallet = walletService.getWalletByMember(user.getId());
-        details.setPoints(wallet.getPoints());
-        return assembler.toResource(details);
-    }
-
     @JsonResultFilter(ignore = @IgnoreProperty(pojo = Wallet.class, name = {"member", "bills"}))
-    /** 用户钱包信息 - 返回钱包详情 **/
-    @RequestMapping(value = "/members/{memid}/wallet", method = RequestMethod.GET)
-    public ResultResourceSupport _view(@PathVariable("memid") Long id) {
+    @RequestMapping(value = "/{memid}/wallet", method = RequestMethod.GET)
+    public ResultResourceSupport view(@PathVariable("memid") Long id) {
         Wallet wallet = walletService.getWalletByMember(id);
         ResultResourceSupport resource = walletController.view(wallet.getId());
         if (Member.MEMBER_TYPE_PERSONAL.equals(wallet.getMember().getType())) {
@@ -103,19 +59,29 @@ public class MemberWalletController {
         return resource;
     }
 
-    /** 用户积分信息 **/
-    @RequestMapping(value = "/members/{memid}/point-details", method = RequestMethod.GET)
-    public ResultResourceSupport _pointDetails(@PathVariable("memid") Long id) {
+    /**
+     * 用户积分信息
+     * @param id
+     * @return
+     */
+    @RequestMapping(value = "/{memid}/point-details", method = RequestMethod.GET)
+    public ResultResourceSupport pointDetails(@PathVariable("memid") Long id) {
         PointDetails details = new PointDetails();
         Wallet wallet = walletService.getWalletByMember(id);
         details.setPoints(wallet.getPoints());
         return assembler.toResource(details);
     }
 
-    /** 用户积分列表 **/
-    @RequestMapping(value = "/members/{memid}/points", method = RequestMethod.GET)
+    /**
+     * 用户积分列表
+     * @param id
+     * @param pager
+     * @param filters
+     * @return
+     */
+    @RequestMapping(value = "/{memid}/points", method = RequestMethod.GET)
     @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
-    public Pager<ResultResourceSupport> _points(@PathVariable("memid") Long id, Pager<Point> pager, List<PropertyFilter> filters) {
+    public Pager<ResultResourceSupport> points(@PathVariable("memid") Long id, Pager<Point> pager, List<PropertyFilter> filters) {
         Wallet wallet = walletService.getWalletByMember(id);
         filters.add(new PropertyFilter("EQL_wallet.id", wallet.getId().toString()));
         return pointAssembler.toResources(pointService.findPager(pager, filters));

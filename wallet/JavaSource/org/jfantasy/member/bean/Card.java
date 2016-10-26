@@ -50,7 +50,7 @@ public class Card extends BaseBusEntity {
      */
     @Column(name = "EXTRAS", length = 2000)
     @Convert(converter = MapConverter.class)
-    private Map<String,Object> extras;
+    private Map<String, Object> extras;
 
     public Long getId() {
         return id;
@@ -92,11 +92,11 @@ public class Card extends BaseBusEntity {
         this.amount = amount;
     }
 
-    public Map<String,Object> getExtras() {
+    public Map<String, Object> getExtras() {
         return extras;
     }
 
-    public void setExtras(Map<String,Object> extras) {
+    public void setExtras(Map<String, Object> extras) {
         this.extras = extras;
     }
 

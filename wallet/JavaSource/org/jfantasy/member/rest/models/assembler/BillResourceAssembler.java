@@ -3,7 +3,6 @@ package org.jfantasy.member.rest.models.assembler;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
 import org.jfantasy.member.bean.WalletBill;
-import org.jfantasy.member.rest.WalletBillController;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
 
 

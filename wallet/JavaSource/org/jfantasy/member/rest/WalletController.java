@@ -11,6 +11,7 @@ import org.jfantasy.member.bean.Card;
 import org.jfantasy.member.bean.Member;
 import org.jfantasy.member.bean.Wallet;
 import org.jfantasy.member.bean.WalletBill;
+import org.jfantasy.member.rest.models.assembler.BillResourceAssembler;
 import org.jfantasy.member.rest.models.assembler.WalletResourceAssembler;
 import org.jfantasy.member.service.CardService;
 import org.jfantasy.member.service.WalletService;
@@ -29,11 +30,11 @@ import java.util.List;
 @RequestMapping("/wallets")
 public class WalletController {
 
+    private static final BillResourceAssembler billResourceAssembler = new BillResourceAssembler();
     private static final WalletResourceAssembler assembler = new WalletResourceAssembler();
 
     private WalletService walletService;
     private CardService cardService;
-    private WalletBillController walletBillController;
 
     /**
      * 钱包列表 - 查询所有的钱包
@@ -76,7 +77,7 @@ public class WalletController {
             pager.setOrder(Pager.SORT_DESC);
         }
         filters.add(new PropertyFilter("EQL_wallet.id", walletId));
-        return walletBillController.search(pager, filters);
+        return billResourceAssembler.toResources(this.walletService.findBillPager(pager, filters));
     }
 
     /**
@@ -101,9 +102,5 @@ public class WalletController {
         this.cardService = cardService;
     }
 
-    @Autowired
-    public void setWalletBillController(WalletBillController walletBillController) {
-        this.walletBillController = walletBillController;
-    }
 
 }
