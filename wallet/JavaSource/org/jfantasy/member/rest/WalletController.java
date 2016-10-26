@@ -11,7 +11,6 @@ import org.jfantasy.member.bean.Card;
 import org.jfantasy.member.bean.Member;
 import org.jfantasy.member.bean.Wallet;
 import org.jfantasy.member.bean.WalletBill;
-import org.jfantasy.member.rest.models.assembler.BillResourceAssembler;
 import org.jfantasy.member.rest.models.assembler.WalletResourceAssembler;
 import org.jfantasy.member.service.CardService;
 import org.jfantasy.member.service.WalletService;
@@ -30,7 +29,6 @@ import java.util.List;
 @RequestMapping("/wallets")
 public class WalletController {
 
-    private static final BillResourceAssembler billResourceAssembler = new BillResourceAssembler();
     private static final WalletResourceAssembler assembler = new WalletResourceAssembler();
 
     private WalletService walletService;
@@ -71,13 +69,13 @@ public class WalletController {
      */
     @RequestMapping(value = "/{id}/bills", method = RequestMethod.GET)
     @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
-    public Pager<ResultResourceSupport> bills(@PathVariable("id") String walletId, Pager<WalletBill> pager, List<PropertyFilter> filters) {
+    public Pager<WalletBill> bills(@PathVariable("id") String walletId, Pager<WalletBill> pager, List<PropertyFilter> filters) {
         if(!pager.isOrderBySetted()){
             pager.setOrderBy("tradeTime");
             pager.setOrder(Pager.SORT_DESC);
         }
         filters.add(new PropertyFilter("EQL_wallet.id", walletId));
-        return billResourceAssembler.toResources(this.walletService.findBillPager(pager, filters));
+        return this.walletService.findBillPager(pager, filters);
     }
 
     /**
