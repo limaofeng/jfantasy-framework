@@ -26,16 +26,20 @@ import java.util.List;
 @Service
 public class AccountService {
 
-    @Autowired
-    private AccountDao accountDao;
-    @Autowired
-    private TransactionDao transactionDao;
-    @Autowired
-    private ProjectDao projectDao;
-    @Autowired
-    private BillDao billDao;
+    private final AccountDao accountDao;
+    private final TransactionDao transactionDao;
+    private final ProjectDao projectDao;
+    private final BillDao billDao;
 
     private PasswordEncoder passwordEncoder = new StandardPasswordEncoder();
+
+    @Autowired
+    public AccountService(ProjectDao projectDao, TransactionDao transactionDao, BillDao billDao, AccountDao accountDao) {
+        this.projectDao = projectDao;
+        this.transactionDao = transactionDao;
+        this.billDao = billDao;
+        this.accountDao = accountDao;
+    }
 
     @Transactional
     public Pager<Account> findPager(Pager<Account> pager, List<PropertyFilter> filters) {
