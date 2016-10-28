@@ -50,7 +50,6 @@ public class Member extends BaseBusEntity {
      * 用户类型
      */
     @NotEmpty(groups = {POST.class})
-    @
     @Column(name = "MEMBER_TYPE", length = 20, nullable = false, updatable = false)
     private String type;
     /**
