@@ -13,6 +13,7 @@ import org.jfantasy.pay.bean.enums.TxChannel;
 import org.jfantasy.pay.bean.enums.TxStatus;
 import org.jfantasy.pay.dao.ProjectDao;
 import org.jfantasy.pay.dao.TransactionDao;
+import org.jfantasy.pay.order.entity.OrderKey;
 import org.jfantasy.pay.rest.models.OrderTransaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -43,6 +44,7 @@ public class TransactionService {
         return this.transactionDao.findUnique(Restrictions.eq("unionId", unionId));
     }
 
+    @Transactional
     public Pager<Transaction> findPager(Pager<Transaction> pager, List<PropertyFilter> filters) {
         return this.transactionDao.findPager(pager, filters);
     }
@@ -60,7 +62,7 @@ public class TransactionService {
     @Transactional
     public Transaction payment(String from, BigDecimal amount, String notes, Map<String, String> properties) {
         String to = accountService.platform().getSn();// 平台收款
-        return this.save(Project.ORDER_PAYMENT, from, to, amount, notes, properties);
+        return this.save(Project.PAYMENT, from, to, amount, notes, properties);
     }
 
     /**
@@ -77,7 +79,7 @@ public class TransactionService {
         if (original == null || original.getStatus() != TxStatus.success) {
             throw new RestException("原交易不存在或者未支付成功");
         }
-        return this.save(Project.ORDER_REFUND, original.getTo(), original.getFrom(), amount, notes, original.getProperties());
+        return this.save(Project.REFUND, original.getTo(), original.getFrom(), amount, notes, original.getProperties());
     }
 
     @Transactional
@@ -122,6 +124,7 @@ public class TransactionService {
         switch (project.getType()) {
             case order:
                 transaction.set("stage", Transaction.STAGE_PAYMENT);
+                transaction.setSubject(OrderKey.newInstance(properties.get(Transaction.ORDER_KEY)).getType());
                 break;
             case transfer:
                 transaction.setChannel(ObjectUtil.defaultValue(channel, TxChannel.internal));
@@ -129,7 +132,7 @@ public class TransactionService {
             default:
         }
         transaction.setStatus(TxStatus.unprocessed);
-        transaction.setStatusText(projectKey.equals(Project.ORDER_PAYMENT) ? "等待付款" : "待处理");
+        transaction.setStatusText(projectKey.equals(Project.PAYMENT) ? "等待付款" : "待处理");
         return this.transactionDao.save(transaction);
     }
 

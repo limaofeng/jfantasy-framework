@@ -129,15 +129,15 @@ public final class ObjectUtil {
     public static <T> T[] filter(T[] objs, String fieldName, Object... values) {
         List<T> filter = new ArrayList<>();
         for (T t : objs) {
-            if (ObjectUtil.exists(values,OgnlUtil.getInstance().getValue(fieldName, t))) {
+            if (ObjectUtil.exists(values, OgnlUtil.getInstance().getValue(fieldName, t))) {
                 filter.add(t);
             }
         }
         return toArray(filter, (Class<T>) objs.getClass().getComponentType());
     }
 
-    public static <T> T[] toArray(List<T> list,Class<T> type){
-        return list.toArray((T[])ClassUtil.newInstance(type,list.size()));
+    public static <T> T[] toArray(List<T> list, Class<T> type) {
+        return list.toArray((T[]) ClassUtil.newInstance(type, list.size()));
     }
 
     public static <T> List<T> filter(List<T> list, String spel) {
@@ -308,6 +308,24 @@ public final class ObjectUtil {
             T t = list.get(i);
             Object v = OgnlUtil.getInstance().getValue(field, t);
             if (v == value || value.equals(v)) {
+                return t;
+            }
+        }
+        return null;
+    }
+
+    public static <T> T find(T[] array, ItemSelector<T> itemSelector) {
+        for (T t : array) {
+            if (itemSelector.accept(t)) {
+                return t;
+            }
+        }
+        return null;
+    }
+
+    public static <T> T find(List<T> list, ItemSelector<T> itemSelector) {
+        for (T t : list) {
+            if (itemSelector.accept(t)) {
                 return t;
             }
         }
@@ -740,6 +758,12 @@ public final class ObjectUtil {
             LOGGER.error(e.getMessage(), e);
         }
         return list;
+    }
+
+    public interface ItemSelector<T> {
+
+        boolean accept(T item);
+
     }
 
     private static class CustomSortOrderComparator implements Comparator<Object>, Serializable {

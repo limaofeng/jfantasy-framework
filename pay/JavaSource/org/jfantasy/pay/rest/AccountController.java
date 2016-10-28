@@ -8,16 +8,16 @@ import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
 import org.jfantasy.framework.spring.validation.RESTful;
 import org.jfantasy.framework.util.common.DateUtil;
-import org.jfantasy.pay.bean.Account;
-import org.jfantasy.pay.bean.Point;
-import org.jfantasy.pay.bean.Project;
-import org.jfantasy.pay.bean.Transaction;
+import org.jfantasy.pay.bean.*;
+import org.jfantasy.pay.bean.enums.ReportTargetType;
+import org.jfantasy.pay.bean.enums.TimeUnit;
 import org.jfantasy.pay.error.PayException;
 import org.jfantasy.pay.rest.models.AccountForm;
 import org.jfantasy.pay.rest.models.ActivateForm;
 import org.jfantasy.pay.rest.models.TransactionForm;
 import org.jfantasy.pay.rest.models.assembler.AccountResourceAssembler;
 import org.jfantasy.pay.service.AccountService;
+import org.jfantasy.pay.service.ReportService;
 import org.jfantasy.pay.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -45,6 +45,8 @@ public class AccountController {
     private TransactionController transactionController;
     @Autowired
     private PointController pointController;
+    @Autowired
+    private ReportService reportService;
 
     /**
      * 查询账户
@@ -121,6 +123,21 @@ public class AccountController {
         return pointController.search(pager, filters);
     }
 
+    @RequestMapping(method = RequestMethod.GET, value = "/{id}/reports")
+    @ResponseBody
+    @ApiImplicitParam(value = "filters", name = "filters", paramType = "query", dataType = "string")
+    public Pager<Report> reports(@PathVariable("id") String sn, @RequestParam(value = "time_unit", required = false) TimeUnit timeUnit, Pager<Report> pager, List<PropertyFilter> filters) {
+        filters.add(new PropertyFilter("EQE_targetType", ReportTargetType.account));
+        filters.add(new PropertyFilter("EQS_targetId", sn));
+        if (timeUnit != null) {
+            filters.add(new PropertyFilter("EQE_timeUnit", timeUnit));
+        }
+        if (!pager.isOrderBySetted()) {
+            pager.setOrderBy("time");
+            pager.setOrder(Pager.SORT_DESC);
+        }
+        return reportService.findPager(pager, filters);
+    }
 
     private Account get(String id) {
         return accountService.get(id);

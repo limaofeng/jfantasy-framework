@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.NotEmpty;
 import org.jfantasy.framework.dao.BaseBusEntity;
 import org.jfantasy.framework.spring.validation.RESTful.POST;
 import org.jfantasy.framework.spring.validation.RESTful.PUT;
@@ -15,8 +16,6 @@ import org.jfantasy.security.bean.Role;
 import org.jfantasy.security.bean.UserGroup;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
 import java.util.*;
 
 /**
@@ -42,7 +41,7 @@ public class Member extends BaseBusEntity {
 
     private static final long serialVersionUID = -4479116155241989100L;
 
-    @Null(groups = {POST.class})
+    @NotEmpty(groups = {POST.class})
     @Id
     @Column(name = "ID", nullable = false, updatable = false, precision = 22)
     @GeneratedValue(strategy = GenerationType.TABLE, generator = "member_gen")
@@ -50,13 +49,14 @@ public class Member extends BaseBusEntity {
     /**
      * 用户类型
      */
-    @NotNull(groups = {POST.class})
+    @NotEmpty(groups = {POST.class})
+    @
     @Column(name = "MEMBER_TYPE", length = 20, nullable = false, updatable = false)
     private String type;
     /**
      * 用户登录名称
      */
-    @NotNull(groups = {POST.class, PUT.class})
+    @NotEmpty(groups = {POST.class, PUT.class})
     @Length(min = 8, max = 20, groups = {POST.class, PUT.class})
     @Use(vali = UsernameCannotRepeatValidator.class, groups = {POST.class})
     @Column(name = "USERNAME", length = 20, nullable = false, unique = true)
@@ -64,7 +64,7 @@ public class Member extends BaseBusEntity {
     /**
      * 登录密码
      */
-    @NotNull(groups = {POST.class})
+    @NotEmpty(groups = {POST.class})
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(name = "PASSWORD", length = 20, nullable = false)
     private String password;

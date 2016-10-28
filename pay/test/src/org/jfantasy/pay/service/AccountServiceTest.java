@@ -26,4 +26,10 @@ public class AccountServiceTest {
         LOG.debug(md5);
     }
 
+    @Test
+    public void substring(){
+        LOG.debug("20120710".substring(0,6));
+
+    }
+
 }

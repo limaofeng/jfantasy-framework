@@ -8,7 +8,7 @@ public class OrderTransaction {
 
     public enum Type {
 
-        payment(Project.ORDER_PAYMENT), refund(Project.ORDER_REFUND);//NOSONAR
+        payment(Project.PAYMENT), refund(Project.REFUND);//NOSONAR
 
         private String value;
 

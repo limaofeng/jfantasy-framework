@@ -33,7 +33,7 @@ public class TransactionOrderRefundListener implements ApplicationListener<Trans
     @Override
     public void onApplicationEvent(TransactionChangedEvent event) {
         Transaction transaction = event.getTransaction();
-        if (event.getStatus() == TxStatus.unprocessed && Project.ORDER_REFUND.equals(transaction.getProject().getKey())) {
+        if (event.getStatus() == TxStatus.unprocessed && Project.REFUND.equals(transaction.getProject().getKey())) {
             OrderKey key = OrderKey.newInstance(transaction.get(Transaction.ORDER_KEY));
             List<Payment> payments = paymentService.find(Restrictions.eq("order.sn", key.getSn()), Restrictions.eq("order.type", key.getType()));
             Payment payment = ObjectUtil.find(payments, "status", PaymentStatus.success);

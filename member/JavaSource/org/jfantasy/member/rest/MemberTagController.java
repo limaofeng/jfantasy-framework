@@ -16,7 +16,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 
-/** 会员标签接口 **/
+/**
+ * 会员标签接口
+ */
 @RestController
 @RequestMapping("/members/{id}/tags")
 public class MemberTagController {
@@ -28,8 +30,14 @@ public class MemberTagController {
     @Autowired
     private MemberService memberService;
 
+    /**
+     * 获取会员标签
+     *
+     * @param id
+     * @param type
+     * @return
+     */
     @JsonResultFilter(allow = @AllowProperty(pojo = Tag.class, name = {"name", "id", "type"}))
-    /** 获取会员标签 **/
     @RequestMapping(method = RequestMethod.GET)
     public List<Tag> tags(@PathVariable("id") Long id, @RequestParam("type") String type) {
         if (memberService.get(id) == null) {
@@ -38,8 +46,14 @@ public class MemberTagController {
         return this.tagService.find(TAG_TYPE_MEMBER, id.toString(), type);
     }
 
+    /**
+     * 添加会员标签
+     *
+     * @param id
+     * @param from
+     * @return
+     */
     @JsonResultFilter(allow = @AllowProperty(pojo = Tag.class, name = {"name", "id", "type"}))
-    /** 添加会员标签 **/
     @RequestMapping(method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
@@ -50,8 +64,15 @@ public class MemberTagController {
         return this.tagService.save(TAG_TYPE_MEMBER, id.toString(), from.getName(), from.getType());
     }
 
+    /**
+     * 修改会员标签
+     *
+     * @param id
+     * @param tagid
+     * @param from
+     * @return
+     */
     @JsonResultFilter(allow = @AllowProperty(pojo = Tag.class, name = {"name", "id", "type"}))
-    /** 修改会员标签 **/
     @RequestMapping(value = "/{tagid}", method = RequestMethod.PATCH)
     @ResponseBody
     public Tag tags(@PathVariable("id") Long id, @PathVariable("tagid") Long tagid, @Validated(RESTful.PATCH.class) @RequestBody TagForm from) {
@@ -61,7 +82,12 @@ public class MemberTagController {
         return this.tagService.update(TAG_TYPE_MEMBER, id.toString(), tagid, from.getName());
     }
 
-    /** 删除会员标签 **/
+    /**
+     * 删除会员标签
+     *
+     * @param id
+     * @param tagid
+     */
     @RequestMapping(value = "/{tagid}", method = RequestMethod.DELETE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteTags(@PathVariable("id") Long id, @PathVariable("tagid") Long tagid) {

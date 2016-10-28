@@ -198,7 +198,7 @@ public class AccountService {
         transaction.setChannel(TxChannel.internal);
         transaction.setTo(to.getSn());
         transaction.set(Transaction.CARD_ID, card.getNo());
-        transaction.setProject(projectDao.get(Project.CARD_INPOUR));
+        transaction.setProject(projectDao.get(Project.INPOUR));
         transaction.setUnionId(Transaction.generateUnionid(transaction.getProject().getKey(), card.getNo()));
         transaction.setStatus(TxStatus.unprocessed);
         transaction.setStatusText(TxStatus.unprocessed.name());
