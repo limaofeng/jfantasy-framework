@@ -37,20 +37,29 @@ public class InvoiceOrderController {
         this.invoiceOrderService = invoiceOrderService;
     }
 
+    /**
+     * 发票订单列表
+     * @param pager
+     * @param filters
+     * @return
+     */
     @JsonResultFilter(
             allow = @AllowProperty(pojo = Member.class, name = {"id", "nick_name"})
     )
-    /** 发票订单列表 **/
     @RequestMapping(method = RequestMethod.GET)
     @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
     public Pager<ResultResourceSupport> search(Pager<InvoiceOrder> pager,@ApiParam(hidden = true) List<PropertyFilter> filters) {
         return assembler.toResources(this.invoiceOrderService.findPager(pager, filters));
     }
 
+    /**
+     * 添加发票接口
+     * @param order
+     * @return
+     */
     @JsonResultFilter(
             allow = @AllowProperty(pojo = Member.class, name = {"id", "nick_name"})
     )
-    /** 添加发票接口 **/
     @RequestMapping(method = RequestMethod.POST)
     public ResultResourceSupport save(@RequestBody InvoiceOrder order) {
         return assembler.toResource(this.invoiceOrderService.save(order));

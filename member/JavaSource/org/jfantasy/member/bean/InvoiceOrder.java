@@ -1,12 +1,17 @@
 package org.jfantasy.member.bean;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.jfantasy.framework.dao.BaseBusEntity;
+import org.jfantasy.framework.dao.hibernate.converter.MapConverter;
 import org.jfantasy.framework.spring.validation.RESTful;
 
 import javax.persistence.*;
 import javax.validation.constraints.Null;
 import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 开票订单
@@ -53,6 +58,12 @@ public class InvoiceOrder extends BaseBusEntity {
      */
     @Column(name = "NAME")
     private String name;
+    /**
+     * 扩展属性
+     */
+    @Convert(converter = MapConverter.class)
+    @Column(name = "PROPERTIES", columnDefinition = "Text")
+    private Map<String, Object> properties;//NOSONAR
     /**
      * 实际金额(订单金额)
      */
@@ -179,6 +190,33 @@ public class InvoiceOrder extends BaseBusEntity {
 
     public void setTargetId(String targetId) {
         this.targetId = targetId;
+    }
+
+    public void setProperties(Map<String, Object> properties) {
+        this.properties = properties;
+    }
+
+    @JsonAnySetter
+    public void set(String key, Object value) {
+        if (value == null) {
+            return;
+        }
+        if (this.properties == null) {
+            this.properties = new HashMap<>();
+        }
+        this.properties.put(key, value);
+    }
+
+    public Object get(String key) {
+        if (this.properties == null) {
+            return null;
+        }
+        return this.properties.get(key);
+    }
+
+    @JsonAnyGetter
+    public Map<String, Object> getProperties() {
+        return properties;
     }
 
 }
