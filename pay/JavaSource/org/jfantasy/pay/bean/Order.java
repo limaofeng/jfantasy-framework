@@ -258,6 +258,13 @@ public class Order extends BaseBusEntity {
         this.properties.put(key, value);
     }
 
+    public Object get(String key) {
+        if (this.properties == null) {
+            return null;
+        }
+        return this.properties.get(key);
+    }
+
     @JsonAnyGetter
     public Map<String, Object> getProperties() {
         if (ThreadJacksonMixInHolder.getMixInHolder().isIgnoreProperty(Order.class, "properties")) {
