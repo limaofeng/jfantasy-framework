@@ -49,6 +49,10 @@ public class InvoiceOrderController {
     @RequestMapping(method = RequestMethod.GET)
     @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
     public Pager<ResultResourceSupport> search(Pager<InvoiceOrder> pager,@ApiParam(hidden = true) List<PropertyFilter> filters) {
+        if(!pager.isOrderBySetted()){
+            pager.setOrderBy(InvoiceOrder.FIELDS_BY_CREATE_TIME);
+            pager.setOrder(Pager.SORT_DESC);
+        }
         return assembler.toResources(this.invoiceOrderService.findPager(pager, filters));
     }
 
