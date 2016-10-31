@@ -1,6 +1,8 @@
 buildscript {
     repositories {
-        maven { url "http://maven.zbsg.com.cn/content/groups/public" }
+        maven { url "http://maven.zbsg.com.cn/content/groups/public/" }
+        maven { url "http://maven.zbsg.com.cn/content/repositories/aliyun/" }
+        maven { url "https://plugins.gradle.org/m2/" }
     }
     dependencies {
         classpath "org.springframework.boot:spring-boot-gradle-plugin:1.4.0.RELEASE"
