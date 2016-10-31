@@ -10,7 +10,6 @@ import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
 import org.jfantasy.member.bean.Card;
 import org.jfantasy.member.bean.Member;
 import org.jfantasy.member.bean.Wallet;
-import org.jfantasy.member.bean.WalletBill;
 import org.jfantasy.member.rest.models.assembler.WalletResourceAssembler;
 import org.jfantasy.member.service.CardService;
 import org.jfantasy.member.service.WalletService;
@@ -57,25 +56,6 @@ public class WalletController {
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public ResultResourceSupport view(@PathVariable("id") Long id) {
         return assembler.toResource(this.walletService.getWallet(id));
-    }
-
-    /**
-     * 查询钱包中的账单信息 - 账单列表
-     *
-     * @param walletId 钱包ID
-     * @param pager    分页对象
-     * @param filters  过滤器
-     * @return Pager<Bill>
-     */
-    @RequestMapping(value = "/{id}/bills", method = RequestMethod.GET)
-    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
-    public Pager<WalletBill> bills(@PathVariable("id") String walletId, Pager<WalletBill> pager, List<PropertyFilter> filters) {
-        if(!pager.isOrderBySetted()){
-            pager.setOrderBy("tradeTime");
-            pager.setOrder(Pager.SORT_DESC);
-        }
-        filters.add(new PropertyFilter("EQL_wallet.id", walletId));
-        return this.walletService.findBillPager(pager, filters);
     }
 
     /**

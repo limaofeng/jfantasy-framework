@@ -96,7 +96,7 @@ public class AccountController {
     @ResponseBody
     @ApiImplicitParam(value = "filters", name = "filters", paramType = "query", dataType = "string")
     public Pager<ResultResourceSupport> transactions(@PathVariable("id") String sn, Pager<Transaction> pager, List<PropertyFilter> filters) {
-        filters.add(new PropertyFilter("EQS_account.sn", sn));
+        filters.add(new PropertyFilter("EQS_from_OR_to", sn));
         if(!pager.isOrderBySetted()){
             pager.setOrderBy(Transaction.FIELDS_BY_CREATE_TIME);
             pager.setOrder(Pager.SORT_DESC);

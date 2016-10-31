@@ -15,17 +15,11 @@ import org.jfantasy.framework.httpclient.Response;
 import org.jfantasy.framework.jackson.JSON;
 import org.jfantasy.framework.spring.mvc.error.RestException;
 import org.jfantasy.framework.spring.mvc.error.ValidationException;
-import org.jfantasy.framework.util.common.DateUtil;
-import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.member.bean.Card;
 import org.jfantasy.member.bean.Member;
 import org.jfantasy.member.bean.Wallet;
-import org.jfantasy.member.bean.WalletBill;
-import org.jfantasy.member.bean.enums.BillStatus;
-import org.jfantasy.member.bean.enums.BillType;
 import org.jfantasy.member.dao.CardDao;
 import org.jfantasy.member.dao.MemberDao;
-import org.jfantasy.member.dao.WalletBillDao;
 import org.jfantasy.member.dao.WalletDao;
 import org.jfantasy.oauth.userdetails.enums.Scope;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,17 +28,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class WalletService {
 
-    private final static Log LOG = LogFactory.getLog(WalletService.class);
+    private static final Log LOG = LogFactory.getLog(WalletService.class);
 
     @Autowired
     private WalletDao walletDao;
-    @Autowired
-    private WalletBillDao walletBillDao;
     @Autowired
     private MemberDao memberDao;
     @Autowired
@@ -93,7 +87,6 @@ public class WalletService {
         //初始化积分与成长值
         wallet.setGrowth(0L);
         wallet.setPoints(0L);
-        wallet.setBills(Collections.<WalletBill>emptyList());
         //初始化账单 并 计算收益
         return walletDao.insert(wallet);
     }
@@ -197,67 +190,6 @@ public class WalletService {
         wallet.setAmount(amount);
         this.walletDao.update(wallet);
         return wallet;
-    }
-
-    @Transactional
-    public void saveOrUpdateBill(JsonNode transaction) {
-        //获取并初始化账户
-        Wallet from = StringUtil.isNotBlank(transaction.get("from")) ? this.getWallet(transaction.get("from").asText()) : null;
-        Wallet to = StringUtil.isNotBlank(transaction.get("to")) ? this.getWallet(transaction.get("to").asText()) : null;
-
-        // 交易数据
-        String tradeSn = transaction.get("sn").asText();
-        BigDecimal tradeAmount = transaction.get("amount").decimalValue();
-        String tradeNotes = transaction.get("notes").asText();
-        String tradeStatus = transaction.get("status").asText();
-        Date tradeTime = DateUtil.parse(transaction.get("create_time").asText());
-        String project = transaction.get("project").get("key").asText();
-
-        if (from != null) {//添加转出交易
-            WalletBill bill = this.walletBillDao.findUnique(Restrictions.eq("wallet.id", from.getId()), Restrictions.eq("tradeNo", tradeSn));
-            if (bill != null && (bill.getStatus() == BillStatus.success || bill.getStatus() == BillStatus.close)) {
-                return;
-            }
-            if (bill == null) {
-                bill = new WalletBill();
-                bill.setTradeNo(tradeSn);
-                bill.setType(BillType.out);
-                bill.setAmount(tradeAmount);
-                bill.setSummary(tradeNotes);
-                bill.setProject(project);
-                bill.setWallet(from);
-            }
-            bill.setStatus(BillStatus.getStatusByTradeStatus(tradeStatus));
-            bill.setTradeTime(tradeTime);
-            this.walletBillDao.save(bill);
-        }
-
-        if (to != null) {//添加转入交易
-            WalletBill bill = this.walletBillDao.findUnique(Restrictions.eq("wallet.id", to.getId()), Restrictions.eq("tradeNo", tradeSn));
-            if (bill != null && (bill.getStatus() == BillStatus.success || bill.getStatus() == BillStatus.close)) {
-                return;
-            }
-            if (bill == null) {
-                bill = new WalletBill();
-                bill.setTradeNo(tradeSn);
-                bill.setType(BillType.in);
-                bill.setAmount(tradeAmount);
-                bill.setSummary(tradeNotes);
-                bill.setProject(project);
-                bill.setWallet(to);
-            }
-            bill.setStatus(BillStatus.getStatusByTradeStatus(tradeStatus));
-            bill.setTradeTime(tradeTime);
-            this.walletBillDao.save(bill);
-        }
-    }
-
-    public WalletBill getBill(Long id) {
-        return this.walletBillDao.get(id);
-    }
-
-    public Pager<WalletBill> findBillPager(Pager<WalletBill> pager, List<PropertyFilter> filters) {
-        return this.walletBillDao.findPager(pager, filters);
     }
 
     @Transactional

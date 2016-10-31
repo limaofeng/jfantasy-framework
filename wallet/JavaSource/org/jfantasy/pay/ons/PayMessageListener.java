@@ -23,9 +23,6 @@ public class PayMessageListener implements MessageListener {
     @Override
     public Action consume(Message message, ConsumeContext context) {
         switch (message.getTag()) {
-            case "transaction":
-                walletService.saveOrUpdateBill(JSON.deserialize(new String(message.getBody())));
-                break;
             case "account":
                 walletService.saveOrUpdateWallet(JSON.deserialize(new String(message.getBody())));
                 break;
