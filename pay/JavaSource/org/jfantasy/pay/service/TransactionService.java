@@ -7,10 +7,14 @@ import org.jfantasy.framework.spring.mvc.error.RestException;
 import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
+import org.jfantasy.pay.bean.Account;
+import org.jfantasy.pay.bean.Card;
 import org.jfantasy.pay.bean.Project;
 import org.jfantasy.pay.bean.Transaction;
+import org.jfantasy.pay.bean.enums.AccountType;
 import org.jfantasy.pay.bean.enums.TxChannel;
 import org.jfantasy.pay.bean.enums.TxStatus;
+import org.jfantasy.pay.dao.AccountDao;
 import org.jfantasy.pay.dao.ProjectDao;
 import org.jfantasy.pay.dao.TransactionDao;
 import org.jfantasy.pay.order.entity.OrderKey;
@@ -28,12 +32,22 @@ public class TransactionService {
 
     private final ProjectDao projectDao;
     private final TransactionDao transactionDao;
-    private AccountService accountService;
+    private final AccountDao accountDao;
 
     @Autowired
-    public TransactionService(TransactionDao transactionDao, ProjectDao projectDao) {
+    public TransactionService(TransactionDao transactionDao, ProjectDao projectDao,AccountDao accountDao) {
         this.transactionDao = transactionDao;
         this.projectDao = projectDao;
+        this.accountDao = accountDao;
+    }
+
+    /**
+     * 获取平台账号
+     *
+     * @return account
+     */
+    public Account platform() {
+        return this.accountDao.findUnique(Restrictions.eq("type", AccountType.platform));
     }
 
     public Transaction get(String sn) {
@@ -61,7 +75,7 @@ public class TransactionService {
      */
     @Transactional
     public Transaction payment(String from, BigDecimal amount, String notes, Map<String, String> properties) {
-        String to = accountService.platform().getSn();// 平台收款
+        String to = platform().getSn();// 平台收款
         return this.save(Project.PAYMENT, from, to, amount, notes, properties);
     }
 
@@ -137,13 +151,47 @@ public class TransactionService {
     }
 
     @Transactional
-    public void update(Transaction transaction) {
-        this.transactionDao.update(transaction);
+    public Transaction update(String sn, TxStatus status, String statusText, String notes) {
+        if (TxStatus.unprocessed.equals(status)) {
+            throw new ValidationException("不能将交易状态修改为\"未处理\"");
+        }
+        Transaction transaction = this.transactionDao.get(sn);
+        if (TxStatus.success.equals(transaction.getStatus()) || TxStatus.close.equals(transaction.getStatus())) {
+            throw new ValidationException("交易已经完成或者关闭，不能继续操作");
+        }
+        transaction.setStatus(status);
+        transaction.setStatusText(ObjectUtil.defaultValue(statusText, status.getValue()));
+        transaction.setNotes(notes);
+        return this.transactionDao.update(transaction);
     }
 
-    @Autowired
-    public void setAccountService(AccountService accountService) {
-        this.accountService = accountService;
+    /**
+     * 绑卡记录交易
+     *
+     * @param card 卡
+     */
+    @Transactional
+    public void inpour(Card card) {
+        Account to = accountDao.findUnique(Restrictions.eq("owner", card.getOwner()));
+        //添加充值记录
+        Transaction transaction = new Transaction();
+        transaction.setAmount(card.getAmount());
+        transaction.setChannel(TxChannel.internal);
+        transaction.setTo(to.getSn());
+        transaction.set(Transaction.CARD_ID, card.getNo());
+        transaction.setProject(projectDao.get(Project.INPOUR));
+        transaction.setSubject(Card.SUBJECT_BY_CARD_INPOUR);
+        transaction.setUnionId(Transaction.generateUnionid(transaction.getProject().getKey(), card.getNo()));
+        transaction.setStatus(TxStatus.unprocessed);
+        transaction.setStatusText(TxStatus.unprocessed.name());
+        transaction.setNotes("会员卡充值");
+        transaction.setPayConfigName("会员卡充值");
+        this.transactionDao.save(transaction);
+    }
+
+    @Transactional
+    public void update(Transaction transaction) {
+        this.transactionDao.update(transaction);
     }
 
 }

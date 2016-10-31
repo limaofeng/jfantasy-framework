@@ -20,6 +20,8 @@ public class Card extends BaseBusEntity {
 
     private static final long serialVersionUID = 7353590331858523890L;
 
+    public static final String SUBJECT_BY_CARD_INPOUR = "CARD";
+
     /**
      * 卡号
      */

@@ -6,14 +6,12 @@ import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.security.SpringSecurityUtils;
 import org.jfantasy.framework.spring.mvc.error.RestException;
 import org.jfantasy.framework.spring.mvc.error.ValidationException;
+import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.oauth.userdetails.OAuthUserDetails;
 import org.jfantasy.pay.bean.*;
 import org.jfantasy.pay.bean.enums.*;
-import org.jfantasy.pay.dao.AccountDao;
-import org.jfantasy.pay.dao.BillDao;
-import org.jfantasy.pay.dao.ProjectDao;
-import org.jfantasy.pay.dao.TransactionDao;
+import org.jfantasy.pay.dao.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.crypto.password.StandardPasswordEncoder;
@@ -28,17 +26,19 @@ public class AccountService {
 
     private final AccountDao accountDao;
     private final TransactionDao transactionDao;
-    private final ProjectDao projectDao;
+    private final PointDao pointDao;
     private final BillDao billDao;
+    private final CardDao cardDao;
 
     private PasswordEncoder passwordEncoder = new StandardPasswordEncoder();
 
     @Autowired
-    public AccountService(ProjectDao projectDao, TransactionDao transactionDao, BillDao billDao, AccountDao accountDao) {
-        this.projectDao = projectDao;
+    public AccountService(PointDao pointDao, TransactionDao transactionDao, BillDao billDao, AccountDao accountDao, CardDao cardDao) {
+        this.pointDao = pointDao;
         this.transactionDao = transactionDao;
         this.billDao = billDao;
         this.accountDao = accountDao;
+        this.cardDao = cardDao;
     }
 
     @Transactional
@@ -159,14 +159,42 @@ public class AccountService {
             Account to = this.accountDao.get(transaction.getTo());
             to.setAmount(to.getAmount().add(transaction.getAmount()));
             this.addBill(BillType.credit, transaction, to);//添加对应账单
+
+            // 充值积分处理
+            if (Project.INPOUR.equals(transaction.getProject().getKey()) && Card.SUBJECT_BY_CARD_INPOUR.equals(transaction.getSubject())) {
+                Card card = this.cardDao.get(transaction.get(Transaction.CARD_ID));
+                ExtraService service = ObjectUtil.find(card.getExtras(), "project", ExtraService.ExtraProject.point);
+                if (service != null) {
+                    to.setPoints(to.getPoints() + service.getValue());
+                    this.addPonit(to, (long) service.getValue(), "会员卡充值奖励");
+                }
+            }
+
             this.accountDao.update(to);
         }
 
-        //更新交易状态
-        transaction.setStatus(TxStatus.success);
-        transaction.setStatusText(transaction.getStatus().name());
-        transaction.setNotes(notes);
+        if (Project.WITHDRAWAL.equals(transaction.getProject().getKey())) {//如果为提现交易，只修改状态为处理中。而且现在都是线下交易
+            transaction.setPayConfigName("线下转账");
+            transaction.setStatus(TxStatus.processing);
+            transaction.setStatusText(transaction.getStatus().name());
+            transaction.setNotes(notes);
+        } else {//更新交易状态
+            transaction.setStatus(TxStatus.success);
+            transaction.setStatusText(transaction.getStatus().name());
+            transaction.setNotes(notes);
+        }
         return transactionDao.save(transaction);
+    }
+
+    private void addPonit(Account account, Long number, String notes) {
+        Point point = new Point();
+        point.setAccount(account);
+        point.setExpire(null);
+        point.setType(PointType.plus);
+        point.setPoint(number);
+        point.setStatus(PointStatus.finished);
+        point.setNotes(notes);
+        this.pointDao.save(point);
     }
 
     private void addBill(BillType type, Transaction transaction, Account account) {
@@ -186,29 +214,6 @@ public class AccountService {
         Account account = this.accountDao.get(no);
         account.setPassword(passwordEncoder.encode(password));
         return this.accountDao.save(account);
-    }
-
-    /**
-     * 绑卡记录交易
-     *
-     * @param card 卡
-     */
-    @Transactional
-    public void inpour(Card card) {
-        Account to = accountDao.findUnique(Restrictions.eq("owner", card.getOwner()));
-        //添加充值记录
-        Transaction transaction = new Transaction();
-        transaction.setAmount(card.getAmount());
-        transaction.setChannel(TxChannel.internal);
-        transaction.setTo(to.getSn());
-        transaction.set(Transaction.CARD_ID, card.getNo());
-        transaction.setProject(projectDao.get(Project.INPOUR));
-        transaction.setUnionId(Transaction.generateUnionid(transaction.getProject().getKey(), card.getNo()));
-        transaction.setStatus(TxStatus.unprocessed);
-        transaction.setStatusText(TxStatus.unprocessed.name());
-        transaction.setNotes("会员卡充值");
-        transaction.setPayConfigName("会员卡充值");
-        this.transactionDao.save(transaction);
     }
 
 }

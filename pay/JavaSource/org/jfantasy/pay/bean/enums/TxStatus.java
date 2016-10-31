@@ -7,17 +7,28 @@ public enum TxStatus {
     /**
      * 未处理
      */
-    unprocessed,
+    unprocessed("未处理"),
     /**
      * 处理中
      */
-    processing,
+    processing("处理中"),
     /**
      * 成功
      */
-    success,
+    success("成功"),
     /**
      * 关闭
      */
-    close
+    close("关闭");
+
+    private final String value;
+
+    TxStatus(String value) {
+        this.value = value;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
 }

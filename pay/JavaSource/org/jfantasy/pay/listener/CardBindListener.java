@@ -3,7 +3,7 @@ package org.jfantasy.pay.listener;
 import org.jfantasy.pay.bean.Card;
 import org.jfantasy.pay.bean.enums.Usage;
 import org.jfantasy.pay.event.CardBindEvent;
-import org.jfantasy.pay.service.AccountService;
+import org.jfantasy.pay.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
@@ -14,11 +14,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class CardBindListener implements ApplicationListener<CardBindEvent> {
 
-    private final AccountService accountService;
+    private final TransactionService transactionService;
 
     @Autowired
-    public CardBindListener(AccountService accountService) {
-        this.accountService = accountService;
+    public CardBindListener(TransactionService transactionService) {
+        this.transactionService = transactionService;
     }
 
     @Override
@@ -27,7 +27,7 @@ public class CardBindListener implements ApplicationListener<CardBindEvent> {
         if(card.getUsage() != Usage.inpour){
             return;
         }
-        accountService.inpour(card);
+        transactionService.inpour(card);
     }
 
 }

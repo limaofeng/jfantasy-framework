@@ -21,6 +21,7 @@ import org.jfantasy.pay.bean.enums.ProjectType;
 import org.jfantasy.pay.error.PayException;
 import org.jfantasy.pay.order.entity.enums.PaymentStatus;
 import org.jfantasy.pay.rest.models.PayForm;
+import org.jfantasy.pay.rest.models.TxStatusForm;
 import org.jfantasy.pay.rest.models.assembler.TransactionResourceAssembler;
 import org.jfantasy.pay.service.AccountService;
 import org.jfantasy.pay.service.PayConfigService;
@@ -28,6 +29,7 @@ import org.jfantasy.pay.service.PayService;
 import org.jfantasy.pay.service.TransactionService;
 import org.jfantasy.pay.service.vo.ToPayment;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -61,7 +63,7 @@ public class TransactionController {
      **/
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
+    @ApiImplicitParam(value = "filters", name = "filters", paramType = "query", dataType = "string")
     public Pager<ResultResourceSupport> seach(Pager<Transaction> pager, List<PropertyFilter> filters) {
         return assembler.toResources(transactionService.findPager(pager, filters));
     }
@@ -77,6 +79,13 @@ public class TransactionController {
     @ResponseBody
     public ResultResourceSupport view(@PathVariable("id") String sn) {
         return transform(get(sn));
+    }
+
+    @RequestMapping(method = RequestMethod.PUT, value = "/{id}/status")
+    @JsonResultFilter(allow = @AllowProperty(pojo = PayConfig.class, name = {"id", "pay_product_id", "name", "platforms"}))
+    @ResponseBody
+    public Transaction status(@PathVariable("id") String sn,@Validated TxStatusForm form) {
+        return this.transactionService.update(sn, form.getStatus(), form.getStatusText(), form.getNotes());
     }
 
     /**
