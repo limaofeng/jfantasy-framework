@@ -41,6 +41,7 @@ public class Report extends BaseBusEntity {
      * TimeUnit.week = 201321 <br/>
      * TimeUnit.month = 201312 <br/>
      * TimeUnit.year = 2013
+     * TimeUnit.all = longtime
      */
     @Column(name = "TIME", length = 8, updatable = false, nullable = false)
     private String time;

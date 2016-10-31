@@ -8,5 +8,5 @@ package org.jfantasy.pay.bean.enums;
  * @since 2013-12-23 上午10:30:04
  */
 public enum TimeUnit {
-    day, week, month, year
+    day, week, month, year, all
 }
