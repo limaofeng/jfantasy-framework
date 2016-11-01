@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.jackson.deserializer.DateDeserializer;
@@ -44,6 +45,9 @@ public class JSON {
             return null;
         }
         return serialize(object, () -> {
+            if (ignoreProperties.length == 0) {
+                return MapUtils.EMPTY_MAP;
+            }
             Map<Class, String[]> data = new HashMap<>();
             data.put(object.getClass(), ignoreProperties);
             return data;
