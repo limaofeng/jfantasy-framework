@@ -16,6 +16,7 @@ import org.jfantasy.pay.rest.models.AccountForm;
 import org.jfantasy.pay.rest.models.ActivateForm;
 import org.jfantasy.pay.rest.models.TransactionForm;
 import org.jfantasy.pay.rest.models.assembler.AccountResourceAssembler;
+import org.jfantasy.pay.rest.models.assembler.TransactionResourceAssembler;
 import org.jfantasy.pay.service.AccountService;
 import org.jfantasy.pay.service.ReportService;
 import org.jfantasy.pay.service.TransactionService;
@@ -27,6 +28,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * 账户
@@ -37,12 +40,12 @@ public class AccountController {
 
     private AccountResourceAssembler assembler = new AccountResourceAssembler();
 
+    private ConcurrentMap<String, TransactionResourceAssembler> transactionAssemblers = new ConcurrentHashMap<>();
+
     @Autowired
     private AccountService accountService;
     @Autowired
     private TransactionService transactionService;
-    @Autowired
-    private TransactionController transactionController;
     @Autowired
     private PointController pointController;
     @Autowired
@@ -90,18 +93,21 @@ public class AccountController {
      * 账户交易详情
      **/
     @JsonResultFilter(ignore = {
-            @IgnoreProperty(pojo = Project.class, name = "description")
+            @IgnoreProperty(pojo = Project.class, name = {"description", Transaction.BASE_JSONFIELDS})
     })
     @RequestMapping(method = RequestMethod.GET, value = "/{id}/transactions")
     @ResponseBody
     @ApiImplicitParam(value = "filters", name = "filters", paramType = "query", dataType = "string")
     public Pager<ResultResourceSupport> transactions(@PathVariable("id") String sn, Pager<Transaction> pager, List<PropertyFilter> filters) {
         filters.add(new PropertyFilter("EQS_from_OR_to", sn));
-        if(!pager.isOrderBySetted()){
+        if (!pager.isOrderBySetted()) {
             pager.setOrderBy(Transaction.FIELDS_BY_CREATE_TIME);
             pager.setOrder(Pager.SORT_DESC);
         }
-        return transactionController.seach(pager, filters);
+        if (!transactionAssemblers.containsKey(sn)) {
+            transactionAssemblers.putIfAbsent(sn, new TransactionResourceAssembler(sn));
+        }
+        return transactionAssemblers.get(sn).toResources(transactionService.findPager(pager, filters));
     }
 
     @JsonResultFilter(ignore = {
