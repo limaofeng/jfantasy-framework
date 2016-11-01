@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.jackson.deserializer.DateDeserializer;
@@ -15,8 +14,6 @@ import org.jfantasy.framework.jackson.serializer.DateSerializer;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 public class JSON {
 
@@ -46,23 +43,25 @@ public class JSON {
         }
         return serialize(object, () -> {
             if (ignoreProperties.length == 0) {
-                return MapUtils.EMPTY_MAP;
+                return new FilterItem[0];
             }
-            Map<Class, String[]> data = new HashMap<>();
-            data.put(object.getClass(), ignoreProperties);
-            return data;
+            return new FilterItem[]{FilterItem.ignore(object.getClass(), ignoreProperties)};
         });
     }
 
-    private static String serialize(Object object, IgnoreProperties ignoreProperties) {
+    public static String serialize(Object object, JsonFilter filter) {
         if (object == null) {
             return null;
         }
         try {
             SimpleFilterProvider provider = new SimpleFilterProvider().setFailOnUnknownId(false);
-            for (Map.Entry<Class, String[]> entry : ignoreProperties.fields().entrySet()) {
-                ThreadJacksonMixInHolder.MixInSource mixInSource = ThreadJacksonMixInHolder.createMixInSource(entry.getKey());
-                provider.addFilter(mixInSource.getFilterName(), SimpleBeanPropertyFilter.serializeAllExcept(entry.getValue()));
+            for (FilterItem item : filter.items()) {
+                ThreadJacksonMixInHolder.MixInSource mixInSource = ThreadJacksonMixInHolder.createMixInSource(item.getClazz());
+                if(item.getPattern() == FilterItem.Pattern.IGNORE) {
+                    provider.addFilter(mixInSource.getFilterName(), SimpleBeanPropertyFilter.serializeAllExcept(item.getFields()));
+                }else {
+                    provider.addFilter(mixInSource.getFilterName(), SimpleBeanPropertyFilter.filterOutAllExcept(item.getFields()));
+                }
             }
             return objectMapper.writer(provider).writeValueAsString(object);
         } catch (IOException e) {
@@ -111,12 +110,6 @@ public class JSON {
             LOG.error(e.getMessage(), e);
             return null;
         }
-    }
-
-    interface IgnoreProperties {
-
-        Map<Class, String[]> fields();
-
     }
 
 }

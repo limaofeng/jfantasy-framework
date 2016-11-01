@@ -5,8 +5,8 @@ import com.aliyun.openservices.ons.api.Producer;
 import org.hibernate.Session;
 import org.jfantasy.aliyun.AliyunSettings;
 import org.jfantasy.framework.autoconfigure.PayAutoConfiguration;
+import org.jfantasy.framework.jackson.FilterItem;
 import org.jfantasy.framework.jackson.JSON;
-import org.jfantasy.framework.jackson.ThreadJacksonMixInHolder;
 import org.jfantasy.framework.lucene.dao.hibernate.OpenSessionUtils;
 import org.jfantasy.pay.bean.Card;
 import org.jfantasy.pay.bean.CardDesign;
@@ -40,10 +40,7 @@ public class ONSByCardBindListener implements ApplicationListener<CardBindEvent>
         Session session = OpenSessionUtils.openSession();
         try {
             Card card = event.getCard();
-            ThreadJacksonMixInHolder holder = ThreadJacksonMixInHolder.getMixInHolder();
-            holder.addAllowPropertyNames(CardDesign.class, "styles", "extras");
-            holder.addIgnorePropertyNames(Card.class, "type","batch", Card.BASE_JSONFIELDS);
-            Message msg = new Message(aliyunSettings.getTopicId(), PayAutoConfiguration.ONS_TAGS_CARDBIND_KEY, card.getNo(), JSON.serialize(card).getBytes());
+            Message msg = new Message(aliyunSettings.getTopicId(), PayAutoConfiguration.ONS_TAGS_CARDBIND_KEY, card.getNo(), JSON.serialize(card, () -> new FilterItem[]{FilterItem.ignore(Card.class, "type", "batch", Card.FIELDS_BY_CREATOR, "create_time,", Card.FIELDS_BY_MODIFIER, "modify_time"), FilterItem.allow(CardDesign.class, "styles", "extras")}).getBytes());
             producer.send(msg);
         } finally {
             OpenSessionUtils.closeSession(session);
