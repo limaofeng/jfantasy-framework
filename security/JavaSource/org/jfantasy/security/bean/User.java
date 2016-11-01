@@ -12,7 +12,7 @@ import java.util.*;
 @Entity
 @Table(name = "AUTH_USER")
 @TableGenerator(name = "user_gen", table = "sys_sequence", pkColumnName = "gen_name", pkColumnValue = "auth_user:id", valueColumnName = "gen_value")
-@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "roles", "userGroups", "website", "menus", "authorities"})
+@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "roles", "userGroups", "website", "menus", "authorities", "details"})
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class User extends BaseBusEntity {
 
