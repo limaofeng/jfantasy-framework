@@ -47,13 +47,13 @@ public class JSONTest {
 
     @Test
     public void serialize() throws Exception {
-        ThreadJacksonMixInHolder holder = ThreadJacksonMixInHolder.getMixInHolder();
-        holder.addIgnorePropertyNames(Article.class, "category");
-        LOG.debug(JSON.serialize(category));
+//        ThreadJacksonMixInHolder holder = ThreadJacksonMixInHolder.getMixInHolder();
+//        holder.addIgnorePropertyNames(Article.class, "articles");
+        LOG.debug(JSON.serialize(category,"articles"));
 
-        holder = ThreadJacksonMixInHolder.getMixInHolder();
-        holder.addIgnorePropertyNames(ArticleCategory.class, "articles");
-        LOG.debug(JSON.serialize(article));
+//        holder = ThreadJacksonMixInHolder.getMixInHolder();
+//        holder.addIgnorePropertyNames(ArticleCategory.class, "articles");
+        LOG.debug(JSON.serialize(article,"category"));
     }
 
     @Test

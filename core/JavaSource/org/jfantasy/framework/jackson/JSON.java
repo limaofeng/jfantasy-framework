@@ -5,14 +5,17 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.jackson.deserializer.DateDeserializer;
 import org.jfantasy.framework.jackson.serializer.DateSerializer;
-import org.jfantasy.framework.util.common.ClassUtil;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class JSON {
 
@@ -40,26 +43,35 @@ public class JSON {
         if (object == null) {
             return null;
         }
+        return serialize(object, () -> {
+            Map<Class, String[]> data = new HashMap<>();
+            data.put(object.getClass(), ignoreProperties);
+            return data;
+        });
+    }
+
+    private static String serialize(Object object, IgnoreProperties ignoreProperties) {
+        if (object == null) {
+            return null;
+        }
         try {
-            ThreadJacksonMixInHolder mixInHolder = ThreadJacksonMixInHolder.getMixInHolder();
-            return mixInHolder.getObjectWriter().writeValueAsString(object);
+            SimpleFilterProvider provider = new SimpleFilterProvider().setFailOnUnknownId(false);
+            for (Map.Entry<Class, String[]> entry : ignoreProperties.fields().entrySet()) {
+                ThreadJacksonMixInHolder.MixInSource mixInSource = ThreadJacksonMixInHolder.createMixInSource(entry.getKey());
+                provider.addFilter(mixInSource.getFilterName(), SimpleBeanPropertyFilter.serializeAllExcept(entry.getValue()));
+            }
+            return objectMapper.writer(provider).writeValueAsString(object);
         } catch (IOException e) {
             LOG.error(e.getMessage(), e);
-        } finally {
-            ThreadJacksonMixInHolder.clear();
         }
         return "";
     }
 
     public static JsonNode deserialize(String json) {
         try {
-            ThreadJacksonMixInHolder mixInHolder = ThreadJacksonMixInHolder.getMixInHolder();
-            ObjectMapper objectMapper = mixInHolder.getObjectMapper();
             return objectMapper.readTree(json);
         } catch (IOException e) {
             LOG.error(e.getMessage() + " source json string : " + json + " => readNode", e);
-        } finally {
-            ThreadJacksonMixInHolder.clear();
         }
         return null;
     }
@@ -70,16 +82,9 @@ public class JSON {
 
     public static <T> T deserialize(String json, Class<T> classed) {
         try {
-            ThreadJacksonMixInHolder mixInHolder = ThreadJacksonMixInHolder.getMixInHolder();
-            ObjectMapper objectMapper = mixInHolder.getObjectMapper();
-            if (!ClassUtil.isArray(classed) && json.startsWith("[") && json.endsWith("]")) {
-                json = json.substring(1, json.length() - 2);
-            }
             return objectMapper.readValue(json, classed);
         } catch (IOException e) {
             LOG.error(e.getMessage() + " source json string : " + json + " => " + classed, e);
-        } finally {
-            ThreadJacksonMixInHolder.clear();
         }
         return null;
     }
@@ -87,29 +92,27 @@ public class JSON {
     @SuppressWarnings("unchecked")
     public static <T> T[] deserialize(String json, T[] classed) {
         try {
-            ThreadJacksonMixInHolder mixInHolder = ThreadJacksonMixInHolder.getMixInHolder();
-            ObjectMapper objectMapper = mixInHolder.getObjectMapper();
             return (T[]) objectMapper.readValue(json, classed.getClass());
         } catch (IOException e) {
             LOG.error(e.getMessage(), e);
-        } finally {
-            ThreadJacksonMixInHolder.clear();
+            return null;
         }
-        return null;
     }
 
     @SuppressWarnings("unchecked")
     public static <T> T deserialize(String json, TypeReference<T> typeReference) {
         try {
-            ThreadJacksonMixInHolder mixInHolder = ThreadJacksonMixInHolder.getMixInHolder();
-            ObjectMapper objectMapper = mixInHolder.getObjectMapper();
             return (T) objectMapper.readValue(json, typeReference);
         } catch (IOException e) {
             LOG.error(e.getMessage(), e);
-        } finally {
-            ThreadJacksonMixInHolder.clear();
+            return null;
         }
-        return null;
+    }
+
+    interface IgnoreProperties {
+
+        Map<Class, String[]> fields();
+
     }
 
 }

@@ -13,7 +13,7 @@ public class ProjectConverter implements AttributeConverter<Project, String> {
         if (attribute == null) {
             return null;
         }
-        return JSON.serialize(attribute);
+        return JSON.serialize(attribute, "creator", "create_time", "modifier", "modify_time", "description");
     }
 
     @Override
