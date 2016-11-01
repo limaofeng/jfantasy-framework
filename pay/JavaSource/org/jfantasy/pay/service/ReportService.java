@@ -11,6 +11,7 @@ import org.jfantasy.pay.bean.enums.TimeUnit;
 import org.jfantasy.pay.dao.ReportDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -31,7 +32,7 @@ public class ReportService {
         return this.reportDao.findPager(pager, filters);
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Report analyze(ReportTargetType targetType, String targetId, TimeUnit timeUnit, String time, BillType type, String code, BigDecimal value) {
         Report report = this.reportDao.findUnique(Restrictions.eq("targetType", targetType), Restrictions.eq("targetId", targetId), Restrictions.eq("timeUnit", timeUnit), Restrictions.eq("time", time));
         if (report == null) {
