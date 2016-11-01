@@ -1,6 +1,7 @@
 package org.jfantasy.pay.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 import org.jfantasy.framework.dao.BaseBusEntity;
@@ -45,6 +46,7 @@ public class Account extends BaseBusEntity {
     /**
      * 支付密码
      */
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(name = "PASSWORD", length = 100)
     private String password;
     /**

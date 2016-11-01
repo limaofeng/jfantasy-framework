@@ -41,6 +41,7 @@ public class User extends BaseBusEntity {
     /**
      * 登录密码
      */
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(name = "PASSWORD", length = 20, nullable = false)
     private String password;
 
