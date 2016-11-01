@@ -49,7 +49,7 @@ public class JSON {
         });
     }
 
-    public static String serialize(Object object, JsonFilter filter) {
+    public static String serialize(Object object, Filter filter) {
         if (object == null) {
             return null;
         }
@@ -110,6 +110,10 @@ public class JSON {
             LOG.error(e.getMessage(), e);
             return null;
         }
+    }
+
+    public interface Filter {
+        FilterItem[] items();
     }
 
 }
