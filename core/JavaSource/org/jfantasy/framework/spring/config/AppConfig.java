@@ -1,11 +1,6 @@
 package org.jfantasy.framework.spring.config;
 
-import org.apache.lucene.analysis.Analyzer;
 import org.jfantasy.framework.dao.mybatis.keygen.util.DataBaseKeyGenerator;
-import org.jfantasy.framework.lucene.BuguIndex;
-import org.jfantasy.framework.util.common.ClassUtil;
-import org.jfantasy.framework.util.common.PropertiesHelper;
-import org.jfantasy.framework.util.common.StringUtil;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.aop.interceptor.SimpleAsyncUncaughtExceptionHandler;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,11 +33,8 @@ public class AppConfig {
         return new PropertySourcesPlaceholderConfigurer();
     }
 
-    @Value("${dataBaseKey.poolSize:10}")
-    private String dataBaseKeyPoolSize;
-
     @Bean
-    public DataBaseKeyGenerator dataBaseKeyGenerator() {
+    public DataBaseKeyGenerator dataBaseKeyGenerator(@Value("${dataBaseKey.poolSize:10}") String dataBaseKeyPoolSize) {
         DataBaseKeyGenerator dataBaseKeyGenerator = new DataBaseKeyGenerator();
         dataBaseKeyGenerator.setPoolSize(Integer.valueOf(dataBaseKeyPoolSize));
         return dataBaseKeyGenerator;
@@ -118,20 +110,5 @@ public class AppConfig {
         return applicationEventMulticaster;
     }*/
 
-    @Bean(initMethod = "open", destroyMethod = "close")
-    public BuguIndex buguIndex() {
-        PropertiesHelper helper = PropertiesHelper.load("props/lucene.properties");
-
-        BuguIndex buguIndex = new BuguIndex();
-        if (StringUtil.isNotBlank(helper.getProperty("indexes.analyzer"))) {
-            buguIndex.setAnalyzer((Analyzer) ClassUtil.newInstance(helper.getProperty("indexes.analyzer")));
-        }
-        buguIndex.setBasePackage(StringUtil.join(helper.getMergeProperty("indexes.scan.package"), ";"));
-        buguIndex.setDirectoryPath(helper.getProperty("indexes.storage.path"));
-        buguIndex.setIndexReopenPeriod(helper.getLong("indexes.reopen.reriod", 30000L));
-        buguIndex.setExecutor(taskExecutor());
-        buguIndex.setRebuild(helper.getBoolean("indexes.rebuild", false));
-        return buguIndex;
-    }
 
 }
