@@ -35,7 +35,7 @@ public class TransactionService {
     private final AccountDao accountDao;
 
     @Autowired
-    public TransactionService(TransactionDao transactionDao, ProjectDao projectDao,AccountDao accountDao) {
+    public TransactionService(TransactionDao transactionDao, ProjectDao projectDao, AccountDao accountDao) {
         this.transactionDao = transactionDao;
         this.projectDao = projectDao;
         this.accountDao = accountDao;
@@ -46,7 +46,7 @@ public class TransactionService {
      *
      * @return account
      */
-    public Account platform() {
+    private Account platform() {
         return this.accountDao.findUnique(Restrictions.eq("type", AccountType.platform));
     }
 
@@ -74,7 +74,7 @@ public class TransactionService {
      * @return Transaction
      */
     @Transactional
-    public Transaction payment(String from, BigDecimal amount, String notes, Map<String, String> properties) {
+    public Transaction payment(String from, BigDecimal amount, String notes, Map<String, Object> properties) {
         String to = platform().getSn();// 平台收款
         return this.save(Project.PAYMENT, from, to, amount, notes, properties);
     }
@@ -97,7 +97,7 @@ public class TransactionService {
     }
 
     @Transactional
-    public Transaction save(String projectKey, String from, String to, BigDecimal amount, String notes, Map<String, String> properties) {
+    public Transaction save(String projectKey, String from, String to, BigDecimal amount, String notes, Map<String, Object> properties) {
         return this.save(projectKey, from, to, null, amount, notes, properties);
     }
 
@@ -113,10 +113,11 @@ public class TransactionService {
      * @return Transaction
      */
     @Transactional
-    public Transaction save(String projectKey, String from, String to, TxChannel channel, BigDecimal amount, String notes, Map<String, String> properties) {
+    public Transaction save(String projectKey, String from, String to, TxChannel channel, BigDecimal amount, String notes, Map<String, Object> properties) {
         Project project = projectDao.get(projectKey);
         // 生成 unionid
-        String key = StringUtil.defaultValue(properties.get(Transaction.UNION_KEY), properties.get(Transaction.ORDER_KEY));
+        String orderKey = (String) properties.get(Transaction.ORDER_KEY);
+        String key = StringUtil.defaultValue(properties.get(Transaction.UNION_KEY), orderKey);
         String unionid = Transaction.generateUnionid(project.getKey(), key);
         // 判断交易是否已经存在
         Transaction src = this.transactionDao.findUnique(Restrictions.eq("unionId", unionid));
@@ -138,10 +139,13 @@ public class TransactionService {
         switch (project.getType()) {
             case order:
                 transaction.set("stage", Transaction.STAGE_PAYMENT);
-                transaction.setSubject(OrderKey.newInstance(properties.get(Transaction.ORDER_KEY)).getType());
+                transaction.setSubject(OrderKey.newInstance(orderKey).getType());
                 break;
             case transfer:
                 transaction.setChannel(ObjectUtil.defaultValue(channel, TxChannel.internal));
+                if (StringUtil.isNotBlank(orderKey)) {
+                    transaction.setSubject(OrderKey.newInstance(orderKey).getType());
+                }
                 break;
             default:
         }

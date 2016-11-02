@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.hibernate.annotations.GenericGenerator;
 import org.jfantasy.framework.dao.BaseBusEntity;
 import org.jfantasy.framework.dao.hibernate.converter.MapConverter;
-import org.jfantasy.framework.jackson.ThreadJacksonMixInHolder;
 import org.jfantasy.pay.bean.converter.ProjectConverter;
 import org.jfantasy.pay.bean.databind.ProjectDeserializer;
 import org.jfantasy.pay.bean.enums.TxChannel;
@@ -115,7 +114,7 @@ public class Transaction extends BaseBusEntity {
      */
     @Convert(converter = MapConverter.class)
     @Column(name = "PROPERTIES", columnDefinition = "Text")
-    private Map<String, String> properties;
+    private Map<String, Object> properties;
     /**
      * 支付记录
      **/
@@ -216,10 +215,7 @@ public class Transaction extends BaseBusEntity {
     }
 
     @JsonAnyGetter
-    public Map<String, String> getProperties() {
-        if (ThreadJacksonMixInHolder.getMixInHolder().isIgnoreProperty(PayConfig.class, "properties")) {
-            return null;
-        }
+    public Map<String, Object> getProperties() {
         return properties;
     }
 
@@ -236,7 +232,7 @@ public class Transaction extends BaseBusEntity {
         if (this.properties == null || !this.properties.containsKey(key)) {
             return null;
         }
-        return this.properties.get(key);
+        return (String) this.properties.get(key);
     }
 
     public String getSubject() {
@@ -247,7 +243,7 @@ public class Transaction extends BaseBusEntity {
         this.subject = subject;
     }
 
-    public void setProperties(Map<String, String> properties) {
+    public void setProperties(Map<String, Object> properties) {
         this.properties = properties;
     }
 

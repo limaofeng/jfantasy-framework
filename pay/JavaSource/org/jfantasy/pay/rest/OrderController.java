@@ -84,12 +84,13 @@ public class OrderController {
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
     public ResultResourceSupport transaction(@PathVariable("id") String key, @RequestBody OrderTransaction orderTransaction) {
+        Map<String, Object> data = new HashMap<>();
         // 判断交易类型
         if (orderTransaction.getType() == OrderTransaction.Type.payment) {
             // 订单
             Order order = orderService.getOrder(OrderKey.newInstance(key));
-            // 保持到交易表的数据
-            Map<String, String> data = new HashMap<>();
+            // 保存到交易表的数据
+            data.putAll(order.getProperties());
             data.put(Transaction.ORDER_KEY, key);
             data.put(Transaction.ORDER_SUBJECT, order.getSubject());
             String from = accountService.findUniqueByCurrentUser().getSn();// 付款方
@@ -97,8 +98,8 @@ public class OrderController {
         } else {
             // 订单
             Order order = orderService.get(OrderKey.newInstance(key));
-            // 保持到交易表的数据
-            Map<String, String> data = new HashMap<>();
+            // 保存到交易表的数据
+            data.putAll(order.getProperties());
             data.put(Transaction.ORDER_KEY, key);
             data.put(Transaction.ORDER_SUBJECT, order.getSubject());
             return TransactionController.assembler.toResource(this.transactionService.refund(order.getKey(), orderTransaction.getAmount(), ""));
@@ -111,7 +112,7 @@ public class OrderController {
     @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
     public List<ResultResourceSupport> transactions(@PathVariable("id") String key, List<PropertyFilter> filters) {
         filters.add(new PropertyFilter("INS_unionId", Transaction.generateUnionid(OrderTransaction.Type.payment.getValue(), key), Transaction.generateUnionid(OrderTransaction.Type.refund.getValue(), key)));
-        return transactionController.seach(new Pager<Transaction>(), filters).getPageItems();
+        return transactionController.seach(new Pager<>(), filters).getPageItems();
     }
 
     /**

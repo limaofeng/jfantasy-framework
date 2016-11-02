@@ -6,6 +6,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class StringUtilTest {
@@ -79,7 +81,11 @@ public class StringUtilTest {
 
     @Test
     public void testNullValue() throws Exception {
+        Map<String,Object> data = new HashMap<>();
+        data.put("123","123");
 
+        String s = (String)data.get("1234");
+        System.out.print(s);
     }
 
     @Test
