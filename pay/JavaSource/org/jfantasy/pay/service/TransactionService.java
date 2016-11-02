@@ -130,7 +130,7 @@ public class TransactionService {
         // 创建交易
         Transaction transaction = new Transaction();
         transaction.setUnionId(unionid);
-        transaction.setProject(project);
+        transaction.setProject(project.getKey());
         transaction.setFrom(from);
         transaction.setTo(to);
         transaction.setAmount(amount);
@@ -183,9 +183,9 @@ public class TransactionService {
         transaction.setChannel(TxChannel.internal);
         transaction.setTo(to.getSn());
         transaction.set(Transaction.CARD_ID, card.getNo());
-        transaction.setProject(projectDao.get(Project.INPOUR));
+        transaction.setProject(Project.INPOUR);
         transaction.setSubject(Card.SUBJECT_BY_CARD_INPOUR);
-        transaction.setUnionId(Transaction.generateUnionid(transaction.getProject().getKey(), card.getNo()));
+        transaction.setUnionId(Transaction.generateUnionid(transaction.getProject(), card.getNo()));
         transaction.setStatus(TxStatus.unprocessed);
         transaction.setStatusText(TxStatus.unprocessed.name());
         transaction.setNotes("会员卡充值");

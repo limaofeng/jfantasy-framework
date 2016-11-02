@@ -25,6 +25,7 @@ import java.util.List;
 public class AccountService {
 
     private final AccountDao accountDao;
+    private final ProjectDao projectDao;
     private final TransactionDao transactionDao;
     private final PointDao pointDao;
     private final BillDao billDao;
@@ -33,8 +34,9 @@ public class AccountService {
     private PasswordEncoder passwordEncoder = new StandardPasswordEncoder();
 
     @Autowired
-    public AccountService(PointDao pointDao, TransactionDao transactionDao, BillDao billDao, AccountDao accountDao, CardDao cardDao) {
+    public AccountService(PointDao pointDao,ProjectDao projectDao, TransactionDao transactionDao, BillDao billDao, AccountDao accountDao, CardDao cardDao) {
         this.pointDao = pointDao;
+        this.projectDao = projectDao;
         this.transactionDao = transactionDao;
         this.billDao = billDao;
         this.accountDao = accountDao;
@@ -53,15 +55,6 @@ public class AccountService {
 
     public Account get(String id) {
         return this.accountDao.get(id);
-    }
-
-    /**
-     * 获取平台账号
-     *
-     * @return account
-     */
-    public Account platform() {
-        return this.accountDao.findUnique(Restrictions.eq("type", AccountType.platform));
     }
 
     /**
@@ -134,6 +127,7 @@ public class AccountService {
     @Transactional
     public Transaction transfer(String trxNo, String notes) {
         Transaction transaction = transactionDao.get(trxNo);
+        Project project = this.projectDao.get(transaction.getProject());
         if (transaction.getStatus() == TxStatus.close) {
             throw new RestException("交易已经关闭,不能划账");
         }
@@ -161,7 +155,7 @@ public class AccountService {
             this.addBill(BillType.credit, transaction, to);//添加对应账单
 
             // 充值积分处理
-            if (Project.INPOUR.equals(transaction.getProject().getKey()) && Card.SUBJECT_BY_CARD_INPOUR.equals(transaction.getSubject())) {
+            if (Project.INPOUR.equals(project.getKey()) && Card.SUBJECT_BY_CARD_INPOUR.equals(transaction.getSubject())) {
                 Card card = this.cardDao.get(transaction.get(Transaction.CARD_ID));
                 ExtraService service = ObjectUtil.find(card.getExtras(), "project", ExtraService.ExtraProject.point);
                 if (service != null) {
@@ -173,7 +167,7 @@ public class AccountService {
             this.accountDao.update(to);
         }
 
-        if (Project.WITHDRAWAL.equals(transaction.getProject().getKey())) {//如果为提现交易，只修改状态为处理中。而且现在都是线下交易
+        if (Project.WITHDRAWAL.equals(project.getKey())) {//如果为提现交易，只修改状态为处理中。而且现在都是线下交易
             transaction.setPayConfigName("线下转账");
             transaction.setStatus(TxStatus.processing);
             transaction.setStatusText(transaction.getStatus().name());
@@ -198,7 +192,7 @@ public class AccountService {
     }
 
     private void addBill(BillType type, Transaction transaction, Account account) {
-        Project project = transaction.getProject();
+        Project project = this.projectDao.get(transaction.getProject());
         Bill bill = new Bill();
         bill.setAccount(account);
         bill.setType(type);

@@ -3,12 +3,9 @@ package org.jfantasy.pay.bean;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.hibernate.annotations.GenericGenerator;
 import org.jfantasy.framework.dao.BaseBusEntity;
 import org.jfantasy.framework.dao.hibernate.converter.MapConverter;
-import org.jfantasy.pay.bean.converter.ProjectConverter;
-import org.jfantasy.pay.bean.databind.ProjectDeserializer;
 import org.jfantasy.pay.bean.enums.TxChannel;
 import org.jfantasy.pay.bean.enums.TxStatus;
 
@@ -38,7 +35,6 @@ public class Transaction extends BaseBusEntity {
     public static final String ORDER_SUBJECT = "order_subject";
 
     public static final String CARD_ID = "card_id";
-    public static final String CARD_SUBJECT = "card_subject";
 
     /**
      * 交易流水号
@@ -69,9 +65,7 @@ public class Transaction extends BaseBusEntity {
      * 交易项目(转账/提现等)
      */
     @Column(name = "PROJECT", length = 500, updatable = false)
-    @Convert(converter = ProjectConverter.class)
-    @JsonDeserialize(using = ProjectDeserializer.class)
-    private Project project;
+    private String project;
     /**
      * 交易科目
      */
@@ -114,7 +108,7 @@ public class Transaction extends BaseBusEntity {
      */
     @Convert(converter = MapConverter.class)
     @Column(name = "PROPERTIES", columnDefinition = "Text")
-    private Map<String, Object> properties;
+    private Map<String, Object> properties;//NOSONAR
     /**
      * 支付记录
      **/
@@ -182,11 +176,11 @@ public class Transaction extends BaseBusEntity {
         this.channel = channel;
     }
 
-    public Project getProject() {
+    public String getProject() {
         return project;
     }
 
-    public void setProject(Project project) {
+    public void setProject(String project) {
         this.project = project;
     }
 

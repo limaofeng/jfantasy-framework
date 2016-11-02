@@ -44,20 +44,17 @@ public class ReportServiceTest {
                 BigDecimal amount = transaction.getAmount();
                 String code = transaction.getProject().getKey() + (StringUtil.isBlank(transaction.getSubject()) ? "" : ("-" + transaction.getSubject()));
 
-                if (Project.PAYMENT.equals(transaction.getProject().getKey()) || Project.REFUND.equals(transaction.getProject().getKey())) {
+                if (Project.PAYMENT.equals(transaction.getProject().getKey()) || Project.REFUND.equals(transaction.getProject().getKey()) || Project.INCOME.equals(transaction.getProject().getKey())) {
                     //记录出帐
                     reportService.analyze(ReportTargetType.account, transaction.getFrom(), TimeUnit.day, day, BillType.credit, code, amount);
                     //记录入帐
                     reportService.analyze(ReportTargetType.account, transaction.getTo(), TimeUnit.day, day, BillType.debit, code, amount);
                 } else if (Project.INPOUR.equals(transaction.getProject().getKey())) {
-                    //记录出帐
-                    reportService.analyze(ReportTargetType.account, transaction.getTo(), TimeUnit.day, day, BillType.debit, code, amount);
                     //记录入帐
-                } else if (Project.INCOME.equals(transaction.getProject().getKey())) {
+                    reportService.analyze(ReportTargetType.account, transaction.getTo(), TimeUnit.day, day, BillType.debit, code, amount);
+                } else if (Project.WITHDRAWAL.equals(transaction.getProject().getKey())) {
                     //记录出帐
                     reportService.analyze(ReportTargetType.account, transaction.getFrom(), TimeUnit.day, day, BillType.credit, code, amount);
-                    //记录入帐
-                    reportService.analyze(ReportTargetType.account, transaction.getTo(), TimeUnit.day, day, BillType.debit, code, amount);
                 }
             }
             pager.setCurrentPage(pager.getCurrentPage() + 1);

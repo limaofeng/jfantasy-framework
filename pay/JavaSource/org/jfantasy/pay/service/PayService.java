@@ -40,6 +40,7 @@ public class PayService {
 
     private static final Log LOG = LogFactory.getLog(PayService.class);
 
+    private final ProjectService projectService;
     private final PayProductConfiguration payProductConfiguration;
     private final PayConfigService payConfigService;
     private final PaymentService paymentService;
@@ -49,7 +50,8 @@ public class PayService {
     private final ApplicationContext applicationContext;
 
     @Autowired
-    public PayService(RefundService refundService, PaymentService paymentService, PayProductConfiguration payProductConfiguration, ApplicationContext applicationContext, PayConfigService payConfigService, OrderService orderService, TransactionService transactionService) {
+    public PayService(ProjectService projectService,RefundService refundService, PaymentService paymentService, PayProductConfiguration payProductConfiguration, ApplicationContext applicationContext, PayConfigService payConfigService, OrderService orderService, TransactionService transactionService) {
+        this.projectService = projectService;
         this.refundService = refundService;
         this.paymentService = paymentService;
         this.payProductConfiguration = payProductConfiguration;
@@ -72,7 +74,8 @@ public class PayService {
      */
     @Transactional
     public ToPayment pay(Transaction transaction, Long payConfigId, PayType payType, String payer, Properties properties) throws PayException {
-        if (transaction.getProject().getType() != ProjectType.order) {
+        Project project = this.projectService.get(transaction.getProject());
+        if (project.getType() != ProjectType.order) {
             throw new ValidationException(000.0f, "项目类型为 order 才能调用支付接口");
         }
         // 设置 Trx 到 properties 中

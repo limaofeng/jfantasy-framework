@@ -16,6 +16,7 @@ import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.oauth.userdetails.OAuthUserDetails;
 import org.jfantasy.pay.bean.PayConfig;
 import org.jfantasy.pay.bean.Payment;
+import org.jfantasy.pay.bean.Project;
 import org.jfantasy.pay.bean.Transaction;
 import org.jfantasy.pay.bean.enums.ProjectType;
 import org.jfantasy.pay.error.PayException;
@@ -23,10 +24,7 @@ import org.jfantasy.pay.order.entity.enums.PaymentStatus;
 import org.jfantasy.pay.rest.models.PayForm;
 import org.jfantasy.pay.rest.models.TxStatusForm;
 import org.jfantasy.pay.rest.models.assembler.TransactionResourceAssembler;
-import org.jfantasy.pay.service.AccountService;
-import org.jfantasy.pay.service.PayConfigService;
-import org.jfantasy.pay.service.PayService;
-import org.jfantasy.pay.service.TransactionService;
+import org.jfantasy.pay.service.*;
 import org.jfantasy.pay.service.vo.ToPayment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -45,13 +43,15 @@ public class TransactionController {
 
     public static final TransactionResourceAssembler assembler = new TransactionResourceAssembler();
 
+    private final ProjectService projectService;
     private final TransactionService transactionService;
     private final PayService payService;
     private final PayConfigService configService;
     private final AccountService accountService;
 
     @Autowired
-    public TransactionController(PayConfigService configService, PayService payService, TransactionService transactionService, AccountService accountService) {
+    public TransactionController(ProjectService projectService,PayConfigService configService, PayService payService, TransactionService transactionService, AccountService accountService) {
+        this.projectService = projectService;
         this.configService = configService;
         this.payService = payService;
         this.transactionService = transactionService;
@@ -114,7 +114,9 @@ public class TransactionController {
             return resource;
         }
 
-        if (transaction.getProject().getType() == ProjectType.order) {
+        Project project = this.projectService.get(transaction.getProject());
+
+        if (project.getType() == ProjectType.order) {
             switch (transaction.get(Transaction.STAGE)) {
                 case Transaction.STAGE_PAYMENT:
                     if (!ThreadJacksonMixInHolder.getMixInHolder().isReturnProperty(PayConfig.class, "payconfigs")) {
