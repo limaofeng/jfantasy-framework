@@ -16,6 +16,7 @@ import org.jfantasy.security.bean.Role;
 import org.jfantasy.security.bean.UserGroup;
 
 import javax.persistence.*;
+import javax.validation.constraints.Null;
 import java.util.*;
 
 /**
@@ -41,7 +42,7 @@ public class Member extends BaseBusEntity {
 
     private static final long serialVersionUID = -4479116155241989100L;
 
-    @NotEmpty(groups = {POST.class})
+    @Null(groups = {POST.class})
     @Id
     @Column(name = "ID", nullable = false, updatable = false, precision = 22)
     @GeneratedValue(strategy = GenerationType.TABLE, generator = "member_gen")
