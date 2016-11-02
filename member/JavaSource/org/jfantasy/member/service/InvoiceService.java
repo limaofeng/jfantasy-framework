@@ -66,7 +66,7 @@ public class InvoiceService {
         //保存发票
         for (Map.Entry<String, Invoice> entry : invoices.entrySet()) {
             Invoice tinvoice = entry.getValue();
-            tinvoice.setAmount(tinvoice.getAmount().setScale(2, 0));
+            tinvoice.setAmount(tinvoice.getAmount().setScale(2, BigDecimal.ROUND_UP));
             tinvoice.setStatus(InvoiceStatus.NONE);
             this.invoiceDao.save(tinvoice);
         }
