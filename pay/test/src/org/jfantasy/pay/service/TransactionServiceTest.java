@@ -38,8 +38,7 @@ public class TransactionServiceTest {
         filters.add(new PropertyFilter("LIKES_project", "%{"));
         Pager<Transaction> pager = new Pager<>();
         do {
-            pager = transactionService.findPager(pager, filters);
-            for (Transaction transaction : pager.getPageItems()) {
+            pager = transactionService.findPager(pager, filters);for (Transaction transaction : pager.getPageItems()) {
                 Project project = JSON.deserialize(transaction.getProject(), Project.class);
                 Session session = OpenSessionUtils.openSession();
                 try {
@@ -50,7 +49,7 @@ public class TransactionServiceTest {
             }
             pager.setCurrentPage(pager.getCurrentPage() + 1);
             pager.setFirst(0);
-        } while (pager.getCurrentPage() <= pager.getTotalPage());
+        } while (pager.getTotalCount() > 0);
     }
 
     @Test
