@@ -38,7 +38,7 @@ public class TransactionServiceTest {
         do {
             pager = transactionService.findPager(pager, filters);
             for (Transaction transaction : pager.getPageItems()) {
-                if (Project.PAYMENT.equals(transaction.getProject().getKey()) || Project.REFUND.equals(transaction.getProject().getKey())) {
+                if (Project.PAYMENT.equals(transaction.getProject().getKey()) || Project.INCOME.equals(transaction.getProject().getKey()) || Project.REFUND.equals(transaction.getProject().getKey())) {
                     //添加 subject
                     if (StringUtil.isBlank(transaction.getSubject())) {
                         Session session = OpenSessionUtils.openSession();
@@ -61,7 +61,7 @@ public class TransactionServiceTest {
 
         String unionKey = "TSN0000000001-platform->team";
 
-        Map<String, String> data = new HashMap<>();
+        Map<String, Object> data = new HashMap<>();
         data.put(Transaction.UNION_KEY, unionKey);
 
         transactionService.save(projectKey, "1920021983", "2016101200000001", BigDecimal.valueOf(1.0), "", data);
