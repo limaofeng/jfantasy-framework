@@ -12,14 +12,14 @@ public class Property {
     private String name;
     private MethodProxy readMethodProxy;
     private MethodProxy writeMethodProxy;
-    private Class<?> propertyType;
+    private Class propertyType;
     private boolean write;
     private boolean read;
-    private Map<Class<Annotation>, Annotation> annotationCache = new HashMap<Class<Annotation>, Annotation>();
+    private Map<Class<Annotation>, Annotation> annotationCache = new HashMap<>();
 
     Property(String name, MethodProxy readMethodProxy, MethodProxy writeMethodProxy, Class<?> propertyType) {
-        this.read = (readMethodProxy != null);
-        this.write = (writeMethodProxy != null);
+        this.read = readMethodProxy != null;
+        this.write = writeMethodProxy != null;
         this.name = name;
         this.readMethodProxy = readMethodProxy;
         this.writeMethodProxy = writeMethodProxy;
@@ -49,30 +49,38 @@ public class Property {
     }
 
     public <T> Class<T> getPropertyType() {
-        return (Class<T>) this.propertyType;
+        return this.propertyType;
     }
 
     public String getName() {
         return this.name;
     }
 
-    public <T extends Annotation> T getAnnotation(Class<T> tClass) {
+    public Annotation getAnnotation(Class<Annotation> tClass) {
         if (annotationCache.containsKey(tClass)) {
-            return (T) annotationCache.get(tClass);
+            return annotationCache.get(tClass);
         }
-        T annotation = null;
+        Annotation annotation = null;
+        Class<?> declaringClass = null;
         if (this.isRead()) {
-            annotationCache.put((Class<Annotation>) tClass, annotation = this.getReadMethod().getAnnotation(tClass));
-        }
-        if (annotation == null && this.isWrite()) {
-            annotationCache.put((Class<Annotation>) tClass, annotation = this.getWriteMethod().getAnnotation(tClass));
-        }
-        if (annotation == null) {
-            Field field = ClassUtil.getDeclaredField(this.getReadMethod().getDeclaringClass(), this.name);
-            if (field != null) {
-                annotationCache.put((Class<Annotation>) tClass, annotation = field.getAnnotation(tClass));
+            annotation = this.getReadMethod().getAnnotation(tClass);
+            if (annotation == null) {
+                declaringClass = this.getReadMethod().getDeclaringClass();
             }
         }
+        if (annotation == null && this.isWrite()) {
+            annotation = this.getWriteMethod().getAnnotation(tClass);
+            if (annotation == null) {
+                declaringClass = this.getWriteMethod().getDeclaringClass();
+            }
+        }
+        if (annotation == null) {
+            Field field = ClassUtil.getDeclaredField(declaringClass, this.name);
+            if (field != null) {
+                annotation = field.getAnnotation(tClass);
+            }
+        }
+        annotationCache.put(tClass, annotation);
         return annotation;
     }
 
