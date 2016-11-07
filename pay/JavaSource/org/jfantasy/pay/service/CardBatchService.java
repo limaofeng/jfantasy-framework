@@ -80,7 +80,7 @@ public class CardBatchService {
         List<Card> cards = new ArrayList<>();
         for (int i = 1, length = batch.getQuantity(); i <= length; i++) {
             Card card = new Card();
-            card.setNo(batch.getNo() + StringUtil.addZeroLeft(i + "", 4));//TODO 卡号生成规则
+            card.setNo(batch.getNo() + StringUtil.addZeroLeft(String.valueOf(i), 4));
             card.setBatch(batch);
             card.setType(type);
             card.setUsage(usage);

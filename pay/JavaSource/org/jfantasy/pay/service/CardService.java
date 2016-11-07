@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Random;
 
 @Service
 public class CardService {
@@ -72,13 +73,22 @@ public class CardService {
     }
 
     public Card save(Card card) {
-        card.setSecret("123456");//TODO 密码生成规则
+        card.setSecret(generateSecret());
         card.setStatus(CardStatus.sleep);
 
         this.cardDao.save(card);
         //记录日志
         this.logService.log(OwnerType.card, card.getNo(), "create", "卡添加");
         return card;
+    }
+
+    private static String generateSecret() {
+        StringBuilder noceStr = new StringBuilder();
+        Random random = new Random();
+        for (int i = 0; i < 6; i++) {
+            noceStr.append(String.valueOf(random.nextInt(10)));
+        }
+        return noceStr.toString();
     }
 
     void release(Long id) {

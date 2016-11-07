@@ -15,7 +15,7 @@ public class Property {
     private Class propertyType;
     private boolean write;
     private boolean read;
-    private Map<Class<Annotation>, Annotation> annotationCache = new HashMap<>();
+    private Map<Class, Annotation> annotationCache = new HashMap<>();
 
     Property(String name, MethodProxy readMethodProxy, MethodProxy writeMethodProxy, Class<?> propertyType) {
         this.read = readMethodProxy != null;
@@ -56,9 +56,9 @@ public class Property {
         return this.name;
     }
 
-    public Annotation getAnnotation(Class<Annotation> tClass) {
+    public <T extends Annotation> T getAnnotation(Class<T> tClass) {
         if (annotationCache.containsKey(tClass)) {
-            return annotationCache.get(tClass);
+            return (T)annotationCache.get(tClass);
         }
         Annotation annotation = null;
         Class<?> declaringClass = null;
@@ -81,7 +81,7 @@ public class Property {
             }
         }
         annotationCache.put(tClass, annotation);
-        return annotation;
+        return (T)annotation;
     }
 
     public MethodProxy getReadMethod() {

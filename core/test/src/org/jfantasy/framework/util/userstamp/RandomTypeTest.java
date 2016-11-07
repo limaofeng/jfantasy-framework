@@ -42,4 +42,12 @@ public class RandomTypeTest {
         }
     }
 
+    @Test
+    public void random(){
+        Random random = new Random();
+        for (int i = 0; i < 6; i++) {
+            System.out.println(random.nextInt(10));
+        }
+    }
+
 }
