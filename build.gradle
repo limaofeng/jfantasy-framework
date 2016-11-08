@@ -19,7 +19,6 @@ configure(allprojects) {
     apply plugin: 'propdeps'
     apply plugin: 'propdeps-maven'
     apply plugin: 'propdeps-idea'
-    apply plugin: 'propdeps-eclipse'
 }
 
 allprojects {
