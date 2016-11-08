@@ -224,6 +224,11 @@ public class Pager<T> implements Serializable {
         }
     }
 
+    public void sort(String orderBy,String order){
+        this.orderBy = orderBy;
+        this.order = order;
+    }
+
     public void reset(List<T> items) {
         this.pageItems = items;
     }
