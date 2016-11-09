@@ -27,7 +27,7 @@ sonar:
 deploy:
   stage: deploy
   script:
-      - gradle upload -x test
+    - gradle upload -x test
   only:
     - tags
   tags:
