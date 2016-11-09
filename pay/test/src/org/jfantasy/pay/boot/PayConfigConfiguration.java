@@ -5,25 +5,31 @@ import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.hibernate.criterion.Restrictions;
 import org.jfantasy.framework.util.common.StreamUtil;
 import org.jfantasy.framework.util.common.file.FileUtil;
+import org.jfantasy.pay.PayServerApplication;
 import org.jfantasy.pay.bean.PayConfig;
 import org.jfantasy.pay.service.PayConfigService;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 
-//@Component
-public class PayConfigConfiguration implements CommandLineRunner {
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = PayServerApplication.class)
+@ActiveProfiles("dev")
+public class PayConfigConfiguration {
 
     @Autowired
     private PayConfigService payConfigService;
 
-    @Override
-    public void run(String... args) throws Exception {
-        //添加支付配置
+    @Test
+    public void updateChinapay(){
         // 银联支付 1
         try {
             //保存支付配置
@@ -57,7 +63,7 @@ public class PayConfigConfiguration implements CommandLineRunner {
         } catch (IOException e) {
             System.err.println(e.getMessage());
         }
-        // 银联支付 2
+
         try {
             //签名证书
             File signCert = new File("/certs/tradebc.pfx");
@@ -89,6 +95,12 @@ public class PayConfigConfiguration implements CommandLineRunner {
         } catch (IOException e) {
             System.err.println(e.getMessage());
         }
+    }
+
+    public void run(String... args) throws Exception {
+        //添加支付配置
+        this.updateChinapay();
+
         // 银联支付 主要给 app 使用
         try {
             //上传签名证书

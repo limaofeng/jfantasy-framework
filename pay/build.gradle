@@ -13,6 +13,5 @@ dependencies {
     compile project(':jfantasy-rpc-client')
     compile project(':jfantasy-rpc-server')
     compile "com.google.zxing:javase:3.1.0"
-    testCompile fileTree(dir: 'libs', include: '*.jar')
     testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '1.4.0.RELEASE'
 }

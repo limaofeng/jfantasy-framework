@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class DefaultSecurityStorage implements SecurityStorage {
 
@@ -23,6 +24,7 @@ public class DefaultSecurityStorage implements SecurityStorage {
     }
 
     @Override
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public OAuthUserDetails loadUserByUsername(String token) {
         HashOperations<String,String,OAuthUserDetails> hashOper = redisTemplate.opsForHash();
         OAuthUserDetails userDetails = hashOper.get(SecurityStorage.ASSESS_TOKEN_PREFIX + token, "user");
@@ -33,14 +35,12 @@ public class DefaultSecurityStorage implements SecurityStorage {
     }
 
     @Override
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public UrlResourceRequestMatcher[] getRequestMatchers() {
         ValueOperations<String, UrlResource> valueOper = redisTemplate.opsForValue();
         SetOperations<String,String> setOper = redisTemplate.opsForSet();
 
-        List<UrlResourceRequestMatcher> requestMatchers = new ArrayList<>();
-        for (UrlResource urlResource : valueOper.multiGet(setOper.members(SecurityStorage.RESOURCE_IDS))) {
-            requestMatchers.add(new UrlResourceRequestMatcher(urlResource));
-        }
+        List<UrlResourceRequestMatcher> requestMatchers = valueOper.multiGet(setOper.members(SecurityStorage.RESOURCE_IDS)).stream().map(UrlResourceRequestMatcher::new).collect(Collectors.toList());
         return requestMatchers.toArray(new UrlResourceRequestMatcher[requestMatchers.size()]);
     }
 
