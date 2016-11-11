@@ -10,9 +10,7 @@ import org.jfantasy.pay.service.AccountService;
 import org.jfantasy.pay.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class TransferListener implements ApplicationListener<TransactionChangedEvent> {
@@ -22,9 +20,7 @@ public class TransferListener implements ApplicationListener<TransactionChangedE
 
     private ProjectType[] projectTypes = new ProjectType[]{ProjectType.transfer, ProjectType.card};
 
-    @Async
     @Override
-    @Transactional
     public void onApplicationEvent(TransactionChangedEvent event) {
         Transaction transaction = event.getTransaction();
         Project project = this.projectService.get(transaction.getProject());
@@ -46,4 +42,5 @@ public class TransferListener implements ApplicationListener<TransactionChangedE
     public void setProjectService(ProjectService projectService) {
         this.projectService = projectService;
     }
+
 }
