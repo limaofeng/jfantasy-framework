@@ -19,7 +19,7 @@ import java.util.Map;
 @Entity
 @Table(name = "MEM_INVOICE_ORDER")
 @TableGenerator(name = "invoice_order_gen", table = "sys_sequence", pkColumnName = "gen_name", pkColumnValue = "mem_invoice_order:id", valueColumnName = "gen_value")
-@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "status"})
+@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "status","member"})
 public class InvoiceOrder extends BaseBusEntity {
 
     private static final long serialVersionUID = -5904526950993808065L;

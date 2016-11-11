@@ -52,6 +52,7 @@ public class InvoiceItem extends BaseBusEntity {
     }
 
     @JsonUnwrapped
+    @JsonIgnoreProperties({"member"})
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public InvoiceOrder getOrder() {
         return order;
