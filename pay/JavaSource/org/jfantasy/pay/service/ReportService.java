@@ -50,14 +50,17 @@ public class ReportService {
                 details.addValue(value);
             }
         }
-        if (timeUnit == TimeUnit.day) {
-            analyze(targetType, targetId, TimeUnit.month, time.substring(0, 6), type, code, value);
-        } else if (timeUnit == TimeUnit.month) {
-            analyze(targetType, targetId, TimeUnit.year, time.substring(0, 4), type, code, value);
-        } else if (timeUnit == TimeUnit.year) {
-            analyze(targetType, targetId, TimeUnit.all, "longtime", type, code, value);
+        try{
+            return this.reportDao.save(report);
+        } finally {
+            if (timeUnit == TimeUnit.day) {
+                analyze(targetType, targetId, TimeUnit.month, time.substring(0, 6), type, code, value);
+            } else if (timeUnit == TimeUnit.month) {
+                analyze(targetType, targetId, TimeUnit.year, time.substring(0, 4), type, code, value);
+            } else if (timeUnit == TimeUnit.year) {
+                analyze(targetType, targetId, TimeUnit.all, "longtime", type, code, value);
+            }
         }
-        return this.reportDao.save(report);
     }
 
 }
