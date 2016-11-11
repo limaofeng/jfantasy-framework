@@ -14,7 +14,6 @@ import org.jfantasy.pay.event.TransactionChangedEvent;
 import org.jfantasy.pay.service.ReportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -31,21 +30,12 @@ public class TransactionReportListener implements ApplicationListener<Transactio
         this.reportService = reportService;
     }
 
-    @Async
     @Override
     public void onApplicationEvent(TransactionChangedEvent event) {
         Transaction transaction = event.getTransaction();
         if (transaction.getStatus() != TxStatus.success) {
             return;
         }
-        // 延时5秒后执行，统计
-        try {
-            Thread.sleep(java.util.concurrent.TimeUnit.SECONDS.toMillis(5));
-        } catch (InterruptedException e) {
-            LOGGER.debug("Interrupted!", e);
-            Thread.currentThread().interrupt();
-        }
-
         String day = DateUtil.format(transaction.getModifyTime(), "yyyyMMdd");
         BigDecimal amount = transaction.getAmount();
         String code = transaction.getProject() + (StringUtil.isBlank(transaction.getSubject()) ? "" : ("-" + transaction.getSubject()));
