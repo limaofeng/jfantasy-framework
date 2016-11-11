@@ -9,7 +9,7 @@ import org.jfantasy.pay.event.TransactionChangedEvent;
 import org.springframework.stereotype.Component;
 
 @Component
-@EventListener(type = {"post-insert", "post-update"})
+@EventListener
 public class TransactionChangedListener extends AbstractChangedListener<Transaction> {
 
     private static final long serialVersionUID = 6486933157808350841L;
