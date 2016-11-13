@@ -22,19 +22,15 @@ public class OrderServer extends BaseBusEntity {
     /**
      * 主机地址<br/>
      */
-    public final static String PROPS_HOST = "host";
+    public static final String PROPS_HOST = "host";
     /**
      * 主机端口<br/>
      */
-    public final static String PROPS_PORT = "port";
-    /**
-     * 服务的完整地址<br/>
-     */
-    public final static String PROPS_RESTURL = "url";
+    public static final String PROPS_PORT = "port";
     /**
      * 调用服务时,需要提供的身份信息
      */
-    public final static String PROPS_TOKEN = "token";
+    public static final String PROPS_TOKEN = "token";
 
     private static final long serialVersionUID = 1314573695371668316L;
     /**
@@ -59,7 +55,7 @@ public class OrderServer extends BaseBusEntity {
      */
     @Convert(converter = MapConverter.class)
     @Column(name = "PROPERTIES", columnDefinition = "Text")
-    private Map<String,Object> properties;
+    private Map<String, Object> properties;//NOSONAR
     /**
      * 详细介绍
      */
@@ -72,7 +68,7 @@ public class OrderServer extends BaseBusEntity {
     private boolean enabled;
 
     @JsonAnyGetter
-    public Map<String,Object> getProperties() {
+    public Map<String, Object> getProperties() {
         return properties;
     }
 
@@ -86,11 +82,13 @@ public class OrderServer extends BaseBusEntity {
 
     @Transient
     public String get(String key) {
-        if (this.properties == null || !this.properties.containsKey(key)) return null;
+        if (this.properties == null || !this.properties.containsKey(key)) {
+            return null;
+        }
         return this.properties.get(key).toString();
     }
 
-    public void setProperties(Map<String,Object> properties) {
+    public void setProperties(Map<String, Object> properties) {
         this.properties = properties;
     }
 
