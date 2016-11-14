@@ -1,6 +1,7 @@
 package org.jfantasy.pay.order.entity;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -40,6 +41,10 @@ public class OrderDetails {
      * 订单关联的会员
      */
     private Long memberId;
+    /**
+     * 订单下单时间
+     */
+    private Date orderTime;
     /**
      * 扩展属性
      */
@@ -115,6 +120,14 @@ public class OrderDetails {
 
     public void setProperties(Map<String, Object> properties) {
         this.properties = properties;
+    }
+
+    public Date getOrderTime() {
+        return orderTime;
+    }
+
+    public void setOrderTime(Date orderTime) {
+        this.orderTime = orderTime;
     }
 
     @Override

@@ -26,15 +26,16 @@ public class BusEntityInterceptor extends EmptyInterceptor {
     /**
      * 默认编辑人
      */
-    private String defaultModifier = "unknown";
+    private static final String DEFAULT_MODIFIER = "unknown";
     /**
      * 默认创建人
      */
-    private String defaultCreator = "unknown";
+    private static final String DEFAULT_CREATOR = "unknown";
 
+    @Override
     public boolean onFlushDirty(Object entity, Serializable id, Object[] currentState, Object[] previousState, String[] propertyNames, Type[] types) {
         if (entity instanceof BaseBusEntity) {
-            String modifier = defaultModifier;
+            String modifier = DEFAULT_MODIFIER;
             UserDetails userDetails = SpringSecurityUtils.getCurrentUser();
             if (ObjectUtil.isNotNull(userDetails)) {
                 modifier = userDetails.getUsername();
@@ -56,28 +57,18 @@ public class BusEntityInterceptor extends EmptyInterceptor {
         return super.onFlushDirty(entity, id, currentState, previousState, propertyNames, types);
     }
 
+    @Override
     public boolean onSave(Object entity, Serializable id, Object[] state, String[] propertyNames, Type[] types) {
         if (entity instanceof BaseBusEntity) {
-            String creator = defaultCreator;
             Date now = DateUtil.now();
             UserDetails userDetails = SpringSecurityUtils.getCurrentUser();
-            if (ObjectUtil.isNotNull(userDetails)) {
-                creator = userDetails.getUsername();
-            } else if (StringUtil.isNotBlank(((BaseBusEntity) entity).getCreator())) {
-                creator = ((BaseBusEntity) entity).getCreator();
-            }
+            String creator = ObjectUtil.isNotNull(userDetails) ? userDetails.getUsername() : StringUtil.defaultValue(((BaseBusEntity) entity).getCreator(), DEFAULT_CREATOR);
             int count = 0;
             for (int i = 0; i < propertyNames.length; i++) {
-                if ("creator".equals(propertyNames[i])) {
+                if ("creator".equals(propertyNames[i]) || "modifier".equals(propertyNames[i])) {
                     state[i] = creator;
                     count++;
-                } else if ("createTime".equals(propertyNames[i])) {
-                    state[i] = now;
-                    count++;
-                } else if ("modifier".equals(propertyNames[i])) {
-                    state[i] = creator;
-                    count++;
-                } else if ("modifyTime".equals(propertyNames[i])) {
+                } else if ("createTime".equals(propertyNames[i]) || "modifyTime".equals(propertyNames[i])) {
                     state[i] = now;
                     count++;
                 }
@@ -87,14 +78,6 @@ public class BusEntityInterceptor extends EmptyInterceptor {
             }
         }
         return super.onSave(entity, id, state, propertyNames, types);
-    }
-
-    public void setDefaultModifier(String defaultModifier) {
-        this.defaultModifier = defaultModifier;
-    }
-
-    public void setDefaultCreator(String defaultCreator) {
-        this.defaultCreator = defaultCreator;
     }
 
 }

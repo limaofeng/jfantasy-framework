@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class ProjectCommandLineRunner implements CommandLineRunner {
 
-    @Autowired
     private ProjectService projectService;
 
     @Override
@@ -53,6 +52,11 @@ public class ProjectCommandLineRunner implements CommandLineRunner {
             project.setType(ProjectType.transfer);
             projectService.save(project);
         }
+    }
+
+    @Autowired
+    public void setProjectService(ProjectService projectService) {
+        this.projectService = projectService;
     }
 
 }

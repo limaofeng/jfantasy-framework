@@ -10,6 +10,7 @@ import org.jfantasy.framework.spring.validation.RESTful;
 import javax.persistence.*;
 import javax.validation.constraints.Null;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -53,6 +54,12 @@ public class InvoiceOrder extends BaseBusEntity {
      */
     @Column(name = "ORDER_TYPE")
     private String orderType;
+    /**
+     * 订单下单时间
+     */
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "ORDER_TIME", nullable = false, updatable = false)
+    private Date orderTime;
     /**
      * 订单描述
      */
@@ -205,6 +212,14 @@ public class InvoiceOrder extends BaseBusEntity {
             this.properties = new HashMap<>();
         }
         this.properties.put(key, value);
+    }
+
+    public Date getOrderTime() {
+        return orderTime;
+    }
+
+    public void setOrderTime(Date orderTime) {
+        this.orderTime = orderTime;
     }
 
     public Object get(String key) {

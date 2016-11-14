@@ -2,9 +2,12 @@ package org.jfantasy.pay.service;
 
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
-import org.jfantasy.framework.spring.mvc.error.RestException;
+import org.jfantasy.framework.spring.mvc.error.ValidationException;
+import org.jfantasy.framework.util.common.DateUtil;
 import org.jfantasy.pay.bean.Order;
+import org.jfantasy.pay.bean.OrderType;
 import org.jfantasy.pay.dao.OrderDao;
+import org.jfantasy.pay.dao.OrderTypeDao;
 import org.jfantasy.pay.order.OrderServiceFactory;
 import org.jfantasy.pay.order.entity.OrderDetails;
 import org.jfantasy.pay.order.entity.OrderKey;
@@ -13,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -21,10 +25,16 @@ import java.util.List;
 @Service
 public class OrderService {
 
-    @Autowired
-    private OrderDao orderDao;
-    @Autowired
+    private final OrderDao orderDao;
+    private final OrderTypeDao orderTypeDao;
     private OrderServiceFactory orderServiceFactory;
+    private TransactionService transactionService;
+
+    @Autowired
+    public OrderService(OrderTypeDao orderTypeDao, OrderDao orderDao) {
+        this.orderTypeDao = orderTypeDao;
+        this.orderDao = orderDao;
+    }
 
     @Transactional(readOnly = true, propagation = Propagation.NOT_SUPPORTED)
     public Order get(OrderKey key) {
@@ -44,9 +54,10 @@ public class OrderService {
         order.setBody(details.getBody());
         order.setPayableFee(details.getPayableFee());
         order.setTotalFee(details.getTotalFee());
-        order.setStatus(Order.PaymentStatus.unpaid);
+        order.setStatus(Order.Status.unpaid);
         order.setOrderItems(details.getOrderItems());
         order.setMemberId(details.getMemberId());
+        order.setOrderTime(details.getOrderTime());
         order.setProperties(details.getProperties());
         return this.orderDao.save(order);
     }
@@ -62,12 +73,19 @@ public class OrderService {
         Order order = this.orderDao.get(key);
         if (order == null) {
             if (!orderServiceFactory.containsType(key.getType())) {
-                throw new RestException("orderType[" + key.getType() + "] 对应的 PaymentOrderService 未配置！");
+                throw new ValidationException("订单类型[" + key.getType() + "] 对应的 PaymentOrderService 未配置！");
             }
             //获取订单信息
+            OrderType orderType = orderTypeDao.get(key.getType());
+            if (orderType == null || !orderType.getEnabled()) {
+                throw new ValidationException("支付系统不能处理该类型的订单[" + key.getType() + "]，请检查或者联系开发人员!");
+            }
             OrderDetails orderDetails = orderServiceFactory.getOrderService(key.getType()).loadOrder(key);
             if (orderDetails == null) {
-                throw new RestException("order = [" + key + "] 不存在,请核对后,再继续操作!");
+                throw new ValidationException("订单不存在,请核对后,再继续操作!");
+            }
+            if (DateUtil.interval(DateUtil.now(), orderDetails.getOrderTime(), Calendar.MINUTE) > orderType.getExpires()) {
+                throw new ValidationException("订单已经超出支付期限!");
             }
             order = this.save(orderDetails);
         }
@@ -76,6 +94,26 @@ public class OrderService {
 
     public void update(Order order) {
         this.orderDao.update(order);
+    }
+
+    public Order close(OrderKey key) {
+        Order order = this.orderDao.get(key);
+        if (Order.Status.unpaid != order.getStatus()) {
+            throw new ValidationException("order = [" + key + "] 订单已经支付，不能关闭!");
+        }
+        // 确认第三方支付成功后，修改关闭状态
+        order.setStatus(Order.Status.close);
+        return this.orderDao.update(order);
+    }
+
+    @Autowired
+    public void setOrderServiceFactory(OrderServiceFactory orderServiceFactory) {
+        this.orderServiceFactory = orderServiceFactory;
+    }
+
+    @Autowired
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
     }
 
 }

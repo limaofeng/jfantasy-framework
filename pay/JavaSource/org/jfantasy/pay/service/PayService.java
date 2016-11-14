@@ -50,7 +50,7 @@ public class PayService {
     private final ApplicationContext applicationContext;
 
     @Autowired
-    public PayService(ProjectService projectService,RefundService refundService, PaymentService paymentService, PayProductConfiguration payProductConfiguration, ApplicationContext applicationContext, PayConfigService payConfigService, OrderService orderService, TransactionService transactionService) {
+    public PayService(ProjectService projectService, RefundService refundService, PaymentService paymentService, PayProductConfiguration payProductConfiguration, ApplicationContext applicationContext, PayConfigService payConfigService, OrderService orderService, TransactionService transactionService) {
         this.projectService = projectService;
         this.refundService = refundService;
         this.paymentService = paymentService;
@@ -85,8 +85,11 @@ public class PayService {
         //验证业务订单
         OrderKey key = OrderKey.newInstance(orderKey);
         Order order = orderService.get(key);
-        if (order.getStatus() != Order.PaymentStatus.unpaid) {
-            throw new ValidationException(000.0f, "订单状态为[" + order.getStatus().getValue() + "],不满足付款的必要条件");
+        if (order.getStatus() != Order.Status.unpaid) {
+            throw new ValidationException(000.0f, "订单状态为[" + order.getStatus() + "],不满足付款的必要条件");
+        }
+        if (transaction.getStatus() == TxStatus.unprocessed) {
+            throw new ValidationException(000.0f, "交易状态为[" + transaction.getStatus() + "],不满足付款的必要条件");
         }
         //获取支付配置
         PayConfig payConfig = payConfigService.get(payConfigId);
@@ -216,7 +219,7 @@ public class PayService {
             transaction.setPayConfigName(payConfig.getName());
             transactionService.update(transaction);
             // 更新订单状态
-            order.setStatus(Order.PaymentStatus.paid);
+            order.setStatus(Order.Status.paid);
             order.setPaymentTime(payment.getTradeTime());
             order.setPayConfigName(payConfig.getName());
             orderService.update(order);
@@ -277,7 +280,7 @@ public class PayService {
             transaction.setPayConfigName(payConfig.getName());
             transactionService.update(transaction);
             // 更新订单状态
-            order.setStatus(order.getPayableFee().equals(refund.getTotalAmount()) ? Order.PaymentStatus.refunded : Order.PaymentStatus.partRefund);
+            order.setStatus(order.getPayableFee().equals(refund.getTotalAmount()) ? Order.Status.refunded : Order.Status.partRefund);
             order.setRefundAmount(refund.getTotalAmount());
             order.setRefundTime(refund.getTradeTime());
             orderService.update(order);

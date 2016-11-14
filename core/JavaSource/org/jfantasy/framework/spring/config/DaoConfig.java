@@ -51,6 +51,7 @@ public class DaoConfig {
         return bean;
     }
 
+    @SuppressWarnings("unchecked")
     @Bean(name = "sessionFactory")
     public SessionFactory sessionFactory() {
         SessionFactoryImplementor sessionFactory = entityManagerFactory.unwrap(SessionFactoryImplementor.class);
@@ -62,8 +63,8 @@ public class DaoConfig {
         registry.prependListeners(EventType.PERSIST, createListenerInstance(new PropertyGeneratorPersistEventListener(identifierGeneratorFactory)));
         //通过注解添加监听
         for (Map.Entry<String, Object> entry : this.applicationContext.getBeansWithAnnotation(EventListener.class).entrySet()) {
-            for(String eventType : ClassUtil.getAnnotation(ClassUtil.getRealClass(entry.getValue()),EventListener.class).type()){
-                registry.appendListeners(EventType.resolveEventTypeByName(eventType),entry.getValue());
+            for(String eventTypeName : ClassUtil.getAnnotation(ClassUtil.getRealClass(entry.getValue()),EventListener.class).type()){
+                registry.appendListeners(EventType.resolveEventTypeByName(eventTypeName),entry.getValue());
             }
         }
         LOG.debug(" SessionFactory 加载成功! ");

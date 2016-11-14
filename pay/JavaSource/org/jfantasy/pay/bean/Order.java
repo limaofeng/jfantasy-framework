@@ -17,16 +17,16 @@ import java.util.*;
 @Entity
 @IdClass(OrderKey.class)
 @Table(name = "PAY_ORDER")
-@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "details"})
+@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler"})
 public class Order extends BaseBusEntity {
 
     // 付款状态（未支付、部分支付、已支付、部分退款、全额退款）
-    public enum PaymentStatus {
-        unpaid("未支付"), paid("已支付"), partRefund("部分退款"), refunded("全额退款");//NOSONAR
+    public enum Status {
+        unpaid("未支付"), paid("已支付"), partRefund("部分退款"), refunded("全额退款"), close("关闭");//NOSONAR
 
         private String value;
 
-        PaymentStatus(String value) {
+        Status(String value) {
             this.value = value;
         }
 
@@ -50,7 +50,7 @@ public class Order extends BaseBusEntity {
      */
     @Enumerated(EnumType.STRING)
     @Column(name = "PAYMENT_STATUS", length = 20, nullable = false)
-    private PaymentStatus status;
+    private Status status;
     /**
      * 订单摘要
      */
@@ -111,6 +111,12 @@ public class Order extends BaseBusEntity {
      */
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE})
     private List<Refund> refunds = new ArrayList<>();
+    /**
+     * 订单下单时间
+     */
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "ORDER_TIME", nullable = false, updatable = false)
+    private Date orderTime;
     /**
      * 扩展属性
      */
@@ -174,11 +180,11 @@ public class Order extends BaseBusEntity {
         this.orderItems = orderItems;
     }
 
-    public PaymentStatus getStatus() {
+    public Status getStatus() {
         return this.status;
     }
 
-    public void setStatus(PaymentStatus status) {
+    public void setStatus(Status status) {
         this.status = status;
     }
 
@@ -256,6 +262,14 @@ public class Order extends BaseBusEntity {
             this.properties = new HashMap<>();
         }
         this.properties.put(key, value);
+    }
+
+    public Date getOrderTime() {
+        return orderTime;
+    }
+
+    public void setOrderTime(Date orderTime) {
+        this.orderTime = orderTime;
     }
 
     public Object get(String key) {
