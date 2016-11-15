@@ -11,6 +11,7 @@ import org.jfantasy.pay.dao.OrderTypeDao;
 import org.jfantasy.pay.order.OrderServiceFactory;
 import org.jfantasy.pay.order.entity.OrderDetails;
 import org.jfantasy.pay.order.entity.OrderKey;
+import org.jfantasy.pay.order.entity.enums.OrderStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -28,7 +29,6 @@ public class OrderService {
     private final OrderDao orderDao;
     private final OrderTypeDao orderTypeDao;
     private OrderServiceFactory orderServiceFactory;
-    private TransactionService transactionService;
 
     @Autowired
     public OrderService(OrderTypeDao orderTypeDao, OrderDao orderDao) {
@@ -54,7 +54,7 @@ public class OrderService {
         order.setBody(details.getBody());
         order.setPayableFee(details.getPayableFee());
         order.setTotalFee(details.getTotalFee());
-        order.setStatus(Order.Status.unpaid);
+        order.setStatus(OrderStatus.unpaid);
         order.setOrderItems(details.getOrderItems());
         order.setMemberId(details.getMemberId());
         order.setOrderTime(details.getOrderTime());
@@ -99,22 +99,17 @@ public class OrderService {
 
     public Order close(OrderKey key) {
         Order order = this.orderDao.get(key);
-        if (Order.Status.unpaid != order.getStatus()) {
+        if (OrderStatus.unpaid != order.getStatus()) {
             throw new ValidationException("order = [" + key + "] 订单已经支付，不能关闭!");
         }
         // 确认第三方支付成功后，修改关闭状态
-        order.setStatus(Order.Status.close);
+        order.setStatus(OrderStatus.close);
         return this.orderDao.update(order);
     }
 
     @Autowired
     public void setOrderServiceFactory(OrderServiceFactory orderServiceFactory) {
         this.orderServiceFactory = orderServiceFactory;
-    }
-
-    @Autowired
-    public void setTransactionService(TransactionService transactionService) {
-        this.transactionService = transactionService;
     }
 
 }

@@ -3,6 +3,7 @@ package org.jfantasy.pay.order;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfantasy.pay.order.entity.*;
+import org.jfantasy.pay.order.entity.enums.OrderStatus;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -38,13 +39,8 @@ public class TestOrderService implements OrderService {
     }
 
     @Override
-    public void on(OrderKey key, PaymentDetails status, String message) {
-        System.out.println(key + " - " + status + " - " + message);
-    }
-
-    @Override
-    public void on(OrderKey key, RefundDetails status, String message) {
-        System.out.println(key + " - " + status + " - " + message);
+    public void on(OrderKey key, OrderStatus status, OrderDetails details) {
+        System.out.println(key + " - " + status + " - " + details);
     }
 
 }

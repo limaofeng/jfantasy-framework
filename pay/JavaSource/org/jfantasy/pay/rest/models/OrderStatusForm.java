@@ -1,19 +1,19 @@
 package org.jfantasy.pay.rest.models;
 
-import org.jfantasy.pay.bean.Order;
+import org.jfantasy.pay.order.entity.enums.OrderStatus;
 
 import javax.validation.constraints.NotNull;
 
 public class OrderStatusForm {
 
     @NotNull
-    private Order.Status status;
+    private OrderStatus status;
 
-    public Order.Status getStatus() {
+    public OrderStatus getStatus() {
         return status;
     }
 
-    public void setStatus(Order.Status status) {
+    public void setStatus(OrderStatus status) {
         this.status = status;
     }
 
