@@ -1,16 +1,14 @@
 package org.jfantasy.pay.order;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.jfantasy.pay.order.entity.*;
+import org.jfantasy.pay.order.entity.OrderDetails;
+import org.jfantasy.pay.order.entity.OrderItem;
+import org.jfantasy.pay.order.entity.OrderKey;
 import org.jfantasy.pay.order.entity.enums.OrderStatus;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 
 public class TestOrderService implements OrderService {
-
-    protected final Log LOG = LogFactory.getLog(TestOrderService.class);
 
     @Override
     public String[] types() {
