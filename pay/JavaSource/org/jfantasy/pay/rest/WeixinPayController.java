@@ -65,7 +65,7 @@ public class WeixinPayController {
             Map<String, String> data = new TreeMap<>();
             data.put("appid", appid);
             data.put("mch_id", config.getBargainorId());
-            data.put("nonce_str", Weixinpay.generateNonceString(32));
+            data.put("nonce_str", StringUtil.generateNonceString(32));
             data.put("time_stamp", String.valueOf(DateUtil.now().getTime() / 1000));
             data.put("product_id", transactionId);
 
