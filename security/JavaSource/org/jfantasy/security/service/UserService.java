@@ -1,14 +1,11 @@
 package org.jfantasy.security.service;
 
-import org.hibernate.criterion.Criterion;
-import org.hibernate.criterion.Restrictions;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.service.PasswordTokenEncoder;
 import org.jfantasy.framework.service.PasswordTokenType;
 import org.jfantasy.framework.spring.mvc.error.LoginException;
 import org.jfantasy.framework.spring.mvc.error.NotFoundException;
-import org.jfantasy.framework.spring.mvc.error.PasswordException;
 import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.util.common.DateUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
@@ -112,26 +109,21 @@ public class UserService {
         }
     }
 
-    @Cacheable(value = "fantasy.security.userService", key = "'get' + #id")
     public User get(Long id) {
         return this.userDao.get(id);
     }
 
-    @Cacheable(value = "fantasy.security.userService", key = "'findUserByRoleCode' + #q + #roleCode")
-    public List<User> findUserByRoleCode(String q, String roleCode) {
-        if (StringUtil.isNotBlank(roleCode)) {
-            return this.userDao.find(new Criterion[]{Restrictions.eq("roles.code", roleCode), Restrictions.like("details.name", "%" + q + "%")}, 0, 20);
-        } else {
-            return this.userDao.find(new Criterion[]{Restrictions.like("details.name", "%" + q + "%")}, 0, 20);
-        }
-    }
-
-    @CacheEvict(value = {"fantasy.security.userService"}, allEntries = true)
-    public User login(String username, String password) {
+    public User login(PasswordTokenType type, String username, String password) {
         User user = this.userDao.findUniqueBy("username", username);
-        if (user == null || !passwordEncoder.matches(user.getPassword(), password)) {
-            throw new PasswordException("用户名和密码错误");
+
+        if (!this.passwordTokenEncoder.matches("login", type, username, user != null ? user.getPassword() : "", password)) {
+            throw new ValidationException(203.1f, "用户名和密码错误");
         }
+
+        if (user == null) {//用户不存在
+            throw new ValidationException(203.1f, "用户名和密码错误");
+        }
+
         if (!user.isEnabled()) {
             throw new LoginException("用户被禁用");
         }

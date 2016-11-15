@@ -3,7 +3,6 @@ package org.jfantasy.auth.rest.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jfantasy.framework.spring.validation.RESTful;
-import org.jfantasy.member.service.vo.AuthType;
 
 import javax.validation.constraints.NotNull;
 

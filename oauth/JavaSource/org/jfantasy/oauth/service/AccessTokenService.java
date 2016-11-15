@@ -1,10 +1,10 @@
 package org.jfantasy.oauth.service;
 
+import org.jfantasy.framework.service.PasswordTokenType;
 import org.jfantasy.framework.spring.mvc.error.RestException;
 import org.jfantasy.framework.util.common.DateUtil;
 import org.jfantasy.member.bean.Member;
 import org.jfantasy.member.service.MemberService;
-import org.jfantasy.member.service.vo.AuthType;
 import org.jfantasy.oauth.bean.ApiKey;
 import org.jfantasy.oauth.bean.Application;
 import org.jfantasy.oauth.bean.enums.TokenType;
@@ -97,7 +97,7 @@ public class AccessTokenService {
                         retrieveUser(userDetails, userService.login(request.getUsername(), request.getPassword()));
                         break;
                     case "member":
-                        retrieveUser(userDetails, memberService.login(AuthType.password, request.getUsername(), request.getPassword()));
+                        retrieveUser(userDetails, memberService.login(PasswordTokenType.password, request.getUsername(), request.getPassword()));
                         break;
                 }
                 redisTemplate.delete(SecurityStorage.AUTHORIZATION_CODE_PREFIX + request.getCode());
