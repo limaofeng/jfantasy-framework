@@ -34,9 +34,7 @@ public class OrderServerForm {
     @JsonAnyGetter
     public Map<String,Object> getProperties() {
         Map<String,Object> props = new HashMap<>();
-        if (CallType.restful == callType) {
-            props.put(OrderServer.PROPS_RESTURL, this.url);
-        } else if (CallType.rpc == callType) {
+        if (CallType.rpc == callType) {
             props.put(OrderServer.PROPS_HOST, this.host);
             props.put(OrderServer.PROPS_PORT, this.port);
         }

@@ -63,7 +63,7 @@ public class DaoConfig {
         registry.prependListeners(EventType.PERSIST, createListenerInstance(new PropertyGeneratorPersistEventListener(identifierGeneratorFactory)));
         //通过注解添加监听
         for (Map.Entry<String, Object> entry : this.applicationContext.getBeansWithAnnotation(EventListener.class).entrySet()) {
-            for(String eventTypeName : ClassUtil.getAnnotation(ClassUtil.getRealClass(entry.getValue()),EventListener.class).type()){
+            for(String eventTypeName : ClassUtil.getAnnotation(ClassUtil.getRealClass(entry.getValue()),EventListener.class).value()){
                 registry.appendListeners(EventType.resolveEventTypeByName(eventTypeName),entry.getValue());
             }
         }

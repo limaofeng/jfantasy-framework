@@ -183,11 +183,11 @@ public class ScheduleService {
     private static final String emptyString = "";
 
     public Trigger addTrigger(JobKey jobKey, TriggerKey triggerKey, String cron) {
-        return addTrigger(jobKey, triggerKey, cron, emptyString, new HashMap<String, String>());
+        return addTrigger(jobKey, triggerKey, cron, emptyString, new HashMap<>());
     }
 
     public Trigger addTrigger(JobKey jobKey, TriggerKey triggerKey, String cron, String triggerDescription) {
-        return addTrigger(jobKey, triggerKey, cron, triggerDescription, new HashMap<String, String>());
+        return addTrigger(jobKey, triggerKey, cron, triggerDescription, new HashMap<>());
     }
 
     public Trigger addTrigger(JobKey jobKey, TriggerKey triggerKey, String cron, Map<String, String> args) {

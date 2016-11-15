@@ -12,7 +12,7 @@ import org.hibernate.persister.entity.EntityPersister;
 import org.springframework.stereotype.Component;
 
 @Component
-@EventListener(type = {"post-insert", "post-update", "post-delete"})
+@EventListener({"post-insert", "post-update", "post-delete"})
 public class EntityChangedEventListener implements PostInsertEventListener, PostUpdateEventListener, PostDeleteEventListener {
 
     private static final long serialVersionUID = -4339024045294333782L;

@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
  * 当团队添加用户时,发送邀请
  */
 @Component
-@EventListener(type = "post-commit-insert")
+@EventListener("post-commit-insert")
 public class TeamMemberInsertListener extends AbstractChangedListener<TeamMember> {
 
     private static final long serialVersionUID = 4221243459220184177L;

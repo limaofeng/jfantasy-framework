@@ -1,9 +1,6 @@
 package org.jfantasy.framework.dao.hibernate.listener;
 
-import org.hibernate.event.spi.PostCommitInsertEventListener;
-import org.hibernate.event.spi.PostCommitUpdateEventListener;
-import org.hibernate.event.spi.PostInsertEvent;
-import org.hibernate.event.spi.PostUpdateEvent;
+import org.hibernate.event.spi.*;
 import org.hibernate.persister.entity.EntityPersister;
 import org.jfantasy.framework.dao.hibernate.util.ReflectionUtils;
 import org.jfantasy.framework.util.common.ClassUtil;
@@ -13,7 +10,7 @@ import org.springframework.context.ApplicationContext;
 
 import java.util.Arrays;
 
-public abstract class AbstractChangedListener<T> implements PostCommitUpdateEventListener, PostCommitInsertEventListener {
+public abstract class AbstractChangedListener<T> implements PostCommitUpdateEventListener, PostCommitInsertEventListener, PostCommitDeleteEventListener {
 
     private static final long serialVersionUID = -3358937507937580406L;
 
@@ -27,10 +24,17 @@ public abstract class AbstractChangedListener<T> implements PostCommitUpdateEven
 
     @Override
     public void onPostUpdateCommitFailed(PostUpdateEvent event){
+
+    }
+
+    @Override
+    public void onPostDeleteCommitFailed(PostDeleteEvent event) {
+
     }
 
     @Override
     public void onPostInsertCommitFailed(PostInsertEvent event){
+
     }
 
     protected boolean missing(PostInsertEvent event) {
@@ -38,6 +42,10 @@ public abstract class AbstractChangedListener<T> implements PostCommitUpdateEven
     }
 
     protected boolean missing(PostUpdateEvent event) {
+        return !event.getEntity().getClass().isAssignableFrom(entityClass);
+    }
+
+    protected boolean missing(PostDeleteEvent event) {
         return !event.getEntity().getClass().isAssignableFrom(entityClass);
     }
 
@@ -57,15 +65,29 @@ public abstract class AbstractChangedListener<T> implements PostCommitUpdateEven
         onPostUpdate(getEntity(event), event);
     }
 
-    protected abstract void onPostInsert(T entity, PostInsertEvent event);
+    protected void onPostInsert(T entity, PostInsertEvent event){}
 
-    protected abstract void onPostUpdate(T entity, PostUpdateEvent event);
+    protected void onPostUpdate(T entity, PostUpdateEvent event){}
 
-    public T getEntity(PostInsertEvent event) {
+    protected void onPostDelete(T entity, PostDeleteEvent event){}
+
+    @Override
+    public void onPostDelete(PostDeleteEvent event) {
+        if (missing(event)) {
+            return;
+        }
+        onPostDelete(getEntity(event), event);
+    }
+
+    private T getEntity(PostInsertEvent event) {
         return entityClass.cast(event.getEntity());
     }
 
-    public T getEntity(PostUpdateEvent event) {
+    private T getEntity(PostDeleteEvent event) {
+        return entityClass.cast(event.getEntity());
+    }
+
+    private T getEntity(PostUpdateEvent event) {
         return entityClass.cast(event.getEntity());
     }
 

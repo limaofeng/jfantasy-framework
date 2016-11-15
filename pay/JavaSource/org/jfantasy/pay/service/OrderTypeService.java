@@ -39,6 +39,11 @@ public class OrderTypeService {
     }
 
     @Transactional
+    public OrderType get(String type) {
+        return this.orderTypeDao.get(type);
+    }
+
+    @Transactional
     public OrderType update(OrderType orderType, boolean has) {
         return this.orderTypeDao.update(orderType, has);
     }

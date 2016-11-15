@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import java.util.Arrays;
 
 @Component
-@EventListener(type = {"post-insert", "post-update", "post-delete"})
+@EventListener({"post-insert", "post-update", "post-delete"})
 public class FileManagerEventListener implements PostInsertEventListener, PostUpdateEventListener, PostDeleteEventListener {
 
     private static final long serialVersionUID = 1082020263270806626L;
