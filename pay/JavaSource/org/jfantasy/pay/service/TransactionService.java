@@ -117,7 +117,7 @@ public class TransactionService {
         Project project = projectDao.get(projectKey);
         // 生成 unionid
         String orderKey = (String) properties.get(Transaction.ORDER_KEY);
-        String key = StringUtil.defaultValue(properties.get(Transaction.UNION_KEY), orderKey);
+        String key = StringUtil.defaultValue(properties.remove(Transaction.UNION_KEY), orderKey);
         String unionid = Transaction.generateUnionid(project.getKey(), key);
         // 判断交易是否已经存在
         Transaction src = this.transactionDao.findUnique(Restrictions.eq("unionId", unionid));
