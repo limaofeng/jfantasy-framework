@@ -96,6 +96,7 @@ public class OrderController {
             data.putAll(order.getProperties());
             data.put(Transaction.ORDER_KEY, key);
             data.put(Transaction.ORDER_SUBJECT, order.getSubject());
+            data.put("order_time",order.getOrderTime());
             String from = accountService.findUniqueByCurrentUser().getSn();// 付款方
             return transactionController.transform(this.transactionService.payment(from, order.getPayableFee(), "", data));
         } else {
@@ -105,6 +106,7 @@ public class OrderController {
             data.putAll(order.getProperties());
             data.put(Transaction.ORDER_KEY, key);
             data.put(Transaction.ORDER_SUBJECT, order.getSubject());
+            data.put("order_time",order.getOrderTime());
             return TransactionController.assembler.toResource(this.transactionService.refund(order.getKey(), orderTransaction.getAmount(), ""));
         }
     }
