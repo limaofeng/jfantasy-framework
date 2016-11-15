@@ -62,7 +62,7 @@ public class AuthController {
     }
 
     private User userLogin(LoginForm loginForm) {
-        User user = this.userService.login(loginForm.getUsername(), loginForm.getPassword());
+        User user = this.userService.login(loginForm.getType(),loginForm.getUsername(), loginForm.getPassword());
         if (StringUtil.isNotBlank(loginForm.getUserType()) && !loginForm.getUserType().equals(user.getUserType())) {
             throw new RestException("UserType 不一致");
         }

@@ -2,6 +2,7 @@ package org.jfantasy.auth.rest.models;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.jfantasy.framework.service.PasswordTokenType;
 import org.jfantasy.framework.spring.validation.RESTful;
 
 import javax.validation.constraints.NotNull;
@@ -10,7 +11,7 @@ public class LoginForm {
     /**
      * 登录方式
      */
-    private AuthType type = AuthType.password;
+    private PasswordTokenType type = PasswordTokenType.password;
     /**
      * 用户类型
      */
@@ -32,11 +33,11 @@ public class LoginForm {
     @NotNull(groups = RESTful.POST.class)
     private String password;
 
-    public AuthType getType() {
+    public PasswordTokenType getType() {
         return type;
     }
 
-    public void setType(AuthType type) {
+    public void setType(PasswordTokenType type) {
         this.type = type;
     }
 
