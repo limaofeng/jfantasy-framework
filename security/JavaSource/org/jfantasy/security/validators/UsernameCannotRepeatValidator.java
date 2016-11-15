@@ -6,7 +6,7 @@ import org.jfantasy.security.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("user.UsernameCannotRepeatValidator")
 public class UsernameCannotRepeatValidator implements Validator<String> {
 
     private final UserService userService;
