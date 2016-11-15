@@ -11,12 +11,8 @@ import org.jfantasy.pay.bean.enums.ProjectType;
 import org.jfantasy.pay.bean.enums.TxChannel;
 import org.jfantasy.pay.bean.enums.TxStatus;
 import org.jfantasy.pay.error.PayException;
-import org.jfantasy.pay.event.PayNotifyEvent;
-import org.jfantasy.pay.event.PayRefundNotifyEvent;
-import org.jfantasy.pay.event.PayStatusEvent;
-import org.jfantasy.pay.event.context.PayContext;
-import org.jfantasy.pay.event.context.PayStatus;
 import org.jfantasy.pay.order.entity.OrderKey;
+import org.jfantasy.pay.order.entity.enums.OrderStatus;
 import org.jfantasy.pay.order.entity.enums.PaymentStatus;
 import org.jfantasy.pay.order.entity.enums.PaymentType;
 import org.jfantasy.pay.order.entity.enums.RefundStatus;
@@ -85,7 +81,7 @@ public class PayService {
         //验证业务订单
         OrderKey key = OrderKey.newInstance(orderKey);
         Order order = orderService.get(key);
-        if (order.getStatus() != Order.Status.unpaid) {
+        if (order.getStatus() != OrderStatus.unpaid) {
             throw new ValidationException(000.0f, "订单状态为[" + order.getStatus() + "],不满足付款的必要条件");
         }
         if (transaction.getStatus() == TxStatus.unprocessed) {
@@ -153,10 +149,6 @@ public class PayService {
                 this.refundService.save(refund);
                 ToRefund toRefund = BeanUtil.copyProperties(new ToRefund(), refund);
                 toRefund.setSource(result);
-                if (refund.getStatus() != RefundStatus.ready) {//不为 ready 时,推送事件
-                    PayContext context = new PayContext(refund, refund.getOrder());
-                    this.applicationContext.publishEvent(new PayRefundNotifyEvent(context));
-                }
                 return toRefund;
             } else if (status == RefundStatus.close) {
                 refund.setStatus(status);
@@ -209,7 +201,6 @@ public class PayService {
 
         // 更新支付状态
         paymentService.save(payment);
-        this.applicationContext.publishEvent(new PayStatusEvent(new PayStatus(payment.getStatus(), payment, order)));
 
         // 更新订单信息
         if (payment.getStatus() == PaymentStatus.success) {
@@ -219,7 +210,7 @@ public class PayService {
             transaction.setPayConfigName(payConfig.getName());
             transactionService.update(transaction);
             // 更新订单状态
-            order.setStatus(Order.Status.paid);
+            order.setStatus(OrderStatus.paid);
             order.setPaymentTime(payment.getTradeTime());
             order.setPayConfigName(payConfig.getName());
             orderService.update(order);
@@ -230,13 +221,6 @@ public class PayService {
             return result == null ? order : result;
         }
 
-        //推送事件
-        PayContext context = new PayContext(payment, order);
-        try {
-            this.applicationContext.publishEvent(new PayNotifyEvent(context));
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-        }
         //返回订单信息
         return result != null ? result : order;
     }
@@ -280,7 +264,7 @@ public class PayService {
             transaction.setPayConfigName(payConfig.getName());
             transactionService.update(transaction);
             // 更新订单状态
-            order.setStatus(order.getPayableFee().equals(refund.getTotalAmount()) ? Order.Status.refunded : Order.Status.partRefund);
+            order.setStatus(order.getPayableFee().equals(refund.getTotalAmount()) ? OrderStatus.refunded : OrderStatus.partRefund);
             order.setRefundAmount(refund.getTotalAmount());
             order.setRefundTime(refund.getTradeTime());
             orderService.update(order);
@@ -289,14 +273,6 @@ public class PayService {
         // 如果为完成 或者 初始状态 不触发事件
         if (refund.getStatus() == RefundStatus.wait || refund.getStatus() == RefundStatus.ready) {
             return result == null ? order : result;
-        }
-
-        //推送事件
-        PayContext context = new PayContext(refund, order);
-        try {
-            this.applicationContext.publishEvent(new PayRefundNotifyEvent(context));
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
         }
 
         //返回订单信息

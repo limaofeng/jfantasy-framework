@@ -2,7 +2,6 @@ package org.jfantasy.pay.bean;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.jfantasy.framework.dao.BaseBusEntity;
 import org.jfantasy.framework.dao.hibernate.converter.MapConverter;
@@ -10,6 +9,7 @@ import org.jfantasy.framework.jackson.ThreadJacksonMixInHolder;
 import org.jfantasy.pay.bean.converter.OrderItemConverter;
 import org.jfantasy.pay.order.entity.OrderItem;
 import org.jfantasy.pay.order.entity.OrderKey;
+import org.jfantasy.pay.order.entity.enums.OrderStatus;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -20,21 +20,6 @@ import java.util.*;
 @Table(name = "PAY_ORDER")
 @JsonIgnoreProperties({"hibernate_lazy_initializer", "handler"})
 public class Order extends BaseBusEntity {
-
-    // 付款状态（未支付、部分支付、已支付、部分退款、全额退款）
-    public enum Status {
-        unpaid("未支付"), paid("已支付"), partRefund("部分退款"), refunded("全额退款"), close("关闭");//NOSONAR
-
-        private String value;
-
-        Status(String value) {
-            this.value = value;
-        }
-
-        public String getValue() {
-            return value;
-        }
-    }
 
     /**
      * 编号
@@ -51,7 +36,7 @@ public class Order extends BaseBusEntity {
      */
     @Enumerated(EnumType.STRING)
     @Column(name = "PAYMENT_STATUS", length = 20, nullable = false)
-    private Status status;
+    private OrderStatus status;
     /**
      * 订单摘要
      */
@@ -181,11 +166,11 @@ public class Order extends BaseBusEntity {
         this.orderItems = orderItems;
     }
 
-    public Status getStatus() {
+    public OrderStatus getStatus() {
         return this.status;
     }
 
-    public void setStatus(Status status) {
+    public void setStatus(OrderStatus status) {
         this.status = status;
     }
 

@@ -20,9 +20,8 @@ import javax.annotation.Resource;
 @EnableConfigurationProperties(PaySettings.class)
 public class PayAutoConfiguration {
 
-    public final static String ONS_TAGS_TRANSACTION_KEY = "transaction";
-    public final static String ONS_TAGS_PAY_PAYMENTKEY = "payment";
-    public static final String ONS_TAGS_PAY_REFUNDKEY = "refund";
+    public static final String ONS_TAGS_TRANSACTION_KEY = "transaction";
+    public static final String ONS_TAGS_PAY_ORDERKEY = "refund";
     public static final String ONS_TAGS_ACCOUNT_KEY = "account";
     public static final String ONS_TAGS_POINT_KEY = "point";
     public static final String ONS_TAGS_CARDBIND_KEY = "card_bind";

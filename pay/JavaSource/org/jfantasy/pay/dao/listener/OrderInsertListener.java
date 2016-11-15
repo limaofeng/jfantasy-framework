@@ -7,7 +7,9 @@ import org.jfantasy.framework.dao.hibernate.listener.AbstractChangedListener;
 import org.jfantasy.framework.util.common.DateUtil;
 import org.jfantasy.pay.bean.Order;
 import org.jfantasy.pay.bean.OrderType;
+import org.jfantasy.pay.event.OrderStatusChangedEvent;
 import org.jfantasy.pay.job.OrderClose;
+import org.jfantasy.pay.order.entity.enums.OrderStatus;
 import org.jfantasy.pay.service.OrderTypeService;
 import org.jfantasy.schedule.service.ScheduleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,8 +35,11 @@ public class OrderInsertListener extends AbstractChangedListener<Order> {
 
     @Override
     protected void onPostUpdate(Order entity, PostUpdateEvent event) {
-        if (modify(event, "status") && entity.getStatus() == Order.Status.paid) {
-            this.scheduleService.removeTrigdger(OrderClose.triggerKey(entity));
+        if (modify(event, "status")) {
+            if (entity.getStatus() == OrderStatus.paid) {
+                this.scheduleService.removeTrigdger(OrderClose.triggerKey(entity));
+            }
+            this.applicationContext.publishEvent(new OrderStatusChangedEvent(entity));
         }
     }
 

@@ -1,5 +1,7 @@
 package org.jfantasy.pay.order.entity;
 
+import org.jfantasy.pay.order.entity.enums.OrderStatus;
+
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
@@ -17,6 +19,10 @@ public class OrderDetails {
      * 订单类型
      */
     private String type;
+    /**
+     * 订单状态
+     */
+    private OrderStatus status;
     /**
      * 订单摘要
      */
@@ -46,6 +52,18 @@ public class OrderDetails {
      */
     private Date orderTime;
     /**
+     * 付款时间
+     */
+    private Date paymentTime;
+    /**
+     * 退款时间
+     */
+    private Date refundTime;
+    /**
+     * 退款金额
+     */
+    private BigDecimal refundAmount;
+    /**
      * 扩展属性
      */
     private Map<String, Object> properties;
@@ -64,6 +82,14 @@ public class OrderDetails {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public OrderStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(OrderStatus status) {
+        this.status = status;
     }
 
     public String getSubject() {
@@ -128,6 +154,30 @@ public class OrderDetails {
 
     public void setOrderTime(Date orderTime) {
         this.orderTime = orderTime;
+    }
+
+    public Date getPaymentTime() {
+        return paymentTime;
+    }
+
+    public void setPaymentTime(Date paymentTime) {
+        this.paymentTime = paymentTime;
+    }
+
+    public Date getRefundTime() {
+        return refundTime;
+    }
+
+    public void setRefundTime(Date refundTime) {
+        this.refundTime = refundTime;
+    }
+
+    public BigDecimal getRefundAmount() {
+        return refundAmount;
+    }
+
+    public void setRefundAmount(BigDecimal refundAmount) {
+        this.refundAmount = refundAmount;
     }
 
     @Override

@@ -15,8 +15,6 @@ import org.jfantasy.pay.bean.Payment;
 import org.jfantasy.pay.bean.Transaction;
 import org.jfantasy.pay.dao.PaymentDao;
 import org.jfantasy.pay.error.PayException;
-import org.jfantasy.pay.event.PayStatusEvent;
-import org.jfantasy.pay.event.context.PayStatus;
 import org.jfantasy.pay.order.entity.enums.PaymentStatus;
 import org.jfantasy.pay.order.entity.enums.PaymentType;
 import org.jfantasy.pay.product.Parameters;
@@ -96,7 +94,6 @@ public class PaymentService {
         payment.setOrder(order);
         payment.setTransaction(transaction);
         payment = this.paymentDao.save(payment);
-        this.applicationContext.publishEvent(new PayStatusEvent(new PayStatus(payment.getStatus(), payment, order)));
         //保存交易日志
 //        paymentLogDao.save(payment, "创建" + payment.getPayConfigName() + " 交易");
         return payment;

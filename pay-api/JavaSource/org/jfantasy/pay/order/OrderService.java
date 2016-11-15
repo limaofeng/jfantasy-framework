@@ -3,8 +3,7 @@ package org.jfantasy.pay.order;
 
 import org.jfantasy.pay.order.entity.OrderDetails;
 import org.jfantasy.pay.order.entity.OrderKey;
-import org.jfantasy.pay.order.entity.PaymentDetails;
-import org.jfantasy.pay.order.entity.RefundDetails;
+import org.jfantasy.pay.order.entity.enums.OrderStatus;
 
 /**
  * 支付订单接口<br/>
@@ -32,19 +31,10 @@ public interface OrderService {
     /**
      * 支付事件
      *
-     * @param key     订单Key
-     * @param payment 详细信息
-     * @param message 消息
+     * @param key     KEY
+     * @param status  状态
+     * @param details 详情
      */
-    void on(OrderKey key, PaymentDetails payment, String message);
-
-    /**
-     * 退款事件
-     *
-     * @param key     订单Key
-     * @param refund  详细信息
-     * @param message 消息
-     */
-    void on(OrderKey key, RefundDetails refund, String message);
+    void on(OrderKey key, OrderStatus status, OrderDetails details);
 
 }
