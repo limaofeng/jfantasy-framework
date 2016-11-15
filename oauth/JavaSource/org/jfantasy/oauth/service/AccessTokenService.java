@@ -94,7 +94,7 @@ public class AccessTokenService {
             case password:
                 switch (request.getScope()) {
                     case "user":
-                        retrieveUser(userDetails, userService.login(request.getUsername(), request.getPassword()));
+                        retrieveUser(userDetails, userService.login(PasswordTokenType.password,request.getUsername(), request.getPassword()));
                         break;
                     case "member":
                         retrieveUser(userDetails, memberService.login(PasswordTokenType.password, request.getUsername(), request.getPassword()));
