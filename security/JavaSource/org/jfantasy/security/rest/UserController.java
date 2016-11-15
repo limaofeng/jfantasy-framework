@@ -4,10 +4,15 @@ package org.jfantasy.security.rest;
 import io.swagger.annotations.ApiImplicitParam;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
+import org.jfantasy.framework.jackson.annotation.AllowProperty;
+import org.jfantasy.framework.jackson.annotation.IgnoreProperty;
+import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.security.bean.Role;
 import org.jfantasy.security.bean.User;
+import org.jfantasy.security.bean.UserDetails;
+import org.jfantasy.security.rest.models.PasswordForm;
 import org.jfantasy.security.rest.models.assembler.UserDetailsResourceAssembler;
 import org.jfantasy.security.rest.models.assembler.UserResourceAssembler;
 import org.jfantasy.security.service.UserService;
@@ -51,6 +56,16 @@ public class UserController {
         return assembler.toResource(this.userService.get(id));
     }
 
+    @JsonResultFilter(
+            ignore = @IgnoreProperty(pojo = User.class, name = {"password", "enabled", "account_nonExpired", "accountNonLocked", "credentialsNonExpired"}),
+            allow = @AllowProperty(pojo = UserDetails.class, name = {"name", "sex", "birthday", "avatar"})
+    )
+    @RequestMapping(value = "/{id}/password", method = RequestMethod.PUT)
+    @ResponseBody
+    public ResultResourceSupport password(@PathVariable("id") Long id, @RequestBody PasswordForm form) {
+        return assembler.toResource(this.userService.changePassword(id, form.getType(), form.getOldPassword(), form.getNewPassword()));
+    }
+
     /**
      * 获取用户的详细信息
      * @param id
@@ -80,16 +95,6 @@ public class UserController {
     @RequestMapping(value = "/{id}", method = {RequestMethod.DELETE})
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable("id") Long id) {
-        this.userService.delete(id);
-    }
-
-    /**
-     * 批量删除用户
-     * @param id
-     */
-    @RequestMapping(method = {RequestMethod.DELETE})
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@RequestBody Long... id) {
         this.userService.delete(id);
     }
 

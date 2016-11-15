@@ -65,7 +65,7 @@ public class Weixinpay extends PayProductSupport {
             result.put("result_code", data.get("result_code"));
             result.put("return_msg", data.get("return_msg"));
             result.put("err_code_des", data.get("err_code_des"));
-            result.put("nonce_str", generateNonceString(32));
+            result.put("nonce_str", StringUtil.generateNonceString(32));
             result.put("sign", sign(result, config.getBargainorKey()));
             return mapToXml(result);
         }
@@ -75,7 +75,7 @@ public class Weixinpay extends PayProductSupport {
             result.put("result_code", data.get("result_code"));
             result.put("appid", data.get(EXT_APPID));
             result.put("mch_id", data.get("mch_id"));
-            result.put("nonce_str", generateNonceString(32));
+            result.put("nonce_str", StringUtil.generateNonceString(32));
             result.put("prepay_id", data.get("prepay_id"));
             result.put("sign", sign(result, config.getBargainorKey()));
             return StringUtil.isNotBlank(openid) ? mapToXml(result) : data.get("code_url");
@@ -83,7 +83,7 @@ public class Weixinpay extends PayProductSupport {
             Map<String, String> result = new HashMap<>();
             result.put("appId", data.get(EXT_APPID));
             result.put("timeStamp", (DateUtil.now().getTime() / 1000) + "");
-            result.put("nonceStr", generateNonceString(32));
+            result.put("nonceStr", StringUtil.generateNonceString(32));
             result.put("package", "prepay_id=" + data.get("prepay_id"));
             result.put("signType", "MD5");
             result.put("paySign", sign(result, config.getBargainorKey()));
@@ -104,7 +104,7 @@ public class Weixinpay extends PayProductSupport {
             result.put("partnerid", config.getBargainorId());
             result.put("prepayid", data.get("prepay_id"));
             result.put("package", "Sign=WXPay");
-            result.put("noncestr", generateNonceString(32));
+            result.put("noncestr", StringUtil.generateNonceString(32));
             result.put("timestamp", (DateUtil.now().getTime() / 1000) + "");
             result.put("sign", sign(result, config.getBargainorKey()));
             return result;
@@ -148,7 +148,7 @@ public class Weixinpay extends PayProductSupport {
             Map<String, String> data = new TreeMap<>();
             data.put("appid", config.get(EXT_APPID, String.class));
             data.put("mch_id", config.getBargainorId());
-            data.put("nonce_str", generateNonceString(16));
+            data.put("nonce_str", StringUtil.generateNonceString(16));
             data.put("transaction_id", payment.getTradeNo());
             data.put("out_refund_no", refund.getSn());
             data.put("total_fee", String.valueOf(payment.getTotalAmount().multiply(BigDecimal.valueOf(100d).setScale(0,BigDecimal.ROUND_DOWN))));
@@ -209,7 +209,7 @@ public class Weixinpay extends PayProductSupport {
             data.put("device_info", "WEB");
             data.put("body", order.getSubject());
             data.put("detail", order.getBody());
-            data.put("nonce_str", generateNonceString(16));
+            data.put("nonce_str", StringUtil.generateNonceString(16));
             String openid = prop.getProperty("openid");
             if (StringUtil.isNotBlank(openid)) {
                 data.put("openid", openid);
@@ -267,7 +267,7 @@ public class Weixinpay extends PayProductSupport {
             data.put("appid", config.get(EXT_APPID, String.class));
             data.put("mch_id", paymentConfig.getBargainorId());
             data.put("out_trade_no", payment.getSn());
-            data.put("nonce_str", generateNonceString(16));
+            data.put("nonce_str", StringUtil.generateNonceString(16));
             data.put("sign", sign(data, config.getBargainorKey()));
 
             Response response = HttpClientUtil.doPost("https://api.mch.weixin.qq.com/pay/orderquery", new Request(new StringEntity(WebUtil.transformCoding(mapToXml(data), "utf-8", "ISO8859-1"), ContentType.TEXT_XML)));
@@ -316,7 +316,7 @@ public class Weixinpay extends PayProductSupport {
             Map<String, String> data = new TreeMap<>();
             data.put("appid", config.get(EXT_APPID, String.class));
             data.put("mch_id", config.getBargainorId());
-            data.put("nonce_str", generateNonceString(16));
+            data.put("nonce_str", StringUtil.generateNonceString(16));
             data.put("out_trade_no", payment.getSn());
             data.put("sign", sign(data, config.getBargainorKey()));
 
@@ -374,18 +374,6 @@ public class Weixinpay extends PayProductSupport {
 
     public static String sign(Map<String, String> data, String bargainorKey) {
         return DigestUtils.md5DigestAsHex((SignUtil.coverMapString(data, "sign") + "&key=" + bargainorKey).getBytes()).toUpperCase();
-    }
-
-    private static final String NONCE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-    public static String generateNonceString(int length) {
-        int maxPos = NONCE_CHARS.length();
-        StringBuilder noceStr = new StringBuilder();
-        Random random = new Random();
-        for (int i = 0; i < length; i++) {
-            noceStr.append(NONCE_CHARS.charAt(random.nextInt(maxPos)));
-        }
-        return noceStr.toString();
     }
 
     private static class Urls {

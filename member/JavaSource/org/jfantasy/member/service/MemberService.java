@@ -5,6 +5,8 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.criterion.Criterion;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
+import org.jfantasy.framework.service.PasswordTokenEncoder;
+import org.jfantasy.framework.service.PasswordTokenType;
 import org.jfantasy.framework.spring.mvc.error.NotFoundException;
 import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.util.common.BeanUtil;
@@ -19,9 +21,7 @@ import org.jfantasy.member.dao.MemberDao;
 import org.jfantasy.member.event.LoginEvent;
 import org.jfantasy.member.event.LogoutEvent;
 import org.jfantasy.member.event.RegisterEvent;
-import org.jfantasy.member.service.vo.AuthType;
 import org.jfantasy.security.bean.Role;
-import org.jfantasy.security.bean.UserGroup;
 import org.jfantasy.security.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -31,7 +31,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 /**
  * 会员管理
@@ -41,7 +40,6 @@ import java.util.Random;
 public class MemberService {
 
     private static final String DEFAULT_ROLE_CODE = "MEMBER";
-    private static final String NONCE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
     private static final Log LOG = LogFactory.getLog(MemberService.class);
 
@@ -49,7 +47,7 @@ public class MemberService {
     private RoleService roleService;
     private ApplicationContext applicationContext;
     private PasswordEncoder passwordEncoder;
-    private SMSCodeEncoder smsCodeEncoder;
+    private PasswordTokenEncoder passwordTokenEncoder;
 
     /**
      * 列表查询
@@ -62,6 +60,14 @@ public class MemberService {
         return this.memberDao.findPager(pager, filters);
     }
 
+    private Member signUp(String username) {
+        Member member = new Member();
+        member.setType(Member.MEMBER_TYPE_PERSONAL);
+        member.setUsername(username);
+        member.setPassword(StringUtil.generateNonceString(20));
+        return this.save(member);
+    }
+
     /**
      * 会员登录接口
      *
@@ -69,52 +75,35 @@ public class MemberService {
      * @param password 密码
      * @return Member
      */
-    public Member login(AuthType type, String username, String password) {
+    public Member login(PasswordTokenType type, String username, String password) {
         Member member = this.memberDao.findUniqueBy("username", username);
-        switch (type) {
-            case password:
-                if (member == null || !passwordEncoder.matches(member.getPassword(), password)) {
-                    throw new ValidationException(203.1f, "用户名和密码错误");
-                }
-                break;
-            case macode:
-                if (!smsCodeEncoder.matches(username + ":login", password)) {
-                    throw new ValidationException(203.1f, "短信验证失败!");
-                }
-                if (member == null) {
-                    member = new Member();
-                    member.setType(Member.MEMBER_TYPE_PERSONAL);
-                    member.setUsername(username);
-                    member.setPassword(generateNonceString(20));
-                    member = this.save(member);
-                }
-                break;
-            default:
+
+        if (!this.passwordTokenEncoder.matches("login", type, username, member != null ? member.getPassword() : "", password)) {
+            throw new ValidationException(203.1f, "用户名和密码错误");
+        }
+
+        member = member == null && type == PasswordTokenType.macode ? signUp(username) : member;
+
+        if (member == null) {//用户不存在
+            throw new ValidationException(203.1f, "用户名和密码错误");
         }
 
         if (!member.getEnabled()) {
             throw new ValidationException(203.1f, "用户被禁用");
         }
+
         if (!member.getAccountNonLocked()) {
             throw new ValidationException(203.1f, "用户被锁定");
         }
+
         member.setLastLoginTime(DateUtil.now());
-        this.memberDao.save(member);
+        this.memberDao.update(member);
         Member mirror = ObjectUtil.clone(member);
         this.applicationContext.publishEvent(new LoginEvent(mirror));
         LOG.debug(mirror);
         return mirror;
     }
 
-    private static String generateNonceString(int length) {
-        int maxPos = NONCE_CHARS.length();
-        StringBuilder noceStr = new StringBuilder();
-        Random random = new Random();
-        for (int i = 0; i < length; i++) {
-            noceStr.append(NONCE_CHARS.charAt(random.nextInt(maxPos)));
-        }
-        return noceStr.toString();
-    }
 
     /**
      * 前台注册页面保存
@@ -152,7 +141,7 @@ public class MemberService {
             roles.add(defaultRole);
         }
         member.setRoles(roles);
-        member.setUserGroups(new ArrayList<UserGroup>());
+        member.setUserGroups(new ArrayList<>());
         //初始化用户状态
         member.setEnabled(true);
         member.setAccountNonLocked(true);
@@ -166,7 +155,7 @@ public class MemberService {
 
     public MemberDetails update(MemberDetails details) {
         Member member = this.memberDao.get(details.getMemberId());
-        BeanUtil.copyProperties(member.getDetails(), details, "memberId", "member","level","mobileValid","mailValid");
+        BeanUtil.copyProperties(member.getDetails(), details, "memberId", "member", "level", "mobileValid", "mailValid");
         this.memberDao.update(member);
         return member.getDetails();
     }
@@ -175,7 +164,7 @@ public class MemberService {
         return this.memberDao.find(criterions);
     }
 
-    public Member changePassword(Long id, AuthType type, String oldPassword, String newPassword) {
+    public Member changePassword(Long id, PasswordTokenType type, String oldPassword, String newPassword) {
         Member member = this.memberDao.get(id);
         if (member == null) {
             throw new NotFoundException("用户不存在");
@@ -183,25 +172,13 @@ public class MemberService {
         if (!member.getEnabled()) {
             throw new ValidationException(201.1f, "用户已被禁用");
         }
-        switch (type) {
-            case password:
-                if (!passwordEncoder.matches(member.getPassword(), oldPassword)) {
-                    throw new ValidationException(201.2f, "提供的旧密码不正确");
-                }
-                break;
-            case macode:
-                if (!smsCodeEncoder.matches(member.getUsername() + ":password", oldPassword)) {
-                    throw new ValidationException(203.1f, "短信验证失败!");
-                }
-                break;
-            case token:
-                // TODO token 用于超级管理员修改。 暂时以实现功能为目的。未做具体实现
-                break;
-            default:
+
+        if (!this.passwordTokenEncoder.matches("password", type, member.getUsername(), member.getPassword(), oldPassword)) {
+            throw new ValidationException(203.1f, "提供的 password token 不正确!");
         }
+
         member.setPassword(passwordEncoder.encode(newPassword));
-        this.memberDao.update(member);
-        return member;
+        return this.memberDao.update(member);
     }
 
     /**
@@ -254,9 +231,10 @@ public class MemberService {
         return this.memberDao.findUniqueBy("username", username);
     }
 
+
     @Autowired(required = false)
-    public void setSmsCodeEncoder(SMSCodeEncoder smsCodeEncoder) {
-        this.smsCodeEncoder = smsCodeEncoder;
+    public void setPasswordTokenEncoder(PasswordTokenEncoder passwordTokenEncoder) {
+        this.passwordTokenEncoder = passwordTokenEncoder;
     }
 
     @Autowired

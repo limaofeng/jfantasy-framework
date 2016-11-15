@@ -4,11 +4,19 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
+import org.jfantasy.framework.service.PasswordTokenEncoder;
+import org.jfantasy.framework.service.PasswordTokenType;
 import org.jfantasy.framework.spring.mvc.error.LoginException;
+import org.jfantasy.framework.spring.mvc.error.NotFoundException;
 import org.jfantasy.framework.spring.mvc.error.PasswordException;
+import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.util.common.DateUtil;
+import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
+import org.jfantasy.framework.util.regexp.RegexpCst;
+import org.jfantasy.framework.util.regexp.RegexpUtil;
 import org.jfantasy.security.bean.User;
+import org.jfantasy.security.bean.UserDetails;
 import org.jfantasy.security.context.LoginEvent;
 import org.jfantasy.security.context.LogoutEvent;
 import org.jfantasy.security.dao.UserDao;
@@ -20,18 +28,23 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @Transactional
 public class UserService {
 
-    @Autowired
-    private UserDao userDao;
-    @Autowired
+    private final UserDao userDao;
+
     private ApplicationContext applicationContext;
-    @Autowired
     private PasswordEncoder passwordEncoder;
+    private PasswordTokenEncoder passwordTokenEncoder;
+
+    @Autowired
+    public UserService(UserDao userDao) {
+        this.userDao = userDao;
+    }
 
     /**
      * 保存用户
@@ -40,22 +53,47 @@ public class UserService {
      */
     @CacheEvict(value = {"fantasy.security.userService"}, allEntries = true)
     public User save(User user) {
-        if (user.getId() == null) {
-            if (StringUtil.isNotBlank(user.getPassword())) {
-                user.setPassword(passwordEncoder.encode(user.getPassword()));
-            }
-            return this.userDao.save(user);
-        } else {
-            if (!"******".equals(user.getPassword())) {
-                User u = this.userDao.get(user.getId());
-                if (!passwordEncoder.matches(u.getPassword(), user.getPassword())) {
-                    user.setPassword(passwordEncoder.encode(user.getPassword()));
-                }
-            } else {
-                user.setPassword(null);// 为NULL时,不会更新字段
-            }
-            return this.userDao.save(user);
+        UserDetails details = ObjectUtil.defaultValue(user.getDetails(), new UserDetails());
+        // 如果用email注册
+        if (RegexpUtil.isMatch(user.getUsername(), RegexpCst.VALIDATOR_EMAIL)) {
+            details.setEmail(user.getUsername());
         }
+        // 如果用手机注册
+        if (RegexpUtil.isMatch(user.getUsername(), RegexpCst.VALIDATOR_MOBILE)) {
+            details.setMobile(user.getUsername());
+        }
+        user.setDetails(details);
+
+        // 默认昵称与用户名一致
+        if (StringUtil.isBlank(user.getNickName())) {
+            user.setNickName(user.getUsername());
+        }
+
+        // 初始化用户权限
+        user.setRoles(new ArrayList<>());
+        user.setUserGroups(new ArrayList<>());
+        //初始化用户状态
+        user.setEnabled(true);
+        user.setAccountNonLocked(true);
+        user.setAccountNonExpired(true);
+        user.setCredentialsNonExpired(true);
+        // 保存用户
+        return this.userDao.save(user);
+    }
+
+    public User changePassword(Long id, PasswordTokenType type, String oldPassword, String newPassword) {
+        User user = this.userDao.get(id);
+        if (user == null) {
+            throw new NotFoundException("用户不存在");
+        }
+        if (!user.isEnabled()) {
+            throw new ValidationException(201.1f, "用户已被禁用");
+        }
+        if (!this.passwordTokenEncoder.matches("login", type, user.getUsername(), user.getPassword(), oldPassword)) {
+            throw new ValidationException(203.1f, "提供的 password token 不正确!");
+        }
+        user.setPassword(passwordEncoder.encode(newPassword));
+        return this.userDao.update(user);
     }
 
     public boolean usernameNotExists(String username, Long id) {
@@ -113,6 +151,21 @@ public class UserService {
 
     public void logout(String username) {
         this.applicationContext.publishEvent(new LogoutEvent(findUniqueByUsername(username)));
+    }
+
+    @Autowired
+    public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    @Autowired
+    public void setPasswordTokenEncoder(PasswordTokenEncoder passwordTokenEncoder) {
+        this.passwordTokenEncoder = passwordTokenEncoder;
+    }
+
+    @Autowired
+    public void setApplicationContext(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
     }
 
 }

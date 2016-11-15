@@ -1,4 +1,4 @@
-package org.jfantasy.member.rest.models;
+package org.jfantasy.security.rest.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jfantasy.framework.service.PasswordTokenType;
