@@ -4,7 +4,12 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.NotEmpty;
 import org.jfantasy.framework.dao.BaseBusEntity;
+import org.jfantasy.framework.spring.validation.RESTful;
+import org.jfantasy.framework.spring.validation.Use;
+import org.jfantasy.security.validators.UsernameCannotRepeatValidator;
 
 import javax.persistence.*;
 import java.util.*;
@@ -36,7 +41,10 @@ public class User extends BaseBusEntity {
     /**
      * 用户登录名称
      */
-    @Column(name = "USERNAME", length = 20, nullable = false, unique = true)
+    @NotEmpty(groups = {RESTful.POST.class, RESTful.PUT.class})
+    @Length(min = 8, max = 20, groups = {RESTful.POST.class, RESTful.PUT.class})
+    @Use(vali = UsernameCannotRepeatValidator.class, groups = {RESTful.POST.class})
+    @Column(name = "USERNAME", length = 20, updatable = false, nullable = false, unique = true)
     private String username;
     /**
      * 登录密码

@@ -59,7 +59,7 @@ public class Member extends BaseBusEntity {
     @NotEmpty(groups = {POST.class, PUT.class})
     @Length(min = 8, max = 20, groups = {POST.class, PUT.class})
     @Use(vali = UsernameCannotRepeatValidator.class, groups = {POST.class})
-    @Column(name = "USERNAME", length = 20, nullable = false, unique = true)
+    @Column(name = "USERNAME", length = 20,updatable = false, nullable = false, unique = true)
     private String username;
     /**
      * 登录密码

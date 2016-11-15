@@ -96,11 +96,6 @@ public class UserService {
         return this.userDao.update(user);
     }
 
-    public boolean usernameNotExists(String username, Long id) {
-        User user = this.userDao.findUniqueBy("username", username);
-        return (user == null) || (user.getId().equals(id));
-    }
-
     @Cacheable(value = "fantasy.security.userService", key = "'findUniqueByUsername' + #username ")
     public User findUniqueByUsername(String username) {
         return this.userDao.findUniqueBy("username", username);
