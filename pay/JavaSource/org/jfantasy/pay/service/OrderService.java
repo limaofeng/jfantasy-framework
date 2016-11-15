@@ -59,6 +59,7 @@ public class OrderService {
         order.setMemberId(details.getMemberId());
         order.setOrderTime(details.getOrderTime());
         order.setProperties(details.getProperties());
+        order.setOrderTime(DateUtil.parse(order.get("order_time").toString()));
         return this.orderDao.save(order);
     }
 

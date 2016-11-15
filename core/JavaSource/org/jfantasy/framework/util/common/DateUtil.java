@@ -95,6 +95,10 @@ public class DateUtil {
         return format(now(), format);
     }
 
+    public static String format(Date date) {
+        return format(date, "yyyy-MM-dd HH:mm:ss");
+    }
+
     public static String format(String format, Locale locale) {
         return format(now(), format, locale);
     }
