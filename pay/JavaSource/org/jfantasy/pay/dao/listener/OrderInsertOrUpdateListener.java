@@ -15,6 +15,8 @@ import org.jfantasy.schedule.service.ScheduleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,7 +35,8 @@ public class OrderInsertOrUpdateListener extends AbstractChangedListener<Order> 
         OrderType orderType = orderTypeService.get(entity.getType());
         Map<String, String> data = new HashMap<>();
         data.put("id", entity.getKey());
-        this.scheduleService.addTrigger(OrderClose.JOB_KEY, OrderClose.triggerKey(entity), DateUtil.format(orderType.getExpires(), "ss mm HH dd MM ? yyyy"), data);
+        Date expireDate = DateUtil.add(entity.getOrderTime(), Calendar.MINUTE, Math.toIntExact(orderType.getExpires()));
+        this.scheduleService.addTrigger(OrderClose.JOB_KEY, OrderClose.triggerKey(entity), DateUtil.format(expireDate, "ss mm HH dd MM ? yyyy"), data);
     }
 
     @Override

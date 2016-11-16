@@ -107,20 +107,6 @@ public class DateUtil {
         return format(now(), format, locale, zone);
     }
 
-    /**
-     * 为ftl模板调用时提供的方法，以防时间对象为NULL时,找不到方法
-     *
-     * @param date   时间
-     * @param format 格式
-     * @return string
-     */
-    public static String format(Object date, String format) {
-        if (date == null || !Date.class.isAssignableFrom(date.getClass())) {
-            return "";
-        }
-        return format((Date) date, format);
-    }
-
     public static String format(Date date, String format) {
         return format(date, format, Locale.getDefault());
     }
