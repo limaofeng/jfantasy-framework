@@ -4,16 +4,17 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.jfantasy.framework.dao.BaseBusEntity;
 import org.jfantasy.framework.spring.validation.RESTful;
-import org.jfantasy.pay.order.entity.OrderKey;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
 /**
  * 订单类型
  */
 @Entity
-@IdClass(OrderKey.class)
 @Table(name = "PAY_ORDER_TYPE")
 @JsonIgnoreProperties({"hibernate_lazy_initializer", "handler"})
 public class OrderType extends BaseBusEntity {
