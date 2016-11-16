@@ -47,11 +47,6 @@ public class EntityChangedEventListener extends AbstractChangedListener {
     }
 
     @Override
-    public boolean requiresPostCommitHanding(EntityPersister persister) {
-        return false;
-    }
-
-    @Override
     public void onPostUpdate(PostUpdateEvent event) {
         if (!BuguIndex.isRunning()) {
             return;
