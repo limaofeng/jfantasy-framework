@@ -84,7 +84,7 @@ public class PayService {
         if (order.getStatus() != OrderStatus.unpaid) {
             throw new ValidationException(000.0f, "订单状态为[" + order.getStatus() + "],不满足付款的必要条件");
         }
-        if (transaction.getStatus() == TxStatus.unprocessed) {
+        if (transaction.getStatus() != TxStatus.unprocessed) {
             throw new ValidationException(000.0f, "交易状态为[" + transaction.getStatus() + "],不满足付款的必要条件");
         }
         //获取支付配置
@@ -132,6 +132,10 @@ public class PayService {
         Transaction transaction = refund.getTransaction();
 
         if (refund.getType() == PaymentType.online) {
+            Order order = refund.getOrder();
+            if (order.getStatus() != OrderStatus.paid) {
+                throw new ValidationException(000.0f, "订单状态为[" + order.getStatus() + "],不满足付款的必要条件");
+            }
             if (refund.getStatus() != RefundStatus.ready) {
                 throw new PayException("退款状态为:" + refund.getStatus() + ",不能进行操作");
             } else if (!ObjectUtil.exists(new RefundStatus[]{RefundStatus.close, RefundStatus.wait}, status)) {
