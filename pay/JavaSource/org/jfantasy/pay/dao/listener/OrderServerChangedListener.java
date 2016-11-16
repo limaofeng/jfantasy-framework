@@ -1,8 +1,8 @@
 package org.jfantasy.pay.dao.listener;
 
+import org.hibernate.event.spi.EventType;
 import org.hibernate.event.spi.PostInsertEvent;
 import org.hibernate.event.spi.PostUpdateEvent;
-import org.jfantasy.framework.dao.annotations.EventListener;
 import org.jfantasy.framework.dao.hibernate.listener.AbstractChangedListener;
 import org.jfantasy.pay.bean.OrderServer;
 import org.jfantasy.pay.order.OrderServiceFactory;
@@ -10,12 +10,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-@EventListener
 public class OrderServerChangedListener extends AbstractChangedListener<OrderServer> {
 
     private static final long serialVersionUID = 6697184909285106945L;
 
     private OrderServiceFactory orderServiceFactory;
+
+    public OrderServerChangedListener() {
+        super(EventType.POST_COMMIT_INSERT,EventType.POST_COMMIT_UPDATE);
+    }
 
     @Override
     public void onPostInsert(OrderServer entity, PostInsertEvent event) {

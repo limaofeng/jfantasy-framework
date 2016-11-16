@@ -1,8 +1,8 @@
 package org.jfantasy.pay.dao.listener;
 
+import org.hibernate.event.spi.EventType;
 import org.hibernate.event.spi.PostInsertEvent;
 import org.hibernate.event.spi.PostUpdateEvent;
-import org.jfantasy.framework.dao.annotations.EventListener;
 import org.jfantasy.framework.dao.hibernate.listener.AbstractChangedListener;
 import org.jfantasy.framework.util.common.DateUtil;
 import org.jfantasy.pay.bean.Order;
@@ -19,11 +19,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
-@EventListener
 public class OrderInsertOrUpdateListener extends AbstractChangedListener<Order> {
 
     private ScheduleService scheduleService;
     private OrderTypeService orderTypeService;
+
+    public OrderInsertOrUpdateListener() {
+        super(EventType.POST_COMMIT_INSERT,EventType.POST_COMMIT_UPDATE);
+    }
 
     @Override
     protected void onPostInsert(Order entity, PostInsertEvent event) {

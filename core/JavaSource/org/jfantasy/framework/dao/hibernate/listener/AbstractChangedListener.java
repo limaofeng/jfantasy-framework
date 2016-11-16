@@ -1,5 +1,6 @@
 package org.jfantasy.framework.dao.hibernate.listener;
 
+import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.*;
 import org.hibernate.persister.entity.EntityPersister;
 import org.jfantasy.framework.dao.hibernate.util.ReflectionUtils;
@@ -8,6 +9,7 @@ import org.jfantasy.framework.util.common.ObjectUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
+import javax.annotation.PostConstruct;
 import java.util.Arrays;
 
 public abstract class AbstractChangedListener<T> implements PostCommitUpdateEventListener, PostCommitInsertEventListener, PostCommitDeleteEventListener {
@@ -17,13 +19,24 @@ public abstract class AbstractChangedListener<T> implements PostCommitUpdateEven
     private Class<T> entityClass;
 
     protected transient ApplicationContext applicationContext;
+    private transient EventListenerRegistry eventListenerRegistry;
+    private transient EventType[] types = new EventType[0];
 
-    protected AbstractChangedListener() {
+    protected AbstractChangedListener(EventType... types) {
+        this.types = types;
         this.entityClass = ReflectionUtils.getSuperClassGenricType(getClass());
     }
 
+    @PostConstruct
+    @SuppressWarnings("unchecked")
+    public void postConstruct() {
+        for (EventType type : types) {
+            this.eventListenerRegistry.appendListeners(type, this);
+        }
+    }
+
     @Override
-    public void onPostUpdateCommitFailed(PostUpdateEvent event){
+    public void onPostUpdateCommitFailed(PostUpdateEvent event) {
 
     }
 
@@ -33,7 +46,7 @@ public abstract class AbstractChangedListener<T> implements PostCommitUpdateEven
     }
 
     @Override
-    public void onPostInsertCommitFailed(PostInsertEvent event){
+    public void onPostInsertCommitFailed(PostInsertEvent event) {
 
     }
 
@@ -65,11 +78,14 @@ public abstract class AbstractChangedListener<T> implements PostCommitUpdateEven
         onPostUpdate(getEntity(event), event);
     }
 
-    protected void onPostInsert(T entity, PostInsertEvent event){}
+    protected void onPostInsert(T entity, PostInsertEvent event) {
+    }
 
-    protected void onPostUpdate(T entity, PostUpdateEvent event){}
+    protected void onPostUpdate(T entity, PostUpdateEvent event) {
+    }
 
-    protected void onPostDelete(T entity, PostDeleteEvent event){}
+    protected void onPostDelete(T entity, PostDeleteEvent event) {
+    }
 
     @Override
     public void onPostDelete(PostDeleteEvent event) {
@@ -107,6 +123,11 @@ public abstract class AbstractChangedListener<T> implements PostCommitUpdateEven
     @Autowired
     public void setApplicationContext(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
+    }
+
+    @Autowired
+    public void setEventListenerRegistry(EventListenerRegistry eventListenerRegistry) {
+        this.eventListenerRegistry = eventListenerRegistry;
     }
 
 }
