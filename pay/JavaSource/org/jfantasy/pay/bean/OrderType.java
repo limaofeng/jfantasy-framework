@@ -30,13 +30,13 @@ public class OrderType extends BaseBusEntity {
      * 订单名称
      */
     @NotEmpty(groups = RESTful.POST.class)
-    @Column(name = "ID", length = 50, nullable = false)
+    @Column(name = "NAME", length = 50, nullable = false)
     private String name;
     /**
      * 订单未支付时的有效期，单位为分钟。超过规定时间后，自动关闭
      */
     @NotNull(groups = RESTful.POST.class)
-    @Column(name = "ID", length = 50, nullable = false)
+    @Column(name = "EXPIRES", length = 50, nullable = false)
     private Long expires;
     /**
      * 是否启用
