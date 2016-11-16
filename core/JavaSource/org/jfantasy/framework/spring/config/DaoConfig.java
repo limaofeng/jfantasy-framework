@@ -7,10 +7,8 @@ import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.EventType;
 import org.hibernate.id.factory.spi.MutableIdentifierGeneratorFactory;
-import org.jfantasy.framework.dao.annotations.EventListener;
 import org.jfantasy.framework.dao.hibernate.event.PropertyGeneratorPersistEventListener;
 import org.jfantasy.framework.dao.hibernate.event.PropertyGeneratorSaveOrUpdatEventListener;
-import org.jfantasy.framework.util.common.ClassUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.*;
@@ -24,7 +22,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
-import java.util.Map;
 
 /**
  * Description: <数据源相关bean的注册>. <br>
@@ -32,7 +29,7 @@ import java.util.Map;
 @Configuration
 @EnableTransactionManagement(proxyTargetClass = true)
 @EnableJpaRepositories(transactionManagerRef = "jpaTransactionManager", includeFilters = {@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {JpaRepository.class})}, basePackages = "org.jfantasy.*.dao")
-@Import({DataSourceConfig.class,MyBatisConfig.class})
+@Import({DataSourceConfig.class, MyBatisConfig.class})
 public class DaoConfig {
 
     private static final Log LOG = LogFactory.getLog(DaoConfig.class);
@@ -51,7 +48,17 @@ public class DaoConfig {
         return bean;
     }
 
-    @SuppressWarnings("unchecked")
+    @Bean
+    public EventListenerRegistry eventListenerRegistry() {
+        SessionFactoryImplementor sessionFactory = entityManagerFactory.unwrap(SessionFactoryImplementor.class);
+        return sessionFactory.getServiceRegistry().getService(EventListenerRegistry.class);
+    }
+
+    /**
+     * 返回 SessionFactory 对象，因为 HibernateDao 依赖问题。
+     *
+     * @return SessionFactory
+     */
     @Bean(name = "sessionFactory")
     public SessionFactory sessionFactory() {
         SessionFactoryImplementor sessionFactory = entityManagerFactory.unwrap(SessionFactoryImplementor.class);
@@ -61,12 +68,6 @@ public class DaoConfig {
         // 默认监听器
         registry.prependListeners(EventType.SAVE_UPDATE, createListenerInstance(new PropertyGeneratorSaveOrUpdatEventListener(identifierGeneratorFactory)));
         registry.prependListeners(EventType.PERSIST, createListenerInstance(new PropertyGeneratorPersistEventListener(identifierGeneratorFactory)));
-        //通过注解添加监听
-        for (Map.Entry<String, Object> entry : this.applicationContext.getBeansWithAnnotation(EventListener.class).entrySet()) {
-            for(String eventTypeName : ClassUtil.getAnnotation(ClassUtil.getRealClass(entry.getValue()),EventListener.class).value()){
-                registry.appendListeners(EventType.resolveEventTypeByName(eventTypeName),entry.getValue());
-            }
-        }
         LOG.debug(" SessionFactory 加载成功! ");
         return sessionFactory;
     }
