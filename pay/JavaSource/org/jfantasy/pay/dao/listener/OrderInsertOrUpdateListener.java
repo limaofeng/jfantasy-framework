@@ -20,14 +20,14 @@ import java.util.Map;
 
 @Component
 @EventListener
-public class OrderInsertListener extends AbstractChangedListener<Order> {
+public class OrderInsertOrUpdateListener extends AbstractChangedListener<Order> {
 
     private ScheduleService scheduleService;
     private OrderTypeService orderTypeService;
 
     @Override
     protected void onPostInsert(Order entity, PostInsertEvent event) {
-        OrderType orderType = orderTypeService.get(entity.getType());
+        OrderType orderType = getOrderTypeService().get(entity.getType());
         Map<String, String> data = new HashMap<>();
         data.put("id", entity.getKey());
         this.scheduleService.addTrigger(OrderClose.JOB_KEY, OrderClose.triggerKey(entity), DateUtil.format(orderType.getExpires(), "ss mm HH dd MM ? yyyy"), data);
@@ -48,9 +48,11 @@ public class OrderInsertListener extends AbstractChangedListener<Order> {
         this.scheduleService = scheduleService;
     }
 
-    @Autowired
-    public void setOrderTypeService(OrderTypeService orderTypeService) {
-        this.orderTypeService = orderTypeService;
+    private OrderTypeService getOrderTypeService() {
+        if (orderTypeService == null) {
+            orderTypeService = this.applicationContext.getBean(OrderTypeService.class);
+        }
+        return this.orderTypeService;
     }
 
 }
