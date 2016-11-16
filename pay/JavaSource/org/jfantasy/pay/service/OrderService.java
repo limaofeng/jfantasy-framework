@@ -46,23 +46,6 @@ public class OrderService {
         return this.orderDao.findPager(pager, filters);
     }
 
-    public Order save(OrderDetails details) {
-        Order order = new Order();
-        order.setSn(details.getSn());
-        order.setType(details.getType());
-        order.setSubject(details.getSubject());
-        order.setBody(details.getBody());
-        order.setPayableFee(details.getPayableFee());
-        order.setTotalFee(details.getTotalFee());
-        order.setStatus(OrderStatus.unpaid);
-        order.setOrderItems(details.getOrderItems());
-        order.setMemberId(details.getMemberId());
-        order.setOrderTime(details.getOrderTime());
-        order.setProperties(details.getProperties());
-        order.setOrderTime(DateUtil.parse(order.get("order_time").toString()));
-        return this.orderDao.save(order);
-    }
-
     /**
      * 查询 key 对应的订单信息
      *
@@ -85,11 +68,28 @@ public class OrderService {
             if (orderDetails == null) {
                 throw new ValidationException("订单不存在,请核对后,再继续操作!");
             }
-            if (DateUtil.interval(DateUtil.now(), orderDetails.getOrderTime(), Calendar.MINUTE) > orderType.getExpires()) {
+            order = conversion(orderDetails);
+            if (DateUtil.interval(DateUtil.now(), order.getOrderTime(), Calendar.MINUTE) > orderType.getExpires()) {
                 throw new ValidationException("订单已经超出支付期限!");
             }
-            order = this.save(orderDetails);
+            order = this.orderDao.save(order);
         }
+        return order;
+    }
+
+    private Order conversion(OrderDetails details) {
+        Order order = new Order();
+        order.setSn(details.getSn());
+        order.setType(details.getType());
+        order.setSubject(details.getSubject());
+        order.setBody(details.getBody());
+        order.setPayableFee(details.getPayableFee());
+        order.setTotalFee(details.getTotalFee());
+        order.setStatus(OrderStatus.unpaid);
+        order.setOrderItems(details.getOrderItems());
+        order.setMemberId(details.getMemberId());
+        order.setProperties(details.getProperties());
+        order.setOrderTime(DateUtil.parse(order.get("order_time").toString()));
         return order;
     }
 

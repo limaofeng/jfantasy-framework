@@ -48,10 +48,6 @@ public class OrderDetails {
      */
     private Long memberId;
     /**
-     * 订单下单时间
-     */
-    private Date orderTime;
-    /**
      * 付款时间
      */
     private Date paymentTime;
@@ -146,14 +142,6 @@ public class OrderDetails {
 
     public void setProperties(Map<String, Object> properties) {
         this.properties = properties;
-    }
-
-    public Date getOrderTime() {
-        return orderTime;
-    }
-
-    public void setOrderTime(Date orderTime) {
-        this.orderTime = orderTime;
     }
 
     public Date getPaymentTime() {
