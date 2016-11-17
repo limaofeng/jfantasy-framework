@@ -1,5 +1,7 @@
 package org.jfantasy.pay.service;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.criterion.Restrictions;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
@@ -28,6 +30,8 @@ import java.util.List;
  */
 @Service
 public class OrderService {
+
+    private static final Log LOG = LogFactory.getLog(OrderService.class);
 
     private final OrderDao orderDao;
     private final OrderTypeDao orderTypeDao;
@@ -119,8 +123,12 @@ public class OrderService {
     @Transactional
     public boolean isExpired(Order order) {
         boolean expired = this.orderTypeDao.isExpired(order.getType(), order.getOrderTime());
-        if (expired && this.orderDao.exists(Restrictions.eq("type", order.getType()), Restrictions.eq("sn", order.getSn()))) {
-            this.close(OrderKey.newInstance(order.getKey()));
+        if (expired && this.orderDao.exists(Restrictions.eq("type", order.getType()), Restrictions.eq("sn", order.getSn())) && order.getStatus() == OrderStatus.unpaid) {
+            try {
+                this.close(OrderKey.newInstance(order.getKey()));
+            } catch (ValidationException e) {
+                LOG.debug(e.getMessage(), e);
+            }
         }
         return expired;
     }

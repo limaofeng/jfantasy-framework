@@ -79,16 +79,16 @@ public class PayService {
         //获取订单信息
         String orderKey = transaction.get("order_key");
         //验证业务订单
+        if (transaction.getStatus() != TxStatus.unprocessed) {
+            throw new ValidationException(000.0f, "交易状态为[" + transaction.getStatus() + "],不满足付款的必要条件");
+        }
         OrderKey key = OrderKey.newInstance(orderKey);
         Order order = orderService.get(key);
-        if (order.isExpired()) {
-            throw new ValidationException(000.0f, "订单超出支付期限，不能进行支付");
-        }
         if (order.getStatus() != OrderStatus.unpaid) {
             throw new ValidationException(000.0f, "订单状态为[" + order.getStatus() + "],不满足付款的必要条件");
         }
-        if (transaction.getStatus() != TxStatus.unprocessed) {
-            throw new ValidationException(000.0f, "交易状态为[" + transaction.getStatus() + "],不满足付款的必要条件");
+        if (order.isExpired()) {//这里有访问数据库操作,所以放在后面
+            throw new ValidationException(000.0f, "订单超出支付期限，不能进行支付");
         }
         //获取支付配置
         PayConfig payConfig = payConfigService.get(payConfigId);
