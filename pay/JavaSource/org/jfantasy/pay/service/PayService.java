@@ -81,6 +81,9 @@ public class PayService {
         //验证业务订单
         OrderKey key = OrderKey.newInstance(orderKey);
         Order order = orderService.get(key);
+        if (order.isExpired()) {
+            throw new ValidationException(000.0f, "订单超出支付期限，不能进行支付");
+        }
         if (order.getStatus() != OrderStatus.unpaid) {
             throw new ValidationException(000.0f, "订单状态为[" + order.getStatus() + "],不满足付款的必要条件");
         }

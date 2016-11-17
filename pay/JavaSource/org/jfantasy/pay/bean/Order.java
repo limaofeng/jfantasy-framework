@@ -5,11 +5,12 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.jfantasy.framework.dao.BaseBusEntity;
 import org.jfantasy.framework.dao.hibernate.converter.MapConverter;
-import org.jfantasy.framework.jackson.ThreadJacksonMixInHolder;
+import org.jfantasy.framework.spring.SpringContextUtil;
 import org.jfantasy.pay.bean.converter.OrderItemConverter;
 import org.jfantasy.pay.order.entity.OrderItem;
 import org.jfantasy.pay.order.entity.OrderKey;
 import org.jfantasy.pay.order.entity.enums.OrderStatus;
+import org.jfantasy.pay.service.OrderService;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -18,7 +19,7 @@ import java.util.*;
 @Entity
 @IdClass(OrderKey.class)
 @Table(name = "PAY_ORDER")
-@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler"})
+@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler","expired"})
 public class Order extends BaseBusEntity {
 
     /**
@@ -267,10 +268,12 @@ public class Order extends BaseBusEntity {
 
     @JsonAnyGetter
     public Map<String, Object> getProperties() {
-        if (ThreadJacksonMixInHolder.getMixInHolder().isIgnoreProperty(Order.class, "properties")) {
-            return null;
-        }
         return properties;
+    }
+
+    @Transient
+    public boolean isExpired() {
+        return SpringContextUtil.getBeanByType(OrderService.class).isExpired(this);
     }
 
 }

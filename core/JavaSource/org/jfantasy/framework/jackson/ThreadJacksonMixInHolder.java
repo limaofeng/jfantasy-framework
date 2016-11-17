@@ -27,7 +27,9 @@ public class ThreadJacksonMixInHolder {
     private static final Map<Class<?>, MixInSource> mixInSourceMap = new HashMap<Class<?>, MixInSource>();
 
     private ObjectMapper objectMapper;
+    @Deprecated
     private Map<String, Set<String>> ignorePropertyNames = new HashMap<>();
+    @Deprecated
     private Map<String, Set<String>> allowPropertyNames = new HashMap<>();
 
     private ThreadJacksonMixInHolder(ObjectMapper objectMapper) {
@@ -134,6 +136,7 @@ public class ThreadJacksonMixInHolder {
      * @param name   property
      * @return boolean
      */
+    @Deprecated
     public boolean isIgnoreProperty(Class<?> target, String name) {
         MixInSource mixInSource = createMixInSource(target);
         return this.ignorePropertyNames.containsKey(mixInSource.getFilterName()) && this.ignorePropertyNames.get(mixInSource.getFilterName()).contains(name);

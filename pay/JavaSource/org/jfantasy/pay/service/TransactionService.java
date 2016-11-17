@@ -101,6 +101,11 @@ public class TransactionService {
         return this.save(projectKey, from, to, null, amount, notes, properties);
     }
 
+    @Transactional
+    public Transaction getByUniqueId(String unionid) {
+        return this.transactionDao.findUnique(Restrictions.eq("unionId", unionid));
+    }
+
     /**
      * 保存交易接口
      *

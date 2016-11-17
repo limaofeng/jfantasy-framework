@@ -1,11 +1,15 @@
 package org.jfantasy.pay.service;
 
+import org.hibernate.criterion.Restrictions;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.util.common.DateUtil;
 import org.jfantasy.pay.bean.Order;
 import org.jfantasy.pay.bean.OrderType;
+import org.jfantasy.pay.bean.Project;
+import org.jfantasy.pay.bean.Transaction;
+import org.jfantasy.pay.bean.enums.TxStatus;
 import org.jfantasy.pay.dao.OrderDao;
 import org.jfantasy.pay.dao.OrderTypeDao;
 import org.jfantasy.pay.order.OrderServiceFactory;
@@ -17,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -28,6 +31,7 @@ public class OrderService {
 
     private final OrderDao orderDao;
     private final OrderTypeDao orderTypeDao;
+    private TransactionService transactionService;
     private OrderServiceFactory orderServiceFactory;
 
     @Autowired
@@ -69,7 +73,7 @@ public class OrderService {
                 throw new ValidationException("订单不存在,请核对后,再继续操作!");
             }
             order = conversion(orderDetails);
-            if (DateUtil.interval(DateUtil.now(), order.getOrderTime(), Calendar.MINUTE) > orderType.getExpires()) {
+            if (order.isExpired()) {
                 throw new ValidationException("订单已经超出支付期限!");
             }
             order = this.orderDao.save(order);
@@ -105,13 +109,30 @@ public class OrderService {
             throw new ValidationException("order = [" + key + "] 订单已经支付，不能关闭!");
         }
         // 确认第三方支付成功后，修改关闭状态
+        Transaction transaction = this.transactionService.getByUniqueId(Transaction.generateUnionid(Project.PAYMENT, order.getKey()));
+        transaction.setStatus(TxStatus.close);
+        this.transactionService.update(transaction);
         order.setStatus(OrderStatus.close);
         return this.orderDao.update(order);
+    }
+
+    @Transactional
+    public boolean isExpired(Order order) {
+        boolean expired = this.orderTypeDao.isExpired(order.getType(), order.getOrderTime());
+        if (expired && this.orderDao.exists(Restrictions.eq("type", order.getType()), Restrictions.eq("sn", order.getSn()))) {
+            this.close(OrderKey.newInstance(order.getKey()));
+        }
+        return expired;
     }
 
     @Autowired
     public void setOrderServiceFactory(OrderServiceFactory orderServiceFactory) {
         this.orderServiceFactory = orderServiceFactory;
+    }
+
+    @Autowired
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
     }
 
 }

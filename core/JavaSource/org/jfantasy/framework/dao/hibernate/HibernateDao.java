@@ -832,6 +832,10 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
         return "select count(*) " + fromHql;
     }
 
+    public boolean exists(Criterion... criterions) {
+        return this.count(criterions) > 0;
+    }
+
     protected int countHqlResult(String hql, Object... values) {
         String countHql = generateCountHql(hql);
         try {
@@ -1197,6 +1201,5 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
         c.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
         return c.list();
     }
-
 
 }

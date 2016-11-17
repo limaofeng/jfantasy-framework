@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SpringContextUtil implements BeanDefinitionRegistryPostProcessor,ApplicationContextAware {
+public class SpringContextUtil implements BeanDefinitionRegistryPostProcessor, ApplicationContextAware {
 
     private static final Log LOGGER = LogFactory.getLog(SpringContextUtil.class);
 
@@ -174,18 +174,16 @@ public class SpringContextUtil implements BeanDefinitionRegistryPostProcessor,Ap
      *
      * @param name beanname
      * @return boolean
-     * @throws org.springframework.beans.factory.NoSuchBeanDefinitionException
      */
-    public static synchronized boolean isSingleton(String name) throws NoSuchBeanDefinitionException {
+    public static synchronized boolean isSingleton(String name) {
         return applicationContext.isSingleton(name);
     }
 
     /**
      * @param name beanname
      * @return Class 注册对象的类型
-     * @throws NoSuchBeanDefinitionException
      */
-    public static synchronized <T> Class<T> getType(String name) throws NoSuchBeanDefinitionException {
+    public static synchronized <T> Class<T> getType(String name) {
         return (Class<T>) applicationContext.getType(name);
     }
 
@@ -194,9 +192,8 @@ public class SpringContextUtil implements BeanDefinitionRegistryPostProcessor,Ap
      *
      * @param name beanname
      * @return name aliases
-     * @throws NoSuchBeanDefinitionException
      */
-    public static synchronized String[] getAliases(String name) throws NoSuchBeanDefinitionException {
+    public static synchronized String[] getAliases(String name) {
         return applicationContext.getAliases(name);
     }
 
@@ -211,7 +208,7 @@ public class SpringContextUtil implements BeanDefinitionRegistryPostProcessor,Ap
     public static <T> T getBeanByType(Class<T> clazz) {
         String name = ObjectUtil.first(getBeanNamesForType(clazz));
         if (name == null) {
-            return null;
+            throw new NoSuchBeanDefinitionException(clazz + "未找到");
         }
         return getBean(name, clazz);
     }
