@@ -35,6 +35,12 @@ public class CardController {
         this.cardService = cardService;
     }
 
+    /**
+     * 查询卡列表
+     * @param pager
+     * @param filters
+     * @return
+     */
     @JsonResultFilter(
             allow = {
                     @AllowProperty(pojo = CardType.class, name = {"key", "name"}),
@@ -42,7 +48,6 @@ public class CardController {
                     @AllowProperty(pojo = CardBatch.class, name = {"no"})
             }
     )
-    /** 查询卡列表 **/
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
     @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")

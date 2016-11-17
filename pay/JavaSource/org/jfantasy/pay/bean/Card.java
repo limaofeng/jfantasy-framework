@@ -15,7 +15,7 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "PAY_CARD")
-@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler"})
+@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler","account"})
 public class Card extends BaseBusEntity {
 
     private static final long serialVersionUID = 7353590331858523890L;
@@ -80,6 +80,11 @@ public class Card extends BaseBusEntity {
     @Column(name = "EXTRAS", length = 1000)
     @Convert(converter = ExtraServiceConverter.class)
     private ExtraService[] extras;
+    /**
+     * 绑定账户
+     */
+    @Column(name = "ACCOUNT_SN", length = 20)
+    private String account;
     /**
      * 所有者
      */
@@ -167,6 +172,14 @@ public class Card extends BaseBusEntity {
 
     public void setDesign(CardDesign design) {
         this.design = design;
+    }
+
+    public String getAccount() {
+        return account;
+    }
+
+    public void setAccount(String account) {
+        this.account = account;
     }
 
     public String getOwner() {

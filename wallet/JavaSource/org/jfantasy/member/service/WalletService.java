@@ -15,10 +15,9 @@ import org.jfantasy.framework.httpclient.Response;
 import org.jfantasy.framework.jackson.JSON;
 import org.jfantasy.framework.spring.mvc.error.RestException;
 import org.jfantasy.framework.spring.mvc.error.ValidationException;
-import org.jfantasy.member.bean.Card;
+import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.member.bean.Member;
 import org.jfantasy.member.bean.Wallet;
-import org.jfantasy.member.dao.CardDao;
 import org.jfantasy.member.dao.MemberDao;
 import org.jfantasy.member.dao.WalletDao;
 import org.jfantasy.oauth.userdetails.enums.Scope;
@@ -41,8 +40,6 @@ public class WalletService {
     private WalletDao walletDao;
     @Autowired
     private MemberDao memberDao;
-    @Autowired
-    private CardDao cardDao;
     @Autowired
     private ApiGatewaySettings apiGatewaySettings;
 
@@ -145,14 +142,6 @@ public class WalletService {
         return this.walletDao.findUnique(Restrictions.eq("id", id));
     }
 
-    private Wallet getWallet(String account) {
-        Wallet wallet = this.walletDao.findUnique(Restrictions.eq("account", account));
-        if (wallet == null) {
-            return loadByAccount(account);
-        }
-        return wallet;
-    }
-
     public Pager<Wallet> findPager(Pager<Wallet> pager, List<PropertyFilter> filters) {
         return this.walletDao.findPager(pager, filters);
     }
@@ -193,34 +182,31 @@ public class WalletService {
     }
 
     @Transactional
-    public void addCard(String owner, Card card) {
+    public void addCard(String owner, Map<String, Object> data) {
         // 关联卡
         Wallet wallet = this.getWalletByOwner(owner);
         if (wallet == null) {
             LOG.error("绑卡时，账号：" + owner + "未发现");
             return;
         }
-        card.setWallet(wallet);
-        this.cardDao.save(card);
         // 计算附加服务
-        Map<String, Object> data = card.getExtras();
-        if (data == null || data.isEmpty()) {
-            return;
-        }
-        //添加成长值
-        if (data.containsKey("growth")) {
-            if (wallet.getGrowth() == null) {
-                wallet.setGrowth(0L);
+        if (!data.isEmpty()) {
+            //添加成长值
+            if (data.containsKey("growth")) {
+                if (wallet.getGrowth() == null) {
+                    wallet.setGrowth(0L);
+                }
+                wallet.setGrowth(wallet.getGrowth() + Long.valueOf(data.get("growth").toString()));
             }
-            wallet.setGrowth(wallet.getGrowth() + Long.valueOf(data.get("growth").toString()));
-        }
-        //添加积分
-        if (data.containsKey("point")) {
-            if (wallet.getPoints() == null) {
-                wallet.setPoints(0L);
+            //添加积分
+            if (data.containsKey("point")) {
+                if (wallet.getPoints() == null) {
+                    wallet.setPoints(0L);
+                }
+                wallet.setPoints(wallet.getPoints() + Long.valueOf(data.get("point").toString()));
             }
-            wallet.setPoints(wallet.getPoints() + Long.valueOf(data.get("point").toString()));
         }
+        wallet.setCards(ObjectUtil.defaultValue(wallet.getCards(), 0L) + 1);
         this.walletDao.update(wallet);
     }
 

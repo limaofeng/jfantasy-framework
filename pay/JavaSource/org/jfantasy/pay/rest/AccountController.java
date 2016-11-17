@@ -48,9 +48,11 @@ public class AccountController {
     @Autowired
     private TransactionService transactionService;
     @Autowired
+    private ReportService reportService;
+    @Autowired
     private PointController pointController;
     @Autowired
-    private ReportService reportService;
+    private CardController cardController;
 
     /**
      * 查询账户
@@ -121,6 +123,17 @@ public class AccountController {
         Map<String, Object> data = new HashMap<>();
         data.put(Transaction.UNION_KEY, sn + "|" + (DateUtil.now().getTime() / 1000 * 10) + "|" + form.getAmount().setScale(2, BigDecimal.ROUND_UP).toString() + "|" + form.getChannel());
         return this.transactionService.save(form.getProject(), account.getSn(), form.getTo(), form.getChannel(), form.getAmount(), form.getNotes(), data);
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/{id}/cards")
+    @ResponseBody
+    @ApiImplicitParam(value = "filters", name = "filters", paramType = "query", dataType = "string")
+    public Pager<ResultResourceSupport> cards(@PathVariable("id") String sn, Pager<Card> pager, List<PropertyFilter> filters) {
+        filters.add(new PropertyFilter("EQS_account", sn));
+        if (!pager.isOrderBySetted()) {
+            pager.sort(Card.FIELDS_BY_MODIFY_TIME, Pager.SORT_DESC);
+        }
+        return cardController.search(pager, filters);
     }
 
     /**

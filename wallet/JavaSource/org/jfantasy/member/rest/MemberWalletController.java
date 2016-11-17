@@ -8,7 +8,6 @@ import org.jfantasy.member.bean.Wallet;
 import org.jfantasy.member.rest.models.PointDetails;
 import org.jfantasy.member.rest.models.assembler.PointDetailsResourceAssembler;
 import org.jfantasy.member.rest.models.assembler.WalletResourceAssembler;
-import org.jfantasy.member.service.CardService;
 import org.jfantasy.member.service.WalletService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,8 +27,6 @@ public class MemberWalletController {
     private WalletService walletService;
     @Autowired
     private WalletController walletController;
-    @Autowired
-    private CardService cardService;
 
     /**
      * 用户钱包信息 - 返回钱包详情
@@ -44,7 +41,6 @@ public class MemberWalletController {
         if (Member.MEMBER_TYPE_PERSONAL.equals(wallet.getMember().getType())) {
             resource.set("level", wallet.getMember().getDetails().getLevel());
         }
-        resource.set("cards", cardService.count(wallet.getId()));
         return resource;
     }
 

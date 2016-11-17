@@ -56,4 +56,8 @@ public class OrderTypeService {
         this.orderTypeDao.delete(id);
     }
 
+    public List<OrderType> getAll() {
+        return this.orderTypeDao.getAll();
+    }
+
 }

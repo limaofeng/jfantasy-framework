@@ -2,6 +2,7 @@ package org.jfantasy.pay.service;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
@@ -14,10 +15,12 @@ import org.jfantasy.pay.bean.Transaction;
 import org.jfantasy.pay.bean.enums.TxStatus;
 import org.jfantasy.pay.dao.OrderDao;
 import org.jfantasy.pay.dao.OrderTypeDao;
+import org.jfantasy.pay.job.OrderClose;
 import org.jfantasy.pay.order.OrderServiceFactory;
 import org.jfantasy.pay.order.entity.OrderDetails;
 import org.jfantasy.pay.order.entity.OrderKey;
 import org.jfantasy.pay.order.entity.enums.OrderStatus;
+import org.jfantasy.schedule.service.ScheduleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -37,6 +40,7 @@ public class OrderService {
     private final OrderTypeDao orderTypeDao;
     private TransactionService transactionService;
     private OrderServiceFactory orderServiceFactory;
+    private ScheduleService scheduleService;
 
     @Autowired
     public OrderService(OrderTypeDao orderTypeDao, OrderDao orderDao) {
@@ -117,7 +121,13 @@ public class OrderService {
         transaction.setStatus(TxStatus.close);
         this.transactionService.update(transaction);
         order.setStatus(OrderStatus.close);
+        this.scheduleService.removeTrigdger(OrderClose.triggerKey(order));
         return this.orderDao.update(order);
+    }
+
+    @Transactional
+    public List<Order> find(Criterion... criterions) {
+        return this.orderDao.find(criterions);
     }
 
     @Transactional
@@ -141,6 +151,11 @@ public class OrderService {
     @Autowired
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
+    }
+
+    @Autowired
+    public void setScheduleService(ScheduleService scheduleService) {
+        this.scheduleService = scheduleService;
     }
 
 }

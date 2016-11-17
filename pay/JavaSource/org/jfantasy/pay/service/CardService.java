@@ -57,12 +57,13 @@ public class CardService {
         }
         Account account = this.accountDao.findUnique(Restrictions.eq("owner", owner));
         if (account == null) {//自动创建账号
-            accountService.save(AccountType.personal, owner, null);
+            account = accountService.save(AccountType.personal, owner, null);
         }
         if (!card.getSecret().equals(password)) {
             throw new ValidationException(101.4f, "密钥错误");
         }
         card.setStatus(CardStatus.used);
+        card.setAccount(account.getSn());
         card.setOwner(owner);
         this.cardDao.update(card);
         //记录日志

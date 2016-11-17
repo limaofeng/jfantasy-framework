@@ -4,14 +4,11 @@ import io.swagger.annotations.ApiImplicitParam;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.jackson.annotation.AllowProperty;
-import org.jfantasy.framework.jackson.annotation.IgnoreProperty;
 import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
-import org.jfantasy.member.bean.Card;
 import org.jfantasy.member.bean.Member;
 import org.jfantasy.member.bean.Wallet;
 import org.jfantasy.member.rest.models.assembler.WalletResourceAssembler;
-import org.jfantasy.member.service.CardService;
 import org.jfantasy.member.service.WalletService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,7 +28,6 @@ public class WalletController {
     private static final WalletResourceAssembler assembler = new WalletResourceAssembler();
 
     private WalletService walletService;
-    private CardService cardService;
 
     /**
      * 钱包列表 - 查询所有的钱包
@@ -58,27 +54,9 @@ public class WalletController {
         return assembler.toResource(this.walletService.getWallet(id));
     }
 
-    /**
-     * 查询钱包中的卡片 - 卡列表
-     *
-     * @param walletId 钱包ID
-     * @return List<Card>
-     */
-    @JsonResultFilter(ignore = @IgnoreProperty(pojo = Card.class, name = Card.BASE_JSONFIELDS))
-    @RequestMapping(value = "/{id}/cards", method = RequestMethod.GET)
-    public List<Card> cards(@PathVariable("id") Long walletId) {
-        return cardService.findByWallet(walletId);
-    }
-
     @Autowired
     public void setWalletService(WalletService walletService) {
         this.walletService = walletService;
     }
-
-    @Autowired
-    public void setCardService(CardService cardService) {
-        this.cardService = cardService;
-    }
-
 
 }

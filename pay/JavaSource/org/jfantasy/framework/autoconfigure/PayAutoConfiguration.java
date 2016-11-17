@@ -23,7 +23,6 @@ public class PayAutoConfiguration {
     public static final String ONS_TAGS_TRANSACTION_KEY = "transaction";
     public static final String ONS_TAGS_PAY_ORDERKEY = "order";
     public static final String ONS_TAGS_ACCOUNT_KEY = "account";
-    public static final String ONS_TAGS_POINT_KEY = "point";
     public static final String ONS_TAGS_CARDBIND_KEY = "card_bind";
 
     @Bean

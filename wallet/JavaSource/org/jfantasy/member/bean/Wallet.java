@@ -55,6 +55,10 @@ public class Wallet extends BaseBusEntity {
      */
     @Column(name = "GROWTH", nullable = false)
     private Long growth;
+    /**
+     * 绑卡数量
+     */
+    private Long cards;
 
     public Long getId() {
         return id;
@@ -112,4 +116,11 @@ public class Wallet extends BaseBusEntity {
         this.growth = growth;
     }
 
+    public Long getCards() {
+        return cards;
+    }
+
+    public void setCards(Long cards) {
+        this.cards = cards;
+    }
 }
