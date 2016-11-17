@@ -1,6 +1,7 @@
 package org.jfantasy.pay.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import org.jfantasy.framework.dao.BaseBusEntity;
 import org.jfantasy.pay.bean.converter.ExtraServiceConverter;
 import org.jfantasy.pay.bean.enums.CardStatus;
@@ -15,7 +16,7 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "PAY_CARD")
-@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler","account"})
+@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "owner", "version"})
 public class Card extends BaseBusEntity {
 
     private static final long serialVersionUID = 7353590331858523890L;
@@ -39,18 +40,24 @@ public class Card extends BaseBusEntity {
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TYPE", updatable = false, foreignKey = @ForeignKey(name = "FK_CARD_TYPE"))
+    @JsonUnwrapped(prefix = "type_")
+    @JsonIgnoreProperties({"description", "creator", "modifier", "create_time", "modify_time"})
     private CardType type;
     /**
      * 卡设计
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "DESIGN", updatable = false, foreignKey = @ForeignKey(name = "FK_CARD_DESIGN"))
+    @JsonUnwrapped(prefix = "design_")
+    @JsonIgnoreProperties({"rule", "status", "amount", "notes", "extras", "card_type", "creator", "modifier", "create_time", "modify_time"})
     private CardDesign design;
     /**
      * 批次
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "BATCH_ID", updatable = false, foreignKey = @ForeignKey(name = "FK_CARD_BATCH"))
+    @JsonUnwrapped(prefix = "batch_")
+    @JsonIgnoreProperties({"id", "status", "quantity", "status", "card_type", "card_design", "release_time", "release_notes", "creator", "modifier", "create_time", "modify_time"})
     private CardBatch batch;
     /**
      * 卡状态

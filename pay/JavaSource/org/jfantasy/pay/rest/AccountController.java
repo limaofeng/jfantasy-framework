@@ -125,9 +125,11 @@ public class AccountController {
         return this.transactionService.save(form.getProject(), account.getSn(), form.getTo(), form.getChannel(), form.getAmount(), form.getNotes(), data);
     }
 
+    @JsonResultFilter(ignore = {
+            @IgnoreProperty(pojo = Card.class, name = {"account","secret"})
+    })
     @RequestMapping(method = RequestMethod.GET, value = "/{id}/cards")
     @ResponseBody
-    @ApiImplicitParam(value = "filters", name = "filters", paramType = "query", dataType = "string")
     public Pager<ResultResourceSupport> cards(@PathVariable("id") String sn, Pager<Card> pager, List<PropertyFilter> filters) {
         filters.add(new PropertyFilter("EQS_account", sn));
         if (!pager.isOrderBySetted()) {

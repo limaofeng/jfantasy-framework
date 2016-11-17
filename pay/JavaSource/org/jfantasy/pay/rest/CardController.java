@@ -55,7 +55,11 @@ public class CardController {
         return assembler.toResources(cardService.findPager(pager, filters));
     }
 
-    /** 卡片详情 **/
+    /**
+     * 卡片详情
+     * @param id 卡号
+     * @return Card
+     */
     @RequestMapping(method = RequestMethod.GET, value = "/{id}")
     @ResponseBody
     public ResultResourceSupport view(@PathVariable("id") String id) {
