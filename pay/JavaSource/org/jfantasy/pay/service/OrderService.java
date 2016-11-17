@@ -93,10 +93,12 @@ public class OrderService {
         return order;
     }
 
+    @Transactional
     public void update(Order order) {
         this.orderDao.update(order);
     }
 
+    @Transactional
     public Order close(OrderKey key) {
         Order order = this.orderDao.get(key);
         if (OrderStatus.unpaid != order.getStatus()) {
