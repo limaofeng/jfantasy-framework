@@ -50,6 +50,7 @@ public class TransactionService {
         return this.accountDao.findUnique(Restrictions.eq("type", AccountType.platform));
     }
 
+    @Transactional
     public Transaction get(String sn) {
         return transactionDao.get(sn);
     }

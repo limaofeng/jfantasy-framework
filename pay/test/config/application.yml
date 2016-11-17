@@ -61,15 +61,18 @@ spring:
       port: 6379
       password:
   apigateway:
-    url: http://localhost:8000
+    url: http://114.55.142.155:8000
 
 aliyun:
   ons:
     accessKey: 44IzFLqkj8Pw2YOi
     secretKey: XexMYOXZGBrPgQTUq4HtKuxxl9zMx1
     pay:
-      topicId: T-PAY_TEST
-      producerId: PID-PAY_TEST
+      topicId: TEST-PAY_NOTIFICATION
+      producerId: PID-TEST_PAY
+    doctorincome:
+      topicId: TEST-DOCTOR_INCOME
+      consumerId: CID-DEV_DOCTOR_INCOME
 
 netty:
   server:
@@ -77,4 +80,4 @@ netty:
     port: 9090
 
 paynotify:
-  url: http://wmlconsole.oicp.net
+  url: http://114.55.142.155:8000

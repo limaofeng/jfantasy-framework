@@ -15,14 +15,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Component
 public class TransferListener implements ApplicationListener<TransactionChangedEvent> {
 
     private static final Log LOGGER = LogFactory.getLog(TransferListener.class);
+
+    private static final Lock LOCK = new ReentrantLock();
 
     private AccountService accountService;
     private ProjectService projectService;
@@ -32,7 +35,6 @@ public class TransferListener implements ApplicationListener<TransactionChangedE
 
     @Async
     @Override
-    @Transactional
     public void onApplicationEvent(TransactionChangedEvent event) {
         Transaction transaction = event.getTransaction();
         Project project = this.projectService.get(transaction.getProject());
@@ -51,8 +53,13 @@ public class TransferListener implements ApplicationListener<TransactionChangedE
             LOGGER.debug("Interrupted!", e);
             Thread.currentThread().interrupt();
         }
-        // 执行转账操作
-        accountService.transfer(sn, "自动转账");
+        try {
+            LOCK.lock();
+            // 执行转账操作
+            accountService.transfer(sn, "自动转账");
+        } finally {
+            LOCK.unlock();
+        }
     }
 
     @Autowired
