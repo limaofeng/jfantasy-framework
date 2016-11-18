@@ -138,7 +138,10 @@ public class OrderController {
         return paymentController.search(new Pager<>(), filters);
     }
 
-    @JsonResultFilter(ignore = @IgnoreProperty(pojo = Refund.class, name = {"order", "payConfig", "payment"}))
+    @JsonResultFilter(
+            ignore = @IgnoreProperty(pojo = Order.class, name = {"refunds", "orderItems", "payments"}),
+            allow = @AllowProperty(pojo = PayConfig.class, name = {"id", "name"})
+    )
     @RequestMapping(value = "/{id}/status", method = RequestMethod.PUT)
     @ResponseBody
     public ResultResourceSupport status(@PathVariable("id") String id, @Validated @RequestBody OrderStatusForm form) {
