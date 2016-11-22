@@ -34,7 +34,7 @@ public class PayMessageListener implements MessageListener {
     private void cardBind(Message message) {
         JsonNode cardbind = JSON.deserialize(new String(message.getBody()));
         assert cardbind != null;
-        String owner = cardbind.get("owner").asText();
+        String account = cardbind.get("account").asText();
         JsonNode extras = cardbind.get("extras");
         Map<String, Object> data = new HashMap<>();
         if (extras != null) {
@@ -43,7 +43,7 @@ public class PayMessageListener implements MessageListener {
                 data.put(extra.get("project").asText(), extra.get("value").asInt());
             }
         }
-        walletService.addCard(owner, data);
+        walletService.addCard(account, data);
     }
 
 }

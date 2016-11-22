@@ -43,6 +43,33 @@ public class WalletService {
     @Autowired
     private ApiGatewaySettings apiGatewaySettings;
 
+    private Wallet loadByAccount(String accountNo) {
+        Wallet wallet = this.walletDao.findUnique(Restrictions.eq("account", accountNo));
+        if (wallet != null) {
+            return wallet;
+        }
+        try {
+            Response response = HttpClientUtil.doGet(apiGatewaySettings.getUrl() + "/accounts/" + accountNo);
+            if (response.getStatusCode() != 200) {
+                throw new ValidationException(203.1f, "检查账号出错");
+            }
+            JsonNode account = response.json();
+            String owner = account.get("owner").asText();
+            String type = account.get("type").asText();
+            BigDecimal amount = account.get("amount").decimalValue();
+            if (!type.equals("platform")) {
+                String[] asr = owner.split(":");
+                String username = asr[1];
+                return newWallet(memberDao.findUnique(Restrictions.eq("username", username)), accountNo, amount);
+            } else {
+                return newWallet(null, accountNo, amount);
+            }
+        } catch (IOException e) {
+            LOG.error(e.getMessage(), e);
+            throw new ValidationException(203.3f, "网络问题!");
+        }
+    }
+
     /**
      * 创建 用户钱包
      *
@@ -158,11 +185,11 @@ public class WalletService {
     }
 
     @Transactional
-    public void addCard(String owner, Map<String, Object> data) {
+    public void addCard(String account, Map<String, Object> data) {
         // 关联卡
-        Wallet wallet = this.getWalletByOwner(owner);
+        Wallet wallet = this.loadByAccount(account);
         if (wallet == null) {
-            LOG.error("绑卡时，账号：" + owner + "未发现");
+            LOG.error("绑卡时，账号：" + account + "未发现");
             return;
         }
         // 计算附加服务
