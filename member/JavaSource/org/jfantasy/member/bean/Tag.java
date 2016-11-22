@@ -8,7 +8,7 @@ import javax.persistence.*;
 import javax.validation.constraints.Null;
 
 @Entity
-@Table(name = "MEM_TAG", uniqueConstraints = {@UniqueConstraint(name = "UN_MEM_TAG_NAMEORTYPE", columnNames = {"name", "type"})})
+@Table(name = "MEM_TAG", uniqueConstraints = {@UniqueConstraint(name = "UN_MEM_TAG_NAMEORTYPE", columnNames = {"OWNER_ID", "OWNER_TYPE", "NAME", "TYPE"})})
 @TableGenerator(name = "tag_gen", table = "sys_sequence", pkColumnName = "gen_name", pkColumnValue = "mem_tag:id", valueColumnName = "gen_value")
 @JsonIgnoreProperties({"hibernate_lazy_initializer", "handler"})
 public class Tag extends BaseBusEntity {
