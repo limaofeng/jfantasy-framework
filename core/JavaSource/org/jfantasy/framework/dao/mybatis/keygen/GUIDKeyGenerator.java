@@ -28,8 +28,8 @@ public class GUIDKeyGenerator implements KeyGenerator {
 
     private static GUIDKeyGenerator instance;
 
-    public synchronized static GUIDKeyGenerator getInstance() {
-        if (instance == null && SpringContextUtil.getApplicationContext() != null) {
+    public static synchronized GUIDKeyGenerator getInstance() {
+        if (instance == null && SpringContextUtil.containsBean(GUIDKeyGenerator.class)) {
             instance = SpringContextUtil.getBeanByType(GUIDKeyGenerator.class);
         }
         if (instance == null) {

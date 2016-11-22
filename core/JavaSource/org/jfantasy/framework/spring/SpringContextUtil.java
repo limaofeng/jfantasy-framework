@@ -205,12 +205,12 @@ public class SpringContextUtil implements BeanDefinitionRegistryPostProcessor, A
         return applicationContext.getBeanNamesForType(clazz);
     }
 
+    public static <T> boolean containsBean(Class<T> clazz) {
+        return applicationContext != null && getBeanNamesForType(clazz).length > 0;
+    }
+
     public static <T> T getBeanByType(Class<T> clazz) {
-        String name = ObjectUtil.first(getBeanNamesForType(clazz));
-        if (name == null) {
-            throw new NoSuchBeanDefinitionException(clazz + "未找到");
-        }
-        return getBean(name, clazz);
+        return applicationContext.getBean(clazz);
     }
 
     public static synchronized Resource[] getResources(String pattern) {
