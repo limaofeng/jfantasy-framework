@@ -31,8 +31,13 @@ public class TeamTagController {
         this.teamService = teamService;
     }
 
+    /**
+     * 获取团队标签
+     * @param id
+     * @param type
+     * @return
+     */
     @JsonResultFilter(allow = @AllowProperty(pojo = Tag.class, name = {"name", "id", "type"}))
-    /** 获取团队标签 **/
     @RequestMapping(method = RequestMethod.GET)
     public List<Tag> tags(@PathVariable("id") String id, @RequestParam("type") String type) {
         if (teamService.get(id) == null) {
@@ -41,8 +46,13 @@ public class TeamTagController {
         return this.tagService.find(TAG_TYPE_TEAM, id, type);
     }
 
+    /**
+     * 添加团队标签
+     * @param id
+     * @param from
+     * @return
+     */
     @JsonResultFilter(allow = @AllowProperty(pojo = Tag.class, name = {"name", "id", "type"}))
-    /** 添加团队标签 **/
     @RequestMapping(method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
@@ -53,8 +63,14 @@ public class TeamTagController {
         return this.tagService.save(TAG_TYPE_TEAM, id, from.getName(), from.getType());
     }
 
+    /**
+     * 修改团队标签
+     * @param id
+     * @param tagid
+     * @param from
+     * @return
+     */
     @JsonResultFilter(allow = @AllowProperty(pojo = Tag.class, name = {"name", "id", "type"}))
-    /** 修改团队标签 **/
     @RequestMapping(value = "/{tagid}", method = {RequestMethod.PUT, RequestMethod.PATCH})
     @ResponseBody
     public Tag tags(@PathVariable("id") String id, @PathVariable("tagid") Long tagid, @Validated(RESTful.PATCH.class) @RequestBody TagForm from) {

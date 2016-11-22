@@ -58,6 +58,7 @@ public class Wallet extends BaseBusEntity {
     /**
      * 绑卡数量
      */
+    @Column(name = "CARDS", nullable = false)
     private Long cards;
 
     public Long getId() {
