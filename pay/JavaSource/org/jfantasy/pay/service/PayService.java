@@ -214,6 +214,7 @@ public class PayService {
             // 更新交易状态
             transaction.setChannel(payConfig.getPayMethod() == PayMethod.thirdparty ? TxChannel.thirdparty : TxChannel.internal);
             transaction.setStatus(TxStatus.success);
+            transaction.setStatusText(TxStatus.success.getValue());
             transaction.setPayConfigName(payConfig.getName());
             transactionService.update(transaction);
             // 更新订单状态
@@ -268,6 +269,7 @@ public class PayService {
             // 更新交易状态
             transaction.setChannel(payConfig.getPayMethod() == PayMethod.thirdparty ? TxChannel.thirdparty : TxChannel.internal);
             transaction.setStatus(TxStatus.success);
+            transaction.setStatusText(TxStatus.success.getValue());
             transaction.setPayConfigName(payConfig.getName());
             transactionService.update(transaction);
             // 更新订单状态

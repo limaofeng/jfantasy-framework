@@ -193,7 +193,7 @@ public class TransactionService {
         transaction.setSubject(Card.SUBJECT_BY_CARD_INPOUR);
         transaction.setUnionId(Transaction.generateUnionid(transaction.getProject(), card.getNo()));
         transaction.setStatus(TxStatus.unprocessed);
-        transaction.setStatusText(TxStatus.unprocessed.name());
+        transaction.setStatusText(TxStatus.unprocessed.getValue());
         transaction.setNotes("会员卡充值");
         transaction.setPayConfigName("会员卡充值");
         this.transactionDao.save(transaction);

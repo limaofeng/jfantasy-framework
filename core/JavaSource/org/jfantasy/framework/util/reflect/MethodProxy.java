@@ -12,7 +12,7 @@ import java.lang.reflect.Method;
 
 public class MethodProxy {
 
-    private final static Log LOG = LogFactory.getLog(MethodProxy.class);
+    private static final Log LOG = LogFactory.getLog(MethodProxy.class);
 
     private Object method;
     private Class<?>[] parameterTypes;
@@ -60,16 +60,10 @@ public class MethodProxy {
                 return ((Method) this.method).invoke(object, params);
             }
             return ((Method) this.method).invoke(object, params);
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalAccessException | InvocationTargetException | RuntimeException e) {
             LOG.error(e.getMessage(), e);
             return null;
-        } catch (IllegalAccessException e) {
-            LOG.error(e.getMessage(), e);
-            return null;
-        } catch (InvocationTargetException e) {
-            LOG.error(e.getMessage(), e);
         }
-        return null;
     }
 
     public static MethodProxy create(Object method) {
@@ -87,6 +81,7 @@ public class MethodProxy {
         return this.returnType;
     }
 
+    @Override
     public String toString() {
         return "MethodProxy [" + this.method.toString() + "]";
     }
@@ -106,17 +101,15 @@ public class MethodProxy {
     public String[] getParamNames() {
         try {
             if (this.method instanceof FastMethod) {
-                Class<?> declaringClass = ((FastMethod) this.method).getDeclaringClass();
-                return JavassistUtil.getParamNames(declaringClass.getName(), ((FastMethod) this.method).getName(), this.parameterTypes);
+                Class dclass = ((FastMethod) this.method).getDeclaringClass();
+                return JavassistUtil.getParamNames(dclass.getName(), ((FastMethod) this.method).getName(), this.parameterTypes);
             }
-            Class<?> declaringClass = ((Method) this.method).getDeclaringClass();
-            return JavassistUtil.getParamNames(declaringClass.getName(), ((FastMethod) this.method).getName(), this.parameterTypes);
-        } catch (NotFoundException e) {
+            Class dclass = ((Method) this.method).getDeclaringClass();
+            return JavassistUtil.getParamNames(dclass.getName(), ((FastMethod) this.method).getName(), this.parameterTypes);
+        } catch (NotFoundException | JavassistUtil.MissingLVException e) {
             LOG.error(e.getMessage(), e);
-        } catch (JavassistUtil.MissingLVException e) {
-            LOG.error(e.getMessage(), e);
+            return new String[0];
         }
-        return null;
     }
 
     public Class getDeclaringClass() {

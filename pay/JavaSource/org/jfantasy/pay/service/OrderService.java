@@ -119,6 +119,7 @@ public class OrderService {
         // 确认第三方支付成功后，修改关闭状态
         Transaction transaction = this.transactionService.getByUniqueId(Transaction.generateUnionid(Project.PAYMENT, order.getKey()));
         transaction.setStatus(TxStatus.close);
+        transaction.setStatusText(TxStatus.close.getValue());
         this.transactionService.update(transaction);
         order.setStatus(OrderStatus.close);
         this.scheduleService.removeTrigdger(OrderClose.triggerKey(order));

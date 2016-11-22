@@ -14,6 +14,7 @@ import java.util.List;
 public class HibernateLuceneDao implements LuceneDao {//NOSONAR
 
     private HibernateDao hibernateDao;
+    private EntityChangedListener changedListener;
 
     public HibernateLuceneDao(HibernateDao hibernateDao) {
         this.hibernateDao = hibernateDao;
@@ -46,8 +47,6 @@ public class HibernateLuceneDao implements LuceneDao {//NOSONAR
     public <T> T getById(final String id) {
         return (T) hibernateDao.get((Serializable) ClassUtil.newInstance(hibernateDao.getIdClass(), new Class[]{String.class}, new Object[]{id}));
     }
-
-    private EntityChangedListener changedListener;
 
     @Override
     public EntityChangedListener getLuceneListener() {

@@ -34,7 +34,7 @@ public class AccountService {
     private PasswordEncoder passwordEncoder = new StandardPasswordEncoder();
 
     @Autowired
-    public AccountService(PointDao pointDao,ProjectDao projectDao, TransactionDao transactionDao, BillDao billDao, AccountDao accountDao, CardDao cardDao) {
+    public AccountService(PointDao pointDao, ProjectDao projectDao, TransactionDao transactionDao, BillDao billDao, AccountDao accountDao, CardDao cardDao) {
         this.pointDao = pointDao;
         this.projectDao = projectDao;
         this.transactionDao = transactionDao;
@@ -170,11 +170,11 @@ public class AccountService {
         if (Project.WITHDRAWAL.equals(project.getKey())) {//如果为提现交易，只修改状态为处理中。而且现在都是线下交易
             transaction.setPayConfigName("线下转账");
             transaction.setStatus(TxStatus.processing);
-            transaction.setStatusText(transaction.getStatus().name());
+            transaction.setStatusText(transaction.getStatus().getValue());
             transaction.setNotes(notes);
         } else {//更新交易状态
             transaction.setStatus(TxStatus.success);
-            transaction.setStatusText(transaction.getStatus().name());
+            transaction.setStatusText(transaction.getStatus().getValue());
             transaction.setNotes(notes);
         }
         return transactionDao.save(transaction);
