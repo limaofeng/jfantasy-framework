@@ -1,7 +1,9 @@
 package org.jfantasy.common;
 
 
-public class Area {
+import java.io.Serializable;
+
+public class Area implements Serializable{
 
     private String id;
     private String name;// 名称
