@@ -8,6 +8,8 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+
 @Component
 public class OrderServiceByClient implements OrderService, InitializingBean {
 
@@ -29,6 +31,11 @@ public class OrderServiceByClient implements OrderService, InitializingBean {
     @Override
     public Order get(String type, String sn) {
         return orderServiceProxy.get(type, sn);
+    }
+
+    @Override
+    public Order refund(String type, String sn, BigDecimal refundAmount, String note) {
+        return orderServiceProxy.refund(type, sn, refundAmount, note);
     }
 
     @Override
