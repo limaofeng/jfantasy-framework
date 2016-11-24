@@ -35,7 +35,7 @@ public class OrderPrice extends BaseBusEntity {
      * 订单
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ORDER_ID", nullable = false, foreignKey = @ForeignKey(name = "FK_ORDER_PRICE"))
+    @JoinColumn(name = "ORDER_ID", nullable = false, foreignKey = @ForeignKey(name = "FK_ORDERPRICE_ORDER"))
     private Order order;
 
     public Long getId() {

@@ -43,8 +43,6 @@ public class RefundController {
     private final PayService payService;
 
     @Autowired
-    private OrderController orderController;
-    @Autowired
     private PaymentController paymentController;
     @Autowired
     private PayConfigController payConfigController;
@@ -142,7 +140,7 @@ public class RefundController {
         if (refund == null) {
             throw new NotFoundException("对象不存在");
         }
-        return orderController.view(refund.getOrderKey());
+        return OrderController.assembler.toResource(refund.getOrder());
     }
 
     @RequestMapping(value = "/{sn}/payconfig", method = RequestMethod.GET)

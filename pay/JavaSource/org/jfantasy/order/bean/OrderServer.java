@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.jfantasy.framework.dao.BaseBusEntity;
 import org.jfantasy.framework.dao.hibernate.converter.MapConverter;
-import org.jfantasy.order.entity.enums.CallType;
 
 import javax.persistence.*;
 import java.util.HashMap;
@@ -44,12 +43,6 @@ public class OrderServer extends BaseBusEntity {
      */
     @Column(name = "NAME", length = 50)
     private String name;
-    /**
-     * 调用方式
-     */
-    @Enumerated(EnumType.STRING)
-    @Column(name = "CALL_TYPE", length = 10, nullable = false)
-    private CallType callType;
     /**
      * 配置参数
      */
@@ -106,14 +99,6 @@ public class OrderServer extends BaseBusEntity {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public CallType getCallType() {
-        return callType;
-    }
-
-    public void setCallType(CallType callType) {
-        this.callType = callType;
     }
 
     public String getDescription() {

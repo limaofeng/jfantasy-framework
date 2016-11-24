@@ -37,7 +37,7 @@ public class OrderServerController {
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
     public OrderServer create(@RequestBody OrderServerForm form){
-        return orderServerService.save(form.getCallType(),form.getUrl(),form.getDescription(),form.getProperties());
+        return orderServerService.save(form.getUrl(),form.getDescription(),form.getProperties());
     }
 
 }

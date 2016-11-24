@@ -5,7 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import org.jfantasy.filestore.File;
-import org.jfantasy.framework.autoconfigure.ApiGatewaySettings;
+import org.jfantasy.autoconfigure.ApiGatewaySettings;
 import org.jfantasy.framework.jackson.JSON;
 import org.jfantasy.framework.spring.SpringContextUtil;
 import org.jfantasy.framework.spring.validation.RESTful;

@@ -1,6 +1,6 @@
 package org.jfantasy.springboot;
 
-import org.jfantasy.framework.autoconfigure.WebStarterAutoConfiguration;
+import org.jfantasy.autoconfigure.WebStarterAutoConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.autoconfigure.jmx.JmxAutoConfiguration;

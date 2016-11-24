@@ -4,7 +4,7 @@ import org.jfantasy.order.bean.Order;
 import org.jfantasy.pay.bean.Payment;
 import org.jfantasy.pay.bean.Refund;
 import org.jfantasy.pay.error.PayException;
-import org.jfantasy.order.entity.enums.PaymentStatus;
+import org.jfantasy.pay.bean.enums.PaymentStatus;
 
 import java.util.Properties;
 

@@ -5,8 +5,8 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 import org.jfantasy.framework.dao.BaseBusEntity;
 import org.jfantasy.order.bean.Order;
-import org.jfantasy.order.entity.enums.PaymentStatus;
-import org.jfantasy.order.entity.enums.PaymentType;
+import org.jfantasy.pay.bean.enums.PaymentStatus;
+import org.jfantasy.pay.bean.enums.PaymentType;
 import org.jfantasy.trade.bean.Transaction;
 
 import javax.persistence.*;
@@ -21,7 +21,7 @@ import java.util.Date;
  * @since 2013-12-5 上午9:22:59
  */
 @Entity
-@Table(name = "PAY_PAYMENT", uniqueConstraints = {@UniqueConstraint(columnNames = {"PAY_CONFIG_ID", "ORDER_TYPE", "ORDER_SN", "PAY_STATUS"})})
+@Table(name = "PAY_PAYMENT", uniqueConstraints = {@UniqueConstraint(columnNames = {"PAY_CONFIG_ID", "ORDER_ID", "PAY_STATUS"},name = "UK_PAYMENT_CONFIGID_ORDER_STATUS")})
 @JsonIgnoreProperties({"hibernate_lazy_initializer", "handler"})
 public class Payment extends BaseBusEntity {
 
@@ -97,13 +97,13 @@ public class Payment extends BaseBusEntity {
      * 订单详情
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumns(value = {@JoinColumn(name = "ORDER_TYPE", referencedColumnName = "TYPE"), @JoinColumn(name = "ORDER_SN", referencedColumnName = "SN")})
+    @JoinColumn(name = "ORDER_ID", nullable = false, foreignKey = @ForeignKey(name = "FK_PAYMENT_ORDER"))
     private Order order;
     /**
      * 交易记录
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "TXN_SN", nullable = false, referencedColumnName = "SN")
+    @JoinColumn(name = "TXN_SN", nullable = false, referencedColumnName = "SN",foreignKey = @ForeignKey(name = "FK_PAYMENT_TRANSACTION"))
     private Transaction transaction;
     /**
      * 支付时间
@@ -225,8 +225,8 @@ public class Payment extends BaseBusEntity {
     }
 
     @Transient
-    public String getOrderKey() {
-        return this.getOrder().getKey();
+    public String getOrderId() {
+        return this.getOrder().getId();
     }
 
     public Transaction getTransaction() {

@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.GenericGenerator;
 import org.jfantasy.framework.dao.BaseBusEntity;
 import org.jfantasy.order.bean.Order;
-import org.jfantasy.order.entity.enums.PaymentType;
-import org.jfantasy.order.entity.enums.RefundStatus;
+import org.jfantasy.pay.bean.enums.PaymentType;
+import org.jfantasy.pay.bean.enums.RefundStatus;
 import org.jfantasy.trade.bean.Transaction;
 
 import javax.persistence.*;
@@ -20,7 +20,7 @@ import java.util.Date;
  * @since 2013-12-5 上午9:22:39
  */
 @Entity
-@Table(name = "PAY_REFUND")
+@Table(name = "PAY_REFUND", uniqueConstraints = {@UniqueConstraint(columnNames = {"PAY_CONFIG_ID", "ORDER_ID", "PAY_STATUS"},name = "UK_REFUND_CONFIGID_ORDER_STATUS")})
 @JsonIgnoreProperties({"hibernate_lazy_initializer", "handler"})
 public class Refund extends BaseBusEntity {
 
@@ -49,12 +49,9 @@ public class Refund extends BaseBusEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "TYPE", updatable = false, nullable = false)
     private PaymentType type;// 退款类型
-    /**
-     * 退款状态
-     */
     @Enumerated(EnumType.STRING)
     @Column(name = "PAY_STATUS", nullable = false)
-    private RefundStatus status;
+    private RefundStatus status;//退款状态
     @Column(name = "PAYMENT_CONFIG_NAME", nullable = false, updatable = false)
     private String payConfigName;// 支付配置名称
     @Column(name = "BANK_NAME", updatable = false)
@@ -70,34 +67,20 @@ public class Refund extends BaseBusEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PAY_CONFIG_ID", updatable = false, foreignKey = @ForeignKey(name = "FK_REFUND_PAYMENT_CONFIG"))
     private PayConfig payConfig;
-    /**
-     * 交易号（用于记录第三方交易的交易流水号）
-     */
     @Column(name = "TRADE_NO")
-    private String tradeNo;
-    /**
-     * 交易时间 (用于记录第三方交易的交易时间)
-     */
+    private String tradeNo;//交易号（用于记录第三方交易的交易流水号）
     @Column(name = "TRADE_TIME")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date tradeTime;
-    /**
-     * 原支付交易
-     */
+    private Date tradeTime;//交易时间 (用于记录第三方交易的交易时间)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PAYMENT_ID", updatable = false, foreignKey = @ForeignKey(name = "FK_REFUND_PAYMENT"))
-    private Payment payment;
-    /** 订单详情 **/
+    private Payment payment;//原支付交易
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumns(value = {@JoinColumn(name = "ORDER_TYPE", referencedColumnName = "TYPE", updatable = false), @JoinColumn(name = "ORDER_SN", referencedColumnName = "SN", updatable = false)})
-    private Order order;
-    /**
-     * 交易记录
-     */
-    /** 交易记录 **/
+    @JoinColumn(name = "ORDER_ID", nullable = false, foreignKey = @ForeignKey(name = "FK_REFUND_ORDER"))
+    private Order order;//订单详情
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "TXN_SN", referencedColumnName = "SN")
-    private Transaction transaction;
+    @JoinColumn(name = "TXN_SN", referencedColumnName = "SN",foreignKey = @ForeignKey(name = "FK_REFUND_TRANSACTION"))
+    private Transaction transaction;//交易记录
 
     public String getSn() {
         return sn;
@@ -212,8 +195,8 @@ public class Refund extends BaseBusEntity {
     }
 
     @Transient
-    public String getOrderKey() {
-        return this.getOrder().getKey();
+    public String getOrderId() {
+        return this.getOrder().getId();
     }
 
     public Transaction getTransaction() {

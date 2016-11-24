@@ -2,41 +2,17 @@ package org.jfantasy.order;
 
 import org.apache.log4j.Logger;
 import org.jfantasy.framework.spring.mvc.error.NotFoundException;
-import org.jfantasy.order.entity.enums.CallType;
-import org.jfantasy.order.builder.HttpOrderServiceBuilder;
-import org.jfantasy.order.builder.RpcOrderServiceBuilder;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @Component
-public class OrderServiceFactory implements InitializingBean, ApplicationContextAware {
+public class OrderServiceFactory {
 
     private static final Logger LOGGER = Logger.getLogger(OrderServiceFactory.class);
 
     private Map<String, OrderService> orderServiceMap;
-
-    private ApplicationContext applicationContext;
-
-    private Map<CallType, OrderServiceBuilder> builders = new HashMap<>();
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        OrderServiceBuilder builder = applicationContext.getBean(RpcOrderServiceBuilder.class);
-        builders.put(builder.getCallType(), builder);
-        builder = applicationContext.getBean(HttpOrderServiceBuilder.class);
-        builders.put(builder.getCallType(), builder);
-    }
 
     public OrderServiceFactory() {
         orderServiceMap = new HashMap<>();
@@ -72,10 +48,6 @@ public class OrderServiceFactory implements InitializingBean, ApplicationContext
 
     public void unregister(String type) {
         this.orderServiceMap.remove(type);
-    }
-
-    public OrderServiceBuilder getBuilder(CallType callType) {
-        return builders.get(callType);
     }
 
 }

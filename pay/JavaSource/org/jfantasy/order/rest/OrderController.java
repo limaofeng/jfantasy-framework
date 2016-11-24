@@ -10,19 +10,20 @@ import org.jfantasy.framework.spring.mvc.error.NotFoundException;
 import org.jfantasy.framework.spring.mvc.error.RestException;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
 import org.jfantasy.order.bean.Order;
-import org.jfantasy.pay.bean.*;
-import org.jfantasy.order.entity.OrderItem;
-import org.jfantasy.order.entity.OrderKey;
+import org.jfantasy.order.bean.OrderItem;
+import org.jfantasy.order.service.OrderService;
+import org.jfantasy.pay.bean.PayConfig;
+import org.jfantasy.pay.bean.Payment;
+import org.jfantasy.pay.bean.Refund;
 import org.jfantasy.pay.rest.PaymentController;
 import org.jfantasy.pay.rest.RefundController;
-import org.jfantasy.trade.rest.TransactionController;
 import org.jfantasy.pay.rest.models.OrderStatusForm;
 import org.jfantasy.pay.rest.models.OrderTransaction;
 import org.jfantasy.pay.rest.models.assembler.OrderResourceAssembler;
-import org.jfantasy.trade.service.AccountService;
-import org.jfantasy.order.service.OrderService;
-import org.jfantasy.trade.service.TransactionService;
 import org.jfantasy.trade.bean.Transaction;
+import org.jfantasy.trade.rest.TransactionController;
+import org.jfantasy.trade.service.AccountService;
+import org.jfantasy.trade.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -40,7 +41,7 @@ import java.util.Map;
 @RequestMapping("/orders")
 public class OrderController {
 
-    private OrderResourceAssembler assembler = new OrderResourceAssembler();
+    public static final OrderResourceAssembler assembler = new OrderResourceAssembler();
 
     private OrderService orderService;
     private AccountService accountService;
@@ -63,7 +64,7 @@ public class OrderController {
     /**
      * 获取订单信息
      *
-     * @param key 订单KEY
+     * @param id 订单KEY
      * @return Order
      */
     @JsonResultFilter(
@@ -72,10 +73,10 @@ public class OrderController {
     )
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     @ResponseBody
-    public ResultResourceSupport view(@PathVariable("id") String key) {
-        Order order = orderService.get(OrderKey.newInstance(key));
+    public ResultResourceSupport view(@PathVariable("id") String id) {
+        Order order = orderService.get(id);
         if (order == null) {
-            throw new NotFoundException("[ID=" + key + "]的订单不存在");
+            throw new NotFoundException("[ID=" + id + "]的订单不存在");
         }
         return assembler.toResource(order);
     }
@@ -83,7 +84,7 @@ public class OrderController {
     /**
      * 创建订单交易 - 该接口会判断交易是否创建,如果没有交易记录会添加交易订单到交易记录
      *
-     * @param key              订单 key
+     * @param id               订单 id
      * @param orderTransaction 交易类型
      * @return Transaction
      */
@@ -91,26 +92,26 @@ public class OrderController {
     @RequestMapping(value = "/{id}/transactions", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public ResultResourceSupport transaction(@PathVariable("id") String key, @RequestBody OrderTransaction orderTransaction) {
+    public ResultResourceSupport transaction(@PathVariable("id") String id, @RequestBody OrderTransaction orderTransaction) {
         Map<String, Object> data = new HashMap<>();
         // 判断交易类型
         if (orderTransaction.getType() == OrderTransaction.Type.payment) {
             // 订单
-            Order order = orderService.getOrder(OrderKey.newInstance(key));
+            Order order = orderService.get(id);
             // 保存到交易表的数据
-            data.putAll(order.getProperties());
-            data.put(Transaction.ORDER_KEY, key);
-            data.put(Transaction.ORDER_SUBJECT, order.getSubject());
+            data.putAll(order.getAttrs());
+            data.put(Transaction.ORDER_ID, id);
+            data.put(Transaction.ORDER_TYPE,order.getType());
             String from = accountService.findUniqueByCurrentUser().getSn();// 付款方
-            return transactionController.transform(this.transactionService.payment(from, order.getPayableFee(), "", data));
+            return transactionController.transform(this.transactionService.payment(from, order.getPayableAmount(), "", data));
         } else {
             // 订单
-            Order order = orderService.get(OrderKey.newInstance(key));
+            Order order = orderService.get(id);
             // 保存到交易表的数据
-            data.putAll(order.getProperties());
-            data.put(Transaction.ORDER_KEY, key);
-            data.put(Transaction.ORDER_SUBJECT, order.getSubject());
-            return TransactionController.assembler.toResource(this.transactionService.refund(order.getKey(), orderTransaction.getAmount(), ""));
+            data.putAll(order.getAttrs());
+            data.put(Transaction.ORDER_ID, id);
+            data.put(Transaction.ORDER_TYPE,order.getType());
+            return TransactionController.assembler.toResource(this.transactionService.refund(order.getId(), orderTransaction.getAmount(), ""));
         }
     }
 
@@ -136,10 +137,8 @@ public class OrderController {
     @RequestMapping(value = "/{id}/payments", method = RequestMethod.GET)
     @ResponseBody
     public Pager<ResultResourceSupport> payments(@PathVariable("id") String id) {
-        OrderKey key = OrderKey.newInstance(id);
         List<PropertyFilter> filters = new ArrayList<>();
-        filters.add(new PropertyFilter("EQS_order.type", key.getType()));
-        filters.add(new PropertyFilter("EQS_order.sn", key.getSn()));
+        filters.add(new PropertyFilter("EQS_order.id", id));
         return paymentController.search(new Pager<>(), filters);
     }
 
@@ -150,10 +149,9 @@ public class OrderController {
     @RequestMapping(value = "/{id}/status", method = RequestMethod.PUT)
     @ResponseBody
     public ResultResourceSupport status(@PathVariable("id") String id, @Validated @RequestBody OrderStatusForm form) {
-        OrderKey key = OrderKey.newInstance(id);
         switch (form.getStatus()) {
-            case close:
-                return assembler.toResource(orderService.close(key));
+            case CLOSE:
+                return assembler.toResource(orderService.close(id));
             default:
                 throw new RestException("暂时只支持，订单关闭操作");
         }
@@ -169,10 +167,8 @@ public class OrderController {
     @RequestMapping(value = "/{id}/refunds", method = RequestMethod.GET)
     @ResponseBody
     public Pager<ResultResourceSupport> refunds(@PathVariable("id") String id) {
-        OrderKey key = OrderKey.newInstance(id);
         List<PropertyFilter> filters = new ArrayList<>();
-        filters.add(new PropertyFilter("EQS_order.type", key.getType()));
-        filters.add(new PropertyFilter("EQS_order.sn", key.getSn()));
+        filters.add(new PropertyFilter("EQS_order.id", id));
         return refundController.search(new Pager<>(), filters);
     }
 
@@ -186,7 +182,7 @@ public class OrderController {
     }
 
     private Order get(String id) {
-        return orderService.get(OrderKey.newInstance(id));
+        return orderService.get(id);
     }
 
     @Autowired

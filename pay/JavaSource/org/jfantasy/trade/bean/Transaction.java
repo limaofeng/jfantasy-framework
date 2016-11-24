@@ -33,9 +33,8 @@ public class Transaction extends BaseBusEntity {
     public static final String STAGE = "stage";
     public static final String STAGE_PAYMENT = "stage_payment";
     public static final String STAGE_REFUND = "stage_refund";
-    public static final String ORDER_KEY = "order_key";
-    public static final String ORDER_SUBJECT = "order_subject";
-
+    public static final String ORDER_ID = "order_id";
+    public static final String ORDER_TYPE = "order_type";
     public static final String CARD_ID = "card_id";
 
     /**

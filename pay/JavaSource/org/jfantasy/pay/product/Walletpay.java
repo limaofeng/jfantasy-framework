@@ -7,8 +7,8 @@ import org.jfantasy.pay.bean.Payment;
 import org.jfantasy.pay.bean.Refund;
 import org.jfantasy.trade.bean.Transaction;
 import org.jfantasy.pay.error.PayException;
-import org.jfantasy.order.entity.enums.PaymentStatus;
-import org.jfantasy.order.entity.enums.RefundStatus;
+import org.jfantasy.pay.bean.enums.PaymentStatus;
+import org.jfantasy.pay.bean.enums.RefundStatus;
 import org.jfantasy.trade.service.AccountService;
 import org.jfantasy.pay.service.PayService;
 

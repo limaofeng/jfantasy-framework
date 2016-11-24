@@ -82,7 +82,7 @@ public class PaymentController {
     @RequestMapping(value = "/{sn}/order", method = RequestMethod.GET)
     @ResponseBody
     public ResultResourceSupport order(@PathVariable("sn") String sn) {
-        return orderController.view(get(sn).getOrderKey());
+        return OrderController.assembler.toResource(get(sn).getOrder());
     }
 
     /**

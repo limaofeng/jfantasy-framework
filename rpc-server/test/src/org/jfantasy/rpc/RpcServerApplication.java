@@ -1,7 +1,7 @@
 package org.jfantasy.rpc;
 
-import org.jfantasy.framework.autoconfigure.JCoreAutoConfiguration;
-import org.jfantasy.framework.autoconfigure.WebStarterAutoConfiguration;
+import org.jfantasy.autoconfigure.JCoreAutoConfiguration;
+import org.jfantasy.autoconfigure.WebStarterAutoConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;

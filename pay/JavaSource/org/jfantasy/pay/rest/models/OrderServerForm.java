@@ -3,14 +3,12 @@ package org.jfantasy.pay.rest.models;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import org.jfantasy.order.bean.OrderServer;
-import org.jfantasy.order.entity.enums.CallType;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class OrderServerForm {
 
-    private CallType callType;
     private String orderType;
     private String title;
     private String description;
@@ -32,21 +30,11 @@ public class OrderServerForm {
     private String token;
 
     @JsonAnyGetter
-    public Map<String,Object> getProperties() {
-        Map<String,Object> props = new HashMap<>();
-        if (CallType.rpc == callType) {
-            props.put(OrderServer.PROPS_HOST, this.host);
-            props.put(OrderServer.PROPS_PORT, this.port);
-        }
+    public Map<String, Object> getProperties() {
+        Map<String, Object> props = new HashMap<>();
+        props.put(OrderServer.PROPS_HOST, this.host);
+        props.put(OrderServer.PROPS_PORT, this.port);
         return props;
-    }
-
-    public CallType getCallType() {
-        return callType;
-    }
-
-    public void setCallType(CallType callType) {
-        this.callType = callType;
     }
 
     public String getUrl() {

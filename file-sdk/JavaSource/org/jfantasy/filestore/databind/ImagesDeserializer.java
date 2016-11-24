@@ -5,7 +5,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import org.jfantasy.filestore.Image;
-import org.jfantasy.framework.autoconfigure.ApiGatewaySettings;
+import org.jfantasy.autoconfigure.ApiGatewaySettings;
 import org.jfantasy.framework.spring.SpringContextUtil;
 import org.jfantasy.framework.spring.validation.RESTful;
 import org.jfantasy.framework.util.common.StringUtil;

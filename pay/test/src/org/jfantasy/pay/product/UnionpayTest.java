@@ -7,7 +7,7 @@ import org.jfantasy.framework.util.common.DateUtil;
 import org.jfantasy.order.bean.Order;
 import org.jfantasy.pay.bean.PayConfig;
 import org.jfantasy.pay.bean.Payment;
-import org.jfantasy.order.entity.enums.PaymentStatus;
+import org.jfantasy.pay.bean.enums.PaymentStatus;
 import org.jfantasy.pay.service.PayConfigService;
 import org.junit.After;
 import org.junit.Before;

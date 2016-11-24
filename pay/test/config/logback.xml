@@ -41,18 +41,16 @@
     </appender>
 
     <!-- hibernate日志输入 -->
-    <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="ERROR" />
-    <logger name="org.hibernate.type.descriptor.sql.BasicExtractor" level="ERROR" />
+    <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="DEBUG" />
+    <logger name="org.hibernate.type.descriptor.sql.BasicExtractor" level="DEBUG" />
     <logger name="org.hibernate.SQL" level="DEBUG" />
-    <logger name="org.hibernate.engine.QueryParameters" level="ERROR" />
-    <logger name="org.hibernate.engine.query.HQLQueryPlan" level="ERROR" />
+    <logger name="org.hibernate.engine.QueryParameters" level="DEBUG" />
+    <logger name="org.hibernate.engine.query.HQLQueryPlan" level="DEBUG" />
     <logger name="org.org.jfantasy.framework" level="DEBUG"/>
-    <logger name="springfox.documentation.spring" level="ERROR"/>
+    <logger name="springfox.documentation.spring" level="DEBUG"/>
 
     <root level="ERROR">
         <appender-ref ref="CONSOLE" />
-        <appender-ref ref="INFO_FILE" />
-        <appender-ref ref="ERROR_FILE" />
     </root>
 
 </configuration>

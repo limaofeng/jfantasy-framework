@@ -1,7 +1,7 @@
 package org.jfantasy.pay.rest.models;
 
 
-import org.jfantasy.order.entity.enums.RefundStatus;
+import org.jfantasy.pay.bean.enums.RefundStatus;
 
 /**
  * 退款表单

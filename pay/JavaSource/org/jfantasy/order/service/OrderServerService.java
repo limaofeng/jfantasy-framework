@@ -7,10 +7,9 @@ import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.jackson.JSON;
 import org.jfantasy.framework.util.common.ObjectUtil;
+import org.jfantasy.order.OrderServiceFactory;
 import org.jfantasy.order.bean.OrderServer;
 import org.jfantasy.order.dao.OrderServerDao;
-import org.jfantasy.order.OrderServiceFactory;
-import org.jfantasy.order.entity.enums.CallType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -35,14 +34,12 @@ public class OrderServerService {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public OrderServer save(CallType callType, String type, String description, Map<String,Object> props) {
+    public OrderServer save(String type, String description, Map<String,Object> props) {
         OrderServer orderServer = ObjectUtil.defaultValue(this.orderServerDao.get(type),new OrderServer());
-        orderServer.setCallType(callType);
         orderServer.setType(type);
         orderServer.setDescription(description);
-        orderServer.setEnabled(true);//TODO 直接启用,后续改为人为修改
+        orderServer.setEnabled(true);
         orderServer.setProperties(props);
-
         LOG.debug(" save OrderServer : " + JSON.serialize(orderServer));
         return this.orderServerDao.save(orderServer);
     }

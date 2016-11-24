@@ -3,7 +3,7 @@ package org.jfantasy.trade.listener;
 import com.aliyun.openservices.ons.api.Message;
 import com.aliyun.openservices.ons.api.Producer;
 import org.jfantasy.aliyun.AliyunSettings;
-import org.jfantasy.framework.autoconfigure.PayAutoConfiguration;
+import org.jfantasy.autoconfigure.TradeAutoConfiguration;
 import org.jfantasy.framework.jackson.JSON;
 import org.jfantasy.trade.bean.Account;
 import org.jfantasy.trade.event.AccountChangedEvent;
@@ -32,7 +32,7 @@ public class ONSByAccountChangedListener implements ApplicationListener<AccountC
     @Override
     public void onApplicationEvent(AccountChangedEvent event) {
         Account account = event.getAccount();
-        Message msg = new Message(aliyunSettings.getTopicId(), PayAutoConfiguration.ONS_TAGS_ACCOUNT_KEY, account.getSn(), JSON.serialize(account).getBytes());
+        Message msg = new Message(aliyunSettings.getTopicId(), TradeAutoConfiguration.ONS_TAGS_ACCOUNT, account.getSn(), JSON.serialize(account).getBytes());
         producer.send(msg);
     }
 

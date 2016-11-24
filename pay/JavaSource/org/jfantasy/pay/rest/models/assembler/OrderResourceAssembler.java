@@ -23,10 +23,10 @@ public class OrderResourceAssembler extends ResourceAssemblerSupport<Order, Resu
     @Override
     public ResultResourceSupport toResource(Order entity) {
         ResultResourceSupport resource = instantiateResource(entity);
-        resource.add(linkTo(methodOn(OrderController.class).view(entity.getKey())).withSelfRel());
-        resource.add(linkTo(methodOn(OrderController.class).payments(entity.getKey())).withRel("payments"));
-        resource.add(linkTo(methodOn(OrderController.class).refunds(entity.getKey())).withRel("refunds"));
-        resource.add(linkTo(methodOn(OrderController.class).items(entity.getKey())).withRel("items"));
+        resource.add(linkTo(methodOn(OrderController.class).view(entity.getId())).withSelfRel());
+        resource.add(linkTo(methodOn(OrderController.class).payments(entity.getId())).withRel("payments"));
+        resource.add(linkTo(methodOn(OrderController.class).refunds(entity.getId())).withRel("refunds"));
+        resource.add(linkTo(methodOn(OrderController.class).items(entity.getId())).withRel("items"));
         return resource;
     }
 

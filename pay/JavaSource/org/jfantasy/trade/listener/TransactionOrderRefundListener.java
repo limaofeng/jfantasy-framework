@@ -9,8 +9,7 @@ import org.jfantasy.trade.bean.Project;
 import org.jfantasy.trade.bean.Transaction;
 import org.jfantasy.trade.bean.enums.TxStatus;
 import org.jfantasy.trade.event.TransactionChangedEvent;
-import org.jfantasy.order.entity.OrderKey;
-import org.jfantasy.order.entity.enums.PaymentStatus;
+import org.jfantasy.pay.bean.enums.PaymentStatus;
 import org.jfantasy.pay.service.PaymentService;
 import org.jfantasy.pay.service.RefundService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,8 +33,8 @@ public class TransactionOrderRefundListener implements ApplicationListener<Trans
     public void onApplicationEvent(TransactionChangedEvent event) {
         Transaction transaction = event.getTransaction();
         if (event.getStatus() == TxStatus.unprocessed && Project.REFUND.equals(transaction.getProject())) {
-            OrderKey key = OrderKey.newInstance(transaction.get(Transaction.ORDER_KEY));
-            List<Payment> payments = paymentService.find(Restrictions.eq("order.sn", key.getSn()), Restrictions.eq("order.type", key.getType()));
+            String id = transaction.get(Transaction.ORDER_ID);
+            List<Payment> payments = paymentService.find(Restrictions.eq("order.id", id));
             Payment payment = ObjectUtil.find(payments, "status", PaymentStatus.success);
             if (payment == null) {
                 LOG.error(" 订单可能未支付成功或者已经退款! ");

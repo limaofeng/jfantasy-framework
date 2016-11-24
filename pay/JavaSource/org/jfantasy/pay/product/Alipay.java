@@ -14,8 +14,8 @@ import org.jfantasy.pay.bean.PayConfig;
 import org.jfantasy.pay.bean.Payment;
 import org.jfantasy.pay.bean.Refund;
 import org.jfantasy.pay.error.PayException;
-import org.jfantasy.order.entity.enums.PaymentStatus;
-import org.jfantasy.order.entity.enums.RefundStatus;
+import org.jfantasy.pay.bean.enums.PaymentStatus;
+import org.jfantasy.pay.bean.enums.RefundStatus;
 import org.jfantasy.pay.product.sign.MD5;
 import org.jfantasy.pay.product.sign.RSA;
 import org.jfantasy.pay.product.sign.SignUtil;
@@ -124,7 +124,7 @@ public class Alipay extends PayProductSupport {
         data.put("subject", order.getSubject());//商品名称
         data.put("payment_type", "1");//支付类型
         data.put("seller_id", config.get(EXT_SELLER_EMAIL, String.class));//卖家支付宝账号
-        data.put("total_fee", RMB_YUAN_FORMAT.format(order.getPayableFee()));//总金额
+        data.put("total_fee", RMB_YUAN_FORMAT.format(order.getPayableAmount()));//总金额
         data.put("body", order.getBody());//商品详情
 
         if (properties.containsKey("app_id")) {

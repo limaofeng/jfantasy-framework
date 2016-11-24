@@ -15,8 +15,8 @@ import org.jfantasy.pay.bean.Payment;
 import org.jfantasy.trade.bean.Transaction;
 import org.jfantasy.pay.dao.PaymentDao;
 import org.jfantasy.pay.error.PayException;
-import org.jfantasy.order.entity.enums.PaymentStatus;
-import org.jfantasy.order.entity.enums.PaymentType;
+import org.jfantasy.pay.bean.enums.PaymentStatus;
+import org.jfantasy.pay.bean.enums.PaymentType;
 import org.jfantasy.pay.product.Parameters;
 import org.jfantasy.pay.product.PayProduct;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,7 +76,7 @@ public class PaymentService {
         //支付配置类型（线下支付、在线支付）
         PaymentType paymentType = PaymentType.online;
         BigDecimal paymentFee = BigDecimal.ZERO; //支付手续费
-        BigDecimal amountPayable = order.getPayableFee();//应付金额（含支付手续费）
+        BigDecimal amountPayable = order.getPayableAmount();//应付金额（含支付手续费）
         //保存交易
         payment = new Payment();
         String bankName = payProduct.getName();
@@ -85,7 +85,7 @@ public class PaymentService {
         payment.setPayConfigName(payConfig.getName());
         payment.setBankName(bankName);
         payment.setBankAccount(bankAccount);
-        payment.setTotalAmount(amountPayable.add(paymentFee));
+        payment.setTotalAmount(amountPayable);
         payment.setPaymentFee(paymentFee);
         payment.setPayer(payer);
         payment.setMemo(null);

@@ -10,7 +10,6 @@ import org.jfantasy.card.bean.Card;
 import org.jfantasy.trade.bean.Project;
 import org.jfantasy.trade.bean.Transaction;
 import org.jfantasy.trade.dao.TransactionDao;
-import org.jfantasy.order.entity.OrderKey;
 import org.jfantasy.trade.service.TransactionService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -64,7 +63,7 @@ public class TransactionServiceTest {
                 if (Project.PAYMENT.equals(transaction.getProject()) || Project.INCOME.equals(transaction.getProject()) || Project.REFUND.equals(transaction.getProject())) {
                     Session session = OpenSessionUtils.openSession();
                     try {
-                        transactionDao.batchSQLExecute("update pay_transaction set subject = ? where sn = ?", OrderKey.newInstance(transaction.get("order_key")).getType(), transaction.getSn());
+                        transactionDao.batchSQLExecute("update pay_transaction set subject = ? where sn = ?", transaction.get(Transaction.ORDER_TYPE), transaction.getSn());
                     } finally {
                         OpenSessionUtils.closeSession(session);
                     }

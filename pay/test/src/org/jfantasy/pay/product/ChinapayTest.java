@@ -5,11 +5,11 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.criterion.Restrictions;
 import org.jfantasy.framework.util.common.DateUtil;
 import org.jfantasy.framework.util.common.PathUtil;
+import org.jfantasy.order.entity.Order;
 import org.jfantasy.pay.bean.PayConfig;
 import org.jfantasy.pay.bean.Payment;
 import org.jfantasy.pay.bean.Refund;
-import org.jfantasy.order.entity.OrderDetails;
-import org.jfantasy.order.entity.enums.PaymentStatus;
+import org.jfantasy.pay.bean.enums.PaymentStatus;
 import org.jfantasy.pay.product.sign.SignUtil;
 import org.jfantasy.pay.service.PayConfigService;
 import org.junit.After;
@@ -25,7 +25,7 @@ public class ChinapayTest {
 
     private Chinapay chinapay = new Chinapay();
 
-    private OrderDetails order;
+    private Order order;
     private Payment payment = new Payment(){
         {
             this.setSn("P0000001");
@@ -80,7 +80,7 @@ public class ChinapayTest {
         payConfigService.save(payConfig);
         payment.setPayConfig(payConfig);
         //测试订单
-        order = new OrderDetails();
+        order = new Order();
     }
 
     @After

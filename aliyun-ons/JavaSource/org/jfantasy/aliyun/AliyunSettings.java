@@ -8,7 +8,7 @@ public class AliyunSettings {
     private String accessKey;
     private String secretKey;
 
-    public AliyunSettings() {
+    public AliyunSettings() {//NOSONAR
     }
 
     public AliyunSettings(AliyunSettings aliyunSettings) {

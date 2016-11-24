@@ -3,7 +3,7 @@ package org.jfantasy.order.listener;
 import com.aliyun.openservices.ons.api.Message;
 import com.aliyun.openservices.ons.api.Producer;
 import org.jfantasy.aliyun.AliyunSettings;
-import org.jfantasy.framework.autoconfigure.PayAutoConfiguration;
+import org.jfantasy.autoconfigure.TradeAutoConfiguration;
 import org.jfantasy.framework.jackson.JSON;
 import org.jfantasy.order.bean.Order;
 import org.jfantasy.order.event.OrderStatusChangedEvent;
@@ -29,7 +29,7 @@ public class ONSProducerPayOrderListener implements ApplicationListener<OrderSta
     @Override
     public void onApplicationEvent(OrderStatusChangedEvent event) {
         Order order = event.getOrder();
-        Message msg = new Message(aliyunSettings.getTopicId(), PayAutoConfiguration.ONS_TAGS_PAY_ORDERKEY, order.getKey(), JSON.serialize(order,"payments","refunds").getBytes());
+        Message msg = new Message(aliyunSettings.getTopicId(), TradeAutoConfiguration.ONS_TAGS_ORDER, order.getId(), JSON.serialize(order,"payments","refunds").getBytes());
         producer.send(msg);
     }
 

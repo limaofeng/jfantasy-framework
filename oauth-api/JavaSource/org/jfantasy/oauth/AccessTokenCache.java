@@ -1,6 +1,6 @@
 package org.jfantasy.oauth;
 
-import org.jfantasy.framework.autoconfigure.HttpOAuthSettings;
+import org.jfantasy.autoconfigure.HttpOAuthSettings;
 
 import java.util.Date;
 

@@ -3,7 +3,7 @@ package org.jfantasy.trade.listener;
 import com.aliyun.openservices.ons.api.Message;
 import com.aliyun.openservices.ons.api.Producer;
 import org.jfantasy.aliyun.AliyunSettings;
-import org.jfantasy.framework.autoconfigure.PayAutoConfiguration;
+import org.jfantasy.autoconfigure.TradeAutoConfiguration;
 import org.jfantasy.framework.jackson.JSON;
 import org.jfantasy.trade.bean.Transaction;
 import org.jfantasy.trade.bean.enums.TxStatus;
@@ -36,7 +36,7 @@ public class ONSByTransactionChangedListener implements ApplicationListener<Tran
         if (transaction.getStatus() == TxStatus.unprocessed) {
             return;
         }
-        Message msg = new Message(aliyunSettings.getTopicId(), PayAutoConfiguration.ONS_TAGS_TRANSACTION_KEY, transaction.getSn(), JSON.serialize(transaction).getBytes());
+        Message msg = new Message(aliyunSettings.getTopicId(), TradeAutoConfiguration.ONS_TAGS_TRANSACTION, transaction.getSn(), JSON.serialize(transaction).getBytes());
         producer.send(msg);
     }
 

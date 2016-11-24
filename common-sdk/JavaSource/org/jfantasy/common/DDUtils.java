@@ -2,7 +2,7 @@ package org.jfantasy.common;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jfantasy.framework.autoconfigure.ApiGatewaySettings;
+import org.jfantasy.autoconfigure.ApiGatewaySettings;
 import org.jfantasy.framework.spring.SpringContextUtil;
 import org.jfantasy.framework.spring.validation.RESTful;
 import org.jfantasy.framework.util.common.ClassUtil;

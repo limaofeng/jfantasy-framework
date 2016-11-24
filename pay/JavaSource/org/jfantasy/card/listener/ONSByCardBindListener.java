@@ -4,7 +4,7 @@ import com.aliyun.openservices.ons.api.Message;
 import com.aliyun.openservices.ons.api.Producer;
 import org.hibernate.Session;
 import org.jfantasy.aliyun.AliyunSettings;
-import org.jfantasy.framework.autoconfigure.PayAutoConfiguration;
+import org.jfantasy.autoconfigure.TradeAutoConfiguration;
 import org.jfantasy.framework.jackson.FilterItem;
 import org.jfantasy.framework.jackson.JSON;
 import org.jfantasy.framework.lucene.dao.hibernate.OpenSessionUtils;
@@ -40,7 +40,7 @@ public class ONSByCardBindListener implements ApplicationListener<CardBindEvent>
         Session session = OpenSessionUtils.openSession();
         try {
             Card card = event.getCard();
-            Message msg = new Message(aliyunSettings.getTopicId(), PayAutoConfiguration.ONS_TAGS_CARDBIND_KEY, card.getNo(), JSON.serialize(card, () -> new FilterItem[]{FilterItem.ignore(Card.class, "type", "batch", Card.FIELDS_BY_CREATOR, "create_time,", Card.FIELDS_BY_MODIFIER, "modify_time"), FilterItem.allow(CardDesign.class, "styles", "extras")}).getBytes());
+            Message msg = new Message(aliyunSettings.getTopicId(), TradeAutoConfiguration.ONS_TAGS_CARDBIND, card.getNo(), JSON.serialize(card, () -> new FilterItem[]{FilterItem.ignore(Card.class, "type", "batch", Card.FIELDS_BY_CREATOR, "create_time,", Card.FIELDS_BY_MODIFIER, "modify_time"), FilterItem.allow(CardDesign.class, "styles", "extras")}).getBytes());
             producer.send(msg);
         } finally {
             OpenSessionUtils.closeSession(session);

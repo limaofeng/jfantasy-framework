@@ -6,7 +6,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.hibernate.criterion.Restrictions;
-import org.jfantasy.framework.autoconfigure.ApiGatewaySettings;
+import org.jfantasy.autoconfigure.ApiGatewaySettings;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.httpclient.HttpClientUtil;

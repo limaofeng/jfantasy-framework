@@ -37,6 +37,7 @@ project(':jfantasy-oauth').projectDir = "$rootDir/oauth" as File
 project(':jfantasy-oauth-api').projectDir = "$rootDir/oauth-api" as File
 project(':jfantasy-wallet').projectDir = "$rootDir/wallet" as File
 project(':jfantasy-thirdparty').projectDir = "$rootDir/thirdparty" as File
+
 // sdk list
 project(':jfantasy-invoice-sdk').projectDir = "$rootDir/invoice-sdk" as File
 project(':jfantasy-file-sdk').projectDir = "$rootDir/file-sdk" as File

@@ -20,7 +20,7 @@ import org.jfantasy.trade.bean.Project;
 import org.jfantasy.trade.bean.Transaction;
 import org.jfantasy.trade.bean.enums.ProjectType;
 import org.jfantasy.pay.error.PayException;
-import org.jfantasy.order.entity.enums.PaymentStatus;
+import org.jfantasy.pay.bean.enums.PaymentStatus;
 import org.jfantasy.pay.rest.models.PayForm;
 import org.jfantasy.pay.rest.models.TxStatusForm;
 import org.jfantasy.pay.rest.models.assembler.TransactionResourceAssembler;
@@ -109,7 +109,7 @@ public class TransactionController {
         return transactionService.get(id);
     }
 
-    ResultResourceSupport transform(Transaction transaction) {
+    public ResultResourceSupport transform(Transaction transaction) {
         ResultResourceSupport resource = assembler.toResource(transaction);
         OAuthUserDetails user = SpringSecurityUtils.getCurrentUser(OAuthUserDetails.class);
 

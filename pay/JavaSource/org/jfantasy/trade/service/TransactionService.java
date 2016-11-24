@@ -17,7 +17,6 @@ import org.jfantasy.trade.bean.enums.TxStatus;
 import org.jfantasy.trade.dao.AccountDao;
 import org.jfantasy.trade.dao.ProjectDao;
 import org.jfantasy.trade.dao.TransactionDao;
-import org.jfantasy.order.entity.OrderKey;
 import org.jfantasy.pay.rest.models.OrderTransaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -122,8 +121,9 @@ public class TransactionService {
     public Transaction save(String projectKey, String from, String to, TxChannel channel, BigDecimal amount, String notes, Map<String, Object> properties) {
         Project project = projectDao.get(projectKey);
         // 生成 unionid
-        String orderKey = (String) properties.get(Transaction.ORDER_KEY);
-        String key = StringUtil.defaultValue(properties.remove(Transaction.UNION_KEY), orderKey);
+        String orderId = (String) properties.get(Transaction.ORDER_ID);
+        String orderType = (String) properties.get(Transaction.ORDER_TYPE);
+        String key = StringUtil.defaultValue(properties.remove(Transaction.UNION_KEY), orderId);
         String unionid = Transaction.generateUnionid(project.getKey(), key);
         // 判断交易是否已经存在
         Transaction src = this.transactionDao.findUnique(Restrictions.eq("unionId", unionid));
@@ -145,12 +145,12 @@ public class TransactionService {
         switch (project.getType()) {
             case order:
                 transaction.set("stage", Transaction.STAGE_PAYMENT);
-                transaction.setSubject(OrderKey.newInstance(orderKey).getType());
+                transaction.setSubject(orderType);
                 break;
             case transfer:
                 transaction.setChannel(ObjectUtil.defaultValue(channel, TxChannel.internal));
-                if (StringUtil.isNotBlank(orderKey)) {
-                    transaction.setSubject(OrderKey.newInstance(orderKey).getType());
+                if (StringUtil.isNotBlank(orderType)) {
+                    transaction.setSubject(orderType);
                 }
                 break;
             default:

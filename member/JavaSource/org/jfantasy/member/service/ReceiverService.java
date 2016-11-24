@@ -24,11 +24,10 @@ public class ReceiverService {
         if (count == 0) {
             receiver.setIsDefault(true);
         } else {
-            List<Receiver> receivers = this.receiverDao.find(Restrictions.eq("member.id", receiver.getMember().getId()), Restrictions.eq("isDefault", true));
             if (ObjectUtil.defaultValue(receiver.getIsDefault(), false)) {
+                List<Receiver> receivers = this.receiverDao.find(Restrictions.eq("member.id", receiver.getMember().getId()), Restrictions.eq("isDefault", true));
                 for (Receiver ver : receivers) {
-                    if (Boolean.TRUE.equals(ver.getIsDefault()))
-                        ver.setIsDefault(false);
+                    ver.setIsDefault(false);
                     receiverDao.save(ver);
                 }
             }

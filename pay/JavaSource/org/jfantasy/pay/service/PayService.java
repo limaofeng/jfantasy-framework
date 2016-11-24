@@ -13,11 +13,10 @@ import org.jfantasy.trade.bean.enums.ProjectType;
 import org.jfantasy.trade.bean.enums.TxChannel;
 import org.jfantasy.trade.bean.enums.TxStatus;
 import org.jfantasy.pay.error.PayException;
-import org.jfantasy.order.entity.OrderKey;
 import org.jfantasy.order.entity.enums.OrderStatus;
-import org.jfantasy.order.entity.enums.PaymentStatus;
-import org.jfantasy.order.entity.enums.PaymentType;
-import org.jfantasy.order.entity.enums.RefundStatus;
+import org.jfantasy.pay.bean.enums.PaymentStatus;
+import org.jfantasy.pay.bean.enums.PaymentType;
+import org.jfantasy.pay.bean.enums.RefundStatus;
 import org.jfantasy.pay.product.PayProduct;
 import org.jfantasy.pay.product.PayType;
 import org.jfantasy.pay.product.Walletpay;
@@ -83,14 +82,13 @@ public class PayService {
         // 设置 Trx 到 properties 中
         properties.put(Walletpay.PROPERTY_TRANSACTION, transaction);
         //获取订单信息
-        String orderKey = transaction.get("order_key");
+        String orderId = transaction.get(Transaction.ORDER_ID);
         //验证业务订单
         if (transaction.getStatus() != TxStatus.unprocessed) {
             throw new ValidationException(000.0f, "交易状态为[" + transaction.getStatus() + "],不满足付款的必要条件");
         }
-        OrderKey key = OrderKey.newInstance(orderKey);
-        Order order = orderService.get(key);
-        if (order.getStatus() != OrderStatus.unpaid) {
+        Order order = orderService.get(orderId);
+        if (order.getStatus() != OrderStatus.UNPAID) {
             throw new ValidationException(000.0f, "订单状态为[" + order.getStatus() + "],不满足付款的必要条件");
         }
         if (order.isExpired()) {//这里有访问数据库操作,所以放在后面
@@ -142,7 +140,7 @@ public class PayService {
 
         if (refund.getType() == PaymentType.online) {
             Order order = refund.getOrder();
-            if (order.getStatus() != OrderStatus.paid) {
+            if (order.getStatus() != OrderStatus.PAID) {
                 throw new ValidationException(000.0f, "订单状态为[" + order.getStatus() + "],不满足付款的必要条件");
             }
             if (refund.getStatus() != RefundStatus.ready) {
@@ -224,8 +222,9 @@ public class PayService {
             transaction.setPayConfigName(payConfig.getName());
             transactionService.update(transaction);
             // 更新订单状态
-            order.setStatus(OrderStatus.paid);
+            order.setStatus(OrderStatus.PAID);
             order.setPaymentTime(payment.getTradeTime());
+            order.setPaymentConfig(payConfig);
             order.setPayConfigName(payConfig.getName());
             orderService.update(order);
         }
@@ -279,7 +278,7 @@ public class PayService {
             transaction.setPayConfigName(payConfig.getName());
             transactionService.update(transaction);
             // 更新订单状态
-            order.setStatus(order.getPayableFee().equals(refund.getTotalAmount()) ? OrderStatus.refunded : OrderStatus.partRefund);
+            order.setStatus(order.getPayableAmount().equals(refund.getTotalAmount()) ? OrderStatus.REFUNDED : OrderStatus.PARTREFUND);
             order.setRefundAmount(refund.getTotalAmount());
             order.setRefundTime(refund.getTradeTime());
             orderService.update(order);
