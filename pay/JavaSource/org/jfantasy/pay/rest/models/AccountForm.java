@@ -1,6 +1,6 @@
 package org.jfantasy.pay.rest.models;
 
-import org.jfantasy.pay.bean.enums.AccountType;
+import org.jfantasy.trade.bean.enums.AccountType;
 
 public class AccountForm {
     private AccountType type;

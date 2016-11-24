@@ -3,8 +3,10 @@ package org.jfantasy.pay.bean;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.GenericGenerator;
 import org.jfantasy.framework.dao.BaseBusEntity;
-import org.jfantasy.pay.order.entity.enums.PaymentType;
-import org.jfantasy.pay.order.entity.enums.RefundStatus;
+import org.jfantasy.order.bean.Order;
+import org.jfantasy.order.entity.enums.PaymentType;
+import org.jfantasy.order.entity.enums.RefundStatus;
+import org.jfantasy.trade.bean.Transaction;
 
 import javax.persistence.*;
 import java.math.BigDecimal;

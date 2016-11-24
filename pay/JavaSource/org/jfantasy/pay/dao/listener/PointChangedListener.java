@@ -4,8 +4,8 @@ import org.hibernate.event.spi.EventType;
 import org.hibernate.event.spi.PostInsertEvent;
 import org.hibernate.event.spi.PostUpdateEvent;
 import org.jfantasy.framework.dao.hibernate.listener.AbstractChangedListener;
-import org.jfantasy.pay.bean.Point;
-import org.jfantasy.pay.event.PointChangedEvent;
+import org.jfantasy.trade.bean.Point;
+import org.jfantasy.trade.event.PointChangedEvent;
 import org.springframework.stereotype.Component;
 
 @Component

@@ -2,8 +2,8 @@ package org.jfantasy.pay.rest.models;
 
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import org.jfantasy.pay.bean.OrderServer;
-import org.jfantasy.pay.order.entity.enums.CallType;
+import org.jfantasy.order.bean.OrderServer;
+import org.jfantasy.order.entity.enums.CallType;
 
 import java.util.HashMap;
 import java.util.Map;

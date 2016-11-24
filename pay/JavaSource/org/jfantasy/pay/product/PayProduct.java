@@ -1,10 +1,10 @@
 package org.jfantasy.pay.product;
 
-import org.jfantasy.pay.bean.Order;
+import org.jfantasy.order.bean.Order;
 import org.jfantasy.pay.bean.Payment;
 import org.jfantasy.pay.bean.Refund;
 import org.jfantasy.pay.error.PayException;
-import org.jfantasy.pay.order.entity.enums.PaymentStatus;
+import org.jfantasy.order.entity.enums.PaymentStatus;
 
 import java.util.Properties;
 

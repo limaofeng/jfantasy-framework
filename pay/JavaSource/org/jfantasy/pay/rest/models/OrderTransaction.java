@@ -1,6 +1,6 @@
 package org.jfantasy.pay.rest.models;
 
-import org.jfantasy.pay.bean.Project;
+import org.jfantasy.trade.bean.Project;
 
 import java.math.BigDecimal;
 

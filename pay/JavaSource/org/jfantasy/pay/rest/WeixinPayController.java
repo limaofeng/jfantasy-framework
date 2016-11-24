@@ -18,7 +18,7 @@ import org.jfantasy.pay.product.PayType;
 import org.jfantasy.pay.product.Weixinpay;
 import org.jfantasy.pay.service.PayConfigService;
 import org.jfantasy.pay.service.PayService;
-import org.jfantasy.pay.service.TransactionService;
+import org.jfantasy.trade.service.TransactionService;
 import org.jfantasy.pay.service.vo.ToPayment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

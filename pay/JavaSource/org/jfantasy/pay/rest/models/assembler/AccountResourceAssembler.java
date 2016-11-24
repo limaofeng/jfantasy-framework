@@ -3,10 +3,10 @@ package org.jfantasy.pay.rest.models.assembler;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
-import org.jfantasy.pay.bean.Account;
-import org.jfantasy.pay.bean.Point;
-import org.jfantasy.pay.bean.Transaction;
-import org.jfantasy.pay.rest.AccountController;
+import org.jfantasy.trade.bean.Account;
+import org.jfantasy.trade.bean.Point;
+import org.jfantasy.trade.bean.Transaction;
+import org.jfantasy.trade.rest.AccountController;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
 
 import java.util.ArrayList;

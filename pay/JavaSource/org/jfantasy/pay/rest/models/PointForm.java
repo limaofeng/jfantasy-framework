@@ -1,7 +1,7 @@
 package org.jfantasy.pay.rest.models;
 
 
-import org.jfantasy.pay.bean.enums.PointStatus;
+import org.jfantasy.trade.bean.enums.PointStatus;
 
 public class PointForm {
     /**

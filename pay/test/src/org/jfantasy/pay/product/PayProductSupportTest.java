@@ -3,7 +3,7 @@ package org.jfantasy.pay.product;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.jackson.JSON;
-import org.jfantasy.pay.bean.ExtProperty;
+import org.jfantasy.order.bean.ExtProperty;
 import org.junit.Test;
 
 

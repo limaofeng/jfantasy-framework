@@ -1,7 +1,7 @@
 package org.jfantasy.pay.service;
 
 import org.jfantasy.framework.util.common.ObjectUtil;
-import org.jfantasy.pay.bean.ExtProperty;
+import org.jfantasy.order.bean.ExtProperty;
 import org.jfantasy.pay.bean.enums.PayMethod;
 import org.jfantasy.pay.product.*;
 import org.springframework.beans.factory.InitializingBean;

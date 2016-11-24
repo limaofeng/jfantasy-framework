@@ -1,7 +1,7 @@
 package org.jfantasy.pay.boot;
 
-import org.jfantasy.pay.order.OrderServiceFactory;
-import org.jfantasy.pay.order.TestOrderService;
+import org.jfantasy.order.OrderServiceFactory;
+import org.jfantasy.order.TestOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 

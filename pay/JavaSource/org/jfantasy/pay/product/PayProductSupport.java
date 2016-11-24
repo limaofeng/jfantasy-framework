@@ -7,6 +7,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.MDC;
+import org.jfantasy.order.bean.ExtProperty;
+import org.jfantasy.order.bean.Order;
 import org.jfantasy.pay.bean.*;
 import org.jfantasy.pay.bean.enums.PayMethod;
 import org.jfantasy.pay.error.PayException;

@@ -1,8 +1,8 @@
 package org.jfantasy.pay.boot;
 
-import org.jfantasy.pay.bean.Account;
-import org.jfantasy.pay.bean.enums.AccountType;
-import org.jfantasy.pay.service.AccountService;
+import org.jfantasy.trade.bean.Account;
+import org.jfantasy.trade.bean.enums.AccountType;
+import org.jfantasy.trade.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 

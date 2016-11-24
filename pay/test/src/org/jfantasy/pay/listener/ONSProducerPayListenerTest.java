@@ -1,12 +1,12 @@
 package org.jfantasy.pay.listener;
 
 import org.jfantasy.framework.util.common.BeanUtil;
-import org.jfantasy.pay.bean.Order;
+import org.jfantasy.order.bean.Order;
 import org.jfantasy.pay.bean.PayConfig;
 import org.jfantasy.pay.bean.Payment;
-import org.jfantasy.pay.order.entity.PaymentDetails;
-import org.jfantasy.pay.order.entity.enums.PaymentStatus;
-import org.jfantasy.pay.order.entity.enums.PaymentType;
+import org.jfantasy.order.entity.PaymentDetails;
+import org.jfantasy.order.entity.enums.PaymentStatus;
+import org.jfantasy.order.entity.enums.PaymentType;
 import org.junit.Assert;
 import org.junit.Test;
 

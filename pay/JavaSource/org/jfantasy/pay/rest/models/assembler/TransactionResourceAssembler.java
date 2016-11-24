@@ -3,11 +3,11 @@ package org.jfantasy.pay.rest.models.assembler;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
-import org.jfantasy.pay.bean.Transaction;
-import org.jfantasy.pay.bean.enums.BillType;
+import org.jfantasy.trade.bean.Transaction;
+import org.jfantasy.trade.bean.enums.BillType;
 import org.jfantasy.pay.bean.enums.OwnerType;
 import org.jfantasy.pay.rest.LogController;
-import org.jfantasy.pay.rest.TransactionController;
+import org.jfantasy.trade.rest.TransactionController;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
@@ -35,7 +35,7 @@ public class TransactionResourceAssembler extends ResourceAssemblerSupport<Trans
     @Override
     public ResultResourceSupport toResource(Transaction entity) {
         ResultResourceSupport resource = createResourceWithId(entity.getSn(), entity);
-        resource.add(linkTo(methodOn(LogController.class).search(OwnerType.transaction, entity.getSn())).withRel("logs"));
+        resource.add(linkTo(methodOn(LogController.class).search(OwnerType.TRANSACTION, entity.getSn())).withRel("logs"));
         if (account != null) {
             resource.set("type", account.equals(entity.getFrom()) ? BillType.credit : BillType.debit);
         }

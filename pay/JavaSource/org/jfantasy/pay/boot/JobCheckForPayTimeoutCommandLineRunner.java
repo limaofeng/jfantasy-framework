@@ -1,6 +1,6 @@
 package org.jfantasy.pay.boot;
 
-import org.jfantasy.pay.job.OrderClose;
+import org.jfantasy.order.job.OrderClose;
 import org.jfantasy.schedule.service.ScheduleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;

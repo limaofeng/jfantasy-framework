@@ -3,10 +3,10 @@ package org.jfantasy.pay.rest.models.assembler;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
-import org.jfantasy.pay.bean.Card;
-import org.jfantasy.pay.bean.CardBatch;
-import org.jfantasy.pay.bean.CardType;
-import org.jfantasy.pay.rest.CardTypeController;
+import org.jfantasy.card.bean.Card;
+import org.jfantasy.card.bean.CardBatch;
+import org.jfantasy.card.bean.CardType;
+import org.jfantasy.card.rest.CardTypeController;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
 
 import java.util.ArrayList;

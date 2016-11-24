@@ -2,7 +2,7 @@ package org.jfantasy.pay.rest.models;
 
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
-import org.jfantasy.pay.bean.Styles;
+import org.jfantasy.card.bean.Styles;
 
 public class CardStyle {
     private String id;

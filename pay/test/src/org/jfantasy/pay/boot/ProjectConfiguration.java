@@ -1,8 +1,8 @@
 package org.jfantasy.pay.boot;
 
 
-import org.jfantasy.pay.bean.Project;
-import org.jfantasy.pay.service.ProjectService;
+import org.jfantasy.trade.bean.Project;
+import org.jfantasy.trade.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 

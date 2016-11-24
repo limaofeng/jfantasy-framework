@@ -2,7 +2,7 @@ package org.jfantasy.pay.rest.models;
 
 import org.hibernate.validator.constraints.NotEmpty;
 import org.jfantasy.framework.spring.validation.RESTful;
-import org.jfantasy.pay.bean.enums.TxChannel;
+import org.jfantasy.trade.bean.enums.TxChannel;
 
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;

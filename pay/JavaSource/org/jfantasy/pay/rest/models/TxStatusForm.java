@@ -1,6 +1,6 @@
 package org.jfantasy.pay.rest.models;
 
-import org.jfantasy.pay.bean.enums.TxStatus;
+import org.jfantasy.trade.bean.enums.TxStatus;
 
 import javax.validation.constraints.NotNull;
 

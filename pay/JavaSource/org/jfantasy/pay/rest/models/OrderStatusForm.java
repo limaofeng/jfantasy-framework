@@ -1,6 +1,6 @@
 package org.jfantasy.pay.rest.models;
 
-import org.jfantasy.pay.order.entity.enums.OrderStatus;
+import org.jfantasy.order.entity.enums.OrderStatus;
 
 import javax.validation.constraints.NotNull;
 
