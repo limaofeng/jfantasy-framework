@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * 订单接口类
  */
-public class Order {
+public class OrderDTO {
     /**
      * 编号
      */
@@ -34,9 +34,17 @@ public class Order {
      */
     private BigDecimal payableFee;
     /**
+     * 收货地址ID
+     */
+    private Long receiverId;
+    /**
+     * 配送类型ID
+     */
+    private Long deliveryTypeId;
+    /**
      * 订单项
      */
-    private List<OrderItem> orderItems;
+    private List<OrderItemDTO> items;
     /**
      * 订单关联的会员
      */
@@ -57,6 +65,10 @@ public class Order {
      * 扩展属性
      */
     private HashMap<String, Object> attrs;
+    /**
+     * 备忘
+     */
+    private String memo;
 
     public String getSn() {
         return sn;
@@ -98,12 +110,12 @@ public class Order {
         this.status = status;
     }
 
-    public List<OrderItem> getOrderItems() {
-        return orderItems;
+    public List<OrderItemDTO> getItems() {
+        return items;
     }
 
-    public void setOrderItems(List<OrderItem> orderItems) {
-        this.orderItems = orderItems;
+    public void setItems(List<OrderItemDTO> orderItems) {
+        this.items = orderItems;
     }
 
     public Long getMemberId() {
@@ -158,6 +170,30 @@ public class Order {
         this.attrs.put(key, value);
     }
 
+    public Long getReceiverId() {
+        return receiverId;
+    }
+
+    public void setReceiverId(Long receiverId) {
+        this.receiverId = receiverId;
+    }
+
+    public Long getDeliveryTypeId() {
+        return deliveryTypeId;
+    }
+
+    public void setDeliveryTypeId(Long deliveryTypeId) {
+        this.deliveryTypeId = deliveryTypeId;
+    }
+
+    public String getMemo() {
+        return memo;
+    }
+
+    public void setMemo(String memo) {
+        this.memo = memo;
+    }
+
     @Override
     public String toString() {
         return "OrderDetails{" +
@@ -165,7 +201,6 @@ public class Order {
                 ", type='" + type + '\'' +
                 ", totalFee=" + totalFee +
                 ", payableFee=" + payableFee +
-                ", orderItems=" + orderItems +
                 ", memberId=" + memberId +
                 '}';
     }

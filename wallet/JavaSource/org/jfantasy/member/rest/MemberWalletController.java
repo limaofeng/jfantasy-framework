@@ -23,9 +23,7 @@ public class MemberWalletController {
     private PointDetailsResourceAssembler assembler = new PointDetailsResourceAssembler();
     private WalletResourceAssembler walletAssembler = new WalletResourceAssembler();
 
-    @Autowired
     private WalletService walletService;
-    @Autowired
     private WalletController walletController;
 
     /**
@@ -55,6 +53,16 @@ public class MemberWalletController {
         Wallet wallet = walletService.getWalletByMember(id);
         details.setPoints(wallet.getPoints());
         return assembler.toResource(details);
+    }
+
+    @Autowired
+    public void setWalletService(WalletService walletService) {
+        this.walletService = walletService;
+    }
+
+    @Autowired
+    public void setWalletController(WalletController walletController) {
+        this.walletController = walletController;
     }
 
 }

@@ -69,7 +69,7 @@ public class Order extends BaseBusEntity {
     private String shipZipCode;// 收货邮编
     @Column(name = "SHIP_MOBILE", nullable = false)
     private String shipMobile;// 收货手机
-    @Column(name = "MEMO", nullable = false)
+    @Column(name = "MEMO")
     private String memo;// 买家附言
     @Column(name = "DELIVERY_TYPE_NAME", length = 100)
     private String deliveryTypeName;// 配送方式名称
@@ -100,7 +100,7 @@ public class Order extends BaseBusEntity {
     private Long memberId;// 会员
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @OrderBy("createTime asc")
-    private List<OrderItem> orderItems = new ArrayList<>();// 订单支付信息
+    private List<OrderItem> items = new ArrayList<>();// 订单支付信息
     @Convert(converter = MapConverter.class)
     @Column(name = "PROPERTIES", columnDefinition = "Text")
     private Map<String, Object> attrs;//NOSONAR 扩展属性
@@ -199,12 +199,12 @@ public class Order extends BaseBusEntity {
         this.id = id;
     }
 
-    public List<OrderItem> getOrderItems() {
-        return ObjectUtil.defaultValue(orderItems, Collections.emptyList());
+    public List<OrderItem> getItems() {
+        return ObjectUtil.defaultValue(items, Collections.emptyList());
     }
 
-    public void setOrderItems(List<OrderItem> orderItems) {
-        this.orderItems = orderItems;
+    public void setItems(List<OrderItem> items) {
+        this.items = items;
     }
 
     public String getDeliveryTypeName() {
@@ -392,6 +392,12 @@ public class Order extends BaseBusEntity {
     @Transient
     public String getBody() {
         return "";
+    }
+
+    @Transient
+    public void addItems(OrderItem item) {
+        this.items.add(item);
+        item.setOrder(this);
     }
 
 }

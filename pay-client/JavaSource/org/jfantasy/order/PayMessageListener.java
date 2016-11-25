@@ -5,7 +5,7 @@ import com.aliyun.openservices.ons.api.ConsumeContext;
 import com.aliyun.openservices.ons.api.Message;
 import com.aliyun.openservices.ons.api.MessageListener;
 import org.jfantasy.framework.jackson.JSON;
-import org.jfantasy.order.entity.Order;
+import org.jfantasy.order.entity.OrderDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class PayMessageListener implements MessageListener {
@@ -15,7 +15,7 @@ public class PayMessageListener implements MessageListener {
     @Override
     public Action consume(Message message, ConsumeContext context) {
         if ("order".equals(message.getTag())) {
-            Order details = JSON.deserialize(new String(message.getBody()), Order.class);
+            OrderDTO details = JSON.deserialize(new String(message.getBody()), OrderDTO.class);
             assert details != null;
             orderMessageListener.on(details.getType(), details.getSn(), details.getStatus(), details);
         }

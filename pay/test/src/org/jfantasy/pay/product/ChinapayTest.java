@@ -5,7 +5,7 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.criterion.Restrictions;
 import org.jfantasy.framework.util.common.DateUtil;
 import org.jfantasy.framework.util.common.PathUtil;
-import org.jfantasy.order.entity.Order;
+import org.jfantasy.order.entity.OrderDTO;
 import org.jfantasy.pay.bean.PayConfig;
 import org.jfantasy.pay.bean.Payment;
 import org.jfantasy.pay.bean.Refund;
@@ -25,7 +25,7 @@ public class ChinapayTest {
 
     private Chinapay chinapay = new Chinapay();
 
-    private Order order;
+    private OrderDTO order;
     private Payment payment = new Payment(){
         {
             this.setSn("P0000001");
@@ -80,7 +80,7 @@ public class ChinapayTest {
         payConfigService.save(payConfig);
         payment.setPayConfig(payConfig);
         //测试订单
-        order = new Order();
+        order = new OrderDTO();
     }
 
     @After

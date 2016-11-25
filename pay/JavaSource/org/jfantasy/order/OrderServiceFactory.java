@@ -12,30 +12,30 @@ public class OrderServiceFactory {
 
     private static final Logger LOGGER = Logger.getLogger(OrderServiceFactory.class);
 
-    private Map<String, OrderService> orderServiceMap;
+    private Map<String, OrderDetailService> orderServiceMap;
 
     public OrderServiceFactory() {
         orderServiceMap = new HashMap<>();
     }
 
-    public OrderServiceFactory(Map<String, OrderService> orderDetailsServices) {
+    public OrderServiceFactory(Map<String, OrderDetailService> orderDetailsServices) {
         this.orderServiceMap = orderDetailsServices;
     }
 
-    public void register(String type, OrderService orderService) {
+    public void register(String type, OrderDetailService orderService) {
         if (orderServiceMap.containsKey(type)) {
             LOGGER.warn("type = " + type + "的 OrderService 已经存在,这将覆盖原有的 OrderService ");
         }
         orderServiceMap.put(type.toLowerCase(), orderService);
     }
 
-    public void register(String[] types, OrderService orderService) {
+    public void register(String[] types, OrderDetailService orderService) {
         for (String type : types) {
             register(type, orderService);
         }
     }
 
-    public OrderService getOrderService(String type) {
+    public OrderDetailService getOrderService(String type) {
         if (!this.orderServiceMap.containsKey(type.toLowerCase())) {
             throw new NotFoundException("orderType[" + type + "] 对应的 PaymentOrderService 未配置！");
         }

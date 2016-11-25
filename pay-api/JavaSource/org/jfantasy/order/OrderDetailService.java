@@ -1,7 +1,7 @@
 package org.jfantasy.order;
 
 
-import org.jfantasy.order.entity.Order;
+import org.jfantasy.order.entity.OrderDTO;
 
 import java.math.BigDecimal;
 
@@ -9,14 +9,14 @@ import java.math.BigDecimal;
  * 支付订单接口<br/>
  * 服务接入方需要实现该接口
  */
-public interface OrderService {
+public interface OrderDetailService {
 
     /**
      * 保存业务订单到交易系统
      *
      * @param order 业务订单
      */
-    void save(Order order);
+    void save(OrderDTO order);
 
     /**
      * 查询交易订单信息
@@ -25,7 +25,7 @@ public interface OrderService {
      * @param sn   业务订单 sn
      * @return Order
      */
-    Order get(String type, String sn);
+    OrderDTO get(String type, String sn);
 
     /**
      * 订单退款
@@ -36,7 +36,7 @@ public interface OrderService {
      * @param note         备注
      * @return Order
      */
-    Order refund(String type, String sn, BigDecimal refundAmount, String note);
+    OrderDTO refund(String type, String sn, BigDecimal refundAmount, String note);
 
 
     /**

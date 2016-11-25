@@ -178,7 +178,7 @@ public class OrderController {
     @RequestMapping(value = "/{id}/items", method = RequestMethod.GET)
     @ResponseBody
     public List<OrderItem> items(@PathVariable("id") String id) {
-        return get(id).getOrderItems();
+        return get(id).getItems();
     }
 
     private Order get(String id) {

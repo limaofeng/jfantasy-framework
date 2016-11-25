@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 /**
  * 订单明细项
  */
-public class OrderItem {
+public class OrderItemDTO {
     /**
      * 编号
      */
