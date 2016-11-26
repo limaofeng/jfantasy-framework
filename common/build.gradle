@@ -1,4 +1,3 @@
-//apply plugin: 'spring-boot'
 
 description = ' 公共模块 '
 dependencies {

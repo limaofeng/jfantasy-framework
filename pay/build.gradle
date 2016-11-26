@@ -1,4 +1,3 @@
-apply plugin: 'spring-boot'
 apply plugin: 'propdeps'
 apply plugin: 'propdeps-maven'
 apply plugin: 'propdeps-idea'

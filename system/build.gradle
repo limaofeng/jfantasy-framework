@@ -1,4 +1,3 @@
-apply plugin: 'spring-boot'
 
 description = ' 系统管理相关模块 '
 dependencies {

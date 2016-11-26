@@ -1,4 +1,3 @@
-//apply plugin: 'spring-boot'
 
 description = ' 权限控制中心 '
 dependencies {

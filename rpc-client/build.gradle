@@ -1,4 +1,3 @@
-apply plugin: 'spring-boot'
 
 description = ' Netty RPC 协议服务客户端 '
 dependencies {
