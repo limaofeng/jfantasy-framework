@@ -1,6 +1,10 @@
 package org.jfantasy.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+
 import java.math.BigDecimal;
+import java.util.HashMap;
 
 /**
  * 订单明细项
@@ -27,9 +31,21 @@ public class OrderItemDTO {
      */
     private BigDecimal productPrice;
     /**
+     * 产品重量(单位克)
+     */
+    private Integer productWeight;
+    /**
      * 产品数量
      */
     private Integer productQuantity;
+    /**
+     * 产品描述
+     */
+    private String productDescription;
+    /**
+     * 产品冗余属性
+     */
+    private HashMap<String, Object> attrs;
 
     public String getSn() {
         return sn;
@@ -79,4 +95,39 @@ public class OrderItemDTO {
         this.productQuantity = productQuantity;
     }
 
+    public Integer getProductWeight() {
+        return productWeight;
+    }
+
+    public void setProductWeight(Integer productWeight) {
+        this.productWeight = productWeight;
+    }
+
+    public String getProductDescription() {
+        return productDescription;
+    }
+
+    public void setProductDescription(String productDescription) {
+        this.productDescription = productDescription;
+    }
+
+    @JsonAnySetter
+    public void set(String key, Object value) {
+        if (value == null) {
+            return;
+        }
+        if (this.attrs == null) {
+            this.attrs = new HashMap<>();
+        }
+        this.attrs.put(key, value);
+    }
+
+    @JsonAnyGetter
+    public HashMap<String, Object> getAttrs() {
+        return attrs;
+    }
+
+    public void setAttrs(HashMap<String, Object> attrs) {
+        this.attrs = attrs;
+    }
 }

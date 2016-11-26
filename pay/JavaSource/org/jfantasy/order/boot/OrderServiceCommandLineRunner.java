@@ -1,7 +1,6 @@
 package org.jfantasy.order.boot;
 
 import org.hibernate.criterion.Restrictions;
-import org.jfantasy.order.OrderServiceBuilder;
 import org.jfantasy.order.OrderServiceFactory;
 import org.jfantasy.order.bean.OrderServer;
 import org.jfantasy.order.service.OrderServerService;
@@ -14,12 +13,10 @@ public class OrderServiceCommandLineRunner implements CommandLineRunner {
 
     private OrderServiceFactory orderServiceFactory;
     private OrderServerService orderServerService;
-    private OrderServiceBuilder builder;
 
     @Override
     public void run(String... args) throws Exception {
         for (OrderServer entity : orderServerService.find(Restrictions.eq("enabled", true))) {
-            orderServiceFactory.register(entity.getType(), builder.build(entity.getProperties()));
         }
     }
 
@@ -31,11 +28,6 @@ public class OrderServiceCommandLineRunner implements CommandLineRunner {
     @Autowired
     public void setOrderServerService(OrderServerService orderServerService) {
         this.orderServerService = orderServerService;
-    }
-
-    @Autowired
-    public void setBuilder(OrderServiceBuilder builder) {
-        this.builder = builder;
     }
 
 }

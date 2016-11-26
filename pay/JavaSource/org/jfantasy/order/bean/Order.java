@@ -30,7 +30,7 @@ import java.util.*;
  * @since 2013-9-21 下午4:21:42
  */
 @Entity
-@Table(name = "PAY_ORDER",uniqueConstraints = @UniqueConstraint(name = "UK_ORDER_DETAILS", columnNames = {"TARGET_TYPE", "TARGET_ID"}))
+@Table(name = "PAY_ORDER",uniqueConstraints = @UniqueConstraint(name = "UK_ORDER_TARGET", columnNames = {"TARGET_TYPE", "TARGET_ID"}))
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "shipArea", "memeo", "shippings", "orderItems", "details_type", "details_id", "subject", "body"})
 public class Order extends BaseBusEntity {
@@ -39,6 +39,7 @@ public class Order extends BaseBusEntity {
 
     @Id
     @Column(name = "SN", nullable = false, unique = true)
+    @GeneratedValue(generator = "serialnumber")
     @GenericGenerator(name = "serialnumber", strategy = "serialnumber", parameters = {@org.hibernate.annotations.Parameter(name = "expression", value = "#DateUtil.format('yyyyMMdd') + #StringUtil.addZeroLeft(#SequenceInfo.nextValue('ORDER-SN'), 5)")})
     private String id;// 订单编号
     @Column(name = "TYPE", length = 20, updatable = false, nullable = false)
@@ -58,24 +59,24 @@ public class Order extends BaseBusEntity {
     private Integer totalProductQuantity;// 总商品数量
     @Column(name = "TOTAL_PRODUCT_PRICE", nullable = false, precision = 15, scale = 2)
     private BigDecimal totalProductPrice;// 总商品价格
-    @Column(name = "SHIP_NAME", nullable = false)
+    @Column(name = "SHIP_NAME", length = 20)
     private String shipName;// 收货人姓名
-    @Column(name = "SHIP_AREA_STORE", nullable = false)
+    @Column(name = "SHIP_AREA_STORE", length = 500)
     @Convert(converter = AreaConverter.class)
     private Area shipArea;// 收货地区存储
-    @Column(name = "SHIP_ADDRESS", nullable = false)
+    @Column(name = "SHIP_ADDRESS", length = 200)
     private String shipAddress;// 收货地址
-    @Column(name = "SHIP_ZIP_CODE", nullable = false)
+    @Column(name = "SHIP_ZIP_CODE", length = 10)
     private String shipZipCode;// 收货邮编
-    @Column(name = "SHIP_MOBILE", nullable = false)
+    @Column(name = "SHIP_MOBILE", length = 15)
     private String shipMobile;// 收货手机
-    @Column(name = "MEMO")
+    @Column(name = "MEMO",length = 50)
     private String memo;// 买家附言
     @Column(name = "DELIVERY_TYPE_NAME", length = 100)
     private String deliveryTypeName;// 配送方式名称
     @Column(name = "DELIVERY_TYPE_ID")
     private Long deliveryTypeId;// 配送方式
-    @Column(name = "PAY_CONFIG_NAME", nullable = false)
+    @Column(name = "PAY_CONFIG_NAME", length = 20)
     private String payConfigName;// 支付方式名称
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PAY_CONFIG_ID", foreignKey = @ForeignKey(name = "FK_ORDER_PAY_CONFIG"))
@@ -108,7 +109,7 @@ public class Order extends BaseBusEntity {
     private List<OrderPrice> prices = new ArrayList<>();//订单价格目录
     @Column(name = "TARGET_TYPE", nullable = false, updatable = false)
     private String detailsType;
-    @JoinColumn(name = "TARGET_ID", nullable = false, updatable = false)
+    @Column(name = "TARGET_ID", nullable = false, updatable = false)
     private String detailsId;
 
     public OrderStatus getStatus() {

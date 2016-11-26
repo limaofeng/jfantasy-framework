@@ -15,6 +15,8 @@ public class AliyunSettings {
         this.accessKey = aliyunSettings.getAccessKey();
         this.secretKey = aliyunSettings.getSecretKey();
         this.topicId = aliyunSettings.getTopicId();
+        this.consumerId = aliyunSettings.getConsumerId();
+        this.producerId = aliyunSettings.getProducerId();
     }
 
     public String getConsumerId() {

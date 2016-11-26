@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.jfantasy.framework.dao.BaseBusEntity;
 import org.jfantasy.framework.dao.hibernate.converter.MapConverter;
+import org.jfantasy.framework.util.common.ObjectUtil;
+import org.jfantasy.order.entity.OrderItemDTO;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -28,6 +30,19 @@ import java.util.Map;
 public class OrderItem extends BaseBusEntity {
 
     private static final long serialVersionUID = 5030818078599298690L;
+
+    public void initialize(OrderItemDTO dto){
+        this.setSn(dto.getSn());
+        this.setName(dto.getName());
+        this.setProductPrice(dto.getProductPrice());
+        this.setProductType(dto.getProductType());
+        this.setProductId(dto.getProductId());
+        this.setProductWeight(ObjectUtil.defaultValue(dto.getProductWeight(),0));
+        this.setProductQuantity(ObjectUtil.defaultValue(dto.getProductQuantity(),1));
+        this.setProductDescription(dto.getProductDescription());
+        this.setDeliveryQuantity(0);
+        this.setAttr(dto.getAttrs());
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE, generator = "order_item_gen")
@@ -52,8 +67,8 @@ public class OrderItem extends BaseBusEntity {
     /**
      * 产品类型
      */
-    @Column(name = "PRODUCT_TYPE", nullable = false, precision = 15, scale = 2)
-    private BigDecimal productType;
+    @Column(name = "PRODUCT_TYPE", nullable = false)
+    private String productType;
     /**
      * 产品编号
      */
@@ -69,6 +84,11 @@ public class OrderItem extends BaseBusEntity {
      */
     @Column(name = "PRODUCT_QUANTITY", nullable = false)
     private Integer productQuantity;
+    /**
+     * 产品描述
+     */
+    @Column(name = "PRODUCT_DESCRIPTION")
+    private String productDescription;
     /**
      * 交付数量
      */
@@ -168,11 +188,11 @@ public class OrderItem extends BaseBusEntity {
         this.attrs = attrs;
     }
 
-    public BigDecimal getProductType() {
+    public String getProductType() {
         return productType;
     }
 
-    public void setProductType(BigDecimal productType) {
+    public void setProductType(String productType) {
         this.productType = productType;
     }
 
@@ -224,4 +244,11 @@ public class OrderItem extends BaseBusEntity {
         return attrs;
     }
 
+    public String getProductDescription() {
+        return productDescription;
+    }
+
+    public void setProductDescription(String productDescription) {
+        this.productDescription = productDescription;
+    }
 }

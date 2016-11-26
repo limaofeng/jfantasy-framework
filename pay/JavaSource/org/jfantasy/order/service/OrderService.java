@@ -8,13 +8,13 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 import org.jfantasy.autoconfigure.ApiGatewaySettings;
-import org.jfantasy.logistics.bean.DeliveryType;
-import org.jfantasy.logistics.service.DeliveryTypeService;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.spring.mvc.error.RestException;
 import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.util.common.StringUtil;
+import org.jfantasy.logistics.bean.DeliveryType;
+import org.jfantasy.logistics.service.DeliveryTypeService;
 import org.jfantasy.order.OrderDetailService;
 import org.jfantasy.order.bean.Order;
 import org.jfantasy.order.bean.OrderItem;
@@ -22,6 +22,7 @@ import org.jfantasy.order.bean.OrderType;
 import org.jfantasy.order.bean.enums.PaymentStatus;
 import org.jfantasy.order.bean.enums.ShippingStatus;
 import org.jfantasy.order.dao.OrderDao;
+import org.jfantasy.order.dao.OrderItemDao;
 import org.jfantasy.order.dao.OrderTypeDao;
 import org.jfantasy.order.entity.OrderDTO;
 import org.jfantasy.order.entity.OrderItemDTO;
@@ -50,6 +51,7 @@ public class OrderService implements OrderDetailService {
     private static final Log LOG = LogFactory.getLog(OrderService.class);
 
     private final OrderDao orderDao;
+    private final OrderItemDao orderItemDao;
     private final OrderTypeDao orderTypeDao;
     private TransactionService transactionService;
     private ApiGatewaySettings apiGatewaySettings;
@@ -57,9 +59,10 @@ public class OrderService implements OrderDetailService {
     private DeliveryTypeService deliveryTypeService;
 
     @Autowired
-    public OrderService(OrderTypeDao orderTypeDao, OrderDao orderDao) {
+    public OrderService(OrderTypeDao orderTypeDao, OrderDao orderDao, OrderItemDao orderItemDao) {
         this.orderTypeDao = orderTypeDao;
         this.orderDao = orderDao;
+        this.orderItemDao = orderItemDao;
     }
 
     @Transactional(readOnly = true, propagation = Propagation.NOT_SUPPORTED)
@@ -121,6 +124,7 @@ public class OrderService implements OrderDetailService {
      *
      * @param details OrderDetails
      */
+    @Transactional
     public Order submitOrder(OrderDTO details) {
         Long memberId = details.getMemberId();
         Long deliveryTypeId = details.getDeliveryTypeId();
@@ -133,9 +137,13 @@ public class OrderService implements OrderDetailService {
         order.setStatus(OrderStatus.UNPAID);// 初始订单状态
         order.setPaymentStatus(PaymentStatus.UNPAID);// 初始支付状态
         order.setShippingStatus(ShippingStatus.UNSHIPPED);// 初始发货状态
+        // 设置订单类型
+        order.setType(details.getType());
+        // 设置订单 target
+        order.setDetailsId(details.getSn());
+        order.setDetailsType(details.getType());
         // 订单所属人
         order.setMemberId(memberId);
-
         // 初始化收货人信息
         if (receiverId != null) {
             Receiver receiver = getReceiverById(receiverId);
@@ -145,7 +153,6 @@ public class OrderService implements OrderDetailService {
             order.setShipZipCode(receiver.getZipCode());// 收货邮编
             order.setShipMobile(receiver.getMobile());// 收货手机
         }
-
         if (!items.isEmpty()) {// 有订单项
             // 初始化订单项信息
             BigDecimal totalProductPrice = BigDecimal.ZERO;// 订单商品总价
@@ -153,7 +160,7 @@ public class OrderService implements OrderDetailService {
             int totalProductWeight = 0;// 订单商品总重量
             for (OrderItemDTO dto : items) {
                 OrderItem item = new OrderItem();
-//                item.initialize(productService.get(item.getSn()));
+                item.initialize(dto);
                 totalProductPrice = totalProductPrice.add(item.getSubtotalPrice());
                 totalProductQuantity += item.getProductQuantity();
                 totalProductWeight += item.getSubtotalWeight();
@@ -167,7 +174,6 @@ public class OrderService implements OrderDetailService {
             order.setTotalProductQuantity(0);
             order.setTotalProductPrice(BigDecimal.ZERO);
         }
-
         // 初始化配置信息
         if (deliveryTypeId != null) {
             DeliveryType deliveryType = deliveryTypeService.get(deliveryTypeId);
@@ -191,15 +197,13 @@ public class OrderService implements OrderDetailService {
             order.setDeliveryTypeName(null);
             order.setDeliveryAmount(BigDecimal.ZERO);
         }
-
         // 初始化支付信息
         order.setPaidAmount(BigDecimal.ZERO);// 已付金额
-
         //解决附言不能为空的问题
         if (StringUtil.isNotBlank(memo)) {
             order.setMemo(memo);
         }
-
+        // 产品价格 + 配送费
         BigDecimal totalAmount = order.getTotalProductPrice().add(order.getDeliveryAmount());
         //额外的价格条目
         /*
@@ -214,15 +218,12 @@ public class OrderService implements OrderDetailService {
         }
         */
         order.setTotalAmount(totalAmount);// 订单总金额(商品金额+邮费)
-
         //如果有优惠，应该在这里计算。
         order.setPayableAmount(order.getTotalAmount());//订单支付金额
         this.orderDao.save(order);
-        /*
-        for (OrderItem item : order.getOrderItems()) {
+        for (OrderItem item : order.getItems()) {
             this.orderItemDao.save(item);
         }
-        */
         return order;
     }
 

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import org.jfantasy.order.entity.enums.OrderStatus;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -44,7 +45,7 @@ public class OrderDTO {
     /**
      * 订单项
      */
-    private List<OrderItemDTO> items;
+    private List<OrderItemDTO> items = new ArrayList<>();
     /**
      * 订单关联的会员
      */
@@ -192,6 +193,10 @@ public class OrderDTO {
 
     public void setMemo(String memo) {
         this.memo = memo;
+    }
+
+    public void addItem(OrderItemDTO item) {
+        this.items.add(item);
     }
 
     @Override

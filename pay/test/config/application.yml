@@ -67,12 +67,14 @@ aliyun:
   ons:
     accessKey: 44IzFLqkj8Pw2YOi
     secretKey: XexMYOXZGBrPgQTUq4HtKuxxl9zMx1
+    producerId: PID-DEV_TRADE
+    consumerId: CID-DEV_TRADE
     pay:
-      topicId: TEST-PAY_NOTIFICATION
-      producerId: PID-DEV_PAY
+      topicId: DEV-PAYNOTIFICATION
     doctorincome:
       topicId: TEST-DOCTOR_INCOME
-      consumerId: CID-DEV_DOCTOR_INCOME
+    order:
+      topicId: DEV-ORDER
 
 netty:
   server:
