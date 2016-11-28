@@ -95,23 +95,17 @@ public class OrderController {
     @ResponseBody
     public ResultResourceSupport transaction(@PathVariable("id") String id, @RequestBody OrderTransaction orderTransaction) {
         Map<String, Object> data = new HashMap<>();
+        // 订单
+        Order order = get(id);
+        // 保存到交易表的数据
+        data.putAll(order.getAttrs());
+        data.put(Transaction.ORDER_ID, order.getId());
+        data.put(Transaction.ORDER_TYPE, order.getType());
         // 判断交易类型
         if (orderTransaction.getType() == OrderTransaction.Type.payment) {
-            // 订单
-            Order order = get(id);
-            // 保存到交易表的数据
-            data.putAll(order.getAttrs());
-            data.put(Transaction.ORDER_ID, id);
-            data.put(Transaction.ORDER_TYPE, order.getType());
             String from = accountService.findUniqueByCurrentUser().getSn();// 付款方
             return transactionController.transform(this.transactionService.payment(from, order.getPayableAmount(), "", data));
         } else {
-            // 订单
-            Order order = get(id);
-            // 保存到交易表的数据
-            data.putAll(order.getAttrs());
-            data.put(Transaction.ORDER_ID, id);
-            data.put(Transaction.ORDER_TYPE, order.getType());
             return TransactionController.assembler.toResource(this.transactionService.refund(order.getId(), orderTransaction.getAmount(), ""));
         }
     }

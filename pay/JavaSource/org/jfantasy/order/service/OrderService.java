@@ -150,6 +150,8 @@ public class OrderService implements OrderDetailService {
         order.setDetailsType(details.getType());
         // 订单所属人
         order.setMemberId(memberId);
+        // 订单扩展字段
+        order.setAttrs(details.getAttrs());
         // 初始化收货人信息
         if (receiverId != null) {
             Receiver receiver = getReceiverById(receiverId);
