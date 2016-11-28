@@ -278,7 +278,8 @@ public class PayService {
             transaction.setPayConfigName(payConfig.getName());
             transactionService.update(transaction);
             // 更新订单状态
-            order.setStatus(order.getPayableAmount().equals(refund.getTotalAmount()) ? OrderStatus.refunded : OrderStatus.partRefund);
+            order.setStatus(OrderStatus.refunded);
+            order.setPaymentStatus(order.getPayableAmount().equals(refund.getTotalAmount()) ? org.jfantasy.order.entity.enums.PaymentStatus.refunded : org.jfantasy.order.entity.enums.PaymentStatus.partRefund);
             order.setRefundAmount(refund.getTotalAmount());
             order.setRefundTime(refund.getTradeTime());
             orderService.update(order);
