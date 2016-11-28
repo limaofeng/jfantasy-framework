@@ -42,7 +42,7 @@ public class OrderInsertOrUpdateListener extends AbstractChangedListener<Order> 
     @Override
     protected void onPostUpdate(Order entity, PostUpdateEvent event) {
         if (modify(event, "status")) {
-            if (entity.getStatus() == OrderStatus.PAID) {
+            if (entity.getStatus() == OrderStatus.paid) {
                 this.scheduleService.removeTrigdger(OrderClose.triggerKey(entity));
             }
             this.applicationContext.publishEvent(new OrderStatusChangedEvent(entity));

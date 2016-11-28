@@ -88,7 +88,7 @@ public class PayService {
             throw new ValidationException(000.0f, "交易状态为[" + transaction.getStatus() + "],不满足付款的必要条件");
         }
         Order order = orderService.get(orderId);
-        if (order.getStatus() != OrderStatus.UNPAID) {
+        if (order.getStatus() != OrderStatus.unpaid) {
             throw new ValidationException(000.0f, "订单状态为[" + order.getStatus() + "],不满足付款的必要条件");
         }
         if (order.isExpired()) {//这里有访问数据库操作,所以放在后面
@@ -140,7 +140,7 @@ public class PayService {
 
         if (refund.getType() == PaymentType.online) {
             Order order = refund.getOrder();
-            if (order.getStatus() != OrderStatus.PAID) {
+            if (order.getStatus() != OrderStatus.paid) {
                 throw new ValidationException(000.0f, "订单状态为[" + order.getStatus() + "],不满足付款的必要条件");
             }
             if (refund.getStatus() != RefundStatus.ready) {
@@ -222,7 +222,7 @@ public class PayService {
             transaction.setPayConfigName(payConfig.getName());
             transactionService.update(transaction);
             // 更新订单状态
-            order.setStatus(OrderStatus.PAID);
+            order.setStatus(OrderStatus.paid);
             order.setPaymentTime(payment.getTradeTime());
             order.setPaymentConfig(payConfig);
             order.setPayConfigName(payConfig.getName());
@@ -278,7 +278,7 @@ public class PayService {
             transaction.setPayConfigName(payConfig.getName());
             transactionService.update(transaction);
             // 更新订单状态
-            order.setStatus(order.getPayableAmount().equals(refund.getTotalAmount()) ? OrderStatus.REFUNDED : OrderStatus.PARTREFUND);
+            order.setStatus(order.getPayableAmount().equals(refund.getTotalAmount()) ? OrderStatus.refunded : OrderStatus.partRefund);
             order.setRefundAmount(refund.getTotalAmount());
             order.setRefundTime(refund.getTradeTime());
             orderService.update(order);

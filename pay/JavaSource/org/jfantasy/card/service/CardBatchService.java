@@ -92,7 +92,7 @@ public class CardBatchService {
         }
         batch.setStatus(CardBatchStatus.make);
         //保存操作记录
-        this.logService.log(OwnerType.CARD_BATCH, batch.getId(), "make", notes);
+        this.logService.log(OwnerType.card_batch, batch.getId(), "make", notes);
         return cards;
     }
 
@@ -105,7 +105,7 @@ public class CardBatchService {
         this.cardService.release(id);
         batch.setStatus(CardBatchStatus.released);
         //保存操作记录
-        this.logService.log(OwnerType.CARD_BATCH, batch.getId(), "release", notes);
+        this.logService.log(OwnerType.card_batch, batch.getId(), "release", notes);
         return this.cardBatchDao.save(batch);
     }
 
@@ -118,7 +118,7 @@ public class CardBatchService {
         this.cardService.cancel(id);
         batch.setStatus(CardBatchStatus.canceled);
         //保存操作记录
-        this.logService.log(OwnerType.CARD_BATCH, batch.getId(), "cancel", notes);
+        this.logService.log(OwnerType.card_batch, batch.getId(), "cancel", notes);
         return this.cardBatchDao.save(batch);
     }
 
@@ -136,7 +136,7 @@ public class CardBatchService {
 
     private CardBatch loadLogs(CardBatch batch) {
         if (batch != null) {
-            batch.setLogs(this.logService.logs(OwnerType.CARD_BATCH, batch.getNo()));
+            batch.setLogs(this.logService.logs(OwnerType.card_batch, batch.getNo()));
         }
         return batch;
     }

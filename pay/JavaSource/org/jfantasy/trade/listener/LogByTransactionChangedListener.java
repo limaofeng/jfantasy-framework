@@ -26,7 +26,7 @@ public class LogByTransactionChangedListener implements ApplicationListener<Tran
     @Async
     public void onApplicationEvent(TransactionChangedEvent event) {
         Transaction transaction = event.getTransaction();
-        logService.log(OwnerType.TRANSACTION,transaction.getSn(),transaction.getStatus().name(),transaction.getNotes());
+        logService.log(OwnerType.transaction,transaction.getSn(),transaction.getStatus().name(),transaction.getNotes());
     }
 
 }

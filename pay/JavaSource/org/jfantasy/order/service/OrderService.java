@@ -84,7 +84,7 @@ public class OrderService implements OrderDetailService {
     @Transactional
     public Order close(String id) {
         Order order = this.orderDao.get(id);
-        if (OrderStatus.UNPAID != order.getStatus()) {
+        if (OrderStatus.unpaid != order.getStatus()) {
             throw new ValidationException("order = [" + id + "] 订单已经支付，不能关闭!");
         }
         // 确认第三方支付成功后，修改关闭状态
@@ -92,7 +92,7 @@ public class OrderService implements OrderDetailService {
         transaction.setStatus(TxStatus.close);
         transaction.setStatusText(TxStatus.close.getValue());
         this.transactionService.update(transaction);
-        order.setStatus(OrderStatus.CLOSE);
+        order.setStatus(OrderStatus.closed);
         this.scheduleService.removeTrigdger(OrderClose.triggerKey(order));
         return this.orderDao.update(order);
     }
@@ -105,7 +105,7 @@ public class OrderService implements OrderDetailService {
     @Transactional
     public boolean isExpired(Order order) {
         boolean expired = this.orderTypeDao.isExpired(order.getType(), order.getCreateTime());
-        if (expired && order.getStatus() == OrderStatus.UNPAID) {
+        if (expired && order.getStatus() == OrderStatus.unpaid) {
             try {
                 this.close(order.getId());
             } catch (ValidationException e) {
@@ -140,9 +140,9 @@ public class OrderService implements OrderDetailService {
 
         Order order = new Order();
         // 初始订单相关状态
-        order.setStatus(OrderStatus.UNPAID);// 初始订单状态
-        order.setPaymentStatus(PaymentStatus.UNPAID);// 初始支付状态
-        order.setShippingStatus(ShippingStatus.UNSHIPPED);// 初始发货状态
+        order.setStatus(OrderStatus.unpaid);// 初始订单状态
+        order.setPaymentStatus(PaymentStatus.unpaid);// 初始支付状态
+        order.setShippingStatus(ShippingStatus.unshipped);// 初始发货状态
         // 设置订单类型
         order.setType(details.getType());
         // 设置订单 target

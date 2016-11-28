@@ -145,7 +145,7 @@ public class OrderController {
     @ResponseBody
     public ResultResourceSupport status(@PathVariable("id") String id, @Validated @RequestBody OrderStatusForm form) {
         switch (form.getStatus()) {
-            case CLOSE:
+            case closed:
                 return assembler.toResource(orderService.close(id));
             default:
                 throw new RestException("暂时只支持，订单关闭操作");

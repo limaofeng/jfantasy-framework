@@ -4,7 +4,7 @@ package org.jfantasy.order.entity.enums;
  * 付款状态（未支付、部分支付、已支付、部分退款、全额退款）
  */
 public enum  OrderStatus {
-    UNPAID("未支付"), PAID("已支付"), PARTREFUND("部分退款"), REFUNDED("全额退款"), CLOSE("关闭");//NOSONAR
+    unpaid("未支付"), paid("已支付"), partRefund("部分退款"), refunded("全额退款"), closed("关闭");//NOSONAR
 
     private String value;
 

@@ -69,7 +69,7 @@ public class CardService {
         card.setOwner(owner);
         this.cardDao.update(card);
         //记录日志
-        this.logService.log(OwnerType.CARD, card.getNo(), "build", "绑定卡");
+        this.logService.log(OwnerType.card, card.getNo(), "build", "绑定卡");
         //触发事件
         this.applicationContext.publishEvent(new CardBindEvent(card));
         return card;
@@ -81,7 +81,7 @@ public class CardService {
 
         this.cardDao.save(card);
         //记录日志
-        this.logService.log(OwnerType.CARD, card.getNo(), "create", "卡添加");
+        this.logService.log(OwnerType.card, card.getNo(), "create", "卡添加");
         return card;
     }
 
@@ -98,7 +98,7 @@ public class CardService {
         for (Card card : this.cardDao.find(Restrictions.eq("batch.id", id))) {
             card.setStatus(CardStatus.activated);
             //记录日志
-            this.logService.log(OwnerType.CARD, card.getNo(), "activated", "卡生效");
+            this.logService.log(OwnerType.card, card.getNo(), "activated", "卡生效");
         }
     }
 
@@ -106,7 +106,7 @@ public class CardService {
         for (Card card : this.cardDao.find(Restrictions.eq("batch.id", id))) {
             card.setStatus(CardStatus.invalid);
             //记录日志
-            this.logService.log(OwnerType.CARD, card.getNo(), "invalid", "卡失效");
+            this.logService.log(OwnerType.card, card.getNo(), "invalid", "卡失效");
         }
     }
 

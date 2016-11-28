@@ -31,7 +31,7 @@ public class CardResourceAssembler extends ResourceAssemblerSupport<Card, Result
         resource.add(linkTo(methodOn(CardBatchController.class).view(entity.getBatch().getId())).withRel("batch"));
         resource.add(linkTo(methodOn(CardTypeController.class).view(entity.getType().getKey())).withRel("type"));
         resource.add(linkTo(methodOn(CardDesignController.class).view(entity.getDesign().getKey())).withRel("design"));
-        resource.add(linkTo(methodOn(LogController.class).search(OwnerType.CARD_BATCH, entity.getNo())).withRel("logs"));
+        resource.add(linkTo(methodOn(LogController.class).search(OwnerType.card_batch, entity.getNo())).withRel("logs"));
         return resource;
     }
 

@@ -31,7 +31,7 @@ public class CardDesignResourceAssembler extends ResourceAssemblerSupport<CardDe
     public ResultResourceSupport toResource(CardDesign entity) {
         ResultResourceSupport resource = createResourceWithId(entity.getKey(), entity);
         resource.add(linkTo(methodOn(CardBatchController.class).cards(entity.getKey(), new Pager<Card>(), new ArrayList<PropertyFilter>())).withRel("cards"));
-        resource.add(linkTo(methodOn(LogController.class).search(OwnerType.CARD_DESIGN, entity.getKey())).withRel("logs"));
+        resource.add(linkTo(methodOn(LogController.class).search(OwnerType.card_design, entity.getKey())).withRel("logs"));
         return resource;
     }
 

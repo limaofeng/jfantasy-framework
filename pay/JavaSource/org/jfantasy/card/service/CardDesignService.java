@@ -53,7 +53,7 @@ public class CardDesignService {
         design.setStatus(CardDesignStatus.publish);
         this.cardDesignDao.update(design);
         //保存操作记录
-        this.logService.log(OwnerType.CARD_DESIGN, design.getKey(), "publish", notes);
+        this.logService.log(OwnerType.card_design, design.getKey(), "publish", notes);
         return design;
     }
 
@@ -64,7 +64,7 @@ public class CardDesignService {
             throw new ValidationException(106, "卡片取消发布失败!");
         }
         //保存操作记录
-        this.logService.log(OwnerType.CARD_DESIGN, design.getKey(), "unpublish", notes);
+        this.logService.log(OwnerType.card_design, design.getKey(), "unpublish", notes);
         design.setStatus(CardDesignStatus.draft);
         this.cardDesignDao.update(design);
         return design;
@@ -78,7 +78,7 @@ public class CardDesignService {
         design.setStatus(CardDesignStatus.destroyed);
         this.cardDesignDao.update(design);
         //保存操作记录
-        this.logService.log(OwnerType.CARD_DESIGN, design.getKey(), "destroyed", notes);
+        this.logService.log(OwnerType.card_design, design.getKey(), "destroyed", notes);
         return design;
     }
 
@@ -98,7 +98,7 @@ public class CardDesignService {
         if (design == null) {
             return null;
         }
-        design.setLogs(this.logService.logs(OwnerType.CARD_DESIGN, design.getKey()));
+        design.setLogs(this.logService.logs(OwnerType.card_design, design.getKey()));
         return design;
     }
 
