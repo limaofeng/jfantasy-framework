@@ -6,17 +6,16 @@ import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.util.common.BeanUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.order.bean.Order;
-import org.jfantasy.order.service.OrderService;
-import org.jfantasy.pay.bean.*;
-import org.jfantasy.pay.bean.enums.PayMethod;
-import org.jfantasy.trade.bean.enums.ProjectType;
-import org.jfantasy.trade.bean.enums.TxChannel;
-import org.jfantasy.trade.bean.enums.TxStatus;
-import org.jfantasy.pay.error.PayException;
 import org.jfantasy.order.entity.enums.OrderStatus;
+import org.jfantasy.order.service.OrderService;
+import org.jfantasy.pay.bean.PayConfig;
+import org.jfantasy.pay.bean.Payment;
+import org.jfantasy.pay.bean.Refund;
+import org.jfantasy.pay.bean.enums.PayMethod;
 import org.jfantasy.pay.bean.enums.PaymentStatus;
 import org.jfantasy.pay.bean.enums.PaymentType;
 import org.jfantasy.pay.bean.enums.RefundStatus;
+import org.jfantasy.pay.error.PayException;
 import org.jfantasy.pay.product.PayProduct;
 import org.jfantasy.pay.product.PayType;
 import org.jfantasy.pay.product.Walletpay;
@@ -24,10 +23,12 @@ import org.jfantasy.pay.service.vo.ToPayment;
 import org.jfantasy.pay.service.vo.ToRefund;
 import org.jfantasy.trade.bean.Project;
 import org.jfantasy.trade.bean.Transaction;
+import org.jfantasy.trade.bean.enums.ProjectType;
+import org.jfantasy.trade.bean.enums.TxChannel;
+import org.jfantasy.trade.bean.enums.TxStatus;
 import org.jfantasy.trade.service.ProjectService;
 import org.jfantasy.trade.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,15 +49,13 @@ public class PayService {
     private final RefundService refundService;
     private final OrderService orderService;
     private final TransactionService transactionService;
-    private final ApplicationContext applicationContext;
 
     @Autowired
-    public PayService(ProjectService projectService, RefundService refundService, PaymentService paymentService, PayProductConfiguration payProductConfiguration, ApplicationContext applicationContext, PayConfigService payConfigService, OrderService orderService, TransactionService transactionService) {
+    public PayService(ProjectService projectService, RefundService refundService, PaymentService paymentService, PayProductConfiguration payProductConfiguration, PayConfigService payConfigService, OrderService orderService, TransactionService transactionService) {
         this.projectService = projectService;
         this.refundService = refundService;
         this.paymentService = paymentService;
         this.payProductConfiguration = payProductConfiguration;
-        this.applicationContext = applicationContext;
         this.payConfigService = payConfigService;
         this.orderService = orderService;
         this.transactionService = transactionService;
@@ -75,6 +74,7 @@ public class PayService {
      */
     @Transactional
     public ToPayment pay(Transaction transaction, Long payConfigId, PayType payType, String payer, Properties properties) throws PayException {
+        LOG.debug("开始付款");
         Project project = this.projectService.get(transaction.getProject());
         if (project.getType() != ProjectType.order) {
             throw new ValidationException(000.0f, "项目类型为 order 才能调用支付接口");
