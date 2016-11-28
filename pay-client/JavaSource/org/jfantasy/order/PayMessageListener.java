@@ -22,7 +22,7 @@ public class PayMessageListener implements MessageListener {
         return Action.CommitMessage;
     }
 
-    @Autowired(required = false)
+    @Autowired
     public void setOrderMessageListener(OrderMessageListener orderMessageListener) {
         this.orderMessageListener = orderMessageListener;
     }
