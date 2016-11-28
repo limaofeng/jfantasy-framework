@@ -89,9 +89,11 @@ public class OrderService implements OrderDetailService {
         }
         // 确认第三方支付成功后，修改关闭状态
         Transaction transaction = this.transactionService.getByUniqueId(Transaction.generateUnionid(Project.PAYMENT, order.getId()));
-        transaction.setStatus(TxStatus.close);
-        transaction.setStatusText(TxStatus.close.getValue());
-        this.transactionService.update(transaction);
+        if(transaction != null) {
+            transaction.setStatus(TxStatus.close);
+            transaction.setStatusText(TxStatus.close.getValue());
+            this.transactionService.update(transaction);
+        }
         order.setStatus(OrderStatus.closed);
         this.scheduleService.removeTrigdger(OrderClose.triggerKey(order));
         return this.orderDao.update(order);
