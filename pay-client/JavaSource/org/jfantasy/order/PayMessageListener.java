@@ -17,7 +17,7 @@ public class PayMessageListener implements MessageListener {
         if ("order".equals(message.getTag())) {
             OrderDTO details = JSON.deserialize(new String(message.getBody()), OrderDTO.class);
             assert details != null;
-            orderMessageListener.on(details.getType(), details.getSn(), details.getStatus(), details);
+            orderMessageListener.on(details.getId(), details.getStatus(), details);
         }
         return Action.CommitMessage;
     }
