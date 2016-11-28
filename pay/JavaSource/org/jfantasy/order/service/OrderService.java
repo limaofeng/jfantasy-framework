@@ -124,7 +124,7 @@ public class OrderService implements OrderDetailService {
      *
      * @param details OrderDetails
      */
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Order submitOrder(OrderDTO details) {
         Long memberId = details.getMemberId();
         Long deliveryTypeId = details.getDeliveryTypeId();
@@ -228,6 +228,7 @@ public class OrderService implements OrderDetailService {
     }
 
     @Override
+    @Transactional
     public void save(OrderDTO zorder) {
         Order order = this.findUnique(zorder.getType(), zorder.getSn());
         if (order != null) {
