@@ -3,6 +3,8 @@ package org.jfantasy.order.entity;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import org.jfantasy.order.entity.enums.OrderStatus;
+import org.jfantasy.order.entity.enums.PaymentStatus;
+import org.jfantasy.order.entity.enums.ShippingStatus;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -30,6 +32,14 @@ public class OrderDTO {
      * 订单状态
      */
     private OrderStatus status;
+    /**
+     * 支付状态
+     */
+    private PaymentStatus paymentStatus;
+    /**
+     * 发货状态
+     */
+    private ShippingStatus shippingStatus;
     /**
      * 订单总金额
      */
@@ -209,6 +219,22 @@ public class OrderDTO {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public PaymentStatus getPaymentStatus() {
+        return paymentStatus;
+    }
+
+    public void setPaymentStatus(PaymentStatus paymentStatus) {
+        this.paymentStatus = paymentStatus;
+    }
+
+    public ShippingStatus getShippingStatus() {
+        return shippingStatus;
+    }
+
+    public void setShippingStatus(ShippingStatus shippingStatus) {
+        this.shippingStatus = shippingStatus;
     }
 
     @Override
