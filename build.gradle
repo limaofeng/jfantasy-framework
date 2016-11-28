@@ -78,6 +78,7 @@ subprojects {
     }
 
     artifacts {
+        archives packageSources
         archives sourcesJar
     }
 
@@ -103,8 +104,6 @@ subprojects {
             }
         }
     }
-
-    artifacts.archives packageSources
 
     repositories {
         maven { url "http://maven.zbsg.com.cn/content/groups/public" }

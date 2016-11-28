@@ -24,8 +24,8 @@ public class OrderServiceByClient implements OrderDetailService, InitializingBea
         orderServiceProxy = rpcProxyFactory.proxyBean(OrderDetailService.class, 10000);
     }
 
-    public void save(OrderDTO order) {
-        orderServiceProxy.save(order);
+    public OrderDTO save(OrderDTO order) {
+        return orderServiceProxy.save(order);
     }
 
     @Override

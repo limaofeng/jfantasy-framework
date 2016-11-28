@@ -18,6 +18,7 @@ import org.jfantasy.logistics.service.DeliveryTypeService;
 import org.jfantasy.order.OrderDetailService;
 import org.jfantasy.order.bean.Order;
 import org.jfantasy.order.bean.OrderItem;
+import org.jfantasy.order.bean.OrderTargetKey;
 import org.jfantasy.order.bean.OrderType;
 import org.jfantasy.order.bean.enums.PaymentStatus;
 import org.jfantasy.order.bean.enums.ShippingStatus;
@@ -112,6 +113,11 @@ public class OrderService implements OrderDetailService {
             }
         }
         return expired;
+    }
+
+    @Transactional
+    public Order get(OrderTargetKey key) {
+        return findUnique(key.getType(), key.getSn());
     }
 
     @Transactional
@@ -229,17 +235,20 @@ public class OrderService implements OrderDetailService {
 
     @Override
     @Transactional
-    public void save(OrderDTO zorder) {
+    public OrderDTO save(OrderDTO zorder) {
         Order order = this.findUnique(zorder.getType(), zorder.getSn());
         if (order != null) {
-            return;
+            zorder.setId(order.getId());
+            return zorder;
         }
         OrderType orderType = orderTypeDao.get(zorder.getType());
         if (orderType == null || !orderType.getEnabled()) {
             throw new ValidationException("支付系统不能处理该类型的订单[" + zorder.getType() + "]，请检查或者联系开发人员!");
         }
         //保存订单信息
-        this.submitOrder(zorder);
+        order = this.submitOrder(zorder);
+        zorder.setId(order.getId());
+        return zorder;
     }
 
     @Override
@@ -286,4 +295,5 @@ public class OrderService implements OrderDetailService {
     public void setApiGatewaySettings(ApiGatewaySettings apiGatewaySettings) {
         this.apiGatewaySettings = apiGatewaySettings;
     }
+
 }

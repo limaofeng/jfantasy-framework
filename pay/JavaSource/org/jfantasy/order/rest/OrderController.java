@@ -11,6 +11,7 @@ import org.jfantasy.framework.spring.mvc.error.RestException;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
 import org.jfantasy.order.bean.Order;
 import org.jfantasy.order.bean.OrderItem;
+import org.jfantasy.order.bean.OrderTargetKey;
 import org.jfantasy.order.service.OrderService;
 import org.jfantasy.pay.bean.PayConfig;
 import org.jfantasy.pay.bean.Payment;
@@ -74,7 +75,7 @@ public class OrderController {
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     @ResponseBody
     public ResultResourceSupport view(@PathVariable("id") String id) {
-        Order order = orderService.get(id);
+        Order order = get(id);
         if (order == null) {
             throw new NotFoundException("[ID=" + id + "]的订单不存在");
         }
@@ -97,20 +98,20 @@ public class OrderController {
         // 判断交易类型
         if (orderTransaction.getType() == OrderTransaction.Type.payment) {
             // 订单
-            Order order = orderService.get(id);
+            Order order = get(id);
             // 保存到交易表的数据
             data.putAll(order.getAttrs());
             data.put(Transaction.ORDER_ID, id);
-            data.put(Transaction.ORDER_TYPE,order.getType());
+            data.put(Transaction.ORDER_TYPE, order.getType());
             String from = accountService.findUniqueByCurrentUser().getSn();// 付款方
             return transactionController.transform(this.transactionService.payment(from, order.getPayableAmount(), "", data));
         } else {
             // 订单
-            Order order = orderService.get(id);
+            Order order = get(id);
             // 保存到交易表的数据
             data.putAll(order.getAttrs());
             data.put(Transaction.ORDER_ID, id);
-            data.put(Transaction.ORDER_TYPE,order.getType());
+            data.put(Transaction.ORDER_TYPE, order.getType());
             return TransactionController.assembler.toResource(this.transactionService.refund(order.getId(), orderTransaction.getAmount(), ""));
         }
     }
@@ -182,7 +183,7 @@ public class OrderController {
     }
 
     private Order get(String id) {
-        return orderService.get(id);
+        return id.contains(":") ? orderService.get(OrderTargetKey.newInstance(id)) : orderService.get(id);
     }
 
     @Autowired

@@ -16,7 +16,7 @@ public interface OrderDetailService {
      *
      * @param order 业务订单
      */
-    void save(OrderDTO order);
+    OrderDTO save(OrderDTO order);
 
     /**
      * 查询交易订单信息

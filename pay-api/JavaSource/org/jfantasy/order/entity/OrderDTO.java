@@ -15,6 +15,10 @@ import java.util.List;
  */
 public class OrderDTO {
     /**
+     * 订单唯一编号，由交易系统生成
+     */
+    private String id;
+    /**
      * 编号
      */
     private String sn;
@@ -197,6 +201,14 @@ public class OrderDTO {
 
     public void addItem(OrderItemDTO item) {
         this.items.add(item);
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     @Override
