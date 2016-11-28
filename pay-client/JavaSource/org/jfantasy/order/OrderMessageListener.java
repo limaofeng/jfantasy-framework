@@ -5,6 +5,6 @@ import org.jfantasy.order.entity.enums.OrderStatus;
 
 public interface OrderMessageListener {
 
-    void on(String type, String sn, OrderStatus status, OrderDTO details);
+    void on(String id, OrderStatus status, OrderDTO details);
 
 }
