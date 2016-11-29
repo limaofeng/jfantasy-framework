@@ -1,8 +1,6 @@
 package org.jfantasy.trade.rest;
 
 import io.swagger.annotations.ApiImplicitParam;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.jackson.ThreadJacksonMixInHolder;
@@ -16,16 +14,17 @@ import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.oauth.userdetails.OAuthUserDetails;
 import org.jfantasy.pay.bean.PayConfig;
 import org.jfantasy.pay.bean.Payment;
-import org.jfantasy.trade.bean.Project;
-import org.jfantasy.trade.bean.Transaction;
-import org.jfantasy.trade.bean.enums.ProjectType;
-import org.jfantasy.pay.error.PayException;
 import org.jfantasy.pay.bean.enums.PaymentStatus;
+import org.jfantasy.pay.error.PayException;
 import org.jfantasy.pay.rest.models.PayForm;
 import org.jfantasy.pay.rest.models.TxStatusForm;
 import org.jfantasy.pay.rest.models.assembler.TransactionResourceAssembler;
-import org.jfantasy.pay.service.*;
+import org.jfantasy.pay.service.PayConfigService;
+import org.jfantasy.pay.service.PayService;
 import org.jfantasy.pay.service.vo.ToPayment;
+import org.jfantasy.trade.bean.Project;
+import org.jfantasy.trade.bean.Transaction;
+import org.jfantasy.trade.bean.enums.ProjectType;
 import org.jfantasy.trade.service.AccountService;
 import org.jfantasy.trade.service.ProjectService;
 import org.jfantasy.trade.service.TransactionService;
@@ -41,8 +40,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/transactions")
 public class TransactionController {
-
-    private static final Log LOG = LogFactory.getLog(TransactionController.class);
 
     public static final TransactionResourceAssembler assembler = new TransactionResourceAssembler();
 
@@ -77,14 +74,14 @@ public class TransactionController {
      * @param sn 交易流水
      * @return Transaction
      */
-    @RequestMapping(method = RequestMethod.GET, value = "/{id}")
+    @GetMapping("/{id}")
     @JsonResultFilter(allow = @AllowProperty(pojo = PayConfig.class, name = {"id", "pay_product_id", "name", "platforms", "default", "disabled"}))
     @ResponseBody
     public ResultResourceSupport view(@PathVariable("id") String sn) {
         return transform(get(sn));
     }
 
-    @RequestMapping(method = RequestMethod.PUT, value = "/{id}/status")
+    @PutMapping("/{id}/status")
     @JsonResultFilter(allow = @AllowProperty(pojo = PayConfig.class, name = {"id", "pay_product_id", "name", "platforms"}))
     @ResponseBody
     public Transaction status(@PathVariable("id") String sn, @Validated @RequestBody TxStatusForm form) {
@@ -94,7 +91,7 @@ public class TransactionController {
     /**
      * 获取支付表单进行支付
      **/
-    @RequestMapping(method = RequestMethod.POST, value = "/{id}/pay-form")
+    @PostMapping("/{id}/pay-form")
     @ResponseBody
     @JsonResultFilter(allow = @AllowProperty(pojo = Payment.class, name = {"sn", "type", "pay_config_name", "total_amount", "payment_fee", "status", "source"}))
     public ToPayment payForm(@PathVariable("id") String sn, @RequestBody PayForm payForm) throws PayException {
