@@ -6,13 +6,11 @@ import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.jackson.annotation.AllowProperty;
-import org.jfantasy.framework.jackson.annotation.IgnoreProperty;
 import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
 import org.jfantasy.framework.spring.mvc.error.NotFoundException;
 import org.jfantasy.framework.spring.mvc.error.RestException;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
 import org.jfantasy.order.bean.Order;
-import org.jfantasy.order.rest.OrderController;
 import org.jfantasy.pay.bean.PayConfig;
 import org.jfantasy.pay.bean.Payment;
 import org.jfantasy.pay.bean.Refund;
@@ -25,6 +23,7 @@ import org.jfantasy.pay.service.vo.ToRefund;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
 
@@ -43,11 +42,6 @@ public class RefundController {
     private final PayService payService;
 
     @Autowired
-    private PaymentController paymentController;
-    @Autowired
-    private PayConfigController payConfigController;
-
-    @Autowired
     public RefundController(PayService payService, RefundService refundService) {
         this.payService = payService;
         this.refundService = refundService;
@@ -63,11 +57,11 @@ public class RefundController {
     @JsonResultFilter(allow = {
             @AllowProperty(pojo = Order.class, name = {"key", "status", "type", "sn"}),
             @AllowProperty(pojo = Payment.class, name = {"sn", "total_amount", "status"}),
-            @AllowProperty(pojo = PayConfig.class, name = {"id", "pay_product_id", "name"})
+            @AllowProperty(pojo = PayConfig.class, name = {"id", "x", "name"})
     })
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
+    @ApiImplicitParam(value = "filters", name = "filters", paramType = "query", dataType = "string")
     public Pager<ResultResourceSupport> search(Pager<Refund> pager, List<PropertyFilter> filters) {
         return assembler.toResources(refundService.findPager(pager, filters));
     }
@@ -98,6 +92,7 @@ public class RefundController {
 
     /**
      * 获取退款记录
+     *
      * @param sn
      * @return
      */
@@ -130,35 +125,31 @@ public class RefundController {
         this.refundService.delete(sns);
     }
 
-    @JsonResultFilter(
-            ignore = @IgnoreProperty(pojo = Order.class, name = {"refunds", "order_items", "payments"}),
-            allow = @AllowProperty(pojo = PayConfig.class, name = {"id", "name"})
-    )
     @RequestMapping(value = "/{sn}/order", method = RequestMethod.GET)
-    public ResultResourceSupport order(@PathVariable("sn") String sn) {
+    public ModelAndView order(@PathVariable("sn") String sn) {
         Refund refund = this.refundService.get(sn);
         if (refund == null) {
             throw new NotFoundException("对象不存在");
         }
-        return OrderController.assembler.toResource(refund.getOrder());
+        return new ModelAndView("redirect:/orders/" + refund.getOrderId());
     }
 
     @RequestMapping(value = "/{sn}/payconfig", method = RequestMethod.GET)
-    public ResultResourceSupport payconfig(@PathVariable("sn") String sn) {
+    public ModelAndView payconfig(@PathVariable("sn") String sn) {
         Refund refund = this.refundService.get(sn);
         if (refund == null) {
             throw new NotFoundException("对象不存在");
         }
-        return payConfigController.view(refund.getPayConfig().getId());
+        return new ModelAndView("redirect:/payconfigs/" + refund.getPayConfig().getId());
     }
 
     @RequestMapping(value = "/{sn}/payment", method = RequestMethod.GET)
-    public ResultResourceSupport payment(@PathVariable("sn") String sn) {
+    public ModelAndView payment(@PathVariable("sn") String sn) {
         Refund refund = this.refundService.get(sn);
         if (refund == null) {
             throw new NotFoundException("对象不存在");
         }
-        return paymentController.view(refund.getPayment().getSn());
+        return new ModelAndView("redirect:/payments/" + refund.getSn());
     }
 
 }

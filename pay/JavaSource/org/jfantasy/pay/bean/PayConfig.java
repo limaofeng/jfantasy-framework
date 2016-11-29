@@ -9,6 +9,7 @@ import org.jfantasy.pay.bean.enums.PayMethod;
 import org.jfantasy.pay.product.sign.Base64;
 
 import javax.persistence.*;
+import java.io.File;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +24,7 @@ import java.util.Properties;
  */
 @Entity
 @Table(name = "PAY_PAYCONFIG")
-@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "payments", "refunds"})
+@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "payments", "refunds", "properties", "signCert", "validateCert", "encryptCert", "rsaPrivateKey", "rsaPublicKey"})
 public class PayConfig extends BaseBusEntity {
 
     private static final long serialVersionUID = -7950849648189504426L;
@@ -228,10 +229,12 @@ public class PayConfig extends BaseBusEntity {
         this.payProductId = payProductId;
     }
 
-    @JsonAnyGetter
     public Properties getProperties() {
         return properties;
-        /*
+    }
+
+    @JsonAnyGetter
+    public Properties getAttrs() {
         Properties newProperties = new Properties();
         for (Object _key : properties.keySet()) {
             String key = _key.toString();
@@ -245,7 +248,6 @@ public class PayConfig extends BaseBusEntity {
             }
         }
         return newProperties;
-        */
     }
 
     @JsonAnySetter

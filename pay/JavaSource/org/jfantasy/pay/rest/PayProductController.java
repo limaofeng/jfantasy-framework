@@ -1,11 +1,9 @@
 package org.jfantasy.pay.rest;
 
 
-import io.swagger.annotations.ApiImplicitParam;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.jackson.annotation.AllowProperty;
-import org.jfantasy.framework.jackson.annotation.IgnoreProperty;
 import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
 import org.jfantasy.pay.bean.PayConfig;
@@ -14,6 +12,8 @@ import org.jfantasy.pay.rest.models.assembler.PayProductResourceAssembler;
 import org.jfantasy.pay.service.PayProductConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
@@ -27,8 +27,6 @@ public class PayProductController {
     private PayProductResourceAssembler assembler = new PayProductResourceAssembler();
 
     private final PayProductConfiguration payProductConfiguration;
-
-    private PayConfigController payConfigController;
 
     @Autowired
     public PayProductController(PayProductConfiguration payProductConfiguration) {
@@ -68,18 +66,20 @@ public class PayProductController {
      * @param filters 筛选
      * @return Pager
      */
-    @JsonResultFilter(ignore = @IgnoreProperty(pojo = PayConfig.class, name = {"properties"}))
     @RequestMapping(value = "/{id}/payconfigs", method = RequestMethod.GET)
     @ResponseBody
-    @ApiImplicitParam(value = "filters", name = "filters", paramType = "query", dataType = "string")
-    public Pager<ResultResourceSupport> payconfigs(@PathVariable("id") String id, Pager<PayConfig> pager, List<PropertyFilter> filters) {
-        filters.add(new PropertyFilter("EQS_payProductId", id));
-        return this.payConfigController.search(pager, filters);
-    }
-
-    @Autowired
-    public void setPayConfigController(PayConfigController payConfigController) {
-        this.payConfigController = payConfigController;
+    public ModelAndView payconfigs(@PathVariable("id") String id, RedirectAttributes attrs, Pager<PayConfig> pager, List<PropertyFilter> filters) {
+        attrs.addAttribute("EQS_payProductId", id);
+        attrs.addAttribute("page", pager.getCurrentPage());
+        attrs.addAttribute("per_page", pager.getPageSize());
+        if (pager.isOrderBySetted()) {
+            attrs.addAttribute("sort", pager.getOrderBy());
+            attrs.addAttribute("order", pager.getOrder());
+        }
+        for (PropertyFilter filter : filters) {
+            attrs.addAttribute(filter.getFilterName(), filter.getPropertyValue());
+        }
+        return new ModelAndView("redirect:/payconfigs");
     }
 
 }

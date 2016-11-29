@@ -9,7 +9,6 @@ import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
 import org.jfantasy.framework.spring.mvc.error.NotFoundException;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
 import org.jfantasy.order.bean.Order;
-import org.jfantasy.pay.bean.PayConfig;
 import org.jfantasy.pay.bean.Payment;
 import org.jfantasy.pay.rest.models.assembler.PaymentResourceAssembler;
 import org.jfantasy.pay.service.PaymentService;
@@ -64,8 +63,8 @@ public class PaymentController {
      **/
     @RequestMapping(value = "/{sn}/payconfig", method = RequestMethod.GET)
     @ResponseBody
-    public ResultResourceSupport payconfig(@PathVariable("sn") String sn) {
-        return payConfigController.view(get(sn).getPayConfig().getId());
+    public ModelAndView payconfig(@PathVariable("sn") String sn) {
+        return new ModelAndView("redirect:/payconfigs/" + get(sn).getPayConfig().getId());
     }
 
     /**
@@ -74,11 +73,6 @@ public class PaymentController {
      * @param sn 编码
      * @return ResultResource
      */
-    @JsonResultFilter(
-            ignore = @IgnoreProperty(pojo = Order.class, name = {"refunds", "orderItems", "payments"}),
-            allow = {@AllowProperty(pojo = PayConfig.class, name = {"id", "name"}),
-                    @AllowProperty(pojo = Payment.class, name = {"id", "name"})}
-    )
     @RequestMapping(value = "/{sn}/order", method = RequestMethod.GET)
     public ModelAndView order(@PathVariable("sn") String sn) {
         return new ModelAndView("redirect:/orders/" + get(sn).getOrderId());
