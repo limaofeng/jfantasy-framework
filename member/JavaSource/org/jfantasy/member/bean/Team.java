@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jfantasy.framework.dao.BaseBusEntity;
 import org.jfantasy.framework.dao.hibernate.converter.MapConverter;
-import org.jfantasy.framework.jackson.ThreadJacksonMixInHolder;
 import org.jfantasy.framework.spring.validation.RESTful;
 import org.jfantasy.framework.spring.validation.Use;
 import org.jfantasy.member.validators.TeamIdCannotRepeatValidator;
@@ -137,9 +136,6 @@ public class Team extends BaseBusEntity {
 
     @JsonAnyGetter
     public Map<String, Object> getProperties() {
-        if (ThreadJacksonMixInHolder.getMixInHolder().isIgnoreProperty(Invite.class, "properties")) {
-            return null;
-        }
         return properties;
     }
 

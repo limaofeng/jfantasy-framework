@@ -1,12 +1,11 @@
 package org.jfantasy.pay.rest.models.assembler;
 
 import org.jfantasy.framework.dao.Pager;
-import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
-import org.jfantasy.pay.bean.PayConfig;
 import org.jfantasy.pay.product.PayProduct;
 import org.jfantasy.pay.rest.PayProductController;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
+import org.springframework.web.servlet.mvc.support.RedirectAttributesModelMap;
 
 import java.util.ArrayList;
 
@@ -29,7 +28,7 @@ public class PayProductResourceAssembler extends ResourceAssemblerSupport<PayPro
     public ResultResourceSupport toResource(PayProduct entity) {
         ResultResourceSupport resource = instantiateResource(entity);
         resource.add(linkTo(methodOn(PayProductController.class).view(entity.getId())).withSelfRel());
-        resource.add(linkTo(methodOn(PayProductController.class).payconfigs(entity.getId(),new Pager<PayConfig>(),new ArrayList<PropertyFilter>())).withRel("payconfigs"));
+        resource.add(linkTo(methodOn(PayProductController.class).payconfigs(entity.getId(),new RedirectAttributesModelMap(),new Pager<>(),new ArrayList<>())).withRel("payconfigs"));
         return resource;
     }
 

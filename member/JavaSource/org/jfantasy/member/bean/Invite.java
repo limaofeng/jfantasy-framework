@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.jfantasy.framework.dao.BaseBusEntity;
 import org.jfantasy.framework.dao.hibernate.converter.MapConverter;
-import org.jfantasy.framework.jackson.ThreadJacksonMixInHolder;
 import org.jfantasy.member.bean.enums.InviteStatus;
 
 import javax.persistence.*;
@@ -101,9 +100,6 @@ public class Invite extends BaseBusEntity {
 
     @JsonAnyGetter
     public Map<String,Object> getProperties() {
-        if (ThreadJacksonMixInHolder.getMixInHolder().isIgnoreProperty(Invite.class, "properties")) {
-            return null;
-        }
         return this.properties;
     }
 

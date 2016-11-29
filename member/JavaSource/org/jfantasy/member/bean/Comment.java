@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.jfantasy.framework.dao.BaseBusEntity;
 import org.jfantasy.framework.dao.hibernate.converter.MapConverter;
-import org.jfantasy.framework.jackson.ThreadJacksonMixInHolder;
 import org.jfantasy.framework.spring.validation.RESTful;
 
 import javax.persistence.*;
@@ -179,9 +178,6 @@ public class Comment extends BaseBusEntity {
 
     @JsonAnyGetter
     public Map<String, Object> getProperties() {
-        if (ThreadJacksonMixInHolder.getMixInHolder().isIgnoreProperty(Comment.class, "properties")) {
-            return null;
-        }
         return properties;
     }
 

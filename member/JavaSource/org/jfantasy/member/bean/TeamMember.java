@@ -8,7 +8,6 @@ import org.hibernate.annotations.Parameter;
 import org.jfantasy.framework.dao.BaseBusEntity;
 import org.jfantasy.framework.dao.hibernate.converter.MapConverter;
 import org.jfantasy.framework.dao.hibernate.converter.StringsConverter;
-import org.jfantasy.framework.jackson.ThreadJacksonMixInHolder;
 import org.jfantasy.framework.spring.validation.RESTful;
 import org.jfantasy.member.bean.enums.TeamMemberStatus;
 import org.jfantasy.security.bean.enums.Sex;
@@ -158,9 +157,6 @@ public class TeamMember extends BaseBusEntity {
 
     @JsonAnyGetter
     public Map<String,String> getProperties() {
-        if (ThreadJacksonMixInHolder.getMixInHolder().isIgnoreProperty(Invite.class, "properties")) {
-            return null;
-        }
         return this.properties;
     }
 
