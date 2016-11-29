@@ -53,7 +53,7 @@ public class TransactionController {
     private final AccountService accountService;
 
     @Autowired
-    public TransactionController(ProjectService projectService,PayConfigService configService, PayService payService, TransactionService transactionService, AccountService accountService) {
+    public TransactionController(ProjectService projectService, PayConfigService configService, PayService payService, TransactionService transactionService, AccountService accountService) {
         this.projectService = projectService;
         this.configService = configService;
         this.payService = payService;
@@ -87,7 +87,7 @@ public class TransactionController {
     @RequestMapping(method = RequestMethod.PUT, value = "/{id}/status")
     @JsonResultFilter(allow = @AllowProperty(pojo = PayConfig.class, name = {"id", "pay_product_id", "name", "platforms"}))
     @ResponseBody
-    public Transaction status(@PathVariable("id") String sn,@Validated TxStatusForm form) {
+    public Transaction status(@PathVariable("id") String sn, @Validated @RequestBody TxStatusForm form) {
         return this.transactionService.update(sn, form.getStatus(), form.getStatusText(), form.getNotes());
     }
 

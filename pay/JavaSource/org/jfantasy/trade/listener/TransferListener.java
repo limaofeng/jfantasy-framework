@@ -37,6 +37,10 @@ public class TransferListener implements ApplicationListener<TransactionChangedE
     @Override
     public void onApplicationEvent(TransactionChangedEvent event) {
         Transaction transaction = event.getTransaction();
+        // 忽略提现
+        if(Project.WITHDRAWAL.equals(transaction.getProject())){
+            return;
+        }
         Project project = this.projectService.get(transaction.getProject());
         // 自动处理 未处理的转账交易
         if (transaction.getStatus() != TxStatus.unprocessed || !ObjectUtil.exists(projectTypes, project.getType())) {
