@@ -5,12 +5,10 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jfantasy.framework.dao.BaseBusEntity;
-import org.jfantasy.framework.jackson.ThreadJacksonMixInHolder;
 import org.jfantasy.pay.bean.enums.PayMethod;
 import org.jfantasy.pay.product.sign.Base64;
 
 import javax.persistence.*;
-import java.io.File;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -232,25 +230,22 @@ public class PayConfig extends BaseBusEntity {
 
     @JsonAnyGetter
     public Properties getProperties() {
-        if (properties == null || ThreadJacksonMixInHolder.getMixInHolder().isIgnoreProperty(PayConfig.class, "properties")) {
-            return null;
-        }
-        if (ThreadJacksonMixInHolder.isContainsMixIn()) {
-            Properties newProperties = new Properties();
-            for (Object _key : properties.keySet()) {
-                String key = _key.toString();
-                Object value = properties.get(key);
-                if (value instanceof byte[]) {
-                    newProperties.setProperty(key, "--Hidden Byte data--");
-                } else if (value instanceof File) {
-                    newProperties.setProperty(key, "--Hidden File data--");
-                } else {
-                    newProperties.setProperty(key, value.toString());
-                }
-            }
-            return newProperties;
-        }
         return properties;
+        /*
+        Properties newProperties = new Properties();
+        for (Object _key : properties.keySet()) {
+            String key = _key.toString();
+            Object value = properties.get(key);
+            if (value instanceof byte[]) {
+                newProperties.setProperty(key, "--Hidden Byte data--");
+            } else if (value instanceof File) {
+                newProperties.setProperty(key, "--Hidden File data--");
+            } else {
+                newProperties.setProperty(key, value.toString());
+            }
+        }
+        return newProperties;
+        */
     }
 
     @JsonAnySetter
@@ -263,13 +258,11 @@ public class PayConfig extends BaseBusEntity {
 
     @Transient
     public Object get(String key) {
-        if (this.properties == null) return null;
         return this.properties.get(key);
     }
 
     @Transient
     public <T> T get(String key, Class<T> tClass) {
-        if (this.properties == null) return null;
         Object value = this.properties.get(key);
         if (value == null) {
             return null;

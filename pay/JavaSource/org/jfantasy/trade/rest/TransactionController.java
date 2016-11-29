@@ -3,7 +3,6 @@ package org.jfantasy.trade.rest;
 import io.swagger.annotations.ApiImplicitParam;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
-import org.jfantasy.framework.jackson.ThreadJacksonMixInHolder;
 import org.jfantasy.framework.jackson.annotation.AllowProperty;
 import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
 import org.jfantasy.framework.security.SpringSecurityUtils;
@@ -119,9 +118,6 @@ public class TransactionController {
         if (project.getType() == ProjectType.order) {
             switch (transaction.get(Transaction.STAGE)) {
                 case Transaction.STAGE_PAYMENT:
-                    if (!ThreadJacksonMixInHolder.getMixInHolder().isReturnProperty(PayConfig.class, "payconfigs")) {
-                        break;
-                    }
                     resource.set("payconfigs", payconfigs(transaction, user));
                     break;
                 case Transaction.STAGE_REFUND:

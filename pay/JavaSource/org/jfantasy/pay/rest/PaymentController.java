@@ -9,7 +9,6 @@ import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
 import org.jfantasy.framework.spring.mvc.error.NotFoundException;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
 import org.jfantasy.order.bean.Order;
-import org.jfantasy.order.rest.OrderController;
 import org.jfantasy.pay.bean.PayConfig;
 import org.jfantasy.pay.bean.Payment;
 import org.jfantasy.pay.rest.models.assembler.PaymentResourceAssembler;
@@ -17,6 +16,7 @@ import org.jfantasy.pay.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
 
@@ -31,7 +31,6 @@ public class PaymentController {
 
     private PaymentService paymentService;
     private PayConfigController payConfigController;
-    private OrderController orderController;
 
     /**
      * 查询支付记录
@@ -41,8 +40,8 @@ public class PaymentController {
      * @return Pager
      */
     @JsonResultFilter(
-            ignore = @IgnoreProperty(pojo = Payment.class, name = {"payConfig", "orderKey"}),
-            allow = @AllowProperty(pojo = Order.class, name = {"type", "subject", "sn"})
+            ignore = @IgnoreProperty(pojo = Payment.class, name = {"pay_config", "order_id"}),
+            allow = @AllowProperty(pojo = Order.class, name = {"type", "id"})
     )
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
@@ -71,6 +70,7 @@ public class PaymentController {
 
     /**
      * 支付记录对应的订单信息 - 支付记录对应的订单信息
+     *
      * @param sn 编码
      * @return ResultResource
      */
@@ -80,9 +80,8 @@ public class PaymentController {
                     @AllowProperty(pojo = Payment.class, name = {"id", "name"})}
     )
     @RequestMapping(value = "/{sn}/order", method = RequestMethod.GET)
-    @ResponseBody
-    public ResultResourceSupport order(@PathVariable("sn") String sn) {
-        return OrderController.assembler.toResource(get(sn).getOrder());
+    public ModelAndView order(@PathVariable("sn") String sn) {
+        return new ModelAndView("redirect:/orders/" + get(sn).getOrderId());
     }
 
     /**
@@ -119,11 +118,6 @@ public class PaymentController {
     @Autowired
     public void setPayConfigController(PayConfigController payConfigController) {
         this.payConfigController = payConfigController;
-    }
-
-    @Autowired
-    public void setOrderController(OrderController orderController) {
-        this.orderController = orderController;
     }
 
 }

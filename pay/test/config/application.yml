@@ -10,9 +10,9 @@ spring:
   datasource:
     name: datasource
     type: com.alibaba.druid.pool.DruidDataSource
-    url: jdbc:mysql://127.0.0.1:3306/pay?autoReconnect=true&useUnicode=true&characterEncoding=UTF-8
-    username: root
-    password:
+    url: jdbc:mysql://shzbsg2006.mysql.rds.aliyuncs.com:3306/pay?autoReconnect=true&useUnicode=true&characterEncoding=UTF-8
+    username: shzbsgv2
+    password: shzbsg
     driver-class-name: com.mysql.jdbc.Driver
     druid:
       filters: stat,wall

@@ -33,9 +33,9 @@ public class PayController {
      * @throws PayException
      */
     @JsonResultFilter(ignore = {
-            @IgnoreProperty(pojo = Order.class, name = {"payConfig"}),
-            @IgnoreProperty(pojo = Payment.class, name = {"order", "payConfig"}),
-            @IgnoreProperty(pojo = Refund.class, name = {"order", "payment", "payConfig"})
+            @IgnoreProperty(pojo = Order.class, name = {"pay_config"}),
+            @IgnoreProperty(pojo = Payment.class, name = {"order", "pay_config"}),
+            @IgnoreProperty(pojo = Refund.class, name = {"order", "payment", "pay_config"})
     })
     @RequestMapping(value = "/{sn}/notify", method = RequestMethod.POST)
     @ResponseBody

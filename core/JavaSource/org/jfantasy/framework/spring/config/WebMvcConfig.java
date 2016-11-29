@@ -58,6 +58,8 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter implements Environment
 
     private final ApplicationContext applicationContext;
 
+    private RelaxedPropertyResolver jacksonPropertyResolver;
+
     @Autowired
     public WebMvcConfig(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
@@ -100,8 +102,6 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter implements Environment
         return factory.createMultipartConfig();
     }
 
-    private RelaxedPropertyResolver jacksonPropertyResolver;
-
     @Override
     public void setEnvironment(Environment environment) {
         this.jacksonPropertyResolver = new RelaxedPropertyResolver(environment, "spring.jackson.");
@@ -127,13 +127,7 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter implements Environment
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
         Class[] removeClazz = new Class[]{StringHttpMessageConverter.class, MappingJackson2HttpMessageConverter.class};
-        Iterator<HttpMessageConverter<?>> iterator = converters.iterator();
-        while (iterator.hasNext()) {
-            HttpMessageConverter<?> converter = iterator.next();
-            if (ObjectUtil.exists(removeClazz, converter.getClass())) {
-                iterator.remove();
-            }
-        }
+        converters.removeIf(converter -> ObjectUtil.exists(removeClazz, converter.getClass()));
         converters.add(0, new MappingJackson2HttpMessageConverter(objectMapper()));
         converters.add(0, new StringHttpMessageConverter(Charset.forName("utf-8")));
         super.configureMessageConverters(converters);

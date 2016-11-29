@@ -126,7 +126,7 @@ public class OrderController {
      * @return Pager<Payment>
      */
     @JsonResultFilter(
-            ignore = @IgnoreProperty(pojo = Payment.class, name = {"payConfig", "orderKey"}),
+            ignore = @IgnoreProperty(pojo = Payment.class, name = {"pay_config", "orderKey"}),
             allow = @AllowProperty(pojo = Order.class, name = {"key", "subject"})
     )
     @RequestMapping(value = "/{id}/payments", method = RequestMethod.GET)
@@ -158,7 +158,7 @@ public class OrderController {
      * @param id orderKey
      * @return Pager<Refund>
      */
-    @JsonResultFilter(ignore = @IgnoreProperty(pojo = Refund.class, name = {"order", "payConfig", "payment"}))
+    @JsonResultFilter(ignore = @IgnoreProperty(pojo = Refund.class, name = {"order", "pay_config", "payment"}))
     @RequestMapping(value = "/{id}/refunds", method = RequestMethod.GET)
     @ResponseBody
     public Pager<ResultResourceSupport> refunds(@PathVariable("id") String id) {

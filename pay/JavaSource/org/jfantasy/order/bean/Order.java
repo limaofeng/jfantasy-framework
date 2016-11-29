@@ -32,7 +32,7 @@ import java.util.*;
 @Entity
 @Table(name = "PAY_ORDER",uniqueConstraints = @UniqueConstraint(name = "UK_ORDER_TARGET", columnNames = {"TARGET_TYPE", "TARGET_ID"}))
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "shipArea", "memeo", "shippings", "orderItems", "details_type", "details_id", "subject", "body"})
+@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "ship_area", "memeo", "shippings", "order_items", "details_type", "details_id", "subject", "body","expired"})
 public class Order extends BaseBusEntity {
 
     private static final long serialVersionUID = -8541323033439515148L;
