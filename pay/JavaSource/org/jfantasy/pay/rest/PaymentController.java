@@ -29,7 +29,6 @@ public class PaymentController {
     private final PaymentResourceAssembler assembler = new PaymentResourceAssembler();
 
     private PaymentService paymentService;
-    private PayConfigController payConfigController;
 
     /**
      * 查询支付记录
@@ -107,11 +106,6 @@ public class PaymentController {
     @Autowired
     public void setPaymentService(PaymentService paymentService) {
         this.paymentService = paymentService;
-    }
-
-    @Autowired
-    public void setPayConfigController(PayConfigController payConfigController) {
-        this.payConfigController = payConfigController;
     }
 
 }
