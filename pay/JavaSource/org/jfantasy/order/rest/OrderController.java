@@ -8,10 +8,12 @@ import org.jfantasy.framework.jackson.annotation.IgnoreProperty;
 import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
 import org.jfantasy.framework.spring.mvc.error.NotFoundException;
 import org.jfantasy.framework.spring.mvc.error.RestException;
+import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
 import org.jfantasy.order.bean.Order;
 import org.jfantasy.order.bean.OrderItem;
 import org.jfantasy.order.bean.OrderTargetKey;
+import org.jfantasy.order.entity.enums.OrderStatus;
 import org.jfantasy.order.service.OrderService;
 import org.jfantasy.pay.bean.PayConfig;
 import org.jfantasy.pay.bean.Payment;
@@ -103,9 +105,15 @@ public class OrderController {
         data.put(Transaction.ORDER_TYPE, order.getType());
         // 判断交易类型
         if (orderTransaction.getType() == OrderTransaction.Type.payment) {
+            if(order.getStatus() != OrderStatus.unpaid){
+                throw new ValidationException("订单"+order.getStatus().getValue()+",不能支付");
+            }
             String from = accountService.findUniqueByCurrentUser().getSn();// 付款方
             return transactionController.transform(this.transactionService.payment(from, order.getPayableAmount(), "", data));
         } else {
+            if(order.getStatus() != OrderStatus.paid){
+                throw new ValidationException("订单"+order.getStatus().getValue()+",不能支付");
+            }
             return TransactionController.assembler.toResource(this.transactionService.refund(order.getId(), orderTransaction.getAmount(), ""));
         }
     }
@@ -144,10 +152,9 @@ public class OrderController {
     @RequestMapping(value = "/{id}/status", method = RequestMethod.PUT)
     @ResponseBody
     public ResultResourceSupport status(@PathVariable("id") String id, @Validated @RequestBody OrderStatusForm form) {
-        switch (form.getStatus()) {
-            case closed:
-                return assembler.toResource(orderService.close(id));
-            default:
+        if (form.getStatus() == OrderStatus.closed) {
+            return assembler.toResource(orderService.close(id));
+        }else {
                 throw new RestException("暂时只支持，订单关闭操作");
         }
     }
