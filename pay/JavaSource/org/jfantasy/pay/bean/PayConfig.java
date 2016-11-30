@@ -235,6 +235,9 @@ public class PayConfig extends BaseBusEntity {
 
     @JsonAnyGetter
     public Properties getAttrs() {
+        if(properties == null){
+            return null;
+        }
         Properties newProperties = new Properties();
         for (Object _key : properties.keySet()) {
             String key = _key.toString();
