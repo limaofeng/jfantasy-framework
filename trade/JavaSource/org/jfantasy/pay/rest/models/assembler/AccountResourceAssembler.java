@@ -1,13 +1,11 @@
 package org.jfantasy.pay.rest.models.assembler;
 
 import org.jfantasy.framework.dao.Pager;
-import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
 import org.jfantasy.trade.bean.Account;
-import org.jfantasy.trade.bean.Point;
-import org.jfantasy.trade.bean.Transaction;
 import org.jfantasy.trade.rest.AccountController;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
+import org.springframework.web.servlet.mvc.support.RedirectAttributesModelMap;
 
 import java.util.ArrayList;
 
@@ -28,13 +26,13 @@ public class AccountResourceAssembler extends ResourceAssemblerSupport<Account, 
     @Override
     public ResultResourceSupport toResource(Account entity) {
         ResultResourceSupport resource = createResourceWithId(entity.getSn(), entity);
-        resource.add(linkTo(methodOn(AccountController.class).transactions(entity.getSn(), new Pager<Transaction>(), new ArrayList<PropertyFilter>())).withRel("transactions"));
-        resource.add(linkTo(methodOn(AccountController.class).points(entity.getSn(), new Pager<Point>(), new ArrayList<PropertyFilter>())).withRel("points"));
+        resource.add(linkTo(methodOn(AccountController.class).transactions(entity.getSn(), new Pager<>(), new ArrayList<>())).withRel("transactions"));
+        resource.add(linkTo(methodOn(AccountController.class).points(entity.getSn(), new RedirectAttributesModelMap(), new Pager<>(), new ArrayList<>())).withRel("points"));
         return resource;
     }
 
     public Pager<ResultResourceSupport> toResources(Pager<Account> pager) {
-        return new Pager<>(pager,this.toResources(pager.getPageItems()));
+        return new Pager<>(pager, this.toResources(pager.getPageItems()));
     }
 
 }
