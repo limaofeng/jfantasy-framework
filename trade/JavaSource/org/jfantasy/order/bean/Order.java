@@ -385,6 +385,12 @@ public class Order extends BaseBusEntity {
         return SpringContextUtil.getBeanByType(OrderService.class).isExpired(this);
     }
 
+    @Deprecated
+    @Transient
+    public String getSn(){// 临时解决方案，为了兼容以前的代码。
+        return this.getDetailsId();
+    }
+
     @Transient
     public String getSubject() {
         return "";
