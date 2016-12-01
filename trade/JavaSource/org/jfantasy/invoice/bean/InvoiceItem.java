@@ -1,4 +1,4 @@
-package org.jfantasy.member.bean;
+package org.jfantasy.invoice.bean;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;

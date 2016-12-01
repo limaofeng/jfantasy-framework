@@ -1,16 +1,13 @@
-package org.jfantasy.member.rest;
+package org.jfantasy.invoice.rest;
 
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiParam;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
-import org.jfantasy.framework.jackson.annotation.AllowProperty;
-import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
-import org.jfantasy.member.bean.InvoiceOrder;
-import org.jfantasy.member.bean.Member;
-import org.jfantasy.member.rest.models.assembler.InvoiceOrderResourceAssembler;
-import org.jfantasy.member.service.InvoiceOrderService;
+import org.jfantasy.invoice.bean.InvoiceOrder;
+import org.jfantasy.invoice.rest.models.assembler.InvoiceOrderResourceAssembler;
+import org.jfantasy.invoice.service.InvoiceOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,9 +40,6 @@ public class InvoiceOrderController {
      * @param filters
      * @return
      */
-    @JsonResultFilter(
-            allow = @AllowProperty(pojo = Member.class, name = {"id", "nick_name"})
-    )
     @RequestMapping(method = RequestMethod.GET)
     @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
     public Pager<ResultResourceSupport> search(Pager<InvoiceOrder> pager,@ApiParam(hidden = true) List<PropertyFilter> filters) {
@@ -61,9 +55,6 @@ public class InvoiceOrderController {
      * @param order
      * @return
      */
-    @JsonResultFilter(
-            allow = @AllowProperty(pojo = Member.class, name = {"id", "nick_name"})
-    )
     @RequestMapping(method = RequestMethod.POST)
     public ResultResourceSupport save(@RequestBody InvoiceOrder order) {
         return assembler.toResource(this.invoiceOrderService.save(order));

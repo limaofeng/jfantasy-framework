@@ -1,4 +1,4 @@
-package org.jfantasy.member.bean.enums;
+package org.jfantasy.invoice.bean.enums;
 
 public enum InvoiceStatus {
     /**

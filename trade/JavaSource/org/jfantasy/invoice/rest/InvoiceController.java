@@ -1,4 +1,4 @@
-package org.jfantasy.member.rest;
+package org.jfantasy.invoice.rest;
 
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiParam;
@@ -11,12 +11,12 @@ import org.jfantasy.framework.spring.mvc.error.NotFoundException;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
 import org.jfantasy.framework.spring.validation.RESTful;
 import org.jfantasy.framework.util.common.BeanUtil;
-import org.jfantasy.member.bean.Invoice;
-import org.jfantasy.member.bean.InvoiceItem;
-import org.jfantasy.member.bean.InvoiceOrder;
-import org.jfantasy.member.rest.models.InvoiceForm;
-import org.jfantasy.member.rest.models.assembler.InvoiceResourceAssembler;
-import org.jfantasy.member.service.InvoiceService;
+import org.jfantasy.invoice.bean.Invoice;
+import org.jfantasy.invoice.bean.InvoiceItem;
+import org.jfantasy.invoice.bean.InvoiceOrder;
+import org.jfantasy.invoice.rest.models.InvoiceForm;
+import org.jfantasy.invoice.rest.models.assembler.InvoiceResourceAssembler;
+import org.jfantasy.invoice.service.InvoiceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;

@@ -1,10 +1,10 @@
-package org.jfantasy.member.service;
+package org.jfantasy.invoice.service;
 
 import org.hibernate.criterion.Restrictions;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
-import org.jfantasy.member.bean.InvoiceOrder;
-import org.jfantasy.member.dao.InvoiceOrderDao;
+import org.jfantasy.invoice.bean.InvoiceOrder;
+import org.jfantasy.invoice.dao.InvoiceOrderDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

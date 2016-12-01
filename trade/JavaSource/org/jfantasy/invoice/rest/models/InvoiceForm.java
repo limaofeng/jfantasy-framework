@@ -1,8 +1,8 @@
-package org.jfantasy.member.rest.models;
+package org.jfantasy.invoice.rest.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jfantasy.framework.spring.validation.RESTful;
-import org.jfantasy.member.bean.enums.InvoiceStatus;
+import org.jfantasy.invoice.bean.enums.InvoiceStatus;
 
 import javax.validation.constraints.NotNull;
 

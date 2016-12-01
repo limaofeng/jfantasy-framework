@@ -1,11 +1,11 @@
-package org.jfantasy.member.dao;
+package org.jfantasy.invoice.dao;
 
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 import org.jfantasy.framework.dao.hibernate.HibernateDao;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.util.common.ObjectUtil;
-import org.jfantasy.member.bean.Invoice;
+import org.jfantasy.invoice.bean.Invoice;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

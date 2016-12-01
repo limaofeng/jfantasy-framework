@@ -1,9 +1,9 @@
-package org.jfantasy.member.rest.models.assembler;
+package org.jfantasy.invoice.rest.models.assembler;
 
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
-import org.jfantasy.member.bean.InvoiceOrder;
-import org.jfantasy.member.rest.InvoiceOrderController;
+import org.jfantasy.invoice.bean.InvoiceOrder;
+import org.jfantasy.invoice.rest.InvoiceOrderController;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
 
 public class InvoiceOrderResourceAssembler extends ResourceAssemblerSupport<InvoiceOrder, ResultResourceSupport> {

@@ -22,6 +22,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -141,6 +143,30 @@ public class TeamController {
         filters.add(new PropertyFilter("EQS_ownerType", "team"));
         filters.add(new PropertyFilter("EQS_ownerId", get(id).getKey()));
         return this.addressController.search(pager, filters).getPageItems();
+    }
+
+    /**
+     * 集团的发票申请列表
+     * @param teamId
+     * @param pager
+     * @param filters
+     * @return
+     */
+    @GetMapping("{id}/invoices")
+    public ModelAndView invoices(@PathVariable("id") String teamId, RedirectAttributes attrs, Pager pager, List<PropertyFilter> filters) {
+        get(teamId);
+        attrs.addAttribute("EQS_targetType", "team");
+        attrs.addAttribute("EQS_targetId", teamId);
+        attrs.addAttribute("page", pager.getCurrentPage());
+        attrs.addAttribute("per_page", pager.getPageSize());
+        if (pager.isOrderBySetted()) {
+            attrs.addAttribute("sort", pager.getOrderBy());
+            attrs.addAttribute("order", pager.getOrder());
+        }
+        for (PropertyFilter filter : filters) {
+            attrs.addAttribute(filter.getFilterName(), filter.getPropertyValue());
+        }
+        return new ModelAndView("redirect:/invoices");
     }
 
     private Team get(String id) {

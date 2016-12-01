@@ -1,4 +1,4 @@
-package org.jfantasy.member.bean;
+package org.jfantasy.invoice.bean;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
@@ -90,9 +90,8 @@ public class InvoiceOrder extends BaseBusEntity {
     /**
      * 订单对应的用户
      */
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "MEMBER_ID", foreignKey = @ForeignKey(name = "FK_MEM_INVOICE_ORDER_MEMBER"))
-    private Member member;
+    @Column(name = "MEMBER_ID")
+    private Long memberId;
     /*************************************/
     /*             开票方                 */
     /*************************************/
@@ -166,21 +165,12 @@ public class InvoiceOrder extends BaseBusEntity {
         this.status = status;
     }
 
-    public Member getMember() {
-        return member;
-    }
-
-    public void setMember(Member member) {
-        this.member = member;
-    }
-
-    @Transient
     public Long getMemberId() {
-        return member == null ? null : member.getId();
+        return memberId;
     }
 
     public void setMemberId(Long memberId) {
-        this.member = new Member(memberId);
+        this.memberId = memberId;
     }
 
     public String getTargetType() {

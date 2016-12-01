@@ -2,6 +2,7 @@ package org.jfantasy.member.rest;
 
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiParam;
+import org.jfantasy.framework.dao.BaseBusEntity;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.jackson.annotation.AllowProperty;
@@ -45,7 +46,6 @@ public class MemberController {
     private final FavoriteService favoriteService;
 
     private TeamController teamController;
-    private InvoiceController invoiceController;
     private CommentController commentController;
 
     @Autowired
@@ -213,19 +213,39 @@ public class MemberController {
      * @param filters  筛选
      * @return Pager<ResultResourceSupport>
      */
-    @JsonResultFilter(allow = @AllowProperty(pojo = Member.class, name = {"id", "nick_name"}))
-    @RequestMapping(value = "/{memid}/invoices", method = RequestMethod.GET)
-    @ResponseBody
-    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
-    public Pager<ResultResourceSupport> invoices(@PathVariable("memid") Long memberId, Pager<Invoice> pager, @ApiParam(hidden = true) List<PropertyFilter> filters) {
-        filters.add(new PropertyFilter(FILTERS_EQ_MEMBER_ID, memberId.toString()));
+    @GetMapping("/{memid}/invoices")
+    public ModelAndView invoices(@PathVariable("memid") Long memberId, RedirectAttributes attrs,Pager pager, List<PropertyFilter> filters) {
+        attrs.addAttribute("EQL_memberId", memberId);
+        attrs.addAttribute("page", pager.getCurrentPage());
+        attrs.addAttribute("per_page", pager.getPageSize());
         if (!pager.isOrderBySetted()) {
-            pager.setOrderBy(Invoice.FIELDS_BY_CREATE_TIME);
+            pager.setOrderBy(BaseBusEntity.FIELDS_BY_CREATE_TIME);
             pager.setOrder(Pager.SORT_DESC);
         }
-        return this.invoiceController.search(pager, filters);
+        if (pager.isOrderBySetted()) {
+            attrs.addAttribute("sort", pager.getOrderBy());
+            attrs.addAttribute("order", pager.getOrder());
+        }
+        for (PropertyFilter filter : filters) {
+            attrs.addAttribute(filter.getFilterName(), filter.getPropertyValue());
+        }
+        return new ModelAndView("redirect:/invoices");
     }
 
+    @GetMapping("{id}/iorders")
+    public ModelAndView search(@PathVariable("id") Long id, RedirectAttributes attrs,Pager pager, List<PropertyFilter> filters) {
+        attrs.addAttribute("EQL_memberId", id);
+        attrs.addAttribute("EQE_status", "NONE");
+        if(!pager.isOrderBySetted()){
+            pager.setOrderBy(BaseBusEntity.FIELDS_BY_CREATE_TIME);
+            pager.setOrder(Pager.SORT_DESC);
+        }
+        if (pager.isOrderBySetted()) {
+            attrs.addAttribute("sort", pager.getOrderBy());
+            attrs.addAttribute("order", pager.getOrder());
+        }
+        return new ModelAndView("redirect:/iorders");
+    }
 
     /**
      * 查询会员的团队信息
@@ -247,11 +267,6 @@ public class MemberController {
     @Autowired
     public void setTeamController(TeamController teamController) {
         this.teamController = teamController;
-    }
-
-    @Autowired
-    public void setInvoiceController(InvoiceController invoiceController) {
-        this.invoiceController = invoiceController;
     }
 
     @Autowired

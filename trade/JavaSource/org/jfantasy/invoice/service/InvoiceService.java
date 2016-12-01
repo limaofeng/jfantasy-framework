@@ -1,15 +1,15 @@
-package org.jfantasy.member.service;
+package org.jfantasy.invoice.service;
 
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.util.common.BeanUtil;
-import org.jfantasy.member.bean.Invoice;
-import org.jfantasy.member.bean.InvoiceItem;
-import org.jfantasy.member.bean.InvoiceOrder;
-import org.jfantasy.member.bean.enums.InvoiceStatus;
-import org.jfantasy.member.dao.InvoiceDao;
-import org.jfantasy.member.dao.InvoiceOrderDao;
+import org.jfantasy.invoice.bean.Invoice;
+import org.jfantasy.invoice.bean.InvoiceItem;
+import org.jfantasy.invoice.bean.InvoiceOrder;
+import org.jfantasy.invoice.bean.enums.InvoiceStatus;
+import org.jfantasy.invoice.dao.InvoiceDao;
+import org.jfantasy.invoice.dao.InvoiceOrderDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

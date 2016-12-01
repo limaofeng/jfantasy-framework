@@ -1,4 +1,4 @@
-package org.jfantasy.member.bean;
+package org.jfantasy.invoice.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -10,7 +10,7 @@ import org.jfantasy.common.converter.AreaConverter;
 import org.jfantasy.common.databind.AreaDeserializer;
 import org.jfantasy.framework.dao.BaseBusEntity;
 import org.jfantasy.framework.spring.validation.RESTful;
-import org.jfantasy.member.bean.enums.InvoiceStatus;
+import org.jfantasy.invoice.bean.enums.InvoiceStatus;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -105,9 +105,8 @@ public class Invoice extends BaseBusEntity {
     @OneToMany(mappedBy = "invoice", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private List<InvoiceItem> items;
     @NotNull(groups = {RESTful.POST.class})
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "MEMBER_ID", nullable = false, foreignKey = @ForeignKey(name = "FK_MEM_INVOICE_MEMBER"))
-    private Member member;
+    @Column(name = "MEMBER_ID", nullable = false)
+    private Long memberId;
 
     public Invoice() {
     }
@@ -252,17 +251,12 @@ public class Invoice extends BaseBusEntity {
         this.targetId = targetId;
     }
 
-    public Member getMember() {
-        return member;
+    public Long getMemberId() {
+        return memberId;
     }
 
-    public void setMember(Member member) {
-        this.member = member;
-    }
-
-    @Transient
     public void setMemberId(Long memberId) {
-        this.member = new Member(memberId);
+        this.memberId = memberId;
     }
 
 }

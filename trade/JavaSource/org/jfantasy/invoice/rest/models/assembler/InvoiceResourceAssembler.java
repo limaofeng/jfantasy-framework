@@ -1,15 +1,15 @@
-package org.jfantasy.member.rest.models.assembler;
+package org.jfantasy.invoice.rest.models.assembler;
 
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
-import org.jfantasy.member.bean.Invoice;
-import org.jfantasy.member.rest.InviteController;
+import org.jfantasy.invoice.bean.Invoice;
+import org.jfantasy.invoice.rest.InvoiceController;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
 
 public class InvoiceResourceAssembler  extends ResourceAssemblerSupport<Invoice, ResultResourceSupport> {
 
     public InvoiceResourceAssembler() {
-        super(InviteController.class, ResultResourceSupport.class);
+        super(InvoiceController.class, ResultResourceSupport.class);
     }
 
     @Override
