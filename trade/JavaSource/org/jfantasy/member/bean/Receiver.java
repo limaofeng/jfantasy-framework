@@ -72,6 +72,7 @@ public class Receiver extends BaseBusEntity {
     /**
      * 地址对应的用户信息
      */
+    @NotNull(groups = RESTful.POST.class)
     @Column(name = "MEMBER_ID", nullable = false, updatable = false)
     private Long memberId;
 
@@ -142,13 +143,10 @@ public class Receiver extends BaseBusEntity {
         this.area = area;
     }
 
-    @Transient
     public void setMemberId(Long memberId) {
         this.memberId = memberId;
     }
 
-    @Transient
-    @NotNull(groups = RESTful.POST.class)
     public Long getMemberId() {
         return this.memberId;
     }
