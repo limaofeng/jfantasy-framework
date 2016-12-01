@@ -20,7 +20,7 @@ import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.Map;
 
-@ComponentScan({"org.jfantasy.logistics", "org.jfantasy.card", "org.jfantasy.order", "org.jfantasy.pay", "org.jfantasy.trade"})
+@ComponentScan({"org.jfantasy.member","org.jfantasy.logistics", "org.jfantasy.card", "org.jfantasy.order", "org.jfantasy.pay", "org.jfantasy.trade"})
 @Configuration
 @EntityScan("org.jfantasy.*.bean")
 @EnableConfigurationProperties(PaySettings.class)

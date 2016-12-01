@@ -19,7 +19,9 @@ import java.util.List;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-/** 开票订单 **/
+/**
+ * 开票订单
+ */
 @RestController
 @RequestMapping(value = "/members/{id}/iorders", produces = {APPLICATION_JSON_VALUE})
 public class MemberIOrderController {
@@ -31,10 +33,16 @@ public class MemberIOrderController {
         this.controller = controller;
     }
 
+    /**
+     * 发票订单列表
+     * @param id
+     * @param pager
+     * @param filters
+     * @return
+     */
     @JsonResultFilter(
             allow = @AllowProperty(pojo = Member.class, name = {"id", "nick_name"})
     )
-    /** 发票订单列表 **/
     @RequestMapping(method = RequestMethod.GET)
     @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
     public Pager<ResultResourceSupport> search(@PathVariable("id") Long id, Pager<InvoiceOrder> pager,@ApiParam(hidden = true) List<PropertyFilter> filters) {

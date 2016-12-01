@@ -223,6 +223,7 @@ public class PayService {
             transactionService.update(transaction);
             // 更新订单状态
             order.setStatus(OrderStatus.paid);
+            order.setPaymentStatus(org.jfantasy.order.entity.enums.PaymentStatus.paid);
             order.setPaymentTime(payment.getTradeTime());
             order.setPaymentConfig(payConfig);
             order.setPayConfigName(payConfig.getName());

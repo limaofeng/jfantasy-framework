@@ -72,9 +72,8 @@ public class Receiver extends BaseBusEntity {
     /**
      * 地址对应的用户信息
      */
-    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.REFRESH})
-    @JoinColumn(name = "MEMBER_ID", nullable = false, updatable = false, foreignKey = @ForeignKey(name = "FK_RECEIVER_MEMBER"))
-    private Member member;
+    @Column(name = "MEMBER_ID", nullable = false, updatable = false)
+    private Long memberId;
 
     public Long getId() {
         return id;
@@ -116,14 +115,6 @@ public class Receiver extends BaseBusEntity {
         this.mobile = mobile;
     }
 
-    public Member getMember() {
-        return member;
-    }
-
-    public void setMember(Member member) {
-        this.member = member;
-    }
-
     public Boolean getIsDefault() {
         return isDefault;
     }
@@ -153,13 +144,13 @@ public class Receiver extends BaseBusEntity {
 
     @Transient
     public void setMemberId(Long memberId) {
-        this.setMember(new Member(memberId));
+        this.memberId = memberId;
     }
 
     @Transient
     @NotNull(groups = RESTful.POST.class)
     public Long getMemberId() {
-        return this.member == null ? null : this.member.getId();
+        return this.memberId;
     }
 
 }

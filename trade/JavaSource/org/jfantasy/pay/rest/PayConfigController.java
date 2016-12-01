@@ -38,8 +38,6 @@ public class PayConfigController {
     private PayConfigService configService;
     @Autowired
     private PaymentService paymentService;
-    @Autowired
-    private RefundController refundController;
 
     @JsonResultFilter(ignore = @IgnoreProperty(pojo = PayConfig.class, name = {"properties"}))
     @RequestMapping(method = RequestMethod.GET)
@@ -103,8 +101,6 @@ public class PayConfigController {
             allow = @AllowProperty(pojo = Order.class, name = {"type", "subject", "sn"})
     )
     @RequestMapping(value = "/{id}/payments", method = RequestMethod.GET)
-    @ResponseBody
-    @ApiImplicitParam(value = "filters", name = "filters", paramType = "query", dataType = "string")
     public ModelAndView payments(@PathVariable("id") String id, RedirectAttributes attrs, Pager<Payment> pager, List<PropertyFilter> filters) {
         attrs.addAttribute("EQL_payConfig.id", id);
         attrs.addAttribute("page", pager.getCurrentPage());
@@ -128,8 +124,6 @@ public class PayConfigController {
      * @return ModelAndView
      */
     @RequestMapping(value = "/{id}/refunds", method = RequestMethod.GET)
-    @ResponseBody
-    @ApiImplicitParam(value = "filters", name = "filters", paramType = "query", dataType = "string")
     public ModelAndView refunds(@PathVariable("id") String id, RedirectAttributes attrs, Pager<Refund> pager, List<PropertyFilter> filters) {
         attrs.addAttribute("EQL_payConfig.id", id);
         attrs.addAttribute("page", pager.getCurrentPage());

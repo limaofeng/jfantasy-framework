@@ -19,8 +19,7 @@ public class ReceiverResourceAssembler extends ResourceAssemblerSupport<Receiver
 
     @Override
     public ResultResourceSupport toResource(Receiver entity) {
-        ResultResourceSupport resource = createResourceWithId(entity.getId(), entity);
-        return resource;
+        return createResourceWithId(entity.getId(), entity);
     }
 
     public Pager<ResultResourceSupport> toResources(Pager<Receiver> pager) {

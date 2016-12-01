@@ -20,12 +20,12 @@ public class ReceiverService {
     private ReceiverDao receiverDao;
 
     private void changeDefault(Receiver receiver) {
-        int count = this.receiverDao.count(Restrictions.eq("member.id", receiver.getMember().getId()));
+        int count = this.receiverDao.count(Restrictions.eq("memberId", receiver.getMemberId()));
         if (count == 0) {
             receiver.setIsDefault(true);
         } else {
             if (ObjectUtil.defaultValue(receiver.getIsDefault(), false)) {
-                List<Receiver> receivers = this.receiverDao.find(Restrictions.eq("member.id", receiver.getMember().getId()), Restrictions.eq("isDefault", true));
+                List<Receiver> receivers = this.receiverDao.find(Restrictions.eq("memberId", receiver.getMemberId()), Restrictions.eq("isDefault", true));
                 for (Receiver ver : receivers) {
                     ver.setIsDefault(false);
                     receiverDao.save(ver);
@@ -40,7 +40,6 @@ public class ReceiverService {
     }
 
     public Receiver update(Receiver receiver) {
-        receiver.setMember(receiverDao.get(receiver.getId()).getMember());
         changeDefault(receiver);
         return receiverDao.update(receiver);
     }
@@ -60,7 +59,7 @@ public class ReceiverService {
     public void deltele(Long id) {
         Receiver receiver = get(id);
         if (Boolean.TRUE.equals(receiver.getIsDefault())) {
-            List<Receiver> receivers = this.receiverDao.find(new Criterion[]{Restrictions.eq("member.id", receiver.getMember().getId()), Restrictions.eq("isDefault", Boolean.FALSE)}, "isDefault", "desc", 0, 1);
+            List<Receiver> receivers = this.receiverDao.find(new Criterion[]{Restrictions.eq("memberId", receiver.getMemberId()), Restrictions.eq("isDefault", Boolean.FALSE)}, "isDefault", "desc", 0, 1);
             if (!receivers.isEmpty()) {
                 receivers.get(0).setIsDefault(true);
                 this.receiverDao.save(receivers.get(0));

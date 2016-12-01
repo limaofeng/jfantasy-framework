@@ -1,35 +1,31 @@
 package org.jfantasy.order.service;
 
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.http.exceptions.UnirestException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
-import org.jfantasy.autoconfigure.ApiGatewaySettings;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
-import org.jfantasy.framework.spring.mvc.error.RestException;
 import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.logistics.bean.DeliveryType;
 import org.jfantasy.logistics.service.DeliveryTypeService;
+import org.jfantasy.member.bean.Receiver;
+import org.jfantasy.member.service.ReceiverService;
 import org.jfantasy.order.OrderDetailService;
 import org.jfantasy.order.bean.Order;
 import org.jfantasy.order.bean.OrderItem;
 import org.jfantasy.order.bean.OrderTargetKey;
 import org.jfantasy.order.bean.OrderType;
-import org.jfantasy.order.entity.enums.PaymentStatus;
-import org.jfantasy.order.entity.enums.ShippingStatus;
 import org.jfantasy.order.dao.OrderDao;
 import org.jfantasy.order.dao.OrderItemDao;
 import org.jfantasy.order.dao.OrderTypeDao;
 import org.jfantasy.order.entity.OrderDTO;
 import org.jfantasy.order.entity.OrderItemDTO;
 import org.jfantasy.order.entity.enums.OrderStatus;
+import org.jfantasy.order.entity.enums.PaymentStatus;
+import org.jfantasy.order.entity.enums.ShippingStatus;
 import org.jfantasy.order.job.OrderClose;
-import org.jfantasy.order.service.vo.Receiver;
 import org.jfantasy.rpc.annotation.ServiceExporter;
 import org.jfantasy.schedule.service.ScheduleService;
 import org.jfantasy.trade.bean.Project;
@@ -55,7 +51,7 @@ public class OrderService implements OrderDetailService {
     private final OrderItemDao orderItemDao;
     private final OrderTypeDao orderTypeDao;
     private TransactionService transactionService;
-    private ApiGatewaySettings apiGatewaySettings;
+    private ReceiverService receiverService;
     private ScheduleService scheduleService;
     private DeliveryTypeService deliveryTypeService;
 
@@ -89,7 +85,7 @@ public class OrderService implements OrderDetailService {
         }
         // 确认第三方支付成功后，修改关闭状态
         Transaction transaction = this.transactionService.getByUniqueId(Transaction.generateUnionid(Project.PAYMENT, order.getId()));
-        if(transaction != null) {
+        if (transaction != null) {
             transaction.setStatus(TxStatus.close);
             transaction.setStatusText(TxStatus.close.getValue());
             this.transactionService.update(transaction);
@@ -156,7 +152,7 @@ public class OrderService implements OrderDetailService {
         order.setAttrs(details.getAttrs());
         // 初始化收货人信息
         if (receiverId != null) {
-            Receiver receiver = getReceiverById(receiverId);
+            Receiver receiver = receiverService.get(receiverId);
             order.setShipName(receiver.getName());// 收货人姓名
             order.setShipArea(receiver.getArea());// 收货地区存储
             order.setShipAddress(receiver.getAddress());// 收货地址
@@ -270,16 +266,6 @@ public class OrderService implements OrderDetailService {
 
     }
 
-    private Receiver getReceiverById(Long id) {
-        try {
-            HttpResponse<Receiver> response = Unirest.get(apiGatewaySettings.getUrl() + "/receivers/" + id).asObject(Receiver.class);
-            return response.getBody();
-        } catch (UnirestException e) {
-            LOG.error(e.getMessage(), e);
-            throw new RestException("读取地址信息出错!");
-        }
-    }
-
     @Autowired
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
@@ -295,9 +281,7 @@ public class OrderService implements OrderDetailService {
         this.deliveryTypeService = deliveryTypeService;
     }
 
-    @Autowired
-    public void setApiGatewaySettings(ApiGatewaySettings apiGatewaySettings) {
-        this.apiGatewaySettings = apiGatewaySettings;
+    public void setReceiverService(ReceiverService receiverService) {
+        this.receiverService = receiverService;
     }
-
 }

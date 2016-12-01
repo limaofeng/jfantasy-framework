@@ -2,7 +2,7 @@ apply plugin: 'propdeps'
 apply plugin: 'propdeps-maven'
 apply plugin: 'propdeps-idea'
 
-description = '支付模块'
+description = '交易模块，包含：账户／支付／会员卡／订单／物流配送等功能'
 
 dependencies {
     compile project(':jfantasy-core')

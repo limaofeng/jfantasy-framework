@@ -1,15 +1,14 @@
 package org.jfantasy.member.rest.models.assembler;
 
 import org.jfantasy.framework.dao.Pager;
-import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
-import org.jfantasy.member.bean.Comment;
 import org.jfantasy.member.bean.Member;
 import org.jfantasy.member.rest.FavoriteController;
 import org.jfantasy.member.rest.MemberController;
 import org.jfantasy.member.rest.MemberTagController;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
+import org.springframework.web.servlet.mvc.support.RedirectAttributesModelMap;
 
 import java.util.ArrayList;
 
@@ -30,8 +29,8 @@ public class MemberResourceAssembler extends ResourceAssemblerSupport<Member, Re
     @Override
     public ResultResourceSupport toResource(Member entity) {
         ResultResourceSupport resource = createResourceWithId(entity.getId(), entity);
-        resource.add(linkTo(methodOn(MemberController.class).comments(entity.getId(), new Pager<Comment>(), new ArrayList<PropertyFilter>())).withRel("comments"));
-        resource.add(linkTo(methodOn(MemberController.class).receivers(entity.getId(), new ArrayList<PropertyFilter>())).withRel("receivers"));
+        resource.add(linkTo(methodOn(MemberController.class).comments(entity.getId(), new Pager<>(), new ArrayList<>())).withRel("comments"));
+        resource.add(linkTo(methodOn(MemberController.class).receivers(entity.getId(), new RedirectAttributesModelMap(),new ArrayList<>())).withRel("receivers"));
         resource.add(linkTo(methodOn(MemberController.class).favorites(entity.getId(), ":type")).withRel("favorites"));
         resource.add(new Link("/members/" + entity.getId() + "/level", "level"));
         resource.add(linkTo(methodOn(MemberTagController.class).tags(entity.getId(), ":type")).withRel("tags"));

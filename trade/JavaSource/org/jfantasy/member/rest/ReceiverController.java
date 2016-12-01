@@ -1,6 +1,5 @@
 package org.jfantasy.member.rest;
 
-import io.swagger.annotations.ApiImplicitParam;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.spring.mvc.error.NotFoundException;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
@@ -15,7 +14,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/** 收货地址 **/
+/**
+ * 收货地址
+ */
 @RestController
 @RequestMapping("/receivers")
 public class ReceiverController {
@@ -31,68 +32,74 @@ public class ReceiverController {
 
     /**
      * 查询收货地址
-     * @param filters
-     * @return
+     *
+     * @param filters 筛选
+     * @return List<Receiver>
      */
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
     public List<ResultResourceSupport> search(List<PropertyFilter> filters) {
         return assembler.toResources(this.receiverService.find(filters, "isDefault", "desc"));
     }
 
     /**
      * 查看收货地址
-     * @param id
-     * @return
+     *
+     * @param id ID
+     * @return List<Receiver>
      */
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    @GetMapping("/{id}")
     public ResultResourceSupport update(@PathVariable("id") Long id) {
-        Receiver _receiver = this.receiverService.get(id);
-        if (_receiver == null) {
+        Receiver receiver = this.receiverService.get(id);
+        if (receiver == null) {
             throw new NotFoundException("[id =" + id + "]对应的收货信息不存在");
         }
-        return assembler.toResource(_receiver);
+        return assembler.toResource(receiver);
     }
 
     /**
      * 添加收货地址
-     * @param receiver
-     * @return
+     *
+     * @param receiver Receiver
+     * @return Receiver
      */
-    @RequestMapping(method = RequestMethod.POST)
+    @PostMapping
     public ResultResourceSupport create(@Validated(RESTful.POST.class) @RequestBody Receiver receiver) {
         return assembler.toResource(this.receiverService.save(receiver));
     }
 
     /**
      * 更新收货地址
-     * @param id
-     * @param receiver
-     * @return
+     *
+     * @param id       ID
+     * @param receiver 修改对象
+     * @return Receiver
      */
-    @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
+    @PutMapping("/{id}")
     public ResultResourceSupport update(@PathVariable("id") Long id, @RequestBody Receiver receiver) {
-        Receiver _receiver = this.receiverService.get(id);
-        if (_receiver == null) {
-            throw new NotFoundException("[id =" + id + "]对应的收货信息不存在");
-        }
+        get(id);
         receiver.setId(id);
         return assembler.toResource(this.receiverService.update(receiver));
     }
 
     /**
      * 删除收货地址
-     * @param id
+     *
+     * @param id ID
      */
-    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable("id") Long id) {
+        get(id);
+        this.receiverService.deltele(id);
+    }
+
+    private Receiver get(Long id) {
         Receiver receiver = this.receiverService.get(id);
         if (receiver == null) {
             throw new NotFoundException("[id =" + id + "]对应的收货信息不存在");
         }
-        this.receiverService.deltele(id);
+        return receiver;
     }
 
 }

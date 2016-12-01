@@ -30,7 +30,6 @@ public class PayController {
      * @param sn   交易单号
      * @param body 通知内容
      * @return Object
-     * @throws PayException
      */
     @JsonResultFilter(ignore = {
             @IgnoreProperty(pojo = Order.class, name = {"pay_config"}),

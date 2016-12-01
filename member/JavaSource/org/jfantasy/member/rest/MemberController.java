@@ -22,6 +22,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -45,7 +47,6 @@ public class MemberController {
     private TeamController teamController;
     private InvoiceController invoiceController;
     private CommentController commentController;
-    private ReceiverController receiverController;
 
     @Autowired
     public MemberController(MemberService memberService, FavoriteService favoriteService) {
@@ -196,11 +197,12 @@ public class MemberController {
      * @return List<Receiver>
      */
     @RequestMapping(value = "/{memid}/receivers", method = RequestMethod.GET)
-    @ResponseBody
-    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
-    public List<ResultResourceSupport> receivers(@PathVariable("memid") Long memberId,@ApiParam(hidden = true) List<PropertyFilter> filters) {
-        filters.add(new PropertyFilter(FILTERS_EQ_MEMBER_ID, memberId.toString()));
-        return this.receiverController.search(filters);
+    public ModelAndView receivers(@PathVariable("memid") Long memberId, RedirectAttributes attrs, @ApiParam(hidden = true) List<PropertyFilter> filters) {
+        attrs.addAttribute("EQL_member.id", memberId);
+        for (PropertyFilter filter : filters) {
+            attrs.addAttribute(filter.getFilterName(), filter.getPropertyValue());
+        }
+        return new ModelAndView("redirect:/receivers");
     }
 
     /**
@@ -255,11 +257,6 @@ public class MemberController {
     @Autowired
     public void setCommentController(CommentController commentController) {
         this.commentController = commentController;
-    }
-
-    @Autowired
-    public void setReceiverController(ReceiverController receiverController) {
-        this.receiverController = receiverController;
     }
 
 }
