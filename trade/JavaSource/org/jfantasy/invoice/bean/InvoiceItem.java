@@ -32,7 +32,7 @@ public class InvoiceItem extends BaseBusEntity {
      */
     @NotNull(groups = {RESTful.POST.class})
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "INVOICE_ORDER_ID", nullable = false, foreignKey = @ForeignKey(name = "FK_ORDER_ITEM_ORDER"))
+    @JoinColumn(name = "INVOICE_ORDER_ID", nullable = false, foreignKey = @ForeignKey(name = "FK_IORDER_ITEM_ORDER"))
     private InvoiceOrder order;// 订单
 
     public Long getId() {
