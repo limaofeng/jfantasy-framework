@@ -20,7 +20,7 @@ import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.Map;
 
-@ComponentScan({"org.jfantasy.member","org.jfantasy.logistics", "org.jfantasy.card", "org.jfantasy.order", "org.jfantasy.pay", "org.jfantasy.trade"})
+@ComponentScan({"org.jfantasy.invoice","org.jfantasy.member","org.jfantasy.logistics", "org.jfantasy.card", "org.jfantasy.order", "org.jfantasy.pay", "org.jfantasy.trade"})
 @Configuration
 @EntityScan("org.jfantasy.*.bean")
 @EnableConfigurationProperties(PaySettings.class)
@@ -31,16 +31,16 @@ public class TradeAutoConfiguration {
     public static final String ONS_TAGS_ACCOUNT = "account";
     public static final String ONS_TAGS_CARDBIND = "card_bind";
 
-    @Bean
-    public PayProductConfiguration paymentConfiguration() {
-        return new PayProductConfiguration();
-    }
-
     @Autowired
     private AliyunConfiguration aliyunConfiguration;
 
     @Resource(name = "aliyunSettings")
     private AliyunSettings aliyunSettings;
+
+    @Bean
+    public PayProductConfiguration paymentConfiguration() {
+        return new PayProductConfiguration();
+    }
 
     @Bean(name = "pay.aliyunSettings")
     @ConfigurationProperties(prefix = "aliyun.ons.pay")
