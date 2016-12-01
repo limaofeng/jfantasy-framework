@@ -37,6 +37,7 @@ import java.util.List;
 @RequestMapping("/members")
 public class MemberController {
 
+    private static final String FILTERS_EQ_MEMBERID = "EQL_memberId";
     private static final String FILTERS_EQ_MEMBER_ID = "EQL_member.id";
 
     public static final MemberResourceAssembler assembler = new MemberResourceAssembler();
@@ -197,8 +198,8 @@ public class MemberController {
      * @return List<Receiver>
      */
     @RequestMapping(value = "/{memid}/receivers", method = RequestMethod.GET)
-    public ModelAndView receivers(@PathVariable("memid") Long memberId, RedirectAttributes attrs, @ApiParam(hidden = true) List<PropertyFilter> filters) {
-        attrs.addAttribute("EQL_member.id", memberId);
+    public ModelAndView receivers(@PathVariable("memid") Long memberId, RedirectAttributes attrs, List<PropertyFilter> filters) {
+        attrs.addAttribute(FILTERS_EQ_MEMBERID, memberId);
         for (PropertyFilter filter : filters) {
             attrs.addAttribute(filter.getFilterName(), filter.getPropertyValue());
         }
@@ -215,7 +216,7 @@ public class MemberController {
      */
     @GetMapping("/{memid}/invoices")
     public ModelAndView invoices(@PathVariable("memid") Long memberId, RedirectAttributes attrs,Pager pager, List<PropertyFilter> filters) {
-        attrs.addAttribute("EQL_memberId", memberId);
+        attrs.addAttribute(FILTERS_EQ_MEMBERID, memberId);
         attrs.addAttribute("page", pager.getCurrentPage());
         attrs.addAttribute("per_page", pager.getPageSize());
         if (!pager.isOrderBySetted()) {
@@ -234,7 +235,7 @@ public class MemberController {
 
     @GetMapping("{id}/iorders")
     public ModelAndView search(@PathVariable("id") Long id, RedirectAttributes attrs,Pager pager, List<PropertyFilter> filters) {
-        attrs.addAttribute("EQL_memberId", id);
+        attrs.addAttribute(FILTERS_EQ_MEMBERID, id);
         attrs.addAttribute("EQE_status", "NONE");
         if(!pager.isOrderBySetted()){
             pager.setOrderBy(BaseBusEntity.FIELDS_BY_CREATE_TIME);
