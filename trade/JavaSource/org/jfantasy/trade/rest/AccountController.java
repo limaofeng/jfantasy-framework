@@ -2,7 +2,6 @@ package org.jfantasy.trade.rest;
 
 import io.swagger.annotations.ApiImplicitParam;
 import org.jfantasy.card.bean.Card;
-import org.jfantasy.card.rest.CardController;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.jackson.annotation.IgnoreProperty;
@@ -10,8 +9,6 @@ import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
 import org.jfantasy.framework.spring.validation.RESTful;
 import org.jfantasy.framework.util.common.DateUtil;
-import org.jfantasy.trade.bean.enums.ReportTargetType;
-import org.jfantasy.trade.bean.enums.TimeUnit;
 import org.jfantasy.pay.error.PayException;
 import org.jfantasy.pay.rest.models.AccountForm;
 import org.jfantasy.pay.rest.models.ActivateForm;
@@ -19,6 +16,8 @@ import org.jfantasy.pay.rest.models.TransactionForm;
 import org.jfantasy.pay.rest.models.assembler.AccountResourceAssembler;
 import org.jfantasy.pay.rest.models.assembler.TransactionResourceAssembler;
 import org.jfantasy.trade.bean.*;
+import org.jfantasy.trade.bean.enums.ReportTargetType;
+import org.jfantasy.trade.bean.enums.TimeUnit;
 import org.jfantasy.trade.service.AccountService;
 import org.jfantasy.trade.service.ReportService;
 import org.jfantasy.trade.service.TransactionService;
@@ -26,6 +25,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -45,16 +46,10 @@ public class AccountController {
 
     private ConcurrentMap<String, TransactionResourceAssembler> transactionAssemblers = new ConcurrentHashMap<>();
 
-    @Autowired
+
     private AccountService accountService;
-    @Autowired
     private TransactionService transactionService;
-    @Autowired
     private ReportService reportService;
-    @Autowired
-    private PointController pointController;
-    @Autowired
-    private CardController cardController;
 
     /**
      * 查询账户
@@ -128,27 +123,42 @@ public class AccountController {
     }
 
     @JsonResultFilter(ignore = {
-            @IgnoreProperty(pojo = Card.class, name = {"account","secret"})
+            @IgnoreProperty(pojo = Card.class, name = {"account", "secret"})
     })
     @RequestMapping(method = RequestMethod.GET, value = "/{id}/cards")
-    @ResponseBody
-    public Pager<ResultResourceSupport> cards(@PathVariable("id") String sn, Pager<Card> pager, List<PropertyFilter> filters) {
-        filters.add(new PropertyFilter("EQS_account", sn));
+    public ModelAndView cards(@PathVariable("id") String sn, RedirectAttributes attrs, Pager<Card> pager, List<PropertyFilter> filters) {
+        attrs.addAttribute("EQS_account", sn);
+        attrs.addAttribute("page", pager.getCurrentPage());
+        attrs.addAttribute("per_page", pager.getPageSize());
         if (!pager.isOrderBySetted()) {
             pager.sort(Card.FIELDS_BY_MODIFY_TIME, Pager.SORT_DESC);
         }
-        return cardController.search(pager, filters);
+        if (pager.isOrderBySetted()) {
+            attrs.addAttribute("sort", pager.getOrderBy());
+            attrs.addAttribute("order", pager.getOrder());
+        }
+        for (PropertyFilter filter : filters) {
+            attrs.addAttribute(filter.getFilterName(), filter.getPropertyValue());
+        }
+        return new ModelAndView("redirect:/cards");
     }
 
     /**
      * 积分记录
      **/
     @RequestMapping(method = RequestMethod.GET, value = "/{id}/points")
-    @ResponseBody
-    @ApiImplicitParam(value = "filters", name = "filters", paramType = "query", dataType = "string")
-    public Pager<ResultResourceSupport> points(@PathVariable("id") String sn, Pager<Point> pager, List<PropertyFilter> filters) {
-        filters.add(new PropertyFilter("EQS_account.sn", sn));
-        return pointController.search(pager, filters);
+    public ModelAndView points(@PathVariable("id") String sn,RedirectAttributes attrs, Pager<Point> pager, List<PropertyFilter> filters) {
+        attrs.addAttribute("EQS_account.sn", sn);
+        attrs.addAttribute("page", pager.getCurrentPage());
+        attrs.addAttribute("per_page", pager.getPageSize());
+        if (pager.isOrderBySetted()) {
+            attrs.addAttribute("sort", pager.getOrderBy());
+            attrs.addAttribute("order", pager.getOrder());
+        }
+        for (PropertyFilter filter : filters) {
+            attrs.addAttribute(filter.getFilterName(), filter.getPropertyValue());
+        }
+        return new ModelAndView("redirect:/points");
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/{id}/reports")
@@ -169,6 +179,21 @@ public class AccountController {
 
     private Account get(String id) {
         return accountService.get(id);
+    }
+
+    @Autowired
+    public void setAccountService(AccountService accountService) {
+        this.accountService = accountService;
+    }
+
+    @Autowired
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
+    }
+
+    @Autowired
+    public void setReportService(ReportService reportService) {
+        this.reportService = reportService;
     }
 
 }

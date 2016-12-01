@@ -1,5 +1,7 @@
 package org.jfantasy.trade.service;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.criterion.Restrictions;
 import org.jfantasy.card.bean.Card;
 import org.jfantasy.card.dao.CardDao;
@@ -12,6 +14,7 @@ import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.oauth.userdetails.OAuthUserDetails;
 import org.jfantasy.order.bean.ExtraService;
+import org.jfantasy.pay.error.PayException;
 import org.jfantasy.trade.bean.*;
 import org.jfantasy.trade.bean.enums.*;
 import org.jfantasy.trade.dao.*;
@@ -26,6 +29,8 @@ import java.util.List;
 
 @Service
 public class AccountService {
+
+    private static Log LOG = LogFactory.getLog(AccountService.class);
 
     private final AccountDao accountDao;
     private final ProjectDao projectDao;
@@ -144,36 +149,28 @@ public class AccountService {
         }
 
         if (StringUtil.isNotBlank(transaction.getFrom())) {
-            Account from = this.accountDao.get(transaction.getFrom());
-            if (from.getAmount().compareTo(transaction.getAmount()) < 0) {
-                throw new RestException("账户余额不足,支付失败");
+            try {
+                Account from = this.out(transaction.getFrom(), transaction.getAmount());
+                this.addBill(BillType.debit, transaction, from);//添加对应账单
+            } catch (PayException e) {
+                LOG.error(e.getMessage(), e);
+                return this.close(transaction, e.getMessage());
             }
-            from.setAmount(from.getAmount().subtract(transaction.getAmount()));
-            this.addBill(BillType.debit, transaction, from);//添加对应账单
-            this.accountDao.update(from);
         }
 
         if (StringUtil.isNotBlank(transaction.getTo())) {
-            Account to = this.accountDao.get(transaction.getTo());
-            to.setAmount(to.getAmount().add(transaction.getAmount()));
-            this.addBill(BillType.credit, transaction, to);//添加对应账单
-
-            // 充值积分处理
-            if (Project.INPOUR.equals(project.getKey()) && Card.SUBJECT_BY_CARD_INPOUR.equals(transaction.getSubject())) {
-                Card card = this.cardDao.get(transaction.get(Transaction.CARD_ID));
-                ExtraService service = ObjectUtil.find(card.getExtras(), "project", ExtraService.ExtraProject.point);
-                if (service != null) {
-                    to.setPoints(to.getPoints() + service.getValue());
-                    this.addPonit(to, (long) service.getValue(), "会员卡充值奖励");
-                }
+            try {
+                Account to = this.in(transaction.getTo(), transaction.getAmount(), project, transaction);
+                this.addBill(BillType.credit, transaction, to);//添加对应账单
+            } catch (PayException e) {
+                LOG.error(e.getMessage(), e);
+                return this.close(transaction, e.getMessage());
             }
-
-            this.accountDao.update(to);
         }
 
-        if (Project.WITHDRAWAL.equals(project.getKey())) {//如果为提现交易，只修改状态为处理中。而且现在都是线下交易
+        if (Project.WITHDRAWAL.equals(project.getKey())) {//如果为提现交易，不修改交易状态。而且现在都是线下交易
             transaction.setPayConfigName("线下转账");
-            transaction.setStatus(TxStatus.processing);
+            transaction.setStatus(TxStatus.unprocessed);
             transaction.setStatusText(transaction.getStatus().getValue());
             transaction.setNotes(notes);
         } else {//更新交易状态
@@ -181,6 +178,40 @@ public class AccountService {
             transaction.setStatusText(transaction.getStatus().getValue());
             transaction.setNotes(notes);
         }
+        return transactionDao.save(transaction);
+    }
+
+    private Account in(String account, BigDecimal amount, Project project, Transaction transaction) throws PayException {
+        Account to = this.accountDao.get(account);
+        if (to == null) {
+            throw new PayException("收款账户错误");
+        }
+        to.setAmount(to.getAmount().add(amount));
+        // 充值积分处理
+        if (Project.INPOUR.equals(project.getKey()) && Card.SUBJECT_BY_CARD_INPOUR.equals(transaction.getSubject())) {
+            Card card = this.cardDao.get(transaction.get(Transaction.CARD_ID));
+            ExtraService service = ObjectUtil.find(card.getExtras(), "project", ExtraService.ExtraProject.point);
+            if (service != null) {
+                to.setPoints(to.getPoints() + service.getValue());
+                this.addPonit(to, (long) service.getValue(), "会员卡充值奖励");
+            }
+        }
+        return this.accountDao.update(to);
+    }
+
+    private Account out(String account, BigDecimal amount) throws PayException {
+        Account from = this.accountDao.get(account);
+        if (from.getAmount().compareTo(amount) < 0) {
+            throw new PayException("账户余额不足,交易失败");
+        }
+        from.setAmount(from.getAmount().subtract(amount));
+        return this.accountDao.update(from);
+    }
+
+    private Transaction close(Transaction transaction, String notes) {
+        transaction.setStatus(TxStatus.close);
+        transaction.setStatusText(TxStatus.close.getValue());
+        transaction.setNotes(notes);
         return transactionDao.save(transaction);
     }
 
