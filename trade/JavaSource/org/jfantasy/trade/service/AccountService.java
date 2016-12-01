@@ -110,8 +110,8 @@ public class AccountService {
     @Transactional
     public Transaction transfer(String trxNo, String password, String notes) {
         Transaction transaction = transactionDao.get(trxNo);
+        /*
         if (transaction.getChannel() == TxChannel.internal) {
-            /*
             Account from = this.accountDao.get(transaction.getFrom());
             if (from.getStatus() != AccountStatus.activated) {
                 throw new RestException("账户未激活不能进行付款操作");
@@ -121,7 +121,14 @@ public class AccountService {
             }
             if (!passwordEncoder.matches(from.getPassword(), password)) {
                 throw new RestException("支付密码错误");
-            }*/
+            }
+        }
+        */
+        if (StringUtil.isNotBlank(transaction.getFrom()) && accountDao.get(transaction.getFrom()) == null) {
+            throw new ValidationException("[" + transaction.getFrom() + "]账户不存在");
+        }
+        if (StringUtil.isNotBlank(transaction.getTo()) && accountDao.get(transaction.getTo()) == null) {
+            throw new ValidationException("[" + transaction.getTo() + "]账户不存在");
         }
         return this.transfer(trxNo, notes);
     }
@@ -148,25 +155,14 @@ public class AccountService {
             transaction.setPayConfigName(transaction.getChannel() == TxChannel.internal ? "账户余额" : "未知");
         }
 
-        if (StringUtil.isNotBlank(transaction.getFrom())) {
-            try {
-                Account from = this.out(transaction.getFrom(), transaction.getAmount());
-                this.addBill(BillType.debit, transaction, from);//添加对应账单
-            } catch (PayException e) {
-                LOG.error(e.getMessage(), e);
-                return this.close(transaction, e.getMessage());
-            }
+        try {
+            this.out(transaction.getFrom(), transaction.getAmount(), transaction);
+        } catch (PayException e) {
+            LOG.error(e.getMessage(), e);
+            return this.close(transaction, e.getMessage());
         }
 
-        if (StringUtil.isNotBlank(transaction.getTo())) {
-            try {
-                Account to = this.in(transaction.getTo(), transaction.getAmount(), project, transaction);
-                this.addBill(BillType.credit, transaction, to);//添加对应账单
-            } catch (PayException e) {
-                LOG.error(e.getMessage(), e);
-                return this.close(transaction, e.getMessage());
-            }
-        }
+        this.in(transaction.getTo(), transaction.getAmount(), project, transaction);
 
         if (Project.WITHDRAWAL.equals(project.getKey())) {//如果为提现交易，不修改交易状态。而且现在都是线下交易
             transaction.setPayConfigName("线下转账");
@@ -181,11 +177,11 @@ public class AccountService {
         return transactionDao.save(transaction);
     }
 
-    private Account in(String account, BigDecimal amount, Project project, Transaction transaction) throws PayException {
-        Account to = this.accountDao.get(account);
-        if (to == null) {
-            throw new PayException("收款账户错误");
+    private void in(String account, BigDecimal amount, Project project, Transaction transaction) {
+        if (StringUtil.isBlank(transaction.getTo())) {
+            return;
         }
+        Account to = this.accountDao.get(account);
         to.setAmount(to.getAmount().add(amount));
         // 充值积分处理
         if (Project.INPOUR.equals(project.getKey()) && Card.SUBJECT_BY_CARD_INPOUR.equals(transaction.getSubject())) {
@@ -196,16 +192,21 @@ public class AccountService {
                 this.addPonit(to, (long) service.getValue(), "会员卡充值奖励");
             }
         }
-        return this.accountDao.update(to);
+        this.addBill(BillType.credit, transaction, to);//添加对应账单
+        this.accountDao.update(to);
     }
 
-    private Account out(String account, BigDecimal amount) throws PayException {
+    private void out(String account, BigDecimal amount, Transaction transaction) throws PayException {
+        if (StringUtil.isBlank(account)) {
+            return;
+        }
         Account from = this.accountDao.get(account);
         if (from.getAmount().compareTo(amount) < 0) {
             throw new PayException("账户余额不足,交易失败");
         }
         from.setAmount(from.getAmount().subtract(amount));
-        return this.accountDao.update(from);
+        this.addBill(BillType.debit, transaction, from);//添加对应账单
+        this.accountDao.update(from);
     }
 
     private Transaction close(Transaction transaction, String notes) {
