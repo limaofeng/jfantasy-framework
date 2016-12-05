@@ -57,8 +57,23 @@ public class Account extends BaseBusEntity {
     /**
      * 所有者
      */
-    @Column(name = "owner", nullable = false, updatable = false)
+    @Column(name = "OWNER", nullable = false, updatable = false)
     private String owner;
+    /**
+     * 所有者ID
+     */
+    @Column(name = "OWNER_ID", nullable = false, updatable = false)
+    private String ownerId;
+    /**
+     * 所有者类型
+     */
+    @Column(name = "OWNER_TYPE", nullable = false, updatable = false)
+    private String ownerType;
+    /**
+     * 所有者名称
+     */
+    @Column(name = "OWNER_NAME", nullable = false)
+    private String ownerName;
     @Version
     @Column(name = "OPTLOCK")
     private Integer version;
@@ -126,4 +141,29 @@ public class Account extends BaseBusEntity {
     public void setVersion(Integer version) {
         this.version = version;
     }
+
+    public String getOwnerId() {
+        return ownerId;
+    }
+
+    public void setOwnerId(String ownerId) {
+        this.ownerId = ownerId;
+    }
+
+    public String getOwnerType() {
+        return ownerType;
+    }
+
+    public void setOwnerType(String ownerType) {
+        this.ownerType = ownerType;
+    }
+
+    public String getOwnerName() {
+        return ownerName;
+    }
+
+    public void setOwnerName(String ownerName) {
+        this.ownerName = ownerName;
+    }
+
 }
