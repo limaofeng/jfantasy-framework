@@ -1,8 +1,13 @@
 package org.jfantasy.trade.service;
 
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.JsonNode;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.criterion.Restrictions;
+import org.jfantasy.autoconfigure.ApiGatewaySettings;
 import org.jfantasy.card.bean.Card;
 import org.jfantasy.card.dao.CardDao;
 import org.jfantasy.framework.dao.Pager;
@@ -18,6 +23,7 @@ import org.jfantasy.pay.error.PayException;
 import org.jfantasy.trade.bean.*;
 import org.jfantasy.trade.bean.enums.*;
 import org.jfantasy.trade.dao.*;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.crypto.password.StandardPasswordEncoder;
@@ -38,7 +44,7 @@ public class AccountService {
     private final PointDao pointDao;
     private final BillDao billDao;
     private final CardDao cardDao;
-
+    private ApiGatewaySettings apiGatewaySettings;
     private PasswordEncoder passwordEncoder = new StandardPasswordEncoder();
 
     @Autowired
@@ -83,7 +89,56 @@ public class AccountService {
         account.setPoints(0L);
         account.setOwner(owner);
         account.setStatus(StringUtil.isBlank(password) ? AccountStatus.unactivated : AccountStatus.activated);
+
+        //加载 owner 详细信息
+        if (AccountType.enterprise == account.getType() || AccountType.personal == account.getType()) {
+            ownerByMember(account);
+        }
+
         return this.accountDao.save(account);
+    }
+
+    @Transactional
+    public void update(Account account) {
+        Account old = this.accountDao.get(account.getSn());
+        old.setOwnerId(account.getOwnerId());
+        old.setOwnerType(account.getOwnerType());
+        old.setOwnerName(account.getOwnerName());
+        this.accountDao.update(old);
+    }
+
+    private void ownerByMember(Account account) {
+        try {
+            String[] asr = account.getOwner().split(":");
+            String username = asr[1];
+            HttpResponse<JsonNode> postResponse = Unirest.get(apiGatewaySettings.getUrl() + "/members?EQS_username=" + username).asJson();
+            JsonNode jsonNode = postResponse.getBody();
+            JSONObject pager = jsonNode.getObject();
+
+            if (pager.getInt("count") == 1) {
+                JSONObject member = jsonNode.getObject().getJSONArray("items").getJSONObject(0);
+                Long memberId = member.getLong("id");
+                String memberType = member.getString("type");
+                String targetType = member.has("target_type") ? member.getString("target_type") : null;
+                String targetId = member.has("target_id") ? member.getString("target_id") : null;
+                String name = member.getString("nick_name");
+                if ("personal".equals(memberType)) {//个人
+                    account.setOwnerId(memberId.toString());
+                    account.setOwnerType("personal");
+                    account.setOwnerName(name);
+                } else if ("doctor".equals(memberType)) {//医生
+                    account.setOwnerId(targetId);
+                    account.setOwnerType(targetType);
+                    account.setOwnerName(name);
+                } else if (ObjectUtil.exists(new String[]{"company", "pharmacy", "clinic"}, memberType)) {//集团
+                    account.setOwnerId(targetId);
+                    account.setOwnerType(memberType);
+                    account.setOwnerName(name);
+                }
+            }
+        } catch (UnirestException e) {
+            LOG.error(e.getMessage(), e);
+        }
     }
 
     /**
@@ -244,6 +299,11 @@ public class AccountService {
         Account account = this.accountDao.get(no);
         account.setPassword(passwordEncoder.encode(password));
         return this.accountDao.save(account);
+    }
+
+    @Autowired
+    public void setApiGatewaySettings(ApiGatewaySettings apiGatewaySettings) {
+        this.apiGatewaySettings = apiGatewaySettings;
     }
 
 }

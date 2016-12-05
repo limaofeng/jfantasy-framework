@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 
 //@Component
-public class AccountConfiguration  implements CommandLineRunner {
+public class AccountConfiguration implements CommandLineRunner {
 
     @Autowired
     private AccountService accountService;
@@ -15,12 +15,12 @@ public class AccountConfiguration  implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         Account from = accountService.findUnique(AccountType.personal, "member:15921884771");
-        if(from == null){
-            accountService.save(AccountType.personal,"member:15921884771","");
+        if (from == null) {
+            accountService.save(AccountType.personal, "member:15921884771", "");
         }
         Account to = accountService.findUnique(AccountType.enterprise, "shzbsg");
-        if(to == null){
-            accountService.save(AccountType.enterprise,"shzbsg","");
+        if (to == null) {
+            accountService.save(AccountType.enterprise, "shzbsg", "");
         }
     }
 
