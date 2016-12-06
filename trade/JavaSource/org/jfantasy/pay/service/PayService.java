@@ -192,7 +192,6 @@ public class PayService {
     @Transactional
     public Object paymentNotify(String sn, String body) throws PayException {
         Payment payment = this.paymentService.get(sn);
-        Transaction transaction = payment.getTransaction();
         PayConfig payConfig = payment.getPayConfig();
 
         //获取支付产品
@@ -215,19 +214,7 @@ public class PayService {
 
         // 更新订单信息
         if (payment.getStatus() == PaymentStatus.success) {
-            // 更新交易状态
-            transaction.setChannel(payConfig.getPayMethod() == PayMethod.thirdparty ? TxChannel.thirdparty : TxChannel.internal);
-            transaction.setStatus(TxStatus.success);
-            transaction.setStatusText(TxStatus.success.getValue());
-            transaction.setPayConfigName(payConfig.getName());
-            transactionService.update(transaction);
-            // 更新订单状态
-            order.setStatus(OrderStatus.paid);
-            order.setPaymentStatus(org.jfantasy.order.entity.enums.PaymentStatus.paid);
-            order.setPaymentTime(payment.getTradeTime());
-            order.setPaymentConfig(payConfig);
-            order.setPayConfigName(payConfig.getName());
-            orderService.update(order);
+            this.orderService.updatePaymentStatus(payment);
         }
 
         // 如果为完成 或者 初始状态 不触发事件
@@ -250,7 +237,6 @@ public class PayService {
     public Object refundNotify(String sn, String body) throws PayException {
         Refund refund = this.refundService.get(sn);
         PayConfig payConfig = refund.getPayConfig();
-        Transaction transaction = refund.getTransaction();
 
         //获取支付产品
         PayProduct payProduct = payProductConfiguration.loadPayProduct(payConfig.getPayProductId());
@@ -267,23 +253,8 @@ public class PayService {
             return result != null ? result : order;
         }
 
-        //更新状态
-        refundService.result(refund, order);
-
-
         if (refund.getStatus() == RefundStatus.success) {
-            // 更新交易状态
-            transaction.setChannel(payConfig.getPayMethod() == PayMethod.thirdparty ? TxChannel.thirdparty : TxChannel.internal);
-            transaction.setStatus(TxStatus.success);
-            transaction.setStatusText(TxStatus.success.getValue());
-            transaction.setPayConfigName(payConfig.getName());
-            transactionService.update(transaction);
-            // 更新订单状态
-            order.setStatus(OrderStatus.refunded);
-            order.setPaymentStatus(order.getPayableAmount().equals(refund.getTotalAmount()) ? org.jfantasy.order.entity.enums.PaymentStatus.refunded : org.jfantasy.order.entity.enums.PaymentStatus.partRefund);
-            order.setRefundAmount(refund.getTotalAmount());
-            order.setRefundTime(refund.getTradeTime());
-            orderService.update(order);
+            this.orderService.updateRefundStatus(refund);
         }
 
         // 如果为完成 或者 初始状态 不触发事件

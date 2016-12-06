@@ -25,11 +25,15 @@ public class TradeAutoConfiguration {
     public static final String ONS_TAGS_ACCOUNT = "account";
     public static final String ONS_TAGS_CARDBIND = "card_bind";
 
-    @Autowired
-    private AliyunConfiguration aliyunConfiguration;
+    private final AliyunConfiguration aliyunConfiguration;
 
     @Resource(name = "aliyunSettings")
     private AliyunSettings aliyunSettings;
+
+    @Autowired
+    public TradeAutoConfiguration(AliyunConfiguration aliyunConfiguration) {
+        this.aliyunConfiguration = aliyunConfiguration;
+    }
 
     @Bean
     public PayProductConfiguration paymentConfiguration() {

@@ -52,6 +52,13 @@ public class ProjectCommandLineRunner implements CommandLineRunner {
             project.setType(ProjectType.transfer);
             projectService.save(project);
         }
+        if (projectService.get(Project.TRANSFER) == null) {
+            Project project = new Project(Project.TRANSFER);
+            project.setName("转账");
+            project.setDescription("转账");
+            project.setType(ProjectType.transfer);
+            projectService.save(project);
+        }
     }
 
     @Autowired

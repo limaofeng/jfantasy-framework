@@ -8,7 +8,6 @@ import org.jfantasy.framework.jackson.annotation.IgnoreProperty;
 import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
 import org.jfantasy.framework.spring.mvc.error.NotFoundException;
 import org.jfantasy.framework.spring.mvc.error.RestException;
-import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
 import org.jfantasy.order.bean.Order;
 import org.jfantasy.order.bean.OrderItem;
@@ -25,7 +24,6 @@ import org.jfantasy.pay.rest.models.OrderTransaction;
 import org.jfantasy.pay.rest.models.assembler.OrderResourceAssembler;
 import org.jfantasy.trade.bean.Transaction;
 import org.jfantasy.trade.rest.TransactionController;
-import org.jfantasy.trade.service.AccountService;
 import org.jfantasy.trade.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -33,9 +31,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 订单
@@ -47,7 +43,6 @@ public class OrderController {
     public static final OrderResourceAssembler assembler = new OrderResourceAssembler();
 
     private OrderService orderService;
-    private AccountService accountService;
     private TransactionService transactionService;
     private PaymentController paymentController;
     private RefundController refundController;
@@ -88,33 +83,20 @@ public class OrderController {
      * 创建订单交易 - 该接口会判断交易是否创建,如果没有交易记录会添加交易订单到交易记录
      *
      * @param id               订单 id
-     * @param orderTransaction 交易类型
+     * @param form 交易类型
      * @return Transaction
      */
     @JsonResultFilter(allow = @AllowProperty(pojo = PayConfig.class, name = {"id", "pay_product_id", "name", "platforms", "default", "disabled"}))
     @RequestMapping(value = "/{id}/transactions", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public ResultResourceSupport transaction(@PathVariable("id") String id, @RequestBody OrderTransaction orderTransaction) {
-        Map<String, Object> data = new HashMap<>();
-        // 订单
-        Order order = get(id);
-        // 保存到交易表的数据
-        data.putAll(order.getAttrs());
-        data.put(Transaction.ORDER_ID, order.getId());
-        data.put(Transaction.ORDER_TYPE, order.getType());
+    public ResultResourceSupport transaction(@PathVariable("id") String id, @RequestBody OrderTransaction form) {
+        Order order = get(id);// 订单
         // 判断交易类型
-        if (orderTransaction.getType() == OrderTransaction.Type.payment) {
-            if(order.getStatus() != OrderStatus.unpaid){
-                throw new ValidationException("订单"+order.getStatus().getValue()+",不能支付");
-            }
-            String from = accountService.findUniqueByCurrentUser().getSn();// 付款方
-            return transactionController.transform(this.transactionService.payment(from, order.getPayableAmount(), "", data));
+        if (form.getType() == OrderTransaction.Type.payment) {
+            return transactionController.transform(orderService.payment(order.getId()).getPaymentTransaction());
         } else {
-            if(order.getStatus() != OrderStatus.paid){
-                throw new ValidationException("订单"+order.getStatus().getValue()+",不能支付");
-            }
-            return TransactionController.assembler.toResource(this.transactionService.refund(order.getId(), orderTransaction.getAmount(), ""));
+            return TransactionController.assembler.toResource(orderService.refund(id,form.getAmount(),"").getRefundTransaction());
         }
     }
 
@@ -150,12 +132,12 @@ public class OrderController {
             allow = @AllowProperty(pojo = PayConfig.class, name = {"id", "name"})
     )
     @RequestMapping(value = "/{id}/status", method = RequestMethod.PUT)
-    @ResponseBody
-    public ResultResourceSupport status(@PathVariable("id") String id, @Validated @RequestBody OrderStatusForm form) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void status(@PathVariable("id") String id, @Validated @RequestBody OrderStatusForm form) {
         if (form.getStatus() == OrderStatus.closed) {
-            return assembler.toResource(orderService.close(id));
-        }else {
-                throw new RestException("暂时只支持，订单关闭操作");
+            orderService.close(id);
+        } else {
+            throw new RestException("暂时只支持，订单关闭操作");
         }
     }
 
@@ -190,11 +172,6 @@ public class OrderController {
     @Autowired
     public void setOrderService(OrderService orderService) {
         this.orderService = orderService;
-    }
-
-    @Autowired
-    public void setAccountService(AccountService accountService) {
-        this.accountService = accountService;
     }
 
     @Autowired

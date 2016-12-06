@@ -12,11 +12,10 @@ import org.jfantasy.logistics.bean.DeliveryType;
 import org.jfantasy.logistics.service.DeliveryTypeService;
 import org.jfantasy.member.bean.Receiver;
 import org.jfantasy.member.service.ReceiverService;
-import org.jfantasy.order.OrderDetailService;
 import org.jfantasy.order.bean.Order;
 import org.jfantasy.order.bean.OrderItem;
 import org.jfantasy.order.bean.OrderTargetKey;
-import org.jfantasy.order.bean.OrderType;
+import org.jfantasy.order.bean.enums.InvoiceStatus;
 import org.jfantasy.order.dao.OrderDao;
 import org.jfantasy.order.dao.OrderItemDao;
 import org.jfantasy.order.dao.OrderTypeDao;
@@ -26,24 +25,33 @@ import org.jfantasy.order.entity.enums.OrderStatus;
 import org.jfantasy.order.entity.enums.PaymentStatus;
 import org.jfantasy.order.entity.enums.ShippingStatus;
 import org.jfantasy.order.job.OrderClose;
-import org.jfantasy.rpc.annotation.ServiceExporter;
+import org.jfantasy.pay.bean.PayConfig;
+import org.jfantasy.pay.bean.Payment;
+import org.jfantasy.pay.bean.Refund;
+import org.jfantasy.pay.bean.enums.PayMethod;
 import org.jfantasy.schedule.service.ScheduleService;
+import org.jfantasy.trade.bean.Account;
 import org.jfantasy.trade.bean.Project;
 import org.jfantasy.trade.bean.Transaction;
+import org.jfantasy.trade.bean.enums.TxChannel;
 import org.jfantasy.trade.bean.enums.TxStatus;
+import org.jfantasy.trade.service.AccountService;
 import org.jfantasy.trade.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 订单明细记录
  */
-@ServiceExporter(value = "orderService", targetInterface = OrderDetailService.class)
-public class OrderService implements OrderDetailService {
+@Service
+public class OrderService {
 
     private static final Log LOG = LogFactory.getLog(OrderService.class);
 
@@ -54,6 +62,7 @@ public class OrderService implements OrderDetailService {
     private ReceiverService receiverService;
     private ScheduleService scheduleService;
     private DeliveryTypeService deliveryTypeService;
+    private AccountService accountService;
 
     @Autowired
     public OrderService(OrderTypeDao orderTypeDao, OrderDao orderDao, OrderItemDao orderItemDao) {
@@ -78,7 +87,22 @@ public class OrderService implements OrderDetailService {
     }
 
     @Transactional
-    public Order close(String id) {
+    public void complete(String id) {
+        Order order = this.orderDao.get(id);
+        if (OrderStatus.paid != order.getStatus()) {
+            throw new ValidationException("order = [" + id + "] 订单未支付，不能直接完成!");
+        }
+        // 更新订单状态为完成
+        order.setStatus(OrderStatus.complete);
+        // 更新发票状态
+        if (!"walletpay".equals(order.getPaymentConfig().getPayProductId())) {// 非钱包支付，可以开发票
+            order.setInvoiceStatus(InvoiceStatus.wait);
+        }
+        this.orderDao.update(order);
+    }
+
+    @Transactional
+    public void close(String id) {
         Order order = this.orderDao.get(id);
         if (OrderStatus.unpaid != order.getStatus()) {
             throw new ValidationException("order = [" + id + "] 订单已经支付，不能关闭!");
@@ -92,7 +116,7 @@ public class OrderService implements OrderDetailService {
         }
         order.setStatus(OrderStatus.closed);
         this.scheduleService.removeTrigdger(OrderClose.triggerKey(order));
-        return this.orderDao.update(order);
+        this.orderDao.update(order);
     }
 
     @Transactional
@@ -123,6 +147,94 @@ public class OrderService implements OrderDetailService {
         return this.orderDao.findUnique(Restrictions.eq("detailsType", targetType), Restrictions.eq("detailsId", targetId));
     }
 
+    @Transactional
+    public Order payment(String id) {
+        Map<String, Object> data = new HashMap<>();
+        // 订单
+        Order order = this.orderDao.get(id);
+        // 保存到交易表的数据
+        data.putAll(order.getAttrs());
+        data.put(Transaction.ORDER_ID, order.getId());
+        data.put(Transaction.ORDER_TYPE, order.getType());
+        if (order.getStatus() != OrderStatus.unpaid) {
+            throw new ValidationException("订单" + order.getStatus().getValue() + ",不能支付");
+        }
+        Account from = accountService.findUniqueByOwner(order.getMemberId().toString());// 付款方 - 只能是用户自己付款
+        Transaction transaction = this.transactionService.payment(from.getSn(), order.getPayableAmount(), "", data);
+        order.setPaymentTransaction(transaction);
+        return this.orderDao.update(order);
+    }
+
+    public Order updatePaymentStatus(Payment payment) {
+        Order order = payment.getOrder();
+        Transaction transaction = payment.getTransaction();
+        PayConfig payConfig = payment.getPayConfig();
+        // 更新交易状态
+        transaction.setChannel(payConfig.getPayMethod() == PayMethod.thirdparty ? TxChannel.thirdparty : TxChannel.internal);
+        transaction.setStatus(TxStatus.success);
+        transaction.setStatusText(TxStatus.success.getValue());
+        transaction.setPayConfigName(payConfig.getName());
+        transactionService.update(transaction);
+        // 更新订单状态
+        order.setStatus(OrderStatus.paid);
+        order.setPaymentStatus(org.jfantasy.order.entity.enums.PaymentStatus.paid);
+        order.setPaymentTime(payment.getTradeTime());
+        order.setPaymentConfig(payConfig);
+        order.setPayConfigName(payConfig.getName());
+        // 查询付款人信息
+        Account account = accountService.get(transaction.getFrom());
+        order.setPayer(Long.valueOf(account.getOwner()));
+        return this.orderDao.update(order);
+    }
+
+    @Transactional
+    public Order refund(String id, BigDecimal refundAmount, String note) {
+        // 订单
+        Order order = this.orderDao.get(id);
+        if (order.getStatus() != OrderStatus.paid) {
+            throw new ValidationException("订单" + order.getStatus().getValue() + ",不能支付");
+        }
+        order.setStatus(OrderStatus.refunding);
+        Transaction transaction = this.transactionService.refund(order.getId(), refundAmount, note);
+        order.setRefundTransaction(transaction);
+        return this.orderDao.update(order);
+    }
+
+    public Order updateRefundStatus(Refund refund) {
+        Order order = refund.getOrder();
+        Transaction transaction = refund.getTransaction();
+        PayConfig payConfig = refund.getPayConfig();
+        // 更新交易状态
+        transaction.setChannel(payConfig.getPayMethod() == PayMethod.thirdparty ? TxChannel.thirdparty : TxChannel.internal);
+        transaction.setStatus(TxStatus.success);
+        transaction.setStatusText(TxStatus.success.getValue());
+        transaction.setPayConfigName(payConfig.getName());
+        transactionService.update(transaction);
+        // 更新订单状态
+        order.setStatus(OrderStatus.refunded);
+        order.setPaymentStatus(order.getPayableAmount().equals(refund.getTotalAmount()) ? org.jfantasy.order.entity.enums.PaymentStatus.refunded : org.jfantasy.order.entity.enums.PaymentStatus.partRefund);
+        order.setRefundAmount(refund.getTotalAmount());
+        order.setRefundTime(refund.getTradeTime());
+        return this.orderDao.update(order);
+    }
+
+    public void updateInvoiceStatus(org.jfantasy.invoice.bean.enums.InvoiceStatus status, String... ids) {
+        InvoiceStatus invoiceStatus = InvoiceStatus.submitted;
+        switch (status) {
+            case IN_PROGRESS:
+                invoiceStatus = InvoiceStatus.processed;
+                break;
+            case COMPLETE:
+                invoiceStatus = InvoiceStatus.completed;
+                break;
+            default:
+        }
+        for (String id : ids) {
+            Order order = this.orderDao.get(id);
+            order.setInvoiceStatus(invoiceStatus);
+        }
+    }
+
     /**
      * 新订单
      *
@@ -133,6 +245,7 @@ public class OrderService implements OrderDetailService {
         Long memberId = details.getMemberId();
         Long deliveryTypeId = details.getDeliveryTypeId();
         Long receiverId = details.getReceiverId();
+        Long payee = details.getPayee();
         String memo = details.getMemo();
         List<OrderItemDTO> items = details.getItems();
 
@@ -150,6 +263,8 @@ public class OrderService implements OrderDetailService {
         order.setMemberId(memberId);
         // 订单扩展字段
         order.setAttrs(details.getAttrs());
+        // 收款方
+        order.setPayee(payee);
         // 初始化收货人信息
         if (receiverId != null) {
             Receiver receiver = receiverService.get(receiverId);
@@ -233,39 +348,6 @@ public class OrderService implements OrderDetailService {
         return order;
     }
 
-    @Override
-    @Transactional
-    public OrderDTO save(OrderDTO zorder) {
-        Order order = this.findUnique(zorder.getType(), zorder.getSn());
-        if (order != null) {
-            zorder.setId(order.getId());
-            return zorder;
-        }
-        OrderType orderType = orderTypeDao.get(zorder.getType());
-        if (orderType == null || !orderType.getEnabled()) {
-            throw new ValidationException("支付系统不能处理该类型的订单[" + zorder.getType() + "]，请检查或者联系开发人员!");
-        }
-        //保存订单信息
-        order = this.submitOrder(zorder);
-        zorder.setId(order.getId());
-        return zorder;
-    }
-
-    @Override
-    public OrderDTO get(String type, String sn) {
-        return null;
-    }
-
-    @Override
-    public OrderDTO refund(String type, String sn, BigDecimal refundAmount, String note) {
-        return null;
-    }
-
-    @Override
-    public void close(String type, String sn) {
-
-    }
-
     @Autowired
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
@@ -281,7 +363,14 @@ public class OrderService implements OrderDetailService {
         this.deliveryTypeService = deliveryTypeService;
     }
 
+    @Autowired
+    public void setAccountService(AccountService accountService) {
+        this.accountService = accountService;
+    }
+
+    @Autowired
     public void setReceiverService(ReceiverService receiverService) {
         this.receiverService = receiverService;
     }
+
 }

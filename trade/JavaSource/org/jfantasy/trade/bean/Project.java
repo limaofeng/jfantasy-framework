@@ -20,6 +20,7 @@ public class Project extends BaseBusEntity {
     public static final String INCOME = "income";
     public static final String INPOUR = "inpour";
     public static final String WITHDRAWAL = "withdrawal";
+    public static final String TRANSFER = "transfer";
 
     private static final long serialVersionUID = -2461534613032864306L;
 

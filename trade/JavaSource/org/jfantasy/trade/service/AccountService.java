@@ -62,6 +62,10 @@ public class AccountService {
         return this.accountDao.findPager(pager, filters);
     }
 
+    public Account findUniqueByOwner(String owner) {
+        return this.accountDao.findUnique(Restrictions.eq("owner", owner));
+    }
+
     @Transactional
     public Account findUnique(AccountType type, String owner) {
         return this.accountDao.findUnique(Restrictions.eq("type", type), Restrictions.eq("owner", owner));

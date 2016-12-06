@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import org.jfantasy.framework.dao.BaseBusEntity;
 import org.jfantasy.framework.spring.validation.RESTful;
+import org.jfantasy.order.bean.Order;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -33,7 +34,7 @@ public class InvoiceItem extends BaseBusEntity {
     @NotNull(groups = {RESTful.POST.class})
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "INVOICE_ORDER_ID", nullable = false, foreignKey = @ForeignKey(name = "FK_IORDER_ITEM_ORDER"))
-    private InvoiceOrder order;// 订单
+    private Order order;// 订单
 
     public Long getId() {
         return id;
@@ -54,18 +55,18 @@ public class InvoiceItem extends BaseBusEntity {
     @JsonUnwrapped
     @JsonIgnoreProperties({"member"})
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    public InvoiceOrder getOrder() {
+    public Order getOrder() {
         return order;
     }
 
-    public void setOrder(InvoiceOrder order) {
+    public void setOrder(Order order) {
         this.order = order;
     }
 
     @JsonProperty("order_id")
     @Transient
-    public void setOrderId(Long orderId) {
-        this.setOrder(new InvoiceOrder(orderId));
+    public void setOrderId(String orderId) {
+        this.setOrder(new Order(orderId));
     }
 
 }

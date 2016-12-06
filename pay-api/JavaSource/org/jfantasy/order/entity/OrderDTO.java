@@ -84,6 +84,10 @@ public class OrderDTO {
      * 备忘
      */
     private String memo;
+    /**
+     * 收款方
+     */
+    private Long payee;
 
     public String getSn() {
         return sn;
@@ -235,6 +239,14 @@ public class OrderDTO {
 
     public void setShippingStatus(ShippingStatus shippingStatus) {
         this.shippingStatus = shippingStatus;
+    }
+
+    public Long getPayee() {
+        return payee;
+    }
+
+    public void setPayee(Long payee) {
+        this.payee = payee;
     }
 
     @Override

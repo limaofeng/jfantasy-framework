@@ -11,11 +11,14 @@ import org.jfantasy.framework.dao.BaseBusEntity;
 import org.jfantasy.framework.dao.hibernate.converter.MapConverter;
 import org.jfantasy.framework.spring.SpringContextUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
+import org.jfantasy.invoice.bean.Invoice;
+import org.jfantasy.order.bean.enums.InvoiceStatus;
+import org.jfantasy.order.entity.enums.OrderStatus;
 import org.jfantasy.order.entity.enums.PaymentStatus;
 import org.jfantasy.order.entity.enums.ShippingStatus;
-import org.jfantasy.order.entity.enums.OrderStatus;
 import org.jfantasy.order.service.OrderService;
 import org.jfantasy.pay.bean.PayConfig;
+import org.jfantasy.trade.bean.Transaction;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -30,9 +33,9 @@ import java.util.*;
  * @since 2013-9-21 下午4:21:42
  */
 @Entity
-@Table(name = "PAY_ORDER",uniqueConstraints = @UniqueConstraint(name = "UK_ORDER_TARGET", columnNames = {"TARGET_TYPE", "TARGET_ID"}))
+@Table(name = "PAY_ORDER", uniqueConstraints = @UniqueConstraint(name = "UK_ORDER_TARGET", columnNames = {"TARGET_TYPE", "TARGET_ID"}))
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "ship_area", "memeo", "shippings", "order_items", "details_type", "details_id", "subject", "body","expired"})
+@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "ship_area", "memeo", "shippings", "order_items", "details_type", "details_id", "subject", "body", "expired"})
 public class Order extends BaseBusEntity {
 
     private static final long serialVersionUID = -8541323033439515148L;
@@ -53,6 +56,9 @@ public class Order extends BaseBusEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "SHIPPING_STATUS", length = 20, nullable = false)
     private ShippingStatus shippingStatus;// 发货状态
+    @Enumerated(EnumType.STRING)
+    @Column(name = "INVOICE_STATUS", length = 20)
+    private InvoiceStatus invoiceStatus;// 发票状态
     @Column(name = "TOTAL_PRODUCT_WEIGHT", nullable = false)
     private Integer totalProductWeight;// 总商品重量(单位: 克)
     @Column(name = "TOTAL_PRODUCT_QUANTITY", nullable = false)
@@ -70,7 +76,7 @@ public class Order extends BaseBusEntity {
     private String shipZipCode;// 收货邮编
     @Column(name = "SHIP_MOBILE", length = 15)
     private String shipMobile;// 收货手机
-    @Column(name = "MEMO",length = 50)
+    @Column(name = "MEMO", length = 50)
     private String memo;// 买家附言
     @Column(name = "DELIVERY_TYPE_NAME", length = 100)
     private String deliveryTypeName;// 配送方式名称
@@ -111,6 +117,24 @@ public class Order extends BaseBusEntity {
     private String detailsType;
     @Column(name = "TARGET_ID", nullable = false, updatable = false)
     private String detailsId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "INVOICE_ID", foreignKey = @ForeignKey(name = "FK_ORDER_PAY_CONFIG"))
+    private Invoice invoice;//开票信息
+    @Column(name = "PAYER")
+    private Long payer;//付款人
+    @Column(name = "PAYER")
+    private Long payee;//收款人
+    @Column(name = "PAYMENT_TRANSACTION_ID")
+    private Transaction paymentTransaction;//支付交易
+    @Column(name = "REFUND_TRANSACTION_ID")
+    private Transaction refundTransaction;//退款交易
+
+    public Order() {
+    }
+
+    public Order(String id) {
+        this.id = id;
+    }
 
     public OrderStatus getStatus() {
         return status;
@@ -363,6 +387,22 @@ public class Order extends BaseBusEntity {
         return this.attrs.get(key);
     }
 
+    public Long getPayer() {
+        return payer;
+    }
+
+    public void setPayer(Long payer) {
+        this.payer = payer;
+    }
+
+    public Long getPayee() {
+        return payee;
+    }
+
+    public void setPayee(Long payee) {
+        this.payee = payee;
+    }
+
     @JsonAnyGetter
     public Map<String, Object> getAttrs() {
         return attrs;
@@ -380,6 +420,14 @@ public class Order extends BaseBusEntity {
         this.attrs = attrs;
     }
 
+    public InvoiceStatus getInvoiceStatus() {
+        return invoiceStatus;
+    }
+
+    public void setInvoiceStatus(InvoiceStatus invoiceStatus) {
+        this.invoiceStatus = invoiceStatus;
+    }
+
     @Transient
     public boolean isExpired() {
         return SpringContextUtil.getBeanByType(OrderService.class).isExpired(this);
@@ -387,7 +435,7 @@ public class Order extends BaseBusEntity {
 
     @Deprecated
     @Transient
-    public String getSn(){// 临时解决方案，为了兼容以前的代码。
+    public String getSn() {// 临时解决方案，为了兼容以前的代码。
         return this.getDetailsId();
     }
 
@@ -407,4 +455,27 @@ public class Order extends BaseBusEntity {
         item.setOrder(this);
     }
 
+    public Invoice getInvoice() {
+        return invoice;
+    }
+
+    public void setInvoice(Invoice invoice) {
+        this.invoice = invoice;
+    }
+
+    public Transaction getPaymentTransaction() {
+        return paymentTransaction;
+    }
+
+    public void setPaymentTransaction(Transaction paymentTransaction) {
+        this.paymentTransaction = paymentTransaction;
+    }
+
+    public Transaction getRefundTransaction() {
+        return refundTransaction;
+    }
+
+    public void setRefundTransaction(Transaction refundTransaction) {
+        this.refundTransaction = refundTransaction;
+    }
 }

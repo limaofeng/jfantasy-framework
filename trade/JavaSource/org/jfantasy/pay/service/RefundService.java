@@ -7,13 +7,12 @@ import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.spring.SpELUtil;
 import org.jfantasy.framework.spring.mvc.error.RestException;
 import org.jfantasy.framework.util.common.ObjectUtil;
-import org.jfantasy.order.bean.Order;
 import org.jfantasy.pay.bean.Payment;
 import org.jfantasy.pay.bean.Refund;
-import org.jfantasy.trade.bean.Transaction;
-import org.jfantasy.pay.dao.RefundDao;
 import org.jfantasy.pay.bean.enums.PaymentStatus;
 import org.jfantasy.pay.bean.enums.RefundStatus;
+import org.jfantasy.pay.dao.RefundDao;
+import org.jfantasy.trade.bean.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -39,11 +38,6 @@ public class RefundService {
 
     public Refund get(String sn) {
         return this.refundDao.get(sn);
-    }
-
-    public void result(Refund refund, Order order) {
-        refund.setOrder(order);
-        this.refundDao.save(refund);
     }
 
     /**

@@ -20,7 +20,7 @@ import java.util.Date;
  * @since 2013-12-5 上午9:22:39
  */
 @Entity
-@Table(name = "PAY_REFUND", uniqueConstraints = {@UniqueConstraint(columnNames = {"PAY_CONFIG_ID", "ORDER_ID", "PAY_STATUS"},name = "UK_REFUND_CONFIGID_ORDER_STATUS")})
+@Table(name = "PAY_REFUND", uniqueConstraints = {@UniqueConstraint(columnNames = {"PAY_CONFIG_ID", "ORDER_ID", "PAY_STATUS"}, name = "UK_REFUND_CONFIGID_ORDER_STATUS")})
 @JsonIgnoreProperties({"hibernate_lazy_initializer", "handler"})
 public class Refund extends BaseBusEntity {
 
@@ -73,13 +73,13 @@ public class Refund extends BaseBusEntity {
     @Temporal(TemporalType.TIMESTAMP)
     private Date tradeTime;//交易时间 (用于记录第三方交易的交易时间)
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "PAYMENT_ID", updatable = false, foreignKey = @ForeignKey(name = "FK_REFUND_PAYMENT"))
+    @JoinColumn(name = "PAYMENT_ID", nullable = false, updatable = false, foreignKey = @ForeignKey(name = "FK_REFUND_PAYMENT"))
     private Payment payment;//原支付交易
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ORDER_ID", nullable = false, foreignKey = @ForeignKey(name = "FK_REFUND_ORDER"))
+    @JoinColumn(name = "ORDER_ID", nullable = false, updatable = false, foreignKey = @ForeignKey(name = "FK_REFUND_ORDER"))
     private Order order;//订单详情
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "TXN_SN", referencedColumnName = "SN",foreignKey = @ForeignKey(name = "FK_REFUND_TRANSACTION"))
+    @JoinColumn(name = "TXN_SN", referencedColumnName = "SN", foreignKey = @ForeignKey(name = "FK_REFUND_TRANSACTION"))
     private Transaction transaction;//交易记录
 
     public String getSn() {

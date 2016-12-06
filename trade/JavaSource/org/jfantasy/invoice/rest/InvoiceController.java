@@ -13,10 +13,10 @@ import org.jfantasy.framework.spring.validation.RESTful;
 import org.jfantasy.framework.util.common.BeanUtil;
 import org.jfantasy.invoice.bean.Invoice;
 import org.jfantasy.invoice.bean.InvoiceItem;
-import org.jfantasy.invoice.bean.InvoiceOrder;
 import org.jfantasy.invoice.rest.models.InvoiceForm;
 import org.jfantasy.invoice.rest.models.assembler.InvoiceResourceAssembler;
 import org.jfantasy.invoice.service.InvoiceService;
+import org.jfantasy.order.bean.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -47,7 +47,7 @@ public class InvoiceController {
      */
     @JsonResultFilter(
             ignore = @IgnoreProperty(pojo = InvoiceItem.class, name = {"order_id"}),
-            allow = @AllowProperty(pojo = InvoiceOrder.class, name = {"order_sn", "order_type", "name"})
+            allow = @AllowProperty(pojo = Order.class, name = {"order_sn", "order_type", "name"})
     )
     @RequestMapping(method = RequestMethod.GET)
     @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
@@ -74,7 +74,7 @@ public class InvoiceController {
     @JsonResultFilter(
             ignore = {
                     @IgnoreProperty(pojo = InvoiceItem.class, name = {"order_id"}),
-                    @IgnoreProperty(pojo = InvoiceOrder.class, name = {"id", "creator", "createTime", "modifier", "modifyTime"})
+                    @IgnoreProperty(pojo = Order.class, name = {"id", "creator", "createTime", "modifier", "modifyTime"})
             }
     )
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)

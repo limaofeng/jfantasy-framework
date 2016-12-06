@@ -29,18 +29,23 @@ public class OrderServiceByClient implements OrderDetailService, InitializingBea
     }
 
     @Override
-    public OrderDTO get(String type, String sn) {
-        return orderServiceProxy.get(type, sn);
+    public OrderDTO get(String id) {
+        return orderServiceProxy.get(id);
     }
 
     @Override
-    public OrderDTO refund(String type, String sn, BigDecimal refundAmount, String note) {
-        return orderServiceProxy.refund(type, sn, refundAmount, note);
+    public OrderDTO refund(String id, BigDecimal refundAmount, String note) {
+        return orderServiceProxy.refund(id, refundAmount, note);
     }
 
     @Override
-    public void close(String type, String sn) {
-        orderServiceProxy.close(type, sn);
+    public void close(String id) {
+        orderServiceProxy.close(id);
+    }
+
+    @Override
+    public void complete(String id) {
+        orderServiceProxy.complete(id);
     }
 
 }

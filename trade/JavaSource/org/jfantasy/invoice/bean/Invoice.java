@@ -104,9 +104,18 @@ public class Invoice extends BaseBusEntity {
     @NotNull(groups = {RESTful.POST.class})
     @OneToMany(mappedBy = "invoice", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private List<InvoiceItem> items;
+    /*************************************/
+    /*             申请人                */
+    /*************************************/
     @NotNull(groups = {RESTful.POST.class})
     @Column(name = "MEMBER_ID", nullable = false)
     private Long memberId;
+    /*************************************/
+    /*             开票人                */
+    /*************************************/
+    @NotNull(groups = {RESTful.POST.class})
+    @Column(name = "DRAWER", nullable = false)
+    private Long drawer;
 
     public Invoice() {
     }

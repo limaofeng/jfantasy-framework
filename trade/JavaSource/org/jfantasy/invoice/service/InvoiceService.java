@@ -6,10 +6,10 @@ import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.util.common.BeanUtil;
 import org.jfantasy.invoice.bean.Invoice;
 import org.jfantasy.invoice.bean.InvoiceItem;
-import org.jfantasy.invoice.bean.InvoiceOrder;
 import org.jfantasy.invoice.bean.enums.InvoiceStatus;
 import org.jfantasy.invoice.dao.InvoiceDao;
-import org.jfantasy.invoice.dao.InvoiceOrderDao;
+import org.jfantasy.order.bean.Order;
+import org.jfantasy.order.dao.OrderDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,10 +23,14 @@ import java.util.Map;
 @Service
 public class InvoiceService {
 
+    private final InvoiceDao invoiceDao;
+    private final OrderDao orderDao;
+
     @Autowired
-    private InvoiceDao invoiceDao;
-    @Autowired
-    private InvoiceOrderDao invoiceOrderDao;
+    public InvoiceService(InvoiceDao invoiceDao, OrderDao orderDao) {
+        this.invoiceDao = invoiceDao;
+        this.orderDao = orderDao;
+    }
 
     public Pager<Invoice> findPager(Pager<Invoice> pager, List<PropertyFilter> filters) {
         return this.invoiceDao.findPager(pager, filters);
@@ -34,37 +38,35 @@ public class InvoiceService {
 
     @Transactional
     public List<Invoice> save(Invoice invoice) {
-        Map<String, Invoice> invoices = new HashMap<>();
+        Map<Long, Invoice> invoices = new HashMap<>();
         for (InvoiceItem item : invoice.getItems()) {
-            InvoiceOrder order = invoiceOrderDao.get(item.getOrder().getId());
+            Order order = orderDao.get(item.getOrder().getId());
             if (order == null) {
                 throw new ValidationException(102.1f, "订单信息不存在");
             }
-            if (order.getStatus() != InvoiceOrder.InvoiceOrderStatus.NONE) {
+            if (order.getInvoiceStatus() != org.jfantasy.order.bean.enums.InvoiceStatus.wait) {
                 throw new ValidationException(102.2f, "订单已经申请开票,不能重复申请");
             }
             //自动拆单逻辑
-            String targetKey = order.getTargetType() + ":" + order.getTargetId();
-            Invoice tinvoice = invoices.get(targetKey);
+            Long drawer = order.getPayee();
+            Invoice tinvoice = invoices.get(drawer);
             if (tinvoice == null) {
                 tinvoice = BeanUtil.copyProperties(new Invoice(), invoice);
-                invoices.put(targetKey, tinvoice);
-                tinvoice.setTargetId(order.getTargetId());
-                tinvoice.setTargetType(order.getTargetType());
+                invoices.put(drawer, tinvoice);
                 tinvoice.setAmount(BigDecimal.ZERO);
             }
             //设置发票
             item.setInvoice(tinvoice);
             item.setOrder(order);
             //更新订单状态
-            order.setStatus(InvoiceOrder.InvoiceOrderStatus.IN_PROGRESS);
-            this.invoiceOrderDao.save(order);
+            order.setInvoiceStatus(org.jfantasy.order.bean.enums.InvoiceStatus.submitted);
+            this.orderDao.save(order);
             //开票金额
-            tinvoice.setAmount(tinvoice.getAmount().add(order.getInvoiceAmount()));
+            tinvoice.setAmount(tinvoice.getAmount().add(order.getPayableAmount()));
         }
 
         //保存发票
-        for (Map.Entry<String, Invoice> entry : invoices.entrySet()) {
+        for (Map.Entry<Long, Invoice> entry : invoices.entrySet()) {
             Invoice tinvoice = entry.getValue();
             tinvoice.setAmount(tinvoice.getAmount().setScale(2, BigDecimal.ROUND_UP));
             tinvoice.setStatus(InvoiceStatus.NONE);

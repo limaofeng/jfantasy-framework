@@ -87,6 +87,7 @@ public class WalletService {
         //初始化积分与成长值
         wallet.setGrowth(0L);
         wallet.setPoints(0L);
+        wallet.setCards(0L);
         //初始化账单 并 计算收益
         return walletDao.insert(wallet);
     }

@@ -13,7 +13,6 @@ include ':jfantasy-oauth'
 include ':jfantasy-oauth-api'
 include ':jfantasy-wallet'
 include ':jfantasy-thirdparty'
-include ':jfantasy-invoice-sdk'
 include ':jfantasy-file-sdk'
 include ':jfantasy-common-sdk'
 
@@ -39,7 +38,6 @@ project(':jfantasy-wallet').projectDir = "$rootDir/wallet" as File
 project(':jfantasy-thirdparty').projectDir = "$rootDir/thirdparty" as File
 
 // sdk list
-project(':jfantasy-invoice-sdk').projectDir = "$rootDir/invoice-sdk" as File
 project(':jfantasy-file-sdk').projectDir = "$rootDir/file-sdk" as File
 project(':jfantasy-common-sdk').projectDir = "$rootDir/common-sdk" as File
 
