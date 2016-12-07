@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 
-@ServiceExporter(value = "orderService", targetInterface = OrderDetailService.class)
+@ServiceExporter(value = "orderDetailService", targetInterface = OrderDetailService.class)
 public class OrderDetailServiceImpl implements OrderDetailService{
 
     private OrderService orderService;
