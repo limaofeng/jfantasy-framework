@@ -21,18 +21,18 @@ public class Bill extends BaseBusEntity {
     /**
      * 条目
      */
-    @Column(name = "PROJECT", nullable = false, updatable = false)
+    @Column(name = "PROJECT",length = 10, nullable = false, updatable = false)
     private String project;
     /**
      * 收入/支出
      */
     @Enumerated(EnumType.STRING)
-    @Column(name = "TYPE", nullable = false, updatable = false)
+    @Column(name = "TYPE",length = 10, nullable = false, updatable = false)
     private BillType type;
     /**
      * 支付方式
      */
-    @Column(name = "PAYMENT_METHOD", nullable = false, updatable = false)
+    @Column(name = "PAYMENT_METHOD",length = 20, nullable = false, updatable = false)
     private String paymentMethod;
     /**
      * 金额

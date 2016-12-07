@@ -30,18 +30,18 @@ public class Project extends BaseBusEntity {
      * 编码
      */
     @Id
-    @Column(name = "CODE", updatable = false)
+    @Column(name = "CODE", updatable = false,length = 15)
     private String key;
     /**
      * 项目类型
      */
     @Enumerated(EnumType.STRING)
-    @Column(name = "TYPE")
+    @Column(name = "TYPE",length = 10)
     private ProjectType type;
     /**
      * 名称
      */
-    @Column(name = "NAME")
+    @Column(name = "NAME",length = 50)
     private String name;
     /**
      * 描述
