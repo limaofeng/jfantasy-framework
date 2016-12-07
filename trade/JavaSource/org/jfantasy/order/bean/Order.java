@@ -18,6 +18,7 @@ import org.jfantasy.order.entity.enums.PaymentStatus;
 import org.jfantasy.order.entity.enums.ShippingStatus;
 import org.jfantasy.order.service.OrderService;
 import org.jfantasy.pay.bean.PayConfig;
+import org.jfantasy.trade.bean.Transaction;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -123,10 +124,12 @@ public class Order extends BaseBusEntity {
     private Long payer;//付款人
     @Column(name = "PAYEE")
     private Long payee;//收款人
-    @Column(name = "PAYMENT_TRANSACTION_ID", length = 32)
-    private String paymentTransaction;//支付交易
-    @Column(name = "REFUND_TRANSACTION_ID", length = 32)
-    private String refundTransaction;//退款交易
+    @ManyToOne
+    @JoinColumn(name = "PAYMENT_TRANSACTION_ID", foreignKey = @ForeignKey(name = "FK_ORDER_PAYMENTTRANSACTION"))
+    private Transaction paymentTransaction;//支付交易
+    @ManyToOne
+    @JoinColumn(name = "REFUND_TRANSACTION_ID", foreignKey = @ForeignKey(name = "FK_ORDER_REFUNDTRANSACTION"))
+    private Transaction refundTransaction;//退款交易
 
     public Order() {
     }
@@ -462,19 +465,19 @@ public class Order extends BaseBusEntity {
         this.invoice = invoice;
     }
 
-    public String getPaymentTransaction() {
+    public Transaction getPaymentTransaction() {
         return paymentTransaction;
     }
 
-    public void setPaymentTransaction(String paymentTransaction) {
+    public void setPaymentTransaction(Transaction paymentTransaction) {
         this.paymentTransaction = paymentTransaction;
     }
 
-    public String getRefundTransaction() {
+    public Transaction getRefundTransaction() {
         return refundTransaction;
     }
 
-    public void setRefundTransaction(String refundTransaction) {
+    public void setRefundTransaction(Transaction refundTransaction) {
         this.refundTransaction = refundTransaction;
     }
 }
