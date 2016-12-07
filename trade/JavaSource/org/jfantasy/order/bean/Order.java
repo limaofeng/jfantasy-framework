@@ -122,7 +122,7 @@ public class Order extends BaseBusEntity {
     private Invoice invoice;//开票信息
     @Column(name = "PAYER")
     private Long payer;//付款人
-    @Column(name = "PAYER")
+    @Column(name = "PAYEE")
     private Long payee;//收款人
     @Column(name = "PAYMENT_TRANSACTION_ID")
     private Transaction paymentTransaction;//支付交易
