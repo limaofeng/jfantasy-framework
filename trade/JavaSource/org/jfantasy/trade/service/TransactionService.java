@@ -145,6 +145,7 @@ public class TransactionService {
         switch (project.getType()) {
             case order:
                 transaction.set("stage", Transaction.STAGE_PAYMENT);
+                transaction.setChannel(TxChannel.online);
                 transaction.setSubject(orderType);
                 break;
             case transfer:
@@ -186,7 +187,7 @@ public class TransactionService {
         //添加充值记录
         Transaction transaction = new Transaction();
         transaction.setAmount(card.getAmount());
-        transaction.setChannel(TxChannel.internal);
+        transaction.setChannel(TxChannel.card);
         transaction.setTo(to.getSn());
         transaction.set(Transaction.CARD_ID, card.getNo());
         transaction.setProject(Project.INPOUR);
@@ -195,7 +196,7 @@ public class TransactionService {
         transaction.setStatus(TxStatus.unprocessed);
         transaction.setStatusText(TxStatus.unprocessed.getValue());
         transaction.setNotes("会员卡充值");
-        transaction.setPayConfigName("会员卡充值");
+        transaction.setPayConfigName(TxChannel.card.getValue());
         this.transactionDao.save(transaction);
     }
 

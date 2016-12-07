@@ -13,13 +13,11 @@ import org.jfantasy.card.dao.CardDao;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.security.SpringSecurityUtils;
-import org.jfantasy.framework.spring.mvc.error.RestException;
 import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.oauth.userdetails.OAuthUserDetails;
 import org.jfantasy.order.bean.ExtraService;
-import org.jfantasy.pay.error.PayException;
 import org.jfantasy.trade.bean.*;
 import org.jfantasy.trade.bean.enums.*;
 import org.jfantasy.trade.dao.*;
@@ -113,32 +111,27 @@ public class AccountService {
 
     private void ownerByMember(Account account) {
         try {
-            String[] asr = account.getOwner().split(":");
-            String username = asr[1];
-            HttpResponse<JsonNode> postResponse = Unirest.get(apiGatewaySettings.getUrl() + "/members?EQS_username=" + username).asJson();
+            HttpResponse<JsonNode> postResponse = Unirest.get(apiGatewaySettings.getUrl() + "/members/" + account.getOwner()).asJson();
             JsonNode jsonNode = postResponse.getBody();
-            JSONObject pager = jsonNode.getObject();
 
-            if (pager.getInt("count") == 1) {
-                JSONObject member = jsonNode.getObject().getJSONArray("items").getJSONObject(0);
-                Long memberId = member.getLong("id");
-                String memberType = member.getString("type");
-                String targetType = member.has("target_type") ? member.getString("target_type") : null;
-                String targetId = member.has("target_id") ? member.getString("target_id") : null;
-                String name = member.getString("nick_name");
-                if ("personal".equals(memberType)) {//个人
-                    account.setOwnerId(memberId.toString());
-                    account.setOwnerType("personal");
-                    account.setOwnerName(name);
-                } else if ("doctor".equals(memberType)) {//医生
-                    account.setOwnerId(targetId);
-                    account.setOwnerType(targetType);
-                    account.setOwnerName(name);
-                } else if (ObjectUtil.exists(new String[]{"company", "pharmacy", "clinic"}, memberType)) {//集团
-                    account.setOwnerId(targetId);
-                    account.setOwnerType(memberType);
-                    account.setOwnerName(name);
-                }
+            JSONObject member = jsonNode.getObject();
+            Long memberId = member.getLong("id");
+            String memberType = member.getString("type");
+            String targetType = member.has("target_type") ? member.getString("target_type") : null;
+            String targetId = member.has("target_id") ? member.getString("target_id") : null;
+            String name = member.getString("nick_name");
+            if ("personal".equals(memberType)) {//个人
+                account.setOwnerId(memberId.toString());
+                account.setOwnerType("personal");
+                account.setOwnerName(name);
+            } else if ("doctor".equals(memberType)) {//医生
+                account.setOwnerId(targetId);
+                account.setOwnerType(targetType);
+                account.setOwnerName(name);
+            } else if (ObjectUtil.exists(new String[]{"company", "pharmacy", "clinic"}, memberType)) {//集团
+                account.setOwnerId(targetId);
+                account.setOwnerType(memberType);
+                account.setOwnerName(name);
             }
         } catch (UnirestException e) {
             LOG.error(e.getMessage(), e);
@@ -169,6 +162,7 @@ public class AccountService {
     @Transactional
     public Transaction transfer(String trxNo, String password, String notes) {
         Transaction transaction = transactionDao.get(trxNo);
+
         /*
         if (transaction.getChannel() == TxChannel.internal) {
             Account from = this.accountDao.get(transaction.getFrom());
@@ -183,12 +177,6 @@ public class AccountService {
             }
         }
         */
-        if (StringUtil.isNotBlank(transaction.getFrom()) && accountDao.get(transaction.getFrom()) == null) {
-            throw new ValidationException("[" + transaction.getFrom() + "]账户不存在");
-        }
-        if (StringUtil.isNotBlank(transaction.getTo()) && accountDao.get(transaction.getTo()) == null) {
-            throw new ValidationException("[" + transaction.getTo() + "]账户不存在");
-        }
         return this.transfer(trxNo, notes);
     }
 
@@ -204,28 +192,33 @@ public class AccountService {
         Transaction transaction = transactionDao.get(trxNo);
         Project project = this.projectDao.get(transaction.getProject());
         if (transaction.getStatus() == TxStatus.close) {
-            throw new RestException("交易已经关闭,不能划账");
+            throw new ValidationException("交易已经关闭,不能划账");
         }
         if (transaction.getStatus() == TxStatus.success) {
-            throw new RestException("交易已经完成,不能划账");
+            throw new ValidationException("交易已经完成,不能划账");
         }
 
-        if (StringUtil.isBlank(transaction.getPayConfigName())) {
-            transaction.setPayConfigName(transaction.getChannel() == TxChannel.internal ? "账户余额" : "未知");
+        if (!project.getType().isValid(transaction)) {
+            throw new ValidationException("数据问题，不能继续进行操作");
         }
 
         try {
             this.out(transaction.getFrom(), transaction.getAmount(), transaction);
-        } catch (PayException e) {
+        } catch (ValidationException e) {
             LOG.error(e.getMessage(), e);
             return this.close(transaction, e.getMessage());
         }
 
         this.in(transaction.getTo(), transaction.getAmount(), project, transaction);
 
-        if (Project.WITHDRAWAL.equals(project.getKey())) {//如果为提现交易，不修改交易状态。而且现在都是线下交易
-            transaction.setPayConfigName("线下转账");
-            transaction.setStatus(TxStatus.unprocessed);
+        if (ProjectType.withdraw == project.getType()) {
+            if (transaction.getChannel() == TxChannel.offline) {
+                transaction.setPayConfigName(TxChannel.offline.getValue());
+                transaction.setStatus(TxStatus.unprocessed);
+            } else if (transaction.getChannel() == TxChannel.internal) {
+                transaction.setPayConfigName(TxChannel.internal.getValue());
+                transaction.setStatus(TxStatus.success);
+            }
             transaction.setStatusText(transaction.getStatus().getValue());
             transaction.setNotes(notes);
         } else {//更新交易状态
@@ -255,13 +248,13 @@ public class AccountService {
         this.accountDao.update(to);
     }
 
-    private void out(String account, BigDecimal amount, Transaction transaction) throws PayException {
+    private void out(String account, BigDecimal amount, Transaction transaction) {
         if (StringUtil.isBlank(account)) {
             return;
         }
         Account from = this.accountDao.get(account);
         if (from.getAmount().compareTo(amount) < 0) {
-            throw new PayException("账户余额不足,交易失败");
+            throw new ValidationException("账户余额不足,交易失败");
         }
         from.setAmount(from.getAmount().subtract(amount));
         this.addBill(BillType.debit, transaction, from);//添加对应账单

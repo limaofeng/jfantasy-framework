@@ -24,7 +24,6 @@ import org.jfantasy.pay.service.vo.ToRefund;
 import org.jfantasy.trade.bean.Project;
 import org.jfantasy.trade.bean.Transaction;
 import org.jfantasy.trade.bean.enums.ProjectType;
-import org.jfantasy.trade.bean.enums.TxChannel;
 import org.jfantasy.trade.bean.enums.TxStatus;
 import org.jfantasy.trade.service.ProjectService;
 import org.jfantasy.trade.service.TransactionService;
@@ -106,7 +105,6 @@ public class PayService {
         toPayment.setStatus(payment.getStatus());
         toPayment.setType(payment.getType());
         //设置交易的渠道
-        transaction.setChannel(payConfig.getPayMethod() == PayMethod.thirdparty ? TxChannel.thirdparty : TxChannel.internal);
         transaction.setPayConfigName(payConfig.getName());
         transactionService.update(transaction);
         //调用第三方支付产品
@@ -153,7 +151,6 @@ public class PayService {
                 //获取支付产品
                 PayProduct payProduct = payProductConfiguration.loadPayProduct(payConfig.getPayProductId());
                 //设置交易的渠道
-                transaction.setChannel(payConfig.getPayMethod() == PayMethod.thirdparty ? TxChannel.thirdparty : TxChannel.internal);
                 transaction.setPayConfigName(payConfig.getName());
                 transactionService.update(transaction);
                 Object result = payProduct.refund(refund);

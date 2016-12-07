@@ -4,17 +4,32 @@ package org.jfantasy.trade.bean.enums;
  * 交易渠道
  */
 public enum TxChannel {
+
     /**
-     * 线下交易(可用于余额提现)
+     * 线下
      */
-    offline,//NOSONAR
+    offline("线下"),
     /**
-     * 内部交易（余额支付）
+     * 会员卡
      */
-    internal,//NOSONAR
+    card("会员卡"),
     /**
-     * 第三方交易平台
+     * 余额支付
      */
-    thirdparty//NOSONAR
+    internal("内部"),
+    /**
+     * 第三方支付平台
+     */
+    online("在线");
+
+    private String value;
+
+    TxChannel(String value) {
+        this.value = value;
+    }
+
+    public String getValue() {
+        return value;
+    }
 
 }

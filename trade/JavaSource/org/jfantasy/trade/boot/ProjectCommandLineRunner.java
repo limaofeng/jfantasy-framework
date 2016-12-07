@@ -35,7 +35,7 @@ public class ProjectCommandLineRunner implements CommandLineRunner {
             Project project = new Project(Project.INPOUR);
             project.setName("充值");
             project.setDescription("充值卡");
-            project.setType(ProjectType.card);
+            project.setType(ProjectType.deposit);
             projectService.save(project);
         }
         if (projectService.get(Project.INCOME) == null) {
@@ -49,7 +49,7 @@ public class ProjectCommandLineRunner implements CommandLineRunner {
             Project project = new Project(Project.WITHDRAWAL);
             project.setName("提现");
             project.setDescription("用户提现");
-            project.setType(ProjectType.transfer);
+            project.setType(ProjectType.withdraw);
             projectService.save(project);
         }
         if (projectService.get(Project.TRANSFER) == null) {
@@ -57,6 +57,13 @@ public class ProjectCommandLineRunner implements CommandLineRunner {
             project.setName("转账");
             project.setDescription("转账");
             project.setType(ProjectType.transfer);
+            projectService.save(project);
+        }
+        if (projectService.get(Project.RECHARGE) == null) {
+            Project project = new Project(Project.RECHARGE);
+            project.setName("充值");
+            project.setDescription("充值");
+            project.setType(ProjectType.deposit);
             projectService.save(project);
         }
     }

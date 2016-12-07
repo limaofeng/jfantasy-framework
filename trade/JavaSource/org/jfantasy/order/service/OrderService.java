@@ -28,12 +28,10 @@ import org.jfantasy.order.job.OrderClose;
 import org.jfantasy.pay.bean.PayConfig;
 import org.jfantasy.pay.bean.Payment;
 import org.jfantasy.pay.bean.Refund;
-import org.jfantasy.pay.bean.enums.PayMethod;
 import org.jfantasy.schedule.service.ScheduleService;
 import org.jfantasy.trade.bean.Account;
 import org.jfantasy.trade.bean.Project;
 import org.jfantasy.trade.bean.Transaction;
-import org.jfantasy.trade.bean.enums.TxChannel;
 import org.jfantasy.trade.bean.enums.TxStatus;
 import org.jfantasy.trade.service.AccountService;
 import org.jfantasy.trade.service.TransactionService;
@@ -170,7 +168,6 @@ public class OrderService {
         Transaction transaction = payment.getTransaction();
         PayConfig payConfig = payment.getPayConfig();
         // 更新交易状态
-        transaction.setChannel(payConfig.getPayMethod() == PayMethod.thirdparty ? TxChannel.thirdparty : TxChannel.internal);
         transaction.setStatus(TxStatus.success);
         transaction.setStatusText(TxStatus.success.getValue());
         transaction.setPayConfigName(payConfig.getName());
@@ -205,7 +202,6 @@ public class OrderService {
         Transaction transaction = refund.getTransaction();
         PayConfig payConfig = refund.getPayConfig();
         // 更新交易状态
-        transaction.setChannel(payConfig.getPayMethod() == PayMethod.thirdparty ? TxChannel.thirdparty : TxChannel.internal);
         transaction.setStatus(TxStatus.success);
         transaction.setStatusText(TxStatus.success.getValue());
         transaction.setPayConfigName(payConfig.getName());

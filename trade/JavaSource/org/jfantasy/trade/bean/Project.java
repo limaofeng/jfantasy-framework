@@ -15,12 +15,14 @@ import javax.persistence.*;
 @JsonIgnoreProperties({"hibernate_lazy_initializer", "handler"})
 public class Project extends BaseBusEntity {
 
-    public static final String PAYMENT = "payment";
-    public static final String REFUND = "refund";
-    public static final String INCOME = "income";
-    public static final String INPOUR = "inpour";
-    public static final String WITHDRAWAL = "withdrawal";
-    public static final String TRANSFER = "transfer";
+    public static final String PAYMENT = "payment";// 订单支付
+    public static final String REFUND = "refund";// 订单退款
+    public static final String INCOME = "income";// 收益
+    public static final String INPOUR = "inpour";// 卡充值
+    public static final String WITHDRAWAL = "withdrawal";// 提现
+    public static final String TRANSFER = "transfer";// 转账
+    public static final String RECHARGE = "recharge";// 充值
+
 
     private static final long serialVersionUID = -2461534613032864306L;
 

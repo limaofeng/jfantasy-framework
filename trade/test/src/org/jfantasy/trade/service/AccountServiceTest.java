@@ -4,11 +4,15 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import org.hibernate.Session;
 import org.jfantasy.framework.dao.Pager;
+import org.jfantasy.framework.lucene.dao.hibernate.OpenSessionUtils;
 import org.jfantasy.framework.util.common.ObjectUtil;
+import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.pay.PayServerApplication;
 import org.jfantasy.trade.bean.Account;
 import org.jfantasy.trade.bean.enums.AccountType;
+import org.jfantasy.trade.dao.AccountDao;
 import org.json.JSONObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,6 +30,8 @@ public class AccountServiceTest {
 
     @Autowired
     private AccountService accountService;
+    @Autowired
+    private AccountDao accountDao;
 
     @Test
     public void ownerByMember() {
@@ -33,14 +39,12 @@ public class AccountServiceTest {
 
         for (Account account : pager.getPageItems()) {
             if (AccountType.enterprise == account.getType() || AccountType.personal == account.getType()) {
-                ownerByMember(account);
-                this.accountService.update(account);
+                updateOwnerByMember(account);
             }
         }
-
     }
 
-    private void ownerByMember(Account account) {
+    private void updateOwnerByMember(Account account) {
         try {
             String[] asr = account.getOwner().split(":");
             String username = asr[1];
@@ -55,19 +59,36 @@ public class AccountServiceTest {
                 String targetType = member.has("target_type") ? member.getString("target_type") : null;
                 String targetId = member.has("target_id") ? member.getString("target_id") : null;
                 String name = member.getString("nick_name");
+
+                String ownerId = "";
+                String ownerType = "";
+                String ownerName = "";
+
                 if ("personal".equals(memberType)) {//个人
-                    account.setOwnerId(memberId.toString());
-                    account.setOwnerType("personal");
-                    account.setOwnerName(name);
+                    ownerId = memberId.toString();
+                    ownerType = "personal";
+                    ownerName = name;
                 } else if ("doctor".equals(memberType)) {//医生
-                    account.setOwnerId(targetId);
-                    account.setOwnerType(targetType);
-                    account.setOwnerName(name);
+                    ownerId = targetId;
+                    ownerType = targetType;
+                    ownerName = name;
                 } else if (ObjectUtil.exists(new String[]{"company", "pharmacy", "clinic"}, memberType)) {//集团
-                    account.setOwnerId(targetId);
-                    account.setOwnerType(memberType);
-                    account.setOwnerName(name);
+                    ownerId = targetId;
+                    ownerType = memberType;
+                    ownerName = name;
                 }
+
+                if (StringUtil.isBlank(ownerId) || StringUtil.isBlank(ownerType) || StringUtil.isBlank(ownerName)) {
+                    return;
+                }
+
+                Session session = OpenSessionUtils.openSession();
+                try {
+                    accountDao.batchSQLExecute("update pay_account set owner = ?,owner_id = ?,owner_type = ?,owner_name = ? where id = ?", memberId.toString(), ownerId, ownerType, ownerName, account.getSn());
+                } finally {
+                    OpenSessionUtils.closeSession(session);
+                }
+
             }
         } catch (UnirestException e) {
             e.printStackTrace();

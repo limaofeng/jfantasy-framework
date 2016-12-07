@@ -20,7 +20,6 @@ import org.jfantasy.member.bean.Member;
 import org.jfantasy.member.bean.Wallet;
 import org.jfantasy.member.dao.MemberDao;
 import org.jfantasy.member.dao.WalletDao;
-import org.jfantasy.oauth.userdetails.enums.Scope;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -96,7 +95,7 @@ public class WalletService {
     private Wallet save(Member member) {
         Wallet wallet = this.walletDao.findUnique(Restrictions.eq("member", member));
         if (wallet == null) {
-            String owner = Scope.member + ":" + member.getUsername();
+            String owner = member.getId().toString();
             //1、检查账号信息
             try {
                 Response response = HttpClientUtil.doGet(apiGatewaySettings.getUrl() + "/accounts?EQS_owner=" + owner);
@@ -126,18 +125,6 @@ public class WalletService {
     }
 
     @Transactional
-    private Wallet getWalletByOwner(String owner) {
-        String[] asr = owner.split(":");
-        String username = asr[1];
-        switch (asr[0]) {
-            case "member":
-                return this.save(memberDao.findUnique(Restrictions.eq("username", username)));
-            default:
-        }
-        return null;
-    }
-
-    @Transactional
     public Wallet getWalletByMember(Long memberId) {
         return this.save(memberDao.get(memberId));
     }
@@ -161,14 +148,13 @@ public class WalletService {
         if (wallet == null) {
             switch (accountType) {
                 case "personal":
-                    String username = accountOwner.replaceAll("^[^:]+:", "");
-                    Member member = memberDao.findUnique(Restrictions.eq("username", username));
+                case "enterprise":
+                    Member member = memberDao.get(Long.valueOf(accountOwner));
                     if (member == null) {
                         throw new RestException("用户不存在!");
                     }
                     return newWallet(member, accountSn, accountAmount);
                 case "platform":
-                case "enterprise":
                     return newWallet(null, accountSn, accountAmount);
                 default:
             }

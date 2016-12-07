@@ -31,7 +31,7 @@ public class TransferListener implements ApplicationListener<TransactionChangedE
     private ProjectService projectService;
     private TransactionService transactionService;
 
-    private ProjectType[] projectTypes = new ProjectType[]{ProjectType.transfer, ProjectType.card};
+    private ProjectType[] projectTypes = new ProjectType[]{ProjectType.transfer, ProjectType.deposit};
 
     @Async
     @Override
