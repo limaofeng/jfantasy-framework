@@ -1,14 +1,15 @@
 package org.jfantasy.trade.service;
 
 import org.hibernate.criterion.Restrictions;
+import org.jfantasy.card.bean.Card;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.spring.mvc.error.RestException;
 import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
+import org.jfantasy.pay.rest.models.OrderTransaction;
 import org.jfantasy.trade.bean.Account;
-import org.jfantasy.card.bean.Card;
 import org.jfantasy.trade.bean.Project;
 import org.jfantasy.trade.bean.Transaction;
 import org.jfantasy.trade.bean.enums.AccountType;
@@ -17,7 +18,6 @@ import org.jfantasy.trade.bean.enums.TxStatus;
 import org.jfantasy.trade.dao.AccountDao;
 import org.jfantasy.trade.dao.ProjectDao;
 import org.jfantasy.trade.dao.TransactionDao;
-import org.jfantasy.pay.rest.models.OrderTransaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -155,11 +155,12 @@ public class TransactionService {
                 }
                 break;
             default:
+                transaction.setChannel(channel);
         }
         transaction.setStatus(TxStatus.unprocessed);
         transaction.setStatusText(projectKey.equals(Project.PAYMENT) ? "等待付款" : "待处理");
         //验证数据合法性
-        project.getType().isValid(transaction);
+        project.getType().verify(transaction);
         return this.transactionDao.save(transaction);
     }
 

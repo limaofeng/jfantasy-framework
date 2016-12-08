@@ -198,16 +198,8 @@ public class AccountService {
             throw new ValidationException("交易已经完成,不能划账");
         }
 
-        try {
-            this.out(transaction.getFrom(), transaction.getAmount(), transaction);
-        } catch (ValidationException e) {
-            LOG.error(e.getMessage(), e);
-            return this.close(transaction, e.getMessage());
-        }
-
-        this.in(transaction.getTo(), transaction.getAmount(), project, transaction);
-
-        if (ProjectType.withdraw == project.getType()) {
+        //更新交易状态
+        if (ProjectType.withdraw == project.getType() || ProjectType.deposit == project.getType()) {
             if (transaction.getChannel() == TxChannel.offline) {
                 transaction.setPayConfigName(TxChannel.offline.getValue());
                 transaction.setStatus(TxStatus.unprocessed);
@@ -217,11 +209,21 @@ public class AccountService {
             }
             transaction.setStatusText(transaction.getStatus().getValue());
             transaction.setNotes(notes);
-        } else {//更新交易状态
+        } else {
             transaction.setStatus(TxStatus.success);
             transaction.setStatusText(transaction.getStatus().getValue());
             transaction.setNotes(notes);
         }
+
+        try {
+            this.out(transaction.getFrom(), transaction.getAmount(), transaction);
+        } catch (ValidationException e) {
+            LOG.error(e.getMessage(), e);
+            return this.close(transaction, e.getMessage());
+        }
+
+        this.in(transaction.getTo(), transaction.getAmount(), project, transaction);
+
         return transactionDao.save(transaction);
     }
 

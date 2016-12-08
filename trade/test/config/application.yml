@@ -83,3 +83,19 @@ netty:
 
 paynotify:
   url: http://114.55.142.155:8000
+
+springfox:
+  documentation:
+    swagger:
+      v2:
+        path: /api-docs
+      api:
+        title: xxxx
+        description:
+        version: 2.0.0
+        termsOfServiceUrl: http://service.zbsg.com.cn
+        contact:
+          name: limaofeng
+          email: limaofeng@msn.com
+        license: MIT
+        licenseUrl: #

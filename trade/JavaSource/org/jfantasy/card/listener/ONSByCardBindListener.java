@@ -29,7 +29,7 @@ public class ONSByCardBindListener implements ApplicationListener<CardBindEvent>
 
     private final Producer producer;
 
-    @Autowired
+    @Autowired(required = false)
     public ONSByCardBindListener(Producer producer) {
         this.producer = producer;
     }

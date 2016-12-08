@@ -51,7 +51,7 @@ public enum ProjectType {
         FROM, TO, FORM_OR_TO
     }
 
-    public boolean isValid(Transaction transaction) {
+    public void verify(Transaction transaction) {
         switch (this.accountNotNull) {
             case FORM_OR_TO:
                 if (StringUtil.isBlank(transaction.getFrom()) || StringUtil.isBlank(transaction.getTo())) {
@@ -64,7 +64,7 @@ public enum ProjectType {
                 }
             case TO:
                 if (StringUtil.isNotBlank(transaction.getFrom()) || StringUtil.isBlank(transaction.getTo())) {
-                    throw new ValidationException("付款方只能为空 - 收款方只能为空");
+                    throw new ValidationException("付款方只能为空 - 收款方不能为空");
                 }
                 break;
             default:
@@ -72,7 +72,6 @@ public enum ProjectType {
         if (transaction.getChannel() != null && !ObjectUtil.exists(this.channels, transaction.getChannel())) {
             throw new ValidationException("渠道错误");
         }
-        return true;
     }
 
 }

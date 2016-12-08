@@ -130,7 +130,7 @@ public class AccountController {
         }else if(ProjectType.deposit == project.getType()){
             form.setTo(account.getSn());
         }
-        return this.transactionService.save(form.getProject(), account.getSn(), form.getTo(), form.getChannel(), form.getAmount(), form.getNotes(), data);
+        return this.transactionService.save(form.getProject(), form.getFrom(), form.getTo(), form.getChannel(), form.getAmount(), form.getNotes(), data);
     }
 
     @JsonResultFilter(ignore = {
