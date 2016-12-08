@@ -21,7 +21,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/** 会员卡 **/
+/**
+ * 会员卡
+ **/
 @RestController
 @RequestMapping("/cards")
 public class CardController {
@@ -37,6 +39,7 @@ public class CardController {
 
     /**
      * 查询卡列表
+     *
      * @param pager
      * @param filters
      * @return
@@ -50,13 +53,14 @@ public class CardController {
     )
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
+    @ApiImplicitParam(value = "filters", name = "filters", paramType = "query", dataType = "string")
     public Pager<ResultResourceSupport> search(Pager<Card> pager, List<PropertyFilter> filters) {
         return assembler.toResources(cardService.findPager(pager, filters));
     }
 
     /**
      * 卡片详情
+     *
      * @param id 卡号
      * @return Card
      */
@@ -74,15 +78,17 @@ public class CardController {
                     @AllowProperty(pojo = CardBatch.class, name = {"no"})
             }
     )
-    /** 卡片绑定 **/
     @RequestMapping(method = RequestMethod.POST, value = "/{id}/bind")
     @ResponseBody
     public ResultResourceSupport bind(@PathVariable("id") String id, @RequestBody CardBindForm form) {
-        OAuthUserDetails user = SpringSecurityUtils.getCurrentUser(OAuthUserDetails.class);
-        if (user == null) {
-            throw new RestException(401, "没有权限访问接口");
+        String owner = form.getMemberId().toString();
+        if (form.getMemberId() == null) {
+            OAuthUserDetails user = SpringSecurityUtils.getCurrentUser(OAuthUserDetails.class);
+            if (user == null) {
+                throw new RestException(401, "没有权限访问接口");
+            }
+            owner = user.getId().toString();
         }
-        String owner = user.getScope() + ":" + user.getUsername();
         return assembler.toResource(this.cardService.bind(owner, id, form.getPassword()));
     }
 
