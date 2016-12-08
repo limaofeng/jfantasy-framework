@@ -54,6 +54,7 @@ public class InvoiceService {
                 tinvoice = BeanUtil.copyProperties(new Invoice(), invoice);
                 invoices.put(drawer, tinvoice);
                 tinvoice.setAmount(BigDecimal.ZERO);
+                tinvoice.setDrawer(drawer);
             }
             //设置发票
             item.setInvoice(tinvoice);
