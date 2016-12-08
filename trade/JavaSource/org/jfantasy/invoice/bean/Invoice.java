@@ -92,13 +92,6 @@ public class Invoice extends BaseBusEntity {
     @Column(name = "SHIP_ZIP_CODE")
     private String shipZipCode;// 收货邮编
     /*************************************/
-    /*             开票方                */
-    /*************************************/
-    @Column(name = "TARGET_TYPE", nullable = false, updatable = false, length = 10)
-    private String targetType;
-    @Column(name = "TARGET_ID", nullable = false, updatable = false, length = 20)
-    private String targetId;
-    /*************************************/
     /*             开票项目               */
     /*************************************/
     @NotNull(groups = {RESTful.POST.class})
@@ -113,7 +106,6 @@ public class Invoice extends BaseBusEntity {
     /*************************************/
     /*             开票人                */
     /*************************************/
-    @NotNull(groups = {RESTful.POST.class})
     @Column(name = "DRAWER", nullable = false)
     private Long drawer;
 
@@ -244,28 +236,20 @@ public class Invoice extends BaseBusEntity {
         this.items = items;
     }
 
-    public String getTargetType() {
-        return targetType;
-    }
-
-    public void setTargetType(String targetType) {
-        this.targetType = targetType;
-    }
-
-    public String getTargetId() {
-        return targetId;
-    }
-
-    public void setTargetId(String targetId) {
-        this.targetId = targetId;
-    }
-
     public Long getMemberId() {
         return memberId;
     }
 
     public void setMemberId(Long memberId) {
         this.memberId = memberId;
+    }
+
+    public Long getDrawer() {
+        return drawer;
+    }
+
+    public void setDrawer(Long drawer) {
+        this.drawer = drawer;
     }
 
 }

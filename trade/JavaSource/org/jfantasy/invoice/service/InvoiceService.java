@@ -47,14 +47,17 @@ public class InvoiceService {
             if (order.getInvoiceStatus() != org.jfantasy.order.bean.enums.InvoiceStatus.wait) {
                 throw new ValidationException(102.2f, "订单已经申请开票,不能重复申请");
             }
+            if (!order.getMemberId().equals(invoice.getMemberId())) {
+                throw new ValidationException(102.2f, "只能为自己的订单申请发票");
+            }
             //自动拆单逻辑
             Long drawer = order.getPayee();
             Invoice tinvoice = invoices.get(drawer);
             if (tinvoice == null) {
                 tinvoice = BeanUtil.copyProperties(new Invoice(), invoice);
                 invoices.put(drawer, tinvoice);
-                tinvoice.setAmount(BigDecimal.ZERO);
                 tinvoice.setDrawer(drawer);
+                tinvoice.setAmount(BigDecimal.ZERO);
             }
             //设置发票
             item.setInvoice(tinvoice);

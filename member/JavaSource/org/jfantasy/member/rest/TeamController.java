@@ -154,9 +154,8 @@ public class TeamController {
      */
     @GetMapping("{id}/invoices")
     public ModelAndView invoices(@PathVariable("id") String teamId, RedirectAttributes attrs, Pager pager, List<PropertyFilter> filters) {
-        get(teamId);
-        attrs.addAttribute("EQS_targetType", "team");
-        attrs.addAttribute("EQS_targetId", teamId);
+        Team team = get(teamId);
+        attrs.addAttribute("EQL_drawer", team.getMemberId());
         attrs.addAttribute("page", pager.getCurrentPage());
         attrs.addAttribute("per_page", pager.getPageSize());
         if (pager.isOrderBySetted()) {
