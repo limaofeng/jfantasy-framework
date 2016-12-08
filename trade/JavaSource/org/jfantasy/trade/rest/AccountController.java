@@ -16,9 +16,11 @@ import org.jfantasy.pay.rest.models.TransactionForm;
 import org.jfantasy.pay.rest.models.assembler.AccountResourceAssembler;
 import org.jfantasy.pay.rest.models.assembler.TransactionResourceAssembler;
 import org.jfantasy.trade.bean.*;
+import org.jfantasy.trade.bean.enums.ProjectType;
 import org.jfantasy.trade.bean.enums.ReportTargetType;
 import org.jfantasy.trade.bean.enums.TimeUnit;
 import org.jfantasy.trade.service.AccountService;
+import org.jfantasy.trade.service.ProjectService;
 import org.jfantasy.trade.service.ReportService;
 import org.jfantasy.trade.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +52,7 @@ public class AccountController {
     private AccountService accountService;
     private TransactionService transactionService;
     private ReportService reportService;
+    private ProjectService projectService;
 
     /**
      * 查询账户
@@ -119,6 +122,14 @@ public class AccountController {
         Account account = get(sn);
         Map<String, Object> data = new HashMap<>();
         data.put(Transaction.UNION_KEY, sn + "|" + (DateUtil.now().getTime() / 1000 * 10) + "|" + form.getAmount().setScale(2, BigDecimal.ROUND_UP).toString() + "|" + form.getChannel());
+
+        Project project = this.projectService.get(form.getProject());
+
+        if(ProjectType.withdraw == project.getType() || ProjectType.transfer  == project.getType()){
+            form.setFrom(account.getSn());
+        }else if(ProjectType.deposit == project.getType()){
+            form.setTo(account.getSn());
+        }
         return this.transactionService.save(form.getProject(), account.getSn(), form.getTo(), form.getChannel(), form.getAmount(), form.getNotes(), data);
     }
 
@@ -194,6 +205,11 @@ public class AccountController {
     @Autowired
     public void setReportService(ReportService reportService) {
         this.reportService = reportService;
+    }
+
+    @Autowired
+    public void setProjectService(ProjectService projectService) {
+        this.projectService = projectService;
     }
 
 }

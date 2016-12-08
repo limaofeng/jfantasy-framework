@@ -2,6 +2,7 @@ package org.jfantasy.trade.bean.enums;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.trade.bean.Transaction;
@@ -54,26 +55,22 @@ public enum ProjectType {
         switch (this.accountNotNull) {
             case FORM_OR_TO:
                 if (StringUtil.isBlank(transaction.getFrom()) || StringUtil.isBlank(transaction.getTo())) {
-                    LOG.error("付款方与收款方不能为空");
-                    return false;
+                    throw new ValidationException("付款方与收款方不能为空");
                 }
                 break;
             case FROM:
                 if (StringUtil.isBlank(transaction.getFrom()) || StringUtil.isNotBlank(transaction.getTo())) {
-                    LOG.error("付款方不能为空 - 收款方只能为空");
-                    return false;
+                    throw new ValidationException("付款方不能为空 - 收款方只能为空");
                 }
             case TO:
                 if (StringUtil.isNotBlank(transaction.getFrom()) || StringUtil.isBlank(transaction.getTo())) {
-                    LOG.error("付款方只能为空 - 收款方只能为空");
-                    return false;
+                    throw new ValidationException("付款方只能为空 - 收款方只能为空");
                 }
                 break;
             default:
         }
         if (transaction.getChannel() != null && !ObjectUtil.exists(this.channels, transaction.getChannel())) {
-            LOG.error("渠道错误");
-            return false;
+            throw new ValidationException("渠道错误");
         }
         return true;
     }

@@ -158,6 +158,8 @@ public class TransactionService {
         }
         transaction.setStatus(TxStatus.unprocessed);
         transaction.setStatusText(projectKey.equals(Project.PAYMENT) ? "等待付款" : "待处理");
+        //验证数据合法性
+        project.getType().isValid(transaction);
         return this.transactionDao.save(transaction);
     }
 

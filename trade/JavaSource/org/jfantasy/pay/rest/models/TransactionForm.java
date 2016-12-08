@@ -9,6 +9,10 @@ import java.math.BigDecimal;
 
 public class TransactionForm {
     /**
+     * 转出账户
+     */
+    private String from;
+    /**
      * 转入账户
      */
     private String to;
@@ -36,6 +40,14 @@ public class TransactionForm {
      * 备注
      */
     private String notes;
+
+    public String getFrom() {
+        return from;
+    }
+
+    public void setFrom(String from) {
+        this.from = from;
+    }
 
     public String getTo() {
         return to;

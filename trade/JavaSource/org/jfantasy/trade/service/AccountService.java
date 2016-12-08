@@ -198,10 +198,6 @@ public class AccountService {
             throw new ValidationException("交易已经完成,不能划账");
         }
 
-        if (!project.getType().isValid(transaction)) {
-            throw new ValidationException("数据问题，不能继续进行操作");
-        }
-
         try {
             this.out(transaction.getFrom(), transaction.getAmount(), transaction);
         } catch (ValidationException e) {
