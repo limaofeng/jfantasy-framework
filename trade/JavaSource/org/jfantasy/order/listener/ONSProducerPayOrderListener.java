@@ -29,7 +29,7 @@ public class ONSProducerPayOrderListener implements ApplicationListener<OrderSta
     @Override
     public void onApplicationEvent(OrderStatusChangedEvent event) {
         Order order = event.getOrder();
-        Message msg = new Message(aliyunSettings.getTopicId(), TradeAutoConfiguration.ONS_TAGS_ORDER, order.getId(), JSON.serialize(order,"payments","refunds","payment_config").getBytes());
+        Message msg = new Message(aliyunSettings.getTopicId(), TradeAutoConfiguration.ONS_TAGS_ORDER, order.getId(), JSON.serialize(order, "payments", "refunds", "payment_config").getBytes());
         producer.send(msg);
     }
 

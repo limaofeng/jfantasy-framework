@@ -23,11 +23,11 @@ import java.util.Map;
 @Component
 public class OrderInsertOrUpdateListener extends AbstractChangedListener<Order> {
 
-    private ScheduleService scheduleService;
-    private OrderTypeService orderTypeService;
+    private transient ScheduleService scheduleService;
+    private transient OrderTypeService orderTypeService;
 
     public OrderInsertOrUpdateListener() {
-        super(EventType.POST_COMMIT_INSERT,EventType.POST_COMMIT_UPDATE);
+        super(EventType.POST_COMMIT_INSERT, EventType.POST_COMMIT_UPDATE);
     }
 
     @Override
