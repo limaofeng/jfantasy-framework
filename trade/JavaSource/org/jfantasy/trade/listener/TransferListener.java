@@ -31,7 +31,7 @@ public class TransferListener implements ApplicationListener<TransactionChangedE
     private ProjectService projectService;
     private TransactionService transactionService;
 
-    private ProjectType[] projectTypes = new ProjectType[]{ProjectType.transfer, ProjectType.deposit};
+    private ProjectType[] projectTypes = new ProjectType[]{ProjectType.withdraw, ProjectType.deposit};
 
     @Async
     @Override
@@ -56,7 +56,7 @@ public class TransferListener implements ApplicationListener<TransactionChangedE
         try {
             LOCK.lock();
             // 执行转账操作
-            accountService.transfer(sn, "自动转账");
+            accountService.transfer(sn, "后台自动处理");
         } finally {
             LOCK.unlock();
         }

@@ -14,12 +14,12 @@ public enum ProjectType {
      * 除了有订单信息外，必须有明确的付款方与收款方
      * 可用渠道：支付平台
      */
-    order(AccountNotNull.FORM_OR_TO, TxChannel.internal, TxChannel.online),
+    order(AccountNotNull.FROM_OR_TO, TxChannel.internal, TxChannel.online),
     /**
      * 转账，必须有明确的付款方与收款方
      * 可用渠道：内部交易
      */
-    transfer(AccountNotNull.FORM_OR_TO, TxChannel.internal),
+    transfer(AccountNotNull.FROM_OR_TO, TxChannel.internal),
     /**
      * 充值，无付款方
      * 可用渠道：内部交易／线下交易／会员卡／支付平台
@@ -48,26 +48,16 @@ public enum ProjectType {
     }
 
     enum AccountNotNull {
-        FROM, TO, FORM_OR_TO
+        FROM, TO, FROM_OR_TO
     }
 
     public void verify(Transaction transaction) {
-        switch (this.accountNotNull) {
-            case FORM_OR_TO:
-                if (StringUtil.isBlank(transaction.getFrom()) || StringUtil.isBlank(transaction.getTo())) {
-                    throw new ValidationException("付款方与收款方不能为空");
-                }
-                break;
-            case FROM:
-                if (StringUtil.isBlank(transaction.getFrom()) || StringUtil.isNotBlank(transaction.getTo())) {
-                    throw new ValidationException("付款方不能为空 - 收款方只能为空");
-                }
-            case TO:
-                if (StringUtil.isNotBlank(transaction.getFrom()) || StringUtil.isBlank(transaction.getTo())) {
-                    throw new ValidationException("付款方只能为空 - 收款方不能为空");
-                }
-                break;
-            default:
+        if (this.accountNotNull == AccountNotNull.FROM_OR_TO && (StringUtil.isBlank(transaction.getFrom()) || StringUtil.isBlank(transaction.getTo()))) {
+            throw new ValidationException("付款方与收款方不能为空");
+        } else if (this.accountNotNull == AccountNotNull.FROM && (StringUtil.isBlank(transaction.getFrom()) || StringUtil.isNotBlank(transaction.getTo()))) {
+            throw new ValidationException("付款方不能为空 - 收款方只能为空");
+        } else if (this.accountNotNull == AccountNotNull.TO && (StringUtil.isNotBlank(transaction.getFrom()) || StringUtil.isBlank(transaction.getTo()))) {
+            throw new ValidationException("付款方只能为空 - 收款方不能为空");
         }
         if (transaction.getChannel() != null && !ObjectUtil.exists(this.channels, transaction.getChannel())) {
             throw new ValidationException("渠道错误");
