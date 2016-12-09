@@ -222,7 +222,7 @@ public class AccountService {
     }
 
     private void in(String account, BigDecimal amount, Project project, Transaction transaction) {
-        if (project.getType().getAccountNotNull() == ProjectType.AccountNotNull.TO || project.getType().getAccountNotNull() == ProjectType.AccountNotNull.FROM_OR_TO) {
+        if (project.getType().getAccountNotNull() == ProjectType.AccountNotNull.FROM) {
             return;
         }
         if (StringUtil.isBlank(transaction.getTo())) {
@@ -244,7 +244,7 @@ public class AccountService {
     }
 
     private void out(String account, BigDecimal amount, Project project, Transaction transaction) {
-        if (project.getType().getAccountNotNull() == ProjectType.AccountNotNull.FROM || project.getType().getAccountNotNull() == ProjectType.AccountNotNull.FROM_OR_TO) {
+        if (project.getType().getAccountNotNull() == ProjectType.AccountNotNull.TO) {
             return;
         }
         if (StringUtil.isBlank(account)) {
