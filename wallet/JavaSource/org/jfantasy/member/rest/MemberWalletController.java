@@ -7,13 +7,13 @@ import org.jfantasy.member.bean.Member;
 import org.jfantasy.member.bean.Wallet;
 import org.jfantasy.member.rest.models.PointDetails;
 import org.jfantasy.member.rest.models.assembler.PointDetailsResourceAssembler;
-import org.jfantasy.member.rest.models.assembler.WalletResourceAssembler;
 import org.jfantasy.member.service.WalletService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
 
 
 @RestController
@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class MemberWalletController {
 
     private PointDetailsResourceAssembler assembler = new PointDetailsResourceAssembler();
-    private WalletResourceAssembler walletAssembler = new WalletResourceAssembler();
 
     private WalletService walletService;
     private WalletController walletController;
@@ -40,6 +39,17 @@ public class MemberWalletController {
             resource.set("level", wallet.getMember().getDetails().getLevel());
         }
         return resource;
+    }
+
+    /**
+     * 通过用户查询账户信息
+     * @param id member_id
+     * @return ModelAndView
+     */
+    @RequestMapping(value = "/{memid}/account", method = RequestMethod.GET)
+    public ModelAndView teams(@PathVariable("memid") Long id) {
+        Wallet wallet = walletService.getWalletByMember(id);
+        return new ModelAndView("redirect:/accounts/" + wallet.getAccount());
     }
 
     /**

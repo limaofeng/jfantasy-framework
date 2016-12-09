@@ -48,7 +48,6 @@ public class AccountController {
 
     private ConcurrentMap<String, TransactionResourceAssembler> transactionAssemblers = new ConcurrentHashMap<>();
 
-
     private AccountService accountService;
     private TransactionService transactionService;
     private ReportService reportService;

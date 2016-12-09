@@ -11,10 +11,8 @@ import org.jfantasy.member.bean.Wallet;
 import org.jfantasy.member.rest.models.assembler.WalletResourceAssembler;
 import org.jfantasy.member.service.WalletService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
 
@@ -38,7 +36,7 @@ public class WalletController {
      */
     @JsonResultFilter(allow = @AllowProperty(pojo = Member.class, name = {"id", "username", "nickName"}))
     @RequestMapping(method = RequestMethod.GET)
-    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
+    @ApiImplicitParam(value = "filters", name = "filters", paramType = "query", dataType = "string")
     public Pager<ResultResourceSupport> search(Pager<Wallet> pager, List<PropertyFilter> filters) {
         return assembler.toResources(this.walletService.findPager(pager, filters));
     }
@@ -52,6 +50,18 @@ public class WalletController {
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public ResultResourceSupport view(@PathVariable("id") Long id) {
         return assembler.toResource(this.walletService.getWallet(id));
+    }
+
+    /**
+     * 查询钱包对于的账户信息
+     *
+     * @param id 钱包ID
+     * @return ModelAndView
+     */
+    @RequestMapping(value = "/{id}/account", method = RequestMethod.GET)
+    public ModelAndView teams(@PathVariable("memid") Long id) {
+        Wallet wallet = this.walletService.getWallet(id);
+        return new ModelAndView("redirect:/accounts/" + wallet.getAccount());
     }
 
     @Autowired
