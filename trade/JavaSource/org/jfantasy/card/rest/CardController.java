@@ -8,6 +8,7 @@ import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
 import org.jfantasy.framework.security.SpringSecurityUtils;
 import org.jfantasy.framework.spring.mvc.error.RestException;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
+import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.oauth.userdetails.OAuthUserDetails;
 import org.jfantasy.card.bean.Card;
 import org.jfantasy.card.bean.CardBatch;
@@ -81,7 +82,7 @@ public class CardController {
     @RequestMapping(method = RequestMethod.POST, value = "/{id}/bind")
     @ResponseBody
     public ResultResourceSupport bind(@PathVariable("id") String id, @RequestBody CardBindForm form) {
-        String owner = form.getMemberId().toString();
+        String owner = StringUtil.isNotBlank(form.getMemberId()) ? form.getMemberId().toString() : null;
         if (form.getMemberId() == null) {
             OAuthUserDetails user = SpringSecurityUtils.getCurrentUser(OAuthUserDetails.class);
             if (user == null) {
