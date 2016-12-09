@@ -172,21 +172,21 @@ public class TransactionService {
         return this.transactionDao.save(transaction);
     }
 
+    public void handleAllowFailure(String sn, String notes) {
+        this.accountService.transfer(sn, notes);
+    }
+
+    public void handleAllowFailure(String sn, String password, String notes) {
+        this.accountService.transfer(sn, password, notes);
+    }
+
     public void handle(String sn, String notes) {
         try {
             this.accountService.transfer(sn, notes);
         } catch (ValidationException e) {
             LOG.error(e.getMessage(), e);
             SpringContextUtil.getBeanByType(TransactionService.class).close(sn, e.getMessage());
-        }
-    }
-
-    public void handle(String sn, String password, String notes) {
-        try {
-            this.accountService.transfer(sn, password, notes);
-        } catch (ValidationException e) {
-            LOG.error(e.getMessage(), e);
-            SpringContextUtil.getBeanByType(TransactionService.class).close(sn, e.getMessage());
+            throw e;
         }
     }
 

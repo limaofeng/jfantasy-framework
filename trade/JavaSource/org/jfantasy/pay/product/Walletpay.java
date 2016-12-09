@@ -48,7 +48,7 @@ public class Walletpay extends PayProductSupport {
         String password = properties.getProperty(PROPERTY_PW_NAME);
         Transaction transaction = (Transaction) properties.get(PROPERTY_TRANSACTION);
         //进行划账操作
-        this.transactionService().handle(transaction.getSn(), password, transaction.getNotes());
+        this.transactionService().handleAllowFailure(transaction.getSn(), password, transaction.getNotes());
         //触发通知
         return this.payService().paymentNotify(payment.getSn(), "");
     }
@@ -71,7 +71,7 @@ public class Walletpay extends PayProductSupport {
         //获取支付账户 与 支付密码
         Transaction transaction = refund.getTransaction();
         //进行划账操作
-        this.transactionService().handle(transaction.getSn(), transaction.getNotes());
+        this.transactionService().handleAllowFailure(transaction.getSn(), transaction.getNotes());
         //触发通知
         return this.payService().refundNotify(refund.getSn(), "");
     }
