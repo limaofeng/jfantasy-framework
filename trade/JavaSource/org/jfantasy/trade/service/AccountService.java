@@ -201,10 +201,10 @@ public class AccountService {
         //更新交易状态
         if (ProjectType.withdraw == project.getType() || ProjectType.deposit == project.getType()) {
             if (transaction.getChannel() == TxChannel.offline) {
-                transaction.setPayConfigName(TxChannel.offline.getValue());
+                transaction.setPayConfigName(transaction.getChannel().getValue());
                 transaction.setStatus(TxStatus.unprocessed);
-            } else if (transaction.getChannel() == TxChannel.internal) {
-                transaction.setPayConfigName(TxChannel.internal.getValue());
+            } else if (transaction.getChannel() == TxChannel.internal || transaction.getChannel() == TxChannel.card) {
+                transaction.setPayConfigName(transaction.getChannel().getValue());
                 transaction.setStatus(TxStatus.success);
             }
             transaction.setStatusText(transaction.getStatus().getValue());
