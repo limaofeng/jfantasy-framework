@@ -243,6 +243,7 @@ public class TransactionService {
         this.transactionDao.update(transaction);
     }
 
+    @Autowired
     public void setAccountService(AccountService accountService) {
         this.accountService = accountService;
     }
