@@ -47,8 +47,16 @@ public enum ProjectType {
         this.channels = channels;
     }
 
-    enum AccountNotNull {
+    public enum AccountNotNull {
         FROM, TO, FROM_OR_TO
+    }
+
+    public AccountNotNull getAccountNotNull() {
+        return accountNotNull;
+    }
+
+    public TxChannel[] getChannels() {
+        return channels;
     }
 
     public void verify(Transaction transaction) {

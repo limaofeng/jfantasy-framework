@@ -5,12 +5,12 @@ import org.jfantasy.framework.util.common.DateUtil;
 import org.jfantasy.order.bean.Order;
 import org.jfantasy.pay.bean.Payment;
 import org.jfantasy.pay.bean.Refund;
-import org.jfantasy.trade.bean.Transaction;
-import org.jfantasy.pay.error.PayException;
 import org.jfantasy.pay.bean.enums.PaymentStatus;
 import org.jfantasy.pay.bean.enums.RefundStatus;
-import org.jfantasy.trade.service.AccountService;
+import org.jfantasy.pay.error.PayException;
 import org.jfantasy.pay.service.PayService;
+import org.jfantasy.trade.bean.Transaction;
+import org.jfantasy.trade.service.TransactionService;
 
 import java.util.Properties;
 
@@ -22,13 +22,13 @@ public class Walletpay extends PayProductSupport {
     private static final String PROPERTY_PW_NAME = "password";
 
     private PayService payService;
-    private AccountService accountService;
+    private TransactionService transactionService;
 
-    private AccountService accountService() {
-        if (accountService == null) {
-            accountService = SpringContextUtil.getBeanByType(AccountService.class);
+    private TransactionService transactionService() {
+        if (transactionService == null) {
+            transactionService = SpringContextUtil.getBeanByType(TransactionService.class);
         }
-        return accountService;
+        return transactionService;
     }
 
     private PayService payService() {
@@ -48,7 +48,7 @@ public class Walletpay extends PayProductSupport {
         String password = properties.getProperty(PROPERTY_PW_NAME);
         Transaction transaction = (Transaction) properties.get(PROPERTY_TRANSACTION);
         //进行划账操作
-        this.accountService().transfer(transaction.getSn(), password, transaction.getNotes());
+        this.transactionService().handle(transaction.getSn(), password, transaction.getNotes());
         //触发通知
         return this.payService().paymentNotify(payment.getSn(), "");
     }
@@ -71,7 +71,7 @@ public class Walletpay extends PayProductSupport {
         //获取支付账户 与 支付密码
         Transaction transaction = refund.getTransaction();
         //进行划账操作
-        this.accountService().transfer(transaction.getSn(), transaction.getNotes());
+        this.transactionService().handle(transaction.getSn(), transaction.getNotes());
         //触发通知
         return this.payService().refundNotify(refund.getSn(), "");
     }

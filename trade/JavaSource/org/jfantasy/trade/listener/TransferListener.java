@@ -8,7 +8,6 @@ import org.jfantasy.trade.bean.Transaction;
 import org.jfantasy.trade.bean.enums.ProjectType;
 import org.jfantasy.trade.bean.enums.TxStatus;
 import org.jfantasy.trade.event.TransactionChangedEvent;
-import org.jfantasy.trade.service.AccountService;
 import org.jfantasy.trade.service.ProjectService;
 import org.jfantasy.trade.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +26,6 @@ public class TransferListener implements ApplicationListener<TransactionChangedE
 
     private static final Lock LOCK = new ReentrantLock();
 
-    private AccountService accountService;
     private ProjectService projectService;
     private TransactionService transactionService;
 
@@ -56,15 +54,10 @@ public class TransferListener implements ApplicationListener<TransactionChangedE
         try {
             LOCK.lock();
             // 执行转账操作
-            accountService.transfer(sn, "后台自动处理");
+            transactionService.handle(sn, "后台自动处理");
         } finally {
             LOCK.unlock();
         }
-    }
-
-    @Autowired
-    public void setAccountService(AccountService accountService) {
-        this.accountService = accountService;
     }
 
     @Autowired

@@ -1,9 +1,12 @@
 package org.jfantasy.trade.service;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.criterion.Restrictions;
 import org.jfantasy.card.bean.Card;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
+import org.jfantasy.framework.spring.SpringContextUtil;
 import org.jfantasy.framework.spring.mvc.error.RestException;
 import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.util.common.ObjectUtil;
@@ -18,8 +21,10 @@ import org.jfantasy.trade.bean.enums.TxStatus;
 import org.jfantasy.trade.dao.AccountDao;
 import org.jfantasy.trade.dao.ProjectDao;
 import org.jfantasy.trade.dao.TransactionDao;
+import org.jfantasy.trade.listener.TransferListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -29,9 +34,12 @@ import java.util.Map;
 @Service
 public class TransactionService {
 
+    private static final Log LOG = LogFactory.getLog(TransferListener.class);
+
     private final ProjectDao projectDao;
     private final TransactionDao transactionDao;
     private final AccountDao accountDao;
+    private AccountService accountService;
 
     @Autowired
     public TransactionService(TransactionDao transactionDao, ProjectDao projectDao, AccountDao accountDao) {
@@ -164,6 +172,24 @@ public class TransactionService {
         return this.transactionDao.save(transaction);
     }
 
+    public void handle(String sn, String notes) {
+        try {
+            this.accountService.transfer(sn, notes);
+        } catch (ValidationException e) {
+            LOG.error(e.getMessage(), e);
+            SpringContextUtil.getBeanByType(TransactionService.class).close(sn, e.getMessage());
+        }
+    }
+
+    public void handle(String sn, String password, String notes) {
+        try {
+            this.accountService.transfer(sn, password, notes);
+        } catch (ValidationException e) {
+            LOG.error(e.getMessage(), e);
+            SpringContextUtil.getBeanByType(TransactionService.class).close(sn, e.getMessage());
+        }
+    }
+
     @Transactional
     public Transaction update(String sn, TxStatus status, String statusText, String notes) {
         if (TxStatus.unprocessed.equals(status)) {
@@ -203,9 +229,22 @@ public class TransactionService {
         this.transactionDao.save(transaction);
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public Transaction close(String id, String notes) {
+        Transaction transaction = this.transactionDao.get(id);
+        transaction.setStatus(TxStatus.close);
+        transaction.setStatusText(TxStatus.close.getValue());
+        transaction.setNotes(notes);
+        return transactionDao.save(transaction);
+    }
+
     @Transactional
     public void update(Transaction transaction) {
         this.transactionDao.update(transaction);
+    }
+
+    public void setAccountService(AccountService accountService) {
+        this.accountService = accountService;
     }
 
 }

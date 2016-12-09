@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.crypto.password.StandardPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -159,10 +160,9 @@ public class AccountService {
      * @param notes    描述
      * @return Transaction
      */
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Transaction transfer(String trxNo, String password, String notes) {
         Transaction transaction = transactionDao.get(trxNo);
-
         /*
         if (transaction.getChannel() == TxChannel.internal) {
             Account from = this.accountDao.get(transaction.getFrom());
@@ -187,7 +187,7 @@ public class AccountService {
      * @param notes 描述
      * @return Transaction
      */
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Transaction transfer(String trxNo, String notes) {
         Transaction transaction = transactionDao.get(trxNo);
         Project project = this.projectDao.get(transaction.getProject());
@@ -197,7 +197,6 @@ public class AccountService {
         if (transaction.getStatus() == TxStatus.success) {
             throw new ValidationException("交易已经完成,不能划账");
         }
-
         //更新交易状态
         if (ProjectType.withdraw == project.getType() || ProjectType.deposit == project.getType()) {
             if (transaction.getChannel() == TxChannel.offline) {
@@ -214,22 +213,20 @@ public class AccountService {
             transaction.setStatusText(transaction.getStatus().getValue());
             transaction.setNotes(notes);
         }
-
-        try {
-            this.out(transaction.getFrom(), transaction.getAmount(), transaction);
-        } catch (ValidationException e) {
-            LOG.error(e.getMessage(), e);
-            return this.close(transaction, e.getMessage());
-        }
-
+        // 转出
+        this.out(transaction.getFrom(), transaction.getAmount(), project, transaction);
+        // 转入
         this.in(transaction.getTo(), transaction.getAmount(), project, transaction);
-
+        // 更新交易状态
         return transactionDao.save(transaction);
     }
 
     private void in(String account, BigDecimal amount, Project project, Transaction transaction) {
-        if (StringUtil.isBlank(transaction.getTo())) {
+        if (project.getType().getAccountNotNull() == ProjectType.AccountNotNull.TO || project.getType().getAccountNotNull() == ProjectType.AccountNotNull.FROM_OR_TO) {
             return;
+        }
+        if (StringUtil.isBlank(transaction.getTo())) {
+            throw new ValidationException("收款方为空");
         }
         Account to = this.accountDao.get(account);
         to.setAmount(to.getAmount().add(amount));
@@ -246,9 +243,12 @@ public class AccountService {
         this.accountDao.update(to);
     }
 
-    private void out(String account, BigDecimal amount, Transaction transaction) {
-        if (StringUtil.isBlank(account)) {
+    private void out(String account, BigDecimal amount, Project project, Transaction transaction) {
+        if (project.getType().getAccountNotNull() == ProjectType.AccountNotNull.FROM || project.getType().getAccountNotNull() == ProjectType.AccountNotNull.FROM_OR_TO) {
             return;
+        }
+        if (StringUtil.isBlank(account)) {
+            throw new ValidationException("付款方为空");
         }
         Account from = this.accountDao.get(account);
         if (from.getAmount().compareTo(amount) < 0) {
@@ -257,13 +257,6 @@ public class AccountService {
         from.setAmount(from.getAmount().subtract(amount));
         this.addBill(BillType.debit, transaction, from);//添加对应账单
         this.accountDao.update(from);
-    }
-
-    private Transaction close(Transaction transaction, String notes) {
-        transaction.setStatus(TxStatus.close);
-        transaction.setStatusText(TxStatus.close.getValue());
-        transaction.setNotes(notes);
-        return transactionDao.save(transaction);
     }
 
     private void addPonit(Account account, Long number, String notes) {
