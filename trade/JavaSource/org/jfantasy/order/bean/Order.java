@@ -443,12 +443,12 @@ public class Order extends BaseBusEntity {
 
     @Transient
     public String getSubject() {
-        return "";
+        return "订单号:" + this.getId();
     }
 
     @Transient
     public String getBody() {
-        return "";
+        return "订单类型说明";
     }
 
     @Transient
