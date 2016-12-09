@@ -95,7 +95,7 @@ subprojects {
     uploadArchives {
         repositories {
             mavenDeployer {
-                repository(url: "http://maven.zbsg.com.cn/content/repositories/snapshots") {
+                repository(url: "http://maven.zbsg.com.cn/content/repositories/releases") {
                     authentication(userName: "admin", password: System.getenv()['MAVEN_PASSWORD'])
                 }
                 pom.version = "$project.version"
