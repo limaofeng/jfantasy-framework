@@ -200,10 +200,8 @@ public class AccountService {
         //更新交易状态
         if (ProjectType.withdraw == project.getType() || ProjectType.deposit == project.getType()) {
             if (transaction.getChannel() == TxChannel.offline) {
-                transaction.setPayConfigName(transaction.getChannel().getValue());
                 transaction.setStatus(TxStatus.unprocessed);
             } else if (transaction.getChannel() == TxChannel.internal || transaction.getChannel() == TxChannel.card) {
-                transaction.setPayConfigName(transaction.getChannel().getValue());
                 transaction.setStatus(TxStatus.success);
             }
             transaction.setStatusText(transaction.getStatus().getValue());
@@ -213,6 +211,12 @@ public class AccountService {
             transaction.setStatusText(transaction.getStatus().getValue());
             transaction.setNotes(notes);
         }
+
+        // 防止 PayConfigName 为 null 的问题
+        if(StringUtil.isBlank(transaction.getPayConfigName())) {
+            transaction.setPayConfigName(transaction.getChannel().getValue());
+        }
+
         // 转出
         this.out(transaction.getFrom(), transaction.getAmount(), project, transaction);
         // 转入
