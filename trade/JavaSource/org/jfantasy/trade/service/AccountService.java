@@ -67,11 +67,6 @@ public class AccountService {
         return save(AccountType.personal, owner, null);
     }
 
-    @Transactional
-    public Account findUnique(AccountType type, String owner) {
-        return this.accountDao.findUnique(Restrictions.eq("type", type), Restrictions.eq("owner", owner));
-    }
-
     public Account get(String id) {
         return this.accountDao.get(id);
     }

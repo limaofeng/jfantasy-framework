@@ -1,7 +1,5 @@
 package org.jfantasy.pay.boot;
 
-import org.jfantasy.trade.bean.Account;
-import org.jfantasy.trade.bean.enums.AccountType;
 import org.jfantasy.trade.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -14,14 +12,14 @@ public class AccountConfiguration implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        Account from = accountService.findUnique(AccountType.personal, "member:15921884771");
-        if (from == null) {
-            accountService.save(AccountType.personal, "member:15921884771", "");
-        }
-        Account to = accountService.findUnique(AccountType.enterprise, "shzbsg");
-        if (to == null) {
-            accountService.save(AccountType.enterprise, "shzbsg", "");
-        }
+//        Account from = accountService.findUnique(AccountType.personal, "member:15921884771");
+//        if (from == null) {
+//            accountService.save(AccountType.personal, "member:15921884771", "");
+//        }
+//        Account to = accountService.findUnique(AccountType.enterprise, "shzbsg");
+//        if (to == null) {
+//            accountService.save(AccountType.enterprise, "shzbsg", "");
+//        }
     }
 
 }
