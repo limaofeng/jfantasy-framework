@@ -12,11 +12,9 @@ import org.jfantasy.card.bean.Card;
 import org.jfantasy.card.dao.CardDao;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
-import org.jfantasy.framework.security.SpringSecurityUtils;
 import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
-import org.jfantasy.oauth.userdetails.OAuthUserDetails;
 import org.jfantasy.order.bean.ExtraService;
 import org.jfantasy.trade.bean.*;
 import org.jfantasy.trade.bean.enums.*;
@@ -62,7 +60,11 @@ public class AccountService {
     }
 
     public Account findUniqueByOwner(String owner) {
-        return this.accountDao.findUnique(Restrictions.eq("owner", owner));
+        Account account = this.accountDao.findUnique(Restrictions.eq("owner", owner));
+        if (account != null) {
+            return account;
+        }
+        return save(AccountType.personal, owner, null);
     }
 
     @Transactional
@@ -140,19 +142,6 @@ public class AccountService {
     }
 
     /**
-     * 获取当前用户对应的账号信息
-     *
-     * @return account
-     */
-    public Account findUniqueByCurrentUser() {
-        OAuthUserDetails user = SpringSecurityUtils.getCurrentUser(OAuthUserDetails.class);
-        assert user != null;
-        String key = user.getKey();
-        Account account = this.accountDao.findUnique(Restrictions.eq("owner", key));
-        return account == null ? save(AccountType.personal, key, "") : account;
-    }
-
-    /**
      * 划账接口
      *
      * @param trxNo    交易单号
@@ -213,7 +202,7 @@ public class AccountService {
         }
 
         // 防止 PayConfigName 为 null 的问题
-        if(StringUtil.isBlank(transaction.getPayConfigName())) {
+        if (StringUtil.isBlank(transaction.getPayConfigName())) {
             transaction.setPayConfigName(transaction.getChannel().getValue());
         }
 
