@@ -35,10 +35,12 @@ import java.util.*;
 @Entity
 @Table(name = "PAY_ORDER", uniqueConstraints = @UniqueConstraint(name = "UK_ORDER_TARGET", columnNames = {"TARGET_TYPE", "TARGET_ID"}))
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "ship_area", "memeo", "shippings", "order_items", "details_type", "details_id", "subject", "body", "expired"})
+@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "ship_area", "memeo", "shippings", "details_type", "details_id", "expired", "payment_transaction", "refund_transaction", "redirect_url"})
 public class Order extends BaseBusEntity {
 
     private static final long serialVersionUID = -8541323033439515148L;
+
+    private static OrderService orderService;
 
     @Id
     @Column(name = "SN", nullable = false, unique = true)
@@ -370,7 +372,6 @@ public class Order extends BaseBusEntity {
         this.prices = prices;
     }
 
-
     @JsonAnySetter
     public void set(String key, Object value) {
         if (value == null) {
@@ -431,8 +432,16 @@ public class Order extends BaseBusEntity {
     }
 
     @Transient
+    private static OrderService orderService() {
+        if (orderService == null) {
+            orderService = SpringContextUtil.getBeanByType(OrderService.class);
+        }
+        return orderService;
+    }
+
+    @Transient
     public boolean isExpired() {
-        return SpringContextUtil.getBeanByType(OrderService.class).isExpired(this);
+        return orderService().isExpired(this);
     }
 
     @Deprecated
@@ -443,12 +452,17 @@ public class Order extends BaseBusEntity {
 
     @Transient
     public String getSubject() {
-        return "订单号:" + this.getId();
+        return orderService().getSubject(this);
     }
 
     @Transient
     public String getBody() {
-        return "订单类型说明";
+        return orderService().getBody(this);
+    }
+
+    @Transient
+    public String getRedirectUrl() {
+        return orderService().getRedirectUrl(this);
     }
 
     @Transient
@@ -480,4 +494,5 @@ public class Order extends BaseBusEntity {
     public void setRefundTransaction(Transaction refundTransaction) {
         this.refundTransaction = refundTransaction;
     }
+
 }

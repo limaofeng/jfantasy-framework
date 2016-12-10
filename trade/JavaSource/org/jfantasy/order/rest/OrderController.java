@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +67,7 @@ public class OrderController {
      * @return Order
      */
     @JsonResultFilter(
-            ignore = @IgnoreProperty(pojo = Order.class, name = {"refunds", "orderItems", "payments"}),
+            ignore = @IgnoreProperty(pojo = Order.class, name = {"refunds", "items", "payments"}),
             allow = @AllowProperty(pojo = PayConfig.class, name = {"id", "name"})
     )
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
@@ -77,6 +78,20 @@ public class OrderController {
             throw new NotFoundException("[ID=" + id + "]的订单不存在");
         }
         return assembler.toResource(order);
+    }
+
+    /**
+     * 订单详情
+     * @param id 订单ID
+     * @return ModelAndView
+     */
+    @GetMapping("/{id}/details")
+    public ModelAndView details(@PathVariable("id") String id) {
+        Order order = get(id);
+        if (order == null) {
+            throw new NotFoundException("[ID=" + id + "]的订单不存在");
+        }
+        return new ModelAndView("redirect:"+order.getRedirectUrl());
     }
 
     /**

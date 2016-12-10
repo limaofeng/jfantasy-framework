@@ -7,6 +7,7 @@ import org.hibernate.criterion.Restrictions;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.spring.mvc.error.ValidationException;
+import org.jfantasy.framework.util.HandlebarsTemplateUtils;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.logistics.bean.DeliveryType;
 import org.jfantasy.logistics.service.DeliveryTypeService;
@@ -15,6 +16,7 @@ import org.jfantasy.member.service.ReceiverService;
 import org.jfantasy.order.bean.Order;
 import org.jfantasy.order.bean.OrderItem;
 import org.jfantasy.order.bean.OrderTargetKey;
+import org.jfantasy.order.bean.OrderType;
 import org.jfantasy.order.bean.enums.InvoiceStatus;
 import org.jfantasy.order.dao.OrderDao;
 import org.jfantasy.order.dao.OrderItemDao;
@@ -133,6 +135,24 @@ public class OrderService {
             }
         }
         return expired;
+    }
+
+    @Transactional
+    public String getRedirectUrl(Order order) {
+        OrderType orderType = this.orderTypeDao.get(order.getType());
+        return HandlebarsTemplateUtils.processTemplateIntoString(orderType.getRedirectUrl(), order);
+    }
+
+    @Transactional
+    public String getSubject(Order order) {
+        OrderType orderType = this.orderTypeDao.get(order.getType());
+        return HandlebarsTemplateUtils.processTemplateIntoString(orderType.getSubject(), order);
+    }
+
+    @Transactional
+    public String getBody(Order order) {
+        OrderType orderType = this.orderTypeDao.get(order.getType());
+        return HandlebarsTemplateUtils.processTemplateIntoString(orderType.getBody(), order);
     }
 
     @Transactional

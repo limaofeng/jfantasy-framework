@@ -43,6 +43,21 @@ public class OrderType extends BaseBusEntity {
      */
     @Column(name = "ENABLED", nullable = false)
     private Boolean enabled;
+    /**
+     * 摘要模版
+     */
+    @Column(name = "SUBJECT_TEMPLATE", nullable = false, length = 100)
+    private String subject;
+    /**
+     * 正文模版
+     */
+    @Column(name = "BODY_TEMPLATE", nullable = false, length = 500)
+    private String body;
+    /**
+     * 业务数据重定向URL
+     */
+    @Column(name = "REDIRECT_URL", nullable = false, length = 100)
+    private String redirectUrl;
 
     public String getId() {
         return id;
@@ -74,6 +89,30 @@ public class OrderType extends BaseBusEntity {
 
     public void setEnabled(Boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public String getSubject() {
+        return subject;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
+
+    public String getBody() {
+        return body;
+    }
+
+    public void setBody(String body) {
+        this.body = body;
+    }
+
+    public String getRedirectUrl() {
+        return redirectUrl;
+    }
+
+    public void setRedirectUrl(String redirectUrl) {
+        this.redirectUrl = redirectUrl;
     }
 
 }
