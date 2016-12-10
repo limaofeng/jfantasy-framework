@@ -59,41 +59,38 @@ public class AccountService {
         return this.accountDao.findPager(pager, filters);
     }
 
-    public Account findUniqueByOwner(String owner) {
+    public Account get(String id) {
+        return this.accountDao.get(id);
+    }
+
+    @Transactional
+    public Account loadAccountByOwner(String owner) {
         Account account = this.accountDao.findUnique(Restrictions.eq("owner", owner));
         if (account != null) {
             return account;
         }
-        return save(AccountType.personal, owner, null);
-    }
-
-    public Account get(String id) {
-        return this.accountDao.get(id);
+        return this.save(owner,null);
     }
 
     /**
      * 创建账户
      *
-     * @param type  账户类型
      * @param owner 所有者
      * @return Account
      */
     @Transactional
-    public Account save(AccountType type, String owner, String password) {
-        if (this.accountDao.count(Restrictions.eq("type", type), Restrictions.eq("owner", owner)) > 0) {
+    public Account save(String owner, String password) {
+        if (this.accountDao.count(Restrictions.eq("owner", owner)) > 0) {
             throw new ValidationException(103.1f, "账号存在,创建失败");
         }
         Account account = new Account();
-        account.setType(type);
         account.setAmount(BigDecimal.ZERO);
         account.setPoints(0L);
         account.setOwner(owner);
         account.setStatus(StringUtil.isBlank(password) ? AccountStatus.unactivated : AccountStatus.activated);
 
         //加载 owner 详细信息
-        if (AccountType.enterprise == account.getType() || AccountType.personal == account.getType()) {
-            ownerByMember(account);
-        }
+        ownerByMember(account);
 
         return this.accountDao.save(account);
     }
@@ -119,14 +116,17 @@ public class AccountService {
             String targetId = member.has("target_id") ? member.getString("target_id") : null;
             String name = member.getString("nick_name");
             if ("personal".equals(memberType)) {//个人
+                account.setType(AccountType.personal);
                 account.setOwnerId(memberId.toString());
                 account.setOwnerType("personal");
                 account.setOwnerName(name);
             } else if ("doctor".equals(memberType)) {//医生
+                account.setType(AccountType.personal);
                 account.setOwnerId(targetId);
                 account.setOwnerType(targetType);
                 account.setOwnerName(name);
             } else if (ObjectUtil.exists(new String[]{"company", "pharmacy", "clinic"}, memberType)) {//集团
+                account.setType(AccountType.enterprise);
                 account.setOwnerId(targetId);
                 account.setOwnerType(memberType);
                 account.setOwnerName(name);

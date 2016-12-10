@@ -157,7 +157,7 @@ public class OrderService {
         if (order.getStatus() != OrderStatus.unpaid) {
             throw new ValidationException("订单" + order.getStatus().getValue() + ",不能支付");
         }
-        Account from = accountService.findUniqueByOwner(order.getMemberId().toString());// 付款方 - 只能是用户自己付款
+        Account from = accountService.loadAccountByOwner(order.getMemberId().toString());// 付款方 - 只能是用户自己付款
         Transaction transaction = this.transactionService.payment(from.getSn(), order.getPayableAmount(), "", data);
         order.setPaymentTransaction(transaction);
         return this.orderDao.update(order);

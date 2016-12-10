@@ -1,20 +1,19 @@
 package org.jfantasy.card.service;
 
 import org.hibernate.criterion.Restrictions;
+import org.jfantasy.card.bean.Card;
+import org.jfantasy.card.bean.enums.CardStatus;
+import org.jfantasy.card.dao.CardDao;
+import org.jfantasy.card.event.CardBindEvent;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.spring.mvc.error.NotFoundException;
 import org.jfantasy.framework.spring.mvc.error.ValidationException;
-import org.jfantasy.trade.service.AccountService;
+import org.jfantasy.pay.bean.enums.OwnerType;
 import org.jfantasy.pay.service.LogService;
 import org.jfantasy.trade.bean.Account;
-import org.jfantasy.card.bean.Card;
-import org.jfantasy.trade.bean.enums.AccountType;
-import org.jfantasy.card.bean.enums.CardStatus;
-import org.jfantasy.pay.bean.enums.OwnerType;
 import org.jfantasy.trade.dao.AccountDao;
-import org.jfantasy.card.dao.CardDao;
-import org.jfantasy.card.event.CardBindEvent;
+import org.jfantasy.trade.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
@@ -57,10 +56,7 @@ public class CardService {
         if (card.getStatus() != CardStatus.activated) {
             throw new ValidationException(101.1f, "卡状态不正确");
         }
-        Account account = this.accountDao.findUnique(Restrictions.eq("owner", owner));
-        if (account == null) {//自动创建账号
-            account = accountService.save(AccountType.personal, owner, null);
-        }
+        Account account = accountService.loadAccountByOwner(owner);//自动创建账号
         if (!card.getSecret().equals(password)) {
             throw new ValidationException(101.4f, "密钥错误");
         }

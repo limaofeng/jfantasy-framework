@@ -1,19 +1,8 @@
 package org.jfantasy.pay.rest.models;
 
-import org.jfantasy.trade.bean.enums.AccountType;
-
 public class AccountForm {
-    private AccountType type;
     private String owner;
     private String password;
-
-    public AccountType getType() {
-        return type;
-    }
-
-    public void setType(AccountType type) {
-        this.type = type;
-    }
 
     public String getOwner() {
         return owner;
