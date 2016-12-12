@@ -19,7 +19,7 @@ public class JSON {
 
     private static final Log LOG = LogFactory.getLog(JSON.class);
 
-    private static ObjectMapper objectMapper;
+    private static ObjectMapper objectMapper = initialize(new ObjectMapper());
 
     public static synchronized ObjectMapper initialize(ObjectMapper objectMapper) {
         if (JSON.objectMapper != null) {
@@ -57,9 +57,9 @@ public class JSON {
             SimpleFilterProvider provider = new SimpleFilterProvider().setFailOnUnknownId(false);
             for (FilterItem item : filter.items()) {
                 ThreadJacksonMixInHolder.MixInSource mixInSource = ThreadJacksonMixInHolder.createMixInSource(item.getClazz());
-                if(item.getPattern() == FilterItem.Pattern.IGNORE) {
+                if (item.getPattern() == FilterItem.Pattern.IGNORE) {
                     provider.addFilter(mixInSource.getFilterName(), SimpleBeanPropertyFilter.serializeAllExcept(item.getFields()));
-                }else {
+                } else {
                     provider.addFilter(mixInSource.getFilterName(), SimpleBeanPropertyFilter.filterOutAllExcept(item.getFields()));
                 }
             }

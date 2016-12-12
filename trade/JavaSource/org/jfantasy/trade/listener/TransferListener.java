@@ -29,7 +29,7 @@ public class TransferListener implements ApplicationListener<TransactionChangedE
     private ProjectService projectService;
     private TransactionService transactionService;
 
-    private ProjectType[] projectTypes = new ProjectType[]{ProjectType.withdraw, ProjectType.deposit};
+    private ProjectType[] projectTypes = new ProjectType[]{ProjectType.withdraw, ProjectType.transfer, ProjectType.deposit};
 
     @Async
     @Override
