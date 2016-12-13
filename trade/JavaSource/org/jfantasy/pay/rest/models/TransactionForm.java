@@ -1,11 +1,15 @@
 package org.jfantasy.pay.rest.models;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.jfantasy.framework.spring.validation.RESTful;
 import org.jfantasy.trade.bean.enums.TxChannel;
 
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
 
 public class TransactionForm {
     /**
@@ -36,6 +40,10 @@ public class TransactionForm {
      */
     @NotEmpty(groups = RESTful.POST.class)
     private String password;
+    /**
+     * 冗余字段
+     */
+    private Map<String, Object> properties;//NOSONAR
     /**
      * 备注
      */
@@ -95,6 +103,26 @@ public class TransactionForm {
 
     public void setChannel(TxChannel channel) {
         this.channel = channel;
+    }
+
+    @JsonAnyGetter
+    public Map<String, Object> getProperties() {
+        return properties;
+    }
+
+    @JsonAnySetter
+    public void set(String key, String value) {
+        if (this.properties == null) {
+            this.properties = new HashMap<>();
+        }
+        this.properties.put(key, value);
+    }
+
+    public String get(String key) {
+        if (this.properties == null || !this.properties.containsKey(key)) {
+            return null;
+        }
+        return (String) this.properties.get(key);
     }
 
 }

@@ -9,6 +9,7 @@ import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
 import org.jfantasy.framework.spring.validation.RESTful;
 import org.jfantasy.framework.util.common.DateUtil;
+import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.pay.error.PayException;
 import org.jfantasy.pay.rest.models.AccountForm;
 import org.jfantasy.pay.rest.models.ActivateForm;
@@ -119,14 +120,14 @@ public class AccountController {
     @ResponseBody
     public Transaction transactions(@PathVariable("id") String sn, @Validated(RESTful.POST.class) @RequestBody TransactionForm form) throws PayException {
         Account account = get(sn);
-        Map<String, Object> data = new HashMap<>();
+        Map<String, Object> data = ObjectUtil.defaultValue(form.getProperties(), new HashMap<>());
         data.put(Transaction.UNION_KEY, sn + "|" + (DateUtil.now().getTime() / 1000 * 10) + "|" + form.getAmount().setScale(2, BigDecimal.ROUND_UP).toString() + "|" + form.getChannel());
 
         Project project = this.projectService.get(form.getProject());
 
-        if(ProjectType.withdraw == project.getType() || ProjectType.transfer  == project.getType()){
+        if (ProjectType.withdraw == project.getType() || ProjectType.transfer == project.getType()) {
             form.setFrom(account.getSn());
-        }else if(ProjectType.deposit == project.getType()){
+        } else if (ProjectType.deposit == project.getType()) {
             form.setTo(account.getSn());
         }
         return this.transactionService.save(form.getProject(), form.getFrom(), form.getTo(), form.getChannel(), form.getAmount(), form.getNotes(), data);
@@ -157,7 +158,7 @@ public class AccountController {
      * 积分记录
      **/
     @RequestMapping(method = RequestMethod.GET, value = "/{id}/points")
-    public ModelAndView points(@PathVariable("id") String sn,RedirectAttributes attrs, Pager<Point> pager, List<PropertyFilter> filters) {
+    public ModelAndView points(@PathVariable("id") String sn, RedirectAttributes attrs, Pager<Point> pager, List<PropertyFilter> filters) {
         attrs.addAttribute("EQS_account.sn", sn);
         attrs.addAttribute("page", pager.getCurrentPage());
         attrs.addAttribute("per_page", pager.getPageSize());
