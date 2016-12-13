@@ -6,6 +6,7 @@ import org.jfantasy.framework.dao.hibernate.listener.AbstractChangedListener;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.invoice.bean.Invoice;
 import org.jfantasy.order.service.OrderService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -14,7 +15,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class InvoiceStatusChangeListener extends AbstractChangedListener<Invoice> {
 
-    private OrderService orderService;
+    private transient OrderService orderService;
 
     public InvoiceStatusChangeListener() {
         super(EventType.POST_UPDATE);
@@ -26,6 +27,11 @@ public class InvoiceStatusChangeListener extends AbstractChangedListener<Invoice
             String[] orderIds = ObjectUtil.toFieldArray(entity.getItems(), "order.id", String.class);
             orderService.updateInvoiceStatus(entity.getStatus(), orderIds);
         }
+    }
+
+    @Autowired
+    public void setOrderService(OrderService orderService) {
+        this.orderService = orderService;
     }
 
 }

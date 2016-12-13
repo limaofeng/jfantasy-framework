@@ -234,6 +234,7 @@ public class OrderService {
         return this.orderDao.update(order);
     }
 
+    @Transactional
     public void updateInvoiceStatus(org.jfantasy.invoice.bean.enums.InvoiceStatus status, String... ids) {
         InvoiceStatus invoiceStatus = InvoiceStatus.submitted;
         switch (status) {
@@ -248,6 +249,7 @@ public class OrderService {
         for (String id : ids) {
             Order order = this.orderDao.get(id);
             order.setInvoiceStatus(invoiceStatus);
+            this.orderDao.save(order);
         }
     }
 
