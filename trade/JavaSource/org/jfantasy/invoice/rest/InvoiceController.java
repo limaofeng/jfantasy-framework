@@ -4,7 +4,6 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiParam;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
-import org.jfantasy.framework.jackson.annotation.AllowProperty;
 import org.jfantasy.framework.jackson.annotation.IgnoreProperty;
 import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
 import org.jfantasy.framework.spring.mvc.error.NotFoundException;
@@ -41,22 +40,21 @@ public class InvoiceController {
 
     /**
      * 发票列表
+     *
      * @param pager
      * @param filters
      * @return
      */
-    @JsonResultFilter(
-            ignore = @IgnoreProperty(pojo = InvoiceItem.class, name = {"order_id"}),
-            allow = @AllowProperty(pojo = Order.class, name = {"order_sn", "order_type", "name"})
-    )
+    @JsonResultFilter(ignore = @IgnoreProperty(pojo = Invoice.class, name = {"items"}))
     @RequestMapping(method = RequestMethod.GET)
-    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
-    public Pager<ResultResourceSupport> search(Pager<Invoice> pager,@ApiParam(hidden = true) List<PropertyFilter> filters) {
+    @ApiImplicitParam(value = "filters", name = "filters", paramType = "query", dataType = "string")
+    public Pager<ResultResourceSupport> search(Pager<Invoice> pager, @ApiParam(hidden = true) List<PropertyFilter> filters) {
         return assembler.toResources(this.invoiceService.findPager(pager, filters));
     }
 
     /**
      * 添加发票
+     *
      * @param invoice
      * @return
      */
@@ -68,6 +66,7 @@ public class InvoiceController {
 
     /**
      * 查看发票
+     *
      * @param id
      * @return
      */
@@ -85,6 +84,7 @@ public class InvoiceController {
     /**
      * 更新发票<br/>
      * 主要用于发票开出后,更新发票的信息
+     *
      * @param id
      * @param form
      * @return
@@ -96,6 +96,7 @@ public class InvoiceController {
 
     /**
      * 删除发票
+     *
      * @param id
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
