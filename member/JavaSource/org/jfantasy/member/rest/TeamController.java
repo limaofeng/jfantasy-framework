@@ -156,15 +156,7 @@ public class TeamController {
     public ModelAndView invoices(@PathVariable("id") String teamId, RedirectAttributes attrs, Pager pager, List<PropertyFilter> filters) {
         Team team = get(teamId);
         attrs.addAttribute("EQL_drawer", team.getMemberId());
-        attrs.addAttribute("page", pager.getCurrentPage());
-        attrs.addAttribute("per_page", pager.getPageSize());
-        if (pager.isOrderBySetted()) {
-            attrs.addAttribute("sort", pager.getOrderBy());
-            attrs.addAttribute("order", pager.getOrder());
-        }
-        for (PropertyFilter filter : filters) {
-            attrs.addAttribute(filter.getFilterName(), filter.getPropertyValue());
-        }
+        pager.writeTo(attrs).write(filters);
         return new ModelAndView("redirect:/invoices");
     }
 

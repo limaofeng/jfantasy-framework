@@ -139,18 +139,10 @@ public class AccountController {
     @RequestMapping(method = RequestMethod.GET, value = "/{id}/cards")
     public ModelAndView cards(@PathVariable("id") String sn, RedirectAttributes attrs, Pager<Card> pager, List<PropertyFilter> filters) {
         attrs.addAttribute("EQS_account", sn);
-        attrs.addAttribute("page", pager.getCurrentPage());
-        attrs.addAttribute("per_page", pager.getPageSize());
         if (!pager.isOrderBySetted()) {
             pager.sort(Card.FIELDS_BY_MODIFY_TIME, Pager.SORT_DESC);
         }
-        if (pager.isOrderBySetted()) {
-            attrs.addAttribute("sort", pager.getOrderBy());
-            attrs.addAttribute("order", pager.getOrder());
-        }
-        for (PropertyFilter filter : filters) {
-            attrs.addAttribute(filter.getFilterName(), filter.getPropertyValue());
-        }
+        pager.writeTo(attrs).write(filters);
         return new ModelAndView("redirect:/cards");
     }
 
@@ -160,15 +152,7 @@ public class AccountController {
     @RequestMapping(method = RequestMethod.GET, value = "/{id}/points")
     public ModelAndView points(@PathVariable("id") String sn, RedirectAttributes attrs, Pager<Point> pager, List<PropertyFilter> filters) {
         attrs.addAttribute("EQS_account.sn", sn);
-        attrs.addAttribute("page", pager.getCurrentPage());
-        attrs.addAttribute("per_page", pager.getPageSize());
-        if (pager.isOrderBySetted()) {
-            attrs.addAttribute("sort", pager.getOrderBy());
-            attrs.addAttribute("order", pager.getOrder());
-        }
-        for (PropertyFilter filter : filters) {
-            attrs.addAttribute(filter.getFilterName(), filter.getPropertyValue());
-        }
+        pager.writeTo(attrs).write(filters);
         return new ModelAndView("redirect:/points");
     }
 

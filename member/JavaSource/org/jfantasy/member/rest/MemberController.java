@@ -12,6 +12,7 @@ import org.jfantasy.framework.spring.mvc.error.NotFoundException;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
 import org.jfantasy.framework.spring.validation.RESTful;
 import org.jfantasy.framework.util.common.StringUtil;
+import org.jfantasy.framework.util.web.RedirectAttributesWriter;
 import org.jfantasy.framework.util.web.WebUtil;
 import org.jfantasy.member.bean.*;
 import org.jfantasy.member.bean.enums.TeamMemberStatus;
@@ -201,9 +202,7 @@ public class MemberController {
     @RequestMapping(value = "/{memid}/receivers", method = RequestMethod.GET)
     public ModelAndView receivers(@PathVariable("memid") Long memberId, RedirectAttributes attrs, List<PropertyFilter> filters) {
         attrs.addAttribute(FILTERS_EQ_MEMBERID, memberId);
-        for (PropertyFilter filter : filters) {
-            attrs.addAttribute(filter.getFilterName(), filter.getPropertyValue());
-        }
+        RedirectAttributesWriter.writer(attrs).write(filters);
         return new ModelAndView("redirect:/receivers");
     }
 
@@ -218,19 +217,11 @@ public class MemberController {
     @GetMapping("/{memid}/invoices")
     public ModelAndView invoices(@PathVariable("memid") Long memberId, RedirectAttributes attrs, Pager pager, List<PropertyFilter> filters) {
         attrs.addAttribute(FILTERS_EQ_MEMBERID, memberId);
-        attrs.addAttribute("page", pager.getCurrentPage());
-        attrs.addAttribute("per_page", pager.getPageSize());
         if (!pager.isOrderBySetted()) {
             pager.setOrderBy(BaseBusEntity.FIELDS_BY_CREATE_TIME);
             pager.setOrder(Pager.SORT_DESC);
         }
-        if (pager.isOrderBySetted()) {
-            attrs.addAttribute("sort", pager.getOrderBy());
-            attrs.addAttribute("order", pager.getOrder());
-        }
-        for (PropertyFilter filter : filters) {
-            attrs.addAttribute(filter.getFilterName(), filter.getPropertyValue());
-        }
+        pager.writeTo(attrs).write(filters);
         return new ModelAndView("redirect:/invoices");
     }
 
@@ -240,17 +231,7 @@ public class MemberController {
         if (StringUtil.isNotBlank(status)) {
             attrs.addAttribute("EQE_status", status);
         }
-        if (!pager.isOrderBySetted()) {
-            pager.setOrderBy(BaseBusEntity.FIELDS_BY_CREATE_TIME);
-            pager.setOrder(Pager.SORT_DESC);
-        }
-        if (pager.isOrderBySetted()) {
-            attrs.addAttribute("sort", pager.getOrderBy());
-            attrs.addAttribute("order", pager.getOrder());
-        }
-        for (PropertyFilter filter : filters) {
-            attrs.addAttribute(filter.getFilterName(), filter.getPropertyValue());
-        }
+        pager.writeTo(attrs).write(filters);
         return new ModelAndView("redirect:/orders");
     }
 
@@ -268,7 +249,7 @@ public class MemberController {
     public List<ResultResourceSupport> teams(@PathVariable("memid") Long memberId, @RequestParam(value = "type", required = false) String type, @ApiParam(hidden = true) List<PropertyFilter> filters) {
         filters.add(new PropertyFilter("EQL_teamMembers.member.id", memberId.toString()));//包含当前会员
         filters.add(new PropertyFilter("EQE_teamMembers.status", TeamMemberStatus.activated));//状态有效
-        return teamController.search(type, new Pager<Team>(1000), filters).getPageItems();
+        return teamController.search(type, new Pager<>(1000), filters).getPageItems();
     }
 
     @Autowired

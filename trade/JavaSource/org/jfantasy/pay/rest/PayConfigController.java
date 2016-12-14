@@ -103,15 +103,7 @@ public class PayConfigController {
     @RequestMapping(value = "/{id}/payments", method = RequestMethod.GET)
     public ModelAndView payments(@PathVariable("id") String id, RedirectAttributes attrs, Pager<Payment> pager, List<PropertyFilter> filters) {
         attrs.addAttribute("EQL_payConfig.id", id);
-        attrs.addAttribute("page", pager.getCurrentPage());
-        attrs.addAttribute("per_page", pager.getPageSize());
-        if (pager.isOrderBySetted()) {
-            attrs.addAttribute("sort", pager.getOrderBy());
-            attrs.addAttribute("order", pager.getOrder());
-        }
-        for (PropertyFilter filter : filters) {
-            attrs.addAttribute(filter.getFilterName(), filter.getPropertyValue());
-        }
+        pager.writeTo(attrs).write(filters);
         return new ModelAndView("redirect:/payments");
     }
 
@@ -126,15 +118,7 @@ public class PayConfigController {
     @RequestMapping(value = "/{id}/refunds", method = RequestMethod.GET)
     public ModelAndView refunds(@PathVariable("id") String id, RedirectAttributes attrs, Pager<Refund> pager, List<PropertyFilter> filters) {
         attrs.addAttribute("EQL_payConfig.id", id);
-        attrs.addAttribute("page", pager.getCurrentPage());
-        attrs.addAttribute("per_page", pager.getPageSize());
-        if (pager.isOrderBySetted()) {
-            attrs.addAttribute("sort", pager.getOrderBy());
-            attrs.addAttribute("order", pager.getOrder());
-        }
-        for (PropertyFilter filter : filters) {
-            attrs.addAttribute(filter.getFilterName(), filter.getPropertyValue());
-        }
+        pager.writeTo(attrs).write(filters);
         return new ModelAndView("redirect:/refunds");
     }
 

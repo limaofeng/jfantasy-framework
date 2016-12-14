@@ -70,15 +70,7 @@ public class PayProductController {
     @ResponseBody
     public ModelAndView payconfigs(@PathVariable("id") String id, RedirectAttributes attrs, Pager<PayConfig> pager, List<PropertyFilter> filters) {
         attrs.addAttribute("EQS_payProductId", id);
-        attrs.addAttribute("page", pager.getCurrentPage());
-        attrs.addAttribute("per_page", pager.getPageSize());
-        if (pager.isOrderBySetted()) {
-            attrs.addAttribute("sort", pager.getOrderBy());
-            attrs.addAttribute("order", pager.getOrder());
-        }
-        for (PropertyFilter filter : filters) {
-            attrs.addAttribute(filter.getFilterName(), filter.getPropertyValue());
-        }
+        pager.writeTo(attrs).write(filters);
         return new ModelAndView("redirect:/payconfigs");
     }
 

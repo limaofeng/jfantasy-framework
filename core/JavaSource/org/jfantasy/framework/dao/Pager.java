@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 import org.apache.ibatis.type.Alias;
 import org.jfantasy.framework.util.common.StringUtil;
+import org.jfantasy.framework.util.web.RedirectAttributesWriter;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.Serializable;
 import java.util.List;
@@ -224,7 +226,7 @@ public class Pager<T> implements Serializable {
         }
     }
 
-    public void sort(String orderBy,String order){
+    public void sort(String orderBy, String order) {
         this.orderBy = orderBy;
         this.order = order;
     }
@@ -237,5 +239,23 @@ public class Pager<T> implements Serializable {
         this.reset(totalCount);
         this.reset(items);
     }
+
+    public RedirectAttributesWriter writeTo(RedirectAttributes attrs) {
+        if (this.getFirst() != 0) {
+            attrs.addAttribute("limit", this.getFirst() + "," + this.getPageSize());
+        } else if (this.getPageSize() != 15) {
+            attrs.addAttribute("per_page", this.getPageSize());
+        }
+        if (this.getCurrentPage() != 1) {
+            attrs.addAttribute("page", this.getCurrentPage());
+        }
+        if (this.isOrderBySetted()) {
+            attrs.addAttribute("sort", this.getOrderBy());
+            attrs.addAttribute("order", this.getOrder());
+        }
+        return RedirectAttributesWriter.writer(attrs);
+    }
+
+
 
 }
