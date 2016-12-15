@@ -8,6 +8,7 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.jfantasy.framework.dao.BaseBusEntity;
+import org.jfantasy.framework.dao.hibernate.converter.StringsConverter;
 import org.jfantasy.framework.spring.validation.RESTful.POST;
 import org.jfantasy.framework.spring.validation.RESTful.PUT;
 import org.jfantasy.framework.spring.validation.Use;
@@ -59,7 +60,7 @@ public class Member extends BaseBusEntity {
     @NotEmpty(groups = {POST.class, PUT.class})
     @Length(min = 8, max = 20, groups = {POST.class, PUT.class})
     @Use(vali = UsernameCannotRepeatValidator.class, groups = {POST.class})
-    @Column(name = "USERNAME", length = 20,updatable = false, nullable = false, unique = true)
+    @Column(name = "USERNAME", length = 20, updatable = false, nullable = false, unique = true)
     private String username;
     /**
      * 登录密码
@@ -139,6 +140,12 @@ public class Member extends BaseBusEntity {
     @Column(name = "TARGET_TYPE", updatable = false, length = 10)
     @JsonProperty("target_type")
     private String targetType;
+    /**
+     * 用户标签
+     */
+    @Column(name = "TAGS", length = 300)
+    @Convert(converter = StringsConverter.class)
+    private String[] tags;
     @Transient
     private String code;
     @Transient
@@ -317,6 +324,14 @@ public class Member extends BaseBusEntity {
 
     public void setTargetType(String targetType) {
         this.targetType = targetType;
+    }
+
+    public String[] getTags() {
+        return tags;
+    }
+
+    public void setTags(String[] tags) {
+        this.tags = tags;
     }
 
     @Override
