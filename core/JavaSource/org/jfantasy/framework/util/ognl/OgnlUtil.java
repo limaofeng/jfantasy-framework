@@ -38,7 +38,7 @@ public class OgnlUtil {
                 return OgnlUtil.this.typeConverters.get(toType).convertValue(context, root, member, name, value, toType);
             } else if (value != null && OgnlUtil.this.typeConverters.containsKey(ClassUtil.getRealClass(value))) {
                 return OgnlUtil.this.typeConverters.get(ClassUtil.getRealClass(value)).convertValue(context, root, member, name, value, toType);
-            } else if ("EMPTY".equals(value) && !ClassUtil.isPrimitiveOrWrapperOrStringOrDate(toType)) {
+            } else if ("EMPTY".equals(value) && !ClassUtil.isBasicType(toType)) {
                 return ClassUtil.newInstance(toType);
             }
             return super.convertValue(context, root, member, name, value, toType);

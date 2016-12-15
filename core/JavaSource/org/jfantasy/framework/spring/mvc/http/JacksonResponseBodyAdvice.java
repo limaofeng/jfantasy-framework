@@ -9,6 +9,7 @@ import org.jfantasy.framework.jackson.ThreadJacksonMixInHolder;
 import org.jfantasy.framework.jackson.annotation.AllowProperty;
 import org.jfantasy.framework.jackson.annotation.IgnoreProperty;
 import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
+import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.Order;
@@ -40,8 +41,9 @@ public class JacksonResponseBodyAdvice implements ResponseBodyAdvice<Object> {
     private static final String DEFAULT_PROVIDER_KEY = "default_provider_key";
 
     private static final ConcurrentMap<String, FilterProvider> PROVIDERS = new ConcurrentHashMap<>();
+
     static {
-        PROVIDERS.put(DEFAULT_PROVIDER_KEY,new SimpleFilterProvider().setFailOnUnknownId(false));
+        PROVIDERS.put(DEFAULT_PROVIDER_KEY, new SimpleFilterProvider().setFailOnUnknownId(false));
     }
 
     @Override
@@ -52,7 +54,7 @@ public class JacksonResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 
     @Override
     public Object beforeBodyWrite(Object returnValue, MethodParameter methodParameter, MediaType mediaType, Class<? extends HttpMessageConverter<?>> converterType, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
-        if(returnValue instanceof String){
+        if (returnValue == null || ClassUtil.isBasicType(returnValue.getClass())) {
             return returnValue;
         }
         if (mediaType.isCompatibleWith(MediaTypes.HAL_JSON) || mediaType.isCompatibleWith(MediaType.APPLICATION_JSON)) {

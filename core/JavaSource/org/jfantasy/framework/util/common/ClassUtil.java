@@ -195,8 +195,12 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
         return null;
     }
 
-    public static boolean isBasicType(Class<?> type) {
-        return isPrimitiveOrWrapper(type) || String.class.isAssignableFrom(type) || Date.class.isAssignableFrom(type) || BigDecimal.class.isAssignableFrom(type) || Enum.class.isAssignableFrom(type);
+    public static boolean isBasicType(Class type) {
+        return isPrimitiveOrWrapper(type) || isOther(type);
+    }
+
+    private static boolean isOther(Class type) {
+        return String.class.isAssignableFrom(type) || Date.class.isAssignableFrom(type) || BigDecimal.class.isAssignableFrom(type) || Enum.class.isAssignableFrom(type);
     }
 
     public static boolean isBeanType(Class<?> clazz) {
@@ -471,10 +475,6 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
             }
         }
         return null;
-    }
-
-    public static boolean isPrimitiveOrWrapperOrStringOrDate(Class<?> clazz) {
-        return isPrimitiveOrWrapper(clazz) || String.class.isAssignableFrom(clazz) || Date.class.isAssignableFrom(clazz) || BigDecimal.class.isAssignableFrom(clazz);
     }
 
     public static <T> Class<T> getSuperClassGenricType(Class<T> clazz, int index) {
