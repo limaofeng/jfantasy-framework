@@ -11,7 +11,6 @@ import org.jfantasy.framework.spring.mvc.error.RestException;
 import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
-import org.jfantasy.pay.rest.models.OrderTransaction;
 import org.jfantasy.trade.bean.Account;
 import org.jfantasy.trade.bean.Project;
 import org.jfantasy.trade.bean.Transaction;
@@ -62,7 +61,7 @@ public class TransactionService {
         return transactionDao.get(sn);
     }
 
-    private Transaction getByUnionId(String unionId) {
+    public Transaction getByUnionId(String unionId) {
         return this.transactionDao.findUnique(Restrictions.eq("unionId", unionId));
     }
 
@@ -96,8 +95,7 @@ public class TransactionService {
      * @return Transaction
      */
     @Transactional
-    public Transaction refund(String orderKey, BigDecimal amount, String notes) {
-        Transaction original = this.getByUnionId(Transaction.generateUnionid(OrderTransaction.Type.payment.getValue(), orderKey));
+    public Transaction refund(Transaction original, BigDecimal amount, String notes) {
         if (original == null || original.getStatus() != TxStatus.success) {
             throw new RestException("原交易不存在或者未支付成功");
         }

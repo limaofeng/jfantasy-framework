@@ -30,6 +30,7 @@ import org.jfantasy.order.job.OrderClose;
 import org.jfantasy.pay.bean.PayConfig;
 import org.jfantasy.pay.bean.Payment;
 import org.jfantasy.pay.bean.Refund;
+import org.jfantasy.pay.rest.models.OrderTransaction;
 import org.jfantasy.schedule.service.ScheduleService;
 import org.jfantasy.trade.bean.Account;
 import org.jfantasy.trade.bean.Project;
@@ -212,7 +213,16 @@ public class OrderService {
             throw new ValidationException("订单" + order.getStatus().getValue() + ",不能支付");
         }
         order.setStatus(OrderStatus.refunding);
-        Transaction transaction = this.transactionService.refund(order.getId(), refundAmount, note);
+
+        Transaction original = this.transactionService.getByUnionId(Transaction.generateUnionid(OrderTransaction.Type.payment.getValue(), order.getId()));
+        // 匹配旧的逻辑
+        if(original == null){
+            original = this.transactionService.getByUnionId(Transaction.generateUnionid(OrderTransaction.Type.payment.getValue(), order.getDetailsId()));
+        }
+        if(original == null){
+            original = this.transactionService.getByUnionId(Transaction.generateUnionid(OrderTransaction.Type.payment.getValue(), order.getDetailsType() + ":" + order.getDetailsId()));
+        }
+        Transaction transaction = this.transactionService.refund(original, refundAmount, note);
         order.setRefundTransaction(transaction);
         return this.orderDao.update(order);
     }
