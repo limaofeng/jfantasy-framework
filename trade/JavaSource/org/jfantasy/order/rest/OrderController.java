@@ -24,7 +24,6 @@ import org.jfantasy.pay.rest.models.OrderTransaction;
 import org.jfantasy.pay.rest.models.assembler.OrderResourceAssembler;
 import org.jfantasy.trade.bean.Transaction;
 import org.jfantasy.trade.rest.TransactionController;
-import org.jfantasy.trade.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -44,7 +43,6 @@ public class OrderController {
     public static final OrderResourceAssembler assembler = new OrderResourceAssembler();
 
     private OrderService orderService;
-    private TransactionService transactionService;
     private PaymentController paymentController;
     private RefundController refundController;
     private TransactionController transactionController;
@@ -57,6 +55,10 @@ public class OrderController {
     @ResponseBody
     @ApiImplicitParam(value = "filters", name = "filters", paramType = "query", dataType = "string")
     public Pager<ResultResourceSupport> search(Pager<Order> pager, List<PropertyFilter> filters) {
+        if(!pager.isOrderBySetted()){
+            pager.setOrderBy(Order.FIELDS_BY_CREATE_TIME);
+            pager.setOrder(Pager.SORT_DESC);
+        }
         return assembler.toResources(orderService.findPager(pager, filters));
     }
 
@@ -187,11 +189,6 @@ public class OrderController {
     @Autowired
     public void setOrderService(OrderService orderService) {
         this.orderService = orderService;
-    }
-
-    @Autowired
-    public void setTransactionService(TransactionService transactionService) {
-        this.transactionService = transactionService;
     }
 
     @Autowired
