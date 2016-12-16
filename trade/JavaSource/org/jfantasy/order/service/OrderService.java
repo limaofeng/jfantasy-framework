@@ -209,8 +209,11 @@ public class OrderService {
     public Order refund(String id, BigDecimal refundAmount, String note) {
         // 订单
         Order order = this.orderDao.get(id);
+        if (order.getStatus() == OrderStatus.refunding ||order.getStatus() == OrderStatus.refunded){
+            return order;
+        }
         if (order.getStatus() != OrderStatus.paid) {
-            throw new ValidationException("订单" + order.getStatus().getValue() + ",不能支付");
+            throw new ValidationException("订单" + order.getStatus().getValue() + ",不能继续退款");
         }
         order.setStatus(OrderStatus.refunding);
 
