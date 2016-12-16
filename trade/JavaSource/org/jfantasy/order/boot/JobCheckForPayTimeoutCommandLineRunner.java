@@ -14,7 +14,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,8 +34,7 @@ public class JobCheckForPayTimeoutCommandLineRunner implements CommandLineRunner
                 if (!this.scheduleService.checkExists(OrderClose.triggerKey(order))){
                     Map<String, String> data = new HashMap<>();
                     data.put("id", order.getId());
-                    Date expireDate = DateUtil.add(order.getCreateTime(), Calendar.MINUTE, Math.toIntExact(orderType.getExpires()));
-                    this.scheduleService.addTrigger(OrderClose.JOB_KEY, OrderClose.triggerKey(order), DateUtil.format(expireDate, "ss mm HH dd MM ? yyyy"), data);
+                    this.scheduleService.triggerJob(OrderClose.JOB_KEY, data);
                 }
             }
         }
