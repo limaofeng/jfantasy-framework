@@ -49,8 +49,11 @@ public class OrderDetailServiceImpl implements OrderDetailService{
     @Override
     @Transactional
     public OrderDTO refund(String id, BigDecimal refundAmount, String note) {
-        this.orderService.refund(id,refundAmount,note);
-        return null;
+        Order order = this.orderService.refund(id,refundAmount,note);
+        OrderDTO dto = new OrderDTO();
+        dto.setId(order.getId());
+        dto.setRefundAmount(order.getRefundAmount());
+        return dto;
     }
 
     @Override

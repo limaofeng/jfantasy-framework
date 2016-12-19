@@ -19,6 +19,7 @@ import org.jfantasy.framework.spring.ClassPathScanner;
 import org.jfantasy.framework.spring.SpringContextUtil;
 import org.jfantasy.framework.spring.mvc.error.NotFoundException;
 import org.jfantasy.framework.util.common.ClassUtil;
+import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.PathUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.framework.util.common.file.FileUtil;
@@ -228,7 +229,7 @@ public class BuguIndex implements ApplicationListener<ContextRefreshedEvent> {
     }
 
     public void setAnalyzer(Analyzer analyzer) {
-        this.analyzer = analyzer;
+        this.analyzer = ObjectUtil.defaultValue(analyzer,this.analyzer);
     }
 
     public void setDirectoryPath(String directoryPath) {
