@@ -79,7 +79,14 @@ public class ReceiverController {
     public ResultResourceSupport update(@PathVariable("id") Long id, @RequestBody Receiver receiver) {
         get(id);
         receiver.setId(id);
-        return assembler.toResource(this.receiverService.update(receiver));
+        return assembler.toResource(this.receiverService.update(receiver,false));
+    }
+
+    @PatchMapping("/{id}")
+    public ResultResourceSupport patch(@PathVariable("id") Long id, @RequestBody Receiver receiver) {
+        get(id);
+        receiver.setId(id);
+        return assembler.toResource(this.receiverService.update(receiver,true));
     }
 
     /**
