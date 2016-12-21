@@ -130,13 +130,12 @@ public class DataDictionaryService implements InitializingBean {
     public DataDictionaryType save(DataDictionaryType dataDictionaryType) {
         List<DataDictionaryType> types = initEntity(dataDictionaryType);
         dataDictionaryType.setSort(types.size() + 1);
-        dataDictionaryType = this.dataDictionaryTypeDao.save(dataDictionaryType);
-        return dataDictionaryType;
+        return this.dataDictionaryTypeDao.save(dataDictionaryType);
     }
 
     public DataDictionaryType update(DataDictionaryType dataDictionaryType) {
         List<DataDictionaryType> types;
-        boolean root = dataDictionaryType.getLayer() == 0;
+        boolean root = false;
         if (dataDictionaryType.getParent() == null || StringUtil.isBlank(dataDictionaryType.getParent().getCode())) {
             dataDictionaryType.setLayer(0);
             dataDictionaryType.setPath(dataDictionaryType.getCode() + DataDictionaryType.PATH_SEPARATOR);
