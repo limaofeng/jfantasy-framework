@@ -25,7 +25,7 @@ public class ReceiverServiceTest {
         Receiver receiver = new Receiver();
         receiver.setId(204L);
         receiver.setIsDefault(true);
-        receiverService.update(receiver);
+        receiverService.update(receiver,true);
     }
 
 }
