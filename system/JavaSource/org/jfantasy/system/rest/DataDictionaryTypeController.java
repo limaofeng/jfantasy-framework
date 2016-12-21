@@ -34,9 +34,10 @@ public class DataDictionaryTypeController {
         return this.dataDictionaryService.save(ddt);
     }
 
-    @RequestMapping(method = RequestMethod.PUT)
+    @RequestMapping(value = "/{code}",method = RequestMethod.PUT)
     @ResponseBody
-    public DataDictionaryType update(@RequestBody DataDictionaryType ddt) {
+    public DataDictionaryType update(@PathVariable("code") String code,@RequestBody DataDictionaryType ddt) {
+        ddt.setCode(code);
         return this.dataDictionaryService.update(ddt);
     }
 
