@@ -100,11 +100,14 @@ public class Order extends BaseBusEntity {
     @Column(name = "PAYMENT_TIME")
     @Temporal(TemporalType.TIMESTAMP)
     private Date paymentTime;//付款时间
+    @Column(name = "COMPLETION_TIME")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date completionTime;//完成时间
+    @Column(name = "REFUND_AMOUNT", precision = 15, scale = 2)
+    private BigDecimal refundAmount;//退款金额
     @Column(name = "REFUND_TIME")
     @Temporal(TemporalType.TIMESTAMP)
     private Date refundTime;//退款时间
-    @Column(name = "REFUND_AMOUNT", precision = 15, scale = 2)
-    private BigDecimal refundAmount;//退款金额
     @Column(name = "MEMBER_ID", nullable = false, updatable = false)
     private Long memberId;// 会员
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
@@ -370,6 +373,14 @@ public class Order extends BaseBusEntity {
 
     public void setPrices(List<OrderPrice> prices) {
         this.prices = prices;
+    }
+
+    public Date getCompletionTime() {
+        return completionTime;
+    }
+
+    public void setCompletionTime(Date completionTime) {
+        this.completionTime = completionTime;
     }
 
     @JsonAnySetter

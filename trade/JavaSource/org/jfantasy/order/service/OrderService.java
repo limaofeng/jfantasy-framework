@@ -8,6 +8,7 @@ import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.util.HandlebarsTemplateUtils;
+import org.jfantasy.framework.util.common.DateUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.logistics.bean.DeliveryType;
 import org.jfantasy.logistics.service.DeliveryTypeService;
@@ -95,6 +96,7 @@ public class OrderService {
         }
         // 更新订单状态为完成
         order.setStatus(OrderStatus.complete);
+        order.setCompletionTime(DateUtil.now());
         // 更新发票状态
         if (!"walletpay".equals(order.getPaymentConfig().getPayProductId())) {// 非钱包支付，可以开发票
             order.setInvoiceStatus(InvoiceStatus.wait);
