@@ -20,9 +20,9 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 @Component
-public class TransferListener implements ApplicationListener<TransactionChangedEvent> {
+public class AutoProcessTransactionListener implements ApplicationListener<TransactionChangedEvent> {
 
-    private static final Log LOGGER = LogFactory.getLog(TransferListener.class);
+    private static final Log LOGGER = LogFactory.getLog(AutoProcessTransactionListener.class);
 
     private static final Lock LOCK = new ReentrantLock();
 

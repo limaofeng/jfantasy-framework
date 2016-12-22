@@ -114,6 +114,7 @@ public class OrderService {
         Transaction transaction = this.transactionService.getByUniqueId(Transaction.generateUnionid(Project.PAYMENT, order.getId()));
         if (transaction != null) {
             transaction.setStatus(TxStatus.close);
+            transaction.setFlowStatus(-1);
             transaction.setStatusText(TxStatus.close.getValue());
             this.transactionService.update(transaction);
         }
@@ -192,6 +193,7 @@ public class OrderService {
         PayConfig payConfig = payment.getPayConfig();
         // 更新交易状态
         transaction.setStatus(TxStatus.success);
+        transaction.setFlowStatus(9);
         transaction.setStatusText(TxStatus.success.getValue());
         transaction.setPayConfigName(payConfig.getName());
         transactionService.update(transaction);
@@ -238,6 +240,7 @@ public class OrderService {
         PayConfig payConfig = refund.getPayConfig();
         // 更新交易状态
         transaction.setStatus(TxStatus.success);
+        transaction.setFlowStatus(9);
         transaction.setStatusText(TxStatus.success.getValue());
         transaction.setPayConfigName(payConfig.getName());
         transactionService.update(transaction);

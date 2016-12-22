@@ -15,8 +15,12 @@ public class InviteController {
 
     protected static InviteResourceAssembler assembler = new InviteResourceAssembler();
 
+    private final InviteService inviteService;
+
     @Autowired
-    private InviteService inviteService;
+    public InviteController(InviteService inviteService) {
+        this.inviteService = inviteService;
+    }
 
     /**
      * 发起邀请
@@ -51,7 +55,7 @@ public class InviteController {
     private Invite get(Long id) {
         Invite invite = this.inviteService.get(id);
         if (invite == null) {
-            throw new NotFoundException("[id =" + id + "]对应的收货信息不存在");
+            throw new NotFoundException("[id =" + id + "]对应的发票申请信息不存在");
         }
         return invite;
     }

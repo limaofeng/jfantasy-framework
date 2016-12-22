@@ -2,6 +2,7 @@ package org.jfantasy.trade.service;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 import org.jfantasy.card.bean.Card;
 import org.jfantasy.framework.dao.Pager;
@@ -20,7 +21,8 @@ import org.jfantasy.trade.bean.enums.TxStatus;
 import org.jfantasy.trade.dao.AccountDao;
 import org.jfantasy.trade.dao.ProjectDao;
 import org.jfantasy.trade.dao.TransactionDao;
-import org.jfantasy.trade.listener.TransferListener;
+import org.jfantasy.trade.event.TransactionChangedEvent;
+import org.jfantasy.trade.listener.AutoProcessTransactionListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -33,12 +35,13 @@ import java.util.Map;
 @Service
 public class TransactionService {
 
-    private static final Log LOG = LogFactory.getLog(TransferListener.class);
+    private static final Log LOG = LogFactory.getLog(AutoProcessTransactionListener.class);
 
     private final ProjectDao projectDao;
     private final TransactionDao transactionDao;
     private final AccountDao accountDao;
     private AccountService accountService;
+    private AutoProcessTransactionListener autoProcessTransactionListener;
 
     @Autowired
     public TransactionService(TransactionDao transactionDao, ProjectDao projectDao, AccountDao accountDao) {
@@ -89,7 +92,7 @@ public class TransactionService {
     /**
      * 退款
      *
-     * @param orderKey 交易订单号
+     * @param original 原交易
      * @param amount   退款金额
      * @param notes    备注
      * @return Transaction
@@ -164,6 +167,7 @@ public class TransactionService {
                 transaction.setChannel(channel);
         }
         transaction.setStatus(TxStatus.unprocessed);
+        transaction.setFlowStatus(0);
         transaction.setStatusText(projectKey.equals(Project.PAYMENT) ? "等待付款" : "待处理");
         //验证数据合法性
         project.getType().verify(transaction);
@@ -221,6 +225,7 @@ public class TransactionService {
         transaction.setSubject(Card.SUBJECT_BY_CARD_INPOUR);
         transaction.setUnionId(Transaction.generateUnionid(transaction.getProject(), card.getNo()));
         transaction.setStatus(TxStatus.unprocessed);
+        transaction.setFlowStatus(0);
         transaction.setStatusText(TxStatus.unprocessed.getValue());
         transaction.setNotes("会员卡充值");
         transaction.setPayConfigName(TxChannel.card.getValue());
@@ -228,12 +233,24 @@ public class TransactionService {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void process(String sn) {
+        Transaction transaction = this.transactionDao.get(sn);
+        autoProcessTransactionListener.onApplicationEvent(new TransactionChangedEvent(transaction.getStatus(),transaction));
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Transaction close(String id, String notes) {
         Transaction transaction = this.transactionDao.get(id);
         transaction.setStatus(TxStatus.close);
+        transaction.setFlowStatus(-1);
         transaction.setStatusText(TxStatus.close.getValue());
         transaction.setNotes(notes);
         return transactionDao.save(transaction);
+    }
+
+    @Transactional
+    public List<Transaction> find(Criterion... criterions) {
+        return this.transactionDao.find(criterions);
     }
 
     @Transactional
@@ -244,6 +261,11 @@ public class TransactionService {
     @Autowired
     public void setAccountService(AccountService accountService) {
         this.accountService = accountService;
+    }
+
+    @Autowired
+    public void setAutoProcessTransactionListener(AutoProcessTransactionListener autoProcessTransactionListener) {
+        this.autoProcessTransactionListener = autoProcessTransactionListener;
     }
 
 }

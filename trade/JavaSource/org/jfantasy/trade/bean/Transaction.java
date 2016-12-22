@@ -90,6 +90,15 @@ public class Transaction extends BaseBusEntity {
     @Enumerated(EnumType.STRING)
     private TxStatus status;
     /**
+     * 流程状态。
+     * 提现: 未处理 (0)  -> 账户扣款 (1)  -> 转账中 (2)  -> 已完成 (9)  -> 关闭 (-1)
+     * 充值: 未处理 (0)  -> 已充值 (1)  -> 完成 (9)  -> 关闭 (-1)
+     * 订单: 未支付 (0)  -> 完成 (9)  -> 关闭 (-1)
+     * 转账：未处理 (0)  -> 账户扣款 (1) -> 转账中 (2) -> 账户到账 (3) -> 已完成 (9) -> 关闭 (-1)
+     */
+    @Column(name = "FLOW_STATUS")
+    private Integer flowStatus;
+    /**
      * 状态文本
      */
     @Column(name = "STATUS_TEXT", nullable = false)
@@ -262,4 +271,11 @@ public class Transaction extends BaseBusEntity {
         this.payConfigName = payConfigName;
     }
 
+    public Integer getFlowStatus() {
+        return flowStatus;
+    }
+
+    public void setFlowStatus(Integer flowStatus) {
+        this.flowStatus = flowStatus;
+    }
 }

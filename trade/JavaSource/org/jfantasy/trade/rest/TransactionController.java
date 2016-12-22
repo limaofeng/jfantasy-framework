@@ -64,6 +64,10 @@ public class TransactionController {
     @ResponseBody
     @ApiImplicitParam(value = "filters", name = "filters", paramType = "query", dataType = "string")
     public Pager<ResultResourceSupport> seach(Pager<Transaction> pager, List<PropertyFilter> filters) {
+        if (!pager.isOrderBySetted()) {
+            pager.setOrderBy(Transaction.FIELDS_BY_CREATE_TIME);
+            pager.setOrder(Pager.SORT_DESC);
+        }
         return assembler.toResources(transactionService.findPager(pager, filters));
     }
 

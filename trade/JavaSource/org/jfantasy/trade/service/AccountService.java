@@ -69,7 +69,7 @@ public class AccountService {
         if (account != null) {
             return account;
         }
-        return this.save(owner,null);
+        return this.save(owner, null);
     }
 
     /**
@@ -181,17 +181,26 @@ public class AccountService {
         if (transaction.getStatus() == TxStatus.success) {
             throw new ValidationException("交易已经完成,不能划账");
         }
+
+        // 该方法只处理 flow_status = 0 的交易
+        if(transaction.getFlowStatus() != 0){
+            return transaction;
+        }
+
         //更新交易状态
         if (ProjectType.withdraw == project.getType() || ProjectType.deposit == project.getType()) {
             if (transaction.getChannel() == TxChannel.offline) {
                 transaction.setStatus(TxStatus.unprocessed);
+                transaction.setFlowStatus(1);
             } else if (transaction.getChannel() == TxChannel.internal || transaction.getChannel() == TxChannel.card) {
                 transaction.setStatus(TxStatus.success);
+                transaction.setFlowStatus(2);
             }
             transaction.setStatusText(transaction.getStatus().getValue());
             transaction.setNotes(notes);
         } else {
             transaction.setStatus(TxStatus.success);
+            transaction.setFlowStatus(9);
             transaction.setStatusText(transaction.getStatus().getValue());
             transaction.setNotes(notes);
         }
