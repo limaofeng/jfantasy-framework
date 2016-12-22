@@ -194,7 +194,7 @@ public class AccountService {
                 transaction.setFlowStatus(1);
             } else if (transaction.getChannel() == TxChannel.internal || transaction.getChannel() == TxChannel.card) {
                 transaction.setStatus(TxStatus.success);
-                transaction.setFlowStatus(2);
+                transaction.setFlowStatus(9);
             }
             transaction.setStatusText(transaction.getStatus().getValue());
             transaction.setNotes(notes);
