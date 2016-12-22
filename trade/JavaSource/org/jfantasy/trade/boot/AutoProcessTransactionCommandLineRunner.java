@@ -21,7 +21,8 @@ public class AutoProcessTransactionCommandLineRunner implements CommandLineRunne
                         ProjectType.withdraw.name(),
                         ProjectType.transfer.name(),
                         ProjectType.deposit.name()}),
-                Restrictions.eq("status", TxStatus.unprocessed))) {
+                Restrictions.eq("status", TxStatus.unprocessed),
+                Restrictions.eq("flowStatus", 0))) {
             this.transactionService.process(transaction.getSn());
         }
     }
