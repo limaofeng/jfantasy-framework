@@ -20,6 +20,7 @@ public class SpELUtil {
         context.setVariable("DateUtil", DateUtil.class);
         context.setVariable("SequenceInfo", SequenceInfo.class);
         context.setVariable("StringUtil", StringUtil.class);
+        context.setVariable("systemProperties",System.getenv());
         return context;
     }
 

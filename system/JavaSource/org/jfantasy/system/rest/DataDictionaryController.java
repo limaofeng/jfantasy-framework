@@ -23,24 +23,6 @@ public class DataDictionaryController {
     private DataDictionaryService dataDictionaryService;
 
     /**
-     * 删除数据字典 - 删除数据字典
-     **/
-    @RequestMapping(value = "/{type}:{code}", method = RequestMethod.DELETE)
-    @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable("type") String type, @PathVariable("code") String code) {
-        this.dataDictionaryService.delete(DataDictionaryKey.newInstance(code, type));
-    }
-
-    /**
-     * 批量删除数据字典 - 删除数据字典
-     **/
-    @RequestMapping(method = RequestMethod.DELETE)
-    @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public void delete(@RequestBody String... keys) {
-        this.dataDictionaryService.delete(keys);
-    }
-
-    /**
      * 获取数据项<br/>
      * 通过该接口, 可以添加新的数据项。
      *
@@ -82,6 +64,15 @@ public class DataDictionaryController {
         dataDictionary.setCode(code);
         dataDictionary.setType(type);
         return this.dataDictionaryService.update(dataDictionary);
+    }
+
+    /**
+     * 删除数据字典 - 删除数据字典
+     **/
+    @RequestMapping(value = "/{type}:{code}", method = RequestMethod.DELETE)
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable("type") String type, @PathVariable("code") String code) {
+        this.dataDictionaryService.delete(DataDictionaryKey.newInstance(code, type));
     }
 
 }

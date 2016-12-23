@@ -25,6 +25,7 @@ import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.framework.util.common.file.FileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.scheduling.SchedulingTaskExecutor;
@@ -40,7 +41,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class BuguIndex implements ApplicationListener<ContextRefreshedEvent> {
+public class BuguIndex implements ApplicationListener<ContextRefreshedEvent>, CommandLineRunner {
 
     private static final Logger LOG = LoggerFactory.getLogger(BuguIndex.class);
 
@@ -125,15 +126,15 @@ public class BuguIndex implements ApplicationListener<ContextRefreshedEvent> {
         if (BuguIndex.instance == null) {
             BuguIndex.instance = this;//NOSONAR
         }
-        if (this.rebuild) {
-            new Timer().schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    BuguIndex.this.rebuild();
-                }
-            }, period);
-        }
+
         LOG.debug("Started Lucene in {} ms", watch.getTotalTimeMillis());
+    }
+
+    @Override
+    public void run(String... args) throws Exception {
+        if (this.rebuild) {
+            this.rebuild();
+        }
     }
 
     private static LuceneDao createHibernateLuceneDao(String name, HibernateDao hibernateDao) {
@@ -263,4 +264,5 @@ public class BuguIndex implements ApplicationListener<ContextRefreshedEvent> {
     public static boolean isRunning() {
         return BuguIndex.instance != null;
     }
+
 }

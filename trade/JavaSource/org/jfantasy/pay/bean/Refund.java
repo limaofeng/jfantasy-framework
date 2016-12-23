@@ -43,7 +43,7 @@ public class Refund extends BaseBusEntity {
 
     @Id
     @GeneratedValue(generator = "serialnumber")
-    @GenericGenerator(name = "serialnumber", strategy = "serialnumber", parameters = {@org.hibernate.annotations.Parameter(name = "expression", value = "'R' + payment.sn + #StringUtil.addZeroLeft(#SequenceInfo.nextValue('REFUND-' + payment.sn), 2)")})
+    @GenericGenerator(name = "serialnumber", strategy = "serialnumber", parameters = {@org.hibernate.annotations.Parameter(name = "expression", value = "'R' + payment.sn + (#systemProperties['spring.profiles.active'] == 'prod' ? '' : 'DEV') + #StringUtil.addZeroLeft(#SequenceInfo.nextValue('REFUND-' + payment.sn), 2)")})
     @Column(name = "SN", updatable = false)
     private String sn;// 退款编号
     @Enumerated(EnumType.STRING)

@@ -9,14 +9,11 @@ import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.util.common.BeanUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
-import org.jfantasy.schedule.service.ScheduleService;
 import org.jfantasy.system.bean.DataDictionary;
 import org.jfantasy.system.bean.DataDictionaryKey;
 import org.jfantasy.system.bean.DataDictionaryType;
 import org.jfantasy.system.dao.DataDictionaryDao;
 import org.jfantasy.system.dao.DataDictionaryTypeDao;
-import org.quartz.JobKey;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,31 +23,17 @@ import java.util.List;
 
 @Service
 @Transactional
-public class DataDictionaryService implements InitializingBean {
+public class DataDictionaryService {
 
     private static final Log LOGGER = LogFactory.getLog(DataDictionaryService.class);
 
-    public static final JobKey jobKey = JobKey.jobKey("DataDictionary", "SYSTEM");
+    private final DataDictionaryTypeDao dataDictionaryTypeDao;
+    private final DataDictionaryDao dataDictionaryDao;
 
     @Autowired
-    private ScheduleService scheduleService;
-
-    @Autowired
-    private DataDictionaryTypeDao dataDictionaryTypeDao;
-
-    @Autowired
-    private DataDictionaryDao dataDictionaryDao;
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        if (!this.scheduleService.isStartTimerTisk()) {
-            LOGGER.error(" scheduler 定时任务未启动！");
-            return;
-        }
-        if (this.scheduleService.checkExists(jobKey)) {
-            this.scheduleService.deleteJob(jobKey);
-        }
-        LOGGER.debug("添加用于生成 json 文件的 Job ");
+    public DataDictionaryService(DataDictionaryTypeDao dataDictionaryTypeDao, DataDictionaryDao dataDictionaryDao) {
+        this.dataDictionaryTypeDao = dataDictionaryTypeDao;
+        this.dataDictionaryDao = dataDictionaryDao;
     }
 
     public DataDictionary get(DataDictionaryKey key) {
