@@ -16,12 +16,12 @@ import org.jfantasy.trade.bean.Account;
 import org.jfantasy.trade.bean.Project;
 import org.jfantasy.trade.bean.Transaction;
 import org.jfantasy.trade.bean.enums.AccountType;
+import org.jfantasy.trade.bean.enums.ProjectType;
 import org.jfantasy.trade.bean.enums.TxChannel;
 import org.jfantasy.trade.bean.enums.TxStatus;
 import org.jfantasy.trade.dao.AccountDao;
 import org.jfantasy.trade.dao.ProjectDao;
 import org.jfantasy.trade.dao.TransactionDao;
-import org.jfantasy.trade.event.TransactionChangedEvent;
 import org.jfantasy.trade.listener.AutoProcessTransactionListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,17 +31,24 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Service
 public class TransactionService {
 
     private static final Log LOG = LogFactory.getLog(AutoProcessTransactionListener.class);
+    private static final Log LOGGER = LogFactory.getLog(AutoProcessTransactionListener.class);
+
+    private static final Lock LOCK = new ReentrantLock();
+
+    private ProjectType[] projectTypes = new ProjectType[]{ProjectType.withdraw, ProjectType.transfer, ProjectType.deposit};
 
     private final ProjectDao projectDao;
     private final TransactionDao transactionDao;
     private final AccountDao accountDao;
     private AccountService accountService;
-    private AutoProcessTransactionListener autoProcessTransactionListener;
 
     @Autowired
     public TransactionService(TransactionDao transactionDao, ProjectDao projectDao, AccountDao accountDao) {
@@ -234,8 +241,32 @@ public class TransactionService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void process(String sn) {
-        Transaction transaction = this.transactionDao.get(sn);
-        autoProcessTransactionListener.onApplicationEvent(new TransactionChangedEvent(transaction.getStatus(),transaction));
+        // 防止数据库事物未提交，造成数据未添加到数据库中
+        Transaction transaction = null;
+        try {
+            do {
+                Thread.sleep(TimeUnit.SECONDS.toMillis(5));
+                transaction = this.transactionDao.get(sn);
+            } while (transaction == null);
+        } catch (InterruptedException e) {
+            LOGGER.debug("Interrupted!", e);
+            Thread.currentThread().interrupt();
+        }
+        if(transaction == null){
+            return;
+        }
+        Project project = this.projectDao.get(transaction.getProject());
+        // 自动处理 未处理的转账交易
+        if (transaction.getStatus() != TxStatus.unprocessed || !ObjectUtil.exists(projectTypes, project.getType())) {
+            return;
+        }
+        try {
+            LOCK.lock();
+            // 执行转账操作
+            this.handle(sn, "后台自动处理");
+        } finally {
+            LOCK.unlock();
+        }
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -261,11 +292,6 @@ public class TransactionService {
     @Autowired
     public void setAccountService(AccountService accountService) {
         this.accountService = accountService;
-    }
-
-    @Autowired
-    public void setAutoProcessTransactionListener(AutoProcessTransactionListener autoProcessTransactionListener) {
-        this.autoProcessTransactionListener = autoProcessTransactionListener;
     }
 
 }
