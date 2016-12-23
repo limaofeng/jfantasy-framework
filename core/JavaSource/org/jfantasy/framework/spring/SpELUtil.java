@@ -15,13 +15,12 @@ public class SpELUtil {
     private SpELUtil() {
     }
 
-    public static EvaluationContext createEvaluationContext() {
-        StandardEvaluationContext context = new StandardEvaluationContext();
-        context.setVariable("DateUtil", DateUtil.class);
-        context.setVariable("SequenceInfo", SequenceInfo.class);
-        context.setVariable("StringUtil", StringUtil.class);
-        context.setVariable("systemProperties",System.getenv());
-        return context;
+    public static EvaluationContext createEvaluationContext(){
+        return initiaVariable(new StandardEvaluationContext());
+    }
+
+    public static EvaluationContext createEvaluationContext(Object object) {
+        return initiaVariable(new StandardEvaluationContext(object));
     }
 
     public static EvaluationContext createEvaluationContext(Map<String, Object> data) {
@@ -29,14 +28,6 @@ public class SpELUtil {
         for (Map.Entry<String, Object> entry : data.entrySet()) {
             context.setVariable(entry.getKey(), entry.getValue());
         }
-        return context;
-    }
-
-    public static EvaluationContext createEvaluationContext(Object object) {
-        StandardEvaluationContext context = new StandardEvaluationContext(object);
-        context.setVariable("DateUtil", DateUtil.class);
-        context.setVariable("SequenceInfo", SequenceInfo.class);
-        context.setVariable("StringUtil", StringUtil.class);
         return context;
     }
 
@@ -51,6 +42,14 @@ public class SpELUtil {
     public static Expression getExpression(String el) {
         SpelExpressionParser parser = new SpelExpressionParser();
         return parser.parseExpression(el);
+    }
+
+    private static EvaluationContext initiaVariable(EvaluationContext context){
+        context.setVariable("DateUtil", DateUtil.class);
+        context.setVariable("SequenceInfo", SequenceInfo.class);
+        context.setVariable("StringUtil", StringUtil.class);
+        context.setVariable("systemProperties",System.getenv());
+        return context;
     }
 
 }

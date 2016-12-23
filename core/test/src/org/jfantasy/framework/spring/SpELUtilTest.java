@@ -189,6 +189,11 @@ public class SpELUtilTest {
         String retVal = expression.getValue(context,String.class);
 
         LOG.debug("value = " + retVal);
+
+        expression = SpELUtil.getExpression("'P' + (#systemProperties['spring.profiles.active'] == 'prod' ? '' : 'DEV')");
+
+        LOG.debug("value = " + expression.getValue(context,String.class));
+
     }
 
 }
