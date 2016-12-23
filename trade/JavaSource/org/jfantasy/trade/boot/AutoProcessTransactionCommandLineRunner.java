@@ -1,5 +1,7 @@
 package org.jfantasy.trade.boot;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.criterion.Restrictions;
 import org.jfantasy.trade.bean.Transaction;
 import org.jfantasy.trade.bean.enums.ProjectType;
@@ -12,6 +14,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class AutoProcessTransactionCommandLineRunner implements CommandLineRunner {
 
+    private static final Log LOGGER = LogFactory.getLog(AutoProcessTransactionCommandLineRunner.class);
+
     private TransactionService transactionService;
 
     @Override
@@ -23,7 +27,7 @@ public class AutoProcessTransactionCommandLineRunner implements CommandLineRunne
                         ProjectType.deposit.name()}),
                 Restrictions.eq("status", TxStatus.unprocessed),
                 Restrictions.eq("flowStatus", 0))) {
-            this.transactionService.process(transaction.getSn());
+            LOGGER.error("未正常处理的交易:" + transaction.getSn());
         }
     }
 
