@@ -20,19 +20,20 @@ public class FavoriteService {
     }
 
     @Transactional
-    public Favorite save(Long memberId, String type, String targetType, String targetId, boolean watch) {
-        Favorite favorite = this.findUnique(memberId, type, targetType, targetId);
-        if (watch && favorite == null) {
-            favorite = new Favorite();
+    public void save(Long memberId, String type, String targetType, String targetId, boolean watch) {
+        if (watch) {
+            Favorite favorite = new Favorite();
             favorite.setMemberId(memberId);
             favorite.setType(type);
             favorite.setTargetType(targetType);
             favorite.setTargetId(targetId);
-            return this.favoriteDao.save(favorite);
-        } else if (favorite != null) {
-            this.delete(favorite.getId());
+            this.favoriteDao.save(favorite);
+        } else {
+            Favorite favorite = this.findUnique(memberId, type, targetType, targetId);
+            if (favorite != null) {
+                this.delete(favorite.getId());
+            }
         }
-        return favorite;
     }
 
     @Transactional
