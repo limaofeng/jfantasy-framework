@@ -82,7 +82,7 @@ public class Weixinpay extends PayProductSupport {
         } else if ("JSAPI".equals(data.get("trade_type"))) {
             Map<String, String> result = new HashMap<>();
             result.put("appId", data.get(EXT_APPID));
-            result.put("timeStamp", (DateUtil.now().getTime() / 1000) + "");
+            result.put("timeStamp", String.valueOf(DateUtil.now().getTime() / 1000));
             result.put("nonceStr", StringUtil.generateNonceString(32));
             result.put("package", "prepay_id=" + data.get("prepay_id"));
             result.put("signType", "MD5");
@@ -105,7 +105,7 @@ public class Weixinpay extends PayProductSupport {
             result.put("prepayid", data.get("prepay_id"));
             result.put("package", "Sign=WXPay");
             result.put("noncestr", StringUtil.generateNonceString(32));
-            result.put("timestamp", (DateUtil.now().getTime() / 1000) + "");
+            result.put("timestamp", String.valueOf(DateUtil.now().getTime() / 1000));
             result.put("sign", sign(result, config.getBargainorKey()));
             return result;
         }
@@ -151,8 +151,8 @@ public class Weixinpay extends PayProductSupport {
             data.put("nonce_str", StringUtil.generateNonceString(16));
             data.put("transaction_id", payment.getTradeNo());
             data.put("out_refund_no", refund.getSn());
-            data.put("total_fee", String.valueOf(payment.getTotalAmount().multiply(BigDecimal.valueOf(100d).setScale(0,BigDecimal.ROUND_DOWN))));
-            data.put("refund_fee", String.valueOf(refund.getTotalAmount().multiply(BigDecimal.valueOf(100d)).setScale(0,BigDecimal.ROUND_DOWN)));
+            data.put("total_fee", String.valueOf(payment.getTotalAmount().multiply(BigDecimal.valueOf(100d).setScale(0, BigDecimal.ROUND_DOWN))));
+            data.put("refund_fee", String.valueOf(refund.getTotalAmount().multiply(BigDecimal.valueOf(100d)).setScale(0, BigDecimal.ROUND_DOWN)));
             data.put("refund_fee_type", "CNY");//货币类型
             data.put("op_user_id", config.getBargainorId());
             data.put("sign", sign(data, config.getBargainorKey()));
@@ -223,7 +223,12 @@ public class Weixinpay extends PayProductSupport {
             data.put("out_trade_no", payment.getSn());
             String[] serverIps = WebUtil.getServerIps();
             data.put("spbill_create_ip", serverIps.length == 0 ? "127.0.0.1" : serverIps[0]);
-            data.put("total_fee", String.valueOf(payment.getTotalAmount().multiply(BigDecimal.valueOf(100d)).setScale(0,BigDecimal.ROUND_DOWN)));
+            data.put("total_fee", String.valueOf(payment.getTotalAmount().multiply(BigDecimal.valueOf(100d)).setScale(0, BigDecimal.ROUND_DOWN)));
+
+            data.put("limit_pay", "no_credit");//上传此参数no_credit--可限制用户不能使用信用卡支付
+            data.put("time_start", DateUtil.format(order.getCreateTime(), "yyyyMMddHHmmss"));//订单生成时间，格式为yyyyMMddHHmmss，如2009年12月25日9点10分10秒表示为20091225091010
+            data.put("time_expire", DateUtil.format(DateUtil.add(DateUtil.now(), Calendar.MINUTE, Long.valueOf(order.getExpires()).intValue()), "yyyyMMddHHmmss"));//订单失效时间，格式为yyyyMMddHHmmss，如2009年12月27日9点10分10秒表示为20091227091010
+
             data.put("sign", sign(data, config.getBargainorKey()));
 
             Response response = HttpClientUtil.doPost(urls.getUnifiedorderUrl(), new Request(new StringEntity(WebUtil.transformCoding(mapToXml(data), "utf-8", "ISO8859-1"), ContentType.TEXT_XML)));

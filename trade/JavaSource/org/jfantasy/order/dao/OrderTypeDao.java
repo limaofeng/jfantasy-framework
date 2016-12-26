@@ -16,4 +16,9 @@ public class OrderTypeDao extends HibernateDao<OrderType,String>{
         return !(orderType == null || orderTime == null) && DateUtil.interval(DateUtil.now(), orderTime, Calendar.MINUTE) >= orderType.getExpires();
     }
 
+    public long getExpires(String id, Date orderTime) {
+        OrderType orderType = this.get(id);
+        return orderType.getExpires() - DateUtil.interval(DateUtil.now(),orderTime,Calendar.MINUTE);
+    }
+
 }

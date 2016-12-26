@@ -455,6 +455,11 @@ public class Order extends BaseBusEntity {
         return orderService().isExpired(this);
     }
 
+    @Transient
+    public long getExpires() {
+        return orderService().getExpires(this);
+    }
+
     @Deprecated
     @Transient
     public String getSn() {// 临时解决方案，为了兼容以前的代码。

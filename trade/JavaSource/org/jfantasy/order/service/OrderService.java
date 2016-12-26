@@ -142,6 +142,11 @@ public class OrderService {
     }
 
     @Transactional
+    public long getExpires(Order order) {
+        return this.orderTypeDao.getExpires(order.getType(), order.getCreateTime());
+    }
+
+    @Transactional
     public String getRedirectUrl(Order order) {
         OrderType orderType = this.orderTypeDao.get(order.getType());
         return HandlebarsTemplateUtils.processTemplateIntoString(orderType.getRedirectUrl(), order);
