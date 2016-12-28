@@ -23,7 +23,7 @@ public class StringsConverter implements AttributeConverter<String[], String> {
     @Override
     public String[] convertToEntityAttribute(String dbData) {
         if (StringUtil.isBlank(dbData)) {
-            return null;
+            return new String[0];
         }
         List<String> tags = new ArrayList<>();
         for (String str : StringUtil.tokenizeToStringArray(dbData, "$")) {

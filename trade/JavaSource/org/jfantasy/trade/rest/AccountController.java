@@ -6,6 +6,7 @@ import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.jackson.annotation.IgnoreProperty;
 import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
+import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
 import org.jfantasy.framework.spring.validation.RESTful;
 import org.jfantasy.framework.util.common.DateUtil;
@@ -128,6 +129,9 @@ public class AccountController {
         Project project = this.projectService.get(form.getProject());
 
         if (ProjectType.withdraw == project.getType() || ProjectType.transfer == project.getType()) {
+            if (account.getAmount().compareTo(form.getAmount()) < 0) {
+                throw new ValidationException("账户余额不足,交易失败");
+            }
             form.setFrom(account.getSn());
         } else if (ProjectType.deposit == project.getType()) {
             form.setTo(account.getSn());
