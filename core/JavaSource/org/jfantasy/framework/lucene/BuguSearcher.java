@@ -129,7 +129,7 @@ public abstract class BuguSearcher<T> {
         try {
             TopDocs hits;
             if (pager.isOrderBySetted()) {//多重排序等HIbernateDao优化好之后再实现
-                hits = searcher.search(query, pager.getCurrentPage() * pager.getPageSize(), new Sort(new SortField(pager.getOrderBy(), getSortField(pager.getOrderBy()), Pager.SORT_DESC.equals(pager.getOrder()))));
+                hits = searcher.search(query, pager.getCurrentPage() * pager.getPageSize(), new Sort(new SortField(pager.getOrderBy(), getFieldType(pager.getOrderBy()), Pager.SORT_DESC.equals(pager.getOrder()))));
             } else {
                 hits = searcher.search(query, pager.getCurrentPage() * pager.getPageSize());
                 int index = (pager.getCurrentPage() - 1) * pager.getPageSize();
@@ -190,10 +190,10 @@ public abstract class BuguSearcher<T> {
      * @param fieldName 字段名称
      * @return int
      */
-    private int getSortField(String fieldName) {
+    private int getFieldType(String fieldName) {
         try {
             Property property = PropertysCache.getInstance().getProperty(this.entityClass, fieldName);
-            if (property.getPropertyType().isAssignableFrom(Long.class)) {
+            if (property.getPropertyType().isAssignableFrom(Long.class) || property.getPropertyType().isAssignableFrom(Date.class)) {
                 return SortField.LONG;
             } else if (property.getPropertyType().isAssignableFrom(Integer.class)) {
                 return SortField.INT;
