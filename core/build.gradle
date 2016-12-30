@@ -53,4 +53,5 @@ dependencies {
     compile "javax:javaee-api:7.0"
     testCompile "org.springframework.boot:spring-boot-starter-test:1.4.0.RELEASE"
     testCompile "junit:junit:4.9"
+    testCompile "org.wltea:IKAnalyzer:3.2.8"
 }
