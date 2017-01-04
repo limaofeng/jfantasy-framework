@@ -48,7 +48,7 @@ public class OrderController {
     private TransactionController transactionController;
 
     @JsonResultFilter(
-            ignore = @IgnoreProperty(pojo = Order.class, name = {"refunds", "orderItems", "payments"}),
+            ignore = @IgnoreProperty(pojo = Order.class, name = {"refunds", "items", "payments"}),
             allow = @AllowProperty(pojo = PayConfig.class, name = {"id", "name"})
     )
     @RequestMapping(method = RequestMethod.GET)

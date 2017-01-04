@@ -21,8 +21,8 @@ import java.util.Date;
  * @since 2013-12-5 上午9:22:59
  */
 @Entity
-@Table(name = "PAY_PAYMENT", uniqueConstraints = {@UniqueConstraint(columnNames = {"PAY_CONFIG_ID", "ORDER_ID", "PAY_STATUS"},name = "UK_PAYMENT_CONFIGID_ORDER_STATUS")})
-@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler"})
+@Table(name = "PAY_PAYMENT", uniqueConstraints = {@UniqueConstraint(columnNames = {"PAY_CONFIG_ID", "ORDER_ID", "PAY_STATUS"}, name = "UK_PAYMENT_CONFIGID_ORDER_STATUS")})
+@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "transaction"})
 public class Payment extends BaseBusEntity {
 
     private static final long serialVersionUID = 6404772131152718534L;
@@ -103,7 +103,7 @@ public class Payment extends BaseBusEntity {
      * 交易记录
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "TXN_SN", nullable = false, referencedColumnName = "SN",foreignKey = @ForeignKey(name = "FK_PAYMENT_TRANSACTION"))
+    @JoinColumn(name = "TXN_SN", nullable = false, referencedColumnName = "SN", foreignKey = @ForeignKey(name = "FK_PAYMENT_TRANSACTION"))
     private Transaction transaction;
     /**
      * 支付时间
@@ -235,6 +235,11 @@ public class Payment extends BaseBusEntity {
 
     public void setTransaction(Transaction transaction) {
         this.transaction = transaction;
+    }
+
+    @Transient
+    public String getTransactionId() {
+        return this.getTransaction() != null ? this.getTransaction().getSn() : null;
     }
 
 }

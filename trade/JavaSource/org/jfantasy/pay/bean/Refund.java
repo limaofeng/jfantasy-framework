@@ -21,7 +21,7 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "PAY_REFUND", uniqueConstraints = {@UniqueConstraint(columnNames = {"PAY_CONFIG_ID", "ORDER_ID", "PAY_STATUS"}, name = "UK_REFUND_CONFIGID_ORDER_STATUS")})
-@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler"})
+@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler","transaction"})
 public class Refund extends BaseBusEntity {
 
     private static final long serialVersionUID = -2533117666249761057L;
@@ -206,4 +206,10 @@ public class Refund extends BaseBusEntity {
     public void setTransaction(Transaction transaction) {
         this.transaction = transaction;
     }
+
+    @Transient
+    public String getTransactionId() {
+        return this.getTransaction() != null ? this.getTransaction().getSn() : null;
+    }
+
 }
