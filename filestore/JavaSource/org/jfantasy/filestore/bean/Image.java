@@ -14,25 +14,25 @@ public class Image extends FileDetail implements Comparable<Image> {
     }
 
     public Image(FileDetail fileDetail) {
-        this.setAbsolutePath(fileDetail.getAbsolutePath());
+        this.setPath(fileDetail.getPath());
         this.setContentType(fileDetail.getContentType());
         this.setDescription(fileDetail.getDescription());
         this.setExt(fileDetail.getExt());
-        this.setFileName(fileDetail.getFileName());
-        this.setFileManagerId(fileDetail.getFileManagerId());
+        this.setName(fileDetail.getName());
+        this.setNamespace(fileDetail.getNamespace());
         this.setMd5(fileDetail.getMd5());
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().appendSuper(super.hashCode()).append(this.getFileDetailKey()).toHashCode();
+        return new HashCodeBuilder().appendSuper(super.hashCode()).append(this.getPath()).toHashCode();
     }
 
     @Override
     public boolean equals(Object o) {
         if (o instanceof Image) {
             Image image = (Image) o;
-            return new EqualsBuilder().appendSuper(super.equals(o)).append(this.getFileManagerId(), image.getFileManagerId()).append(this.getAbsolutePath(), image.getAbsolutePath()).isEquals();
+            return new EqualsBuilder().appendSuper(super.equals(o)).append(this.getPath(), image.getPath()).isEquals();
         }
         return false;
     }

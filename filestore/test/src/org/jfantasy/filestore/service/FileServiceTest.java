@@ -6,7 +6,6 @@ import org.jfantasy.filestore.ApplicationTest;
 import org.jfantasy.filestore.bean.FileManagerConfig;
 import org.jfantasy.filestore.bean.Folder;
 import org.jfantasy.framework.dao.Pager;
-import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -61,7 +60,7 @@ public class FileServiceTest {
     public void tearDown() throws Exception {
         /*
         Directory directory = directoryService.get("test");
-        for(FileDetail fileDetail : fileService.findFileDetail(Restrictions.eq("fileManagerId",directory.getFileManager().getId()),Restrictions.like("folder.absolutePath",directory.getDirPath(), MatchMode.START))){
+        for(FileDetail fileDetail : fileService.findFileDetail(Restrictions.eq("fileManagerId",directory.getFileManager().getId()),Restrictions.like("folder.path",directory.getDirPath(), MatchMode.START))){
             this.fileService.delete(FileDetailKey.newInstance(fileDetail.getAbsolutePath(), fileDetail.getFileManagerId()));
         }*/
     }
@@ -147,10 +146,10 @@ public class FileServiceTest {
 
     @Test
     public void testListFolder() throws Exception {
-        Pager<FileManagerConfig> pager = fileManagerService.findPager(new Pager<FileManagerConfig>(),new ArrayList<PropertyFilter>());
+        Pager<FileManagerConfig> pager = fileManagerService.findPager(new Pager<>(),new ArrayList<>());
         FileManagerConfig config = pager.getPageItems().isEmpty() ? null : pager.getPageItems().get(0);
         assert config != null;
-        List<Folder> folders = this.fileService.listFolder("/", config.getId(), "absolutePath");
+        List<Folder> folders = this.fileService.listFolder("/", config.getId(), "path");
         LOG.debug(" result size : " + folders.size());
     }
 

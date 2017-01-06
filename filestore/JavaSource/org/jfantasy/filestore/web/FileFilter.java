@@ -67,9 +67,9 @@ public class FileFilter extends GenericFilterBean {
             chain.doFilter(request, response);
             return;
         }
-        FileManager fileManager = FileManagerFactory.getInstance().getFileManager("haolue-upload");
-        FileDetail fileDetail = FileFilter.this.fileService.getFileDetail(url, "haolue-upload");
+        FileDetail fileDetail = FileFilter.this.fileService.get(url);
         if (fileDetail != null) {
+            FileManager fileManager = FileManagerFactory.getInstance().getFileManager(fileDetail.getNamespace());
             FileItem fileItem = fileManager.getFileItem(fileDetail.getRealPath());
             if (fileItem != null) {
                 writeFile(request, response, fileItem);
@@ -78,12 +78,13 @@ public class FileFilter extends GenericFilterBean {
         }
         if (RegexpUtil.find(url, regex)) {
             final String srcUrl = RegexpUtil.replace(url, regex, ".$3");
-            FileDetail srcFileDetail = FileFilter.this.fileService.getFileDetail(srcUrl, "haolue-upload");
+            FileDetail srcFileDetail = FileFilter.this.fileService.get(srcUrl);
             if (srcFileDetail == null) {
                 chain.doFilter(request, response);
                 return;
             }
             // 查找源文件
+            FileManager fileManager = FileManagerFactory.getInstance().getFileManager(srcFileDetail.getNamespace());
             FileItem fileItem = fileManager.getFileItem(srcFileDetail.getRealPath());
             if (fileItem == null) {
                 chain.doFilter(request, response);

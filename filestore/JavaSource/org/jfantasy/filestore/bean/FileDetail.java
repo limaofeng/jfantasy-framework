@@ -14,9 +14,8 @@ import javax.persistence.*;
  * @author 软件
  */
 @Entity
-@IdClass(FileDetailKey.class)
 @Table(name = "FILE_FILEDETAIL")
-@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "folder", "real_path", "file_manager_id", "md5"})
+@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "folder", "real_path", "namespace", "md5"})
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class FileDetail extends BaseBusEntity implements Cloneable {
 
@@ -25,17 +24,18 @@ public class FileDetail extends BaseBusEntity implements Cloneable {
     /**
      * 虚拟文件路径
      */
-    @JsonProperty("path")
     @Id
-    private String absolutePath;
-    @Id
-    private String fileManagerId;
+    @Column(name = "ABSOLUTE_PATH", nullable = false, updatable = false, length = 250)
+    private String path;
+
+    @Column(name = "FILE_MANAGER_CONFIG_ID", nullable = false, updatable = false, length = 50)
+    private String namespace;
     /**
      * 文件名称
      */
     @JsonProperty("name")
     @Column(name = "FILE_NAME", length = 150)
-    private String fileName;
+    private String name;
     /**
      * 文件后缀名
      */
@@ -73,16 +73,13 @@ public class FileDetail extends BaseBusEntity implements Cloneable {
     @JoinColumns(value = {@JoinColumn(name = "FOLDER_PATH", referencedColumnName = "ABSOLUTE_PATH"), @JoinColumn(name = "FOLDER_MANAGER_CONFIG_ID", referencedColumnName = "FILE_MANAGER_CONFIG_ID")})
     private Folder folder;
 
-    public FileDetail() {
-    }
-
     /**
      * 设置 文件路径(文件系统中的路径，非虚拟路径)
      *
-     * @param absolutePath 文件路径
+     * @param path 文件路径
      */
-    public void setAbsolutePath(String absolutePath) {
-        this.absolutePath = absolutePath;
+    public void setPath(String path) {
+        this.path = path;
     }
 
     /**
@@ -90,17 +87,17 @@ public class FileDetail extends BaseBusEntity implements Cloneable {
      *
      * @return java.lang.String
      */
-    public String getAbsolutePath() {
-        return this.absolutePath;
+    public String getPath() {
+        return this.path;
     }
 
     /**
      * 设置 文件名称
      *
-     * @param fileName 文件名
+     * @param name 文件名
      */
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -108,8 +105,8 @@ public class FileDetail extends BaseBusEntity implements Cloneable {
      *
      * @return java.lang.String
      */
-    public String getFileName() {
-        return this.fileName;
+    public String getName() {
+        return this.name;
     }
 
     /**
@@ -200,12 +197,12 @@ public class FileDetail extends BaseBusEntity implements Cloneable {
         this.realPath = realPath;
     }
 
-    public String getFileManagerId() {
-        return fileManagerId;
+    public String getNamespace() {
+        return namespace;
     }
 
-    public void setFileManagerId(String fileManagerId) {
-        this.fileManagerId = fileManagerId;
+    public void setNamespace(String namespace) {
+        this.namespace = namespace;
     }
 
     public String getExt() {
@@ -217,9 +214,8 @@ public class FileDetail extends BaseBusEntity implements Cloneable {
     }
 
     @Transient
-    @JsonProperty("key")
-    public String getFileDetailKey() {
-        return FileDetailKey.newInstance(this.absolutePath, this.fileManagerId).toString();
+    public String getKey() {
+        return this.namespace + ":" + this.path;
     }
 
     @Override
@@ -230,16 +226,16 @@ public class FileDetail extends BaseBusEntity implements Cloneable {
     @Override
     public String toString() {
         return "FileDetail{" +
-                "absolutePath='" + absolutePath + '\'' +
-                ", fileManagerId='" + fileManagerId + '\'' +
-                ", fileName='" + fileName + '\'' +
+                "path='" + path + '\'' +
+                ", namespace='" + namespace + '\'' +
+                ", name='" + name + '\'' +
                 ", ext='" + ext + '\'' +
                 ", contentType='" + contentType + '\'' +
                 ", description='" + description + '\'' +
                 ", size=" + size +
                 ", md5='" + md5 + '\'' +
                 ", realPath='" + realPath + '\'' +
-                ", folder=" + folder +
                 '}';
     }
+
 }

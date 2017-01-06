@@ -27,7 +27,7 @@ public class ImagesDeserializer extends JsonDeserializer<Image[]> {
         List<Image> images = new ArrayList<>();
         for (String value : StringUtil.tokenizeToStringArray(values)) {
             String[] arry = value.split(":");
-            FileDetail fileDetail = getFileService().getFileDetail(arry[1], arry[0]);
+            FileDetail fileDetail = getFileService().get(arry[0]);
             if (fileDetail == null) {
                 continue;
             }

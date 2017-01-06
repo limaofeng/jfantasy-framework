@@ -5,7 +5,6 @@ import org.jfantasy.filestore.FileItemFilter;
 import org.jfantasy.filestore.FileItemSelector;
 import org.jfantasy.filestore.FileManager;
 import org.jfantasy.filestore.bean.FileDetail;
-import org.jfantasy.filestore.bean.FileDetailKey;
 import org.jfantasy.filestore.bean.FileManagerConfig;
 import org.jfantasy.filestore.bean.Folder;
 import org.jfantasy.filestore.service.FilePartService;
@@ -88,7 +87,7 @@ public class UploadFileManager implements FileManager {
     }
 
     private String getRealPath(String remotePath) {
-        FileDetail fileDetail = this.fileService.getFileDetail(remotePath, this.config.getId());
+        FileDetail fileDetail = this.fileService.get(remotePath);
         if (fileDetail == null) {
             return "";
         }
@@ -101,7 +100,7 @@ public class UploadFileManager implements FileManager {
 
     @SuppressWarnings("unchecked")
     public List<FileItem> listFiles(String remotePath) {
-        FileDetail fileDetail = this.fileService.getFileDetail(remotePath, this.config.getId());
+        FileDetail fileDetail = this.fileService.get(remotePath);
         FileItem fileItem = retrieveFileItem(remotePath, fileDetail == null);
         return fileItem == null ? Collections.EMPTY_LIST : fileItem.listFileItems();
     }
@@ -114,7 +113,7 @@ public class UploadFileManager implements FileManager {
             }
             return new UploadFileItem(folder, this);
         } else {
-            FileDetail fileDetail = this.fileService.getFileDetail(absolutePath, this.config.getId());
+            FileDetail fileDetail = this.fileService.get(absolutePath);
             if (fileDetail == null) {
                 return null;
             }
@@ -141,7 +140,7 @@ public class UploadFileManager implements FileManager {
 
         public List<FileItem> listFileItems(FileItemSelector selector) {
             if (!this.isDirectory()) {
-                return new ArrayList<FileItem>();
+                return new ArrayList<>();
             }
             return FileItem.Util.flat(this.listFileItems(), selector);
         }
@@ -169,10 +168,10 @@ public class UploadFileManager implements FileManager {
             if (!this.isDirectory()) {
                 return fileItems;
             }
-            for (Folder folder : uploadFileManager.fileService.listFolder(this.folder.getAbsolutePath(), this.folder.getFileManagerId(), "name")) {
+            for (Folder folder : uploadFileManager.fileService.listFolder(this.folder.getPath(), this.folder.getNamespace(), "name")) {
                 fileItems.add(new UploadFileItem(folder, uploadFileManager));
             }
-            for (FileDetail folder : uploadFileManager.fileService.listFileDetail(this.folder.getAbsolutePath(), this.folder.getFileManagerId(), "fileName")) {
+            for (FileDetail folder : uploadFileManager.fileService.listFileDetail(this.folder.getPath(), this.folder.getNamespace(), "fileName")) {
                 fileItems.add(new UploadFileItem(folder, uploadFileManager));
             }
             return fileItems;
@@ -192,9 +191,9 @@ public class UploadFileManager implements FileManager {
 
         public FileItem getParentFileItem() {
             if (this.isDirectory()) {
-                return uploadFileManager.retrieveFileItem(this.folder.getParentFolder().getAbsolutePath(), true);
+                return uploadFileManager.retrieveFileItem(this.folder.getParentFolder().getPath(), true);
             } else {
-                return uploadFileManager.retrieveFileItem(this.fileDetail.getFolder().getAbsolutePath(), true);
+                return uploadFileManager.retrieveFileItem(this.fileDetail.getFolder().getPath(), true);
             }
         }
 
@@ -202,7 +201,7 @@ public class UploadFileManager implements FileManager {
             if (this.isDirectory()) {
                 return folder.getName();
             } else {
-                return fileDetail.getFileName();
+                return fileDetail.getPath();
             }
         }
 
@@ -211,7 +210,7 @@ public class UploadFileManager implements FileManager {
         }
 
         public String getAbsolutePath() {
-            return this.isDirectory() ? this.folder.getAbsolutePath() : this.fileDetail.getAbsolutePath();
+            return this.isDirectory() ? this.folder.getPath() : this.fileDetail.getPath();
         }
 
         public InputStream getInputStream() throws IOException {
@@ -244,12 +243,12 @@ public class UploadFileManager implements FileManager {
     }
 
     public void removeFile(String remotePath) {
-        FileDetail detail = fileService.get(new FileDetailKey(remotePath, this.getConfig().getId()));
+        FileDetail detail = fileService.get(remotePath);
         if (detail == null){
             return;
         }
-        fileService.delete(FileDetailKey.newInstance(detail.getAbsolutePath(), detail.getFileManagerId()));
-        filePartService.delete(FileDetailKey.newInstance(detail.getAbsolutePath(), detail.getFileManagerId()));
+        fileService.delete(detail.getPath());
+        filePartService.delete(detail.getPath());
         FileDetail other = fileService.findUniqueByMd5(detail.getMd5(), this.getConfig().getId());
         if (other == null) {
             getSource().removeFile(detail.getRealPath());

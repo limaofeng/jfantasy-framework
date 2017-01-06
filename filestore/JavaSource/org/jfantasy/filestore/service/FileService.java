@@ -34,9 +34,9 @@ public class FileService {
 
     public FileDetail saveFileDetail(String absolutePath, String fileName, String contentType, long length, String md5, String realPath, String fileManagerId, String description) {
         FileDetail fileDetail = new FileDetail();
-        fileDetail.setAbsolutePath(absolutePath);
-        fileDetail.setFileManagerId(fileManagerId);
-        fileDetail.setFileName(fileName);
+        fileDetail.setPath(absolutePath);
+        fileDetail.setNamespace(fileManagerId);
+        fileDetail.setName(fileName);
         fileDetail.setExt(WebUtil.getExtension(fileName));
         fileDetail.setContentType(contentType);
         fileDetail.setSize(length);
@@ -49,8 +49,8 @@ public class FileService {
     }
 
     public FileDetail update(FileDetail detail) {
-        FileDetail fileDetail = this.getFileDetail(detail.getAbsolutePath(),detail.getFileManagerId());
-        fileDetail.setFileName(detail.getFileName());
+        FileDetail fileDetail = this.get(detail.getPath());
+        fileDetail.setName(detail.getName());
         fileDetail.setDescription(detail.getDescription());
         this.fileDetailDao.save(fileDetail);
         return fileDetail;
@@ -60,23 +60,23 @@ public class FileService {
         return this.folderDao.get(new FolderKey(absolutePath, managerId));
     }
 
-    public void delete(FileDetailKey key) {
-        this.fileDetailDao.delete(key);
+    public void delete(String path) {
+        this.fileDetailDao.delete(path);
     }
 
     /**
      * 获取 Folder 对象
      *
-     * @param absolutePath 路径
+     * @param path 路径
      * @return {Folder}
      */
-    public Folder createFolder(String absolutePath, String managerId) {
-        Folder folder = this.folderDao.get(new FolderKey(absolutePath, managerId));
+    public Folder createFolder(String path, String namespace) {
+        Folder folder = this.folderDao.get(new FolderKey(path, namespace));
         if (ObjectUtil.isNull(folder)) {
-            if ("/".equals(absolutePath)) {
-                folder = createRootFolder(absolutePath, managerId);
+            if ("/".equals(path)) {
+                folder = createRootFolder(path, namespace);
             } else {
-                folder = createFolder(absolutePath, createFolder(absolutePath.replaceFirst("[^\\/]+\\/$", ""), managerId), managerId);
+                folder = createFolder(path, createFolder(path.replaceFirst("[^\\/]+\\/$", ""), namespace), namespace);
             }
         }
         return folder;
@@ -91,14 +91,14 @@ public class FileService {
         return this.fileDetailDao.findUnique(Restrictions.eq("fileManagerId", managerId), Restrictions.eq("absolutePath", absolutePath), Restrictions.eq("md5", md5));
     }
 
-    public FileDetail get(FileDetailKey key) {
-        return this.fileDetailDao.get(key);
+    public FileDetail get(String path) {
+        return this.fileDetailDao.get(path);
     }
 
     private Folder createRootFolder(String absolutePath, String managerId) {
         Folder folder = new Folder();
-        folder.setAbsolutePath(absolutePath);
-        folder.setFileManagerId(managerId);
+        folder.setPath(absolutePath);
+        folder.setNamespace(managerId);
         folder.setName(RegexpUtil.parseGroup(absolutePath, "([^/]+)\\/$", 1));
         this.folderDao.save(folder);
         return folder;
@@ -114,18 +114,14 @@ public class FileService {
      */
     private Folder createFolder(String absolutePath, Folder parent, String managerId) {
         Folder folder = new Folder();
-        folder.setAbsolutePath(absolutePath);
-        folder.setFileManagerId(managerId);
+        folder.setPath(absolutePath);
+        folder.setNamespace(managerId);
         folder.setName(RegexpUtil.parseGroup(absolutePath, "([^/]+)\\/$", 1));
         if (ObjectUtil.isNotNull(parent)) {
             folder.setParentFolder(parent);
         }
         this.folderDao.save(folder);
         return folder;
-    }
-
-    public FileDetail getFileDetail(String absolutePath, String fileManagerId) {
-        return this.fileDetailDao.findUnique(Restrictions.eq("absolutePath",absolutePath), Restrictions.eq("fileManagerId",fileManagerId));
     }
 
     public List<FileDetail> findFileDetail(Criterion... criterions){
@@ -136,18 +132,18 @@ public class FileService {
         return this.fileDetailDao.findPager(pager, filters);
     }
 
-    public List<Folder> listFolder(String path, String fileManagerId, String orderBy) {
-        return this.folderDao.find(new Criterion[]{Restrictions.eq("parentFolder.absolutePath", path), Restrictions.eq("parentFolder.fileManagerId", fileManagerId)}, orderBy, "asc");
+    public List<Folder> listFolder(String path, String namespace, String orderBy) {
+        return this.folderDao.find(new Criterion[]{Restrictions.eq("parentFolder.path", path), Restrictions.eq("parentFolder.namespace", namespace)}, orderBy, "asc");
     }
 
     @Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
     public List<FileDetail> listFileDetail(String path, String fileManagerId, String orderBy) {
-        return this.fileDetailDao.find(new Criterion[]{Restrictions.eq("folder.absolutePath", path), Restrictions.eq("folder.fileManagerId", fileManagerId)}, orderBy, "asc");
+        return this.fileDetailDao.find(new Criterion[]{Restrictions.eq("folder.path", path), Restrictions.eq("folder.namespace", fileManagerId)}, orderBy, "asc");
     }
 
     @Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
     public FileDetail getFileDetailByMd5(String md5, String fileManagerId) {
-        List<FileDetail> fileDetails = this.fileDetailDao.find(new Criterion[]{Restrictions.eq("md5", md5), Restrictions.eq("fileManagerId", fileManagerId)}, 0, 1);
+        List<FileDetail> fileDetails = this.fileDetailDao.find(new Criterion[]{Restrictions.eq("md5", md5), Restrictions.eq("namespace", fileManagerId)}, 0, 1);
         if (fileDetails.isEmpty()) {
             return null;
         }
@@ -203,7 +199,7 @@ public class FileService {
             absolutePath = RegexpUtil.replace(absolutePath, "([/][^/]{1,})([.][^./]{1,})$", "$1");
         }
         //可能有效率问题
-        List<FileDetail> details = this.fileDetailDao.find(new Criterion[]{Restrictions.like("absolutePath", absolutePath, MatchMode.START), Restrictions.eq("fileManagerId", fileManagerId)}, "absolutePath", "asc");
+        List<FileDetail> details = this.fileDetailDao.find(new Criterion[]{Restrictions.like("absolutePath", absolutePath, MatchMode.START), Restrictions.eq("namespace", fileManagerId)}, "absolutePath", "asc");
         if (details.isEmpty() || ObjectUtil.find(details, "absolutePath", absolutePath + "." + ext) == null) {
             return absolutePath + "." + ext;
         }

@@ -22,7 +22,7 @@ public class ImageDeserializer extends JsonDeserializer<Image> {
             return null;
         }
         String[] arry = value.split(":");
-        return new Image(getFileService().getFileDetail(arry[1], arry[0]));
+        return new Image(getFileService().get(arry[0]));
     }
 
     private static FileService getFileService() {

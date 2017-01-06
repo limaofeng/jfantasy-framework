@@ -1,4 +1,4 @@
-package org.jfantasy.aliyun.oss;
+package org.jfantasy.filestore.builders;
 
 
 import org.jfantasy.filestore.FileManagerBuilder;

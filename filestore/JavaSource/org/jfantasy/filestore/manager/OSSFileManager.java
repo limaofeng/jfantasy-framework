@@ -1,4 +1,4 @@
-package org.jfantasy.aliyun.oss;
+package org.jfantasy.filestore.manager;
 
 import com.aliyun.oss.OSSClient;
 import com.aliyun.oss.model.ListObjectsRequest;

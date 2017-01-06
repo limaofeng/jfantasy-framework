@@ -24,10 +24,10 @@ public class Folder extends BaseBusEntity {
     private static final long serialVersionUID = -1415999483740197039L;
 
     @Id
-    private String absolutePath;
+    private String path;
 
     @Id
-    private String fileManagerId;
+    private String namespace;
 
     /**
      * 同一目录下不允许重名
@@ -186,8 +186,8 @@ public class Folder extends BaseBusEntity {
     }
 
     public synchronized Folder getParentFolder() {
-        if (this.parentFolder == null && !"/".equals(this.absolutePath)) {
-            this.parentFolder = SpringContextUtil.getBeanByType(FileService.class).createFolder(this.getAbsolutePath().replaceFirst("[^/]+/$", ""), this.getFileManagerId());
+        if (this.parentFolder == null && !"/".equals(this.path)) {
+            this.parentFolder = SpringContextUtil.getBeanByType(FileService.class).createFolder(this.getPath().replaceFirst("[^/]+/$", ""), this.getNamespace());
         }
         return parentFolder;
     }
@@ -212,20 +212,20 @@ public class Folder extends BaseBusEntity {
         this.fileDetails = fileDetails;
     }
 
-    public String getFileManagerId() {
-        return fileManagerId;
+    public String getNamespace() {
+        return namespace;
     }
 
-    public void setFileManagerId(String fileManagerId) {
-        this.fileManagerId = fileManagerId;
+    public void setNamespace(String namespace) {
+        this.namespace = namespace;
     }
 
-    public String getAbsolutePath() {
-        return absolutePath;
+    public String getPath() {
+        return path;
     }
 
-    public void setAbsolutePath(String absolutePath) {
-        this.absolutePath = absolutePath;
+    public void setPath(String path) {
+        this.path = path;
     }
 
 }

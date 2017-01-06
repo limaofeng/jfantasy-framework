@@ -1,6 +1,5 @@
 package org.jfantasy.filestore.service;
 
-import org.jfantasy.filestore.bean.FileDetailKey;
 import org.jfantasy.filestore.bean.FilePart;
 import org.jfantasy.filestore.dao.FilePartDao;
 import org.hibernate.criterion.Criterion;
@@ -15,16 +14,20 @@ import java.util.List;
 @Transactional
 public class FilePartService {
 
-    @Autowired
-    private FilePartDao filePartDao;
+    private final FilePartDao filePartDao;
 
-    public void save(FileDetailKey key, String entireFileHash, String partFileHash, Integer total, Integer index) {
+    @Autowired
+    public FilePartService(FilePartDao filePartDao) {
+        this.filePartDao = filePartDao;
+    }
+
+    public void save(String path,String namespace, String entireFileHash, String partFileHash, Integer total, Integer index) {
         if (this.findByPartFileHash(entireFileHash, partFileHash) != null) {
             return;
         }
         FilePart part = new FilePart();
-        part.setAbsolutePath(key.getAbsolutePath());
-        part.setFileManagerId(key.getFileManagerId());
+        part.setPath(path);
+        part.setNamespace(namespace);
         part.setEntireFileHash(entireFileHash);
         part.setPartFileHash(partFileHash);
         part.setTotal(total);
@@ -32,8 +35,8 @@ public class FilePartService {
         this.filePartDao.save(part);
     }
 
-    public void delete(FileDetailKey key) {
-        this.filePartDao.delete(key);
+    public void delete(String path) {
+        this.filePartDao.delete(path);
     }
 
     public List<FilePart> find(String entireFileHash) {

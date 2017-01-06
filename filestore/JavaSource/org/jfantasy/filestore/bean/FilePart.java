@@ -8,16 +8,17 @@ import javax.persistence.*;
 
 
 @Entity
-@IdClass(FileDetailKey.class)
 @Table(name = "FILE_FILEPART", uniqueConstraints = {@UniqueConstraint(columnNames = {"ENTIRE_FILE_HASH", "PART_FILE_HASH"})})
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @JsonIgnoreProperties({"hibernate_lazy_initializer", "handler"})
 public class FilePart extends BaseBusEntity {
 
     @Id
-    private String absolutePath;
-    @Id
-    private String fileManagerId;
+    @Column(name = "ABSOLUTE_PATH", nullable = false, updatable = false, length = 250)
+    private String path;
+
+    @Column(name = "FILE_MANAGER_CONFIG_ID", nullable = false, updatable = false, length = 50)
+    private String namespace;
     /**
      * 完整文件的hash值
      */
@@ -39,21 +40,20 @@ public class FilePart extends BaseBusEntity {
     @Column(name = "PAER_INDEX")
     private Integer index;
 
-
-    public String getFileManagerId() {
-        return fileManagerId;
+    public String getPath() {
+        return path;
     }
 
-    public void setFileManagerId(String fileManagerId) {
-        this.fileManagerId = fileManagerId;
+    public void setPath(String path) {
+        this.path = path;
     }
 
-    public String getAbsolutePath() {
-        return absolutePath;
+    public String getNamespace() {
+        return namespace;
     }
 
-    public void setAbsolutePath(String absolutePath) {
-        this.absolutePath = absolutePath;
+    public void setNamespace(String namespace) {
+        this.namespace = namespace;
     }
 
     public String getEntireFileHash() {

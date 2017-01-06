@@ -2,7 +2,6 @@ package org.jfantasy.filestore.rest;
 
 
 import org.jfantasy.filestore.bean.FileDetail;
-import org.jfantasy.filestore.bean.FileDetailKey;
 import org.jfantasy.filestore.bean.FilePart;
 import org.jfantasy.filestore.service.FilePartService;
 import org.jfantasy.filestore.service.FileService;
@@ -12,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -23,12 +21,16 @@ import java.util.Map;
 @RequestMapping("/files")
 public class FileController {
 
+    private final FileService fileService;
+    private final FileUploadService fileUploadService;
+    private final FilePartService filePartService;
+
     @Autowired
-    private transient FileService fileService;
-    @Autowired
-    private transient FileUploadService fileUploadService;
-    @Autowired
-    private transient FilePartService filePartService;
+    public FileController(FileService fileService, FileUploadService fileUploadService, FilePartService filePartService) {
+        this.fileService = fileService;
+        this.fileUploadService = fileUploadService;
+        this.filePartService = filePartService;
+    }
 
     /**
      * 上传文件<br/>
@@ -59,10 +61,10 @@ public class FileController {
     @ResponseBody
     public Map<String, Object> pass(@PathVariable("hash") String hash) {
         List<FilePart> parts = filePartService.find(hash);
-        Map<String, Object> data = new HashMap<String, Object>();
+        Map<String, Object> data = new HashMap<>();
         FilePart part = ObjectUtil.remove(parts, "index", 0);
         if (part != null) {
-            data.put("fileDetail", fileService.get(FileDetailKey.newInstance(part.getAbsolutePath(), part.getFileManagerId())));
+            data.put("fileDetail", fileService.get(part.getPath()));
         }
         data.put("parts", parts);
         return data;
@@ -71,8 +73,8 @@ public class FileController {
     /** 查询文件信息 **/
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    public FileDetail view(HttpServletRequest request,@RequestParam("key") String key) {
-        return fileService.get(FileDetailKey.newInstance(key));
+    public FileDetail view(@RequestParam("key") String path) {
+        return fileService.get(path);
     }
 
 }

@@ -1,57 +1,56 @@
 package org.jfantasy.filestore.bean;
 
-import java.io.Serializable;
-
-import javax.persistence.Column;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+
+import javax.persistence.Column;
+import java.io.Serializable;
 
 public class FolderKey implements Serializable {
 
 	private static final long serialVersionUID = 6090047858630400968L;
 
 	@Column(name = "ABSOLUTE_PATH", nullable = false, insertable = true, updatable = false,length = 250)
-	private String absolutePath;
+	private String path;
 
 	@Column(name = "FILE_MANAGER_CONFIG_ID", nullable = false, insertable = true, updatable = false,length = 50)
-	private String fileManagerId;
+	private String namespace;
 
 	public FolderKey() {
 	}
 
-	public FolderKey(String absolutePath, String fileManagerId) {
+	public FolderKey(String path, String namespace) {
 		super();
-		this.absolutePath = absolutePath;
-		this.fileManagerId = fileManagerId;
+		this.path = path;
+		this.namespace = namespace;
 	}
 
-	public String getFileManagerId() {
-		return fileManagerId;
+	public String getPath() {
+		return path;
 	}
 
-	public void setFileManagerId(String fileManagerId) {
-		this.fileManagerId = fileManagerId;
+	public void setPath(String path) {
+		this.path = path;
 	}
 
-	public String getAbsolutePath() {
-		return absolutePath;
+	public String getNamespace() {
+		return namespace;
 	}
 
-	public void setAbsolutePath(String absolutePath) {
-		this.absolutePath = absolutePath;
+	public void setNamespace(String namespace) {
+		this.namespace = namespace;
 	}
 
 	@Override
 	public int hashCode() {
-		return new HashCodeBuilder().appendSuper(super.hashCode()).append(this.getFileManagerId()).append(this.getAbsolutePath()).toHashCode();
+		return new HashCodeBuilder().appendSuper(super.hashCode()).append(this.getNamespace()).append(this.getPath()).toHashCode();
 	}
 
 	@Override
 	public boolean equals(Object o) {
 		if (o instanceof FolderKey) {
 			FolderKey key = (FolderKey) o;
-			return new EqualsBuilder().appendSuper(super.equals(o)).append(this.getFileManagerId(), key.getFileManagerId()).append(this.getAbsolutePath(), key.getAbsolutePath()).isEquals();
+			return new EqualsBuilder().appendSuper(super.equals(o)).append(this.getNamespace(), key.getNamespace()).append(this.getPath(), key.getPath()).isEquals();
 		}
 		return false;
 	}
