@@ -52,7 +52,7 @@ public class TransactionService {
      *
      * @return account
      */
-    private Account platform() {
+    public Account platform() {
         return this.accountDao.findUnique(Restrictions.eq("type", AccountType.platform));
     }
 

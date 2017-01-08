@@ -35,7 +35,7 @@ import java.util.*;
 @Entity
 @Table(name = "PAY_ORDER", uniqueConstraints = @UniqueConstraint(name = "UK_ORDER_TARGET", columnNames = {"TARGET_TYPE", "TARGET_ID"}))
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "ship_area", "memeo", "shippings", "details_type", "details_id", "expired", "payment_transaction", "refund_transaction", "redirect_url"})
+@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "ship_area", "memeo", "shippings", "details_type", "details_id", "expired", "payment_transaction", "refund_transaction", "redirect_url", "surplus"})
 public class Order extends BaseBusEntity {
 
     private static final long serialVersionUID = -8541323033439515148L;
@@ -135,6 +135,11 @@ public class Order extends BaseBusEntity {
     @ManyToOne
     @JoinColumn(name = "REFUND_TRANSACTION_ID", foreignKey = @ForeignKey(name = "FK_ORDER_REFUNDTRANSACTION"))
     private Transaction refundTransaction;//退款交易
+    /**
+     * 剩余金额
+     */
+    @Transient
+    private BigDecimal surplus;
 
     public Order() {
     }
@@ -509,6 +514,22 @@ public class Order extends BaseBusEntity {
 
     public void setRefundTransaction(Transaction refundTransaction) {
         this.refundTransaction = refundTransaction;
+    }
+
+    @Transient
+    public BigDecimal getSurplus() {
+        if (surplus == null) {
+            surplus = this.getTotalAmount();
+        }
+        return surplus;
+    }
+
+    public void setSurplus(BigDecimal surplus) {
+        this.surplus = surplus;
+    }
+
+    public void subtract(BigDecimal amount) {
+        this.surplus = getSurplus().subtract(amount);
     }
 
 }

@@ -4,6 +4,7 @@ import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.spring.validation.RESTful;
 import org.jfantasy.framework.util.web.WebUtil;
+import org.jfantasy.order.bean.OrderCashFlow;
 import org.jfantasy.order.bean.OrderType;
 import org.jfantasy.order.service.OrderTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,12 +20,23 @@ import java.util.List;
 @RequestMapping("/order-types")
 public class OrderTypeController {
 
-    private OrderTypeService orderTypeService;
+    private final OrderTypeService orderTypeService;
+
+    @Autowired
+    public OrderTypeController(OrderTypeService orderTypeService) {
+        this.orderTypeService = orderTypeService;
+    }
 
     @GetMapping
     @ResponseBody
     public Pager<OrderType> search(Pager<OrderType> pager, List<PropertyFilter> filters) {
         return orderTypeService.findPager(pager, filters);
+    }
+
+    @GetMapping("/{id}")
+    @ResponseBody
+    public OrderType view(@PathVariable("id") String id) {
+        return orderTypeService.get(id);
     }
 
     @PostMapping
@@ -47,9 +59,23 @@ public class OrderTypeController {
         this.orderTypeService.delete(id);
     }
 
-    @Autowired
-    public void setOrderTypeService(OrderTypeService orderTypeService) {
-        this.orderTypeService = orderTypeService;
+    @GetMapping("/{id}/cashflows")
+    @ResponseBody
+    public List<OrderCashFlow> cashflows(@PathVariable("id") String id) {
+        return orderTypeService.cashflows(id);
+    }
+
+    @PostMapping("/{id}/cashflows")
+    @ResponseBody
+    public OrderCashFlow cashflows(@PathVariable("id") String id, OrderCashFlow cashFlow) {
+        cashFlow.setOrderType(this.orderTypeService.get(id));
+        return orderTypeService.save(cashFlow);
+    }
+
+    @DeleteMapping("/{id}/cashflows/{fid}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void cashflows(@PathVariable("id") String id, @PathVariable("fid") String fid) {
+        orderTypeService.delete(id, fid);
     }
 
 }
