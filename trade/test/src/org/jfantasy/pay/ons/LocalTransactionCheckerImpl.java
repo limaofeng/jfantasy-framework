@@ -7,7 +7,7 @@ import com.aliyun.openservices.ons.api.transaction.TransactionStatus;
 import org.slf4j.Logger;
 
 public class LocalTransactionCheckerImpl implements LocalTransactionChecker {
-    private final static Logger log = ClientLogger.getLog();
+    private static final Logger log = ClientLogger.getLog();
     final  BusinessService businessService = new BusinessService();
 
     @Override

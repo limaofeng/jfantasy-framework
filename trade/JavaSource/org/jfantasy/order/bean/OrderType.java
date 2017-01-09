@@ -44,6 +44,11 @@ public class OrderType extends BaseBusEntity {
     @Column(name = "ENABLED", nullable = false)
     private Boolean enabled;
     /**
+     * 是否允许退款
+    @Column(name = "ENABLED", nullable = false)
+    private Boolean refundable;
+     */
+    /**
      * 摘要模版
      */
     @Column(name = "SUBJECT_TEMPLATE", nullable = false, length = 100)

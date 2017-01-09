@@ -17,7 +17,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @SpringApplicationConfiguration(ApplicationTest.class)
 public class HibernateLuceneDaoTest {
 
-    private final static Log LOG = LogFactory.getLog(HibernateLuceneDaoTest.class);
+    private static final Log LOG = LogFactory.getLog(HibernateLuceneDaoTest.class);
 
     private LuceneDao dao;
 

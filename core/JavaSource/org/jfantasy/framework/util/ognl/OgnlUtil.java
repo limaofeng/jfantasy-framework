@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class OgnlUtil {
 
-    private final static Log LOGGER = LogFactory.getLog(OgnlUtil.class);
+    private static final Log LOGGER = LogFactory.getLog(OgnlUtil.class);
 
     private static ConcurrentHashMap<String, OgnlUtil> ognlUtilCache = new ConcurrentHashMap<String, OgnlUtil>();
     private ConcurrentHashMap<String, Object> expressions = new ConcurrentHashMap<String, Object>();

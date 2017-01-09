@@ -10,7 +10,7 @@ import org.springframework.expression.Expression;
 
 public class SpELUtilTest {
 
-    private final static Log LOG = LogFactory.getLog(SpELUtilTest.class);
+    private static final Log LOG = LogFactory.getLog(SpELUtilTest.class);
 
     @Test
     public void testCreateEvaluationContext() throws Exception {

@@ -15,7 +15,7 @@ import org.springframework.util.ObjectUtils;
 
 public abstract class AbstractFallbackLogOperationSource implements LogOperationSource {
 
-	private final static Collection<LogOperation> NULL_ATTRIBUTE = Collections.emptyList();
+	private static final Collection<LogOperation> NULL_ATTRIBUTE = Collections.emptyList();
 
 	protected final Log LOGGER = LogFactory.getLog(getClass());
 

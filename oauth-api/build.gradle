@@ -2,9 +2,9 @@
 description = ' 授权API '
 
 dependencies {
-    optional "org.springframework.boot:spring-boot-configuration-processor:1.4.0.RELEASE"
-    compile 'org.springframework.boot:spring-boot-starter-security:1.4.0.RELEASE'
+    optional "org.springframework.boot:spring-boot-configuration-processor:${springBootVersion}"
+    compile "org.springframework.boot:spring-boot-starter-security:${springBootVersion}"
     compile project(':jfantasy-core')
     compile project(':jfantasy-cache')
-    testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '1.4.0.RELEASE'
+    testCompile "org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
 }

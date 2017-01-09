@@ -272,7 +272,7 @@ public class ObjectUtilTest {
 
     }
 
-    private final static Log LOG = LogFactory.getLog(ObjectUtilTest.class);
+    private static final Log LOG = LogFactory.getLog(ObjectUtilTest.class);
 
     @Before
     public void setUp() throws Exception {

@@ -21,7 +21,7 @@ import java.util.List;
 @SpringApplicationConfiguration(ApplicationTest.class)
 public class FileServiceTest {
 
-    private final static Log LOG = LogFactory.getLog(FileServiceTest.class);
+    private static final Log LOG = LogFactory.getLog(FileServiceTest.class);
 
     @Autowired
     private FileService fileService;

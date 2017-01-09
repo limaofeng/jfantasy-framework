@@ -9,9 +9,9 @@ public class CglibUtil {
     private CglibUtil() {
     }
 
-    private final static ConcurrentHashMap<String, MethodInterceptor> defaultInterceptors = new ConcurrentHashMap<String, MethodInterceptor>();
+    private static final ConcurrentHashMap<String, MethodInterceptor> defaultInterceptors = new ConcurrentHashMap<String, MethodInterceptor>();
 
-    private final static ConcurrentHashMap<Class<?>, Enhancer> enhancerCache = new ConcurrentHashMap<Class<?>, Enhancer>();
+    private static final ConcurrentHashMap<Class<?>, Enhancer> enhancerCache = new ConcurrentHashMap<Class<?>, Enhancer>();
 
     @SuppressWarnings("unchecked")
     public static <T> T newInstance(Class<T> classType, MethodInterceptor interceptor) {

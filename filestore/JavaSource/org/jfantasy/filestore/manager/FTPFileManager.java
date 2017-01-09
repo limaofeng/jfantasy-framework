@@ -20,7 +20,7 @@ import java.util.List;
 
 public class FTPFileManager implements FileManager {
 
-    private final static Log LOGGER = LogFactory.getLog(FTPFileManager.class);
+    private static final Log LOGGER = LogFactory.getLog(FTPFileManager.class);
 
     private FTPService ftpService;
 

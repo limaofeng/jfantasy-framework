@@ -20,7 +20,7 @@ public class FantasyClassLoader extends ClassLoader {
 
     private Lock lock = new ReentrantLock();
 
-    private final static FantasyClassLoader fantasyClassLoader = AccessController.doPrivileged(new PrivilegedAction<FantasyClassLoader>() {
+    private static final FantasyClassLoader fantasyClassLoader = AccessController.doPrivileged(new PrivilegedAction<FantasyClassLoader>() {
         public FantasyClassLoader run() {
             return new FantasyClassLoader();
         }

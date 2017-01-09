@@ -18,7 +18,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @ContextConfiguration(locations = {"classpath:spring/applicationContext.xml"})
 public class RedisTest {
 
-    private final static Log LOG = LogFactory.getLog(RedisTest.class);
+    private static final Log LOG = LogFactory.getLog(RedisTest.class);
 
     @Autowired
     private RedisCacheManager redisCacheManager;

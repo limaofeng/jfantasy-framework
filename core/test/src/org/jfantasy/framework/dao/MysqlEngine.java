@@ -23,7 +23,7 @@ public class MysqlEngine {
     @Autowired
     private DataSource dataSource;
 
-    private final static String SCHEMA = "website";
+    private static final String SCHEMA = "website";
 
     @Test
     public void change() throws SQLException {

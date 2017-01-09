@@ -26,7 +26,7 @@ import java.util.Properties;
 @ActiveProfiles("dev")
 public class PayServiceTest {
 
-    private final static Log LOG = LogFactory.getLog(PayServiceTest.class);
+    private static final Log LOG = LogFactory.getLog(PayServiceTest.class);
 
     @Autowired
     private PaymentService paymentService;

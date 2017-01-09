@@ -11,7 +11,7 @@ import java.io.InputStream;
 
 public class MessageDigestUtilTest {
 
-    private final static Log LOG = LogFactory.getLog(MessageDigestUtilTest.class);
+    private static final Log LOG = LogFactory.getLog(MessageDigestUtilTest.class);
 
     @Test
     public void testGet() throws Exception {

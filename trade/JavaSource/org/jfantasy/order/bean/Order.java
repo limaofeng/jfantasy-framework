@@ -2,6 +2,7 @@ package org.jfantasy.order.bean;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.GenericGenerator;
@@ -135,6 +136,19 @@ public class Order extends BaseBusEntity {
     @ManyToOne
     @JoinColumn(name = "REFUND_TRANSACTION_ID", foreignKey = @ForeignKey(name = "FK_ORDER_REFUNDTRANSACTION"))
     private Transaction refundTransaction;//退款交易
+
+    /**
+     * 总金额
+     */
+    @Transient
+    @JsonIgnore
+    private BigDecimal total;
+    /**
+     * 剩余金额
+     */
+    @Transient
+    @JsonIgnore
+    private BigDecimal surplus;
 
     public Order() {
     }
@@ -509,6 +523,33 @@ public class Order extends BaseBusEntity {
 
     public void setRefundTransaction(Transaction refundTransaction) {
         this.refundTransaction = refundTransaction;
+    }
+
+    @Transient
+    public BigDecimal getSurplus() {
+        if (surplus == null) {
+            surplus = this.getTotal();
+        }
+        return surplus;
+    }
+
+    public BigDecimal getTotal() {
+        if (total == null) {
+            total = this.getTotalAmount();
+        }
+        return total;
+    }
+
+    public void setTotal(BigDecimal total) {
+        this.total = total;
+    }
+
+    public void setSurplus(BigDecimal surplus) {
+        this.surplus = surplus;
+    }
+
+    public void subtract(BigDecimal amount) {
+        this.surplus = getSurplus().subtract(amount);
     }
 
 }

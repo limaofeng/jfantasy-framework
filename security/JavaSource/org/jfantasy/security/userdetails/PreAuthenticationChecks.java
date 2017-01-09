@@ -24,7 +24,7 @@ public class PreAuthenticationChecks implements UserDetailsChecker, Initializing
 
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
-    protected final static Log LOGGER = LogFactory.getLog(PostAuthenticationChecks.class);
+    protected static final Log LOGGER = LogFactory.getLog(PostAuthenticationChecks.class);
 
     private List<UserDetailsChecker> userDetailsCheckers = null;
 

@@ -9,7 +9,7 @@ import java.util.List;
 
 public class OAuthUserDetails implements UserDetails {
 
-    private final static long serialVersionUID = 8427444478879938831L;
+    private static final long serialVersionUID = 8427444478879938831L;
 
     public enum Type {
         /**

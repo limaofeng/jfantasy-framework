@@ -147,20 +147,18 @@ public class AccountService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Transaction transfer(String trxNo, String password, String notes) {
         Transaction transaction = transactionDao.get(trxNo);
-        /*
         if (transaction.getChannel() == TxChannel.internal) {
             Account from = this.accountDao.get(transaction.getFrom());
             if (from.getStatus() != AccountStatus.activated) {
-                throw new RestException("账户未激活不能进行付款操作");
+                throw new ValidationException("账户未激活不能进行付款操作");
             }
             if (StringUtil.isBlank(password)) {
-                throw new RestException("支付密码不能为空");
+                throw new ValidationException("支付密码不能为空");
             }
             if (!passwordEncoder.matches(from.getPassword(), password)) {
-                throw new RestException("支付密码错误");
+                throw new ValidationException("支付密码错误");
             }
         }
-        */
         return this.transfer(trxNo, notes);
     }
 
@@ -183,7 +181,7 @@ public class AccountService {
         }
 
         // 该方法只处理 flow_status = 0 的交易
-        if(transaction.getFlowStatus() != 0){
+        if (transaction.getFlowStatus() != 0) {
             return transaction;
         }
 

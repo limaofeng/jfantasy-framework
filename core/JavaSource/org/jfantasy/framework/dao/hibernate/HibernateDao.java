@@ -43,13 +43,13 @@ import java.util.regex.Matcher;
  * @since 2013-9-11 下午4:17:39
  */
 public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
-    protected final static Log LOGGER = LogFactory.getLog(HibernateDao.class);
+    protected static final Log LOGGER = LogFactory.getLog(HibernateDao.class);
     protected Log LOG = LogFactory.getLog(ClassUtil.getRealClass(getClass()));
     protected SessionFactory sessionFactory;
     protected Class<T> entityClass;
     protected Class<PK> idClass;
 
-    private final static String LOG_MESSAGE_NULL = "entity不能为空";
+    private static final String LOG_MESSAGE_NULL = "entity不能为空";
 
     public HibernateDao() {
         this.entityClass = ReflectionUtils.getSuperClassGenricType(ClassUtil.getRealClass(getClass()));

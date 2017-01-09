@@ -13,7 +13,7 @@ public class JavassistUtil {
     private JavassistUtil() {
     }
 
-    private final static ConcurrentHashMap<String, CtClass> ctClassCache = new ConcurrentHashMap<String, CtClass>();
+    private static final ConcurrentHashMap<String, CtClass> ctClassCache = new ConcurrentHashMap<String, CtClass>();
 
     public static ClassPool getDefault() throws NotFoundException {
         ClassPool classPool = ClassPool.getDefault();

@@ -15,7 +15,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @ContextConfiguration(locations = {"classpath:spring/applicationContext.xml"})
 public class CacheQueryCacheTest {
 
-    private final static Log LOG = LogFactory.getLog(CacheQueryCacheTest.class);
+    private static final Log LOG = LogFactory.getLog(CacheQueryCacheTest.class);
 
     @Autowired
     private RedisCacheManager redisCacheManager;

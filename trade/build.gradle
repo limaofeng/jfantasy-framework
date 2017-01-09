@@ -13,5 +13,5 @@ dependencies {
     compile project(':jfantasy-rpc-server')
     compile project(':jfantasy-common-sdk')
     compile "com.google.zxing:javase:3.1.0"
-    testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '1.4.0.RELEASE'
+    testCompile "org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
 }

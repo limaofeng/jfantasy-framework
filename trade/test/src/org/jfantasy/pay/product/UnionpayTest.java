@@ -25,7 +25,7 @@ import java.util.Properties;
 @RunWith(SpringJUnit4ClassRunner.class)
 public class UnionpayTest {
 
-    private final static Log LOG = LogFactory.getLog(UnionpayTest.class);
+    private static final Log LOG = LogFactory.getLog(UnionpayTest.class);
 
     private Unionpay unionpay = new Unionpay();
     @Autowired

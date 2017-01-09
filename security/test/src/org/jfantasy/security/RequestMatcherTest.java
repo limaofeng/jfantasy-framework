@@ -12,7 +12,7 @@ import java.util.HashMap;
 
 public class RequestMatcherTest {
 
-    private final static Log LOG = LogFactory.getLog(RequestMatcherTest.class);
+    private static final Log LOG = LogFactory.getLog(RequestMatcherTest.class);
 
     @Test
     public void testMediaTypeRequestMatcher() {

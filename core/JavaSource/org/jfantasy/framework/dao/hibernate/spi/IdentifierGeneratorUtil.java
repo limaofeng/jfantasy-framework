@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentMap;
 
 public class IdentifierGeneratorUtil {
 
-    private final static ConcurrentMap<Class<?>, Map<String, IdentifierGenerator>> generatorCache = new ConcurrentHashMap<Class<?>, Map<String, IdentifierGenerator>>();
+    private static final ConcurrentMap<Class<?>, Map<String, IdentifierGenerator>> generatorCache = new ConcurrentHashMap<Class<?>, Map<String, IdentifierGenerator>>();
 
     public static boolean contains(Class<?> entityClass) {
         if (generatorCache.containsKey(entityClass)) {

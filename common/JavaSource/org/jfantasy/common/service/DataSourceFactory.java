@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentMap;
 @Service
 public class DataSourceFactory {
 
-    private final static ConcurrentMap<Long, DataSource> dataSourceCache = new ConcurrentHashMap<Long, DataSource>();
+    private static final ConcurrentMap<Long, DataSource> dataSourceCache = new ConcurrentHashMap<Long, DataSource>();
 
     private Map<String, String> drivers = new HashMap<String, String>();
     private Map<String, String> driverUrls = new HashMap<String, String>();

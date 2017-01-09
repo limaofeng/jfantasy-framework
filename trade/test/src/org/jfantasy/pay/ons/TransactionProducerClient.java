@@ -14,7 +14,7 @@ import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 public class TransactionProducerClient {
-    private final static Logger log = ClientLogger.getLog(); // 用户需要设置自己的log, 记录日志便于排查问题
+    private static final Logger log = ClientLogger.getLog(); // 用户需要设置自己的log, 记录日志便于排查问题
 
     public static void main(String[] args) throws InterruptedException {
         final BusinessService businessService = new BusinessService(); // 本地业务Service

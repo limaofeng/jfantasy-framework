@@ -10,7 +10,7 @@ import org.junit.Test;
 
 public class OgnlUtilTest {
 
-    private final static Log LOG = LogFactory.getLog(OgnlUtilTest.class);
+    private static final Log LOG = LogFactory.getLog(OgnlUtilTest.class);
 
     @Test
     public void testSetValue(){
