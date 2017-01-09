@@ -16,7 +16,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/** 文件上传接口 **/
+/**
+ * 文件上传接口
+ **/
 @RestController
 @RequestMapping("/files")
 public class FileController {
@@ -35,6 +37,7 @@ public class FileController {
     /**
      * 上传文件<br/>
      * 单独的文件上传接口，返回 FileDetail 对象
+     *
      * @param file           要上传的文件
      * @param dir            上传的目录标识
      * @param entireFileName 完整文件名
@@ -48,12 +51,13 @@ public class FileController {
      */
     @RequestMapping(method = RequestMethod.POST)
     @ResponseBody
-    public FileDetail upload(@RequestParam(value = "attach") MultipartFile file, String dir,  String entireFileName, String entireFileDir, String entireFileHash,  String partFileHash,  Integer total, Integer index) throws IOException {
+    public FileDetail upload(@RequestParam(value = "attach") MultipartFile file, String dir, String entireFileName, String entireFileDir, String entireFileHash, String partFileHash, Integer total, Integer index) throws IOException {
         return fileUploadService.upload(file, dir, entireFileName, entireFileDir, entireFileHash, partFileHash, total, index);
     }
 
     /**
      * 分段上传查询
+     *
      * @param hash
      * @return
      */
@@ -70,11 +74,13 @@ public class FileController {
         return data;
     }
 
-    /** 查询文件信息 **/
+    /**
+     * 查询文件信息
+     **/
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    public FileDetail view(@RequestParam("key") String path) {
-        return fileService.get(path);
+    public FileDetail view(@RequestParam("path") String path) {
+        return fileService.get(path.contains(":") ? path.substring(path.indexOf(":")) : path);
     }
 
 }

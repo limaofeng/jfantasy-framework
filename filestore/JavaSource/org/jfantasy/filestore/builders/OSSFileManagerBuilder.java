@@ -3,6 +3,7 @@ package org.jfantasy.filestore.builders;
 
 import org.jfantasy.filestore.FileManagerBuilder;
 import org.jfantasy.filestore.bean.enums.FileManagerType;
+import org.jfantasy.filestore.manager.OSSFileManager;
 
 import java.util.Map;
 

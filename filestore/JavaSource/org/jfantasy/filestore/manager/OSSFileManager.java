@@ -5,11 +5,13 @@ import com.aliyun.oss.model.ListObjectsRequest;
 import com.aliyun.oss.model.OSSObjectSummary;
 import com.aliyun.oss.model.ObjectListing;
 import com.aliyun.oss.model.ObjectMetadata;
+import org.jfantasy.filestore.*;
 import org.jfantasy.framework.error.IgnoreException;
 import org.jfantasy.framework.util.common.StreamUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.framework.util.regexp.RegexpUtil;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -25,7 +27,8 @@ public class OSSFileManager implements FileManager {
     public OSSFileManager(String endpoint, AccessKey accessKey, String bucketName) {
         this.accessKey = accessKey;
         this.bucketName = bucketName;
-        this.client = new OSSClient(this.endpoint = endpoint, this.accessKey.getId(), this.accessKey.getSecret());
+        this.endpoint = endpoint;
+        this.client = new OSSClient(this.endpoint, this.accessKey.getId(), this.accessKey.getSecret());
     }
 
     @Override
@@ -225,7 +228,7 @@ public class OSSFileManager implements FileManager {
             if (!this.isDirectory()) {
                 return Collections.emptyList();
             }
-            List<FileItem> fileItems = new ArrayList<FileItem>();
+            List<FileItem> fileItems = new ArrayList<>();
             for (FileItem item : listFileItems()) {
                 if (filter.accept(item)) {
                     fileItems.add(item);

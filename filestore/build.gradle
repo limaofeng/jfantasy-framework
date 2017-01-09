@@ -6,6 +6,7 @@ description = ''
 dependencies {
     compile project(':jfantasy-core')
     compile project(':jfantasy-cache')
+    compile 'com.aliyun.oss:aliyun-sdk-oss:2.0.6'
     optional "org.springframework.boot:spring-boot-configuration-processor:${springBootVersion}"
     testCompile "org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
 }
