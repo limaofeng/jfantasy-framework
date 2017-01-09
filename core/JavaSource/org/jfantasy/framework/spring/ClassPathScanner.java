@@ -42,7 +42,7 @@ public class ClassPathScanner implements ResourceLoaderAware {
         return instance;
     }
 
-    private final static String CLASSPATH = "classpath*:";
+    private static final String CLASSPATH = "classpath*:";
 
     public Set<String> findTargetClassNames(String basepackage) {
         Set<String> candidates = new LinkedHashSet<String>();

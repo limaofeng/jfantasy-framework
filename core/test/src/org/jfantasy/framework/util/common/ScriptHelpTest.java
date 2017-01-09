@@ -8,7 +8,7 @@ import org.junit.Test;
 
 public class ScriptHelpTest {
 
-    private final static Log LOG = LogFactory.getLog(ScriptHelpTest.class);
+    private static final Log LOG = LogFactory.getLog(ScriptHelpTest.class);
 
     @Before
     public void setUp() throws Exception {

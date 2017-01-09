@@ -9,7 +9,7 @@ import java.util.Random;
 
 public class RandomTypeTest {
 
-    private final static Log LOGGER = LogFactory.getLog(RandomType.class);
+    private static final Log LOGGER = LogFactory.getLog(RandomType.class);
 
     @Test
     public void randomType() {

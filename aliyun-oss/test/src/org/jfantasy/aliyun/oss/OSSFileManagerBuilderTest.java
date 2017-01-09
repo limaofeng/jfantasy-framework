@@ -11,7 +11,7 @@ import java.util.Map;
 
 public class OSSFileManagerBuilderTest {
 
-    private final static Log LOG = LogFactory.getLog(OSSFileManagerBuilderTest.class);
+    private static final Log LOG = LogFactory.getLog(OSSFileManagerBuilderTest.class);
 
     private OSSFileManagerBuilder builder = new OSSFileManagerBuilder();
 

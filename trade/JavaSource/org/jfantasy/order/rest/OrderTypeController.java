@@ -67,7 +67,7 @@ public class OrderTypeController {
 
     @PostMapping("/{id}/cashflows")
     @ResponseBody
-    public OrderCashFlow cashflows(@PathVariable("id") String id, OrderCashFlow cashFlow) {
+    public OrderCashFlow cashflows(@PathVariable("id") String id, @RequestBody OrderCashFlow cashFlow) {
         cashFlow.setOrderType(this.orderTypeService.get(id));
         return orderTypeService.save(cashFlow);
     }

@@ -31,7 +31,7 @@ import java.util.StringTokenizer;
 public class AliasToBeanResultTransformer implements ResultTransformer {
     private static final long serialVersionUID = -5199190581393587893L;
 
-    private final static Log LOGGER = LogFactory.getLog(AliasToBeanResultTransformer.class);
+    private static final Log LOGGER = LogFactory.getLog(AliasToBeanResultTransformer.class);
 
     private final Class<?> resultClass;
     private Setter[] setters;

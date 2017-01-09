@@ -19,7 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 @RequestMapping("/team-members")
 public class TeamMemberController {
 
-    public final static TeamMemberResourceAssembler assembler = new TeamMemberResourceAssembler();
+    public static final TeamMemberResourceAssembler assembler = new TeamMemberResourceAssembler();
 
     @Autowired
     private TeamMemberService teamMemberService;

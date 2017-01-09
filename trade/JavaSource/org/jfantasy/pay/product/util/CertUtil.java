@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class CertUtil {
 
-    private final static Log LOG = LogFactory.getLog(CertUtil.class);
+    private static final Log LOG = LogFactory.getLog(CertUtil.class);
 
     private static Map<String, X509Certificate> validateCertCache = new ConcurrentHashMap<String, X509Certificate>();
     private static Map<String, KeyStore> certKeyStoreCache = new ConcurrentHashMap<String, KeyStore>();

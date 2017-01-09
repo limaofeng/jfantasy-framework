@@ -24,11 +24,11 @@ public class ConfigResolver {
     private ConfigResolver() {
     }
 
-    private final static Log LOG = LogFactory.getLog(ConfigResolver.class);
+    private static final Log LOG = LogFactory.getLog(ConfigResolver.class);
 
     private static Configuration configuration;
 
-    private final static ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
+    private static final ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
 
     private static DocumentBuilder builder;
 

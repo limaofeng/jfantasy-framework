@@ -9,7 +9,7 @@ import org.junit.Test;
 
 public class PayProductSupportTest {
 
-    private final static Log LOG = LogFactory.getLog(PayProductSupportTest.class);
+    private static final Log LOG = LogFactory.getLog(PayProductSupportTest.class);
 
     @Test
     public void getExtPropertys() throws Exception {

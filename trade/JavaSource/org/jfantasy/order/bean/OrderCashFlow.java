@@ -1,13 +1,16 @@
 package org.jfantasy.order.bean;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.jfantasy.framework.spring.SpringContextUtil;
 import org.jfantasy.order.bean.databind.OrderCashFlowDeserializer;
 import org.jfantasy.order.bean.databind.OrderCashFlowSerializer;
+import org.jfantasy.order.bean.databind.OrderTypeDeserializer;
+import org.jfantasy.order.bean.databind.OrderTypeSerializer;
 import org.jfantasy.order.bean.enums.PayeeType;
 import org.jfantasy.order.bean.enums.Stage;
 import org.jfantasy.order.bean.enums.ValueType;
@@ -15,6 +18,7 @@ import org.jfantasy.order.service.OrderTypeService;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 /**
@@ -22,7 +26,7 @@ import java.util.List;
  */
 @Entity
 @Table(name = "ORDER_CASH_FLOW", uniqueConstraints = @UniqueConstraint(name = "UK_ORDERTYPE_CODE", columnNames = {"ORDER_TYPE", "CODE"}))
-@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "parent"})
+@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "subflows"})
 public class OrderCashFlow {
 
     private static OrderTypeService orderTypeService;
@@ -75,24 +79,26 @@ public class OrderCashFlow {
     private String notes;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JsonSerialize(using = OrderTypeSerializer.class)
+    @JsonDeserialize(using = OrderTypeDeserializer.class)
     @JoinColumn(name = "ORDER_TYPE", nullable = false, updatable = false)
     private OrderType orderType;
-    /**
-     * 子流程
-     */
-    @JsonInclude(content = JsonInclude.Include.NON_NULL)
-    @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE})
-    @OrderBy("sort ASC")
-    private List<OrderCashFlow> subflows;
     /**
      * 上级菜单
      */
     @JsonProperty("parentId")
+    @JsonBackReference
     @JsonSerialize(using = OrderCashFlowSerializer.class)
     @JsonDeserialize(using = OrderCashFlowDeserializer.class)
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.REFRESH})
     @JoinColumn(name = "PID", foreignKey = @ForeignKey(name = "FK_ORDER_CASH_FLOW_PID"))
     private OrderCashFlow parent;
+    /**
+     * 子流程
+     */
+    @JsonManagedReference
+    @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE})
+    private List<OrderCashFlow> subflows;
 
     public OrderCashFlow() {
     }
@@ -207,7 +213,7 @@ public class OrderCashFlow {
 
     @Transient
     public BigDecimal getValue(Order order) {
-        return orderTypeService().getValue(this, order);
+        return orderTypeService().getValue(this, order).setScale(2, RoundingMode.DOWN);
     }
 
     @Transient

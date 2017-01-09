@@ -14,7 +14,7 @@ import java.io.IOException;
  */
 public class ConversionCharacterEncodingFilter extends OncePerRequestFilter {
 
-    private final static String TRANSFORM = "ConversionCharacterEncodingFilter.transform";
+    private static final String TRANSFORM = "ConversionCharacterEncodingFilter.transform";
 
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         Boolean transform = (Boolean) request.getAttribute(TRANSFORM);

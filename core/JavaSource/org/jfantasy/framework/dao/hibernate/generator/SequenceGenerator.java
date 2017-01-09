@@ -29,7 +29,7 @@ public class SequenceGenerator implements IdentifierGenerator, Configurable {
 	@Autowired
 	private DataBaseKeyGenerator baseKeyGenerator;
 
-	public final static String KEY_NAME = "keyName";
+	public static final String KEY_NAME = "keyName";
 
 	private String keyName;
 

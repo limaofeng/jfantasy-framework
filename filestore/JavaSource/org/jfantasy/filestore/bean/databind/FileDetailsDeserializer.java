@@ -18,7 +18,7 @@ import java.lang.reflect.Array;
 
 public class FileDetailsDeserializer extends JsonDeserializer<FileDetail[]> {
 
-    private final static Log LOG = LogFactory.getLog(FileDetailsDeserializer.class);
+    private static final Log LOG = LogFactory.getLog(FileDetailsDeserializer.class);
 
     private static FileService fileService;
 

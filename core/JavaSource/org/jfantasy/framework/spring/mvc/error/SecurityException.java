@@ -4,7 +4,7 @@ import org.springframework.http.HttpStatus;
 
 public class SecurityException extends RestException {
 
-    private final static int prefix = HttpStatus.FORBIDDEN.value() * 100;
+    private static final int prefix = HttpStatus.FORBIDDEN.value() * 100;
 
     private float code;
 

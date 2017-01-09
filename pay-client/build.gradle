@@ -10,5 +10,5 @@ dependencies {
     compile project(':jfantasy-aliyun-ons')
     compile project(':jfantasy-rpc-client')
     compile "com.aliyun.openservices:ons-client:1.2.1"
-    testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '1.4.0.RELEASE'
+    testCompile "org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
 }

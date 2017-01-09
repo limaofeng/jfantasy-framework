@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class RpcProxy implements InvocationHandler {
 
-    private final static Log LOG = LogFactory.getLog(RpcProxy.class);
+    private static final Log LOG = LogFactory.getLog(RpcProxy.class);
 
     private NettyClient nettyClient;
 

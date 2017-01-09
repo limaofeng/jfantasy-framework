@@ -29,7 +29,7 @@ import java.math.BigDecimal;
 @ActiveProfiles("dev")
 public class PayConfigServiceTest {
 
-    private final static Log LOG = LogFactory.getLog(PayConfigServiceTest.class);
+    private static final Log LOG = LogFactory.getLog(PayConfigServiceTest.class);
 
     @Autowired
     private PayConfigService payConfigService;

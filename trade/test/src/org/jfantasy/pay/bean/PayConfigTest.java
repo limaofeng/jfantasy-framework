@@ -10,9 +10,9 @@ import org.junit.Test;
 
 public class PayConfigTest {
 
-    private final static Log LOG = LogFactory.getLog(PayConfigTest.class);
+    private static final Log LOG = LogFactory.getLog(PayConfigTest.class);
 
-    private final static String JSON_DATA = "{\"id\":-9223372036854775808,\"name\":\"支付宝\",\"bargainorId\":\"0123123\",\"bargainorKey\":\"123123123123\",\"sellerEmail\":\"limaofeng@msm.com\"}";
+    private static final String JSON_DATA = "{\"id\":-9223372036854775808,\"name\":\"支付宝\",\"bargainorId\":\"0123123\",\"bargainorKey\":\"123123123123\",\"sellerEmail\":\"limaofeng@msm.com\"}";
 
     private PayConfig payConfig = new PayConfig();
     {

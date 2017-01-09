@@ -34,7 +34,7 @@ import java.util.*;
  */
 public class Request {
 
-    private final static Log LOG = LogFactory.getLog(Request.class);
+    private static final Log LOG = LogFactory.getLog(Request.class);
 
     private CookieStore cookieStore = new BasicCookieStore();
     ;

@@ -15,7 +15,7 @@ import java.util.Date;
 
 public class DateDeserializer extends JsonDeserializer<Date> {
 
-    final static Log LOG = LogFactory.getLog(DateDeserializer.class);
+    static final Log LOG = LogFactory.getLog(DateDeserializer.class);
 
     @Override
     public Date deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {

@@ -33,7 +33,7 @@ import java.util.Map;
 @ContextConfiguration(locations = {"classpath:spring/applicationContext.xml"})
 public class OSSFileManagerTest {
 
-    private final static Log LOG = LogFactory.getLog(OSSFileManagerTest.class);
+    private static final Log LOG = LogFactory.getLog(OSSFileManagerTest.class);
     @Autowired
     private FileManagerFactory fileManagerFactory;
     @Autowired

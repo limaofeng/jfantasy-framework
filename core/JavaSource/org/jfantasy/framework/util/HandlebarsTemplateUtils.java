@@ -18,7 +18,7 @@ public class HandlebarsTemplateUtils {
 
     private static Handlebars handlebars = new Handlebars();
 
-    private final static Log LOG = LogFactory.getLog(HandlebarsTemplateUtils.class);
+    private static final Log LOG = LogFactory.getLog(HandlebarsTemplateUtils.class);
 
     static {
         handlebars.registerHelper("format", new Helper<Date>() {

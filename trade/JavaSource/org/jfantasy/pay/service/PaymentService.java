@@ -36,7 +36,7 @@ import java.util.List;
 @Transactional
 public class PaymentService {
 
-    private final static Log LOG = LogFactory.getLog(PaymentService.class);
+    private static final Log LOG = LogFactory.getLog(PaymentService.class);
 
     @Autowired
     private PaymentDao paymentDao;

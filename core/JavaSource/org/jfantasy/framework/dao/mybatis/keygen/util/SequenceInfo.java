@@ -19,12 +19,12 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class SequenceInfo {
 
-    private final static Log LOG = LogFactory.getLog(SequenceInfo.class);
+    private static final Log LOG = LogFactory.getLog(SequenceInfo.class);
 
     private static DataBaseKeyGenerator keyGenerator;
 
-    private final static ConcurrentMap<String, SequenceInfo> keys = new ConcurrentHashMap<String, SequenceInfo>(10);
-    private final static Lock retrievelock = new ReentrantLock();
+    private static final ConcurrentMap<String, SequenceInfo> keys = new ConcurrentHashMap<String, SequenceInfo>(10);
+    private static final Lock retrievelock = new ReentrantLock();
 
     private Lock lock = new ReentrantLock();
     private SequenceService service;

@@ -6,7 +6,7 @@ import org.quartz.*;
 
 public class LogListener implements SchedulerListener {
 
-    private final static Log LOGGER = LogFactory.getLog(LogListener.class);
+    private static final Log LOGGER = LogFactory.getLog(LogListener.class);
 
     @Override
     public void jobScheduled(Trigger trigger) {

@@ -13,7 +13,7 @@ import java.util.HashMap;
 
 public class HtmlConverterTest {
 
-    private final static Log LOG = LogFactory.getLog(HtmlConverterTest.class);
+    private static final Log LOG = LogFactory.getLog(HtmlConverterTest.class);
 
     @Before
     public void setUp() throws Exception {

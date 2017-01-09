@@ -18,7 +18,7 @@ import java.util.Map;
 
 public class WebUtilTest {
 
-    private final static Log LOG = LogFactory.getLog(WebUtilTest.class);
+    private static final Log LOG = LogFactory.getLog(WebUtilTest.class);
 
     protected MockHttpServletRequest request;
     protected MockHttpServletResponse response;

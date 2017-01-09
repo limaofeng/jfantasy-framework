@@ -25,7 +25,7 @@ public class ScheduleService {
     @Autowired
     private Scheduler scheduler;
 
-    private final static Log LOGGER = LogFactory.getLog(ScheduleService.class);
+    private static final Log LOGGER = LogFactory.getLog(ScheduleService.class);
 
     /**
      * 返回 各时段的表达式

@@ -24,7 +24,7 @@ import java.util.List;
 
 public class LogAdviceParser extends AbstractSingleBeanDefinitionParser {
 
-    private final static Log LOG = LogFactory.getLog(LogAdviceParser.class);
+    private static final Log LOG = LogFactory.getLog(LogAdviceParser.class);
 
     private static class Props {
 

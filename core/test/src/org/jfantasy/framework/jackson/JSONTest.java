@@ -24,7 +24,7 @@ import java.util.*;
 
 public class JSONTest {
 
-    private final static Log LOG = LogFactory.getLog(JSONTest.class);
+    private static final Log LOG = LogFactory.getLog(JSONTest.class);
 
     private Article article;
     private ArticleCategory category;

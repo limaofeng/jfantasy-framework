@@ -27,7 +27,7 @@ import org.springframework.web.context.WebApplicationContext;
 @ContextConfiguration(locations = {"classpath:spring/applicationContext.xml"})
 public class DataDictionaryTypeControllerTest {
 
-    private final static Log LOG = LogFactory.getLog(DataDictionaryTypeControllerTest.class);
+    private static final Log LOG = LogFactory.getLog(DataDictionaryTypeControllerTest.class);
 
     @Autowired
     private WebApplicationContext context;

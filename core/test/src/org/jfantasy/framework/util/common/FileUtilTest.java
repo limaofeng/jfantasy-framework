@@ -10,7 +10,7 @@ import java.io.File;
 
 public class FileUtilTest {
 
-    private final static Log LOG = LogFactory.getLog(FileUtilTest.class);
+    private static final Log LOG = LogFactory.getLog(FileUtilTest.class);
 
     @Test
     public void fileSize() {

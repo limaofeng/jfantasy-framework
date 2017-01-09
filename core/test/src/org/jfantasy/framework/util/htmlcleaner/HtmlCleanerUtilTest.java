@@ -7,7 +7,7 @@ import org.junit.Test;
 
 public class HtmlCleanerUtilTest {
 
-    private final static Log logger = LogFactory.getLog(HtmlCleanerUtilTest.class);
+    private static final Log logger = LogFactory.getLog(HtmlCleanerUtilTest.class);
 
     @Test
     public void testFindTagNodes() throws Exception {

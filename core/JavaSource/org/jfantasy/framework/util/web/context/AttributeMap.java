@@ -13,7 +13,7 @@ public class AttributeMap implements Map {
     protected static final String UNSUPPORTED = "method makes no sense for a simplified map";
     private static final Object PAGE_CONTEXT = null;
     Map context;
-    private final static Log LOGGER = LogFactory.getLog(AttributeMap.class);
+    private static final Log LOGGER = LogFactory.getLog(AttributeMap.class);
 
     public AttributeMap(Map context) {
         this.context = context;

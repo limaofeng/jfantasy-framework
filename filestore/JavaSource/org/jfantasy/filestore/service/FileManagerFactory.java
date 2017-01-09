@@ -44,7 +44,7 @@ public class FileManagerFactory implements ApplicationListener<ContextRefreshedE
 
     private static FileManagerFactory fileManagerFactory;
 
-    public final static String WEBROOT_FILEMANAGER_ID = "WEBROOT";
+    public static final String WEBROOT_FILEMANAGER_ID = "WEBROOT";
 
     @Autowired
     private FileManagerService fileManagerService;
@@ -55,7 +55,7 @@ public class FileManagerFactory implements ApplicationListener<ContextRefreshedE
         }
     };
 
-    private final static ConcurrentMap<String, FileManager> fileManagerCache = new ConcurrentHashMap<String, FileManager>();
+    private static final ConcurrentMap<String, FileManager> fileManagerCache = new ConcurrentHashMap<String, FileManager>();
 
     @Async
     @Override

@@ -20,7 +20,7 @@ public class RSA {
 
     }
 
-    private final static Log LOG = LogFactory.getLog(RSA.class);
+    private static final Log LOG = LogFactory.getLog(RSA.class);
 
     private static final String SIGN_ALGORITHMS = "SHA1WithRSA";
 
