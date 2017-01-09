@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.jfantasy.framework.dao.BaseBusEntity;
 import org.jfantasy.framework.spring.SpringContextUtil;
 import org.jfantasy.order.bean.databind.OrderCashFlowDeserializer;
 import org.jfantasy.order.bean.databind.OrderCashFlowSerializer;
@@ -13,7 +14,6 @@ import org.jfantasy.order.bean.databind.OrderTypeDeserializer;
 import org.jfantasy.order.bean.databind.OrderTypeSerializer;
 import org.jfantasy.order.bean.enums.PayeeType;
 import org.jfantasy.order.bean.enums.Stage;
-import org.jfantasy.order.bean.enums.ValueType;
 import org.jfantasy.order.service.OrderTypeService;
 
 import javax.persistence.*;
@@ -27,7 +27,7 @@ import java.util.List;
 @Entity
 @Table(name = "ORDER_CASH_FLOW", uniqueConstraints = @UniqueConstraint(name = "UK_ORDERTYPE_CODE", columnNames = {"ORDER_TYPE", "CODE"}))
 @JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "subflows"})
-public class OrderCashFlow {
+public class OrderCashFlow extends BaseBusEntity {
 
     private static OrderTypeService orderTypeService;
 
@@ -46,16 +46,22 @@ public class OrderCashFlow {
      */
     @Column(name = "NAME", length = 50, nullable = false)
     private String name;
-    // 支付收款方 ／  订单完成收益分发
+    /**
+     * 对应的项目
+     */
+    @Column(name = "PROJECT", length = 20, nullable = false, updatable = false)
+    private String project;
+    /**
+     * 项目名称冗余
+     */
+    @Column(name = "PROJECT_NAME", length = 50, nullable = false, updatable = false)
+    private String projectName;
+    /**
+     * 阶段
+     */
     @Enumerated(EnumType.STRING)
     @Column(name = "STAGE", length = 10, nullable = false)
     private Stage stage;
-    /**
-     * 收款金额类型
-     */
-    @Enumerated(EnumType.STRING)
-    @Column(name = "VALUE_TYPE", length = 10, nullable = false)
-    private ValueType valueType;
     /**
      * 收款金额表达式
      */
@@ -77,7 +83,19 @@ public class OrderCashFlow {
      */
     @Column(name = "NOTES", length = 50)
     private String notes;
-
+    /**
+     * 层级
+     */
+    @Column(name = "LAYER", nullable = false)
+    private Integer layer;
+    /**
+     * 排序字段
+     */
+    @Column(name = "SORT")
+    private Integer sort;
+    /**
+     * 订单配置
+     */
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonSerialize(using = OrderTypeSerializer.class)
     @JsonDeserialize(using = OrderTypeDeserializer.class)
@@ -91,13 +109,14 @@ public class OrderCashFlow {
     @JsonSerialize(using = OrderCashFlowSerializer.class)
     @JsonDeserialize(using = OrderCashFlowDeserializer.class)
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.REFRESH})
-    @JoinColumn(name = "PID", foreignKey = @ForeignKey(name = "FK_ORDER_CASH_FLOW_PID"))
+    @JoinColumn(name = "PID",updatable = false, foreignKey = @ForeignKey(name = "FK_ORDER_CASH_FLOW_PID"))
     private OrderCashFlow parent;
     /**
      * 子流程
      */
     @JsonManagedReference
     @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE})
+    @OrderBy("sort ASC")
     private List<OrderCashFlow> subflows;
 
     public OrderCashFlow() {
@@ -163,12 +182,12 @@ public class OrderCashFlow {
         this.orderType = orderType;
     }
 
-    public ValueType getValueType() {
-        return valueType;
+    public Integer getLayer() {
+        return layer;
     }
 
-    public void setValueType(ValueType valueType) {
-        this.valueType = valueType;
+    public void setLayer(Integer layer) {
+        this.layer = layer;
     }
 
     public PayeeType getPayeeType() {
@@ -185,6 +204,14 @@ public class OrderCashFlow {
 
     public static void setOrderTypeService(OrderTypeService orderTypeService) {
         OrderCashFlow.orderTypeService = orderTypeService;
+    }
+
+    public String getProject() {
+        return project;
+    }
+
+    public void setProject(String project) {
+        this.project = project;
     }
 
     public List<OrderCashFlow> getSubflows() {
@@ -209,6 +236,22 @@ public class OrderCashFlow {
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
+    }
+
+    public Integer getSort() {
+        return sort;
+    }
+
+    public void setSort(Integer sort) {
+        this.sort = sort;
     }
 
     @Transient

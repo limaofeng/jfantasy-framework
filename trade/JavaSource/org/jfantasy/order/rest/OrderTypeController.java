@@ -72,9 +72,16 @@ public class OrderTypeController {
         return orderTypeService.save(cashFlow);
     }
 
+    @PutMapping("/{id}/cashflows/{fid}")
+    @ResponseBody
+    public OrderCashFlow cashflows(@PathVariable("id") String id, @PathVariable("fid") Long fid, @RequestBody OrderCashFlow cashFlow) {
+        cashFlow.setOrderType(this.orderTypeService.get(id));
+        return orderTypeService.update(id, fid,cashFlow);
+    }
+
     @DeleteMapping("/{id}/cashflows/{fid}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void cashflows(@PathVariable("id") String id, @PathVariable("fid") String fid) {
+    public void cashflows(@PathVariable("id") String id, @PathVariable("fid") Long fid) {
         orderTypeService.delete(id, fid);
     }
 
