@@ -14,6 +14,7 @@ import org.jfantasy.framework.spring.SpringContextUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.invoice.bean.Invoice;
 import org.jfantasy.order.bean.enums.InvoiceStatus;
+import org.jfantasy.order.bean.enums.OrderFlow;
 import org.jfantasy.order.entity.enums.OrderStatus;
 import org.jfantasy.order.entity.enums.PaymentStatus;
 import org.jfantasy.order.entity.enums.ShippingStatus;
@@ -62,6 +63,9 @@ public class Order extends BaseBusEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "INVOICE_STATUS", length = 20)
     private InvoiceStatus invoiceStatus;// 发票状态
+    @Enumerated(EnumType.STRING)
+    @Column(name = "FLOW",length = 20)
+    private OrderFlow flow;//订单流程
     @Column(name = "TOTAL_PRODUCT_WEIGHT", nullable = false)
     private Integer totalProductWeight;// 总商品重量(单位: 克)
     @Column(name = "TOTAL_PRODUCT_QUANTITY", nullable = false)
@@ -581,4 +585,11 @@ public class Order extends BaseBusEntity {
         this.surplus = getSurplus().subtract(amount);
     }
 
+    public OrderFlow getFlow() {
+        return flow;
+    }
+
+    public void setFlow(OrderFlow flow) {
+        this.flow = flow;
+    }
 }

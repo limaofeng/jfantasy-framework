@@ -17,6 +17,7 @@ import org.jfantasy.member.bean.Receiver;
 import org.jfantasy.member.service.ReceiverService;
 import org.jfantasy.order.bean.*;
 import org.jfantasy.order.bean.enums.InvoiceStatus;
+import org.jfantasy.order.bean.enums.OrderFlow;
 import org.jfantasy.order.bean.enums.PayeeType;
 import org.jfantasy.order.bean.enums.Stage;
 import org.jfantasy.order.dao.OrderDao;
@@ -300,6 +301,7 @@ public class OrderService {
         order.setStatus(OrderStatus.unpaid);// 初始订单状态
         order.setPaymentStatus(PaymentStatus.unpaid);// 初始支付状态
         order.setShippingStatus(ShippingStatus.unshipped);// 初始发货状态
+        order.setFlow(OrderFlow.initial);
         // 设置订单类型
         order.setType(details.getType());
         // 设置订单 target
@@ -401,7 +403,7 @@ public class OrderService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void cashflow(String id) {
         Order order = this.orderDao.get(id);
-        if (order.getStatus() == OrderStatus.complete && order.getPaymentStatus() == PaymentStatus.paid) {
+        if (order.getStatus() == OrderStatus.complete && order.getFlow() == OrderFlow.initial) {
             Account platform = transactionService.platform();
             List<OrderCashFlow> cashFlows = orderTypeService.cashflows(order.getType(), Stage.finished);
             // 设置初始值
@@ -413,7 +415,7 @@ public class OrderService {
                 order.setSurplus(surplus.subtract(startupFlow(cashFlow, order, platform.getSn())));
             }
         }
-        order.setPaymentStatus(PaymentStatus.archived);
+        order.setFlow(OrderFlow.carveup);
         this.orderDao.update(order);
     }
 
