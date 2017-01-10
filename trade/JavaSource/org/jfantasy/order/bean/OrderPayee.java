@@ -47,7 +47,7 @@ public class OrderPayee extends BaseBusEntity {
      * type = share 时，reference 不能为空
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "REFERENCE", updatable = false)
+    @JoinColumn(name = "REFERENCE", updatable = false,foreignKey = @ForeignKey(name = "FK_ORDERPAYEE_REFERENCE"))
     private OrderPayee reference;
     /**
      * 订单配置
