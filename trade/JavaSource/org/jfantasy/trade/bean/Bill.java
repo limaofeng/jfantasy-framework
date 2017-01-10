@@ -50,6 +50,12 @@ public class Bill extends BaseBusEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ACCOUNT_SN", updatable = false, foreignKey = @ForeignKey(name = "FK_BILL_ACCOUNT"))
     private Account account;
+    /**
+     * 关联交易
+     */
+    @ManyToOne
+    @JoinColumn(name = "TRANSACTION_ID", foreignKey = @ForeignKey(name = "FK_Bill_TRANSACTION"))
+    private Transaction transaction;
 
     public Long getId() {
         return id;
@@ -112,4 +118,11 @@ public class Bill extends BaseBusEntity {
         this.balance = balance;
     }
 
+    public Transaction getTransaction() {
+        return transaction;
+    }
+
+    public void setTransaction(Transaction transaction) {
+        this.transaction = transaction;
+    }
 }

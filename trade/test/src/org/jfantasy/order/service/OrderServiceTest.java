@@ -54,4 +54,9 @@ public class OrderServiceTest {
         orderService.submitOrder(order);
     }
 
+    @Test
+    public void cashflow() throws Exception {
+        orderService.cashflow("2017010600809");
+    }
+
 }

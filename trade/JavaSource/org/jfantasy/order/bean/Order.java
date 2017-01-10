@@ -111,20 +111,22 @@ public class Order extends BaseBusEntity {
     private Date refundTime;//退款时间
     @Column(name = "MEMBER_ID", nullable = false, updatable = false)
     private Long memberId;// 会员
-    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     @OrderBy("createTime asc")
     private List<OrderItem> items = new ArrayList<>();// 订单支付信息
     @Convert(converter = MapConverter.class)
     @Column(name = "PROPERTIES", columnDefinition = "Text")
     private Map<String, Object> attrs;//NOSONAR 扩展属性
-    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
-    private List<OrderPrice> prices = new ArrayList<>();//订单价格目录
+    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    private List<OrderPriceValue> prices = new ArrayList<>();//订单价格目录
+    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    private List<OrderPayeeValue> payees = new ArrayList<>();//订单收款人列表
     @Column(name = "TARGET_TYPE", nullable = false, updatable = false)
     private String detailsType;
     @Column(name = "TARGET_ID", nullable = false, updatable = false)
     private String detailsId;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "INVOICE_ID", foreignKey = @ForeignKey(name = "FK_ORDER_PAY_CONFIG"))
+    @JoinColumn(name = "INVOICE_ID", foreignKey = @ForeignKey(name = "FK_ORDER_INVOICE"))
     private Invoice invoice;//开票信息
     @Column(name = "PAYER")
     private Long payer;//付款人
@@ -136,7 +138,6 @@ public class Order extends BaseBusEntity {
     @ManyToOne
     @JoinColumn(name = "REFUND_TRANSACTION_ID", foreignKey = @ForeignKey(name = "FK_ORDER_REFUNDTRANSACTION"))
     private Transaction refundTransaction;//退款交易
-
     /**
      * 总金额
      */
@@ -381,11 +382,11 @@ public class Order extends BaseBusEntity {
         this.refundAmount = refundAmount;
     }
 
-    public List<OrderPrice> getPrices() {
+    public List<OrderPriceValue> getPrices() {
         return prices;
     }
 
-    public void setPrices(List<OrderPrice> prices) {
+    public void setPrices(List<OrderPriceValue> prices) {
         this.prices = prices;
     }
 
@@ -497,8 +498,8 @@ public class Order extends BaseBusEntity {
 
     @Transient
     public void addItems(OrderItem item) {
-        this.items.add(item);
         item.setOrder(this);
+        this.items.add(item);
     }
 
     public Invoice getInvoice() {
@@ -525,6 +526,26 @@ public class Order extends BaseBusEntity {
         this.refundTransaction = refundTransaction;
     }
 
+    public void addPrice(OrderPrice price, BigDecimal value) {
+        if(this.prices == null){
+            this.prices = new ArrayList<>();
+        }
+        OrderPriceValue priceValue = new OrderPriceValue();
+        priceValue.setOrder(this);
+        priceValue.setPrice(price);
+        priceValue.setValue(value);
+        this.prices.add(priceValue);
+    }
+
+    public void addPayee(OrderPayee price, String name, String value) {
+        OrderPayeeValue payeeValue = new OrderPayeeValue();
+        payeeValue.setOrder(this);
+        payeeValue.setPayee(price);
+        payeeValue.setName(name);
+        payeeValue.setValue(value);
+        this.payees.add(payeeValue);
+    }
+
     @Transient
     public BigDecimal getSurplus() {
         if (surplus == null) {
@@ -538,6 +559,14 @@ public class Order extends BaseBusEntity {
             total = this.getTotalAmount();
         }
         return total;
+    }
+
+    public List<OrderPayeeValue> getPayees() {
+        return payees;
+    }
+
+    public void setPayees(List<OrderPayeeValue> payees) {
+        this.payees = payees;
     }
 
     public void setTotal(BigDecimal total) {

@@ -8,14 +8,11 @@ import org.jfantasy.framework.spring.SpELUtil;
 import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
-import org.jfantasy.order.bean.Order;
-import org.jfantasy.order.bean.OrderCashFlow;
-import org.jfantasy.order.bean.OrderType;
+import org.jfantasy.order.bean.*;
+import org.jfantasy.order.bean.enums.DataType;
 import org.jfantasy.order.bean.enums.PayeeType;
 import org.jfantasy.order.bean.enums.Stage;
-import org.jfantasy.order.dao.OrderCashFlowDao;
-import org.jfantasy.order.dao.OrderDao;
-import org.jfantasy.order.dao.OrderTypeDao;
+import org.jfantasy.order.dao.*;
 import org.jfantasy.trade.bean.Project;
 import org.jfantasy.trade.dao.ProjectDao;
 import org.jfantasy.trade.service.AccountService;
@@ -35,14 +32,18 @@ public class OrderTypeService {
     private final ProjectDao projectDao;
     private final OrderDao orderDao;
     private final OrderCashFlowDao orderCashFlowDao;
+    private final OrderPayeeDao orderPayeeDao;
+    private final OrderPriceDao orderPriceDao;
     private AccountService accountService;
 
     @Autowired
-    public OrderTypeService(OrderTypeDao orderTypeDao, OrderDao orderDao, OrderCashFlowDao orderCashFlowDao, ProjectDao projectDao) {
+    public OrderTypeService(OrderTypeDao orderTypeDao, OrderDao orderDao, OrderCashFlowDao orderCashFlowDao, ProjectDao projectDao, OrderPayeeDao orderPayeeDao, OrderPriceDao orderPriceDao) {
         this.orderTypeDao = orderTypeDao;
         this.orderDao = orderDao;
         this.orderCashFlowDao = orderCashFlowDao;
         this.projectDao = projectDao;
+        this.orderPayeeDao = orderPayeeDao;
+        this.orderPriceDao = orderPriceDao;
     }
 
     @Transactional(readOnly = true)
@@ -56,6 +57,16 @@ public class OrderTypeService {
             return this.orderCashFlowDao.find(new Criterion[]{Restrictions.eq("orderType.id", id), Restrictions.eq("stage", stage), Restrictions.isNull("parent")}, "sort", "asc");
         }
         return new ArrayList<>();
+    }
+
+    @Transactional(readOnly = true)
+    public List<OrderPayee> payees(String id) {
+        return this.orderPayeeDao.find(Restrictions.eq("orderType.id", id));
+    }
+
+    @Transactional(readOnly = true)
+    public List<OrderPrice> prices(String id) {
+        return this.orderPriceDao.find(Restrictions.eq("orderType.id", id));
     }
 
     @Transactional
@@ -95,8 +106,8 @@ public class OrderTypeService {
     }
 
     @Transactional
-    public OrderCashFlow cashFlow(String id) {
-        return this.orderCashFlowDao.findUnique(Restrictions.eq("code", id));
+    public OrderCashFlow cashFlow(String code) {
+        return this.orderCashFlowDao.findUnique(Restrictions.eq("code", code));
     }
 
     @Transactional
@@ -105,11 +116,19 @@ public class OrderTypeService {
         return expression.getValue(SpELUtil.createEvaluationContext(order), BigDecimal.class);
     }
 
+    @Transactional(readOnly = true)
+    public OrderPayee getPayee(String id, String code) {
+        return orderPayeeDao.findUnique(Restrictions.eq("orderType.id", id), Restrictions.eq("code", code));
+    }
+
     @Transactional
     public String getPayee(OrderCashFlow cashFlow, Order order) {
-        Expression expression = SpELUtil.getExpression(cashFlow.getPayee());
-        String payee = expression.getValue(SpELUtil.createEvaluationContext(order), String.class);
-        return cashFlow.getPayeeType() == PayeeType.account ? payee : accountService.loadAccountByOwner(payee).getSn();
+        OrderPayee payee = cashFlow.getPayee();
+        if (payee.getType() == PayeeType.fixed) {
+            return payee.getCode();
+        }
+        OrderPayeeValue value = ObjectUtil.find(order.getPayees(), "orderPayee.id", cashFlow.getPayee().getId());
+        return payee.getType() == PayeeType.account ? value.getValue() : accountService.loadAccountByOwner(value.getValue()).getSn();
     }
 
     @Transactional
@@ -120,6 +139,47 @@ public class OrderTypeService {
         // 新增数据
         cashFlow.setSort(categories.size() + 1);
         return this.orderCashFlowDao.save(cashFlow);
+    }
+
+    @Transactional
+    public OrderPrice save(OrderPrice price) {
+        OrderPrice old = price.getOrderType() == null ?
+                this.orderPriceDao.findUnique(Restrictions.eq("code", price.getCode()), Restrictions.isNull("orderType")) :
+                this.orderPriceDao.findUnique(Restrictions.eq("code", price.getCode()), Restrictions.eq("orderType.id", price.getOrderType().getId()));
+        if (price.getDataType() == DataType.reference) {
+            OrderPrice reference = price.getReference();
+            price.setCode(reference.getCode());
+            price.setTitle(reference.getTitle());
+        }
+        if (old != null) {
+            price.setId(old.getId());
+        }
+        return this.orderPriceDao.save(price);
+    }
+
+    @Transactional
+    public OrderPayee save(OrderPayee payee) {
+        OrderPayee old = payee.getOrderType() == null ?
+                this.orderPayeeDao.findUnique(Restrictions.eq("code", payee.getCode()), Restrictions.isNull("orderType")) :
+                this.orderPayeeDao.findUnique(Restrictions.eq("code", payee.getCode()), Restrictions.eq("orderType.id", payee.getOrderType().getId()));
+        if (payee.getDataType() == DataType.reference) {
+            OrderPayee reference = payee.getReference();
+            payee.setType(reference.getType());
+            payee.setCode(reference.getCode());
+            payee.setTitle(reference.getTitle());
+        }
+        if (old != null) {
+            payee.setId(old.getId());
+        }
+        return this.orderPayeeDao.save(payee, true);
+    }
+
+    @Transactional
+    public void save(String id, OrderPayee... payees) {
+        for (OrderPayee payee : payees) {
+            payee.setOrderType(this.orderTypeDao.get(id));
+            this.save(payee);
+        }
     }
 
     @Transactional
@@ -144,7 +204,7 @@ public class OrderTypeService {
 
     private List<OrderCashFlow> siblings(OrderCashFlow cashFlow) {
         if (cashFlow.getParent() == null || StringUtil.isBlank(cashFlow.getParent().getId())) {
-            cashFlow.setLayer(0);
+            cashFlow.setLayer(1);
             cashFlow.setParent(null);
             return ObjectUtil.sort(orderCashFlowDao.find(Restrictions.eq("orderType.id", cashFlow.getOrderType().getId()), Restrictions.isNull("parent")), "sort", "asc");
         } else {

@@ -274,6 +274,7 @@ public class AccountService {
         bill.setProject(project.getName());
         bill.setPaymentMethod(transaction.getPayConfigName());
         bill.setBalance(account.getAmount());
+        bill.setTransaction(transaction);
         this.billDao.save(bill);
     }
 

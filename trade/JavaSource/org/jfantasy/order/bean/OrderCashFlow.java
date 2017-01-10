@@ -12,7 +12,6 @@ import org.jfantasy.order.bean.databind.OrderCashFlowDeserializer;
 import org.jfantasy.order.bean.databind.OrderCashFlowSerializer;
 import org.jfantasy.order.bean.databind.OrderTypeDeserializer;
 import org.jfantasy.order.bean.databind.OrderTypeSerializer;
-import org.jfantasy.order.bean.enums.PayeeType;
 import org.jfantasy.order.bean.enums.Stage;
 import org.jfantasy.order.service.OrderTypeService;
 
@@ -68,16 +67,11 @@ public class OrderCashFlow extends BaseBusEntity {
     @Column(name = "VALUE", length = 50, nullable = false)
     private String value;
     /**
-     * 收款人类型
+     * 收款人
      */
-    @Enumerated(EnumType.STRING)
-    @Column(name = "PAYEE_TYPE", length = 10, nullable = false)
-    private PayeeType payeeType;
-    /**
-     * 收款人表达式
-     */
-    @Column(name = "PAYEE", length = 50, nullable = false)
-    private String payee;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "PAYEE", nullable = false, foreignKey = @ForeignKey(name = "FK_ORDERCASHFLOW_PAYEE"))
+    private OrderPayee payee;
     /**
      * 备注
      */
@@ -99,7 +93,7 @@ public class OrderCashFlow extends BaseBusEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonSerialize(using = OrderTypeSerializer.class)
     @JsonDeserialize(using = OrderTypeDeserializer.class)
-    @JoinColumn(name = "ORDER_TYPE", nullable = false, updatable = false)
+    @JoinColumn(name = "ORDER_TYPE", nullable = false, updatable = false, foreignKey = @ForeignKey(name = "FK_ORDERCASHFLOW_ORDERTYPE"))
     private OrderType orderType;
     /**
      * 上级菜单
@@ -109,7 +103,7 @@ public class OrderCashFlow extends BaseBusEntity {
     @JsonSerialize(using = OrderCashFlowSerializer.class)
     @JsonDeserialize(using = OrderCashFlowDeserializer.class)
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.REFRESH})
-    @JoinColumn(name = "PID",updatable = false, foreignKey = @ForeignKey(name = "FK_ORDER_CASH_FLOW_PID"))
+    @JoinColumn(name = "PID", updatable = false, foreignKey = @ForeignKey(name = "FK_ORDER_CASH_FLOW_PID"))
     private OrderCashFlow parent;
     /**
      * 子流程
@@ -158,11 +152,11 @@ public class OrderCashFlow extends BaseBusEntity {
         this.value = value;
     }
 
-    public String getPayee() {
+    public OrderPayee getPayee() {
         return payee;
     }
 
-    public void setPayee(String payee) {
+    public void setPayee(OrderPayee payee) {
         this.payee = payee;
     }
 
@@ -188,14 +182,6 @@ public class OrderCashFlow extends BaseBusEntity {
 
     public void setLayer(Integer layer) {
         this.layer = layer;
-    }
-
-    public PayeeType getPayeeType() {
-        return payeeType;
-    }
-
-    public void setPayeeType(PayeeType payeeType) {
-        this.payeeType = payeeType;
     }
 
     public static OrderTypeService getOrderTypeService() {

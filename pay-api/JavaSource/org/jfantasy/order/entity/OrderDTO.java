@@ -89,6 +89,10 @@ public class OrderDTO {
      */
     private Long payee;
 
+    private List<OrderPayeeDTO> payees = new ArrayList<>();
+
+    private List<OrderPriceDTO> prices = new ArrayList<>();
+
     public String getSn() {
         return sn;
     }
@@ -247,6 +251,37 @@ public class OrderDTO {
 
     public void setPayee(Long payee) {
         this.payee = payee;
+    }
+
+    public List<OrderPayeeDTO> getPayees() {
+        return payees;
+    }
+
+    public void setPayees(List<OrderPayeeDTO> payees) {
+        this.payees = payees;
+    }
+
+    public List<OrderPriceDTO> getPrices() {
+        return prices;
+    }
+
+    public void setPrices(List<OrderPriceDTO> prices) {
+        this.prices = prices;
+    }
+
+    public void addPrice(String code, BigDecimal value) {
+        OrderPriceDTO price = new OrderPriceDTO();
+        price.setCode(code);
+        price.setValue(value);
+        this.prices.add(price);
+    }
+
+    public void addPayee(String code, String name, String value) {
+        OrderPayeeDTO price = new OrderPayeeDTO();
+        price.setCode(code);
+        price.setName(name);
+        price.setValue(value);
+        this.payees.add(price);
     }
 
     @Override

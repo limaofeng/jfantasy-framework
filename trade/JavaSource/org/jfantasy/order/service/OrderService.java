@@ -9,21 +9,23 @@ import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.util.HandlebarsTemplateUtils;
 import org.jfantasy.framework.util.common.DateUtil;
+import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.logistics.bean.DeliveryType;
 import org.jfantasy.logistics.service.DeliveryTypeService;
 import org.jfantasy.member.bean.Receiver;
 import org.jfantasy.member.service.ReceiverService;
-import org.jfantasy.order.bean.Order;
-import org.jfantasy.order.bean.OrderItem;
-import org.jfantasy.order.bean.OrderTargetKey;
-import org.jfantasy.order.bean.OrderType;
+import org.jfantasy.order.bean.*;
 import org.jfantasy.order.bean.enums.InvoiceStatus;
+import org.jfantasy.order.bean.enums.PayeeType;
+import org.jfantasy.order.bean.enums.Stage;
 import org.jfantasy.order.dao.OrderDao;
 import org.jfantasy.order.dao.OrderItemDao;
 import org.jfantasy.order.dao.OrderTypeDao;
 import org.jfantasy.order.entity.OrderDTO;
 import org.jfantasy.order.entity.OrderItemDTO;
+import org.jfantasy.order.entity.OrderPayeeDTO;
+import org.jfantasy.order.entity.OrderPriceDTO;
 import org.jfantasy.order.entity.enums.OrderStatus;
 import org.jfantasy.order.entity.enums.PaymentStatus;
 import org.jfantasy.order.entity.enums.ShippingStatus;
@@ -45,6 +47,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,6 +68,7 @@ public class OrderService {
     private ScheduleService scheduleService;
     private DeliveryTypeService deliveryTypeService;
     private AccountService accountService;
+    private OrderTypeService orderTypeService;
 
     @Autowired
     public OrderService(OrderTypeDao orderTypeDao, OrderDao orderDao, OrderItemDao orderItemDao) {
@@ -218,7 +222,7 @@ public class OrderService {
     public Order refund(String id, BigDecimal refundAmount, String note) {
         // 订单
         Order order = this.orderDao.get(id);
-        if (order.getStatus() == OrderStatus.refunding ||order.getStatus() == OrderStatus.refunded){
+        if (order.getStatus() == OrderStatus.refunding || order.getStatus() == OrderStatus.refunded) {
             return order;
         }
         if (order.getStatus() != OrderStatus.paid) {
@@ -228,10 +232,10 @@ public class OrderService {
 
         Transaction original = this.transactionService.getByUnionId(Transaction.generateUnionid(OrderTransaction.Type.payment.getValue(), order.getId()));
         // 匹配旧的逻辑
-        if(original == null){
+        if (original == null) {
             original = this.transactionService.getByUnionId(Transaction.generateUnionid(OrderTransaction.Type.payment.getValue(), order.getDetailsId()));
         }
-        if(original == null){
+        if (original == null) {
             original = this.transactionService.getByUnionId(Transaction.generateUnionid(OrderTransaction.Type.payment.getValue(), order.getDetailsType() + ":" + order.getDetailsId()));
         }
         Transaction transaction = this.transactionService.refund(original, refundAmount, note);
@@ -286,7 +290,8 @@ public class OrderService {
         Long memberId = details.getMemberId();
         Long deliveryTypeId = details.getDeliveryTypeId();
         Long receiverId = details.getReceiverId();
-        Long payee = details.getPayee();
+        List<OrderPayeeDTO> payees = details.getPayees();
+        List<OrderPriceDTO> prices = details.getPrices();
         String memo = details.getMemo();
         List<OrderItemDTO> items = details.getItems();
 
@@ -305,7 +310,7 @@ public class OrderService {
         // 订单扩展字段
         order.setAttrs(details.getAttrs());
         // 收款方
-        order.setPayee(payee);
+        order.setPayee(-1L);
         // 初始化收货人信息
         if (receiverId != null) {
             Receiver receiver = receiverService.get(receiverId);
@@ -366,27 +371,100 @@ public class OrderService {
             order.setMemo(memo);
         }
         // 产品价格 + 配送费
-        BigDecimal totalAmount = order.getTotalProductPrice().add(order.getDeliveryAmount());
-        //额外的价格条目
-        /*
-        for(PriceVO vo : priceVOS){
-            OrderPrice price = new OrderPrice();
-            price.setCode(vo.getCode());
-            price.setName(vo.getName());
-            price.setAmount(vo.getAmount());
-            price.setOrder(order);
-            this.orderPriceDao.save(price);
-            totalAmount = totalAmount.add(vo.getAmount());
+        BigDecimal totalAmount = BigDecimal.ZERO;
+        // 价格条目
+        for (OrderPrice price : this.orderTypeService.prices(order.getType())) {
+            OrderPriceDTO dto = ObjectUtil.find(prices, "code", price.getCode());
+            if (dto == null) {
+                throw new ValidationException(String.format("缺少关于%s的费用配置", price.getTitle()));
+            }
+            totalAmount = totalAmount.add(dto.getValue());
+            order.addPrice(price, dto.getValue());
         }
-        */
+        // 收款人条目
+        for (OrderPayee payee : this.orderTypeService.payees(order.getType())) {
+            if (payee.getType() == PayeeType.fixed) {
+                continue;
+            }
+            OrderPayeeDTO dto = ObjectUtil.find(payees, "code", payee.getCode());
+            if (dto == null) {
+                throw new ValidationException(String.format("缺少关于%s的收款人配置", payee.getTitle()));
+            }
+            order.addPayee(payee, dto.getName(), dto.getValue());
+        }
         order.setTotalAmount(totalAmount);// 订单总金额(商品金额+邮费)
         //如果有优惠，应该在这里计算。
         order.setPayableAmount(order.getTotalAmount());//订单支付金额
-        this.orderDao.save(order);
-        for (OrderItem item : order.getItems()) {
-            this.orderItemDao.save(item);
+        return this.orderDao.save(order);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void cashflow(String id) {
+        Order order = this.orderDao.get(id);
+        if (order.getStatus() == OrderStatus.complete && order.getPaymentStatus() == PaymentStatus.paid) {
+            Account platform = transactionService.platform();
+            List<OrderCashFlow> cashFlows = orderTypeService.cashflows(order.getType(), Stage.finished);
+            // 设置初始值
+            order.setTotal(order.getTotalAmount());
+            order.setSurplus(order.getTotalAmount());
+            for (OrderCashFlow cashFlow : cashFlows) {
+                BigDecimal surplus = order.getSurplus();
+                order.setTotal(order.getTotalAmount());
+                order.setSurplus(surplus.subtract(startupFlow(cashFlow, order, platform.getSn())));
+            }
         }
-        return order;
+        order.setPaymentStatus(PaymentStatus.archived);
+        this.orderDao.update(order);
+    }
+
+    /**
+     * 启动流程
+     *
+     * @param cashFlow 订单现金流
+     * @param order    订单
+     * @param from     转出账户
+     * @return BigDecimal
+     */
+    private BigDecimal startupFlow(OrderCashFlow cashFlow, Order order, String from) {
+        String payee = cashFlow.getPayee(order);
+        BigDecimal value = cashFlow.getValue(order);
+        if (BigDecimal.ZERO.setScale(2, RoundingMode.DOWN).equals(value)) {
+            LOG.error(" 金额为 0.00，跳过分配规则 > " + cashFlow.getId());
+            return value;
+        }
+        Transaction transaction = transfer(order, cashFlow.getProject(), value, from, payee, order.getId() + "->" + cashFlow.getCode(), cashFlow.getName());
+        // 设置初始值
+        order.setTotal(transaction.getAmount());
+        order.setSurplus(transaction.getAmount());
+        for (OrderCashFlow flow : cashFlow.getSubflows()) {
+            BigDecimal surplus = order.getSurplus();
+            order.setTotal(transaction.getAmount());
+            order.setSurplus(surplus.subtract(startupFlow(flow, order, payee)));
+        }
+        return transaction.getAmount();
+    }
+
+    /**
+     * 转账接口
+     *
+     * @param order    订单对象
+     * @param project  转账项目
+     * @param amount   转账金额
+     * @param from     转出账户
+     * @param to       转入账户
+     * @param unionKey 唯一标示
+     * @param notes    备注
+     * @return Transaction
+     */
+    private Transaction transfer(Order order, String project, BigDecimal amount, String from, String to, String unionKey, String notes) {
+
+        Map<String, Object> data = new HashMap<>();
+        data.putAll(order.getAttrs());
+        data.put(Transaction.UNION_KEY, unionKey);
+        data.put(Transaction.ORDER_ID, order.getId());
+        data.put(Transaction.ORDER_TYPE, order.getType());
+
+        return transactionService.save(project, from, to, amount, notes, data);
     }
 
     @Autowired
@@ -412,6 +490,11 @@ public class OrderService {
     @Autowired
     public void setReceiverService(ReceiverService receiverService) {
         this.receiverService = receiverService;
+    }
+
+    @Autowired
+    public void setOrderTypeService(OrderTypeService orderTypeService) {
+        this.orderTypeService = orderTypeService;
     }
 
 }

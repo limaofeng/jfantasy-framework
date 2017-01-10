@@ -41,7 +41,7 @@ public class Transaction extends BaseBusEntity {
      * 交易流水号
      */
     @Id
-    @Column(name = "SN", updatable = false)
+    @Column(name = "SN", updatable = false, length = 32)
     @GeneratedValue(generator = "serialnumber")
     @GenericGenerator(name = "serialnumber", strategy = "serialnumber", parameters = {@org.hibernate.annotations.Parameter(name = "expression", value = "#DateUtil.format('yyyyMMdd') + #StringUtil.addZeroLeft(#SequenceInfo.nextValue('TX-SN' + #DateUtil.format('yyyyMMdd')), 5)")})
     private String sn;
