@@ -19,7 +19,7 @@ import java.util.List;
 
 public class OSSFileManager implements FileManager {
 
-    protected AccessKey accessKey;
+    private AccessKey accessKey;
     private String bucketName;
     private String endpoint;
     private OSSClient client;
@@ -63,7 +63,7 @@ public class OSSFileManager implements FileManager {
 
     @Override
     public OutputStream writeFile(String remotePath) throws IOException {
-        throw new RuntimeException(" OSS 不支持直接获取输入流对象操作文件,可以通过自定义 OutputStream 实现该方法!");
+        throw new IOException(" OSS 不支持直接获取输入流对象操作文件,可以通过自定义 OutputStream 实现该方法!");
     }
 
     @Override

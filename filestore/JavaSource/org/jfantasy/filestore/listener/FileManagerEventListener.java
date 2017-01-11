@@ -30,13 +30,13 @@ public class FileManagerEventListener extends AbstractChangedListener<FileManage
     @Override
     public void onPostUpdate(FileManagerConfig config, PostUpdateEvent event) {
         if (modify(event, "configParamStore")) {
-            factory.registerFileManager(config.getId(), config.getType(), config.getConfigParams());
+            factory.register(config.getId(), config.getType(), config.getConfigParams());
         }
     }
 
     @Override
     public void onPostInsert(FileManagerConfig config, PostInsertEvent event) {
-        factory.registerFileManager(config.getId(), config.getType(), config.getConfigParams());
+        factory.register(config.getId(), config.getType(), config.getConfigParams());
     }
 
 }

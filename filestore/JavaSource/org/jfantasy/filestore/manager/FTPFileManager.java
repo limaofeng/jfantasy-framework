@@ -85,7 +85,7 @@ public class FTPFileManager implements FileManager {
 
         public List<FileItem> listFileItems(FileItemSelector selector) {
             if (!this.isDirectory()) {
-                return new ArrayList<FileItem>();
+                return new ArrayList<>();
             }
             return FileItem.Util.flat(this.listFileItems(), selector);
         }
@@ -96,7 +96,7 @@ public class FTPFileManager implements FileManager {
         }
 
         public List<FileItem> listFileItems(FileItemFilter filter) {
-            List<FileItem> fileItems = new ArrayList<FileItem>();
+            List<FileItem> fileItems = new ArrayList<>();
             if (!this.isDirectory()) {
                 return fileItems;
             }
@@ -110,7 +110,7 @@ public class FTPFileManager implements FileManager {
 
         public List<FileItem> listFileItems() {
             try {
-                List<FileItem> fileItems = new ArrayList<FileItem>();
+                List<FileItem> fileItems = new ArrayList<>();
                 if (!this.isDirectory()) {
                     return fileItems;
                 }

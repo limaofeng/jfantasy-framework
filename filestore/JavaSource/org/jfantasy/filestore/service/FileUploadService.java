@@ -27,12 +27,9 @@ public class FileUploadService {
     private static final Log LOG = LogFactory.getLog(FileUploadService.class);
 
     private static final String separator = "/";//NOSONAR
-    @Autowired
-    private transient FileService fileService;
-    @Autowired
-    private transient FilePartService filePartService;
-    @Autowired
-    private transient FileManagerFactory fileManagerFactory;
+    private final FileService fileService;
+    private final FilePartService filePartService;
+    private final FileManagerFactory fileManagerFactory;
 
     private static final  Map<String, String> EXTENSIONS = new HashMap<>();
 
@@ -41,6 +38,13 @@ public class FileUploadService {
         EXTENSIONS.put("image/gif", "gif");
         EXTENSIONS.put("image/png", "png");
         EXTENSIONS.put("mage/bmp", "bmp");
+    }
+
+    @Autowired
+    public FileUploadService(FileService fileService, FilePartService filePartService, FileManagerFactory fileManagerFactory) {
+        this.fileService = fileService;
+        this.filePartService = filePartService;
+        this.fileManagerFactory = fileManagerFactory;
     }
 
     private static boolean isPart(String entireFileHash, String partFileHash, String entireFileName, String entireFileDir, Integer total, Integer index) {
@@ -111,7 +115,7 @@ public class FileUploadService {
             if (isPart) {//如果为分段上传
                 //获取文件上传目录的配置信息
                 Directory directory = fileService.getDirectory(dir);
-                FileManager fileManager = fileManagerFactory.getUploadFileManager(directory.getFileManager().getId());
+                FileManager fileManager = fileManagerFactory.getFileManager(directory.getFileManager().getId());
 
                 FilePart filePart = filePartService.findByPartFileHash(entireFileHash, partFileHash);
                 if (filePart == null || (fileDetail = fileService.get(filePart.getPath())) == null) {//分段已上传信息
@@ -171,7 +175,7 @@ public class FileUploadService {
             if (isPart) {//如果为分段上传
                 //获取文件上传目录的配置信息
                 Directory directory = fileService.getDirectory(dir);
-                FileManager fileManager = fileManagerFactory.getUploadFileManager(directory.getFileManager().getId());
+                FileManager fileManager = fileManagerFactory.getFileManager(directory.getFileManager().getId());
 
                 FilePart filePart = filePartService.findByPartFileHash(entireFileHash, partFileHash);
                 if (filePart == null || (fileDetail = fileService.get(filePart.getPath())) == null) {//分段已上传信息

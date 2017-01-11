@@ -8,26 +8,18 @@ import org.jfantasy.filestore.bean.ConfigParam;
 import org.jfantasy.filestore.bean.FileManagerConfig;
 import org.jfantasy.filestore.bean.enums.FileManagerType;
 import org.jfantasy.filestore.builders.LocalFileManagerBuilder;
-import org.jfantasy.filestore.manager.UploadFileManager;
-import org.jfantasy.framework.error.IgnoreException;
+import org.jfantasy.filestore.builders.OSSFileManagerBuilder;
 import org.jfantasy.framework.spring.SpringContextUtil;
-import org.jfantasy.framework.util.common.ObjectUtil;
-import org.jfantasy.framework.util.common.PathUtil;
-import org.jfantasy.framework.util.common.StringUtil;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
-import static org.jfantasy.filestore.bean.enums.FileManagerType.local;
 
 /**
  * FileManager 管理类
@@ -38,24 +30,23 @@ import static org.jfantasy.filestore.bean.enums.FileManagerType.local;
  * @since 2013-7-12 下午03:57:31
  */
 @Transactional
-public class FileManagerFactory implements ApplicationListener<ContextRefreshedEvent> {
+public class FileManagerFactory implements InitializingBean, ApplicationListener<ContextRefreshedEvent> {
 
     private static final Log LOG = LogFactory.getLog(FileManagerFactory.class);
 
     private static FileManagerFactory fileManagerFactory;
 
-    public static final String WEBROOT_FILEMANAGER_ID = "WEBROOT";
-
-    @Autowired
     private FileManagerService fileManagerService;
 
-    private Map<FileManagerType, FileManagerBuilder> fileManagerBuilders = new HashMap<FileManagerType, FileManagerBuilder>() {
-        {
-            this.put(FileManagerType.local, new LocalFileManagerBuilder());
-        }
-    };
+    private Map<FileManagerType, FileManagerBuilder> builders = new EnumMap<>(FileManagerType.class);
 
-    private static final ConcurrentMap<String, FileManager> fileManagerCache = new ConcurrentHashMap<String, FileManager>();
+    private static final ConcurrentMap<String, FileManager> fileManagerCache = new ConcurrentHashMap<>();
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        this.addBuilder(FileManagerType.local, new LocalFileManagerBuilder());
+        this.addBuilder(FileManagerType.oss, new OSSFileManagerBuilder());
+    }
 
     @Async
     @Override
@@ -65,28 +56,12 @@ public class FileManagerFactory implements ApplicationListener<ContextRefreshedE
         }
     }
 
-    public void load() {
+    private void load() {
         long start = System.currentTimeMillis();
-        // 创建默认目录
-        final String webrootPath = StringUtil.defaultValue(PathUtil.root(), PathUtil.classes());
-        FileManagerConfig fileManagerConfig = fileManagerService.get(WEBROOT_FILEMANAGER_ID);
-        if (fileManagerConfig == null) {
-            fileManagerService.save(local, WEBROOT_FILEMANAGER_ID, "项目WEB根目录", "应用启动是检查并修改该目录", new HashMap<String, String>() {
-                {
-                    this.put("defaultDir", webrootPath);
-                }
-            });
-        } else {
-            ConfigParam defaultDir = ObjectUtil.find(fileManagerConfig.getConfigParams(), "name", "defaultDir");
-            if (defaultDir == null || !webrootPath.equals(defaultDir.getValue())) {
-                fileManagerConfig.addConfigParam("defaultDir", webrootPath);
-                fileManagerService.save(fileManagerConfig);
-            }
-        }
         // 初始化文件管理器
         for (FileManagerConfig config : fileManagerService.getAll()) {
             try {
-                FileManagerFactory.this.registerFileManager(config.getId(), config.getType(), config.getConfigParams());
+                FileManagerFactory.this.register(config.getId(), config.getType(), config.getConfigParams());
             } catch (Exception ex) {
                 LOG.error("注册 FileManager id = [" + config.getId() + "] 失败!", ex);
             }
@@ -94,8 +69,8 @@ public class FileManagerFactory implements ApplicationListener<ContextRefreshedE
         LOG.error("\n初始化 FileManagerFactory 耗时:" + (System.currentTimeMillis() - start) + "ms");
     }
 
-    public void registerFileManager(String id, FileManagerType type, final List<ConfigParam> configParams) {
-        if (!fileManagerBuilders.containsKey(type)) {
+    public void register(String id, FileManagerType type, final List<ConfigParam> configParams) {
+        if (!builders.containsKey(type)) {
             LOG.error(" 未找到 [" + type + "] 对应的构建程序!请参考 FileManagerBuilder 实现,并添加到 FileManagerFactory 的配置中");
             return;
         }
@@ -103,7 +78,7 @@ public class FileManagerFactory implements ApplicationListener<ContextRefreshedE
         for (ConfigParam configParam : configParams) {
             params.put(configParam.getName(), configParam.getValue());
         }
-        fileManagerCache.put(id, fileManagerBuilders.get(type).register(params));
+        fileManagerCache.put(id, builders.get(type).register(params));
     }
 
     /**
@@ -111,37 +86,11 @@ public class FileManagerFactory implements ApplicationListener<ContextRefreshedE
      *
      * @return FileManagerFactory
      */
-    public synchronized static FileManagerFactory getInstance() {
+    public static synchronized FileManagerFactory getInstance() {
         if (fileManagerFactory == null) {
             fileManagerFactory = SpringContextUtil.getBeanByType(FileManagerFactory.class);
         }
         return fileManagerFactory;
-    }
-
-    /**
-     * 获取webroot对应的文件管理器
-     *
-     * @return FileManager
-     */
-    public static FileManager getWebRootFileManager() {
-        return FileManagerFactory.getInstance().getFileManager(WEBROOT_FILEMANAGER_ID);
-    }
-
-    /**
-     * 根据id获取对应的文件管理器
-     *
-     * @param id Id
-     * @return UploadFileManager
-     */
-    public UploadFileManager getUploadFileManager(String id) {
-        FileManager fileManager = getFileManager(id);
-        if (fileManager == null) {
-            throw new IgnoreException("文件管理器[" + id + "]不存在!");
-        }
-        if (!(fileManager instanceof UploadFileManager)) {
-            throw new IgnoreException("文件管理器[" + id + "]不支持文件上传功能!");
-        }
-        return (UploadFileManager) fileManager;
     }
 
     /**
@@ -157,19 +106,17 @@ public class FileManagerFactory implements ApplicationListener<ContextRefreshedE
         return fileManagerCache.get(id);
     }
 
-    public static String[] getFileManagerIds() {
-        Set<String> strings = fileManagerCache.keySet();
-        return strings.toArray(new String[strings.size()]);
-    }
-
     public void remove(FileManagerConfig config) {
         fileManagerCache.remove(config.getId());
     }
 
-    public void setBuilders(List<FileManagerBuilder> builders) {
-        for (FileManagerBuilder fileManagerBuilder : builders) {
-            this.fileManagerBuilders.put(fileManagerBuilder.getType(), fileManagerBuilder);
-        }
+    public void addBuilder(FileManagerType type, FileManagerBuilder builder) {
+        this.builders.put(type, builder);
+    }
+
+    @Autowired
+    public void setFileManagerService(FileManagerService fileManagerService) {
+        this.fileManagerService = fileManagerService;
     }
 
 }
