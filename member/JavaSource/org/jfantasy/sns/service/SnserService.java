@@ -68,6 +68,12 @@ public class SnserService {
             snser.setPlatform(platform);
             snser.setMember(this.memberDao.get(memberId));
             snser.setOpenId(fans.getOpenId());
+
+            snser.set("country",fans.getCountry());
+            snser.set("province",fans.getProvince());
+            snser.set("city",fans.getCity());
+            snser.set("language",fans.getLanguage());
+
             return this.snserDao.save(snser);
         } else {
             throw new ValidationException("暂不支持该的平台");

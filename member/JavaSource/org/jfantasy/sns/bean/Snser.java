@@ -37,12 +37,12 @@ public class Snser extends BaseBusEntity {
     @JsonUnwrapped(prefix = "platform_")
     @JsonIgnoreProperties({"creator", "modifier", "create_time", "modify_time"})
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "PLATFORM_ID", foreignKey = @ForeignKey(name = "FK_ACCOUNT_PLATFORM"))
+    @JoinColumn(name = "PLATFORM_ID", nullable = false, foreignKey = @ForeignKey(name = "FK_ACCOUNT_PLATFORM"))
     private Platform platform;
     /**
      * 对应社交媒体的OPENID
      */
-    @Column(name = "OPEN_ID", length = 50)
+    @Column(name = "OPEN_ID", length = 50, nullable = false)
     private String openId;
     /**
      * 头像
@@ -53,7 +53,7 @@ public class Snser extends BaseBusEntity {
     /**
      * 用户昵称
      */
-    @Column(name = "NAME", length = 50)
+    @Column(name = "NAME", length = 50, nullable = false)
     private String name;
     /**
      * 性别
@@ -71,7 +71,7 @@ public class Snser extends BaseBusEntity {
      * 用户
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "MEMBER_ID", foreignKey = @ForeignKey(name = "FK_ACCOUNT_MEMBER"))
+    @JoinColumn(name = "MEMBER_ID", nullable = false, foreignKey = @ForeignKey(name = "FK_ACCOUNT_MEMBER"))
     private Member member;
 
     public Long getId() {
