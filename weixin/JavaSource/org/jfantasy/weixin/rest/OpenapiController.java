@@ -2,16 +2,16 @@ package org.jfantasy.weixin.rest;
 
 import org.jfantasy.framework.spring.mvc.error.NotFoundException;
 import org.jfantasy.weixin.bean.Fans;
+import org.jfantasy.weixin.framework.core.Openapi;
 import org.jfantasy.weixin.framework.exception.WeixinException;
 import org.jfantasy.weixin.framework.factory.WeixinSessionFactory;
 import org.jfantasy.weixin.framework.factory.WeixinSessionUtils;
 import org.jfantasy.weixin.framework.message.user.User;
+import org.jfantasy.weixin.framework.session.WeixinSession;
+import org.jfantasy.weixin.rest.models.OAuth2UrlForm;
 import org.jfantasy.weixin.service.FansService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/weixin/apps/{id}/openapis")
@@ -35,15 +35,27 @@ public class OpenapiController {
      * @throws WeixinException 微信异常
      */
     @RequestMapping(value = "/userinfo", method = RequestMethod.GET)
-    public Fans getUserByAuthorizedCode(@PathVariable("id") String id, @PathVariable("code") String code) throws WeixinException {
+    public Fans userinfo(@PathVariable("id") String id, @RequestParam("code") String code) throws WeixinException {
         try {
-            WeixinSessionUtils.saveSession(weixinSessionFactory.openSession(id));
-            User user = WeixinSessionUtils.getCurrentSession().getOauth2User(code);
+            WeixinSession weixinSession = WeixinSessionUtils.saveSession(weixinSessionFactory.openSession(id));
+            Openapi openapi = weixinSession.getOpenapi();
+            User user = openapi.getUser(code);
             if (user == null) {
                 throw new NotFoundException("未找到对应的粉丝信息");
             }
-            return fansService.checkCreateMember(id, user.getOpenId());
+            return fansService.save(id, user);
+        } finally {
+            WeixinSessionUtils.closeSession();
+        }
+    }
 
+    @PostMapping("/oauth2url")
+    @ResponseBody
+    public String userinfo(@PathVariable("id") String id, @RequestBody OAuth2UrlForm form) throws WeixinException {
+        try {
+            WeixinSession weixinSession = WeixinSessionUtils.saveSession(weixinSessionFactory.openSession(id));
+            Openapi openapi = weixinSession.getOpenapi();
+            return openapi.getAuthorizationUrl(form.getRedirectUri(), form.getScope(), form.getState());
         } finally {
             WeixinSessionUtils.closeSession();
         }

@@ -5,9 +5,8 @@ import org.jfantasy.weixin.framework.message.WeixinMessage;
 import org.jfantasy.weixin.framework.message.content.*;
 import org.jfantasy.weixin.framework.message.user.OpenIdList;
 import org.jfantasy.weixin.framework.message.user.User;
-import org.jfantasy.weixin.framework.oauth2.Scope;
-import org.jfantasy.weixin.framework.session.WeixinSession;
 import org.jfantasy.weixin.framework.session.WeixinApp;
+import org.jfantasy.weixin.framework.session.WeixinSession;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
@@ -33,135 +32,128 @@ public class MpCoreHelper implements WeixinCoreHelper {
 
     @Override
     public WeixinMessage parseInMessage(WeixinSession session, HttpServletRequest request) throws WeixinException {
-        return getWeiXinDetails(session.getId()).getWeiXinService().parseInMessage(request);
+        return getWeiXinDetails(session.getId()).getWeixinService().parseInMessage(request);
     }
 
     @Override
     public String buildOutMessage(WeixinSession session, String encryptType, WeixinMessage message) throws WeixinException {
-        return getWeiXinDetails(session.getId()).getWeiXinService().parseInMessage(encryptType, message);
+        return getWeiXinDetails(session.getId()).getWeixinService().parseInMessage(encryptType, message);
     }
 
     @Override
     public void sendImageMessage(WeixinSession session, Image content, String... toUsers) throws WeixinException {
-        getWeiXinDetails(session.getId()).getWeiXinService().sendImageMessage(content, toUsers);
+        getWeiXinDetails(session.getId()).getWeixinService().sendImageMessage(content, toUsers);
     }
 
     @Override
     public void sendImageMessage(WeixinSession session, Image content, long toGroup) throws WeixinException {
-        getWeiXinDetails(session.getId()).getWeiXinService().sendImageMessage(content, toGroup);
+        getWeiXinDetails(session.getId()).getWeixinService().sendImageMessage(content, toGroup);
     }
 
     @Override
     public void sendVoiceMessage(WeixinSession session, Voice content, String... toUsers) throws WeixinException {
-        getWeiXinDetails(session.getId()).getWeiXinService().sendVoiceMessage(content, toUsers);
+        getWeiXinDetails(session.getId()).getWeixinService().sendVoiceMessage(content, toUsers);
     }
 
     @Override
     public void sendVoiceMessage(WeixinSession session, Voice content, long toGroup) throws WeixinException {
-        getWeiXinDetails(session.getId()).getWeiXinService().sendVoiceMessage(content, toGroup);
+        getWeiXinDetails(session.getId()).getWeixinService().sendVoiceMessage(content, toGroup);
     }
 
     @Override
     public void sendVideoMessage(WeixinSession session, Video content, String... toUsers) throws WeixinException {
-        getWeiXinDetails(session.getId()).getWeiXinService().sendVideoMessage(content, toUsers);
+        getWeiXinDetails(session.getId()).getWeixinService().sendVideoMessage(content, toUsers);
     }
 
     @Override
     public void sendVideoMessage(WeixinSession session, Video content, long toGroup) throws WeixinException {
-        getWeiXinDetails(session.getId()).getWeiXinService().sendVideoMessage(content, toGroup);
+        getWeiXinDetails(session.getId()).getWeixinService().sendVideoMessage(content, toGroup);
     }
 
     @Override
     public void sendMusicMessage(WeixinSession session, Music content, String toUser) throws WeixinException {
-        getWeiXinDetails(session.getId()).getWeiXinService().sendMusicMessage(content, toUser);
+        getWeiXinDetails(session.getId()).getWeixinService().sendMusicMessage(content, toUser);
     }
 
     @Override
     public void sendNewsMessage(WeixinSession session, List<News> content, String toUser) throws WeixinException {
-        getWeiXinDetails(session.getId()).getWeiXinService().sendNewsMessage(content, toUser);
+        getWeiXinDetails(session.getId()).getWeixinService().sendNewsMessage(content, toUser);
     }
 
     public void sendNewsMessage(WeixinSession session, List<Article> articles, String... toUsers) throws WeixinException {
-        getWeiXinDetails(session.getId()).getWeiXinService().sendNewsMessage(articles, toUsers);
+        getWeiXinDetails(session.getId()).getWeixinService().sendNewsMessage(articles, toUsers);
     }
 
     @Override
     public void sendNewsMessage(WeixinSession session, List<Article> articles, long toGroup) throws WeixinException {
-        getWeiXinDetails(session.getId()).getWeiXinService().sendNewsMessage(articles, toGroup);
-    }
-
-    @Override
-    public String oauth2buildAuthorizationUrl(WeixinSession session, String redirectUri, Scope scope, String state) throws WeixinException {
-        return getWeiXinDetails(session.getId()).getWeiXinService().oauth2buildAuthorizationUrl(redirectUri, scope, state);
-    }
-
-    public User getOauth2User(WeixinSession session, String code) throws WeixinException {
-        return getWeiXinDetails(session.getId()).getWeiXinService().getOauth2User(code);
+        getWeiXinDetails(session.getId()).getWeixinService().sendNewsMessage(articles, toGroup);
     }
 
     @Override
     public void sendTextMessage(WeixinSession session, String content, String... toUsers) throws WeixinException {
-        getWeiXinDetails(session.getId()).getWeiXinService().sendTextMessage(content, toUsers);
+        getWeiXinDetails(session.getId()).getWeixinService().sendTextMessage(content, toUsers);
     }
 
     @Override
     public void sendTextMessage(WeixinSession session, String content, long toGroup) throws WeixinException {
-        getWeiXinDetails(session.getId()).getWeiXinService().sendTextMessage(content, toGroup);
+        getWeiXinDetails(session.getId()).getWeixinService().sendTextMessage(content, toGroup);
     }
 
     @Override
     public void sendTemplateMessage(WeixinSession session, Template content, String toUser) throws WeixinException {
-        getWeiXinDetails(session.getId()).getWeiXinService().sendTemplateMessage(content, toUser);
+        getWeiXinDetails(session.getId()).getWeixinService().sendTemplateMessage(content, toUser);
     }
-
-
 
     @Override
     public List<User> getUsers(WeixinSession session) throws WeixinException {
-        return getWeiXinDetails(session.getId()).getWeiXinService().getUsers();
+        return getWeiXinDetails(session.getId()).getWeixinService().getUsers();
     }
 
     @Override
     public OpenIdList getOpenIds(WeixinSession session) throws WeixinException {
-        return getWeiXinDetails(session.getId()).getWeiXinService().getOpenIds();
+        return getWeiXinDetails(session.getId()).getWeixinService().getOpenIds();
     }
 
     @Override
     public OpenIdList getOpenIds(WeixinSession session, String nextOpenId) throws WeixinException {
-        return getWeiXinDetails(session.getId()).getWeiXinService().getOpenIds(nextOpenId);
+        return getWeiXinDetails(session.getId()).getWeixinService().getOpenIds(nextOpenId);
     }
 
     @Override
     public User getUser(WeixinSession session, String userId) throws WeixinException {
-        return getWeiXinDetails(session.getId()).getWeiXinService().getUser(userId);
+        return getWeiXinDetails(session.getId()).getWeixinService().getUser(userId);
     }
 
     @Override
     public String mediaUpload(WeixinSession session, Media.Type mediaType, Object fileItem) throws WeixinException {
-        return getWeiXinDetails(session.getId()).getWeiXinService().mediaUpload(mediaType, fileItem);
+        return getWeiXinDetails(session.getId()).getWeixinService().mediaUpload(mediaType, fileItem);
     }
 
     public Object mediaDownload(WeixinSession session, String mediaId) throws WeixinException {
-        return getWeiXinDetails(session.getId()).getWeiXinService().mediaDownload(mediaId);
+        return getWeiXinDetails(session.getId()).getWeixinService().mediaDownload(mediaId);
     }
 
     @Override
     public void refreshMenu(WeixinSession session, Menu... menus) throws WeixinException {
-        getWeiXinDetails(session.getId()).getWeiXinService().refreshMenu(menus);
+        getWeiXinDetails(session.getId()).getWeixinService().refreshMenu(menus);
     }
 
     public Jsapi getJsapi(WeixinSession session) throws WeixinException {
-        return getWeiXinDetails(session.getId()).getWeiXinService().getJsapi();
+        return getWeiXinDetails(session.getId()).getWeixinService().getJsapi();
+    }
+
+    public Openapi getOpenapi(WeixinSession session) throws WeixinException {
+        return getWeiXinDetails(session.getId()).getWeixinService().getOpenapi();
     }
 
     @Override
     public List<Menu> getMenus(WeixinSession session) throws WeixinException {
-        return getWeiXinDetails(session.getId()).getWeiXinService().getMenus();
+        return getWeiXinDetails(session.getId()).getWeixinService().getMenus();
     }
 
     @Override
     public void clearMenu(WeixinSession session) throws WeixinException {
-        getWeiXinDetails(session.getId()).getWeiXinService().clearMenu();
+        getWeiXinDetails(session.getId()).getWeixinService().clearMenu();
     }
 
     private WeixinDetails getWeiXinDetails(String appid) throws WeixinException {

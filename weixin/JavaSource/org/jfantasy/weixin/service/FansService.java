@@ -26,6 +26,10 @@ public class FansService {
         this.fansDao = fansDao;
     }
 
+    public Fans get(String appId,String openId) {
+        return fansDao.get(new UserKey(appId,openId));
+    }
+
     public Fans get(UserKey key) {
         return fansDao.get(key);
     }
@@ -48,6 +52,15 @@ public class FansService {
         return this.fansDao.findPager(pager, filters);
     }
 
+    public Fans save(String id, User user) {
+        Fans fans = this.fansDao.get(UserKey.newInstance(id, user.getOpenId()));
+        if (fans == null) {
+            fans = new Fans();
+            fans.setAppId(id);
+        }
+        return this.fansDao.save(merge(fans, user));
+    }
+
     /**
      * 通过openId刷新用户信息
      */
@@ -60,7 +73,7 @@ public class FansService {
         if (user == null) {
             return null;
         }
-        ui = transfiguration(user);
+        ui = merge(new Fans(), user);
         ui.setAppId(appid);
         this.fansDao.save(ui);
         return ui;
@@ -70,28 +83,25 @@ public class FansService {
     /**
      * 转换user到userinfo
      *
-     * @param u
+     * @param fans 微信粉丝
+     * @param user 微信平台对象
      * @return Fans
      */
-    public Fans transfiguration(User u) {
-        if (u == null) {
-            return null;
+    private Fans merge(Fans fans, User user) {
+        fans.setOpenId(user.getOpenId());
+        fans.setAvatar(user.getAvatar());
+        fans.setCity(user.getCity());
+        fans.setCountry(user.getCountry());
+        fans.setProvince(user.getProvince());
+        fans.setLanguage(user.getLanguage());
+        fans.setNickname(user.getNickname());
+        fans.setSex(user.getSex());
+        fans.setSubscribe(user.isSubscribe());
+        if (user.getSubscribeTime() != null) {
+            fans.setSubscribeTime(user.getSubscribeTime().getTime());
         }
-        Fans user = new Fans();
-        user.setOpenId(u.getOpenId());
-        user.setAvatar(u.getAvatar());
-        user.setCity(u.getCity());
-        user.setCountry(u.getCountry());
-        user.setProvince(u.getProvince());
-        user.setLanguage(u.getLanguage());
-        user.setNickname(u.getNickname());
-        user.setSex(u.getSex());
-        user.setSubscribe(u.isSubscribe());
-        if (u.getSubscribeTime() != null) {
-            user.setSubscribeTime(u.getSubscribeTime().getTime());
-        }
-        user.setUnionId(u.getUnionid());
-        return user;
+        fans.setUnionId(user.getUnionid());
+        return fans;
     }
 
     public Fans checkCreateMember(String appid, String openId) throws WeixinException {

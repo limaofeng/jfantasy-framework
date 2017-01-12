@@ -2,9 +2,9 @@ package org.jfantasy.weixin.framework.session;
 
 
 import org.jfantasy.weixin.framework.core.Jsapi;
+import org.jfantasy.weixin.framework.core.Openapi;
 import org.jfantasy.weixin.framework.message.content.*;
 import org.jfantasy.weixin.framework.message.user.User;
-import org.jfantasy.weixin.framework.oauth2.Scope;
 
 import java.util.List;
 
@@ -126,33 +126,6 @@ public interface WeixinSession {
     void sendTemplateMessage(Template content, String toUser);
 
     /**
-     * 获取安全链接
-     *
-     * @param redirectUri 授权后重定向的回调链接地址，请使用urlencode对链接进行处理
-     * @param scope       应用授权作用域，snsapi_base （不弹出授权页面，直接跳转，只能获取用户openid），snsapi_userinfo （弹出授权页面，可通过openid拿到昵称、性别、所在地。并且，即使在未关注的情况下，只要用户授权，也能获取其信息）
-     * @return url
-     */
-    String getAuthorizationUrl(String redirectUri, Scope scope);
-
-    /**
-     * 获取安全链接
-     *
-     * @param redirectUri 授权后重定向的回调链接地址，请使用urlencode对链接进行处理
-     * @param scope       应用授权作用域，snsapi_base （不弹出授权页面，直接跳转，只能获取用户openid），snsapi_userinfo （弹出授权页面，可通过openid拿到昵称、性别、所在地。并且，即使在未关注的情况下，只要用户授权，也能获取其信息）
-     * @param state       重定向后会带上state参数，开发者可以填写a-zA-Z0-9的参数值
-     * @return url
-     */
-    String getAuthorizationUrl(String redirectUri, Scope scope, String state);
-
-    /**
-     * 获取安全连接的授权用户
-     *
-     * @param code 安全链接code
-     * @return User
-     */
-    User getOauth2User(String code);
-
-    /**
      * 获取安全连接的授权用户
      *
      * @param userId 关注粉丝的openId
@@ -199,5 +172,7 @@ public interface WeixinSession {
      * @return Jsapi
      */
     Jsapi getJsapi();
+
+    Openapi getOpenapi();
 
 }

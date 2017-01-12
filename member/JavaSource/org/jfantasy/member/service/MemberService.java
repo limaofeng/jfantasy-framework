@@ -68,6 +68,25 @@ public class MemberService {
         return this.save(member);
     }
 
+    public Member login(String username) {
+        Member member = this.memberDao.findUniqueBy("username", username);
+        if (member == null) {//用户不存在
+            throw new ValidationException(203.1f, "用户名和密码错误");
+        }
+        if (!member.getEnabled()) {
+            throw new ValidationException(203.1f, "用户被禁用");
+        }
+        if (!member.getAccountNonLocked()) {
+            throw new ValidationException(203.1f, "用户被锁定");
+        }
+        member.setLastLoginTime(DateUtil.now());
+        this.memberDao.update(member);
+        Member mirror = ObjectUtil.clone(member);
+        this.applicationContext.publishEvent(new LoginEvent(mirror));
+        LOG.debug(mirror);
+        return mirror;
+    }
+
     /**
      * 会员登录接口
      *
@@ -82,26 +101,10 @@ public class MemberService {
             throw new ValidationException(203.1f, "用户名和密码错误");
         }
 
-        member = member == null && type == PasswordTokenType.macode ? signUp(username) : member;
-
-        if (member == null) {//用户不存在
-            throw new ValidationException(203.1f, "用户名和密码错误");
+        if (member == null && type == PasswordTokenType.macode) {
+            signUp(username);
         }
-
-        if (!member.getEnabled()) {
-            throw new ValidationException(203.1f, "用户被禁用");
-        }
-
-        if (!member.getAccountNonLocked()) {
-            throw new ValidationException(203.1f, "用户被锁定");
-        }
-
-        member.setLastLoginTime(DateUtil.now());
-        this.memberDao.update(member);
-        Member mirror = ObjectUtil.clone(member);
-        this.applicationContext.publishEvent(new LoginEvent(mirror));
-        LOG.debug(mirror);
-        return mirror;
+        return login(username);
     }
 
 

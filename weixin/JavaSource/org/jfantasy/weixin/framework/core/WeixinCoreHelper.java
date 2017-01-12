@@ -5,9 +5,8 @@ import org.jfantasy.weixin.framework.message.WeixinMessage;
 import org.jfantasy.weixin.framework.message.content.*;
 import org.jfantasy.weixin.framework.message.user.OpenIdList;
 import org.jfantasy.weixin.framework.message.user.User;
-import org.jfantasy.weixin.framework.oauth2.Scope;
-import org.jfantasy.weixin.framework.session.WeixinSession;
 import org.jfantasy.weixin.framework.session.WeixinApp;
+import org.jfantasy.weixin.framework.session.WeixinSession;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -240,18 +239,8 @@ public interface WeixinCoreHelper {
      * @param state       重定向后会带上state参数，开发者可以填写a-zA-Z0-9的参数值
      * @return url
      * @throws WeixinException
-     */
     String oauth2buildAuthorizationUrl(WeixinSession session, String redirectUri, Scope scope, String state) throws WeixinException;
-
-    /**
-     * 通过 oauth2 的 code 换取用户信息
-     *
-     * @param session 微信号session对象
-     * @param code    安全连接返回的code
-     * @return User
-     * @throws WeixinException
      */
-    User getOauth2User(WeixinSession session, String code) throws WeixinException;
 
     /**
      * 刷新菜单配置
@@ -287,4 +276,6 @@ public interface WeixinCoreHelper {
      * @throws WeixinException
      */
     Jsapi getJsapi(WeixinSession session) throws WeixinException;
+
+    Openapi getOpenapi(WeixinSession session)throws WeixinException;
 }

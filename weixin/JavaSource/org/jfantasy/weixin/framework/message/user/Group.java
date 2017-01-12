@@ -56,7 +56,6 @@ public class Group {
     public void addUser(User user) {
         if (ObjectUtil.find(this.users, "getOpenId()", user.getOpenId()) == null) {
             this.users.add(user);
-            user.setGroup(this);
         }
     }
 

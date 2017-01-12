@@ -6,18 +6,11 @@ import org.jfantasy.weixin.framework.message.WeixinMessage;
 import org.jfantasy.weixin.framework.message.content.*;
 import org.jfantasy.weixin.framework.message.user.OpenIdList;
 import org.jfantasy.weixin.framework.message.user.User;
-import org.jfantasy.weixin.framework.oauth2.Scope;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 public interface WeixinService {
-
-    String getJsapiTicket() throws WeixinException;
-
-    String getJsapiTicket(boolean forceRefresh) throws WeixinException;
-
-    Jsapi.Signature createJsapiSignature(String url) throws WeixinException;
 
     WeixinMessage parseInMessage(HttpServletRequest request) throws WeixinException;
 
@@ -51,10 +44,6 @@ public interface WeixinService {
 
     void sendTextMessage(String content, long toGroup) throws WeixinException;
 
-    String oauth2buildAuthorizationUrl(String redirectUri, Scope scope, String state) throws WeixinException;
-
-    User getOauth2User(String code) throws WeixinException;
-
     List<User> getUsers() throws WeixinException;
 
     OpenIdList getOpenIds() throws WeixinException;
@@ -69,6 +58,16 @@ public interface WeixinService {
     void refreshMenu(Menu... menus) throws WeixinException;
 
     Jsapi getJsapi() throws WeixinException;
+
+    Openapi getOpenapi() throws WeixinException;
+
+    /*
+    String getJsapiTicket() throws WeixinException;
+
+    String getJsapiTicket(boolean forceRefresh) throws WeixinException;
+
+    Jsapi.Signature createJsapiSignature(String url) throws WeixinException;
+    */
 
     List<Menu> getMenus() throws WeixinException;
 

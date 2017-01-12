@@ -1,11 +1,9 @@
 package org.jfantasy.weixin.framework.core;
 
 import me.chanjar.weixin.common.api.WxConsts;
-import me.chanjar.weixin.common.bean.WxJsapiSignature;
 import me.chanjar.weixin.common.bean.menu.WxMenu;
 import me.chanjar.weixin.common.bean.menu.WxMenuButton;
 import me.chanjar.weixin.common.exception.WxErrorException;
-import me.chanjar.weixin.common.util.http.URIUtil;
 import me.chanjar.weixin.mp.api.*;
 import me.chanjar.weixin.mp.bean.WxMpMassNews;
 import me.chanjar.weixin.mp.bean.WxMpMassOpenIdsMessage;
@@ -13,8 +11,6 @@ import me.chanjar.weixin.mp.bean.WxMpMassTagMessage;
 import me.chanjar.weixin.mp.bean.WxMpMassVideo;
 import me.chanjar.weixin.mp.bean.message.*;
 import me.chanjar.weixin.mp.bean.result.WxMpMassUploadResult;
-import me.chanjar.weixin.mp.bean.result.WxMpOAuth2AccessToken;
-import me.chanjar.weixin.mp.bean.result.WxMpUser;
 import me.chanjar.weixin.mp.bean.result.WxMpUserList;
 import me.chanjar.weixin.mp.builder.outxml.MusicBuilder;
 import me.chanjar.weixin.mp.builder.outxml.NewsBuilder;
@@ -24,14 +20,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.jackson.JSON;
 import org.jfantasy.framework.util.common.StringUtil;
-import org.jfantasy.weixin.bean.enums.Sex;
 import org.jfantasy.weixin.framework.exception.WeixinException;
 import org.jfantasy.weixin.framework.message.*;
 import org.jfantasy.weixin.framework.message.content.*;
 import org.jfantasy.weixin.framework.message.user.OpenIdList;
 import org.jfantasy.weixin.framework.message.user.User;
-import org.jfantasy.weixin.framework.oauth2.AccessToken;
-import org.jfantasy.weixin.framework.oauth2.Scope;
+import org.jfantasy.weixin.framework.util.WeixinUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
@@ -49,40 +43,14 @@ public class WeixinMpService implements WeixinService {
     private WxMpConfigStorage wxMpConfigStorage;
     private WxMpUserService userService;
     private Jsapi jsapi;
+    private Openapi openapi;
 
     public WeixinMpService(WxMpService wxMpService, WxMpConfigStorage wxMpConfigStorage) {
         this.wxMpService = wxMpService;
         this.wxMpConfigStorage = wxMpConfigStorage;
         this.userService = wxMpService.getUserService();
-        this.jsapi = new DefaultJsapi(this);
-    }
-
-    @Override
-    public String getJsapiTicket() throws WeixinException {
-        try {
-            return wxMpService.getJsapiTicket();
-        } catch (WxErrorException e) {
-            throw new WeixinException(e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public String getJsapiTicket(boolean forceRefresh) throws WeixinException {
-        try {
-            return wxMpService.getJsapiTicket(forceRefresh);
-        } catch (WxErrorException e) {
-            throw new WeixinException(e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public Jsapi.Signature createJsapiSignature(String url) throws WeixinException {
-        try {
-            WxJsapiSignature wxJsapiSignature = wxMpService.createJsapiSignature(url);
-            return new Jsapi.Signature(wxJsapiSignature.getNoncestr(), wxJsapiSignature.getAppid(), wxJsapiSignature.getTimestamp(), wxJsapiSignature.getUrl(), wxJsapiSignature.getSignature());
-        } catch (WxErrorException e) {
-            throw new WeixinException(e.getMessage(), e);
-        }
+        this.jsapi = new MpJsapi(this.wxMpService);
+        this.openapi = new MpOpenapi(this.wxMpService);
     }
 
     @Override
@@ -488,51 +456,6 @@ public class WeixinMpService implements WeixinService {
         */
     }
 
-    @Override
-    public String oauth2buildAuthorizationUrl(String redirectUri, Scope scope, String state) throws WeixinException {
-        String url = "https://open.weixin.qq.com/connect/oauth2/authorize?";
-        url += "appid=" + wxMpConfigStorage.getAppId();
-        url += "&redirect_uri=" + URIUtil.encodeURIComponent(redirectUri);
-        url += "&response_type=code";
-        url += "&scope=" + scope.getValue();
-        if (StringUtil.isNotBlank(state)) {
-            url += "&state=" + state;
-        }
-        url += "#wechat_redirect";
-        return url;
-    }
-
-    private AccessToken oauth2getAccessToken(String code) throws WeixinException {
-        try {
-            WxMpOAuth2AccessToken wxMpOAuth2AccessToken = wxMpService.oauth2getAccessToken(code);
-            return new AccessToken(wxMpOAuth2AccessToken.getAccessToken(), wxMpOAuth2AccessToken.getExpiresIn(), wxMpOAuth2AccessToken.getRefreshToken(), wxMpOAuth2AccessToken.getOpenId(), wxMpOAuth2AccessToken.getScope());
-        } catch (WxErrorException e) {
-            throw new WeixinException(e.getMessage(), e);
-        }
-    }
-
-    public User getOauth2User(String code) throws WeixinException {
-        AccessToken accessToken = oauth2getAccessToken(code);
-        if (accessToken == null) {
-            throw new WeixinException(code + " ==> AccessToken is null ");
-        }
-        if (Scope.userinfo == accessToken.getScope()) {
-            WxMpOAuth2AccessToken wxMpOAuth2AccessToken = new WxMpOAuth2AccessToken();
-            wxMpOAuth2AccessToken.setAccessToken(accessToken.getToken());
-            wxMpOAuth2AccessToken.setExpiresIn(accessToken.getExpiresIn());
-            wxMpOAuth2AccessToken.setOpenId(accessToken.getOpenId());
-            wxMpOAuth2AccessToken.setRefreshToken(accessToken.getRefreshToken());
-            wxMpOAuth2AccessToken.setScope(accessToken.getScope().name());
-            try {
-                return toUser(wxMpService.oauth2getUserInfo(wxMpOAuth2AccessToken, "zh_CN"));
-            } catch (WxErrorException e) {
-                throw new WeixinException(e.getMessage(), e);
-            }
-        } else {
-            return getUser(accessToken.getOpenId());
-        }
-    }
-
     public void sendTemplateMessage(Template content, String toUser) throws WeixinException {
         /*
         WxMpTemplateMessage wxMpTemplateMessage = new WxMpTemplateMessage();
@@ -626,41 +549,10 @@ public class WeixinMpService implements WeixinService {
     @Override
     public User getUser(String userId) throws WeixinException {
         try {
-            return toUser(wxMpService.getUserService().userInfo(userId, null));
+            return WeixinUtil.toUser(wxMpService.getUserService().userInfo(userId, null));
         } catch (WxErrorException e) {
             throw new WeixinException(e.getMessage(), e);
         }
-    }
-
-    private User toUser(WxMpUser wxMpUser) {
-        if (wxMpUser == null) {
-            return null;
-        }
-        User user = new User();
-        user.setOpenId(wxMpUser.getOpenId());
-        user.setAvatar(wxMpUser.getHeadImgUrl());
-        user.setCity(wxMpUser.getCity());
-        user.setCountry(wxMpUser.getCountry());
-        user.setProvince(wxMpUser.getProvince());
-        user.setLanguage(wxMpUser.getLanguage());
-        user.setNickname(wxMpUser.getNickname());
-        user.setSex(toSex(wxMpUser.getSex()));
-        user.setSubscribe(wxMpUser.getSubscribe());
-        if (wxMpUser.getSubscribeTime() != null) {
-            user.setSubscribeTime(new Date(wxMpUser.getSubscribeTime()));
-        }
-        user.setUnionid(wxMpUser.getUnionId());
-        return user;
-    }
-
-    private Sex toSex(String sex) {
-        if ("男".equals(sex)) {
-            return Sex.male;
-        }
-        if ("女".equals(sex)) {
-            return Sex.female;
-        }
-        return Sex.unknown;
     }
 
     public Object mediaDownload(String mediaId) throws WeixinException {
@@ -708,6 +600,10 @@ public class WeixinMpService implements WeixinService {
 
     public Jsapi getJsapi() throws WeixinException {
         return this.jsapi;
+    }
+
+    public Openapi getOpenapi() throws WeixinException {
+        return this.openapi;
     }
 
     @Override

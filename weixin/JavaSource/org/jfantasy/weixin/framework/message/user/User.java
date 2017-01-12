@@ -12,7 +12,7 @@ public class User {
     /**
      * 用户是否订阅该公众号标识，值为0时，代表此用户没有关注该公众号，拉取不到其余信息。
      */
-    private boolean subscribe;
+    private Boolean subscribe;
     /**
      * 用户的标识，对当前公众号唯一
      */
@@ -54,13 +54,11 @@ public class User {
      */
     private String unionid;
 
-    private Group group;
-
-    public boolean isSubscribe() {
+    public Boolean isSubscribe() {
         return subscribe;
     }
 
-    public void setSubscribe(boolean subscribe) {
+    public void setSubscribe(Boolean subscribe) {
         this.subscribe = subscribe;
     }
 
@@ -144,13 +142,6 @@ public class User {
         this.unionid = unionid;
     }
 
-    public Group getGroup() {
-        return group;
-    }
-
-    public void setGroup(Group group) {
-        this.group = group;
-    }
 
     @Override
     public String toString() {
@@ -166,7 +157,6 @@ public class User {
                 ", avatar='" + avatar + '\'' +
                 ", subscribeTime=" + subscribeTime +
                 ", unionid='" + unionid + '\'' +
-                ", group=" + group +
                 '}';
     }
 }

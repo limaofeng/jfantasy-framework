@@ -1,11 +1,9 @@
 package org.jfantasy.weixin.framework.core;
 
-import me.chanjar.weixin.common.bean.WxJsapiSignature;
 import me.chanjar.weixin.common.bean.menu.WxMenu;
 import me.chanjar.weixin.common.bean.menu.WxMenuButton;
 import me.chanjar.weixin.common.bean.result.WxMediaUploadResult;
 import me.chanjar.weixin.common.exception.WxErrorException;
-import me.chanjar.weixin.common.util.http.URIUtil;
 import me.chanjar.weixin.cp.api.WxCpConfigStorage;
 import me.chanjar.weixin.cp.api.WxCpService;
 import me.chanjar.weixin.cp.bean.*;
@@ -23,7 +21,6 @@ import org.jfantasy.weixin.framework.message.*;
 import org.jfantasy.weixin.framework.message.content.*;
 import org.jfantasy.weixin.framework.message.user.OpenIdList;
 import org.jfantasy.weixin.framework.message.user.User;
-import org.jfantasy.weixin.framework.oauth2.Scope;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
@@ -35,7 +32,7 @@ import java.util.List;
 
 public class WeixinCpService implements WeixinService {
 
-    private final static Log LOG = LogFactory.getLog(WeixinCpService.class);
+    private static final Log LOG = LogFactory.getLog(WeixinCpService.class);
 
     private WxCpService wxCpService;
     private WxCpConfigStorage wxCpConfigStorage;
@@ -44,35 +41,7 @@ public class WeixinCpService implements WeixinService {
     public WeixinCpService(WxCpService wxCpService, WxCpConfigStorage wxCpConfigStorage) {
         this.wxCpService = wxCpService;
         this.wxCpConfigStorage = wxCpConfigStorage;
-        this.jsapi = new DefaultJsapi(this);
-    }
-
-    @Override
-    public String getJsapiTicket() throws WeixinException {
-        try {
-            return wxCpService.getJsapiTicket();
-        } catch (WxErrorException e) {
-            throw new WeixinException(e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public String getJsapiTicket(boolean forceRefresh) throws WeixinException {
-        try {
-            return wxCpService.getJsapiTicket(forceRefresh);
-        } catch (WxErrorException e) {
-            throw new WeixinException(e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public Jsapi.Signature createJsapiSignature(String url) throws WeixinException {
-        try {
-            WxJsapiSignature wxJsapiSignature = wxCpService.createJsapiSignature(url);
-            return new Jsapi.Signature(wxJsapiSignature.getNoncestr(), wxJsapiSignature.getAppid(), wxJsapiSignature.getTimestamp(), wxJsapiSignature.getUrl(), wxJsapiSignature.getSignature());
-        } catch (WxErrorException e) {
-            throw new WeixinException(e.getMessage(), e);
-        }
+        this.jsapi = new CpJsapi(this.wxCpService);
     }
 
     @Override
@@ -311,29 +280,6 @@ public class WeixinCpService implements WeixinService {
     }
 
     @Override
-    public String oauth2buildAuthorizationUrl(String redirectUri, Scope scope, String state) throws WeixinException {
-        String url = "https://open.weixin.qq.com/connect/oauth2/authorize?";
-        url += "appid=" + wxCpConfigStorage.getCorpId();
-        url += "&redirect_uri=" + URIUtil.encodeURIComponent(redirectUri);
-        url += "&response_type=code";
-        url += "&scope=" + scope.getValue();
-        if (StringUtil.isNotBlank(state)) {
-            url += "&state=" + state;
-        }
-        url += "#wechat_redirect";
-        return url;
-    }
-
-    public User getOauth2User(String code) throws WeixinException {
-        try {
-            String[] user = wxCpService.oauth2getUserInfo(code);
-            return null;
-        } catch (WxErrorException e) {
-            throw new WeixinException(e.getMessage(), e);
-        }
-    }
-
-    @Override
     public void sendTextMessage(String content, String... toUsers) throws WeixinException {
         try {
             if (toUsers.length == 0) {
@@ -517,6 +463,11 @@ public class WeixinCpService implements WeixinService {
         } catch (WxErrorException e) {
             throw new WeixinException(e.getMessage(), e);
         }
+    }
+
+    @Override
+    public Openapi getOpenapi() throws WeixinException {
+        throw  new WeixinException("企业号不支持该接口");
     }
 
 }

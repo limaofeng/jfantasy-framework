@@ -24,7 +24,6 @@ public class Fans extends BaseBusEntity {
         this.appId = userKey.getAppId();
     }
 
-    //APPID
     @Id
     private String appId;
     //用户的标识，对当前公众号唯一

@@ -10,7 +10,7 @@ import org.jfantasy.weixin.framework.session.WeixinApp;
 
 
 public class WeixinDetails {
-    private WeixinService weiXinService;
+    private WeixinService weixinService;
 
     public WeixinDetails(WeixinApp weixinApp) {
         if (WeixinApp.Type.enterprise == weixinApp.getType()) {
@@ -22,7 +22,7 @@ public class WeixinDetails {
             wxMpConfigStorage.setToken(weixinApp.getToken());
             wxMpConfigStorage.setAesKey(weixinApp.getAesKey());
             wxCpService.setWxCpConfigStorage(wxMpConfigStorage);
-            weiXinService = new WeixinCpService(wxCpService, wxMpConfigStorage);
+            weixinService = new WeixinCpService(wxCpService, wxMpConfigStorage);
         } else {
             WxMpService wxMpService = new WxMpServiceImpl();
             WxMpInMemoryConfigStorage wxMpConfigStorage = new WxMpInMemoryConfigStorage();
@@ -31,12 +31,12 @@ public class WeixinDetails {
             wxMpConfigStorage.setToken(weixinApp.getToken());
             wxMpConfigStorage.setAesKey(weixinApp.getAesKey());
             wxMpService.setWxMpConfigStorage(wxMpConfigStorage);
-            weiXinService = new WeixinMpService(wxMpService, wxMpConfigStorage);
+            weixinService = new WeixinMpService(wxMpService, wxMpConfigStorage);
         }
     }
 
-    public WeixinService getWeiXinService() {
-        return weiXinService;
+    public WeixinService getWeixinService() {
+        return weixinService;
     }
 
 }
