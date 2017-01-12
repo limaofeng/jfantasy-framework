@@ -57,16 +57,6 @@ public class FileFilter extends GenericFilterBean {
         }
 
         final String url = request.getRequestURI().replaceAll("^" + request.getContextPath(), "");
-        FileManager webrootFileManager = FileManagerFactory.getInstance().getFileManager("WEBROOT");
-        if (RegexpUtil.find(url, ".do$")) {
-            chain.doFilter(request, response);
-            return;
-        }
-
-        if (webrootFileManager.getFileItem(url) != null) {
-            chain.doFilter(request, response);
-            return;
-        }
         FileDetail fileDetail = FileFilter.this.fileService.get(url);
         if (fileDetail != null) {
             FileManager fileManager = FileManagerFactory.getInstance().getFileManager(fileDetail.getNamespace());

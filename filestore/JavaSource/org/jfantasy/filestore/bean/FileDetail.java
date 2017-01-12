@@ -27,29 +27,31 @@ public class FileDetail extends BaseBusEntity implements Cloneable {
     @Id
     @Column(name = "ABSOLUTE_PATH", nullable = false, updatable = false, length = 250)
     private String path;
-
+    /**
+     * 文件命名空间
+     */
     @Column(name = "FILE_MANAGER_CONFIG_ID", nullable = false, updatable = false, length = 50)
     private String namespace;
     /**
      * 文件名称
      */
     @JsonProperty("name")
-    @Column(name = "FILE_NAME", length = 150)
+    @Column(name = "FILE_NAME", length = 50, nullable = false)
     private String name;
     /**
      * 文件后缀名
      */
-    @Column(name = "EXT", length = 20)
+    @Column(name = "EXT", length = 20, nullable = false)
     private String ext;
     /**
      * 文件类型
      */
-    @Column(name = "CONTENT_TYPE", length = 50)
+    @Column(name = "CONTENT_TYPE", length = 50, nullable = false)
     private String contentType;
     /**
      * 描述
      */
-    @Column(name = "DESCRIPTION", length = 250)
+    @Column(name = "DESCRIPTION", length = 150, nullable = false)
     private String description;
     /**
      * 文件长度
@@ -59,12 +61,12 @@ public class FileDetail extends BaseBusEntity implements Cloneable {
     /**
      * 文件MD5码
      */
-    @Column(name = "MD5", length = 50)
+    @Column(name = "MD5", length = 50, nullable = false)
     private String md5;
     /**
      * 文件真实路径
      */
-    @Column(name = "REAL_PATH", length = 250)
+    @Column(name = "REAL_PATH", length = 150, nullable = false)
     private String realPath;
     /**
      * 文件夹
