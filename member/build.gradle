@@ -7,5 +7,6 @@ dependencies {
     compile project(':jfantasy-file-sdk')
     compile project(':jfantasy-security')
     compile project(':jfantasy-aliyun-ons')
+    compile project(':jfantasy-weixin')
     testCompile "org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
 }

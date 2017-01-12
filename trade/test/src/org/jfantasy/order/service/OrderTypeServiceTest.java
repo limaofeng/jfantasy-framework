@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @RunWith(SpringRunner.class)
@@ -59,7 +60,7 @@ public class OrderTypeServiceTest {
 
     @Test
     public void updateCashFlow() throws Exception {
-        OrderCashFlow old = orderTypeService.cashFlow("toclinic");
+        OrderCashFlow old = orderTypeService.cashFlow("registration","toclinic");
         OrderCashFlow cashFlow = new OrderCashFlow();
         cashFlow.setCode("toclinic");
         cashFlow.setName("诊所收益");
@@ -73,13 +74,14 @@ public class OrderTypeServiceTest {
     }
 
     @Test
+    @Transactional
     public void cashFlow() throws Exception {
-        Order order = orderService.get("2017010600809");
-        OrderCashFlow cashFlow = orderTypeService.cashFlow("toclinic");
+        Order order = orderService.get("2017011000816");
+        OrderCashFlow cashFlow = orderTypeService.cashFlow("medicine","doctor");
         LOG.debug("value = " + cashFlow.getValue(order));
         LOG.debug("payee = " + cashFlow.getPayee(order));
 
-        cashFlow = orderTypeService.cashFlow("todoctor");
+        cashFlow = orderTypeService.cashFlow("medicine","pharmacy");
         LOG.debug("value = " + cashFlow.getValue(order));
         LOG.debug("payee = " + cashFlow.getPayee(order));
     }

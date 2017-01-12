@@ -34,6 +34,7 @@ import java.util.Map;
 public class TransactionService {
 
     private static final Log LOG = LogFactory.getLog(TransactionService.class);
+    private static final String UNION_ID = "unionId";
 
     private final ProjectDao projectDao;
     private final TransactionDao transactionDao;
@@ -102,14 +103,64 @@ public class TransactionService {
         return this.save(Project.REFUND, original.getTo(), original.getFrom(), amount, notes, original.getProperties());
     }
 
+    /**
+     * 同步保存
+     *
+     * @param projectKey 项目
+     * @param from       转出账户
+     * @param to         转入账户
+     * @param amount     交易金额
+     * @param notes      备注
+     * @param properties 附加属性
+     * @return Transaction
+     */
     @Transactional
-    public Transaction save(String projectKey, String from, String to, BigDecimal amount, String notes, Map<String, Object> properties) {
+    public Transaction syncSave(String projectKey, String from, String to, BigDecimal amount, String notes, Map<String, Object> properties) {
+        Transaction transaction = this.save(projectKey, from, to, amount, notes, properties);
+        this.handleAllowFailure(transaction.getSn(), "");
+        return transaction;
+    }
+
+    /**
+     * 异步执行转账逻辑
+     *
+     * @param project 项目
+     * @param from    转出账户
+     * @param to      转入账户
+     * @param channel 渠道
+     * @param amount  交易金额
+     * @param notes   备注
+     * @param data    附加属性
+     * @return Transaction
+     */
+    @Transactional
+    public Transaction asyncSave(String project, String from, String to, TxChannel channel, BigDecimal amount, String notes, Map<String, Object> data) {
+        return this.save(project, from, to, channel, amount, notes, data);
+    }
+
+    /**
+     * 异步执行转账逻辑
+     *
+     * @param projectKey 项目
+     * @param from       转出账户
+     * @param to         转入账户
+     * @param amount     交易金额
+     * @param notes      备注
+     * @param properties 附加属性
+     * @return Transaction
+     */
+    @Transactional
+    public Transaction asyncSave(String projectKey, String from, String to, BigDecimal amount, String notes, Map<String, Object> properties) {
+        return this.save(projectKey, from, to, amount, notes, properties);
+    }
+
+    private Transaction save(String projectKey, String from, String to, BigDecimal amount, String notes, Map<String, Object> properties) {
         return this.save(projectKey, from, to, null, amount, notes, properties);
     }
 
     @Transactional
     public Transaction getByUniqueId(String unionid) {
-        return this.transactionDao.findUnique(Restrictions.eq("unionId", unionid));
+        return this.transactionDao.findUnique(Restrictions.eq(UNION_ID, unionid));
     }
 
     /**
@@ -123,8 +174,7 @@ public class TransactionService {
      * @param properties 扩展属性
      * @return Transaction
      */
-    @Transactional
-    public Transaction save(String projectKey, String from, String to, TxChannel channel, BigDecimal amount, String notes, Map<String, Object> properties) {
+    private Transaction save(String projectKey, String from, String to, TxChannel channel, BigDecimal amount, String notes, Map<String, Object> properties) {
         Project project = projectDao.get(projectKey);
         // 生成 unionid
         String orderId = (String) properties.get(Transaction.ORDER_ID);
@@ -132,7 +182,7 @@ public class TransactionService {
         String key = StringUtil.defaultValue(properties.remove(Transaction.UNION_KEY), orderId);
         String unionid = Transaction.generateUnionid(project.getKey(), key);
         // 判断交易是否已经存在
-        Transaction src = this.transactionDao.findUnique(Restrictions.eq("unionId", unionid));
+        Transaction src = this.transactionDao.findUnique(Restrictions.eq(UNION_ID, unionid));
         if (src != null) {
             return src;
         }
@@ -171,10 +221,12 @@ public class TransactionService {
         return this.transactionDao.save(transaction);
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     public void handleAllowFailure(String sn, String notes) {
         this.accountService.transfer(sn, notes);
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     public void handleAllowFailure(String sn, String password, String notes) {
         this.accountService.transfer(sn, password, notes);
     }

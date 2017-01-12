@@ -64,7 +64,7 @@ public class Order extends BaseBusEntity {
     @Column(name = "INVOICE_STATUS", length = 20)
     private InvoiceStatus invoiceStatus;// 发票状态
     @Enumerated(EnumType.STRING)
-    @Column(name = "FLOW",length = 20)
+    @Column(name = "FLOW", length = 20)
     private OrderFlow flow;//订单流程
     @Column(name = "TOTAL_PRODUCT_WEIGHT", nullable = false)
     private Integer totalProductWeight;// 总商品重量(单位: 克)
@@ -531,7 +531,7 @@ public class Order extends BaseBusEntity {
     }
 
     public void addPrice(OrderPrice price, BigDecimal value) {
-        if(this.prices == null){
+        if (this.prices == null) {
             this.prices = new ArrayList<>();
         }
         OrderPriceValue priceValue = new OrderPriceValue();
@@ -550,21 +550,6 @@ public class Order extends BaseBusEntity {
         this.payees.add(payeeValue);
     }
 
-    @Transient
-    public BigDecimal getSurplus() {
-        if (surplus == null) {
-            surplus = this.getTotal();
-        }
-        return surplus;
-    }
-
-    public BigDecimal getTotal() {
-        if (total == null) {
-            total = this.getTotalAmount();
-        }
-        return total;
-    }
-
     public List<OrderPayeeValue> getPayees() {
         return payees;
     }
@@ -581,10 +566,6 @@ public class Order extends BaseBusEntity {
         this.surplus = surplus;
     }
 
-    public void subtract(BigDecimal amount) {
-        this.surplus = getSurplus().subtract(amount);
-    }
-
     public OrderFlow getFlow() {
         return flow;
     }
@@ -592,4 +573,30 @@ public class Order extends BaseBusEntity {
     public void setFlow(OrderFlow flow) {
         this.flow = flow;
     }
+
+    public void subtract(BigDecimal amount) {
+        this.surplus = getSurplus().subtract(amount);
+    }
+
+    @Transient
+    public BigDecimal getSurplus() {
+        if (surplus == null) {
+            surplus = this.getTotal();
+        }
+        return surplus;
+    }
+
+    @Transient
+    public BigDecimal getTotal() {
+        if (total == null) {
+            total = this.getTotalAmount();
+        }
+        return total;
+    }
+
+    @Transient
+    public BigDecimal price(String code) {
+        return ObjectUtil.find(this.getPrices(), "code", code).getValue();
+    }
+
 }

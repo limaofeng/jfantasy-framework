@@ -90,7 +90,7 @@ public class TransactionServiceTest {
         Map<String, Object> data = new HashMap<>();
         data.put(Transaction.UNION_KEY, unionKey);
 
-        transactionService.save(projectKey, "1920021983", "2016101200000001", BigDecimal.valueOf(1.0), "", data);
+        transactionService.asyncSave(projectKey, "1920021983", "2016101200000001", BigDecimal.valueOf(1.0), "", data);
 
     }
 

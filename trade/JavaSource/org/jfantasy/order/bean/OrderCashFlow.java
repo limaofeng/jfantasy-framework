@@ -64,7 +64,7 @@ public class OrderCashFlow extends BaseBusEntity {
     /**
      * 收款金额表达式
      */
-    @Column(name = "VALUE", length = 50, nullable = false)
+    @Column(name = "VALUE", length = 200, nullable = false)
     private String value;
     /**
      * 收款人

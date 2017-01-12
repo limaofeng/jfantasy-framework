@@ -106,8 +106,8 @@ public class OrderTypeService {
     }
 
     @Transactional
-    public OrderCashFlow cashFlow(String code) {
-        return this.orderCashFlowDao.findUnique(Restrictions.eq("code", code));
+    public OrderCashFlow cashFlow(String id, String code) {
+        return this.orderCashFlowDao.findUnique(Restrictions.eq("orderType.id", id), Restrictions.eq("code", code));
     }
 
     @Transactional
@@ -127,7 +127,7 @@ public class OrderTypeService {
         if (payee.getType() == PayeeType.fixed) {
             return payee.getCode();
         }
-        OrderPayeeValue value = ObjectUtil.find(order.getPayees(), "orderPayee.id", cashFlow.getPayee().getId());
+        OrderPayeeValue value = ObjectUtil.find(order.getPayees(), "payee.id", cashFlow.getPayee().getId());
         return payee.getType() == PayeeType.account ? value.getValue() : accountService.loadAccountByOwner(value.getValue()).getSn();
     }
 

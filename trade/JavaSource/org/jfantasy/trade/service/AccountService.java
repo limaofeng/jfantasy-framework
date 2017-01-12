@@ -144,7 +144,7 @@ public class AccountService {
      * @param notes    描述
      * @return Transaction
      */
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.MANDATORY)
     public Transaction transfer(String trxNo, String password, String notes) {
         Transaction transaction = transactionDao.get(trxNo);
         if (transaction.getChannel() == TxChannel.internal) {
@@ -169,7 +169,7 @@ public class AccountService {
      * @param notes 描述
      * @return Transaction
      */
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.MANDATORY)
     public Transaction transfer(String trxNo, String notes) {
         Transaction transaction = transactionDao.get(trxNo);
         Project project = this.projectDao.get(transaction.getProject());

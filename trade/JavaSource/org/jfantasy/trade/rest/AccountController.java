@@ -21,7 +21,6 @@ import org.jfantasy.trade.bean.*;
 import org.jfantasy.trade.bean.enums.ProjectType;
 import org.jfantasy.trade.bean.enums.ReportTargetType;
 import org.jfantasy.trade.bean.enums.TimeUnit;
-import org.jfantasy.trade.bean.enums.TxStatus;
 import org.jfantasy.trade.service.AccountService;
 import org.jfantasy.trade.service.ProjectService;
 import org.jfantasy.trade.service.ReportService;
@@ -105,7 +104,6 @@ public class AccountController {
     @ApiImplicitParam(value = "filters", name = "filters", paramType = "query", dataType = "string")
     public Pager<ResultResourceSupport> transactions(@PathVariable("id") String sn, Pager<Transaction> pager, List<PropertyFilter> filters) {
         filters.add(new PropertyFilter("EQS_from_OR_to", sn));
-        filters.add(new PropertyFilter("INE_status", TxStatus.processing, TxStatus.close, TxStatus.success));
         if (!pager.isOrderBySetted()) {
             pager.setOrderBy(Transaction.FIELDS_BY_CREATE_TIME);
             pager.setOrder(Pager.SORT_DESC);
@@ -136,7 +134,7 @@ public class AccountController {
         } else if (ProjectType.deposit == project.getType()) {
             form.setTo(account.getSn());
         }
-        return this.transactionService.save(form.getProject(), form.getFrom(), form.getTo(), form.getChannel(), form.getAmount(), form.getNotes(), data);
+        return this.transactionService.asyncSave(form.getProject(), form.getFrom(), form.getTo(), form.getChannel(), form.getAmount(), form.getNotes(), data);
     }
 
     @JsonResultFilter(ignore = {

@@ -21,7 +21,6 @@ import org.jfantasy.order.bean.enums.OrderFlow;
 import org.jfantasy.order.bean.enums.PayeeType;
 import org.jfantasy.order.bean.enums.Stage;
 import org.jfantasy.order.dao.OrderDao;
-import org.jfantasy.order.dao.OrderItemDao;
 import org.jfantasy.order.dao.OrderTypeDao;
 import org.jfantasy.order.entity.OrderDTO;
 import org.jfantasy.order.entity.OrderItemDTO;
@@ -62,7 +61,6 @@ public class OrderService {
     private static final Log LOG = LogFactory.getLog(OrderService.class);
 
     private final OrderDao orderDao;
-    private final OrderItemDao orderItemDao;
     private final OrderTypeDao orderTypeDao;
     private TransactionService transactionService;
     private ReceiverService receiverService;
@@ -72,13 +70,12 @@ public class OrderService {
     private OrderTypeService orderTypeService;
 
     @Autowired
-    public OrderService(OrderTypeDao orderTypeDao, OrderDao orderDao, OrderItemDao orderItemDao) {
+    public OrderService(OrderTypeDao orderTypeDao, OrderDao orderDao) {
         this.orderTypeDao = orderTypeDao;
         this.orderDao = orderDao;
-        this.orderItemDao = orderItemDao;
     }
 
-    @Transactional(readOnly = true, propagation = Propagation.NOT_SUPPORTED)
+    @Transactional(readOnly = true)
     public Order get(String id) {
         return this.orderDao.get(id);
     }
@@ -459,14 +456,12 @@ public class OrderService {
      * @return Transaction
      */
     private Transaction transfer(Order order, String project, BigDecimal amount, String from, String to, String unionKey, String notes) {
-
         Map<String, Object> data = new HashMap<>();
         data.putAll(order.getAttrs());
         data.put(Transaction.UNION_KEY, unionKey);
         data.put(Transaction.ORDER_ID, order.getId());
         data.put(Transaction.ORDER_TYPE, order.getType());
-
-        return transactionService.save(project, from, to, amount, notes, data);
+        return transactionService.syncSave(project, from, to, amount, notes, data);
     }
 
     @Autowired
