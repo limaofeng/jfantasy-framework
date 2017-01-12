@@ -95,11 +95,12 @@ public class AuthController {
                 Openapi openapi = weixinSession.getOpenapi();
                 Fans fans = this.fansService.save(login.getAppId(), openapi.getUser(login.getCode()));
                 Snser snser = this.snserService.get(login.getType(), login.getAppId(), fans.getOpenId());
-                if (snser.getMember() == null) {
+                if (snser == null) {
                     response.setStatus(422);
-                    return snser;
+                    return fans;
                 }
-                return this.memberService.login(snser.getMember().getUsername());
+                Member member = this.memberService.login(snser.getMember().getUsername());
+                return validateUserType(member, login.getUserType());
             } finally {
                 WeixinSessionUtils.closeSession();
             }
@@ -109,7 +110,11 @@ public class AuthController {
 
     private User userLogin(LoginForm loginForm) {
         User user = this.userService.login(loginForm.getType(), loginForm.getUsername(), loginForm.getPassword());
-        if (StringUtil.isNotBlank(loginForm.getUserType()) && !loginForm.getUserType().equals(user.getUserType())) {
+        return validateUserType(user, loginForm.getUserType());
+    }
+
+    private User validateUserType(User user, String userType) {
+        if (StringUtil.isNotBlank(userType) && !userType.equals(user.getUserType())) {
             throw new RestException("UserType 不一致");
         }
         return user;
@@ -117,10 +122,14 @@ public class AuthController {
 
     private Member memberLogin(LoginForm loginForm) {
         Member member = memberService.login(loginForm.getType(), loginForm.getUsername(), loginForm.getPassword());
-        if (StringUtil.isNotBlank(loginForm.getUserType()) && !loginForm.getUserType().equals(member.getType())) {
+        return validateUserType(member, loginForm.getUserType());
+    }
+
+    private Member validateUserType(Member user, String userType) {
+        if (StringUtil.isNotBlank(userType) && !userType.equals(user.getType())) {
             throw new RestException("UserType 不一致");
         }
-        return member;
+        return user;
     }
 
     /**

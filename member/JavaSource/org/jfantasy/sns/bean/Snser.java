@@ -3,8 +3,10 @@ package org.jfantasy.sns.bean;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import org.jfantasy.filestore.Image;
 import org.jfantasy.filestore.converter.ImageConverter;
+import org.jfantasy.framework.dao.BaseBusEntity;
 import org.jfantasy.framework.dao.hibernate.converter.MapConverter;
 import org.jfantasy.member.bean.Member;
 import org.jfantasy.security.bean.enums.Sex;
@@ -17,10 +19,13 @@ import java.util.Map;
  * 社交账户
  */
 @Entity
-@Table(name = "SNS_ACCOUNT")
+@Table(name = "SNS_ACCOUNT", uniqueConstraints = {
+        @UniqueConstraint(name = "UK_ACCOUNT_OPENID", columnNames = {"PLATFORM_ID", "OPEN_ID"}),
+        @UniqueConstraint(name = "UK_ACCOUNT_MEMBER", columnNames = {"PLATFORM_ID", "MEMBER_ID"})
+})
 @TableGenerator(name = "snser_gen", table = "sys_sequence", pkColumnName = "gen_name", pkColumnValue = "sns_account:id", valueColumnName = "gen_value")
 @JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "member"})
-public class Snser {
+public class Snser extends BaseBusEntity {
 
     @Id
     @Column(name = "ID", nullable = false, updatable = false, precision = 22)
@@ -29,6 +34,8 @@ public class Snser {
     /**
      * 社交媒体
      */
+    @JsonUnwrapped(prefix = "platform_")
+    @JsonIgnoreProperties({"creator", "modifier", "create_time", "modify_time"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PLATFORM_ID", foreignKey = @ForeignKey(name = "FK_ACCOUNT_PLATFORM"))
     private Platform platform;

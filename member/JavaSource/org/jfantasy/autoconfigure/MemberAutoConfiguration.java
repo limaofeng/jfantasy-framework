@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration;
 
 @ComponentScan({"org.jfantasy.member", "org.jfantasy.sns"})
 @Configuration
-@EntityScan({"org.jfantasy.member.bean","org.jfantasy.social.bean"})
+@EntityScan({"org.jfantasy.member.bean","org.jfantasy.sns.bean"})
 public class MemberAutoConfiguration {
 
 }

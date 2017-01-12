@@ -47,10 +47,10 @@ public class SnserController {
      *
      * @param id Long
      */
-    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    @DeleteMapping("/{snserId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable("id") Long id) {
-        this.snserService.deltele(id);
+    public void delete(@PathVariable("id") Long id,@PathVariable("snserId") Long snserId) {
+        this.snserService.deltele(id,snserId);
     }
 
 }
