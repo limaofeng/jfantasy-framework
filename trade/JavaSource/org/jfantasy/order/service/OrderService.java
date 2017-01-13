@@ -135,9 +135,7 @@ public class OrderService {
     @Transactional
     public List<ProfitChain> profitChains(String id) {
         Order order = this.orderDao.get(id);
-
-        List<Transaction> transactions = this.transactionService.find(Restrictions.eq("order.id", id));
-        return null;
+        return order.getProfitChains();
     }
 
     @Transactional
