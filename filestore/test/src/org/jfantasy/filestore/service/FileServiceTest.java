@@ -2,34 +2,23 @@ package org.jfantasy.filestore.service;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jfantasy.filestore.ApplicationTest;
 import org.jfantasy.filestore.bean.FileManagerConfig;
 import org.jfantasy.filestore.bean.Folder;
 import org.jfantasy.framework.dao.Pager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(ApplicationTest.class)
 public class FileServiceTest {
 
     private static final Log LOG = LogFactory.getLog(FileServiceTest.class);
 
-    @Autowired
     private FileService fileService;
-    @Autowired
     private FileUploadService fileUploadService;
-    @Autowired
     private DirectoryService directoryService;
-    @Autowired
     private FileManagerService fileManagerService;
 
     @Before
@@ -63,6 +52,12 @@ public class FileServiceTest {
         for(FileDetail fileDetail : fileService.findFileDetail(Restrictions.eq("fileManagerId",directory.getFileManager().getId()),Restrictions.like("folder.path",directory.getDirPath(), MatchMode.START))){
             this.fileService.delete(FileDetailKey.newInstance(fileDetail.getAbsolutePath(), fileDetail.getFileManagerId()));
         }*/
+    }
+
+    @Test
+    public void testPath() {
+        String path = "haolue-123:/static/images/weixin/20170113/3oqU6AvCJeTbhSERr5t2ND.jpg";
+        LOG.debug(path.contains(":") ? path.substring(path.indexOf(":") + 1) : path);
     }
 
     @Test
@@ -146,7 +141,7 @@ public class FileServiceTest {
 
     @Test
     public void testListFolder() throws Exception {
-        Pager<FileManagerConfig> pager = fileManagerService.findPager(new Pager<>(),new ArrayList<>());
+        Pager<FileManagerConfig> pager = fileManagerService.findPager(new Pager<>(), new ArrayList<>());
         FileManagerConfig config = pager.getPageItems().isEmpty() ? null : pager.getPageItems().get(0);
         assert config != null;
         List<Folder> folders = this.fileService.listFolder("/", config.getId(), "path");

@@ -80,7 +80,7 @@ public class FileController {
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
     public FileDetail view(@RequestParam("path") String path) {
-        return fileService.get(path.contains(":") ? path.substring(path.indexOf(":")) : path);
+        return fileService.get(path.contains(":") ? path.substring(path.indexOf(":") + 1) : path);
     }
 
 }
