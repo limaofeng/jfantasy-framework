@@ -132,6 +132,16 @@ public class OrderTypeService {
     }
 
     @Transactional
+    public String getPayeeName(OrderCashFlow cashFlow, Order order) {
+        OrderPayee payee = cashFlow.getPayee();
+        if (payee.getType() == PayeeType.fixed) {
+            return payee.getCode();
+        }
+        OrderPayeeValue value = ObjectUtil.find(order.getPayees(), "payee.id", cashFlow.getPayee().getId());
+        return value.getName();
+    }
+
+    @Transactional
     public OrderCashFlow save(OrderCashFlow cashFlow) {
         Project project = this.projectDao.get(cashFlow.getProject());
         cashFlow.setProjectName(project.getName());

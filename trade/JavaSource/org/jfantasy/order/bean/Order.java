@@ -13,11 +13,13 @@ import org.jfantasy.framework.dao.hibernate.converter.MapConverter;
 import org.jfantasy.framework.spring.SpringContextUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.invoice.bean.Invoice;
+import org.jfantasy.order.bean.converter.ProfitChainsConverter;
 import org.jfantasy.order.bean.enums.InvoiceStatus;
 import org.jfantasy.order.bean.enums.OrderFlow;
 import org.jfantasy.order.entity.enums.OrderStatus;
 import org.jfantasy.order.entity.enums.PaymentStatus;
 import org.jfantasy.order.entity.enums.ShippingStatus;
+import org.jfantasy.order.rest.models.ProfitChain;
 import org.jfantasy.order.service.OrderService;
 import org.jfantasy.pay.bean.PayConfig;
 import org.jfantasy.trade.bean.Transaction;
@@ -37,7 +39,7 @@ import java.util.*;
 @Entity
 @Table(name = "PAY_ORDER", uniqueConstraints = @UniqueConstraint(name = "UK_ORDER_TARGET", columnNames = {"TARGET_TYPE", "TARGET_ID"}))
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "ship_area", "memeo", "shippings", "details_type", "details_id", "expired", "payment_transaction", "refund_transaction", "redirect_url"})
+@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "ship_area", "memeo", "shippings", "details_type", "details_id", "expired", "payment_transaction", "refund_transaction", "redirect_url","profit_chains"})
 public class Order extends BaseBusEntity {
 
     private static final long serialVersionUID = -8541323033439515148L;
@@ -142,6 +144,12 @@ public class Order extends BaseBusEntity {
     @ManyToOne
     @JoinColumn(name = "REFUND_TRANSACTION_ID", foreignKey = @ForeignKey(name = "FK_ORDER_REFUNDTRANSACTION"))
     private Transaction refundTransaction;//退款交易
+    /**
+     * 收益链
+     */
+    @Convert(converter = ProfitChainsConverter.class)
+    @Column(name = "PROFITCHAINS", columnDefinition = "Text")
+    private List<ProfitChain> profitChains;
     /**
      * 总金额
      */
@@ -434,6 +442,14 @@ public class Order extends BaseBusEntity {
 
     public void setPayee(Long payee) {
         this.payee = payee;
+    }
+
+    public List<ProfitChain> getProfitChains() {
+        return profitChains;
+    }
+
+    public void setProfitChains(List<ProfitChain> profitChains) {
+        this.profitChains = profitChains;
     }
 
     @JsonAnyGetter

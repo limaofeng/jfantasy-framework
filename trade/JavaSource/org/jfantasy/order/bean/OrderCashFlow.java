@@ -13,6 +13,7 @@ import org.jfantasy.order.bean.databind.OrderCashFlowSerializer;
 import org.jfantasy.order.bean.databind.OrderTypeDeserializer;
 import org.jfantasy.order.bean.databind.OrderTypeSerializer;
 import org.jfantasy.order.bean.enums.Stage;
+import org.jfantasy.order.rest.models.ProfitChain;
 import org.jfantasy.order.service.OrderTypeService;
 
 import javax.persistence.*;
@@ -112,6 +113,9 @@ public class OrderCashFlow extends BaseBusEntity {
     @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE})
     @OrderBy("sort ASC")
     private List<OrderCashFlow> subflows;
+
+    @Transient
+    private ProfitChain profitChain;
 
     public OrderCashFlow() {
     }
@@ -251,11 +255,30 @@ public class OrderCashFlow extends BaseBusEntity {
     }
 
     @Transient
+    public String getPayeeName(Order order) {
+        return orderTypeService().getPayeeName(this, order);
+    }
+
+    @Transient
     private static OrderTypeService orderTypeService() {
         if (orderTypeService == null) {
             orderTypeService = SpringContextUtil.getBeanByType(OrderTypeService.class);
         }
         return orderTypeService;
+    }
+
+    @Transient
+    public ProfitChain getProfitChain() {
+        if(profitChain == null){
+            profitChain = new ProfitChain();
+            profitChain.setId(code);
+            profitChain.setRole(this.getPayee().getCode());
+            profitChain.setRoleName(this.getPayee().getTitle());
+            profitChain.setNotes(this.getNotes());
+            profitChain.setProject(this.getProject());
+            profitChain.setProjectName(this.getProjectName());
+        }
+        return profitChain;
     }
 
 }

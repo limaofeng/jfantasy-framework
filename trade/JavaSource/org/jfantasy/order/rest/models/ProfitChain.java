@@ -3,6 +3,7 @@ package org.jfantasy.order.rest.models;
 import org.jfantasy.order.bean.enums.PayeeType;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -14,6 +15,8 @@ public class ProfitChain {
     private String name;
     private String role;
     private String roleName;
+    private String project;
+    private String projectName;
     private BigDecimal revenue;
     private BigDecimal balance;
     private String notes;
@@ -69,7 +72,7 @@ public class ProfitChain {
     }
 
     public BigDecimal getBalance() {
-        return balance;
+        return balance == null ? revenue : balance;
     }
 
     public void setBalance(BigDecimal balance) {
@@ -100,4 +103,27 @@ public class ProfitChain {
         this.children = children;
     }
 
+    public String getProject() {
+        return project;
+    }
+
+    public void setProject(String project) {
+        this.project = project;
+    }
+
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
+    }
+
+    public void addChild(ProfitChain profitChain) {
+        if (this.children == null) {
+            this.children = new ArrayList<>();
+        }
+        this.addChild(profitChain);
+        profitChain.setBalance(this.getBalance().subtract(profitChain.getRevenue()));
+    }
 }

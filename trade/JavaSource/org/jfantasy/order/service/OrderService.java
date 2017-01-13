@@ -49,6 +49,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -133,7 +134,9 @@ public class OrderService {
 
     @Transactional
     public List<ProfitChain> profitChains(String id) {
-        List<Transaction> transactions = this.transactionService.find(Restrictions.eq("order.id",id));
+        Order order = this.orderDao.get(id);
+
+        List<Transaction> transactions = this.transactionService.find(Restrictions.eq("order.id", id));
         return null;
     }
 
@@ -425,6 +428,7 @@ public class OrderService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void cashflow(String id) {
         Order order = this.orderDao.get(id);
+        List<ProfitChain> profitChains = new ArrayList<>();
         if (order.getStatus() == OrderStatus.complete && order.getFlow() == OrderFlow.initial) {
             Account platform = transactionService.platform();
             List<OrderCashFlow> cashFlows = orderTypeService.cashflows(order.getType(), Stage.finished);
@@ -435,8 +439,10 @@ public class OrderService {
                 BigDecimal surplus = order.getSurplus();
                 order.setTotal(order.getTotalAmount());
                 order.setSurplus(surplus.subtract(startupFlow(cashFlow, order, platform.getSn())));
+                profitChains.add(cashFlow.getProfitChain());
             }
         }
+        order.setProfitChains(profitChains);
         order.setFlow(OrderFlow.carveup);
         this.orderDao.update(order);
     }
@@ -456,7 +462,15 @@ public class OrderService {
             LOG.error(" 金额为 0.00，跳过分配规则 > " + cashFlow.getId());
             return value;
         }
-        Transaction transaction = transfer(order, cashFlow.getProject(), value, from, payee, order.getId() + "->" + cashFlow.getCode(), cashFlow.getName());
+
+        ProfitChain profitChain = cashFlow.getProfitChain();// logs
+        profitChain.setName(cashFlow.getPayeeName(order));
+        profitChain.setRevenue(value);
+
+        Transaction transaction = transfer(order, cashFlow, value, from, payee, order.getId() + "->" + cashFlow.getCode(), cashFlow.getName());
+
+        profitChain.setTradeNo(transaction.getSn());// logs
+
         // 设置初始值
         order.setTotal(transaction.getAmount());
         order.setSurplus(transaction.getAmount());
@@ -464,6 +478,8 @@ public class OrderService {
             BigDecimal surplus = order.getSurplus();
             order.setTotal(transaction.getAmount());
             order.setSurplus(surplus.subtract(startupFlow(flow, order, payee)));
+
+            profitChain.addChild(flow.getProfitChain());// logs
         }
         return transaction.getAmount();
     }
@@ -472,7 +488,7 @@ public class OrderService {
      * 转账接口
      *
      * @param order    订单对象
-     * @param project  转账项目
+     * @param cashFlow 转账项目
      * @param amount   转账金额
      * @param from     转出账户
      * @param to       转入账户
@@ -480,13 +496,15 @@ public class OrderService {
      * @param notes    备注
      * @return Transaction
      */
-    private Transaction transfer(Order order, String project, BigDecimal amount, String from, String to, String unionKey, String notes) {
+    private Transaction transfer(Order order, OrderCashFlow cashFlow, BigDecimal amount, String from, String to, String unionKey, String notes) {
         Map<String, Object> data = new HashMap<>();
         data.putAll(order.getAttrs());
         data.put(Transaction.UNION_KEY, unionKey);
         data.put(Transaction.ORDER_ID, order.getId());
         data.put(Transaction.ORDER_TYPE, order.getType());
-        return transactionService.syncSave(project, from, to, amount, notes, data);
+        data.put("cashFlow_id", cashFlow.getId());
+        data.put("cashFlow_stage", cashFlow.getStage());
+        return transactionService.syncSave(cashFlow.getProject(), from, to, amount, notes, data);
     }
 
     @Autowired
