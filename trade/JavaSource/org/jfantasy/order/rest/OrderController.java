@@ -9,6 +9,7 @@ import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
 import org.jfantasy.framework.spring.mvc.error.NotFoundException;
 import org.jfantasy.framework.spring.mvc.error.RestException;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
+import org.jfantasy.framework.util.common.NumberUtil;
 import org.jfantasy.order.bean.Order;
 import org.jfantasy.order.bean.OrderItem;
 import org.jfantasy.order.bean.OrderTargetKey;
@@ -30,6 +31,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,7 +57,7 @@ public class OrderController {
     @ResponseBody
     @ApiImplicitParam(value = "filters", name = "filters", paramType = "query", dataType = "string")
     public Pager<ResultResourceSupport> search(Pager<Order> pager, List<PropertyFilter> filters) {
-        if(!pager.isOrderBySetted()){
+        if (!pager.isOrderBySetted()) {
             pager.setOrderBy(Order.FIELDS_BY_CREATE_TIME);
             pager.setOrder(Pager.SORT_DESC);
         }
@@ -84,6 +86,7 @@ public class OrderController {
 
     /**
      * 订单详情
+     *
      * @param id 订单ID
      * @return ModelAndView
      */
@@ -93,13 +96,13 @@ public class OrderController {
         if (order == null) {
             throw new NotFoundException("[ID=" + id + "]的订单不存在");
         }
-        return new ModelAndView("redirect:"+order.getRedirectUrl());
+        return new ModelAndView("redirect:" + order.getRedirectUrl());
     }
 
     /**
      * 创建订单交易 - 该接口会判断交易是否创建,如果没有交易记录会添加交易订单到交易记录
      *
-     * @param id               订单 id
+     * @param id   订单 id
      * @param form 交易类型
      * @return Transaction
      */
@@ -109,11 +112,14 @@ public class OrderController {
     @ResponseBody
     public ResultResourceSupport transaction(@PathVariable("id") String id, @RequestBody OrderTransaction form) {
         Order order = get(id);// 订单
+        if (NumberUtil.isEquals(BigDecimal.ZERO, order.getTotalAmount())) {// 0 元订单，不需要支付
+            return assembler.toResource(order);
+        }
         // 判断交易类型
         if (form.getType() == OrderTransaction.Type.payment) {
             return transactionController.transform(orderService.payment(order.getId()).getPaymentTransaction());
         } else {
-            return TransactionController.assembler.toResource(orderService.refund(id,form.getAmount(),"").getRefundTransaction());
+            return TransactionController.assembler.toResource(orderService.refund(id, form.getAmount(), "").getRefundTransaction());
         }
     }
 
