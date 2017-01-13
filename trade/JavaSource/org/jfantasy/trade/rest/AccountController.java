@@ -75,6 +75,17 @@ public class AccountController {
     }
 
     /**
+     * 账户记录
+     * @param id 账户
+     * @return Pager<Bill>
+     */
+    @RequestMapping(method = RequestMethod.GET, value = "/{id}/bills")
+    @ResponseBody
+    public Pager<Bill> bills(@PathVariable("id") String id,Pager<Bill> pager, List<PropertyFilter> filters) {
+        return this.accountService.bills(id,pager,filters);
+    }
+
+    /**
      * 添加账户
      **/
     @RequestMapping(method = RequestMethod.POST)

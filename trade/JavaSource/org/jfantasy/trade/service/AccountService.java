@@ -55,6 +55,15 @@ public class AccountService {
     }
 
     @Transactional
+    public Pager<Bill> bills(String id, Pager<Bill> pager, List<PropertyFilter> filters) {
+        if (!pager.isOrderBySetted()) {
+            pager.sort("modifyTime", Pager.SORT_DESC);
+        }
+        filters.add(new PropertyFilter("EQS_account.sn", id));
+        return this.billDao.findPager(pager, filters);
+    }
+
+    @Transactional
     public Pager<Account> findPager(Pager<Account> pager, List<PropertyFilter> filters) {
         return this.accountDao.findPager(pager, filters);
     }

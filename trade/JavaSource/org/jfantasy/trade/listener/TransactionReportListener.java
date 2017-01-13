@@ -1,16 +1,12 @@
 package org.jfantasy.trade.listener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.util.common.DateUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.trade.bean.Project;
 import org.jfantasy.trade.bean.Transaction;
-import org.jfantasy.trade.bean.enums.BillType;
-import org.jfantasy.trade.bean.enums.ReportTargetType;
-import org.jfantasy.trade.bean.enums.TimeUnit;
-import org.jfantasy.trade.bean.enums.TxStatus;
+import org.jfantasy.trade.bean.enums.*;
 import org.jfantasy.trade.event.TransactionChangedEvent;
+import org.jfantasy.trade.service.ProjectService;
 import org.jfantasy.trade.service.ReportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
@@ -21,13 +17,13 @@ import java.math.BigDecimal;
 @Component
 public class TransactionReportListener implements ApplicationListener<TransactionChangedEvent> {
 
-    private static final Log LOGGER = LogFactory.getLog(TransactionReportListener.class);
-
     private final ReportService reportService;
+    private final ProjectService projectService;
 
     @Autowired
-    public TransactionReportListener(ReportService reportService) {
+    public TransactionReportListener(ReportService reportService,ProjectService projectService) {
         this.reportService = reportService;
+        this.projectService = projectService;
     }
 
     @Override
@@ -36,6 +32,13 @@ public class TransactionReportListener implements ApplicationListener<Transactio
         if (transaction.getStatus() != TxStatus.success) {
             return;
         }
+        Project project = this.projectService.get(transaction.getProject());
+
+        if (project.getType() == ProjectType.order && transaction.getStatus() != TxStatus.success) {
+
+        }
+
+
         String day = DateUtil.format(transaction.getModifyTime(), "yyyyMMdd");
         BigDecimal amount = transaction.getAmount();
         String code = transaction.getProject() + (StringUtil.isBlank(transaction.getSubject()) ? "" : ("-" + transaction.getSubject()));
