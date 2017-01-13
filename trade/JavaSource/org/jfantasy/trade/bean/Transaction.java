@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.GenericGenerator;
 import org.jfantasy.framework.dao.BaseBusEntity;
 import org.jfantasy.framework.dao.hibernate.converter.MapConverter;
+import org.jfantasy.order.bean.Order;
 import org.jfantasy.pay.bean.Payment;
 import org.jfantasy.pay.bean.Refund;
 import org.jfantasy.trade.bean.enums.TxChannel;
@@ -50,27 +51,27 @@ public class Transaction extends BaseBusEntity {
      * 主要为了防止重复交易的发生
      * 格式为:projectKey|key
      */
-    @Column(name = "UNION_ID", updatable = false, unique = true)
+    @Column(name = "UNION_ID", length = 32, updatable = false, unique = true)
     private String unionId;
     /**
      * 转出账号<br/> 充值时,可以为空
      */
-    @Column(name = "FROM_ACCOUNT")
+    @Column(name = "FROM_ACCOUNT", length = 32)
     private String from;
     /**
      * 转入账号<br/>
      */
-    @Column(name = "TO_ACCOUNT")
+    @Column(name = "TO_ACCOUNT", length = 32)
     private String to;
     /**
      * 交易项目(转账/提现等)
      */
-    @Column(name = "PROJECT", length = 500, updatable = false)
+    @Column(name = "PROJECT", length = 20, updatable = false)
     private String project;
     /**
      * 交易科目
      */
-    @Column(name = "SUBJECT", updatable = false)
+    @Column(name = "SUBJECT", length = 20, updatable = false)
     private String subject;
     /**
      * 金额
@@ -80,13 +81,13 @@ public class Transaction extends BaseBusEntity {
     /**
      * 交易渠道
      */
-    @Column(name = "CHANNEL")
+    @Column(name = "CHANNEL", length = 20)
     @Enumerated(EnumType.STRING)
     private TxChannel channel;
     /**
      * 交易状态
      */
-    @Column(name = "STATUS", nullable = false)
+    @Column(name = "STATUS", length = 20, nullable = false)
     @Enumerated(EnumType.STRING)
     private TxStatus status;
     /**
@@ -101,17 +102,17 @@ public class Transaction extends BaseBusEntity {
     /**
      * 状态文本
      */
-    @Column(name = "STATUS_TEXT", nullable = false)
+    @Column(name = "STATUS_TEXT", length = 50, nullable = false)
     private String statusText;
     /**
      * 备注
      */
-    @Column(name = "NOTES")
+    @Column(name = "NOTES", length = 100)
     private String notes;
     /**
      * 支付配置名称
      */
-    @Column(name = "PAYMENT_CONFIG_NAME")
+    @Column(name = "PAYMENT_CONFIG_NAME", length = 50)
     private String payConfigName;
     /**
      * 扩展字段,用于存储不同项目的关联信息
@@ -119,6 +120,12 @@ public class Transaction extends BaseBusEntity {
     @Convert(converter = MapConverter.class)
     @Column(name = "PROPERTIES", columnDefinition = "Text")
     private Map<String, Object> properties;//NOSONAR
+    /**
+     * 订单ID，与订单有关的业务时，该字段不为null
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ORDER_ID", foreignKey = @ForeignKey(name = "FK_TRANSACTION_ORDER"))
+    private Order order;
     /**
      * 支付记录
      **/
@@ -278,4 +285,13 @@ public class Transaction extends BaseBusEntity {
     public void setFlowStatus(Integer flowStatus) {
         this.flowStatus = flowStatus;
     }
+
+    public Order getOrder() {
+        return order;
+    }
+
+    public void setOrder(Order order) {
+        this.order = order;
+    }
+
 }

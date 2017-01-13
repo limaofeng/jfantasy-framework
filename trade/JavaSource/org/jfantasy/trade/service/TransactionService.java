@@ -12,10 +12,12 @@ import org.jfantasy.framework.spring.mvc.error.RestException;
 import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
+import org.jfantasy.order.bean.Order;
 import org.jfantasy.trade.bean.Account;
 import org.jfantasy.trade.bean.Project;
 import org.jfantasy.trade.bean.Transaction;
 import org.jfantasy.trade.bean.enums.AccountType;
+import org.jfantasy.trade.bean.enums.ProjectType;
 import org.jfantasy.trade.bean.enums.TxChannel;
 import org.jfantasy.trade.bean.enums.TxStatus;
 import org.jfantasy.trade.dao.AccountDao;
@@ -200,20 +202,22 @@ public class TransactionService {
         transaction.setAmount(amount);
         transaction.setNotes(notes);
         transaction.setProperties(properties);
-        switch (project.getType()) {
-            case order:
-                transaction.set("stage", Transaction.STAGE_PAYMENT);
-                transaction.setChannel(TxChannel.online);
+        if (project.getType() == ProjectType.order) {
+            transaction.set("stage", Transaction.STAGE_PAYMENT);
+            transaction.setChannel(TxChannel.online);
+            transaction.setSubject(orderType);
+            transaction.setOrder(new Order(orderId));
+        }
+        if (project.getType() == ProjectType.transfer) {
+            transaction.setChannel(ObjectUtil.defaultValue(channel, TxChannel.internal));
+            if (StringUtil.isNotBlank(orderType)) {
                 transaction.setSubject(orderType);
-                break;
-            case transfer:
-                transaction.setChannel(ObjectUtil.defaultValue(channel, TxChannel.internal));
-                if (StringUtil.isNotBlank(orderType)) {
-                    transaction.setSubject(orderType);
-                }
-                break;
-            default:
-                transaction.setChannel(channel);
+            }
+            if (StringUtil.isNotBlank(orderId)) {
+                transaction.setOrder(new Order(orderId));
+            }
+        } else {
+            transaction.setChannel(channel);
         }
         transaction.setStatus(TxStatus.unprocessed);
         transaction.setFlowStatus(0);

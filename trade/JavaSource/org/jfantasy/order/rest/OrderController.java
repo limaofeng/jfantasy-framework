@@ -14,6 +14,7 @@ import org.jfantasy.order.bean.Order;
 import org.jfantasy.order.bean.OrderItem;
 import org.jfantasy.order.bean.OrderTargetKey;
 import org.jfantasy.order.entity.enums.OrderStatus;
+import org.jfantasy.order.rest.models.ProfitChain;
 import org.jfantasy.order.service.OrderService;
 import org.jfantasy.pay.bean.PayConfig;
 import org.jfantasy.pay.bean.Payment;
@@ -186,6 +187,15 @@ public class OrderController {
     @ResponseBody
     public List<OrderItem> items(@PathVariable("id") String id) {
         return get(id).getItems();
+    }
+
+    /**
+     * 获取订单信息的利润链
+     **/
+    @RequestMapping(value = "/{id}/profit-chains", method = RequestMethod.GET)
+    @ResponseBody
+    public List<ProfitChain> profitChainsrofitChain(@PathVariable("id") String id) {
+        return this.orderService.profitChains(id);
     }
 
     private Order get(String id) {

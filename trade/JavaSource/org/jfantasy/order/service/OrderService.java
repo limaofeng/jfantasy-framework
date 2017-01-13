@@ -31,6 +31,7 @@ import org.jfantasy.order.entity.enums.OrderStatus;
 import org.jfantasy.order.entity.enums.PaymentStatus;
 import org.jfantasy.order.entity.enums.ShippingStatus;
 import org.jfantasy.order.job.OrderClose;
+import org.jfantasy.order.rest.models.ProfitChain;
 import org.jfantasy.pay.bean.PayConfig;
 import org.jfantasy.pay.bean.Payment;
 import org.jfantasy.pay.bean.Refund;
@@ -128,6 +129,12 @@ public class OrderService {
     @Transactional
     public List<Order> find(Criterion... criterions) {
         return this.orderDao.find(criterions);
+    }
+
+    @Transactional
+    public List<ProfitChain> profitChains(String id) {
+        List<Transaction> transactions = this.transactionService.find(Restrictions.eq("order.id",id));
+        return null;
     }
 
     @Transactional
