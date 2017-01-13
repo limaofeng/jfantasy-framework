@@ -107,10 +107,10 @@ public class OrderService {
     }
 
     @Transactional
-    public void close(String id) {
+    public Order close(String id) {
         Order order = this.orderDao.get(id);
-        if (OrderStatus.unpaid != order.getStatus()) {
-            throw new ValidationException("order = [" + id + "] 订单已经支付，不能关闭!");
+        if (!(OrderStatus.unpaid == order.getStatus() || OrderStatus.refunded == order.getStatus())) {
+            throw new ValidationException("[" + id + "] 只有未支付及已经退款的订单，才能关闭!");
         }
         // 确认第三方支付成功后，修改关闭状态
         Transaction transaction = this.transactionService.getByUniqueId(Transaction.generateUnionid(Project.PAYMENT, order.getId()));
@@ -122,7 +122,7 @@ public class OrderService {
         }
         order.setStatus(OrderStatus.closed);
         this.scheduleService.removeTrigdger(OrderClose.triggerKey(order));
-        this.orderDao.update(order);
+        return this.orderDao.update(order);
     }
 
     @Transactional
@@ -218,10 +218,17 @@ public class OrderService {
 
     @Transactional
     public Order refund(String id, BigDecimal refundAmount, String note) {
-        // 订单
-        Order order = this.orderDao.get(id);
-        if (order.getStatus() == OrderStatus.refunding || order.getStatus() == OrderStatus.refunded) {
+        Order order = this.orderDao.get(id);// 订单
+        if (order.getStatus() == OrderStatus.refunding || order.getStatus() == OrderStatus.refunded || order.getStatus() == OrderStatus.closed) {
             return order;
+        }
+        if (refundAmount.compareTo(order.getTotalAmount()) > 0) {
+            throw new ValidationException("退款金额不能大于订单金额");
+        }
+        if (NumberUtil.isEquals(BigDecimal.ZERO, refundAmount)) {// 0 元退款
+            order.setStatus(OrderStatus.refunded);
+            this.orderDao.update(order);
+            return this.close(id);
         }
         if (order.getStatus() != OrderStatus.paid) {
             throw new ValidationException("订单" + order.getStatus().getValue() + ",不能继续退款");
@@ -253,7 +260,7 @@ public class OrderService {
         transactionService.update(transaction);
         // 更新订单状态
         order.setStatus(OrderStatus.refunded);
-        order.setPaymentStatus(order.getPayableAmount().equals(refund.getTotalAmount()) ? org.jfantasy.order.entity.enums.PaymentStatus.refunded : org.jfantasy.order.entity.enums.PaymentStatus.partRefund);
+        order.setPaymentStatus(order.getPayableAmount().equals(refund.getTotalAmount()) ? PaymentStatus.refunded : PaymentStatus.partRefund);
         order.setRefundAmount(refund.getTotalAmount());
         order.setRefundTime(refund.getTradeTime());
         return this.orderDao.update(order);
@@ -394,6 +401,17 @@ public class OrderService {
         order.setTotalAmount(totalAmount);// 订单总金额(商品金额+邮费)
         //如果有优惠，应该在这里计算。
         order.setPayableAmount(order.getTotalAmount());//订单支付金额
+
+        if (NumberUtil.isEquals(BigDecimal.ZERO, order.getTotalAmount())) {// 0 元订单，直接标记支付成功
+            order.setStatus(OrderStatus.paid);
+            order.setPaymentStatus(PaymentStatus.paid);
+            order.setPaymentTime(DateUtil.now());
+            order.setPaymentConfig(null);
+            order.setPayConfigName("");
+            // 查询付款人信息
+            order.setPayer(order.getMemberId());
+        }
+
         return this.orderDao.save(order);
     }
 
@@ -427,7 +445,7 @@ public class OrderService {
     private BigDecimal startupFlow(OrderCashFlow cashFlow, Order order, String from) {
         String payee = cashFlow.getPayee(order);
         BigDecimal value = cashFlow.getValue(order);
-        if (NumberUtil.isEquals(BigDecimal.ZERO,value)) {
+        if (NumberUtil.isEquals(BigDecimal.ZERO, value)) {
             LOG.error(" 金额为 0.00，跳过分配规则 > " + cashFlow.getId());
             return value;
         }

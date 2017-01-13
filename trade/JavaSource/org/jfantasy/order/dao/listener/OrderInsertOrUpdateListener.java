@@ -32,11 +32,15 @@ public class OrderInsertOrUpdateListener extends AbstractChangedListener<Order> 
 
     @Override
     protected void onPostInsert(Order entity, PostInsertEvent event) {
-        OrderType orderType = orderTypeService.get(entity.getType());
-        Map<String, String> data = new HashMap<>();
-        data.put("id", entity.getId());
-        Date expireDate = DateUtil.add(entity.getCreateTime(), Calendar.MINUTE, Math.toIntExact(orderType.getExpires()));
-        this.scheduleService.addTrigger(OrderClose.JOB_KEY, OrderClose.triggerKey(entity), DateUtil.format(expireDate, "ss mm HH dd MM ? yyyy"), data);
+        if (entity.getStatus() == OrderStatus.unpaid) {
+            OrderType orderType = orderTypeService.get(entity.getType());
+            Map<String, String> data = new HashMap<>();
+            data.put("id", entity.getId());
+            Date expireDate = DateUtil.add(entity.getCreateTime(), Calendar.MINUTE, Math.toIntExact(orderType.getExpires()));
+            this.scheduleService.addTrigger(OrderClose.JOB_KEY, OrderClose.triggerKey(entity), DateUtil.format(expireDate, "ss mm HH dd MM ? yyyy"), data);
+        } else {
+            this.applicationContext.publishEvent(new OrderStatusChangedEvent(entity));
+        }
     }
 
     @Override
