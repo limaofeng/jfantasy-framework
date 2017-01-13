@@ -1,13 +1,16 @@
 package org.jfantasy.member.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.jfantasy.common.Area;
 import org.jfantasy.common.converter.AreaConverter;
 import org.jfantasy.common.databind.AreaDeserializer;
 import org.jfantasy.framework.dao.BaseBusEntity;
+import org.jfantasy.framework.spring.validation.RESTful;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "MEM_ADDRESS")
@@ -37,6 +40,13 @@ public class Address extends BaseBusEntity {
      */
     @Column(name = "DETAILS", length = 200, nullable = false)
     private String details;
+    /**
+     * 是否为默认地址
+     */
+    @JsonProperty("default")
+    @NotNull(groups = {RESTful.POST.class, RESTful.PUT.class})
+    @Column(name = "IS_DEFAULT", nullable = false)
+    private Boolean isDefault;// 是否默认
     /**
      * 排班所有者类型
      */
@@ -94,6 +104,14 @@ public class Address extends BaseBusEntity {
 
     public void setOwnerId(String ownerId) {
         this.ownerId = ownerId;
+    }
+
+    public Boolean getDefault() {
+        return isDefault;
+    }
+
+    public void setDefault(Boolean aDefault) {
+        isDefault = aDefault;
     }
 
 }
