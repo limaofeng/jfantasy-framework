@@ -21,7 +21,7 @@ public class TransactionReportListener implements ApplicationListener<Transactio
     private final ProjectService projectService;
 
     @Autowired
-    public TransactionReportListener(ReportService reportService,ProjectService projectService) {
+    public TransactionReportListener(ReportService reportService, ProjectService projectService) {
         this.reportService = reportService;
         this.projectService = projectService;
     }
@@ -29,32 +29,29 @@ public class TransactionReportListener implements ApplicationListener<Transactio
     @Override
     public void onApplicationEvent(TransactionChangedEvent event) {
         Transaction transaction = event.getTransaction();
-        if (transaction.getStatus() != TxStatus.success) {
+        if (transaction.getStatus() == TxStatus.processing || transaction.getStatus() == TxStatus.close) {
             return;
         }
         Project project = this.projectService.get(transaction.getProject());
 
-        if (project.getType() == ProjectType.order && transaction.getStatus() != TxStatus.success) {
+        if (transaction.getStatus() == TxStatus.success) {
+            String day = DateUtil.format(transaction.getModifyTime(), "yyyyMMdd");
+            BigDecimal amount = transaction.getAmount();
+            String code = transaction.getProject() + (StringUtil.isBlank(transaction.getSubject()) ? "" : ("-" + transaction.getSubject()));
 
-        }
+            if (project.getType() == ProjectType.order || project.getType() == ProjectType.transfer) {
+                reportService.analyze(ReportTargetType.account, transaction.getFrom(), TimeUnit.day, day, BillType.credit, code, amount);//记录出帐
+                reportService.analyze(ReportTargetType.account, transaction.getTo(), TimeUnit.day, day, BillType.debit, code, amount);//记录入帐
+            } else if (project.getType() == ProjectType.deposit) {
+                reportService.analyze(ReportTargetType.account, transaction.getTo(), TimeUnit.day, day, BillType.debit, code, amount);//记录入帐
+            }
+        } else if (transaction.getStatus() == TxStatus.unprocessed && ProjectType.withdraw == project.getType()) {
+            String day = DateUtil.format(transaction.getModifyTime(), "yyyyMMdd");
+            BigDecimal amount = transaction.getAmount();
+            String code = transaction.getProject() + (StringUtil.isBlank(transaction.getSubject()) ? "" : ("-" + transaction.getSubject()));
 
-
-        String day = DateUtil.format(transaction.getModifyTime(), "yyyyMMdd");
-        BigDecimal amount = transaction.getAmount();
-        String code = transaction.getProject() + (StringUtil.isBlank(transaction.getSubject()) ? "" : ("-" + transaction.getSubject()));
-        if (Project.PAYMENT.equals(transaction.getProject()) || Project.REFUND.equals(transaction.getProject()) || Project.INCOME.equals(transaction.getProject())) {
-            //记录出帐
-            reportService.analyze(ReportTargetType.account, transaction.getFrom(), TimeUnit.day, day, BillType.credit, code, amount);
-            //记录入帐
-            reportService.analyze(ReportTargetType.account, transaction.getTo(), TimeUnit.day, day, BillType.debit, code, amount);
-        } else if (Project.INPOUR.equals(transaction.getProject())) {
-            //记录入帐
-            reportService.analyze(ReportTargetType.account, transaction.getTo(), TimeUnit.day, day, BillType.debit, code, amount);
-        } else if (Project.WITHDRAWAL.equals(transaction.getProject())) {
-            //记录出帐
-            reportService.analyze(ReportTargetType.account, transaction.getFrom(), TimeUnit.day, day, BillType.credit, code, amount);
+            reportService.analyze(ReportTargetType.account, transaction.getFrom(), TimeUnit.day, day, BillType.credit, code, amount);//记录出帐
         }
     }
-
 
 }
