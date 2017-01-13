@@ -9,6 +9,7 @@ import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.util.HandlebarsTemplateUtils;
 import org.jfantasy.framework.util.common.DateUtil;
+import org.jfantasy.framework.util.common.NumberUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.logistics.bean.DeliveryType;
@@ -47,7 +48,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -427,7 +427,7 @@ public class OrderService {
     private BigDecimal startupFlow(OrderCashFlow cashFlow, Order order, String from) {
         String payee = cashFlow.getPayee(order);
         BigDecimal value = cashFlow.getValue(order);
-        if (BigDecimal.ZERO.setScale(2, RoundingMode.DOWN).equals(value)) {
+        if (NumberUtil.isEquals(BigDecimal.ZERO,value)) {
             LOG.error(" 金额为 0.00，跳过分配规则 > " + cashFlow.getId());
             return value;
         }

@@ -76,8 +76,6 @@ public interface PayProduct {
      */
     void close(Payment payment) throws PayException;
 
-    /*----------以下非业务方法---------------*/
-
     /**
      * 支付产品标示
      *

@@ -1,5 +1,6 @@
 package org.jfantasy.pay.other;
 
+import org.jfantasy.framework.util.common.NumberUtil;
 import org.junit.Test;
 
 import java.math.BigDecimal;
@@ -14,6 +15,9 @@ public class BigDecimalTest {
         System.out.println(BigDecimal.valueOf(0.14).compareTo(BigDecimal.valueOf(0.13)));
 
         System.out.println(BigDecimal.valueOf(0.13).compareTo(BigDecimal.valueOf(0.14)));
+        System.out.println(BigDecimal.ZERO.equals(BigDecimal.valueOf(0.000000)));
+        System.out.println(BigDecimal.ZERO.compareTo(BigDecimal.valueOf(0.000000)));
+        System.out.println(NumberUtil.isEquals(BigDecimal.ZERO,BigDecimal.valueOf(0.00000)));
     }
 
     @Test

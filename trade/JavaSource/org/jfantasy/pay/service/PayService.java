@@ -4,6 +4,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.util.common.BeanUtil;
+import org.jfantasy.framework.util.common.NumberUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.order.bean.Order;
 import org.jfantasy.order.entity.enums.OrderStatus;
@@ -31,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.Properties;
 
 /**
@@ -95,6 +97,9 @@ public class PayService {
         }
         //获取支付配置
         PayConfig payConfig = payConfigService.get(payConfigId);
+        if (payConfig.getPayMethod() == PayMethod.thirdparty && NumberUtil.isEquals(BigDecimal.ZERO, transaction.getAmount())) {
+            throw new ValidationException("第三方支付平台不支持0元支付");
+        }
         //获取支付产品
         PayProduct payProduct = payProductConfiguration.loadPayProduct(payConfig.getPayProductId());
         //开始支付,创建支付记录

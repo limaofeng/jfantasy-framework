@@ -74,7 +74,7 @@ public class FileManagerFactory implements InitializingBean, ApplicationListener
             LOG.error(" 未找到 [" + type + "] 对应的构建程序!请参考 FileManagerBuilder 实现,并添加到 FileManagerFactory 的配置中");
             return;
         }
-        Map<String, String> params = new HashMap<String, String>();
+        Map<String, String> params = new HashMap<>();
         for (ConfigParam configParam : configParams) {
             params.put(configParam.getName(), configParam.getValue());
         }

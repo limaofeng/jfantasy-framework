@@ -13,10 +13,10 @@ import java.util.Random;
 public class NumberUtil {
 
     private static final String[] NUMBER_SIMPLIFIED_CHINESE = new String[]{"", "一", "二", "三", "四", "五", "六", "七", "八", "九"};
-    private static final  String[] UNIT_SIMPLIFIED_CHINESE = new String[]{"", "十", "百", "千", "万", "亿", "", "", ""};
-    private static final  String[] NUMBER_TRADITIONAL_CHINESE = new String[]{"零", "壹", "贰", "叁", "肆", "伍", "陆", "柒", "捌", "玖"};
-    private static final  String[] UNIT_TRADITIONAL_CHINESE = new String[]{"元", "拾", "佰", "仟", "万", "亿", "角", "分", "整"};
-    private static final  byte[] HEX = "0123456789ABCDEF".getBytes();
+    private static final String[] UNIT_SIMPLIFIED_CHINESE = new String[]{"", "十", "百", "千", "万", "亿", "", "", ""};
+    private static final String[] NUMBER_TRADITIONAL_CHINESE = new String[]{"零", "壹", "贰", "叁", "肆", "伍", "陆", "柒", "捌", "玖"};
+    private static final String[] UNIT_TRADITIONAL_CHINESE = new String[]{"元", "拾", "佰", "仟", "万", "亿", "角", "分", "整"};
+    private static final byte[] HEX = "0123456789ABCDEF".getBytes();
     public static final int INTEGER_MAX = 99999;
     private static Random random = new Random();
 
@@ -156,6 +156,10 @@ public class NumberUtil {
             return (c - 'A' + 10) & 0x0f;
         }
         return (c - '0') & 0x0f;
+    }
+
+    public static boolean isEquals(BigDecimal left, BigDecimal right) {
+        return left.compareTo(right) == 0;
     }
 
     /**
