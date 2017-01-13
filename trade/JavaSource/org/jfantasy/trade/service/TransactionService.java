@@ -122,7 +122,7 @@ public class TransactionService {
     }
 
     /**
-     * 异步执行转账逻辑
+     * 同步执行转账逻辑
      *
      * @param project 项目
      * @param from    转出账户
@@ -134,8 +134,10 @@ public class TransactionService {
      * @return Transaction
      */
     @Transactional
-    public Transaction asyncSave(String project, String from, String to, TxChannel channel, BigDecimal amount, String notes, Map<String, Object> data) {
-        return this.save(project, from, to, channel, amount, notes, data);
+    public Transaction syncSave(String project, String from, String to, TxChannel channel, BigDecimal amount, String notes, Map<String, Object> data) {
+        Transaction transaction = this.save(project, from, to, channel, amount, notes, data);
+        this.handleAllowFailure(transaction.getSn(), "");
+        return transaction;
     }
 
     /**

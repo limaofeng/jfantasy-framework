@@ -145,7 +145,7 @@ public class AccountController {
         } else if (ProjectType.deposit == project.getType()) {
             form.setTo(account.getSn());
         }
-        return this.transactionService.asyncSave(form.getProject(), form.getFrom(), form.getTo(), form.getChannel(), form.getAmount(), form.getNotes(), data);
+        return this.transactionService.syncSave(form.getProject(), form.getFrom(), form.getTo(), form.getChannel(), form.getAmount(), form.getNotes(), data);
     }
 
     @JsonResultFilter(ignore = {
