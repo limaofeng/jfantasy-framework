@@ -502,16 +502,19 @@ public class Order extends BaseBusEntity {
     }
 
     @Transient
+    @JsonIgnore
     public String getSubject() {
         return orderService().getSubject(this);
     }
 
     @Transient
+    @JsonIgnore
     public String getBody() {
         return orderService().getBody(this);
     }
 
     @Transient
+    @JsonIgnore
     public String getRedirectUrl() {
         return orderService().getRedirectUrl(this);
     }
@@ -595,6 +598,7 @@ public class Order extends BaseBusEntity {
     }
 
     @Transient
+    @JsonIgnore
     public BigDecimal getSurplus() {
         if (surplus == null) {
             surplus = this.getTotal();
@@ -603,6 +607,7 @@ public class Order extends BaseBusEntity {
     }
 
     @Transient
+    @JsonIgnore
     public BigDecimal getTotal() {
         if (total == null) {
             total = this.getTotalAmount();
@@ -611,6 +616,7 @@ public class Order extends BaseBusEntity {
     }
 
     @Transient
+    @JsonIgnore
     public BigDecimal price(String code) {
         return ObjectUtil.find(this.getPrices(), "code", code).getValue();
     }
