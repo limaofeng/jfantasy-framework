@@ -24,7 +24,7 @@ import java.util.Map;
  */
 @Entity
 @Table(name = "PAY_TRANSACTION")
-@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "payments", "refunds", "union_id"})
+@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "payments", "refunds", "union_id", "order"})
 public class Transaction extends BaseBusEntity {
 
     private static final long serialVersionUID = 3296031463173407900L;
@@ -292,6 +292,11 @@ public class Transaction extends BaseBusEntity {
 
     public void setOrder(Order order) {
         this.order = order;
+    }
+
+    @Transient
+    public String getOrderId() {
+        return this.getOrder() != null ? this.getOrder().getId() : null;
     }
 
 }
