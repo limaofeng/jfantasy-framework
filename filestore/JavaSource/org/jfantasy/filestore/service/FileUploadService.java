@@ -31,7 +31,7 @@ public class FileUploadService {
     private final FilePartService filePartService;
     private final FileManagerFactory fileManagerFactory;
 
-    private static final  Map<String, String> EXTENSIONS = new HashMap<>();
+    private static final Map<String, String> EXTENSIONS = new HashMap<>();
 
     static {
         EXTENSIONS.put("image/jpeg", "jpg");
@@ -47,17 +47,13 @@ public class FileUploadService {
         this.fileManagerFactory = fileManagerFactory;
     }
 
-    private static boolean isPart(String entireFileHash, String partFileHash, String entireFileName, String entireFileDir, Integer total, Integer index) {
-        return !(StringUtil.isBlank(entireFileHash) || StringUtil.isBlank(partFileHash)) && !(StringUtil.isBlank(entireFileName) || StringUtil.isBlank(entireFileDir)) && !(ObjectUtil.isNull(total) || StringUtil.isNull(index));
-    }
-
-    private FileDetail uploadPart(FilePart part, FilePart filePart, List<FilePart> fileParts, String contentType, String entireFileName, String entireFileDir, String entireFileHash, Integer total, FileManager fileManager) throws IOException {
+    private FileDetail uploadPart(FilePart part, FilePart filePart, List<FilePart> fileParts, String contentType, Info info, FileManager fileManager) throws IOException {
         FileDetail fileDetail = null;
         if (part == null) {
             List<FilePart> joinFileParts = new ArrayList<>();
             ObjectUtil.join(joinFileParts, fileParts, "index");
 
-            if (joinFileParts.size() == total) {
+            if (joinFileParts.size() == info.getTotal()) {
                 //临时文件
                 File tmp = FileUtil.tmp();
                 //合并 Part 文件
@@ -72,7 +68,7 @@ public class FileUploadService {
                 }
 
                 //保存合并后的新文件
-                fileDetail = this.upload(tmp, contentType, entireFileName, entireFileDir);
+                fileDetail = this.upload(tmp, contentType, info.getEntireFileName(), info.getEntireFileDir());
 
                 //删除临时文件
                 FileUtil.delFile(tmp);
@@ -83,7 +79,7 @@ public class FileUploadService {
                 }
 
                 //在File_PART 表冗余一条数据 片段为 0
-                filePartService.save(fileDetail.getPath(), fileDetail.getNamespace(), entireFileHash, entireFileHash, total, 0);
+                filePartService.save(fileDetail.getPath(), fileDetail.getNamespace(), info.getEntireFileHash(), info.getEntireFileHash(), info.getTotal(), 0);
             }
         } else {
             //删除 Part 文件
@@ -94,19 +90,19 @@ public class FileUploadService {
         return fileDetail;
     }
 
-    public FileDetail upload(MultipartFile file, String dir, String entireFileName, String entireFileDir, String entireFileHash, String partFileHash, Integer total, Integer index) throws IOException {
+    public FileDetail upload(MultipartFile file, Info info) throws IOException {
         String fileName = file.getOriginalFilename();
         String contentType = file.getContentType();
         try {
             //判断是否为分段上传
-            boolean isPart = isPart(entireFileHash, partFileHash, entireFileName, entireFileDir, total, index);
+            boolean isPart = info.isPart();
             //生成分段上传的文件名
             if (isPart && "blob".equalsIgnoreCase(fileName)) {
-                fileName = entireFileName + ".part" + StringUtil.addZeroLeft(index.toString(), total.toString().length());
+                fileName = info.getPartName();
             }
 
             if (LOG.isDebugEnabled()) {
-                LOG.debug("上传文件参数:{fileName:" + contentType + ",contentType:" + fileName + ",dir:" + dir + ",isPart:" + isPart + "}");
+                LOG.debug("上传文件参数:{fileName:" + contentType + ",contentType:" + fileName + ",dir:" + info.getDir() + ",isPart:" + isPart + "}");
             }
 
             //上传文件信息
@@ -114,23 +110,23 @@ public class FileUploadService {
 
             if (isPart) {//如果为分段上传
                 //获取文件上传目录的配置信息
-                Directory directory = fileService.getDirectory(dir);
+                Directory directory = fileService.getDirectory(info.getDir());
                 FileManager fileManager = fileManagerFactory.getFileManager(directory.getFileManager().getId());
 
-                FilePart filePart = filePartService.findByPartFileHash(entireFileHash, partFileHash);
+                FilePart filePart = filePartService.findByPartFileHash(info.getEntireFileHash(), info.getPartFileHash());
                 if (filePart == null || (fileDetail = fileService.get(filePart.getPath())) == null) {//分段已上传信息
-                    fileDetail = this.upload(file, dir);
-                    filePartService.save(fileDetail.getPath(), fileDetail.getNamespace(), entireFileHash, partFileHash, total, index);
+                    fileDetail = this.upload(file, info.getDir());
+                    filePartService.save(fileDetail.getPath(), fileDetail.getNamespace(), info.getEntireFileHash(), info.getPartFileHash(), info.getTotal(), info.getIndex());
                 }
                 //查询上传的片段
-                List<FilePart> fileParts = filePartService.find(entireFileHash);
+                List<FilePart> fileParts = filePartService.find(info.getEntireFileHash());
                 FilePart part = ObjectUtil.remove(fileParts, "index", 0);
-                FileDetail entireFileDetail = this.uploadPart(part, filePart, fileParts, contentType, entireFileName, entireFileDir, entireFileHash, total, fileManager);
+                FileDetail entireFileDetail = this.uploadPart(part, filePart, fileParts, contentType, info, fileManager);
                 if (entireFileDetail != null) {
                     fileDetail = entireFileDetail;
                 }
             } else {
-                fileDetail = this.upload(file, dir);
+                fileDetail = this.upload(file, info.getDir());
             }
             return fileDetail;
         } catch (RuntimeException e) {
@@ -143,30 +139,22 @@ public class FileUploadService {
      * 文件上传方法
      * <br/>dir 往下为分段上传参数
      *
-     * @param attach         附件信息
-     * @param contentType    附件类型
-     * @param fileName       附件名称
-     * @param dir            附件上传目录Id
-     * @param entireFileName 完整文件名称
-     * @param entireFileDir  附件完整文件的上传目录信息
-     * @param entireFileHash 文件hash值
-     * @param partFileHash   分段文件的hash值
-     * @param total          分段上传时的总段数
-     * @param index          当前片段
+     * @param attach      附件信息
+     * @param contentType 附件类型
+     * @param name        附件名称
+     * @param info        附加信息
      * @return FileDetail
-     * @throws IOException
+     * @throws IOException IO 异常
      */
-    public FileDetail upload(File attach, String contentType, String fileName, String dir, String entireFileName, String entireFileDir, String entireFileHash, String partFileHash, Integer total, Integer index) throws IOException {
+    public FileDetail upload(File attach, String contentType, String name, Info info) throws IOException {
         try {
             //判断是否为分段上传
-            boolean isPart = StringUtil.isNotBlank(entireFileHash) && StringUtil.isNotBlank(partFileHash) && StringUtil.isNotBlank(entireFileName) && StringUtil.isNotBlank(entireFileDir) && ObjectUtil.isNotNull(total) && StringUtil.isNotNull(index);
+            boolean isPart = info.isPart();
             //生成分段上传的文件名
-            if (isPart && "blob".equalsIgnoreCase(fileName)) {
-                fileName = entireFileName + ".part" + StringUtil.addZeroLeft(index.toString(), total.toString().length());
-            }
+            String fileName = isPart && "blob".equalsIgnoreCase(name) ? info.getPartName() : name;
 
             if (LOG.isDebugEnabled()) {
-                LOG.debug("上传文件参数:{fileName:" + contentType + ",contentType:" + fileName + ",dir:" + dir + ",isPart:" + isPart + "}");
+                LOG.debug("上传文件参数:{fileName:" + contentType + ",contentType:" + fileName + ",dir:" + info.getDir() + ",isPart:" + isPart + "}");
             }
 
             //上传文件信息
@@ -174,23 +162,23 @@ public class FileUploadService {
 
             if (isPart) {//如果为分段上传
                 //获取文件上传目录的配置信息
-                Directory directory = fileService.getDirectory(dir);
+                Directory directory = fileService.getDirectory(info.getDir());
                 FileManager fileManager = fileManagerFactory.getFileManager(directory.getFileManager().getId());
 
-                FilePart filePart = filePartService.findByPartFileHash(entireFileHash, partFileHash);
+                FilePart filePart = filePartService.findByPartFileHash(info.getEntireFileHash(), info.getPartFileHash());
                 if (filePart == null || (fileDetail = fileService.get(filePart.getPath())) == null) {//分段已上传信息
-                    fileDetail = this.upload(attach, contentType, fileName, dir);
-                    filePartService.save(fileDetail.getPath(), fileDetail.getNamespace(), entireFileHash, partFileHash, total, index);
+                    fileDetail = this.upload(attach, contentType, fileName, info.getDir());
+                    filePartService.save(fileDetail.getPath(), fileDetail.getNamespace(), info.getEntireFileHash(), info.getPartFileHash(), info.getTotal(), info.getIndex());
                 }
                 //查询上传的片段
-                List<FilePart> fileParts = filePartService.find(entireFileHash);
+                List<FilePart> fileParts = filePartService.find(info.getEntireFileHash());
                 FilePart part = ObjectUtil.remove(fileParts, "index", 0);
-                FileDetail entireFileDetail = this.uploadPart(part, filePart, fileParts, contentType, entireFileName, entireFileDir, entireFileHash, total, fileManager);
+                FileDetail entireFileDetail = this.uploadPart(part, filePart, fileParts, contentType, info, fileManager);
                 if (entireFileDetail != null) {
                     fileDetail = entireFileDetail;
                 }
             } else {
-                fileDetail = this.upload(attach, contentType, fileName, dir);
+                fileDetail = this.upload(attach, contentType, fileName, info.getDir());
             }
             return fileDetail;
         } catch (RuntimeException e) {
@@ -220,7 +208,7 @@ public class FileUploadService {
         }
     }
 
-    private FileDetail upload(InputStream input, String contentType, String fileName, long size, String dir) throws IOException {
+    public FileDetail upload(InputStream input, String contentType, String fileName, long size, String dir) throws IOException {
         Directory directory = this.fileService.getDirectory(dir);
         // 设置 mask
         input.mark((int) size + 1);
