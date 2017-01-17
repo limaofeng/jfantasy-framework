@@ -276,11 +276,12 @@ public class OrderDTO {
         this.prices.add(price);
     }
 
-    public void addPayee(String code, String name, String value) {
+    public void addPayee(String code, String name, String value, String target) {
         OrderPayeeDTO price = new OrderPayeeDTO();
         price.setCode(code);
         price.setName(name);
         price.setValue(value);
+        price.setTarget(target);
         this.payees.add(price);
     }
 
