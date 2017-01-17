@@ -1,6 +1,7 @@
 package org.jfantasy.sns.service;
 
 import org.hibernate.criterion.Restrictions;
+import org.jfantasy.filestore.UploadUtils;
 import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.member.dao.MemberDao;
 import org.jfantasy.security.bean.enums.Sex;
@@ -63,7 +64,7 @@ public class SnserService {
             Fans fans = fansService.get(appId, openId);
             snser = new Snser();
             snser.setName(fans.getNickname());
-            snser.setAvatar(null);
+            snser.setAvatar(UploadUtils.uploadImage(fans.getAvatar(),"avatar"));
             snser.setSex(Sex.valueOf(fans.getSex().name()));
             snser.setPlatform(platform);
             snser.setMember(this.memberDao.get(memberId));

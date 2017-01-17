@@ -23,6 +23,7 @@ import org.jfantasy.member.event.LogoutEvent;
 import org.jfantasy.member.event.RegisterEvent;
 import org.jfantasy.security.bean.Role;
 import org.jfantasy.security.service.RoleService;
+import org.jfantasy.sns.bean.Snser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -182,6 +183,20 @@ public class MemberService {
 
         member.setPassword(passwordEncoder.encode(newPassword));
         return this.memberDao.update(member);
+    }
+
+    public void update(Snser snser) {
+        Member member = this.memberDao.get(snser.getMember().getId());
+        if (StringUtil.isBlank(member.getNickName()) || member.getUsername().equals(member.getNickName())) {
+            member.setNickName(snser.getName());
+        }
+        MemberDetails details = member.getDetails();
+        if (details.getAvatar() == null) {
+            details.setAvatar(snser.getAvatar());
+        }
+        if (details.getSex() == null) {
+            details.setSex(snser.getSex());
+        }
     }
 
     /**

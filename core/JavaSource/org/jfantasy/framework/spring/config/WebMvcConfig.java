@@ -4,9 +4,11 @@ package org.jfantasy.framework.spring.config;
 import com.alibaba.druid.support.http.StatViewServlet;
 import com.alibaba.druid.support.http.WebStatFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mashape.unirest.http.Unirest;
 import org.hibernate.validator.HibernateValidator;
 import org.jfantasy.framework.jackson.JSON;
 import org.jfantasy.framework.jackson.ThreadJacksonMixInHolder;
+import org.jfantasy.framework.jackson.UnirestObjectMapper;
 import org.jfantasy.framework.spring.mvc.method.annotation.FormModelMethodArgumentResolver;
 import org.jfantasy.framework.spring.mvc.method.annotation.PagerModelAttributeMethodProcessor;
 import org.jfantasy.framework.spring.mvc.method.annotation.PropertyFilterModelAttributeMethodProcessor;
@@ -124,6 +126,8 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter implements Environment
         packages.addAll(Arrays.asList(StringUtil.tokenizeToStringArray(this.jacksonPropertyResolver.getProperty("mixin.packages", "org.jfantasy.*.bean"))));
         ThreadJacksonMixInHolder.scan(packages.toArray(new String[packages.size()]));
         objectMapper.setMixIns(ThreadJacksonMixInHolder.getSourceMixins());
+        // 设置到 Unirest 中
+        Unirest.setObjectMapper(new UnirestObjectMapper(objectMapper));
         return objectMapper;
     }
 
