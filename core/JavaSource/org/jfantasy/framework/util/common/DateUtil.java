@@ -1,5 +1,6 @@
 package org.jfantasy.framework.util.common;
 
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.error.IgnoreException;
@@ -14,7 +15,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Matcher;
 
-public class DateUtil {
+public class DateUtil extends DateUtils {
 
     private static final Log LOG = LogFactory.getLog(DateUtil.class);
 
