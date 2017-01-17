@@ -30,7 +30,7 @@ public class OrderPayeeValue extends BaseBusEntity {
     /**
      * 收款人对象标示。方便搜索
      */
-    @Column(name = "TARGET", updatable = false,length = 20)
+    @Column(name = "TARGET", updatable = false,length = 50)
     private String target;
     /**
      * 收款人名称
