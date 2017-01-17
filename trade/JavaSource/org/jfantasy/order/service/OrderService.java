@@ -404,7 +404,7 @@ public class OrderService {
             if (dto == null) {
                 throw new ValidationException(String.format("缺少关于%s的收款人配置", payee.getTitle()));
             }
-            order.addPayee(payee, dto.getName(), dto.getValue());
+            order.addPayee(payee, dto.getName(), dto.getValue(),dto.getTarget());
         }
         order.setTotalAmount(totalAmount);// 订单总金额(商品金额+邮费)
         //如果有优惠，应该在这里计算。

@@ -39,7 +39,7 @@ import java.util.*;
 @Entity
 @Table(name = "PAY_ORDER", uniqueConstraints = @UniqueConstraint(name = "UK_ORDER_TARGET", columnNames = {"TARGET_TYPE", "TARGET_ID"}))
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "ship_area", "memeo", "shippings", "details_type", "details_id", "expired", "payment_transaction", "refund_transaction", "redirect_url","profit_chains"})
+@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "ship_area", "memeo", "shippings", "details_type", "details_id", "expired", "payment_transaction", "refund_transaction", "redirect_url", "profit_chains"})
 public class Order extends BaseBusEntity {
 
     private static final long serialVersionUID = -8541323033439515148L;
@@ -560,12 +560,13 @@ public class Order extends BaseBusEntity {
         this.prices.add(priceValue);
     }
 
-    public void addPayee(OrderPayee price, String name, String value) {
+    public void addPayee(OrderPayee price, String name, String value, String target) {
         OrderPayeeValue payeeValue = new OrderPayeeValue();
         payeeValue.setOrder(this);
         payeeValue.setPayee(price);
         payeeValue.setName(name);
         payeeValue.setValue(value);
+        payeeValue.setTarget(target);
         this.payees.add(payeeValue);
     }
 

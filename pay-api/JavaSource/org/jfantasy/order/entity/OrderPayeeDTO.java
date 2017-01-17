@@ -14,6 +14,10 @@ public class OrderPayeeDTO {
      * 收款人
      */
     private String value;
+    /**
+     * 目标ID
+     */
+    private String target;
 
     public String getCode() {
         return code;
@@ -37,5 +41,13 @@ public class OrderPayeeDTO {
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+    public String getTarget() {
+        return target;
+    }
+
+    public void setTarget(String target) {
+        this.target = target;
     }
 }
