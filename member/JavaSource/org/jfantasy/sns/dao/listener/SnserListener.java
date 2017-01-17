@@ -1,6 +1,7 @@
 package org.jfantasy.sns.dao.listener;
 
 import org.hibernate.Hibernate;
+import org.hibernate.event.spi.EventType;
 import org.hibernate.event.spi.PostDeleteEvent;
 import org.hibernate.event.spi.PostInsertEvent;
 import org.jfantasy.framework.dao.hibernate.listener.AbstractChangedListener;
@@ -11,6 +12,10 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class SnserListener extends AbstractChangedListener<Snser> {
+
+    public SnserListener() {
+        super(EventType.POST_COMMIT_INSERT, EventType.POST_COMMIT_DELETE);
+    }
 
     @Override
     protected void onPostInsert(Snser entity, PostInsertEvent event) {
