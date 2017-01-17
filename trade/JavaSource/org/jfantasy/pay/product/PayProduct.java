@@ -4,7 +4,6 @@ import org.jfantasy.order.bean.Order;
 import org.jfantasy.pay.bean.Payment;
 import org.jfantasy.pay.bean.Refund;
 import org.jfantasy.pay.error.PayException;
-import org.jfantasy.pay.bean.enums.PaymentStatus;
 
 import java.util.Properties;
 
@@ -67,7 +66,7 @@ public interface PayProduct {
      * @param payment 支付对象
      * @return PaymentStatus
      */
-    PaymentStatus query(Payment payment) throws PayException;
+    Object query(Payment payment) throws PayException;
 
     /**
      * 关闭交易

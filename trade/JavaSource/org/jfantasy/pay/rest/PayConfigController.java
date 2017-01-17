@@ -12,10 +12,8 @@ import org.jfantasy.pay.bean.PayConfig;
 import org.jfantasy.pay.bean.Payment;
 import org.jfantasy.pay.bean.Refund;
 import org.jfantasy.pay.error.PayException;
-import org.jfantasy.pay.product.Parameters;
 import org.jfantasy.pay.rest.models.assembler.PayConfigResourceAssembler;
 import org.jfantasy.pay.service.PayConfigService;
-import org.jfantasy.pay.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -34,10 +32,12 @@ public class PayConfigController {
 
     private PayConfigResourceAssembler assembler = new PayConfigResourceAssembler();
 
+    private final PayConfigService configService;
+
     @Autowired
-    private PayConfigService configService;
-    @Autowired
-    private PaymentService paymentService;
+    public PayConfigController(PayConfigService configService) {
+        this.configService = configService;
+    }
 
     @JsonResultFilter(ignore = @IgnoreProperty(pojo = PayConfig.class, name = {"properties"}))
     @RequestMapping(method = RequestMethod.GET)
@@ -71,12 +71,6 @@ public class PayConfigController {
     @ResponseBody
     public ModelAndView payproduct(@PathVariable("id") Long id) throws IOException, PayException {
         return new ModelAndView("redirect:/payproducts/" + this.configService.get(id).getPayProductId());
-    }
-
-    @RequestMapping(value = "/{id}/test", method = RequestMethod.POST)
-    @ResponseBody
-    public String test(@PathVariable("id") Long paymentConfigId, @RequestBody Parameters parameters) throws IOException, PayException {
-        return this.paymentService.test(paymentConfigId, parameters);
     }
 
     /**

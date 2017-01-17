@@ -57,7 +57,7 @@ spring:
       packages: org.jfantasy.pay.product,org.jfantasy.pay.bean,org.jfantasy.pay.order.entity
   oauth:
     redis:
-      host: 114.55.142.155
+      host: 127.0.0.1
       port: 6379
       password:
   apigateway:

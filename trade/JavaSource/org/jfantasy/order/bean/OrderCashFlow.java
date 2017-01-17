@@ -8,10 +8,12 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.jfantasy.framework.dao.BaseBusEntity;
 import org.jfantasy.framework.spring.SpringContextUtil;
+import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.order.bean.databind.OrderCashFlowDeserializer;
 import org.jfantasy.order.bean.databind.OrderCashFlowSerializer;
 import org.jfantasy.order.bean.databind.OrderTypeDeserializer;
 import org.jfantasy.order.bean.databind.OrderTypeSerializer;
+import org.jfantasy.order.bean.enums.PayeeType;
 import org.jfantasy.order.bean.enums.Stage;
 import org.jfantasy.order.rest.models.ProfitChain;
 import org.jfantasy.order.service.OrderTypeService;
@@ -255,11 +257,6 @@ public class OrderCashFlow extends BaseBusEntity {
     }
 
     @Transient
-    public String getPayeeName(Order order) {
-        return orderTypeService().getPayeeName(this, order);
-    }
-
-    @Transient
     private static OrderTypeService orderTypeService() {
         if (orderTypeService == null) {
             orderTypeService = SpringContextUtil.getBeanByType(OrderTypeService.class);
@@ -268,10 +265,30 @@ public class OrderCashFlow extends BaseBusEntity {
     }
 
     @Transient
+    public ProfitChain getProfitChain(Order order) {
+        if (profitChain == null) {
+            profitChain = this.getProfitChain();
+            BigDecimal revenue = this.getValue(order);
+            if (payee.getType() == PayeeType.fixed) {
+                profitChain.setPayee(payee.getCode());
+                profitChain.setName(payee.getTitle());
+            } else {
+                OrderPayeeValue payeeValue = ObjectUtil.find(order.getPayees(), "payee.id", this.getPayee().getId());
+                profitChain.setPayee(payeeValue.getValue());
+                profitChain.setName(payeeValue.getName());
+            }
+            profitChain.setRevenue(revenue);
+            profitChain.setBalance(revenue);
+        }
+        return profitChain;
+    }
+
+    @Transient
     public ProfitChain getProfitChain() {
-        if(profitChain == null){
+        if (profitChain == null) {
             profitChain = new ProfitChain();
-            profitChain.setId(code);
+            profitChain.setId(this.code);
+            profitChain.setType(this.getPayee().getType());
             profitChain.setRole(this.getPayee().getCode());
             profitChain.setRoleName(this.getPayee().getTitle());
             profitChain.setNotes(this.getNotes());

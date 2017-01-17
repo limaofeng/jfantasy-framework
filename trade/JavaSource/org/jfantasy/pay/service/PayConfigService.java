@@ -19,10 +19,14 @@ import java.util.List;
 @Transactional
 public class PayConfigService {
 
+    private final PayConfigDao payConfigDao;
+    private final PayProductConfiguration payProductConfiguration;
+
     @Autowired
-    private PayConfigDao payConfigDao;
-    @Autowired
-    private PayProductConfiguration payProductConfiguration;
+    public PayConfigService(PayConfigDao payConfigDao, PayProductConfiguration payProductConfiguration) {
+        this.payConfigDao = payConfigDao;
+        this.payProductConfiguration = payProductConfiguration;
+    }
 
     /**
      * findPager

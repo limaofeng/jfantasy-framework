@@ -437,12 +437,14 @@ public class OrderService {
                 BigDecimal surplus = order.getSurplus();
                 order.setTotal(order.getTotalAmount());
                 order.setSurplus(surplus.subtract(startupFlow(cashFlow, order, platform.getSn())));
-                profitChains.add(cashFlow.getProfitChain());
+                if (cashFlow.getProfitChain().getRevenue() != null) {
+                    profitChains.add(cashFlow.getProfitChain());
+                }
             }
+            order.setProfitChains(profitChains);
+            order.setFlow(OrderFlow.carveup);
+            this.orderDao.update(order);
         }
-        order.setProfitChains(profitChains);
-        order.setFlow(OrderFlow.carveup);
-        this.orderDao.update(order);
     }
 
     /**
@@ -461,9 +463,7 @@ public class OrderService {
             return value;
         }
 
-        ProfitChain profitChain = cashFlow.getProfitChain();// logs
-        profitChain.setName(cashFlow.getPayeeName(order));
-        profitChain.setRevenue(value);
+        ProfitChain profitChain = cashFlow.getProfitChain(order);// logs
 
         Transaction transaction = transfer(order, cashFlow, value, from, payee, order.getId() + "->" + cashFlow.getCode(), cashFlow.getName());
 

@@ -119,6 +119,9 @@ public class TransactionService {
     @Transactional
     public Transaction syncSave(String projectKey, String from, String to, BigDecimal amount, String notes, Map<String, Object> properties) {
         Transaction transaction = this.save(projectKey, from, to, amount, notes, properties);
+        if(transaction.getStatus() == TxStatus.success){
+            return transaction;
+        }
         this.handleAllowFailure(transaction.getSn(), "");
         return transaction;
     }

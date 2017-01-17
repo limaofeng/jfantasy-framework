@@ -1,6 +1,5 @@
 package org.jfantasy.pay.product;
 
-import org.jfantasy.framework.util.common.file.FileUtil;
 import org.jfantasy.pay.bean.PayConfig;
 import org.jfantasy.pay.bean.Refund;
 import org.jfantasy.pay.product.sign.RSA;
@@ -8,7 +7,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
 import java.math.BigDecimal;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
@@ -18,19 +16,34 @@ public class AlipayTest {
 
     private Alipay alipay = new Alipay();
     private PayConfig payConfig = new PayConfig();
+
     @Before
     public void setUp() throws Exception {
+//        payConfig.setName("正本上工支付宝支付");
+//        payConfig.setPayConfigType(PayConfig.PayConfigType.online);
+//        payConfig.setPayProductId("alipayDirect");
+//        payConfig.setPayFeeType(PayConfig.PayFeeType.fixed);
+//        payConfig.setPayFee(BigDecimal.ZERO);
+//        payConfig.setBargainorId("2088021598024164");
+//        payConfig.setBargainorKey("2s6pd34rf1u95t1hjlry13o1u13qxlbs");
+//        payConfig.set("sellerEmail", "shzbsg@126.com");
+        //一些高级接口需要使用 RSA 或者 DSA 加密
+//        payConfig.set("rsaPrivateKey", FileUtil.readFile(new File("/certs/rsa_private_key.pem")));//RSA 加密时的私钥
+//        payConfig.se／t("rsaPublicKey", FileUtil.readFile(new File("/certs/rsa_public_key.pem")));//RSA 支付宝公钥
+
+        //查询配置
         payConfig.setName("正本上工支付宝支付");
         payConfig.setPayConfigType(PayConfig.PayConfigType.online);
         payConfig.setPayProductId("alipayDirect");
         payConfig.setPayFeeType(PayConfig.PayFeeType.fixed);
         payConfig.setPayFee(BigDecimal.ZERO);
-        payConfig.setBargainorId("2088021598024164");
+        payConfig.setBargainorId("2016051201394880");
         payConfig.setBargainorKey("2s6pd34rf1u95t1hjlry13o1u13qxlbs");
-        payConfig.set("sellerEmail", "shzbsg@126.com");
+        payConfig.set("sellerEmail", "2088021598024164");
         //一些高级接口需要使用 RSA 或者 DSA 加密
-        payConfig.set("rsaPrivateKey", FileUtil.readFile(new File("/certs/rsa_private_key.pem")));//RSA 加密时的私钥
-        payConfig.set("rsaPublicKey", FileUtil.readFile(new File("/certs/rsa_public_key.pem")));//RSA 支付宝公钥
+        payConfig.set("rsaPrivateKey", "MIICdQIBADANBgkqhkiG9w0BAQEFAASCAl8wggJbAgEAAoGBAMOvpizdjcG0rn/8niR1GfWT3XX4iu1czbQLeORd2mzMMKY7Qjd24ybVJgVjoGSYc5sjtFFESwjJnbLZ9fKZPsonXvMj94Q1CPghjpbdfLhAsHlT5X7Skx26sda7UXq3jgmuIlhKYMb7GAlZX+2usX5lnLlyN+WcYR+68FgIhIoXAgMBAAECgYBpk/hFVpfn/fL0LLiqFOAXplqjDqDuJdb6IAJuu9BgSN6qoWg9gpBV4ERuPe1IuRQOjPn5qq4NJLJHz98pr9K2zX+45BFjL78FRLEs1jy5o4UqKgMZriyErvul2zWVWPAlbOzDx/Bike5e/oPT9Nll7rC7dAN8oRQpWk2Zdg+2yQJBAP5OJ/dtbbSffVsAXq5pb4gdd4Nu8HiUWK4v7eJsUMuqkFJwpJBTOigr3MVF0XivlTZaDXMhsyIotQPV7PVkb0MCQQDE/X0qC/yPRF377tsAdcGryi+DFkmmIxgNVnEOCn8cbA/MUY6CCSFHP5n54i9R2Zt0f8xgKyq4IZ9EaDbKKpqdAkByVX9AjhFpyN8aP/NRpRPA9caa8BDrlX69ac0hJKO6vce/WOeT/+dA0l+izf4crYx/cENlxPv92qFvxQmRVoNzAkBStdBg4CmKCf2gMzj253qK49ixJKGFxURrDTlo2NVoHKNBeZjpVmYHoVfISMTvi/uunZ41XsqQB2X09gDTP7ItAkAoZuS6xBY5j74Auf3GC5MSZLsAeW1ytoyAurKPYpC7qhE1fENyYYgh5ZOdvziky2RGlqlFsnnbtbXlaVhMiW4P");//RSA 加密时的私钥
+        payConfig.set("rsaPublicKey", "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDDr6Ys3Y3BtK5//J4kdRn1k911+IrtXM20C3jkXdpszDCmO0I3duMm1SYFY6BkmHObI7RRREsIyZ2y2fXymT7KJ17zI/eENQj4IY6W3Xy4QLB5U+V+0pMdurHWu1F6t44JriJYSmDG+xgJWV/trrF+ZZy5cjflnGEfuvBYCISKFwIDAQAB");//RSA 支付宝公钥
+
     }
 
     @Test
@@ -71,6 +84,10 @@ public class AlipayTest {
         Refund refund = new Refund();
         refund.setPayConfig(payConfig);
         alipay.payNotify(refund,result);
+    }
+
+    @Test
+    public void query() throws Exception {
     }
 
 }

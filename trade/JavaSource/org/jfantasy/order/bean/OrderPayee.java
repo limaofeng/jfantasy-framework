@@ -25,7 +25,7 @@ public class OrderPayee extends BaseBusEntity {
      * 数据类型
      */
     @Enumerated(EnumType.STRING)
-    @Column(name = "DATA_TYPE", nullable = false, updatable = false)
+    @Column(name = "DATA_TYPE", nullable = false, updatable = false,length = 20)
     private DataType dataType;
     /**
      * 数据类型

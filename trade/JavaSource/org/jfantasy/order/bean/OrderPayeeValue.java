@@ -22,20 +22,25 @@ public class OrderPayeeValue extends BaseBusEntity {
     @JoinColumn(name = "ORDER_ID", nullable = false, foreignKey = @ForeignKey(name = "FK_ORDERPAYEEVALUE_ORDER"))
     private Order order;
     /**
-     * 价格条目
+     * 收款人
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ORDER_PAYEE", nullable = false, updatable = false, foreignKey = @ForeignKey(name = "FK_ORDERPAYEEVALUE_ORDERPAYEE"))
     private OrderPayee payee;
     /**
+     * 收款人对象标示。方便搜索
+     */
+    @Column(name = "TARGET", updatable = false,length = 20)
+    private String target;
+    /**
      * 收款人名称
      */
-    @Column(name = "NAME", nullable = false, updatable = false)
+    @Column(name = "NAME", nullable = false,length = 50)
     private String name;
     /**
      * 收款人
      */
-    @Column(name = "VALUE", nullable = false, updatable = false)
+    @Column(name = "VALUE", nullable = false, updatable = false,length = 32)
     private String value;
 
     public Long getId() {
@@ -92,6 +97,14 @@ public class OrderPayeeValue extends BaseBusEntity {
             return null;
         }
         return this.getPayee().getTitle();
+    }
+
+    public String getTarget() {
+        return target;
+    }
+
+    public void setTarget(String target) {
+        this.target = target;
     }
 
 }

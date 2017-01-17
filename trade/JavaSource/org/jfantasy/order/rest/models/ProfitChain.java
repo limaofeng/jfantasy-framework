@@ -10,17 +10,18 @@ import java.util.List;
  * 利润链
  */
 public class ProfitChain {
-    private String id;
-    private PayeeType type;
-    private String name;
-    private String role;
-    private String roleName;
-    private String project;
-    private String projectName;
-    private BigDecimal revenue;
-    private BigDecimal balance;
-    private String notes;
-    private String tradeNo;
+    private String id;//流程ID
+    private PayeeType type;//收款人类型
+    private String payee;//收款人
+    private String name;//收款人名称
+    private String role;//收款人编码
+    private String roleName;//收款人Title
+    private String project;//收款项目
+    private String projectName;//收款项目名称
+    private BigDecimal revenue;//收益
+    private BigDecimal balance;//最终余额
+    private String notes;//备注
+    private String tradeNo;//关联交易
     private List<ProfitChain> children;
 
     public String getId() {
@@ -119,11 +120,19 @@ public class ProfitChain {
         this.projectName = projectName;
     }
 
+    public String getPayee() {
+        return payee;
+    }
+
+    public void setPayee(String payee) {
+        this.payee = payee;
+    }
+
     public void addChild(ProfitChain profitChain) {
         if (this.children == null) {
             this.children = new ArrayList<>();
         }
-        this.addChild(profitChain);
-        profitChain.setBalance(this.getBalance().subtract(profitChain.getRevenue()));
+        this.children.add(profitChain);
+        this.setBalance(this.getBalance().subtract(profitChain.getRevenue()));
     }
 }

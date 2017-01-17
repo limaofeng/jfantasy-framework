@@ -263,7 +263,7 @@ public class Weixinpay extends PayProductSupport {
      * @param payment 支付记录
      * @return PrePayment
      */
-    public PaymentStatus query(Payment payment) throws PayException {
+    public Map<String,String> query(Payment payment) throws PayException {
         try {
             PayConfig config = payment.getPayConfig();
             PayConfig paymentConfig = payment.getPayConfig();
@@ -299,10 +299,9 @@ public class Weixinpay extends PayProductSupport {
             } else if ("CLOSED".equalsIgnoreCase(state)) {//已关闭
                 payment.setStatus(PaymentStatus.close);
             } else if ("PAYERROR".equalsIgnoreCase(state) || "REFUND".equalsIgnoreCase(state) || "REVOKED".equalsIgnoreCase(state)) {
-                //支付失败 and 转入退款 and 已撤销
-                payment.setStatus(PaymentStatus.failure);
+                payment.setStatus(PaymentStatus.failure);//支付失败 and 转入退款 and 已撤销
             }
-            return payment.getStatus();
+            return data;
         } catch (IOException e) {
             LOG.error(e);
             throw new PayException("调用微信接口,网络错误!");

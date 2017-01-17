@@ -56,7 +56,7 @@ public class OrderServiceTest {
 
     @Test
     public void cashflow() throws Exception {
-        orderService.cashflow("2017011000811");
+        orderService.cashflow("2017011600895");
     }
 
 }
