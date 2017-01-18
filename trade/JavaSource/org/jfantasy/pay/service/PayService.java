@@ -143,7 +143,7 @@ public class PayService {
 
         if (refund.getType() == PaymentType.online) {
             Order order = refund.getOrder();
-            if (order.getStatus() != OrderStatus.paid) {
+            if (order.getStatus() != OrderStatus.refunding) {
                 throw new ValidationException(100000, "订单状态为[" + order.getStatus() + "],不满足付款的必要条件");
             }
             if (refund.getStatus() != RefundStatus.ready) {
