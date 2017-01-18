@@ -425,12 +425,13 @@ public class OrderService {
         Order order = this.orderDao.get(id);
         if (NumberUtil.isEquals(BigDecimal.ZERO, order.getTotalAmount())) {
             order.setProfitChains(Collections.emptyList());
+            order.setPaymentStatus(PaymentStatus.archived);
             order.setFlow(OrderFlow.carveup);
             this.orderDao.update(order);
             return order.getProfitChains();
         }
         List<ProfitChain> profitChains = new ArrayList<>();
-        if (order.getStatus() == OrderStatus.complete && order.getFlow() == OrderFlow.initial) {
+        if (order.getPaymentStatus() == PaymentStatus.paid) {
             Account platform = transactionService.platform();
             List<OrderCashFlow> cashFlows = orderTypeService.cashflows(order.getType(), Stage.finished);
             // 设置初始值
@@ -445,6 +446,7 @@ public class OrderService {
                 }
             }
             order.setProfitChains(profitChains);
+            order.setPaymentStatus(PaymentStatus.archived);
             order.setFlow(OrderFlow.carveup);
             this.orderDao.update(order);
         }
