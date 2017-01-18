@@ -95,7 +95,7 @@ public class Alipay extends PayProductSupport {
 
             // 参数处理
             data.put("sign_type", "MD5");
-            data.put("sign", sign(data, config.getBargainorKey()));
+            data.put("sign", sign(data, data.get("sign_type"),config.getBargainorKey()));
 
             data.put("subject", WebUtil.transformCoding(order.getSubject(), INPUT_CHARSET, INPUT_CHARSET));// 订单的名称、标题、关键字等
             data.put("body", WebUtil.transformCoding(order.getBody(), INPUT_CHARSET, INPUT_CHARSET));// 订单描述
@@ -145,7 +145,7 @@ public class Alipay extends PayProductSupport {
         }
 
         data.put("sign_type", "RSA");//签名方式
-        data.put("sign", StringUtil.encodeURI(sign(data, getPrivateKey(config, data.get("sign_type"))), INPUT_CHARSET));
+        data.put("sign", StringUtil.encodeURI(sign(data,data.get("sign_type"), getPrivateKey(config, data.get("sign_type"))), INPUT_CHARSET));
 
         return SignUtil.coverMapString(data);
     }
@@ -226,7 +226,7 @@ public class Alipay extends PayProductSupport {
             data.put("batch_num", "1");
             data.put("detail_data", payment.getTradeNo() + "^" + RMB_YUAN_FORMAT.format(refund.getTotalAmount()) + "^退款");
 
-            data.put("sign", sign(data, config.getBargainorKey()));
+            data.put("sign", sign(data, data.get("sign_type"),config.getBargainorKey()));
 
 
             Map<String, Object> params = new HashMap<>();
@@ -259,7 +259,7 @@ public class Alipay extends PayProductSupport {
         bizcontent.put("out_trade_no", payment.getSn());//商户订单号
 
         data.put("biz_content", JSON.serialize(bizcontent));
-        data.put("sign", sign(data, getPrivateKey(config, data.get("sign_type"))));
+        data.put("sign", sign(data,data.get("sign_type"), getPrivateKey(config, data.get("sign_type"))));
 
         try {
             Response response = HttpClientUtil.doPost(urls.refundUrl, data);
@@ -358,7 +358,7 @@ public class Alipay extends PayProductSupport {
         }
     }
 
-    private String getPrivateKey(PayConfig config, String type) throws PayException {
+    public static String getPrivateKey(PayConfig config, String type) throws PayException {
         switch (type) {
             case "MD5":
                 return config.getBargainorKey();
@@ -387,11 +387,11 @@ public class Alipay extends PayProductSupport {
      * @param key  sign_type = MD5 时为 安全校验码 如果为 sign_type = RSA 时为
      * @return 签名结果字符串
      */
-    public static String sign(Map<String, String> data, String key) throws PayException {
-        if (!data.containsKey("sign_type")) {
-            data.put("sign_type", "MD5");
-        }
-        String signType = data.get("sign_type");
+    public static String sign(Map<String, String> data,String signType, String key) throws PayException {
+//        if (!data.containsKey("sign_type")) {
+//            data.put("sign_type", "MD5");
+//        }
+//        String signType = data.get("sign_type");
         if ("MD5".equals(signType)) {
             return MD5.sign(SignUtil.coverMapString(data, "sign", "sign_type"), key, INPUT_CHARSET);
         } else if ("RSA".equals(signType)) {

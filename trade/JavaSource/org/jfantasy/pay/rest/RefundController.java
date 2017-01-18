@@ -63,6 +63,9 @@ public class RefundController {
     @ResponseBody
     @ApiImplicitParam(value = "filters", name = "filters", paramType = "query", dataType = "string")
     public Pager<ResultResourceSupport> search(Pager<Refund> pager, List<PropertyFilter> filters) {
+        if (!pager.isOrderBySetted()) {
+            pager.sort(Refund.FIELDS_BY_CREATE_TIME, Pager.SORT_DESC);
+        }
         return assembler.toResources(refundService.findPager(pager, filters));
     }
 

@@ -190,9 +190,21 @@ public class OrderController {
     }
 
     /**
+     * 执行现金流
+     *
+     * @param id ID
+     * @return List<ProfitChain>
+     */
+    @RequestMapping(value = "/{id}/cashflows", method = RequestMethod.POST)
+    @ResponseBody
+    public List<ProfitChain> cashflows(@PathVariable("id") String id) {
+        return this.orderService.cashflow(id);
+    }
+
+    /**
      * 获取订单信息的利润链
      **/
-    @RequestMapping(value = "/{id}/profit-chains", method = RequestMethod.GET)
+    @RequestMapping(value = "/{id}/cashflows", method = RequestMethod.GET)
     @ResponseBody
     public List<ProfitChain> profitChainsrofitChain(@PathVariable("id") String id) {
         return this.orderService.profitChains(id);

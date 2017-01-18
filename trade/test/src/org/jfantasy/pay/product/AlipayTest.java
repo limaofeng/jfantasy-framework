@@ -1,5 +1,12 @@
 package org.jfantasy.pay.product;
 
+import com.alipay.api.AlipayClient;
+import com.alipay.api.DefaultAlipayClient;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.Unirest;
+import org.jfantasy.framework.jackson.JSON;
+import org.jfantasy.framework.jackson.UnirestObjectMapper;
+import org.jfantasy.framework.util.common.DateUtil;
 import org.jfantasy.pay.bean.PayConfig;
 import org.jfantasy.pay.bean.Refund;
 import org.jfantasy.pay.product.sign.RSA;
@@ -10,6 +17,8 @@ import org.junit.Test;
 import java.math.BigDecimal;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class AlipayTest {
@@ -41,9 +50,23 @@ public class AlipayTest {
         payConfig.setBargainorKey("2s6pd34rf1u95t1hjlry13o1u13qxlbs");
         payConfig.set("sellerEmail", "2088021598024164");
         //一些高级接口需要使用 RSA 或者 DSA 加密
-        payConfig.set("rsaPrivateKey", "MIICdQIBADANBgkqhkiG9w0BAQEFAASCAl8wggJbAgEAAoGBAMOvpizdjcG0rn/8niR1GfWT3XX4iu1czbQLeORd2mzMMKY7Qjd24ybVJgVjoGSYc5sjtFFESwjJnbLZ9fKZPsonXvMj94Q1CPghjpbdfLhAsHlT5X7Skx26sda7UXq3jgmuIlhKYMb7GAlZX+2usX5lnLlyN+WcYR+68FgIhIoXAgMBAAECgYBpk/hFVpfn/fL0LLiqFOAXplqjDqDuJdb6IAJuu9BgSN6qoWg9gpBV4ERuPe1IuRQOjPn5qq4NJLJHz98pr9K2zX+45BFjL78FRLEs1jy5o4UqKgMZriyErvul2zWVWPAlbOzDx/Bike5e/oPT9Nll7rC7dAN8oRQpWk2Zdg+2yQJBAP5OJ/dtbbSffVsAXq5pb4gdd4Nu8HiUWK4v7eJsUMuqkFJwpJBTOigr3MVF0XivlTZaDXMhsyIotQPV7PVkb0MCQQDE/X0qC/yPRF377tsAdcGryi+DFkmmIxgNVnEOCn8cbA/MUY6CCSFHP5n54i9R2Zt0f8xgKyq4IZ9EaDbKKpqdAkByVX9AjhFpyN8aP/NRpRPA9caa8BDrlX69ac0hJKO6vce/WOeT/+dA0l+izf4crYx/cENlxPv92qFvxQmRVoNzAkBStdBg4CmKCf2gMzj253qK49ixJKGFxURrDTlo2NVoHKNBeZjpVmYHoVfISMTvi/uunZ41XsqQB2X09gDTP7ItAkAoZuS6xBY5j74Auf3GC5MSZLsAeW1ytoyAurKPYpC7qhE1fENyYYgh5ZOdvziky2RGlqlFsnnbtbXlaVhMiW4P");//RSA 加密时的私钥
-        payConfig.set("rsaPublicKey", "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDDr6Ys3Y3BtK5//J4kdRn1k911+IrtXM20C3jkXdpszDCmO0I3duMm1SYFY6BkmHObI7RRREsIyZ2y2fXymT7KJ17zI/eENQj4IY6W3Xy4QLB5U+V+0pMdurHWu1F6t44JriJYSmDG+xgJWV/trrF+ZZy5cjflnGEfuvBYCISKFwIDAQAB");//RSA 支付宝公钥
-
+        payConfig.set("rsaPrivateKey", "-----BEGIN PRIVATE KEY-----\n" +
+                "MIICeAIBADANBgkqhkiG9w0BAQEFAASCAmIwggJeAgEAAoGBANIRPFVSTuGL4OGW\n" +
+                "dbLTUDCEI4sVy80YfQh9dqnR+u57xWWrciC16jtdYQjxLFm9fOIq21D3u1UHcmhr\n" +
+                "L4CAZrkjHL2Udfwusp827ogUyVyAJojccsEyFLk6KwoeYc3U9byBctGOwzLvWCCT\n" +
+                "OMg8YK0JP9XaiMciSlunqhrOjDyNAgMBAAECgYA5EU2esDmVtHZnUoSvDBEg3QT6\n" +
+                "5/TxxtFQ2SS/hbfxydYahLUAhesYLYoK79nolz2yA4qJOIO/2cIO8+93rWo6Kzeu\n" +
+                "pnNsmAICB/GW/64jpKWLmcIxku909NbIALHk37tt4FPkcU6XuasHyzY753ll2/IZ\n" +
+                "VK7KSDVjNG7PPkUbUQJBAPd/WcaSSUFusb2mWn9gk+csTQDpHigQV/P+uwgUZISM\n" +
+                "dunAfIIoH0xtk9TddHbQT5cofV+YTSsCU+T/LFcQPTMCQQDZSLNf5AAQFQYBMhuB\n" +
+                "b2hVquq2s79gvDMzQR4IwlExHl0tYhZl4hfUzLxkM4oZWETAmZlf9ofIsubkoVTF\n" +
+                "TB8/AkEAghhWB3QDv7pBAbB853HLrPtzaqQfLu4QXXgrtf6KK8ZuB0cf64bNlO4Q\n" +
+                "hBb4TjAHdixZYrN69L2ffcLH+ufVUwJBANEJ2lgkd9MBBtfbpw6tackRN+Ixp6qf\n" +
+                "JProaMawe4Av4CCrPzUhgR/fIFeeJfwgKXTJ0P67pQJ26x+F/pIZm+0CQQDA5xPm\n" +
+                "vjH2tlPB4H4uUEDWVQJnPLV/rhv+JWacZqMkp6gJMsHOiSmY8tMsHoiioMDujcDb\n" +
+                "Zup+8ttxRYIwcAoO\n" +
+                "-----END PRIVATE KEY-----");//RSA 加密时的私钥
+        payConfig.set("rsaPublicKey", "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDDI6d306Q8fIfCOaTXyiUeJHkrIvYISRcc73s3vF1ZT7XN8RNPwJxo8pWaJMmvyTn9N4HQ632qJBVHf8sxHi/fEsraprwCtzvzQETrNRwVxLO5jVmRGi60j8Ue1efIlzPXV9je9mkjzOmdssymZkh2QhUrCmZYI/FCEa3/cNMW0QIDAQAB");//RSA 支付宝公钥
     }
 
     @Test
@@ -65,12 +88,12 @@ public class AlipayTest {
                 "O6gK7gMBQZ+rQtQ=\n" +
                 "-----END PRIVATE KEY-----";
 
-        privateKey = privateKey.replaceAll("^-----BEGIN PRIVATE KEY-----","")
-                .replaceAll("-----END PRIVATE KEY-----$","")
-                .replaceAll("\n","");
+        privateKey = privateKey.replaceAll("^-----BEGIN PRIVATE KEY-----", "")
+                .replaceAll("-----END PRIVATE KEY-----$", "")
+                .replaceAll("\n", "");
 
 
-        Assert.assertEquals(RSA.sign("a=123", privateKey, "utf-8"),"v6VeSlf6pQQhROZ0J+AQQv6zkJ+hWOhfuq3IZCkE0B4mEk33m7KqScEXdiM9gqnA2mxX1/MSDOKdMymsqXT8eyrA5Ny7FAgNku22WdziMLkx5dtT9BhXkmbe33QujVmxAMQAIOW1w0uqln/5a7WhJvTCzhgo8XFh2HT+qZ3MJVg=");
+        Assert.assertEquals(RSA.sign("a=123", privateKey, "utf-8"), "v6VeSlf6pQQhROZ0J+AQQv6zkJ+hWOhfuq3IZCkE0B4mEk33m7KqScEXdiM9gqnA2mxX1/MSDOKdMymsqXT8eyrA5Ny7FAgNku22WdziMLkx5dtT9BhXkmbe33QujVmxAMQAIOW1w0uqln/5a7WhJvTCzhgo8XFh2HT+qZ3MJVg=");
     }
 
     @Test
@@ -83,11 +106,37 @@ public class AlipayTest {
         String result = "sign=cc4a046d5af1c621b1fcf8940d5cbbca&result_details=2016052621001004180237340740%5E0.10%5ESUCCESS&notify_time=2016-05-27+09%3A26%3A32&sign_type=MD5&notify_type=batch_refund_notify&notify_id=5176c054feac1371de0a3142edf2cf9j5x&batch_no=20160527RP201605260001101&success_num=1";
         Refund refund = new Refund();
         refund.setPayConfig(payConfig);
-        alipay.payNotify(refund,result);
+        alipay.payNotify(refund, result);
     }
 
     @Test
     public void query() throws Exception {
+        Unirest.setObjectMapper(new UnirestObjectMapper(JSON.getObjectMapper()));
+
+        Map<String, String> data = new HashMap<>();
+
+        data.put("app_id", payConfig.getBargainorId());
+        data.put("method", "alipay.trade.query");
+        //data.put("format", "JSON");
+        data.put("charset", "utf-8");
+        data.put("sign_type", "RSA");
+        data.put("timestamp",  DateUtil.format("yyyy-MM-dd HH:mm:ss"));
+        data.put("version", "1.0");
+        data.put("biz_content","{\"out_trade_no\":\"P2016051900001\"}");
+
+//        Map<String,String> test = new HashMap<>();
+//        test.put("a","123");
+//        System.out.println(Alipay.sign(test,"RSA",Alipay.getPrivateKey(payConfig,"RSA")));
+
+        data.put("sign", Alipay.sign(data, data.get("sign_type"),Alipay.getPrivateKey(payConfig, data.get("sign_type"))));
+
+        HttpResponse<String> response = Unirest.post("https://openapi.alipay.com/gateway.do").queryString(new HashMap<>(data)).asString();
+
+        System.out.println("response:" + response.getBody());
+    }
+
+    public void xxx(){
+        AlipayClient alipayClient = new DefaultAlipayClient("","","","json","","","");
     }
 
 }

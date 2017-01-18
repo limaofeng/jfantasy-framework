@@ -424,7 +424,7 @@ public class OrderService {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void cashflow(String id) {
+    public List<ProfitChain> cashflow(String id) {
         Order order = this.orderDao.get(id);
         List<ProfitChain> profitChains = new ArrayList<>();
         if (order.getStatus() == OrderStatus.complete && order.getFlow() == OrderFlow.initial) {
@@ -445,6 +445,7 @@ public class OrderService {
             order.setFlow(OrderFlow.carveup);
             this.orderDao.update(order);
         }
+        return order.getProfitChains();
     }
 
     /**
