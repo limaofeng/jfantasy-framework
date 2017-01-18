@@ -1,6 +1,0 @@
-
-description = ' 第三方开放平台集成'
-dependencies {
-    compile project(':jfantasy-member')
-    testCompile "org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
-}

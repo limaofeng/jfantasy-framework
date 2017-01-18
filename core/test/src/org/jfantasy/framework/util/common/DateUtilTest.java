@@ -6,6 +6,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -230,6 +231,11 @@ public class DateUtilTest {
     @Test
     public void fieldValue() throws Exception {
 
+    }
+
+    @Test
+    public void truncatedCompareTo() throws Exception {
+        System.out.println(DateUtil.truncatedCompareTo(DateUtil.now(),DateUtil.parse("2017-01-19 21:21:11","yyyy-MM-dd"), Calendar.DATE));
     }
 
     @Test
