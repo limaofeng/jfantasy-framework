@@ -4,7 +4,7 @@ import org.springframework.http.HttpStatus;
 
 public class ValidationException extends RestException{
 
-    private int code;
+    private int code = 42;
 
     public ValidationException(int code, String message) {
         super(HttpStatus.UNPROCESSABLE_ENTITY.value(), message);
