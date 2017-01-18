@@ -46,7 +46,7 @@ public class Address extends BaseBusEntity {
     @JsonProperty("default")
     @NotNull(groups = {RESTful.POST.class, RESTful.PUT.class})
     @Column(name = "IS_DEFAULT", nullable = false)
-    private Boolean isDefault;// 是否默认
+    private Boolean isDefault = false;// 是否默认
     /**
      * 排班所有者类型
      */
