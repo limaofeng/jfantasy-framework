@@ -49,10 +49,10 @@ public class TagService {
     public Tag update(String ownerType, String ownerId, Long id, String name) {
         Tag tag = this.tagDao.get(id);
         if (!tag.getOwnerType().equals(ownerType) || !tag.getOwnerId().equals(ownerId)) {
-            throw new ValidationException(000.0f, "所有者不匹配");
+            throw new ValidationException(100000, "所有者不匹配");
         }
         if (null != this.tagDao.findUnique(Restrictions.eq("ownerType", ownerType), Restrictions.eq("ownerId", ownerId), Restrictions.eq("name", name), Restrictions.eq("type", tag.getType()), Restrictions.ne("id", tag.getId()))) {
-            throw new ValidationException(000.0f, "同名标签已经存在");
+            throw new ValidationException(100000, "同名标签已经存在");
         }
         tag.setName(name);
         return this.tagDao.update(tag);

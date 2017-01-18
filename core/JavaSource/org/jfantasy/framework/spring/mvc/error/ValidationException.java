@@ -4,20 +4,18 @@ import org.springframework.http.HttpStatus;
 
 public class ValidationException extends RestException{
 
-    private static final float prefix = HttpStatus.UNPROCESSABLE_ENTITY.value() * 100f;
+    private int code;
 
-    private float code;
-
-    public ValidationException(float code, String message) {
+    public ValidationException(int code, String message) {
         super(HttpStatus.UNPROCESSABLE_ENTITY.value(), message);
-        this.code = prefix + code;
+        this.code = code;
     }
 
     public ValidationException(String message) {
         super(message);
     }
 
-    public float getCode() {
+    public int getCode() {
         return code;
     }
 

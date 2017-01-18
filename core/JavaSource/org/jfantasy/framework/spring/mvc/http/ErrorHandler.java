@@ -30,19 +30,19 @@ public class ErrorHandler {
         ErrorResponse error = new ErrorResponse();
         HttpServletResponse response = context.getHttpResponse();
         if (exception instanceof SecurityException) {
-            SecurityException _exception = ((SecurityException) exception);
-            error.setCode(_exception.getCode());
-            error.setMessage(_exception.getMessage());
-            response.setStatus(_exception.getStatusCode());
+            SecurityException securityException = (SecurityException) exception;
+            error.setCode(securityException.getCode());
+            error.setMessage(securityException.getMessage());
+            response.setStatus(securityException.getStatusCode());
         } else if (exception instanceof ValidationException) {
-            ValidationException _exception = ((ValidationException) exception);
-            error.setCode(_exception.getCode());
-            error.setMessage(_exception.getMessage());
-            response.setStatus(_exception.getStatusCode());
+            ValidationException validationException = (ValidationException) exception;
+            error.setCode(validationException.getCode());
+            error.setMessage(validationException.getMessage());
+            response.setStatus(validationException.getStatusCode());
         } else if (exception instanceof RestException) {
-            RestException _exception = ((RestException) exception);
-            error.setMessage(_exception.getMessage());
-            response.setStatus(_exception.getStatusCode());
+            RestException restException = (RestException) exception;
+            error.setMessage(restException.getMessage());
+            response.setStatus(restException.getStatusCode());
         } else if (exception instanceof MethodArgumentNotValidException) {
             response.setStatus(HttpStatus.UNPROCESSABLE_ENTITY.value());
             error.setCode(40000);

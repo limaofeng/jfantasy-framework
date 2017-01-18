@@ -50,7 +50,7 @@ public class WalletService {
         try {
             Response response = HttpClientUtil.doGet(apiGatewaySettings.getUrl() + "/accounts/" + accountNo);
             if (response.getStatusCode() != 200) {
-                throw new ValidationException(203.1f, "检查账号出错");
+                throw new ValidationException(100000, "检查账号出错");
             }
             JsonNode account = response.json();
             String owner = account.get("owner").asText();
@@ -65,7 +65,7 @@ public class WalletService {
             }
         } catch (IOException e) {
             LOG.error(e.getMessage(), e);
-            throw new ValidationException(203.3f, "网络问题!");
+            throw new ValidationException(100000, "网络问题!");
         }
     }
 
@@ -100,7 +100,7 @@ public class WalletService {
             try {
                 Response response = HttpClientUtil.doGet(apiGatewaySettings.getUrl() + "/accounts?EQS_owner=" + owner);
                 if (response.getStatusCode() != 200) {
-                    throw new ValidationException(203.1f, "检查账号出错");
+                    throw new ValidationException(100000, "检查账号出错");
                 }
                 JsonNode node = response.json().get("items");
                 JsonNode account = node.get(0);
@@ -111,14 +111,14 @@ public class WalletService {
                     Request request = new Request(new StringEntity(JSON.serialize(data), ContentType.APPLICATION_JSON));
                     response = HttpClientUtil.doPost(apiGatewaySettings.getUrl() + "/accounts", request);
                     if (response.getStatusCode() != 201) {
-                        throw new ValidationException(203.2f, "创建账号出错");
+                        throw new ValidationException(100000, "创建账号出错");
                     }
                     account = response.json();
                 }
                 return newWallet(member, account.get("sn").asText(), BigDecimal.valueOf(account.get("amount").asDouble()));
             } catch (IOException e) {
                 LOG.error(e.getMessage(), e);
-                throw new ValidationException(203.3f, "网络问题!");
+                throw new ValidationException(100000, "网络问题!");
             }
         }
         return wallet;

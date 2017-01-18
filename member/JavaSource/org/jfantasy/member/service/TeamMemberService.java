@@ -61,12 +61,12 @@ public class TeamMemberService {
         member.setStatus(TeamMemberStatus.unactivated);
         Team team = this.teamService.get(member.getTeamId());
         if (team == null) {
-            throw new ValidationException(000.1f, "团队不存在");
+            throw new ValidationException(100000, "团队不存在");
         }
         TeamMember teamMember = this.teamMemberDao.findUnique(Restrictions.eq("mobile", member.getMobile()), Restrictions.eq("team.key", member.getTeamId()));
         if (teamMember != null) {
             if (teamMember.getStatus() != TeamMemberStatus.drop) {
-                throw new ValidationException(000.1f, "已经添加到团队,请勿重复添加");
+                throw new ValidationException(100000, "已经添加到团队,请勿重复添加");
             }
             teamMember.setStatus(TeamMemberStatus.unactivated);
             return this.teamMemberDao.update(BeanUtil.copyProperties(teamMember, member, "member", "id", "team", "status"));

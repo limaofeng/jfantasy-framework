@@ -42,13 +42,13 @@ public class InvoiceService {
         for (InvoiceItem item : invoice.getItems()) {
             Order order = orderDao.get(item.getOrder().getId());
             if (order == null) {
-                throw new ValidationException(102.1f, "订单信息不存在");
+                throw new ValidationException(100000, "订单信息不存在");
             }
             if (order.getInvoiceStatus() != org.jfantasy.order.bean.enums.InvoiceStatus.wait) {
-                throw new ValidationException(102.2f, "订单已经申请开票,不能重复申请");
+                throw new ValidationException(100000, "订单已经申请开票,不能重复申请");
             }
             if (!order.getMemberId().equals(invoice.getMemberId())) {
-                throw new ValidationException(102.2f, "只能为自己的订单申请发票");
+                throw new ValidationException(100000, "只能为自己的订单申请发票");
             }
             //自动拆单逻辑
             Long drawer = order.getPayee();
@@ -83,7 +83,7 @@ public class InvoiceService {
     public Invoice update(Invoice invoice) {
         Invoice tinvoice = this.get(invoice.getId());
         if (tinvoice.getStatus() == InvoiceStatus.COMPLETE || invoice.getStatus() == InvoiceStatus.NONE) {
-            throw new ValidationException(102.2f, "发票状态不符,不允许修改");
+            throw new ValidationException(100000, "发票状态不符,不允许修改");
         }
         return this.invoiceDao.update(invoice, true);
     }

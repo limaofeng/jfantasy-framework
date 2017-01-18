@@ -100,7 +100,7 @@ public class TransactionController {
     public ToPayment payForm(@PathVariable("id") String sn, @RequestBody PayForm payForm) throws PayException {
         Transaction transaction = get(sn);
         if (transaction == null) {
-            throw new ValidationException(404, "[" + sn + "]交易不存在");
+            throw new ValidationException(100000, "[" + sn + "]交易不存在");
         }
         return payService.pay(transaction, payForm.getPayconfigId(), payForm.getPayType(), payForm.getPayer(), payForm.getProperties());
     }

@@ -72,13 +72,13 @@ public class MemberService {
     public Member login(String username) {
         Member member = this.memberDao.findUniqueBy("username", username);
         if (member == null) {//用户不存在
-            throw new ValidationException(203.1f, "用户名和密码错误");
+            throw new ValidationException(100301, "用户名和密码错误");
         }
         if (!member.getEnabled()) {
-            throw new ValidationException(203.1f, "用户被禁用");
+            throw new ValidationException(100302, "用户被禁用");
         }
         if (!member.getAccountNonLocked()) {
-            throw new ValidationException(203.1f, "用户被锁定");
+            throw new ValidationException(100303, "用户被锁定");
         }
         member.setLastLoginTime(DateUtil.now());
         this.memberDao.update(member);
@@ -99,7 +99,7 @@ public class MemberService {
         Member member = this.memberDao.findUniqueBy("username", username);
 
         if (!this.passwordTokenEncoder.matches("login", type, username, member != null ? member.getPassword() : "", password)) {
-            throw new ValidationException(203.1f, "用户名和密码错误");
+            throw new ValidationException(100101, "用户名和密码错误");
         }
 
         if (member == null && type == PasswordTokenType.macode) {
@@ -174,11 +174,11 @@ public class MemberService {
             throw new NotFoundException("用户不存在");
         }
         if (!member.getEnabled()) {
-            throw new ValidationException(201.1f, "用户已被禁用");
+            throw new ValidationException(100301, "用户已被禁用");
         }
 
         if (!this.passwordTokenEncoder.matches("password", type, member.getUsername(), member.getPassword(), oldPassword)) {
-            throw new ValidationException(203.1f, "提供的 password token 不正确!");
+            throw new ValidationException(100000, "提供的 password token 不正确!");
         }
 
         member.setPassword(passwordEncoder.encode(newPassword));

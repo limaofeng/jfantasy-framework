@@ -48,7 +48,7 @@ public class CardDesignService {
     public CardDesign publish(String id, String notes) {
         CardDesign design = this.cardDesignDao.get(id);
         if (design.getStatus() != CardDesignStatus.draft) {
-            throw new ValidationException(105, "卡片发布失败!");
+            throw new ValidationException(100000, "卡片发布失败!");
         }
         design.setStatus(CardDesignStatus.publish);
         this.cardDesignDao.update(design);
@@ -61,7 +61,7 @@ public class CardDesignService {
     public CardDesign unpublish(String id, String notes) {
         CardDesign design = this.cardDesignDao.get(id);
         if (design.getStatus() != CardDesignStatus.publish) {
-            throw new ValidationException(106, "卡片取消发布失败!");
+            throw new ValidationException(100000, "卡片取消发布失败!");
         }
         //保存操作记录
         this.logService.log(OwnerType.card_design, design.getKey(), "unpublish", notes);

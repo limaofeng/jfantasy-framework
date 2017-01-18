@@ -54,11 +54,11 @@ public class CardService {
             throw new NotFoundException("卡不存在");
         }
         if (card.getStatus() != CardStatus.activated) {
-            throw new ValidationException(101.1f, "卡状态不正确");
+            throw new ValidationException(100000, "卡状态不正确");
         }
         Account account = accountService.loadAccountByOwner(owner);//自动创建账号
         if (!card.getSecret().equals(password)) {
-            throw new ValidationException(101.4f, "密钥错误");
+            throw new ValidationException(100000, "密钥错误");
         }
         card.setStatus(CardStatus.used);
         card.setAccount(account.getSn());

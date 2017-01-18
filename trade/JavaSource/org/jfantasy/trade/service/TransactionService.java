@@ -194,7 +194,7 @@ public class TransactionService {
             return src;
         }
         if (StringUtil.isBlank(from) && StringUtil.isBlank(to)) {
-            throw new ValidationException(4001, "交易账户全部为NULL，输入数据不合法");
+            throw new ValidationException(100000, "交易账户全部为NULL，输入数据不合法");
         }
         // 创建交易
         Transaction transaction = new Transaction();

@@ -90,7 +90,7 @@ public class AccountService {
     @Transactional
     public Account save(String owner, String password) {
         if (this.accountDao.count(Restrictions.eq("owner", owner)) > 0) {
-            throw new ValidationException(103.1f, "账号存在,创建失败");
+            throw new ValidationException(100000, "账号存在,创建失败");
         }
         Account account = new Account();
         account.setAmount(BigDecimal.ZERO);

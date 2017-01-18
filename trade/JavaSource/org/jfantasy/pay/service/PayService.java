@@ -78,7 +78,7 @@ public class PayService {
         LOG.debug("开始付款");
         Project project = this.projectService.get(transaction.getProject());
         if (project.getType() != ProjectType.order) {
-            throw new ValidationException(000.0f, "项目类型为 order 才能调用支付接口");
+            throw new ValidationException(100000, "项目类型为 order 才能调用支付接口");
         }
         // 设置 Trx 到 properties 中
         properties.put(Walletpay.PROPERTY_TRANSACTION, transaction);
@@ -86,14 +86,14 @@ public class PayService {
         String orderId = transaction.get(Transaction.ORDER_ID);
         //验证业务订单
         if (transaction.getStatus() != TxStatus.unprocessed) {
-            throw new ValidationException(000.0f, "交易状态为[" + transaction.getStatus() + "],不满足付款的必要条件");
+            throw new ValidationException(100000, "交易状态为[" + transaction.getStatus() + "],不满足付款的必要条件");
         }
         Order order = orderService.get(orderId);
         if (order.getStatus() != OrderStatus.unpaid) {
-            throw new ValidationException(000.0f, "订单状态为[" + order.getStatus() + "],不满足付款的必要条件");
+            throw new ValidationException(100000, "订单状态为[" + order.getStatus() + "],不满足付款的必要条件");
         }
         if (order.isExpired()) {//这里有访问数据库操作,所以放在后面
-            throw new ValidationException(000.0f, "订单超出支付期限，不能进行支付");
+            throw new ValidationException(100000, "订单超出支付期限，不能进行支付");
         }
         //获取支付配置
         PayConfig payConfig = payConfigService.get(payConfigId);
@@ -144,7 +144,7 @@ public class PayService {
         if (refund.getType() == PaymentType.online) {
             Order order = refund.getOrder();
             if (order.getStatus() != OrderStatus.paid) {
-                throw new ValidationException(000.0f, "订单状态为[" + order.getStatus() + "],不满足付款的必要条件");
+                throw new ValidationException(100000, "订单状态为[" + order.getStatus() + "],不满足付款的必要条件");
             }
             if (refund.getStatus() != RefundStatus.ready) {
                 throw new PayException("退款状态为:" + refund.getStatus() + ",不能进行操作");

@@ -58,12 +58,12 @@ public class PaymentService {
     public Payment create(Transaction transaction, Order order, PayConfig payConfig, PayProduct payProduct, String payer) throws PayException {
         //在线支付
         if (PayConfig.PayConfigType.online != payConfig.getPayConfigType()) {
-            throw new ValidationException(000.0f, "暂时只支持在线支付");
+            throw new ValidationException(100000, "暂时只支持在线支付");
         }
         //判断交易历史
         List<Payment> payments = this.paymentDao.find(Restrictions.eq("transaction.sn", transaction.getSn()));
         if (ObjectUtil.exists(payments, "status", PaymentStatus.success)) {
-            throw new ValidationException(000.0f, "交易已经支付成功,请勿反复支付");
+            throw new ValidationException(100000, "交易已经支付成功,请勿反复支付");
         }
         // 如果存在完成订单
         Payment payment = ObjectUtil.find(payments, "payConfig.id", payConfig.getId());

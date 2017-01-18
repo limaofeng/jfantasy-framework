@@ -84,10 +84,10 @@ public class UserService {
             throw new NotFoundException("用户不存在");
         }
         if (!user.isEnabled()) {
-            throw new ValidationException(201.1f, "用户已被禁用");
+            throw new ValidationException(100101, "用户已被禁用");
         }
         if (!this.passwordTokenEncoder.matches("login", type, user.getUsername(), user.getPassword(), oldPassword)) {
-            throw new ValidationException(203.1f, "提供的 password token 不正确!");
+            throw new ValidationException(100102, "提供的 password token 不正确!");
         }
         user.setPassword(passwordEncoder.encode(newPassword));
         return this.userDao.update(user);
@@ -117,11 +117,11 @@ public class UserService {
         User user = this.userDao.findUniqueBy("username", username);
 
         if (!this.passwordTokenEncoder.matches("login", type, username, user != null ? user.getPassword() : "", password)) {
-            throw new ValidationException(203.1f, "用户名和密码错误");
+            throw new ValidationException(100201, "用户名和密码错误");
         }
 
         if (user == null) {//用户不存在
-            throw new ValidationException(203.1f, "用户名和密码错误");
+            throw new ValidationException(100202, "用户名和密码错误");
         }
 
         if (!user.isEnabled()) {
