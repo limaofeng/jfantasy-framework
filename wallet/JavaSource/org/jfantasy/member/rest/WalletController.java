@@ -59,7 +59,7 @@ public class WalletController {
      * @return ModelAndView
      */
     @RequestMapping(value = "/{id}/account", method = RequestMethod.GET)
-    public ModelAndView teams(@PathVariable("memid") Long id) {
+    public ModelAndView teams(@PathVariable("id") Long id) {
         Wallet wallet = this.walletService.getWallet(id);
         return new ModelAndView("redirect:/accounts/" + wallet.getAccount());
     }
