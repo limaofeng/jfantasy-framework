@@ -21,8 +21,12 @@ import java.util.Map;
 @Transactional
 public class PermissionService {
 
+    private final PermissionDao permissionDao;
+
     @Autowired
-    private PermissionDao permissionDao;
+    public PermissionService(PermissionDao permissionDao) {
+        this.permissionDao = permissionDao;
+    }
 
     public Pager<Permission> findPager(Pager<Permission> pager, List<PropertyFilter> filters) {
         return this.permissionDao.findPager(pager, filters);

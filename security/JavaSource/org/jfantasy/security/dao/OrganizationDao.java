@@ -9,5 +9,5 @@ import org.springframework.stereotype.Repository;
  * 组织维度
  */
 @Repository
-public class OrganizationDao extends HibernateDao<Organization,Long> {
+public class OrganizationDao extends HibernateDao<Organization,String> {
 }

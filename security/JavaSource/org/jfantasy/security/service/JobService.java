@@ -12,15 +12,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-/**
- * Created by yhx on 2015/2/4.
- */
+
 @Service
 @Transactional
 public class JobService {
 
+    private final JobDao jobDao;
+
     @Autowired
-    private JobDao jobDao;
+    public JobService(JobDao jobDao) {
+        this.jobDao = jobDao;
+    }
 
     public Pager<Job> findPager(Pager<Job> pager, List<PropertyFilter> filters) {
         return this.jobDao.findPager(pager, filters);
@@ -46,6 +48,10 @@ public class JobService {
 
     public Job findUnique(String code) {
         return this.jobDao.findUnique(Restrictions.eq("code", code));
+    }
+
+    public Job update(Job job, boolean patch) {
+        return this.jobDao.update(job, patch);
     }
 
 }

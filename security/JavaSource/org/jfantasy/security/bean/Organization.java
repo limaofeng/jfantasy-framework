@@ -2,8 +2,13 @@ package org.jfantasy.security.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.jfantasy.framework.dao.BaseBusEntity;
+import org.jfantasy.security.bean.databind.OrgDeserializer;
+import org.jfantasy.security.bean.databind.OrgSerializer;
 
 import javax.persistence.*;
 import java.util.List;
@@ -17,7 +22,7 @@ import java.util.List;
  */
 @Entity
 @Table(name = "AUTH_ORGANIZATION")
-@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "jobs","orgHelpBeans"})
+@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "jobs", "orgHelpBeans"})
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Organization extends BaseBusEntity {
 
@@ -29,11 +34,8 @@ public class Organization extends BaseBusEntity {
     public enum OrgType {
         /**
          * 企业
-         enterprise,*/
-        /**
-         * 公司
          */
-        company,
+        enterprise,
         /**
          * 部门
          */
@@ -44,39 +46,45 @@ public class Organization extends BaseBusEntity {
      * 机构简写
      */
     @Id
-    @Column(name = "CODE")
+    @Column(name = "CODE", length = 10)
     private String id;
     /**
      * 机构名称
      */
-    @Column(name = "NAME")
+    @Column(name = "NAME", length = 50)
     private String name;
     /**
      * 机构类型
      */
     @Enumerated(EnumType.STRING)
-    @Column(name = "TYPE")
+    @Column(name = "TYPE", length = 10)
     private OrgType type;
+    /**
+     * 排序字段
+     */
+    @Column(name = "SORT")
+    private Integer sort;
     /**
      * 机构描述信息
      */
-    @Column(name = "DESCRIPTION")
+    @Column(name = "DESCRIPTION", length = 150)
     private String description;
     /**
      * 上级机构
      */
-    @Transient
-    private Organization parentOrganization;
+    @JsonProperty("parentId")
+    @JsonSerialize(using = OrgSerializer.class)
+    @JsonDeserialize(using = OrgDeserializer.class)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.REFRESH})
+    @JoinColumn(name = "PID", foreignKey = @ForeignKey(name = "FK_AUTH_ORGANIZATION_PID"))
+    private Organization parent;
     /**
      * 下属机构
      */
-    @Transient
+    @JsonInclude(content = JsonInclude.Include.NON_NULL)
+    @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE})
+    @OrderBy("sort ASC")
     private List<Organization> children;
-    /**
-     * 维度与上级机构
-     */
-    @Transient
-    private List<OrgHelpBean> orgHelpBeans;
 
     @JsonInclude(content = JsonInclude.Include.NON_NULL)
     @OneToMany(mappedBy = "organization", fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE})
@@ -86,7 +94,7 @@ public class Organization extends BaseBusEntity {
      * 用户
      */
     @OneToMany(mappedBy = "organization", fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE})
-    private List<User> userList;
+    private List<User> users;
 
 
     public String getId() {
@@ -121,12 +129,12 @@ public class Organization extends BaseBusEntity {
         this.children = children;
     }
 
-    public Organization getParentOrganization() {
-        return parentOrganization;
+    public Organization getParent() {
+        return parent;
     }
 
-    public void setParentOrganization(Organization parentOrganization) {
-        this.parentOrganization = parentOrganization;
+    public void setParent(Organization parent) {
+        this.parent = parent;
     }
 
     public OrgType getType() {
@@ -137,14 +145,6 @@ public class Organization extends BaseBusEntity {
         this.type = type;
     }
 
-    public List<OrgHelpBean> getOrgHelpBeans() {
-        return orgHelpBeans;
-    }
-
-    public void setOrgHelpBeans(List<OrgHelpBean> orgHelpBeans) {
-        this.orgHelpBeans = orgHelpBeans;
-    }
-
     public List<Job> getJobs() {
         return jobs;
     }
@@ -153,11 +153,19 @@ public class Organization extends BaseBusEntity {
         this.jobs = jobs;
     }
 
-    public List<User> getUserList() {
-        return userList;
+    public List<User> getUsers() {
+        return users;
     }
 
-    public void setUserList(List<User> userList) {
-        this.userList = userList;
+    public void setUsers(List<User> users) {
+        this.users = users;
+    }
+
+    public Integer getSort() {
+        return sort;
+    }
+
+    public void setSort(Integer sort) {
+        this.sort = sort;
     }
 }

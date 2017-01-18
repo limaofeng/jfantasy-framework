@@ -30,8 +30,12 @@ public class UserController {
     public static UserResourceAssembler assembler = new UserResourceAssembler();
     private UserDetailsResourceAssembler userDetailsResourceAssembler = new UserDetailsResourceAssembler();
 
+    private final UserService userService;
+
     @Autowired
-    private UserService userService;
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     /**
      * 查询用户
