@@ -49,10 +49,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 订单明细记录
@@ -102,7 +99,7 @@ public class OrderService {
         order.setStatus(OrderStatus.complete);
         order.setCompletionTime(DateUtil.now());
         // 更新发票状态
-        if (!"walletpay".equals(order.getPaymentConfig().getPayProductId())) {// 非钱包支付，可以开发票
+        if (!NumberUtil.isEquals(BigDecimal.ZERO, order.getTotalAmount()) && !"walletpay".equals(order.getPaymentConfig().getPayProductId())) {// 非钱包支付，可以开发票
             order.setInvoiceStatus(InvoiceStatus.wait);
         }
         this.orderDao.update(order);
@@ -404,7 +401,7 @@ public class OrderService {
             if (dto == null) {
                 throw new ValidationException(String.format("缺少关于%s的收款人配置", payee.getTitle()));
             }
-            order.addPayee(payee, dto.getName(), dto.getValue(),dto.getTarget());
+            order.addPayee(payee, dto.getName(), dto.getValue(), dto.getTarget());
         }
         order.setTotalAmount(totalAmount);// 订单总金额(商品金额+邮费)
         //如果有优惠，应该在这里计算。
@@ -426,6 +423,12 @@ public class OrderService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public List<ProfitChain> cashflow(String id) {
         Order order = this.orderDao.get(id);
+        if (NumberUtil.isEquals(BigDecimal.ZERO, order.getTotalAmount())) {
+            order.setProfitChains(Collections.emptyList());
+            order.setFlow(OrderFlow.carveup);
+            this.orderDao.update(order);
+            return order.getProfitChains();
+        }
         List<ProfitChain> profitChains = new ArrayList<>();
         if (order.getStatus() == OrderStatus.complete && order.getFlow() == OrderFlow.initial) {
             Account platform = transactionService.platform();
