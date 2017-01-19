@@ -273,7 +273,7 @@ public class OrderCashFlow extends BaseBusEntity {
                 profitChain.setPayee(payee.getCode());
                 profitChain.setName(payee.getTitle());
             } else {
-                OrderPayeeValue payeeValue = ObjectUtil.find(order.getPayees(), "payee.id", this.getPayee().getId());
+                OrderPayeeValue payeeValue = ObjectUtil.find(order.getPayees(), "code", this.getPayee().getCode());
                 profitChain.setPayee(payeeValue.getValue());
                 profitChain.setName(payeeValue.getName());
             }
