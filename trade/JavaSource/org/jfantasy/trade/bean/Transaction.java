@@ -51,7 +51,7 @@ public class Transaction extends BaseBusEntity {
      * 主要为了防止重复交易的发生
      * 格式为:projectKey|key
      */
-    @Column(name = "UNION_ID", length = 32, updatable = false, unique = true)
+    @Column(name = "UNION_ID", length = 50, updatable = false, unique = true)
     private String unionId;
     /**
      * 转出账号<br/> 充值时,可以为空
