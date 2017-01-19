@@ -288,6 +288,7 @@ public class TransactionService {
         transaction.setNotes("会员卡充值");
         transaction.setPayConfigName(TxChannel.card.getValue());
         this.transactionDao.save(transaction);
+        this.handleAllowFailure(transaction.getSn(),"会员卡充值");
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)

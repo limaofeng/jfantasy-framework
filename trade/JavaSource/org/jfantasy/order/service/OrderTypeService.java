@@ -127,7 +127,7 @@ public class OrderTypeService {
         if (payee.getType() == PayeeType.fixed) {
             return payee.getCode();
         }
-        OrderPayeeValue value = ObjectUtil.find(order.getPayees(), "payee.id", cashFlow.getPayee().getId());
+        OrderPayeeValue value = ObjectUtil.find(order.getPayees(), "code", cashFlow.getPayee().getCode());
         return payee.getType() == PayeeType.account ? value.getValue() : accountService.loadAccountByOwner(value.getValue()).getSn();
     }
 
