@@ -186,6 +186,9 @@ public class OrderService {
         Map<String, Object> data = new HashMap<>();
         // 订单
         Order order = this.orderDao.get(id);
+        if (NumberUtil.isEquals(BigDecimal.ZERO, order.getTotalAmount())) {// 0 元
+            throw new ValidationException("0元订单不能创建交易记录");
+        }
         // 保存到交易表的数据
         data.putAll(order.getAttrs());
         data.put(Transaction.ORDER_ID, order.getId());
@@ -226,6 +229,9 @@ public class OrderService {
         Order order = this.orderDao.get(id);// 订单
         if (order.getStatus() == OrderStatus.refunding || order.getStatus() == OrderStatus.refunded || order.getStatus() == OrderStatus.closed) {
             return order;
+        }
+        if (NumberUtil.isEquals(BigDecimal.ZERO, order.getTotalAmount())) {// 0 元
+            throw new ValidationException("0元订单不能创建交易记录");
         }
         if (refundAmount.compareTo(order.getTotalAmount()) > 0) {
             throw new ValidationException("退款金额不能大于订单金额");
