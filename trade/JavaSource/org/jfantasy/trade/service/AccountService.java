@@ -34,6 +34,7 @@ import java.util.List;
 public class AccountService {
 
     private static Log LOG = LogFactory.getLog(AccountService.class);
+    public static ProjectType[] PROJECT_TYPES = new ProjectType[]{ProjectType.withdraw, ProjectType.transfer, ProjectType.deposit};
 
     private final AccountDao accountDao;
     private final ProjectDao projectDao;
@@ -182,6 +183,9 @@ public class AccountService {
     public Transaction transfer(String trxNo, String notes) {
         Transaction transaction = transactionDao.get(trxNo);
         Project project = this.projectDao.get(transaction.getProject());
+        if (transaction.getStatus() != TxStatus.unprocessed || !ObjectUtil.exists(PROJECT_TYPES, project.getType())) {
+            throw new ValidationException(String.format("[%s]不满足自动转账的条件", transaction.getSn()));
+        }
         if (transaction.getStatus() == TxStatus.close) {
             throw new ValidationException("交易已经关闭,不能划账");
         }

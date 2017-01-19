@@ -102,7 +102,9 @@ public class TransactionService {
         if (original == null || original.getStatus() != TxStatus.success) {
             throw new RestException("原交易不存在或者未支付成功");
         }
-        return this.save(Project.REFUND, original.getTo(), original.getFrom(), amount, notes, original.getProperties());
+        Transaction transaction = this.save(Project.REFUND, original.getTo(), original.getFrom(), amount, notes, original.getProperties());
+        transaction.setPayConfigName(original.getPayConfigName());
+        return this.transactionDao.update(transaction);
     }
 
     /**
