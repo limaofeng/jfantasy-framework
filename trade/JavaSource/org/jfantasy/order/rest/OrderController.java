@@ -34,7 +34,9 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 订单
@@ -127,10 +129,12 @@ public class OrderController {
     @JsonResultFilter(allow = @AllowProperty(pojo = PayConfig.class, name = {"id", "pay_product_id", "name", "platforms", "default", "disabled"}))
     @RequestMapping(value = "/{id}/transactions", method = RequestMethod.GET)
     @ResponseBody
-    @ApiImplicitParam(value = "filters", name = "filters", paramType = "query", dataType = "string")
-    public List<ResultResourceSupport> transactions(@PathVariable("id") String key, List<PropertyFilter> filters) {
-        filters.add(new PropertyFilter("INS_unionId", Transaction.generateUnionid(OrderTransaction.Type.payment.getValue(), key), Transaction.generateUnionid(OrderTransaction.Type.refund.getValue(), key)));
-        return transactionController.seach(new Pager<>(), filters).getPageItems();
+    public Map<String,Transaction> transactions(@PathVariable("id") String id) {
+        Order order = get(id);
+        Map<String,Transaction> transactions = new HashMap<>();
+        transactions.put("payment",order.getPaymentTransaction());
+        transactions.put("refund",order.getRefundTransaction());
+        return transactions;
     }
 
     /**
