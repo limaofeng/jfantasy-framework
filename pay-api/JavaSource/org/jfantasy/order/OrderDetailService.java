@@ -36,6 +36,13 @@ public interface OrderDetailService {
      */
     OrderDTO refund(String id, BigDecimal refundAmount, String note);
 
+    /**
+     * 更新订单详情
+     *
+     * @param id    订单ID
+     * @param order 订单详情
+     */
+    void update(String id, OrderDTO order);
 
     /**
      * 关闭订单
@@ -47,7 +54,7 @@ public interface OrderDetailService {
     /**
      * 完成订单
      *
-     * @param id    订单ID
+     * @param id 订单ID
      */
     void complete(String id);
 

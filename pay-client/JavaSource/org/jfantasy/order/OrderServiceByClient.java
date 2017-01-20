@@ -39,6 +39,11 @@ public class OrderServiceByClient implements OrderDetailService, InitializingBea
     }
 
     @Override
+    public void update(String id, OrderDTO order) {
+        orderServiceProxy.update(id, order);
+    }
+
+    @Override
     public void close(String id) {
         orderServiceProxy.close(id);
     }

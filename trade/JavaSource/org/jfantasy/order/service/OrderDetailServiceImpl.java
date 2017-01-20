@@ -57,6 +57,14 @@ public class OrderDetailServiceImpl implements OrderDetailService{
     }
 
     @Override
+    @Transactional
+    public void update(String id, OrderDTO dto) {
+        Order order = this.orderService.get(id);
+        order.getAttrs().putAll(dto.getAttrs());
+        this.orderService.update(order);
+    }
+
+    @Override
     public void close(String id) {
         this.orderService.close(id);
     }
