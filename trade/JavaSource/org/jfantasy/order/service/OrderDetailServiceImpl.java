@@ -2,15 +2,22 @@ package org.jfantasy.order.service;
 
 import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.util.common.BeanUtil;
+import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.order.OrderDetailService;
 import org.jfantasy.order.bean.Order;
+import org.jfantasy.order.bean.OrderPayee;
+import org.jfantasy.order.bean.OrderPrice;
 import org.jfantasy.order.bean.OrderType;
+import org.jfantasy.order.bean.enums.PayeeType;
 import org.jfantasy.order.entity.OrderDTO;
+import org.jfantasy.order.entity.OrderPayeeDTO;
+import org.jfantasy.order.entity.OrderPriceDTO;
 import org.jfantasy.rpc.annotation.ServiceExporter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @ServiceExporter(value = "orderDetailService", targetInterface = OrderDetailService.class)
 public class OrderDetailServiceImpl implements OrderDetailService{
@@ -60,6 +67,25 @@ public class OrderDetailServiceImpl implements OrderDetailService{
     @Transactional
     public void update(String id, OrderDTO dto) {
         Order order = this.orderService.get(id);
+        List<OrderPayeeDTO> payees = dto.getPayees();
+        List<OrderPriceDTO> prices = dto.getPrices();
+        // 价格条目
+        for (OrderPrice price : this.orderTypeService.prices(order.getType())) {
+            OrderPriceDTO priceDTO = ObjectUtil.find(prices, "code", price.getCode());
+            if (priceDTO != null && !ObjectUtil.exists(order.getPrices(),"code", price.getCode())) {
+                order.addPrice(price, priceDTO.getValue());
+            }
+        }
+        // 收款人条目
+        for (OrderPayee payee : this.orderTypeService.payees(order.getType())) {
+            if (payee.getType() == PayeeType.fixed) {
+                continue;
+            }
+            OrderPayeeDTO payeeDTO = ObjectUtil.find(payees, "code", payee.getCode());
+            if (payeeDTO != null && !ObjectUtil.exists(order.getPayees(),"code", payee.getCode())) {
+                order.addPayee(payee, payeeDTO.getName(), payeeDTO.getValue(), payeeDTO.getTarget());
+            }
+        }
         order.getAttrs().putAll(dto.getAttrs());
         this.orderService.update(order);
     }
