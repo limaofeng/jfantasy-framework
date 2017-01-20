@@ -27,7 +27,7 @@ import java.util.List;
 @Service
 public class AccountService {
 
-    protected static final ProjectType[] PROJECT_TYPES = new ProjectType[]{ProjectType.withdraw, ProjectType.transfer, ProjectType.deposit};
+    public static final ProjectType[] PROJECT_TYPES = new ProjectType[]{ProjectType.withdraw, ProjectType.transfer, ProjectType.deposit};
 
     private final AccountDao accountDao;
     private final ProjectDao projectDao;
