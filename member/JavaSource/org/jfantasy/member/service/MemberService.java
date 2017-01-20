@@ -70,7 +70,7 @@ public class MemberService {
     }
 
     public Member login(String username) {
-        Member member = this.memberDao.findUniqueBy("username", username);
+        Member member = this.findUnique(username);
         if (member == null) {//用户不存在
             throw new ValidationException(100301, "用户名和密码错误");
         }
@@ -96,7 +96,7 @@ public class MemberService {
      * @return Member
      */
     public Member login(PasswordTokenType type, String username, String password) {
-        Member member = this.memberDao.findUniqueBy("username", username);
+        Member member = this.findUnique(username);
 
         if (!this.passwordTokenEncoder.matches("login", type, username, member != null ? member.getPassword() : "", password)) {
             throw new ValidationException(100101, "用户名和密码错误");
@@ -107,7 +107,6 @@ public class MemberService {
         }
         return login(username);
     }
-
 
     /**
      * 前台注册页面保存
@@ -249,6 +248,15 @@ public class MemberService {
         return this.memberDao.findUniqueBy("username", username);
     }
 
+    private Member findUnique(String username) {
+        if (RegexpUtil.isMatch(username, RegexpCst.VALIDATOR_EMAIL)) {//  email
+            return this.memberDao.findUniqueBy("details.email", username);
+        }
+        if (RegexpUtil.isMatch(username, RegexpCst.VALIDATOR_MOBILE)) {// 手机
+            return this.memberDao.findUniqueBy("details.mobile", username);
+        }
+        return this.memberDao.findUniqueBy("username", username);// 用户名
+    }
 
     @Autowired(required = false)
     public void setPasswordTokenEncoder(PasswordTokenEncoder passwordTokenEncoder) {
