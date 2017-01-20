@@ -73,7 +73,7 @@ public class OrderDetailServiceImpl implements OrderDetailService{
         for (OrderPrice price : this.orderTypeService.prices(order.getType())) {
             OrderPriceDTO priceDTO = ObjectUtil.find(prices, "code", price.getCode());
             if (priceDTO != null && !ObjectUtil.exists(order.getPrices(),"code", price.getCode())) {
-                order.addPrice(price, priceDTO.getValue());
+                this.orderService.save(order.addPrice(price, priceDTO.getValue()));
             }
         }
         // 收款人条目
@@ -83,7 +83,7 @@ public class OrderDetailServiceImpl implements OrderDetailService{
             }
             OrderPayeeDTO payeeDTO = ObjectUtil.find(payees, "code", payee.getCode());
             if (payeeDTO != null && !ObjectUtil.exists(order.getPayees(),"code", payee.getCode())) {
-                order.addPayee(payee, payeeDTO.getName(), payeeDTO.getValue(), payeeDTO.getTarget());
+                this.orderService.save(order.addPayee(payee, payeeDTO.getName(), payeeDTO.getValue(), payeeDTO.getTarget()));
             }
         }
         order.getAttrs().putAll(dto.getAttrs());

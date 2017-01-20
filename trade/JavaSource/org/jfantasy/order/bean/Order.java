@@ -549,7 +549,7 @@ public class Order extends BaseBusEntity {
         this.refundTransaction = refundTransaction;
     }
 
-    public void addPrice(OrderPrice price, BigDecimal value) {
+    public OrderPriceValue addPrice(OrderPrice price, BigDecimal value) {
         if (this.prices == null) {
             this.prices = new ArrayList<>();
         }
@@ -558,9 +558,10 @@ public class Order extends BaseBusEntity {
         priceValue.setPrice(price);
         priceValue.setValue(value);
         this.prices.add(priceValue);
+        return priceValue;
     }
 
-    public void addPayee(OrderPayee price, String name, String value, String target) {
+    public OrderPayeeValue addPayee(OrderPayee price, String name, String value, String target) {
         OrderPayeeValue payeeValue = new OrderPayeeValue();
         payeeValue.setOrder(this);
         payeeValue.setPayee(price);
@@ -568,6 +569,7 @@ public class Order extends BaseBusEntity {
         payeeValue.setValue(value);
         payeeValue.setTarget(target);
         this.payees.add(payeeValue);
+        return payeeValue;
     }
 
     public List<OrderPayeeValue> getPayees() {

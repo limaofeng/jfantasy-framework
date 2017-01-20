@@ -22,6 +22,8 @@ import org.jfantasy.order.bean.enums.OrderFlow;
 import org.jfantasy.order.bean.enums.PayeeType;
 import org.jfantasy.order.bean.enums.Stage;
 import org.jfantasy.order.dao.OrderDao;
+import org.jfantasy.order.dao.OrderPayeeValueDao;
+import org.jfantasy.order.dao.OrderPriceValueDao;
 import org.jfantasy.order.dao.OrderTypeDao;
 import org.jfantasy.order.entity.OrderDTO;
 import org.jfantasy.order.entity.OrderItemDTO;
@@ -61,6 +63,8 @@ public class OrderService {
 
     private final OrderDao orderDao;
     private final OrderTypeDao orderTypeDao;
+    private final OrderPriceValueDao orderPriceValueDao;
+    private final OrderPayeeValueDao orderPayeeValueDao;
     private TransactionService transactionService;
     private ReceiverService receiverService;
     private ScheduleService scheduleService;
@@ -69,9 +73,11 @@ public class OrderService {
     private OrderTypeService orderTypeService;
 
     @Autowired
-    public OrderService(OrderTypeDao orderTypeDao, OrderDao orderDao) {
+    public OrderService(OrderTypeDao orderTypeDao, OrderDao orderDao, OrderPriceValueDao orderPriceValueDao, OrderPayeeValueDao orderPayeeValueDao) {
         this.orderTypeDao = orderTypeDao;
         this.orderDao = orderDao;
+        this.orderPriceValueDao = orderPriceValueDao;
+        this.orderPayeeValueDao = orderPayeeValueDao;
     }
 
     @Transactional(readOnly = true)
@@ -82,6 +88,14 @@ public class OrderService {
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public Pager<Order> findPager(Pager<Order> pager, List<PropertyFilter> filters) {
         return this.orderDao.findPager(pager, filters);
+    }
+
+    public void save(OrderPriceValue value){
+        this.orderPriceValueDao.save(value);
+    }
+
+    public void save(OrderPayeeValue value){
+        this.orderPayeeValueDao.save(value);
     }
 
     @Transactional
