@@ -12,8 +12,12 @@ import java.util.List;
 @Service
 public class LevelService {
 
+    private final LevelDao levelDao;
+
     @Autowired
-    private LevelDao levelDao;
+    public LevelService(LevelDao levelDao) {
+        this.levelDao = levelDao;
+    }
 
     public List<Level> search(List<PropertyFilter> filters) {
         return levelDao.find(filters);

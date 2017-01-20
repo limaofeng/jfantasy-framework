@@ -3,7 +3,6 @@ package org.jfantasy.member.rest;
 import org.jfantasy.framework.jackson.annotation.IgnoreProperty;
 import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
-import org.jfantasy.member.bean.Member;
 import org.jfantasy.member.bean.Wallet;
 import org.jfantasy.member.rest.models.PointDetails;
 import org.jfantasy.member.rest.models.assembler.PointDetailsResourceAssembler;
@@ -27,18 +26,14 @@ public class MemberWalletController {
 
     /**
      * 用户钱包信息 - 返回钱包详情
-     * @param id
-     * @return
+     * @param id 钱包
+     * @return Wallet
      */
     @JsonResultFilter(ignore = @IgnoreProperty(pojo = Wallet.class, name = {"member", "bills"}))
     @RequestMapping(value = "/{memid}/wallet", method = RequestMethod.GET)
     public ResultResourceSupport view(@PathVariable("memid") Long id) {
         Wallet wallet = walletService.getWalletByMember(id);
-        ResultResourceSupport resource = walletController.view(wallet.getId());
-        if (Member.MEMBER_TYPE_PERSONAL.equals(wallet.getMember().getType())) {
-            resource.set("level", wallet.getMember().getDetails().getLevel());
-        }
-        return resource;
+        return walletController.view(wallet.getId());
     }
 
     /**
@@ -54,8 +49,8 @@ public class MemberWalletController {
 
     /**
      * 用户积分信息
-     * @param id
-     * @return
+     * @param id memid
+     * @return point
      */
     @RequestMapping(value = "/{memid}/point-details", method = RequestMethod.GET)
     public ResultResourceSupport pointDetails(@PathVariable("memid") Long id) {

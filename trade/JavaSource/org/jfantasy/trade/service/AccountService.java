@@ -1,13 +1,6 @@
 package org.jfantasy.trade.service;
 
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.JsonNode;
-import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.http.exceptions.UnirestException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.criterion.Restrictions;
-import org.jfantasy.autoconfigure.ApiGatewaySettings;
 import org.jfantasy.card.bean.Card;
 import org.jfantasy.card.dao.CardDao;
 import org.jfantasy.framework.dao.Pager;
@@ -15,11 +8,12 @@ import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
+import org.jfantasy.member.service.Member;
+import org.jfantasy.member.service.MemberService;
 import org.jfantasy.order.bean.ExtraService;
 import org.jfantasy.trade.bean.*;
 import org.jfantasy.trade.bean.enums.*;
 import org.jfantasy.trade.dao.*;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.crypto.password.StandardPasswordEncoder;
@@ -33,8 +27,7 @@ import java.util.List;
 @Service
 public class AccountService {
 
-    private static Log LOG = LogFactory.getLog(AccountService.class);
-    public static ProjectType[] PROJECT_TYPES = new ProjectType[]{ProjectType.withdraw, ProjectType.transfer, ProjectType.deposit};
+    protected static final ProjectType[] PROJECT_TYPES = new ProjectType[]{ProjectType.withdraw, ProjectType.transfer, ProjectType.deposit};
 
     private final AccountDao accountDao;
     private final ProjectDao projectDao;
@@ -42,17 +35,18 @@ public class AccountService {
     private final PointDao pointDao;
     private final BillDao billDao;
     private final CardDao cardDao;
-    private ApiGatewaySettings apiGatewaySettings;
+    private final MemberService memberService;
     private PasswordEncoder passwordEncoder = new StandardPasswordEncoder();
 
     @Autowired
-    public AccountService(PointDao pointDao, ProjectDao projectDao, TransactionDao transactionDao, BillDao billDao, AccountDao accountDao, CardDao cardDao) {
+    public AccountService(PointDao pointDao, ProjectDao projectDao, TransactionDao transactionDao, BillDao billDao, AccountDao accountDao, CardDao cardDao,MemberService memberService) {
         this.pointDao = pointDao;
         this.projectDao = projectDao;
         this.transactionDao = transactionDao;
         this.billDao = billDao;
         this.accountDao = accountDao;
         this.cardDao = cardDao;
+        this.memberService = memberService;
     }
 
     @Transactional
@@ -115,35 +109,18 @@ public class AccountService {
     }
 
     private void ownerByMember(Account account) {
-        try {
-            HttpResponse<JsonNode> postResponse = Unirest.get(apiGatewaySettings.getUrl() + "/members/" + account.getOwner()).asJson();
-            JsonNode jsonNode = postResponse.getBody();
-
-            JSONObject member = jsonNode.getObject();
-            Long memberId = member.getLong("id");
-            String memberType = member.getString("type");
-            String targetType = member.has("target_type") ? member.getString("target_type") : null;
-            String targetId = member.has("target_id") ? member.getString("target_id") : null;
-            String name = member.getString("nick_name");
-            if ("personal".equals(memberType)) {//个人
-                account.setType(AccountType.personal);
-                account.setOwnerId(memberId.toString());
-                account.setOwnerType("personal");
-                account.setOwnerName(name);
-            } else if ("doctor".equals(memberType)) {//医生
-                account.setType(AccountType.personal);
-                account.setOwnerId(targetId);
-                account.setOwnerType(targetType);
-                account.setOwnerName(name);
-            } else if (ObjectUtil.exists(new String[]{"company", "pharmacy", "clinic"}, memberType)) {//集团
-                account.setType(AccountType.enterprise);
-                account.setOwnerId(targetId);
-                account.setOwnerType(memberType);
-                account.setOwnerName(name);
-            }
-        } catch (UnirestException e) {
-            LOG.error(e.getMessage(), e);
+        Member member = this.memberService.get(account.getOwner());
+        if (member == null) {
+            return;
         }
+        if ("personal".equals(member.getType()) || "doctor".equals(member.getType())) {//个人
+            account.setType(AccountType.personal);
+        } else if (ObjectUtil.exists(new String[]{"company", "pharmacy", "clinic"}, member.getType())) {//集团
+            account.setType(AccountType.enterprise);
+        }
+        account.setOwnerId(member.getTargetId());
+        account.setOwnerType(member.getType());
+        account.setOwnerName(member.getNickName());
     }
 
     /**
@@ -298,9 +275,9 @@ public class AccountService {
         return this.accountDao.save(account);
     }
 
-    @Autowired
-    public void setApiGatewaySettings(ApiGatewaySettings apiGatewaySettings) {
-        this.apiGatewaySettings = apiGatewaySettings;
+    @Transactional
+    public Account getByOwner(String owner) {
+        return this.accountDao.findUnique(Restrictions.eq("owner",owner));
     }
 
 }

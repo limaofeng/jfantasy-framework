@@ -27,9 +27,8 @@ public class Wallet extends BaseBusEntity {
     /**
      * 会员
      */
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "MEMBER_ID", unique = true, updatable = false, foreignKey = @ForeignKey(name = "FK_WALLET_MEMBER_MID"))
-    private Member member;
+    @Column(name = "MEMBER_ID", unique = true, updatable = false)
+    private Long memberId;
     /**
      * 账户余额
      */
@@ -69,12 +68,12 @@ public class Wallet extends BaseBusEntity {
         this.id = id;
     }
 
-    public Member getMember() {
-        return member;
+    public Long getMemberId() {
+        return memberId;
     }
 
-    public void setMember(Member member) {
-        this.member = member;
+    public void setMemberId(Long memberId) {
+        this.memberId = memberId;
     }
 
     public BigDecimal getAmount() {
