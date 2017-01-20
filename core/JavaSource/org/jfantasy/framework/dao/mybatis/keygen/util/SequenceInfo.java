@@ -86,7 +86,7 @@ public class SequenceInfo {
             keyFromDB = createKey(this.keyName, this.poolSize);
         }
         this.keyMax = keyFromDB;
-        this.keyMin = (this.keyMax - this.poolSize + 1L);
+        this.keyMin = this.keyMax - this.poolSize + 1L;
         this.nextKey = this.keyMin;
     }
 

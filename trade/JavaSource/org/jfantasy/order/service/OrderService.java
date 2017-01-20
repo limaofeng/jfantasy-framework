@@ -504,8 +504,9 @@ public class OrderService {
             BigDecimal surplus = order.getSurplus();
             order.setTotal(transaction.getAmount());
             order.setSurplus(surplus.subtract(startupFlow(flow, order, payee)));
-
-            profitChain.addChild(flow.getProfitChain());// logs
+            if (flow.getProfitChain().getRevenue() != null) {
+                profitChain.addChild(flow.getProfitChain());// logs
+            }
         }
         return transaction.getAmount();
     }
