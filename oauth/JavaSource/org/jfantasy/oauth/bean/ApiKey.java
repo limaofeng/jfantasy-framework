@@ -37,9 +37,9 @@ public class ApiKey extends BaseBusEntity {
     /**
      * api 配置的一些额外信息
      */
-    @Column(name = "PROPERTIES", columnDefinition = "Blob")
+    @Column(name = "PROPERTIES", columnDefinition = "Text")
     @Convert(converter = MapConverter.class)
-    private Map<String,Object> properties;
+    private Map<String,Object> attrs;
     /**
      * 对应的应用
      */
@@ -52,8 +52,7 @@ public class ApiKey extends BaseBusEntity {
     @Column(name = "PLATFORM")
     private String platform;
 
-    public ApiKey() {
-    }
+    public ApiKey() {}
 
     public ApiKey(String key) {
         this();
@@ -61,16 +60,16 @@ public class ApiKey extends BaseBusEntity {
     }
 
     @JsonAnyGetter
-    public Map<String,Object> getProperties() {
-        return properties;
+    public Map<String,Object> getAttrs() {
+        return this.attrs;
     }
 
     @JsonAnySetter
     public void set(String key, Object value) {
-        if (this.properties == null) {
-            this.properties = new HashMap();
+        if (this.attrs == null) {
+            this.attrs = new HashMap<>();
         }
-        this.properties.put(key, value);
+        this.attrs.put(key, value);
     }
 
     public String getKey() {
@@ -89,8 +88,8 @@ public class ApiKey extends BaseBusEntity {
         this.description = description;
     }
 
-    public void setProperties(Map<String,Object> properties) {
-        this.properties = properties;
+    public void setAttrs(Map<String,Object> attrs) {
+        this.attrs = attrs;
     }
 
     public Application getApplication() {
@@ -117,4 +116,5 @@ public class ApiKey extends BaseBusEntity {
                 ", platform='" + platform + '\'' +
                 '}';
     }
+
 }

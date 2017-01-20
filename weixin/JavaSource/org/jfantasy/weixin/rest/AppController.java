@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * 微信公众账号
  */
-@RestController
+@RestController("weixin.appController")
 @RequestMapping("/weixin/apps")
 public class AppController {
 

@@ -38,7 +38,7 @@ import java.util.concurrent.TimeUnit;
 public class AccessTokenService {
 
     @Autowired
-    private ApiKeyService apiKeyService;
+    private AppService appService;
     @Autowired
     private RedisTemplate redisTemplate;
     @Autowired
@@ -50,7 +50,7 @@ public class AccessTokenService {
     @SuppressWarnings("unchecked")
     public TokenResponse allocateToken(TokenRequest request) {
         AccessToken accessToken = new AccessToken();
-        ApiKey apiKey = apiKeyService.get(request.getApiKey());
+        ApiKey apiKey = appService.get(request.getApiKey());
 
         if (apiKey == null) {
             throw new RestException(" client_id 无效");

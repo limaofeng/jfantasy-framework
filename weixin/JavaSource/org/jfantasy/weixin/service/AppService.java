@@ -17,7 +17,7 @@ import java.util.List;
 /**
  * 数据库存储微信信息
  */
-@Service
+@Service("weixin.AppService")
 @Transactional
 public class AppService implements WeixinAppService {
 
