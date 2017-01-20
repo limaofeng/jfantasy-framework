@@ -249,12 +249,12 @@ public class MemberService {
     }
 
     private Member findUnique(String username) {
-        if (RegexpUtil.isMatch(username, RegexpCst.VALIDATOR_EMAIL)) {//  email
-            return this.memberDao.findUniqueBy("details.email", username);
-        }
-        if (RegexpUtil.isMatch(username, RegexpCst.VALIDATOR_MOBILE)) {// 手机
-            return this.memberDao.findUniqueBy("details.mobile", username);
-        }
+//        if (RegexpUtil.isMatch(username, RegexpCst.VALIDATOR_EMAIL)) {//  email
+//            member = this.memberDao.findUniqueBy("details.email", username);
+//        }
+//        if (RegexpUtil.isMatch(username, RegexpCst.VALIDATOR_MOBILE)) {// 手机
+//            member = this.memberDao.findUniqueBy("details.mobile", username);
+//        }
         return this.memberDao.findUniqueBy("username", username);// 用户名
     }
 
