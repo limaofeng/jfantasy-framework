@@ -33,12 +33,11 @@ public class TransactionReportListener implements ApplicationListener<Transactio
             return;
         }
         Project project = this.projectService.get(transaction.getProject());
+        String day = DateUtil.format(transaction.getModifyTime(), "yyyyMMdd");
+        BigDecimal amount = transaction.getAmount();
+        String code = transaction.getProject() + (StringUtil.isBlank(transaction.getSubject()) ? "" : ("-" + transaction.getSubject()));
 
         if (transaction.getStatus() == TxStatus.success) {
-            String day = DateUtil.format(transaction.getModifyTime(), "yyyyMMdd");
-            BigDecimal amount = transaction.getAmount();
-            String code = transaction.getProject() + (StringUtil.isBlank(transaction.getSubject()) ? "" : ("-" + transaction.getSubject()));
-
             if (project.getType() == ProjectType.order || project.getType() == ProjectType.transfer) {
                 reportService.analyze(ReportTargetType.account, transaction.getFrom(), TimeUnit.day, day, BillType.credit, code, amount);//记录出帐
                 reportService.analyze(ReportTargetType.account, transaction.getTo(), TimeUnit.day, day, BillType.debit, code, amount);//记录入帐
@@ -46,10 +45,6 @@ public class TransactionReportListener implements ApplicationListener<Transactio
                 reportService.analyze(ReportTargetType.account, transaction.getTo(), TimeUnit.day, day, BillType.debit, code, amount);//记录入帐
             }
         } else if (transaction.getStatus() == TxStatus.unprocessed && ProjectType.withdraw == project.getType()) {
-            String day = DateUtil.format(transaction.getModifyTime(), "yyyyMMdd");
-            BigDecimal amount = transaction.getAmount();
-            String code = transaction.getProject() + (StringUtil.isBlank(transaction.getSubject()) ? "" : ("-" + transaction.getSubject()));
-
             reportService.analyze(ReportTargetType.account, transaction.getFrom(), TimeUnit.day, day, BillType.credit, code, amount);//记录出帐
         }
     }
