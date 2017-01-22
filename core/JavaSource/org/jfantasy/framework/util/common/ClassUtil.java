@@ -488,6 +488,9 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
             LOGGER.warn("Index: " + index + ", Size of " + clazz.getSimpleName() + "'s Parameterized Type: " + params.length);
             return (Class<T>) Object.class;
         }
+        if (params[index] instanceof ParameterizedType) {
+            return (Class<T>) ((ParameterizedType) params[index]).getRawType();
+        }
         if (!(params[index] instanceof Class<?>)) {
             LOGGER.warn(clazz.getSimpleName() + " not set the actual class on superclass generic parameter");
             return (Class<T>) Object.class;
@@ -510,6 +513,9 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
                 if ((index >= params.length) || (index < 0)) {
                     LOGGER.warn("Index: " + index + ", Size of " + clazz.getSimpleName() + "'s Parameterized Type: " + params.length);
                     return (Class<T>) Object.class;
+                }
+                if (params[index] instanceof ParameterizedType) {
+                    return (Class<T>) ((ParameterizedType) params[index]).getRawType();
                 }
                 if (!(params[index] instanceof Class<?>)) {
                     LOGGER.warn(clazz.getSimpleName() + " not set the actual class on superclass generic parameter");
