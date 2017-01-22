@@ -300,7 +300,7 @@ public class TransactionService {
         transaction.setFlowStatus(-1);
         transaction.setStatusText(TxStatus.close.getValue());
         transaction.setNotes(notes);
-        return transactionDao.save(transaction);
+        return transactionDao.update(transaction);
     }
 
     @Transactional

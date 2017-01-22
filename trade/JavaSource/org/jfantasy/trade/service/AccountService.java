@@ -203,7 +203,7 @@ public class AccountService {
         // 转入
         this.in(transaction.getTo(), transaction.getAmount(), project, transaction);
         // 更新交易状态
-        return transactionDao.save(transaction);
+        return transactionDao.update(transaction);
     }
 
     private void in(String account, BigDecimal amount, Project project, Transaction transaction) {
