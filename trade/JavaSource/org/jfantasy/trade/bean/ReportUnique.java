@@ -33,7 +33,7 @@ public class ReportUnique extends BaseBusEntity {
     /**
      *
      */
-    @Column(name = "KEY", length = 50, updatable = false, nullable = false)
+    @Column(name = "_KEY", length = 50, updatable = false, nullable = false)
     private String key;
     /**
      * 标记
