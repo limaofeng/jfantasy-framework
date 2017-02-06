@@ -6,18 +6,19 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.GenericGenerator;
 import org.jfantasy.framework.dao.BaseBusEntity;
 import org.jfantasy.framework.dao.hibernate.converter.MapConverter;
+import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.order.bean.Order;
+import org.jfantasy.pay.bean.Log;
 import org.jfantasy.pay.bean.Payment;
 import org.jfantasy.pay.bean.Refund;
+import org.jfantasy.pay.bean.enums.OwnerType;
+import org.jfantasy.pay.service.LogService;
 import org.jfantasy.trade.bean.enums.TxChannel;
 import org.jfantasy.trade.bean.enums.TxStatus;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 交易表
@@ -297,6 +298,13 @@ public class Transaction extends BaseBusEntity {
     @Transient
     public String getOrderId() {
         return this.getOrder() != null ? this.getOrder().getId() : null;
+    }
+
+    @Transient
+    public Date getTime(TxStatus status) {
+        List<Log> logs = LogService.getInstance().logs(OwnerType.transaction, this.sn);
+        Log log = ObjectUtil.find(logs, "action", status.name());
+        return log != null ? log.getLogTime() : this.getModifyTime();
     }
 
 }

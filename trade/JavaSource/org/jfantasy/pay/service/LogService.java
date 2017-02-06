@@ -1,6 +1,7 @@
 package org.jfantasy.pay.service;
 
 import org.hibernate.criterion.Restrictions;
+import org.jfantasy.framework.spring.SpringContextUtil;
 import org.jfantasy.pay.bean.Log;
 import org.jfantasy.pay.bean.enums.OwnerType;
 import org.jfantasy.pay.dao.LogDao;
@@ -12,6 +13,8 @@ import java.util.List;
 
 @Service
 public class LogService {
+
+    private static LogService logService;
 
     private final LogDao logDao;
 
@@ -39,4 +42,10 @@ public class LogService {
         return this.logDao.find(Restrictions.eq("ownerType", type), Restrictions.eq("ownerId", sn));
     }
 
+    public static LogService getInstance() {
+        if (logService == null) {
+            logService = SpringContextUtil.getBeanByType(LogService.class);
+        }
+        return logService;
+    }
 }

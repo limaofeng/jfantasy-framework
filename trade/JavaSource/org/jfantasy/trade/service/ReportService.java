@@ -3,12 +3,13 @@ package org.jfantasy.trade.service;
 import org.hibernate.criterion.Restrictions;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
-import org.jfantasy.trade.bean.Report;
-import org.jfantasy.trade.bean.ReportItem;
-import org.jfantasy.trade.bean.enums.BillType;
-import org.jfantasy.trade.bean.enums.ReportTargetType;
-import org.jfantasy.trade.bean.enums.TimeUnit;
+import org.jfantasy.framework.util.common.DateUtil;
+import org.jfantasy.framework.util.common.StringUtil;
+import org.jfantasy.trade.bean.*;
+import org.jfantasy.trade.bean.enums.*;
+import org.jfantasy.trade.dao.ProjectDao;
 import org.jfantasy.trade.dao.ReportDao;
+import org.jfantasy.trade.dao.ReportUniqueDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -21,15 +22,59 @@ import java.util.List;
 public class ReportService {
 
     private final ReportDao reportDao;
+    private final ProjectDao projectDao;
+    private final ReportUniqueDao reportUniqueDao;
 
     @Autowired
-    public ReportService(ReportDao reportDao) {
+    public ReportService(ReportDao reportDao, ReportUniqueDao reportUniqueDao, ProjectDao projectDao) {
         this.reportDao = reportDao;
+        this.reportUniqueDao = reportUniqueDao;
+        this.projectDao = projectDao;
     }
 
     @Transactional
     public Pager<Report> findPager(Pager<Report> pager, List<PropertyFilter> filters) {
         return this.reportDao.findPager(pager, filters);
+    }
+
+    private boolean exists(ReportUnique unique) {
+        if (this.reportUniqueDao.exists(Restrictions.eq("targetType", unique.getTargetType()), Restrictions.eq("targetId", unique.getTargetId()), Restrictions.eq("tag", unique.getTag()))) {
+            return true;
+        }
+        this.reportUniqueDao.insert(unique);
+        return false;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void analyze(Transaction transaction) {
+        if (transaction.getStatus() == TxStatus.processing || transaction.getStatus() == TxStatus.close) {
+            return;
+        }
+
+        Project project = this.projectDao.get(transaction.getProject());
+        BigDecimal amount = transaction.getAmount();
+        String code = transaction.getProject() + (StringUtil.isBlank(transaction.getSubject()) ? "" : ("-" + transaction.getSubject()));
+
+        if (transaction.getStatus() == TxStatus.success) {
+            String day = DateUtil.format(transaction.getTime(TxStatus.success), "yyyyMMdd");
+            if (project.getType() == ProjectType.order || project.getType() == ProjectType.transfer) {//转账及订单支付与退款
+                if (!this.exists(new ReportUnique(ReportTargetType.account,transaction.getFrom() ,transaction.getSn(), "out"))) {
+                    this.analyze(ReportTargetType.account, transaction.getFrom(), TimeUnit.day, day, BillType.credit, code, amount);//记录出帐
+                }
+                if (!this.exists(new ReportUnique(ReportTargetType.account,transaction.getTo(), transaction.getSn(), "in"))) {
+                    this.analyze(ReportTargetType.account, transaction.getTo(), TimeUnit.day, day, BillType.debit, code, amount);//记录入帐
+                }
+            } else if (project.getType() == ProjectType.deposit) {//充值
+                if (!this.exists(new ReportUnique(ReportTargetType.account,transaction.getTo(), transaction.getSn(), "in"))) {
+                    this.analyze(ReportTargetType.account, transaction.getTo(), TimeUnit.day, day, BillType.debit, code, amount);//记录入帐
+                }
+            }
+        } else if (transaction.getStatus() == TxStatus.unprocessed && ProjectType.withdraw == project.getType()) {//提现
+            if (!this.exists(new ReportUnique(ReportTargetType.account,transaction.getFrom(), transaction.getSn(), "out"))) {
+                String day = DateUtil.format(transaction.getTime(TxStatus.unprocessed), "yyyyMMdd");
+                this.analyze(ReportTargetType.account, transaction.getFrom(), TimeUnit.day, day, BillType.credit, code, amount);//记录出帐
+            }
+        }
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -50,7 +95,7 @@ public class ReportService {
                 details.addValue(value);
             }
         }
-        try{
+        try {
             return this.reportDao.save(report);
         } finally {
             if (timeUnit == TimeUnit.day) {
@@ -61,6 +106,11 @@ public class ReportService {
                 analyze(targetType, targetId, TimeUnit.all, "longtime", type, code, value);
             }
         }
+    }
+
+    public void clean(ReportTargetType targetType, String targetId) {
+        this.reportDao.batchExecute("delete Report where targetType = ? and targetId = ?", targetType, targetId);
+        this.reportDao.batchExecute("delete ReportUnique where targetType = ? and targetId = ?", targetType, targetId);
     }
 
 }

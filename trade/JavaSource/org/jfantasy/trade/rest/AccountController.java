@@ -1,6 +1,7 @@
 package org.jfantasy.trade.rest;
 
 import io.swagger.annotations.ApiImplicitParam;
+import org.hibernate.criterion.Restrictions;
 import org.jfantasy.card.bean.Card;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
@@ -21,6 +22,7 @@ import org.jfantasy.trade.bean.*;
 import org.jfantasy.trade.bean.enums.ProjectType;
 import org.jfantasy.trade.bean.enums.ReportTargetType;
 import org.jfantasy.trade.bean.enums.TimeUnit;
+import org.jfantasy.trade.bean.enums.TxStatus;
 import org.jfantasy.trade.service.AccountService;
 import org.jfantasy.trade.service.ProjectService;
 import org.jfantasy.trade.service.ReportService;
@@ -76,13 +78,14 @@ public class AccountController {
 
     /**
      * 账户记录
+     *
      * @param id 账户
      * @return Pager<Bill>
      */
     @RequestMapping(method = RequestMethod.GET, value = "/{id}/bills")
     @ResponseBody
-    public Pager<Bill> bills(@PathVariable("id") String id,Pager<Bill> pager, List<PropertyFilter> filters) {
-        return this.accountService.bills(id,pager,filters);
+    public Pager<Bill> bills(@PathVariable("id") String id, Pager<Bill> pager, List<PropertyFilter> filters) {
+        return this.accountService.bills(id, pager, filters);
     }
 
     /**
@@ -173,7 +176,6 @@ public class AccountController {
 
     @RequestMapping(method = RequestMethod.GET, value = "/{id}/reports")
     @ResponseBody
-    @ApiImplicitParam(value = "filters", name = "filters", paramType = "query", dataType = "string")
     public Pager<Report> reports(@PathVariable("id") String sn, @RequestParam(value = "time_unit", required = false) TimeUnit timeUnit, Pager<Report> pager, List<PropertyFilter> filters) {
         filters.add(new PropertyFilter("EQE_targetType", ReportTargetType.account));
         filters.add(new PropertyFilter("EQS_targetId", sn));
@@ -185,6 +187,22 @@ public class AccountController {
             pager.setOrder(Pager.SORT_DESC);
         }
         return reportService.findPager(pager, filters);
+    }
+
+    @PostMapping("/{id}/reports")
+    @ResponseBody
+    public void reports(@PathVariable("id") String sn, @RequestParam("action") String action) {
+        Account account = get(sn);
+        if ("clean".equals(action)) {
+            reportService.clean(ReportTargetType.account, account.getSn());
+        } else if ("repair".equals(action)) {
+            for (Transaction transaction : transactionService.find(Restrictions.not(Restrictions.in("status", new TxStatus[]{TxStatus.processing, TxStatus.close})), Restrictions.or(Restrictions.eq("from", account.getSn()), Restrictions.eq("to", account.getSn())))) {
+                reportService.analyze(transaction);
+            }
+        } else if ("reset".equals(action)) {
+            this.reports(account.getSn(), "clean");
+            this.reports(account.getSn(), "repair");
+        }
     }
 
     private Account get(String id) {
