@@ -10,7 +10,7 @@ import javax.persistence.*;
  * 用于防止重复统计
  */
 @Entity
-@Table(name = "TRADE_REPORT_UNIQUE", uniqueConstraints = {@UniqueConstraint(columnNames = {"KEY", "TAG"})})
+@Table(name = "TRADE_REPORT_UNIQUE", uniqueConstraints = {@UniqueConstraint(columnNames = {"_KEY", "TAG"})})
 @JsonIgnoreProperties({"hibernate_lazy_initializer", "handler"})
 public class ReportUnique extends BaseBusEntity {
 
