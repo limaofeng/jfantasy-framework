@@ -2,6 +2,7 @@ package org.jfantasy.pay.service;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.criterion.Restrictions;
 import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.util.common.BeanUtil;
 import org.jfantasy.framework.util.common.NumberUtil;
@@ -34,6 +35,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -125,6 +127,19 @@ public class PayService {
             paymentService.save(payment);
         }
         return toPayment;
+    }
+
+    /**
+     * 发起退款交易
+     *
+     * @param transaction 交易
+     */
+    @Transactional
+    public Refund refund(Transaction transaction) {
+        String id = transaction.get(Transaction.ORDER_ID);
+        List<Payment> payments = paymentService.find(Restrictions.eq("order.id", id));
+        Payment payment = ObjectUtil.find(payments, "status", PaymentStatus.success);
+        return refundService.create(payment, transaction.getAmount(), transaction, "退款");
     }
 
     /**

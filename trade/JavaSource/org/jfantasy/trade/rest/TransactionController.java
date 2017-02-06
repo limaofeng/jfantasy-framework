@@ -20,7 +20,6 @@ import org.jfantasy.pay.rest.models.TxStatusForm;
 import org.jfantasy.pay.rest.models.assembler.TransactionResourceAssembler;
 import org.jfantasy.pay.service.PayConfigService;
 import org.jfantasy.pay.service.PayService;
-import org.jfantasy.pay.service.vo.ToPayment;
 import org.jfantasy.trade.bean.Project;
 import org.jfantasy.trade.bean.Transaction;
 import org.jfantasy.trade.bean.enums.ProjectType;
@@ -97,12 +96,17 @@ public class TransactionController {
     @PostMapping("/{id}/pay-form")
     @ResponseBody
     @JsonResultFilter(allow = @AllowProperty(pojo = Payment.class, name = {"sn", "type", "pay_config_name", "total_amount", "payment_fee", "status", "source"}))
-    public ToPayment payForm(@PathVariable("id") String sn, @RequestBody PayForm payForm) throws PayException {
+    public Object payForm(@PathVariable("id") String sn, @RequestBody PayForm payForm) throws PayException {
         Transaction transaction = get(sn);
         if (transaction == null) {
             throw new ValidationException(100000, "[" + sn + "]交易不存在");
         }
-        return payService.pay(transaction, payForm.getPayconfigId(), payForm.getPayType(), payForm.getPayer(), payForm.getProperties());
+        if (Project.PAYMENT.equals(transaction.getProject())) {
+            return payService.pay(transaction, payForm.getPayconfigId(), payForm.getPayType(), payForm.getPayer(), payForm.getProperties());
+        } else if (Project.REFUND.equals(transaction.getProject())) {
+            return payService.refund(transaction);
+        }
+        throw new PayException(String.format("不支持该项目[%s]", transaction.getProject()));
     }
 
     private Transaction get(String id) {
