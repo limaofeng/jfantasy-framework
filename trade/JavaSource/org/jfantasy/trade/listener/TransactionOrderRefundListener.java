@@ -5,13 +5,13 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.criterion.Restrictions;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.pay.bean.Payment;
-import org.jfantasy.trade.bean.Project;
-import org.jfantasy.trade.bean.Transaction;
-import org.jfantasy.trade.bean.enums.TxStatus;
-import org.jfantasy.trade.event.TransactionChangedEvent;
 import org.jfantasy.pay.bean.enums.PaymentStatus;
 import org.jfantasy.pay.service.PaymentService;
 import org.jfantasy.pay.service.RefundService;
+import org.jfantasy.trade.bean.Project;
+import org.jfantasy.trade.bean.Transaction;
+import org.jfantasy.trade.bean.enums.TxStatus;
+import org.jfantasy.trade.event.TransactionAddedEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
@@ -22,7 +22,7 @@ import java.util.List;
  * 退款处理
  */
 @Component
-public class TransactionOrderRefundListener implements ApplicationListener<TransactionChangedEvent> {
+public class TransactionOrderRefundListener implements ApplicationListener<TransactionAddedEvent> {
 
     private static final Log LOG = LogFactory.getLog(TransactionOrderRefundListener.class);
 
@@ -30,7 +30,7 @@ public class TransactionOrderRefundListener implements ApplicationListener<Trans
     private PaymentService paymentService;
 
     @Override
-    public void onApplicationEvent(TransactionChangedEvent event) {
+    public void onApplicationEvent(TransactionAddedEvent event) {
         Transaction transaction = event.getTransaction();
         if (event.getStatus() == TxStatus.unprocessed && Project.REFUND.equals(transaction.getProject())) {
             String id = transaction.get(Transaction.ORDER_ID);
