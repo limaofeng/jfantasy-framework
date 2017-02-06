@@ -6,9 +6,9 @@ import org.jfantasy.trade.bean.Transaction;
 import org.jfantasy.trade.event.TransactionAddedEvent;
 import org.jfantasy.trade.event.TransactionChangedEvent;
 import org.jfantasy.trade.event.source.TxnSource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.event.SmartApplicationListener;
+import org.springframework.core.Ordered;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
@@ -18,16 +18,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class LogByTransactionListener implements SmartApplicationListener {
 
-    private final LogService logService;
-
-    @Autowired
-    public LogByTransactionListener(LogService logService) {
-        this.logService = logService;
-    }
-
     @Override
     public int getOrder() {
-        return 0;
+        return Ordered.LOWEST_PRECEDENCE;
     }
 
     @Override
@@ -44,7 +37,7 @@ public class LogByTransactionListener implements SmartApplicationListener {
     @Override
     public void onApplicationEvent(ApplicationEvent event) {
         Transaction transaction = ((TxnSource) event.getSource()).getTransaction();
-        logService.log(OwnerType.transaction, transaction.getSn(), transaction.getStatus().name(), transaction.getNotes());
+        LogService.getInstance().log(OwnerType.transaction, transaction.getSn(), transaction.getStatus().name(), transaction.getNotes());
     }
 
 }
