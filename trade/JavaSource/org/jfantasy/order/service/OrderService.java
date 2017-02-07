@@ -106,6 +106,9 @@ public class OrderService {
     @Transactional
     public void complete(String id) {
         Order order = this.orderDao.get(id);
+        if(OrderStatus.complete == order.getStatus()){
+            return;
+        }
         if (OrderStatus.paid != order.getStatus()) {
             throw new ValidationException("order = [" + id + "] 订单未支付，不能直接完成!");
         }
