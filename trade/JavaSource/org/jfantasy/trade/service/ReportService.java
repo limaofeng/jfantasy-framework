@@ -108,9 +108,10 @@ public class ReportService {
         }
     }
 
+    @Transactional
     public void clean(ReportTargetType targetType, String targetId) {
         this.reportDao.batchExecute("delete Report where targetType = ? and targetId = ?", targetType, targetId);
-        this.reportDao.batchExecute("delete ReportUnique where targetType = ? and targetId = ?", targetType, targetId);
+        this.reportUniqueDao.batchExecute("delete ReportUnique where targetType = ? and targetId = ?", targetType, targetId);
     }
 
 }
