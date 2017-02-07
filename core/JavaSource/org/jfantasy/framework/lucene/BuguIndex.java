@@ -20,8 +20,6 @@ import org.jfantasy.framework.spring.SpringContextUtil;
 import org.jfantasy.framework.spring.mvc.error.NotFoundException;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
-import org.jfantasy.framework.util.common.PathUtil;
-import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.framework.util.common.file.FileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -229,7 +227,7 @@ public class BuguIndex implements ApplicationListener<ContextRefreshedEvent> {
     }
 
     public void setAnalyzer(Analyzer analyzer) {
-        this.analyzer = ObjectUtil.defaultValue(analyzer,this.analyzer);
+        this.analyzer = ObjectUtil.defaultValue(analyzer, this.analyzer);
     }
 
     public void setDirectoryPath(String directoryPath) {
@@ -253,7 +251,7 @@ public class BuguIndex implements ApplicationListener<ContextRefreshedEvent> {
     }
 
     public File getOpenFolder(String remotePath) {
-        return FileUtil.createFolder(StringUtil.defaultValue(PathUtil.webinf(), PathUtil.classes()) + this.directoryPath + remotePath);
+        return FileUtil.createFolder(this.directoryPath + remotePath);
     }
 
     public void setExecutor(SchedulingTaskExecutor executor) {
