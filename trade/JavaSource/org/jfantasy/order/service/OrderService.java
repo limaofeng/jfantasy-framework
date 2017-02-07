@@ -90,11 +90,11 @@ public class OrderService {
         return this.orderDao.findPager(pager, filters);
     }
 
-    public void save(OrderPriceValue value){
+    public void save(OrderPriceValue value) {
         this.orderPriceValueDao.save(value);
     }
 
-    public void save(OrderPayeeValue value){
+    public void save(OrderPayeeValue value) {
         this.orderPayeeValueDao.save(value);
     }
 
@@ -106,7 +106,7 @@ public class OrderService {
     @Transactional
     public void complete(String id) {
         Order order = this.orderDao.get(id);
-        if(OrderStatus.complete == order.getStatus()){
+        if (OrderStatus.complete == order.getStatus()) {
             return;
         }
         if (OrderStatus.paid != order.getStatus()) {
@@ -314,7 +314,6 @@ public class OrderService {
     }
 
 
-
     /**
      * 新订单
      *
@@ -448,6 +447,9 @@ public class OrderService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public List<ProfitChain> cashflow(String id) {
         Order order = this.orderDao.get(id);
+        if (order.getPayees().isEmpty()) {
+            throw new ValidationException(String.format("订单[%s]数据不完整，请修复数据后继续执行", order.getId()));
+        }
         if (NumberUtil.isEquals(BigDecimal.ZERO, order.getTotalAmount())) {
             order.setProfitChains(Collections.emptyList());
             order.setPaymentStatus(PaymentStatus.archived);
