@@ -247,16 +247,16 @@ public class OrderService {
         if (order.getStatus() == OrderStatus.refunding || order.getStatus() == OrderStatus.refunded || order.getStatus() == OrderStatus.closed) {
             return order;
         }
+        if (NumberUtil.isEquals(BigDecimal.ZERO, refundAmount)) {// 0 元退款
+            order.setStatus(OrderStatus.refunded);
+            this.orderDao.update(order);
+            return this.close(id);
+        }
         if (NumberUtil.isEquals(BigDecimal.ZERO, order.getTotalAmount())) {// 0 元
             throw new ValidationException("0元订单不能创建交易记录");
         }
         if (refundAmount.compareTo(order.getTotalAmount()) > 0) {
             throw new ValidationException("退款金额不能大于订单金额");
-        }
-        if (NumberUtil.isEquals(BigDecimal.ZERO, refundAmount)) {// 0 元退款
-            order.setStatus(OrderStatus.refunded);
-            this.orderDao.update(order);
-            return this.close(id);
         }
         if (order.getStatus() != OrderStatus.paid) {
             throw new ValidationException("订单" + order.getStatus().getValue() + ",不能继续退款");
