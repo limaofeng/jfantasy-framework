@@ -10,8 +10,6 @@ import org.jfantasy.framework.dao.BaseBusEntity;
 import org.jfantasy.security.bean.databind.MenuDeserializer;
 import org.jfantasy.security.bean.databind.MenuSerializer;
 import org.jfantasy.security.bean.enums.MenuType;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import javax.persistence.*;
 import java.util.List;
@@ -21,7 +19,7 @@ import java.util.List;
  */
 @Entity
 @Table(name = "AUTH_MENU")
-@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "menuAuthoritie", "children"})
+@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "children"})
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Menu extends BaseBusEntity {
 
@@ -83,7 +81,7 @@ public class Menu extends BaseBusEntity {
     /**
      * 上级菜单
      */
-    @JsonProperty("parentId")
+    @JsonProperty("parent_id")
     @JsonSerialize(using = MenuSerializer.class)
     @JsonDeserialize(using = MenuDeserializer.class)
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.REFRESH})
@@ -167,10 +165,6 @@ public class Menu extends BaseBusEntity {
 
     public Menu getParent() {
         return this.parent;
-    }
-
-    public GrantedAuthority getMenuAuthoritie() {
-        return new SimpleGrantedAuthority("MENU_" + getId());
     }
 
     public String getIcon() {
