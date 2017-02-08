@@ -3,12 +3,15 @@ package org.jfantasy.security.rest;
 import io.swagger.annotations.ApiImplicitParam;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
+import org.jfantasy.framework.util.web.WebUtil;
 import org.jfantasy.security.bean.Menu;
 import org.jfantasy.security.service.MenuService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -24,13 +27,14 @@ public class MenuController {
     /**
      * 查询菜单<br/>
      * 筛选文章，返回菜单数组
+     *
      * @param pager
      * @param filters
      * @return
      */
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
+    @ApiImplicitParam(value = "filters", name = "filters", paramType = "query", dataType = "string")
     public List<Menu> search(Pager<Menu> pager, List<PropertyFilter> filters) {
         if (!pager.isOrderBySetted()) {
             pager.setOrder(Pager.SORT_ASC);
@@ -50,6 +54,7 @@ public class MenuController {
 
     /**
      * 删除菜单
+     *
      * @param id
      */
     @RequestMapping(value = "/{id}", method = {RequestMethod.DELETE})
@@ -60,6 +65,7 @@ public class MenuController {
 
     /**
      * 批量删除菜单
+     *
      * @param ids
      */
     @RequestMapping(method = {RequestMethod.DELETE})
@@ -70,6 +76,7 @@ public class MenuController {
 
     /**
      * 添加菜单
+     *
      * @param menu
      * @return
      */
@@ -82,15 +89,16 @@ public class MenuController {
 
     /**
      * 更新菜单
+     *
      * @param id
      * @param menu
      * @return
      */
-    @RequestMapping(value = "/{id}", method = {RequestMethod.PATCH})
+    @RequestMapping(value = "/{id}", method = {RequestMethod.PATCH, RequestMethod.PUT})
     @ResponseBody
-    public Menu update(@PathVariable("id") String id, @RequestBody Menu menu) {
+    public Menu update(@PathVariable("id") String id, @RequestBody Menu menu, HttpServletRequest request) {
         menu.setId(id);
-        return menuService.save(menu);
+        return menuService.update(menu, WebUtil.hasMethod(request, HttpMethod.PATCH.name()));
     }
 
 }
