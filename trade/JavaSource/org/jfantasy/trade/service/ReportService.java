@@ -38,7 +38,7 @@ public class ReportService {
     }
 
     private boolean exists(ReportUnique unique) {
-        if (this.reportUniqueDao.exists(Restrictions.eq("targetType", unique.getTargetType()), Restrictions.eq("targetId", unique.getTargetId()), Restrictions.eq("tag", unique.getTag()))) {
+        if (this.reportUniqueDao.exists(Restrictions.eq("key", unique.getKey()), Restrictions.eq("tag", unique.getTag()))) {
             return true;
         }
         this.reportUniqueDao.insert(unique);
