@@ -15,10 +15,10 @@ public class ConsumerDemo {
     private static final Log logger = LogFactory.getLog(ConsumerDemo.class);
 
     public static void main(String[] args) {
-        CloudAccount account = new CloudAccount("YourAccessId", "YourAccessKey", "MNSEndpoint");
+        CloudAccount account = new CloudAccount("44IzFLqkj8Pw2YOi", "XexMYOXZGBrPgQTUq4HtKuxxl9zMx1", "http://1744260525350210.mns.cn-hangzhou.aliyuncs.com");
         MNSClient client = account.getMNSClient(); // 在程序中，CloudAccount以及MNSClient单例实现即可，多线程安全
         try {
-            CloudQueue queue = client.getQueueRef("TestQueue");
+            CloudQueue queue = client.getQueueRef("demo");
             Message popMsg = queue.popMessage();
             if (popMsg != null) {
                 System.out.println("message handle: " + popMsg.getReceiptHandle());

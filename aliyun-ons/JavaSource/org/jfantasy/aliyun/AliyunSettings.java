@@ -1,12 +1,22 @@
 package org.jfantasy.aliyun;
 
 public class AliyunSettings {
-
+    /**
+     * 访问密钥
+     */
+    private String accessKey;
+    private String secretKey;
+    /**
+     * ONS
+     */
     private String topicId;
     private String producerId;
     private String consumerId;
-    private String accessKey;
-    private String secretKey;
+    /**
+     * MNS
+     */
+    private String accountEndpoint;
+    private String queueName;
 
     public AliyunSettings() {//NOSONAR
     }
@@ -57,5 +67,21 @@ public class AliyunSettings {
 
     public void setTopicId(String topicId) {
         this.topicId = topicId;
+    }
+
+    public String getAccountEndpoint() {
+        return accountEndpoint;
+    }
+
+    public void setAccountEndpoint(String accountEndpoint) {
+        this.accountEndpoint = accountEndpoint;
+    }
+
+    public String getQueueName() {
+        return queueName;
+    }
+
+    public void setQueueName(String queueName) {
+        this.queueName = queueName;
     }
 }

@@ -15,9 +15,9 @@ public class CreateQueueDemo {
     private static final Log logger = LogFactory.getLog(CreateQueueDemo.class);
 
     public static void main(String[] args) {
-        CloudAccount account = new CloudAccount("YourAccessId", "YourAccessKey", "MNSEndpoint");
+        CloudAccount account = new CloudAccount("44IzFLqkj8Pw2YOi", "XexMYOXZGBrPgQTUq4HtKuxxl9zMx1", "MNSEndpoint");
         MNSClient client = account.getMNSClient(); // 在程序中，CloudAccount以及MNSClient单例实现即可，多线程安全
-        String queueName = "TestQueue";
+        String queueName = "demo";
         QueueMeta meta = new QueueMeta(); //生成本地QueueMeta属性，有关队列属性详细介绍见https://help.aliyun.com/document_detail/27476.html
         meta.setQueueName(queueName);  // 设置队列名
         meta.setPollingWaitSeconds(15);
