@@ -4,6 +4,16 @@ public class Message {
 
     private String id;
     private String body;
+    private String tag;
+
+    public Message(String body) {
+        this.body = body;
+    }
+
+    public Message(String body, String tag) {
+        this.body = body;
+        this.tag = tag;
+    }
 
     public Message(com.aliyun.mns.model.Message message) {
         this.id = message.getMessageId();
@@ -24,6 +34,14 @@ public class Message {
 
     public void setBody(String body) {
         this.body = body;
+    }
+
+    public String getTag() {
+        return tag;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
     }
 
 }
