@@ -72,7 +72,7 @@ public class Organization extends BaseBusEntity {
     /**
      * 上级机构
      */
-    @JsonProperty("parentId")
+    @JsonProperty("parent_id")
     @JsonSerialize(using = OrgSerializer.class)
     @JsonDeserialize(using = OrgDeserializer.class)
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.REFRESH})

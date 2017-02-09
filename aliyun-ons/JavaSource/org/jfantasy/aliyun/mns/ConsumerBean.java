@@ -1,16 +1,17 @@
 package org.jfantasy.aliyun.mns;
 
 import com.aliyun.mns.client.CloudQueue;
+import com.aliyun.mns.client.CloudTopic;
 import com.aliyun.mns.client.MNSClient;
 import com.aliyun.mns.common.ClientException;
 import com.aliyun.mns.common.ServiceException;
 import com.aliyun.mns.model.Message;
+import com.aliyun.mns.model.SubscriptionMeta;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfantasy.aliyun.api.Consumer;
 import org.jfantasy.aliyun.api.MessageListener;
-
-import java.util.concurrent.TimeUnit;
+import org.jfantasy.framework.util.common.StringUtil;
 
 public class ConsumerBean implements Consumer {
 
@@ -18,21 +19,50 @@ public class ConsumerBean implements Consumer {
 
     private MessageListener listener;
     private MNSClient client;
+    private String topicName;
     private String queueName;
+    private String subscriptionName;
+    private String filterTag;
 
     public ConsumerBean(MNSClient client, String queueName) {
         this.client = client;
         this.queueName = queueName;
     }
 
+    public ConsumerBean(MNSClient client, String topicName, String queueName, String subscriptionName) {
+        this.client = client;
+        this.topicName = topicName;
+        this.queueName = queueName;
+        this.subscriptionName = subscriptionName;
+    }
+
+    public ConsumerBean(MNSClient client, String topicName, String queueName, String subscriptionName, String filterTag) {
+        this.client = client;
+        this.topicName = topicName;
+        this.queueName = queueName;
+        this.subscriptionName = subscriptionName;
+        this.filterTag = filterTag;
+    }
+
     @Override
     public void start() {
+        if (StringUtil.isNotBlank(this.topicName)) {
+            CloudTopic topic = client.getTopicRef(this.topicName);
+            SubscriptionMeta subMeta = new SubscriptionMeta();
+            subMeta.setSubscriptionName(this.subscriptionName);
+            subMeta.setNotifyContentFormat(SubscriptionMeta.NotifyContentFormat.SIMPLIFIED);
+            subMeta.setEndpoint(topic.generateQueueEndpoint(this.queueName));
+            if (StringUtil.isNotBlank(this.filterTag)) {
+                subMeta.setFilterTag(this.filterTag);
+            }
+            topic.subscribe(subMeta);
+        }
+
         CloudQueue queue = client.getQueueRef(this.queueName);
         do {
             try {
-                Message popMsg = queue.popMessage();
+                Message popMsg = queue.popMessage(30);
                 if (popMsg == null) {
-                    Thread.sleep(TimeUnit.SECONDS.toMillis(10));
                     continue;
                 }
                 if (listener.consume(new org.jfantasy.aliyun.api.Message(popMsg))) {
@@ -51,7 +81,7 @@ public class ConsumerBean implements Consumer {
                     }
                 }
             } catch (Exception e) {
-                LOGGER.error("Unknown exception happened!",e);
+                LOGGER.error("Unknown exception happened!", e);
             }
         } while (client.isOpen());
     }
