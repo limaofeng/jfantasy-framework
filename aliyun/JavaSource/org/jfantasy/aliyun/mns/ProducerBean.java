@@ -33,14 +33,14 @@ public class ProducerBean implements Producer {
     public void start() {
         if (this.mode == Mode.queue) {
             this.queue = client.getQueueRef(this.name);
-            if(this.queue == null) {
+            if (this.queue == null || !this.queue.isQueueExist()) {
                 QueueMeta queueMeta = new QueueMeta();
                 queueMeta.setQueueName(this.name);
                 this.queue = client.createQueue(queueMeta);
             }
         } else {
             this.topic = client.getTopicRef(this.name);
-            if(this.topic == null) {
+            if (this.topic == null) {
                 TopicMeta topicMeta = new TopicMeta();
                 topicMeta.setTopicName(this.name);
                 this.topic = client.createTopic(topicMeta);

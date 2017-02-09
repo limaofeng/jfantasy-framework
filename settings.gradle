@@ -15,7 +15,7 @@ include ':jfantasy-weixin'
 include ':jfantasy-file-sdk'
 include ':jfantasy-common-sdk'
 
-include ':jfantasy-aliyun-ons'
+include ':jfantasy-aliyun'
 
 include ':jfantasy-rpc-common'
 include ':jfantasy-rpc-server'
@@ -39,7 +39,7 @@ project(':jfantasy-weixin').projectDir = "$rootDir/weixin" as File
 project(':jfantasy-file-sdk').projectDir = "$rootDir/file-sdk" as File
 project(':jfantasy-common-sdk').projectDir = "$rootDir/common-sdk" as File
 
-project(':jfantasy-aliyun-ons').projectDir = "$rootDir/aliyun-ons" as File
+project(':jfantasy-aliyun').projectDir = "$rootDir/aliyun" as File
 
 // RPC 调用
 project(':jfantasy-rpc-common').projectDir = "$rootDir/rpc-common" as File

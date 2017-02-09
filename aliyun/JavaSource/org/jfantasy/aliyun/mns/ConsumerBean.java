@@ -54,7 +54,7 @@ public class ConsumerBean implements Consumer {
     public void start() {
         // step 1 : 创建队列
         this.queue = client.getQueueRef(this.queueName);
-        if(this.queue == null) {
+        if(this.queue == null || !this.queue.isQueueExist()) {
             QueueMeta queueMeta = new QueueMeta();
             queueMeta.setQueueName(this.queueName);
             queue = client.createQueue(queueMeta);

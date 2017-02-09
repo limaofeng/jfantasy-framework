@@ -35,10 +35,6 @@ public class ProducerDemo {
                 } else if (se.getErrorCode().equals("TimeExpired")) {
                     System.out.println("The request is time expired. Please check your local machine timeclock");
                 }
-            /*
-            you can get more MNS service error code from following link:
-            https://help.aliyun.com/document_detail/mns/api_reference/error_code/error_code.html
-            */
             }
         } catch (Exception e) {
             System.out.println("Unknown exception happened!");

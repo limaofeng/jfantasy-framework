@@ -3,6 +3,7 @@ package org.jfantasy.system.rest;
 import io.swagger.annotations.ApiImplicitParam;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
+import org.jfantasy.framework.spring.mvc.error.NotFoundException;
 import org.jfantasy.system.bean.DataDictionary;
 import org.jfantasy.system.bean.DataDictionaryKey;
 import org.jfantasy.system.service.DataDictionaryService;
@@ -19,8 +20,12 @@ import java.util.List;
 @RequestMapping("/system/dds")
 public class DataDictionaryController {
 
+    private final DataDictionaryService dataDictionaryService;
+
     @Autowired
-    private DataDictionaryService dataDictionaryService;
+    public DataDictionaryController(DataDictionaryService dataDictionaryService) {
+        this.dataDictionaryService = dataDictionaryService;
+    }
 
     /**
      * 获取数据项<br/>
@@ -33,19 +38,24 @@ public class DataDictionaryController {
     @RequestMapping(value = "/{type}:{code}", method = RequestMethod.GET)
     @ResponseBody
     public DataDictionary view(@PathVariable("type") String type, @PathVariable("code") String code) {
-        return this.dataDictionaryService.get(DataDictionaryKey.newInstance(code, type));
+        DataDictionary dictionary = this.dataDictionaryService.get(DataDictionaryKey.newInstance(code, type));
+        if (dictionary == null) {
+            throw new NotFoundException(String.format("id=%s不存在", type + ":" + code));
+        }
+        return dictionary;
     }
 
     /**
      * 查询数据字典<br/>
      * 通过该接口, 可以筛选需要的数据字典项。
+     *
      * @param pager
      * @param filters
      * @return
      */
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
+    @ApiImplicitParam(value = "filters", name = "filters", paramType = "query", dataType = "string")
     public Pager<DataDictionary> search(Pager<DataDictionary> pager, List<PropertyFilter> filters) {
         return this.dataDictionaryService.findPager(pager, filters);
     }
@@ -53,6 +63,7 @@ public class DataDictionaryController {
     /**
      * 更新数据项 <br/>
      * 通过该接口, 可以更新新的数据项。
+     *
      * @param type
      * @param code
      * @param dataDictionary
