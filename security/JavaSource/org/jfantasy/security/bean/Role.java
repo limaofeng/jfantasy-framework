@@ -62,8 +62,8 @@ public class Role extends BaseBusEntity {
     @JoinTable(name = "AUTH_ROLE_USER", joinColumns = @JoinColumn(name = "ROLE_CODE"), inverseJoinColumns = @JoinColumn(name = "USER_ID"), foreignKey = @ForeignKey(name = "FK_ROLE_USER_RCODE"))
     private List<User> users;
 
-    @ManyToMany(targetEntity = User.class, fetch = FetchType.LAZY)
-    @JoinTable(name = "AUTH_ROLE_USER", joinColumns = @JoinColumn(name = "ROLE_CODE"), inverseJoinColumns = @JoinColumn(name = "JOB_ID"), foreignKey = @ForeignKey(name = "FK_ROLE_JOB_RCODE"))
+    @ManyToMany(targetEntity = Job.class, fetch = FetchType.LAZY)
+    @JoinTable(name = "AUTH_ROLE_JOB", joinColumns = @JoinColumn(name = "ROLE_CODE"), inverseJoinColumns = @JoinColumn(name = "JOB_ID"), foreignKey = @ForeignKey(name = "FK_ROLE_JOB_RID"))
     private List<Job> jobs;
 
     public List<Menu> getMenus() {
