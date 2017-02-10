@@ -11,7 +11,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "AUTH_ROLE")
-@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "menus", "permissions", "users", "members","roleAuthorities"})
+@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "menus", "permissions", "users", "jobs", "members", "roleAuthorities"})
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Role extends BaseBusEntity {
 
@@ -22,7 +22,7 @@ public class Role extends BaseBusEntity {
      */
     @Id
     @Column(name = "CODE")
-    private String code;
+    private String id;
     /**
      * 角色名称
      */
@@ -47,7 +47,7 @@ public class Role extends BaseBusEntity {
      * 角色对应的菜单
      */
     @ManyToMany(targetEntity = Menu.class, fetch = FetchType.LAZY)
-    @JoinTable(name = "AUTH_ROLE_MENU", joinColumns = @JoinColumn(name = "ROLE_CODE"), inverseJoinColumns = @JoinColumn(name = "MENU_ID"),foreignKey = @ForeignKey(name = "FK_ROLE_MENU_RCODE") )
+    @JoinTable(name = "AUTH_ROLE_MENU", joinColumns = @JoinColumn(name = "ROLE_CODE"), inverseJoinColumns = @JoinColumn(name = "MENU_ID"), foreignKey = @ForeignKey(name = "FK_ROLE_MENU_RCODE"))
     private List<Menu> menus;
     /**
      * 角色对应的资源
@@ -59,8 +59,12 @@ public class Role extends BaseBusEntity {
      * 对应的用户
      */
     @ManyToMany(targetEntity = User.class, fetch = FetchType.LAZY)
-    @JoinTable(name = "AUTH_ROLE_USER", joinColumns = @JoinColumn(name = "ROLE_CODE"), inverseJoinColumns = @JoinColumn(name = "USER_ID"),foreignKey = @ForeignKey(name = "FK_ROLE_USER_RCODE") )
+    @JoinTable(name = "AUTH_ROLE_USER", joinColumns = @JoinColumn(name = "ROLE_CODE"), inverseJoinColumns = @JoinColumn(name = "USER_ID"), foreignKey = @ForeignKey(name = "FK_ROLE_USER_RCODE"))
     private List<User> users;
+
+    @ManyToMany(targetEntity = User.class, fetch = FetchType.LAZY)
+    @JoinTable(name = "AUTH_ROLE_USER", joinColumns = @JoinColumn(name = "ROLE_CODE"), inverseJoinColumns = @JoinColumn(name = "JOB_ID"), foreignKey = @ForeignKey(name = "FK_ROLE_JOB_RCODE"))
+    private List<Job> jobs;
 
     public List<Menu> getMenus() {
         return menus;
@@ -70,12 +74,12 @@ public class Role extends BaseBusEntity {
         this.menus = menus;
     }
 
-    public String getCode() {
-        return this.code;
+    public String getId() {
+        return this.id;
     }
 
-    public void setCode(String code) {
-        this.code = code;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -131,21 +135,29 @@ public class Role extends BaseBusEntity {
         this.type = type;
     }
 
+    public List<Job> getJobs() {
+        return jobs;
+    }
+
+    public void setJobs(List<Job> jobs) {
+        this.jobs = jobs;
+    }
+
     public String getAuthority() {
-        return "ROLE_" + getCode();
+        return "ROLE_" + getId();
     }
 
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof Role) {
-            return this.code.equals(((Role) obj).getCode());
+            return this.id.equals(((Role) obj).getId());
         }
         return super.equals(obj);
     }
 
     @Override
     public int hashCode() {
-        return StringUtil.isNotBlank(code) ? code.hashCode() : super.hashCode();
+        return StringUtil.isNotBlank(id) ? id.hashCode() : super.hashCode();
     }
 
 }
