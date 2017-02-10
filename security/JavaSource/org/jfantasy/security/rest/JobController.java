@@ -62,10 +62,10 @@ public class JobController {
         return jobService.addRoles(id,roles);
     }
 
-    @DeleteMapping("/{id}/roles")
+    @DeleteMapping("/{id}/roles/{role}")
     @ResponseBody
-    public List<Role> rroles(@PathVariable("id") String id, @RequestBody String... roles) {
-        return jobService.removeRoles(id,roles);
+    public List<Role> rroles(@PathVariable("id") String id, @PathVariable String role) {
+        return jobService.removeRoles(id,role);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
