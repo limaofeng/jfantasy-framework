@@ -21,12 +21,12 @@ public class Role extends BaseBusEntity {
      * 角色编码
      */
     @Id
-    @Column(name = "CODE")
+    @Column(name = "CODE",length = 32)
     private String id;
     /**
      * 角色名称
      */
-    @Column(name = "NAME")
+    @Column(name = "NAME",length = 50)
     private String name;
     /**
      * 角色类型，用于区分不同类型的角色。比如：后台管理与前台会员之间的角色
@@ -41,7 +41,7 @@ public class Role extends BaseBusEntity {
     /**
      * 描述信息
      */
-    @Column(name = "DESCRIPTION")
+    @Column(name = "DESCRIPTION",length = 250)
     private String description;
     /**
      * 角色对应的菜单

@@ -36,18 +36,18 @@ public class JobService {
         return this.jobDao.save(job);
     }
 
-    public Job get(Long id) {
+    public Job get(String id) {
         return this.jobDao.get(id);
     }
 
-    public void delete(Long... ids) {
-        for (Long id : ids) {
+    public void delete(String... ids) {
+        for (String id : ids) {
             this.jobDao.delete(id);
         }
     }
 
-    public Job findUnique(String code) {
-        return this.jobDao.findUnique(Restrictions.eq("code", code));
+    public Job findUnique(String id) {
+        return this.jobDao.findUnique(Restrictions.eq("id", id));
     }
 
     public Job update(Job job, boolean patch) {

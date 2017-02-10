@@ -31,7 +31,7 @@ public class JobController {
 
     @RequestMapping(value = "/{id}", method = {RequestMethod.GET})
     @ResponseBody
-    public Job view(@PathVariable("id") Long id) {
+    public Job view(@PathVariable("id") String id) {
         return jobService.get(id);
     }
 
@@ -44,14 +44,14 @@ public class JobController {
 
     @RequestMapping(value = "/{id}", method = {RequestMethod.PATCH, RequestMethod.PUT})
     @ResponseBody
-    public Job update(@PathVariable("id") Long id, @RequestBody Job job, HttpServletRequest request) {
+    public Job update(@PathVariable("id") String id, @RequestBody Job job, HttpServletRequest request) {
         job.setId(id);
         return jobService.update(job, WebUtil.hasMethod(request,RequestMethod.PATCH.name()));
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable("id") Long id) {
+    public void delete(@PathVariable("id") String id) {
         this.jobService.delete(id);
     }
 

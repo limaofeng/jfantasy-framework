@@ -54,7 +54,7 @@ public class RoleController {
     @RequestMapping(value = "/{code}", method = {RequestMethod.PATCH})
     @ResponseBody
     public Role update(@PathVariable("code") String code, @RequestBody Role role) {
-        role.setCode(code);
+        role.setId(code);
         return roleService.save(role);
     }
 
