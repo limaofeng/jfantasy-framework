@@ -4,7 +4,9 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
+import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.security.bean.Job;
+import org.jfantasy.security.bean.Role;
 import org.jfantasy.security.dao.JobDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,7 @@ import java.util.List;
 public class JobService {
 
     private final JobDao jobDao;
+    private RoleService roleService;
 
     @Autowired
     public JobService(JobDao jobDao) {
@@ -52,6 +55,31 @@ public class JobService {
 
     public Job update(Job job, boolean patch) {
         return this.jobDao.update(job, patch);
+    }
+
+    public List<Role> addRoles(String id, String[] roles) {
+        Job job = this.jobDao.get(id);
+        for(String role : roles){
+            if(!ObjectUtil.exists(job.getRoles(),"id",role)){
+                job.getRoles().add(this.roleService.get(role));
+            }
+        }
+        this.jobDao.update(job);
+        return job.getRoles();
+    }
+
+    @Autowired
+    public void setRoleService(RoleService roleService) {
+        this.roleService = roleService;
+    }
+
+    public List<Role> removeRoles(String id, String... roles) {
+        Job job = this.jobDao.get(id);
+        for(String role : roles){
+            ObjectUtil.remove(job.getRoles(),"id",role);
+        }
+        this.jobDao.update(job);
+        return job.getRoles();
     }
 
 }

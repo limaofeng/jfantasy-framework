@@ -4,6 +4,7 @@ import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.util.web.WebUtil;
 import org.jfantasy.security.bean.Job;
+import org.jfantasy.security.bean.Role;
 import org.jfantasy.security.service.JobService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -47,6 +48,24 @@ public class JobController {
     public Job update(@PathVariable("id") String id, @RequestBody Job job, HttpServletRequest request) {
         job.setId(id);
         return jobService.update(job, WebUtil.hasMethod(request,RequestMethod.PATCH.name()));
+    }
+
+    @GetMapping("/{id}/roles")
+    @ResponseBody
+    public List<Role> roles(@PathVariable("id") String id) {
+        return jobService.get(id).getRoles();
+    }
+
+    @PostMapping("/{id}/roles")
+    @ResponseBody
+    public List<Role> roles(@PathVariable("id") String id, @RequestBody String... roles) {
+        return jobService.addRoles(id,roles);
+    }
+
+    @DeleteMapping("/{id}/roles")
+    @ResponseBody
+    public List<Role> rroles(@PathVariable("id") String id, @RequestBody String... roles) {
+        return jobService.removeRoles(id,roles);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
