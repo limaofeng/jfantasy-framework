@@ -22,7 +22,7 @@ public class Account extends BaseBusEntity {
      * 编号
      */
     @Id
-    @Column(name = "ID", updatable = false,length = 32)
+    @Column(name = "ID", updatable = false, length = 32)
     @GeneratedValue(generator = "serialnumber")
     @GenericGenerator(name = "serialnumber", strategy = "serialnumber", parameters = {@Parameter(name = "expression", value = "#DateUtil.format('yyyyMMdd') + #StringUtil.addZeroLeft(#SequenceInfo.nextValue('PAY-ACCOUNT-SN' + #DateUtil.format('yyyyMMdd')), 8)")})
     private String sn;
@@ -35,7 +35,7 @@ public class Account extends BaseBusEntity {
     /**
      * 账户状态
      */
-    @Column(name = "STATUS",length = 10)
+    @Column(name = "STATUS", length = 10)
     @Enumerated(EnumType.STRING)
     private AccountStatus status;
     /**
@@ -57,26 +57,34 @@ public class Account extends BaseBusEntity {
     /**
      * 所有者
      */
-    @Column(name = "OWNER",length = 10, nullable = false, updatable = false,unique = true)
+    @Column(name = "OWNER", length = 10, nullable = false, updatable = false, unique = true)
     private String owner;
     /**
      * 所有者ID
      */
-    @Column(name = "OWNER_ID",length = 32, nullable = false)
+    @Column(name = "OWNER_ID", length = 32, nullable = false)
     private String ownerId;
     /**
      * 所有者类型
      */
-    @Column(name = "OWNER_TYPE",length = 10, nullable = false)
+    @Column(name = "OWNER_TYPE", length = 10, nullable = false)
     private String ownerType;
     /**
      * 所有者名称
      */
-    @Column(name = "OWNER_NAME",length = 50, nullable = false)
+    @Column(name = "OWNER_NAME", length = 50, nullable = false)
     private String ownerName;
     @Version
     @Column(name = "OPTLOCK")
     private Integer version;
+
+    public Account() {
+    }
+
+    public Account(String id) {
+        super();
+        this.setSn(id);
+    }
 
     public AccountStatus getStatus() {
         return status;

@@ -25,7 +25,7 @@ import java.util.*;
  */
 @Entity
 @Table(name = "PAY_TRANSACTION")
-@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "payments", "refunds", "union_id", "order"})
+@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "payments", "refunds", "union_id", "order","from_account","to_account"})
 public class Transaction extends BaseBusEntity {
 
     private static final long serialVersionUID = 3296031463173407900L;
@@ -57,13 +57,15 @@ public class Transaction extends BaseBusEntity {
     /**
      * 转出账号<br/> 充值时,可以为空
      */
-    @Column(name = "FROM_ACCOUNT", length = 32)
-    private String from;
+    @ManyToOne
+    @JoinColumn(name = "FROM_ACCOUNT", foreignKey = @ForeignKey(name = "FK_TRANSACTION_ACCOUNT_FROM"))
+    private Account fromAccount;
     /**
      * 转入账号<br/>
      */
-    @Column(name = "TO_ACCOUNT", length = 32)
-    private String to;
+    @ManyToOne
+    @JoinColumn(name = "TO_ACCOUNT", foreignKey = @ForeignKey(name = "FK_TRANSACTION_ACCOUNT_TO"))
+    private Account toAccount;
     /**
      * 交易项目(转账/提现等)
      */
@@ -147,19 +149,19 @@ public class Transaction extends BaseBusEntity {
     }
 
     public String getFrom() {
-        return from;
+        return fromAccount.getSn();
     }
 
     public void setFrom(String from) {
-        this.from = from;
+        this.fromAccount = new Account(from);
     }
 
     public String getTo() {
-        return to;
+        return toAccount.getSn();
     }
 
     public void setTo(String to) {
-        this.to = to;
+        this.toAccount = new Account(to);
     }
 
     public BigDecimal getAmount() {
@@ -298,6 +300,22 @@ public class Transaction extends BaseBusEntity {
     @Transient
     public String getOrderId() {
         return this.getOrder() != null ? this.getOrder().getId() : null;
+    }
+
+    public Account getFromAccount() {
+        return fromAccount;
+    }
+
+    public void setFromAccount(Account fromAccount) {
+        this.fromAccount = fromAccount;
+    }
+
+    public Account getToAccount() {
+        return toAccount;
+    }
+
+    public void setToAccount(Account toAccount) {
+        this.toAccount = toAccount;
     }
 
     @Transient

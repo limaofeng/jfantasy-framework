@@ -15,13 +15,27 @@ public class TransactionDao extends HibernateDao<Transaction, String> {
 
     @Override
     protected Criterion[] buildPropertyFilterCriterions(List<PropertyFilter> filters) {
+        Criterion[] criterions = new Criterion[0];
+
         PropertyFilter filter = ObjectUtil.remove(filters, "filterName", "EQS_account.sn");
-        Criterion[] criterions = super.buildPropertyFilterCriterions(filters);
         if (filter != null) {
             String accountSn = filter.getPropertyValue(String.class);
-            criterions = ObjectUtil.join(criterions, Restrictions.or(Restrictions.eq("from", accountSn), Restrictions.eq("to", accountSn)));
+            criterions = ObjectUtil.join(criterions, Restrictions.or(Restrictions.eq("fromAccount.sn", accountSn), Restrictions.eq("toAccount.sn", accountSn)));
         }
-        return criterions;
+
+        filter = ObjectUtil.remove(filters, "filterName", "EQS_from");
+        if (filter != null) {
+            String from = filter.getPropertyValue(String.class);
+            criterions = ObjectUtil.join(criterions, Restrictions.eq("fromAccount.sn", from));
+        }
+
+        filter = ObjectUtil.remove(filters, "filterName", "EQS_to");
+        if (filter != null) {
+            String to = filter.getPropertyValue(String.class);
+            criterions = ObjectUtil.join(criterions, Restrictions.eq("toAccount.sn", to));
+        }
+
+        return ObjectUtil.join(super.buildPropertyFilterCriterions(filters),criterions);
     }
 
 }
