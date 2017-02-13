@@ -105,6 +105,7 @@ public class AccountService {
         old.setOwnerId(account.getOwnerId());
         old.setOwnerType(account.getOwnerType());
         old.setOwnerName(account.getOwnerName());
+        account.setOwnerPhone(account.getOwnerPhone());
         this.accountDao.update(old);
     }
 

@@ -115,22 +115,20 @@ public class MemberService {
      * @return Member
      */
     public Member save(Member member) {
-        if (Member.MEMBER_TYPE_PERSONAL.equals(member.getType())) {
-            MemberDetails details = ObjectUtil.defaultValue(member.getDetails(), new MemberDetails());
-            // 设置默认属性
-            details.setMailValid(false);
-            details.setMobileValid(false);
-            details.setLevel(0L);
-            // 如果用email注册
-            if (RegexpUtil.isMatch(member.getUsername(), RegexpCst.VALIDATOR_EMAIL)) {
-                details.setEmail(member.getUsername());
-            }
-            // 如果用手机注册
-            if (RegexpUtil.isMatch(member.getUsername(), RegexpCst.VALIDATOR_MOBILE)) {
-                details.setMobile(member.getUsername());
-            }
-            member.setDetails(details);
+        MemberDetails details = ObjectUtil.defaultValue(member.getDetails(), new MemberDetails());
+        // 设置默认属性
+        details.setMailValid(false);
+        details.setMobileValid(false);
+        details.setLevel(0L);
+        // 如果用email注册
+        if (RegexpUtil.isMatch(member.getUsername(), RegexpCst.VALIDATOR_EMAIL)) {
+            details.setEmail(member.getUsername());
         }
+        // 如果用手机注册
+        if (RegexpUtil.isMatch(member.getUsername(), RegexpCst.VALIDATOR_MOBILE)) {
+            details.setMobile(member.getUsername());
+        }
+        member.setDetails(details);
 
         // 默认昵称与用户名一致
         if (StringUtil.isBlank(member.getNickName())) {

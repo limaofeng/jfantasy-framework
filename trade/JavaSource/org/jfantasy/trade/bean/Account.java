@@ -74,6 +74,11 @@ public class Account extends BaseBusEntity {
      */
     @Column(name = "OWNER_NAME", length = 50, nullable = false)
     private String ownerName;
+    /**
+     * 所有者的手机号
+     */
+    @Column(name = "OWNER_PHONE", length = 50)
+    private String ownerPhone;
     @Version
     @Column(name = "OPTLOCK")
     private Integer version;
@@ -174,4 +179,11 @@ public class Account extends BaseBusEntity {
         this.ownerName = ownerName;
     }
 
+    public String getOwnerPhone() {
+        return ownerPhone;
+    }
+
+    public void setOwnerPhone(String ownerPhone) {
+        this.ownerPhone = ownerPhone;
+    }
 }
