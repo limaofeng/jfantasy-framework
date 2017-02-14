@@ -13,8 +13,8 @@ import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.security.bean.Role;
 import org.jfantasy.security.bean.User;
 import org.jfantasy.security.bean.UserDetails;
+import org.jfantasy.security.bean.enums.UserType;
 import org.jfantasy.security.rest.models.PasswordForm;
-import org.jfantasy.security.rest.models.assembler.UserDetailsResourceAssembler;
 import org.jfantasy.security.rest.models.assembler.UserResourceAssembler;
 import org.jfantasy.security.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,6 @@ import java.util.*;
 public class UserController {
 
     public static UserResourceAssembler assembler = new UserResourceAssembler();
-    private UserDetailsResourceAssembler userDetailsResourceAssembler = new UserDetailsResourceAssembler();
 
     private final UserService userService;
 
@@ -81,8 +80,13 @@ public class UserController {
      * @return
      */
     @RequestMapping(value = "/{id}/profile", method = RequestMethod.GET)
-    public ResultResourceSupport profile(@PathVariable("id") Long id) {
-        return userDetailsResourceAssembler.toResource(this.userService.get(id).getDetails());
+    public Object profile(@PathVariable("id") Long id) {
+        User user = this.userService.get(id);
+        if(user.getUserType() == UserType.employee){
+            return user.getEmployee();
+        }else {
+            return user.getDetails();
+        }
     }
 
     /**

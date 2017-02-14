@@ -1,12 +1,12 @@
 package org.jfantasy.security.rest;
 
-import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.util.web.WebUtil;
 import org.jfantasy.security.bean.Job;
 import org.jfantasy.security.bean.Role;
 import org.jfantasy.security.service.JobService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,8 +26,8 @@ public class JobController {
 
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    public Pager<Job> search(Pager<Job> pager, List<PropertyFilter> filters) {
-        return this.jobService.findPager(pager, filters);
+    public List<Job> search(List<PropertyFilter> filters) {
+        return this.jobService.find(filters);
     }
 
     @RequestMapping(value = "/{id}", method = {RequestMethod.GET})
@@ -56,16 +56,16 @@ public class JobController {
         return jobService.get(id).getRoles();
     }
 
-    @PostMapping("/{id}/roles")
+    @RequestMapping(value = "/{id}/roles", method = {RequestMethod.POST, RequestMethod.PATCH})
     @ResponseBody
-    public List<Role> roles(@PathVariable("id") String id, @RequestBody String... roles) {
-        return jobService.addRoles(id,roles);
+    public List<Role> roles(@PathVariable("id") String id, @RequestBody String[] roles,HttpServletRequest request) {
+        return jobService.addRoles(id,WebUtil.hasMethod(request, HttpMethod.POST.name()),roles);
     }
 
-    @DeleteMapping("/{id}/roles/{role}")
+    @DeleteMapping("/{id}/roles")
     @ResponseBody
-    public List<Role> rroles(@PathVariable("id") String id, @PathVariable String role) {
-        return jobService.removeRoles(id,role);
+    public List<Role> rroles(@PathVariable("id") String id,  @RequestParam(value = "role") String[] roles) {
+        return jobService.removeRoles(id,roles);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)

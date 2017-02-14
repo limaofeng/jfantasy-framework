@@ -1,7 +1,6 @@
 package org.jfantasy.security.service;
 
 import org.hibernate.criterion.Criterion;
-import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.security.bean.Organization;
 import org.jfantasy.security.dao.OrganizationDao;
@@ -26,8 +25,8 @@ public class OrganizationService {
         return this.organizationDao.get(id);
     }
 
-    public Pager<Organization> findPager(Pager<Organization> pager, List<PropertyFilter> filters) {
-        return this.organizationDao.findPager(pager, filters);
+    public List<Organization> findPager(List<PropertyFilter> filters) {
+        return this.organizationDao.find(filters);
     }
 
     public Organization save(Organization organization) {

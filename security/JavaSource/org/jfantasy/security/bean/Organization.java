@@ -85,11 +85,12 @@ public class Organization extends BaseBusEntity {
     @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE})
     @OrderBy("sort ASC")
     private List<Organization> children;
-
+    /**
+     * 对于的岗位
+     */
     @JsonInclude(content = JsonInclude.Include.NON_NULL)
     @OneToMany(mappedBy = "organization", fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE})
     private List<Job> jobs;
-
     /**
      * 用户
      */

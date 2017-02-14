@@ -31,6 +31,10 @@ public class JobService {
         return this.jobDao.findPager(pager, filters);
     }
 
+    public List<Job> find(List<PropertyFilter> filters) {
+        return this.jobDao.find(filters);
+    }
+
     public List<Job> find(Criterion... criterions) {
         return this.jobDao.find(criterions);
     }
@@ -57,10 +61,13 @@ public class JobService {
         return this.jobDao.update(job, patch);
     }
 
-    public List<Role> addRoles(String id, String[] roles) {
+    public List<Role> addRoles(String id, boolean clear, String[] roles) {
         Job job = this.jobDao.get(id);
-        for(String role : roles){
-            if(!ObjectUtil.exists(job.getRoles(),"id",role)){
+        if (clear) {
+            job.getRoles().clear();
+        }
+        for (String role : roles) {
+            if (!ObjectUtil.exists(job.getRoles(), "id", role)) {
                 job.getRoles().add(this.roleService.get(role));
             }
         }
@@ -75,11 +82,10 @@ public class JobService {
 
     public List<Role> removeRoles(String id, String... roles) {
         Job job = this.jobDao.get(id);
-        for(String role : roles){
-            ObjectUtil.remove(job.getRoles(),"id",role);
+        for (String role : roles) {
+            ObjectUtil.remove(job.getRoles(), "id", role);
         }
         this.jobDao.update(job);
         return job.getRoles();
     }
-
 }

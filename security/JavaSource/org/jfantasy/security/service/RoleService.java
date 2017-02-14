@@ -14,8 +14,12 @@ import java.util.List;
 @Transactional
 public class RoleService {
 
+    private final RoleDao roleDao;
+
     @Autowired
-    private RoleDao roleDao;
+    public RoleService(RoleDao roleDao) {
+        this.roleDao = roleDao;
+    }
 
     public List<Role> getAll() {
         return roleDao.findBy("enabled", true);
@@ -27,6 +31,10 @@ public class RoleService {
 
     public Role save(Role role) {
         return roleDao.save(role);
+    }
+
+    public Role update(Role role) {
+        return this.roleDao.update(role);
     }
 
     public Role get(String id) {

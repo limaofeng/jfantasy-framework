@@ -5,15 +5,18 @@ import org.hibernate.criterion.Restrictions;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.util.common.ObjectUtil;
+import org.jfantasy.framework.util.web.WebUtil;
 import org.jfantasy.security.bean.Menu;
 import org.jfantasy.security.bean.Permission;
 import org.jfantasy.security.bean.Role;
 import org.jfantasy.security.service.PermissionService;
 import org.jfantasy.security.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
@@ -21,20 +24,21 @@ import java.util.List;
 public class RoleController {
 
     @Autowired
-    private transient RoleService roleService;
+    private RoleService roleService;
     @Autowired
-    private transient PermissionService permissionService;
+    private PermissionService permissionService;
 
     /**
      * 按条件角色
-     * @param pager
-     * @param filters
-     * @return
+     *
+     * @param pager   翻页对象
+     * @param filters 筛选
+     * @return Pager
      */
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
-    public Pager<Role> search(Pager<Role> pager,List<PropertyFilter> filters) {
+    @ApiImplicitParam(value = "filters", name = "filters", paramType = "query", dataType = "string")
+    public Pager<Role> search(Pager<Role> pager, List<PropertyFilter> filters) {
         return this.roleService.findPager(pager, filters);
     }
 
@@ -72,6 +76,7 @@ public class RoleController {
 
     /**
      * 返回角色的授权菜单
+     *
      * @param code
      * @return
      */
@@ -83,23 +88,41 @@ public class RoleController {
 
     /**
      * 更新角色菜单权限
+     *
      * @param code
      * @param menuIds
      * @return
      */
-    @RequestMapping(value = "/{code}/menus", method = {RequestMethod.PATCH})
+    @RequestMapping(value = "/{code}/menus", method = {RequestMethod.POST, RequestMethod.PATCH})
     @ResponseBody
-    public String[] menus(@PathVariable("code") String code, @RequestBody String[] menuIds) {
+    public String[] menus(@PathVariable("code") String code, @RequestBody String[] menuIds, HttpServletRequest request) {
         Role role = this.roleService.get(code);
-        role.getMenus().clear();
+        if (WebUtil.hasMethod(request, HttpMethod.POST.name())) {
+            role.getMenus().clear();
+        }
         for (String menuId : menuIds) {
             role.getMenus().add(new Menu(menuId));
         }
-        return ObjectUtil.toFieldArray(this.roleService.save(role).getMenus(), "id", String.class);
+        return ObjectUtil.toFieldArray(this.roleService.update(role).getMenus(), "id", String.class);
+    }
+
+    @RequestMapping(value = "/{code}/menus", method = RequestMethod.DELETE)
+    @ResponseBody
+    public String[] menus(@PathVariable("code") String code, @RequestParam(value = "id") String[] menuIds) {
+        Role role = this.roleService.get(code);
+        if (menuIds.length == 1 && "clear".equals(menuIds[0])) {
+            role.getMenus().clear();
+        } else {
+            for (String menuId : menuIds) {
+                ObjectUtil.remove(role.getMenus(), "id", menuId);
+            }
+        }
+        return ObjectUtil.toFieldArray(this.roleService.update(role).getMenus(), "id", String.class);
     }
 
     /**
      * 返回角色权限
+     *
      * @param code
      * @return
      */
@@ -111,6 +134,7 @@ public class RoleController {
 
     /**
      * 为角色添加权限
+     *
      * @param code
      * @param permissionId
      * @return

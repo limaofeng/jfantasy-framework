@@ -47,7 +47,7 @@ public class Role extends BaseBusEntity {
      * 角色对应的菜单
      */
     @ManyToMany(targetEntity = Menu.class, fetch = FetchType.LAZY)
-    @JoinTable(name = "AUTH_ROLE_MENU", joinColumns = @JoinColumn(name = "ROLE_CODE"), inverseJoinColumns = @JoinColumn(name = "MENU_ID"), foreignKey = @ForeignKey(name = "FK_ROLE_MENU_RCODE"))
+    @JoinTable(name = "AUTH_ROLE_MENU", joinColumns = @JoinColumn(name = "ROLE_CODE"), inverseJoinColumns = @JoinColumn(name = "MENU_ID"), foreignKey = @ForeignKey(name = "FK_ROLE_MENU"))
     private List<Menu> menus;
     /**
      * 角色对应的资源
@@ -61,7 +61,9 @@ public class Role extends BaseBusEntity {
     @ManyToMany(targetEntity = User.class, fetch = FetchType.LAZY)
     @JoinTable(name = "AUTH_ROLE_USER", joinColumns = @JoinColumn(name = "ROLE_CODE"), inverseJoinColumns = @JoinColumn(name = "USER_ID"), foreignKey = @ForeignKey(name = "FK_ROLE_USER_RCODE"))
     private List<User> users;
-
+    /**
+     * 角色对于的岗位
+     */
     @ManyToMany(targetEntity = Job.class, fetch = FetchType.LAZY)
     @JoinTable(name = "AUTH_ROLE_JOB", joinColumns = @JoinColumn(name = "ROLE_CODE"), inverseJoinColumns = @JoinColumn(name = "JOB_ID"), foreignKey = @ForeignKey(name = "FK_ROLE_JOB_RID"))
     private List<Job> jobs;
