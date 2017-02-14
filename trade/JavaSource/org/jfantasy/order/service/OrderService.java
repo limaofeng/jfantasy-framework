@@ -313,6 +313,11 @@ public class OrderService {
         }
     }
 
+    public Long getDrawer(Order order) {
+        OrderType type = this.orderTypeService.get(order.getType());
+        OrderPayeeValue drawer = ObjectUtil.find(order.getPayees(), "code", type.getDrawer());
+        return drawer != null && drawer.getPayee().getType() == PayeeType.member ? Long.valueOf(drawer.getValue()) : null;
+    }
 
     /**
      * 新订单
@@ -344,8 +349,6 @@ public class OrderService {
         order.setMemberId(memberId);
         // 订单扩展字段
         order.setAttrs(details.getAttrs());
-        // 收款方
-        order.setPayee(-1L);
         // 初始化收货人信息
         if (receiverId != null) {
             Receiver receiver = receiverService.get(receiverId);

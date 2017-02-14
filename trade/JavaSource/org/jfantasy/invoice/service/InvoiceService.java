@@ -51,7 +51,7 @@ public class InvoiceService {
                 throw new ValidationException(100000, "只能为自己的订单申请发票");
             }
             //自动拆单逻辑
-            Long drawer = order.getPayee();
+            Long drawer = order.getDrawer();
             Invoice tinvoice = invoices.get(drawer);
             if (tinvoice == null) {
                 tinvoice = BeanUtil.copyProperties(new Invoice(), invoice);

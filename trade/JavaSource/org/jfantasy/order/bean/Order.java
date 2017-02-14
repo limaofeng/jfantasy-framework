@@ -610,6 +610,12 @@ public class Order extends BaseBusEntity {
 
     @Transient
     @JsonIgnore
+    public Long getDrawer() {
+        return orderService().getDrawer(this);
+    }
+
+    @Transient
+    @JsonIgnore
     public BigDecimal price(String code) {
         return ObjectUtil.find(this.getPrices(), "code", code).getValue();
     }

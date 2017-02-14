@@ -45,8 +45,8 @@ public class OrderType extends BaseBusEntity {
     private Boolean enabled;
     /**
      * 是否允许退款
-    @Column(name = "ENABLED", nullable = false)
-    private Boolean refundable;
+     @Column(name = "ENABLED", nullable = false)
+     private Boolean refundable;
      */
     /**
      * 摘要模版
@@ -63,6 +63,11 @@ public class OrderType extends BaseBusEntity {
      */
     @Column(name = "REDIRECT_URL", nullable = false, length = 100)
     private String redirectUrl;
+    /**
+     * 发票开票方，编码
+     */
+    @Column(name = "DRAWER", length = 100)
+    private String drawer;
 
     public String getId() {
         return id;
@@ -118,6 +123,14 @@ public class OrderType extends BaseBusEntity {
 
     public void setRedirectUrl(String redirectUrl) {
         this.redirectUrl = redirectUrl;
+    }
+
+    public String getDrawer() {
+        return drawer;
+    }
+
+    public void setDrawer(String drawer) {
+        this.drawer = drawer;
     }
 
 }
