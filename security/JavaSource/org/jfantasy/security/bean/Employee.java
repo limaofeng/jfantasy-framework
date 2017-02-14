@@ -22,7 +22,7 @@ import java.util.Date;
 @Entity
 @Table(name = "AUTH_EMPLOYEE")
 @TableGenerator(name = "employee_gen", table = "sys_sequence", pkColumnName = "gen_name", pkColumnValue = "auth_employee:id", valueColumnName = "gen_value")
-@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler"})
+@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "user"})
 public class Employee extends BaseBusEntity {
 
     @Id

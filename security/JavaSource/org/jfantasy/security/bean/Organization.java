@@ -22,7 +22,7 @@ import java.util.List;
  */
 @Entity
 @Table(name = "AUTH_ORGANIZATION")
-@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "jobs", "orgHelpBeans"})
+@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "jobs", "children"})
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Organization extends BaseBusEntity {
 

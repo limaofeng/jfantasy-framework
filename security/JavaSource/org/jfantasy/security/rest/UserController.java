@@ -8,6 +8,7 @@ import org.jfantasy.framework.jackson.annotation.AllowProperty;
 import org.jfantasy.framework.jackson.annotation.IgnoreProperty;
 import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
+import org.jfantasy.framework.spring.validation.RESTful;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.security.bean.Role;
 import org.jfantasy.security.bean.User;
@@ -18,6 +19,7 @@ import org.jfantasy.security.rest.models.assembler.UserResourceAssembler;
 import org.jfantasy.security.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -92,7 +94,7 @@ public class UserController {
     @RequestMapping(method = {RequestMethod.POST})
     @ResponseStatus(value = HttpStatus.CREATED)
     @ResponseBody
-    public ResultResourceSupport create(@RequestBody User user) {
+    public ResultResourceSupport create(@Validated(RESTful.POST.class) @RequestBody User user) {
         return assembler.toResource(this.userService.save(user));
     }
 
