@@ -7,6 +7,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.jfantasy.framework.dao.BaseBusEntity;
 import org.jfantasy.framework.dao.hibernate.converter.MapConverter;
 import org.jfantasy.framework.util.common.ObjectUtil;
+import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.order.bean.Order;
 import org.jfantasy.pay.bean.Log;
 import org.jfantasy.pay.bean.Payment;
@@ -25,7 +26,7 @@ import java.util.*;
  */
 @Entity
 @Table(name = "PAY_TRANSACTION")
-@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "payments", "refunds", "union_id", "order","from_account","to_account"})
+@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "payments", "refunds", "union_id", "order", "from_account", "to_account"})
 public class Transaction extends BaseBusEntity {
 
     private static final long serialVersionUID = 3296031463173407900L;
@@ -153,6 +154,9 @@ public class Transaction extends BaseBusEntity {
     }
 
     public void setFrom(String from) {
+        if (StringUtil.isBlank(from)) {
+            return;
+        }
         this.fromAccount = new Account(from);
     }
 
@@ -161,6 +165,9 @@ public class Transaction extends BaseBusEntity {
     }
 
     public void setTo(String to) {
+        if (StringUtil.isBlank(to)) {
+            return;
+        }
         this.toAccount = new Account(to);
     }
 

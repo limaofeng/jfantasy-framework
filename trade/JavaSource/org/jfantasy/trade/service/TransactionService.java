@@ -202,8 +202,12 @@ public class TransactionService {
         Transaction transaction = new Transaction();
         transaction.setUnionId(unionid);
         transaction.setProject(project.getKey());
-        transaction.setFrom(from);
-        transaction.setTo(to);
+        if(StringUtil.isNotBlank(from)) {
+            transaction.setFromAccount(this.accountDao.get(from));
+        }
+        if(StringUtil.isNotBlank(to)) {
+            transaction.setToAccount(this.accountDao.get(to));
+        }
         transaction.setAmount(amount);
         transaction.setNotes(notes);
         transaction.setProperties(properties);
@@ -279,7 +283,7 @@ public class TransactionService {
         Transaction transaction = new Transaction();
         transaction.setAmount(card.getAmount());
         transaction.setChannel(TxChannel.card);
-        transaction.setTo(to.getSn());
+        transaction.setToAccount(to);
         transaction.set(Transaction.CARD_ID, card.getNo());
         transaction.setProject(Project.INPOUR);
         transaction.setSubject(Card.SUBJECT_BY_CARD_INPOUR);
