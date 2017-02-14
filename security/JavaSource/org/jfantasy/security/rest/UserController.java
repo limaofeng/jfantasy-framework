@@ -39,19 +39,21 @@ public class UserController {
 
     /**
      * 查询用户
+     *
      * @param pager
      * @param filters
      * @return
      */
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
-    public Pager<ResultResourceSupport> search(Pager<User> pager,List<PropertyFilter> filters) {
+    @ApiImplicitParam(value = "filters", name = "filters", paramType = "query", dataType = "string")
+    public Pager<ResultResourceSupport> search(Pager<User> pager, List<PropertyFilter> filters) {
         return assembler.toResources(this.userService.findPager(pager, filters));
     }
 
     /**
      * 获取用户
+     *
      * @param id
      * @return
      */
@@ -67,11 +69,12 @@ public class UserController {
     @RequestMapping(value = "/{id}/password", method = RequestMethod.PUT)
     @ResponseBody
     public ResultResourceSupport password(@PathVariable("id") Long id, @RequestBody PasswordForm form) {
-        return assembler.toResource(this.userService.changePassword(id, form.getType(), form.getOldPassword(), form.getNewPassword()));
+        return assembler.toResource(this.userService.changePassword(id, form.getOldPassword(), form.getNewPassword()));
     }
 
     /**
      * 获取用户的详细信息
+     *
      * @param id
      * @return
      */
@@ -82,6 +85,7 @@ public class UserController {
 
     /**
      * 添加用户
+     *
      * @param user
      * @return
      */
@@ -94,6 +98,7 @@ public class UserController {
 
     /**
      * 删除用户
+     *
      * @param id
      */
     @RequestMapping(value = "/{id}", method = {RequestMethod.DELETE})
@@ -104,6 +109,7 @@ public class UserController {
 
     /**
      * 更新用户
+     *
      * @param id
      * @param user
      * @return
@@ -116,6 +122,7 @@ public class UserController {
 
     /**
      * 获取用户授权的菜单信息
+     *
      * @param id
      * @return
      */

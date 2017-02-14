@@ -9,6 +9,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import org.jfantasy.framework.dao.BaseBusEntity;
 import org.jfantasy.framework.spring.validation.RESTful;
 import org.jfantasy.framework.spring.validation.Use;
+import org.jfantasy.security.bean.enums.UserType;
 import org.jfantasy.security.validators.UsernameCannotRepeatValidator;
 
 import javax.persistence.*;
@@ -56,8 +57,9 @@ public class User extends BaseBusEntity {
     /**
      * 用户类型
      */
+    @Enumerated(EnumType.STRING)
     @Column(name = "USER_TYPE", length = 20, nullable = false)
-    private String userType;
+    private UserType userType;
     /**
      * 用户显示昵称
      */
@@ -115,14 +117,14 @@ public class User extends BaseBusEntity {
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private UserDetails details;
-
     /**
-     * 对应的组织机构
+     * 用户关联的员工信息
      */
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ORGANIZATION_ID", foreignKey = @ForeignKey(name = "FK_ORGANIZATION_USER"))
+    @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.ALL})
+    @PrimaryKeyJoinColumn
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-    private Organization organization;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private Employee employee;
 
     public Long getId() {
         return id;
@@ -212,6 +214,15 @@ public class User extends BaseBusEntity {
         this.lastLoginTime = lastLoginTime;
     }
 
+    public Employee getEmployee() {
+        return employee;
+    }
+
+    public void setEmployee(Employee employee) {
+        this.employee = employee;
+        this.employee.setUser(this);
+    }
+
     public List<Role> getRoles() {
         return roles;
     }
@@ -262,19 +273,11 @@ public class User extends BaseBusEntity {
                 '}';
     }
 
-    public Organization getOrganization() {
-        return organization;
-    }
-
-    public void setOrganization(Organization organization) {
-        this.organization = organization;
-    }
-
-    public String getUserType() {
+    public UserType getUserType() {
         return userType;
     }
 
-    public void setUserType(String userType) {
+    public void setUserType(UserType userType) {
         this.userType = userType;
     }
 

@@ -34,7 +34,12 @@ public class UserDetails implements Serializable {
     @GenericGenerator(name = "pkGenerator", strategy = "foreign", parameters = {@Parameter(name = "property", value = "user")})
     @GeneratedValue(generator = "pkGenerator")
     private Long userId;
-
+    /**
+     * 用户头像存储
+     */
+    @Column(name = "AVATAR", length = 500)
+    @Convert(converter = ImageConverter.class)
+    private Image avatar;
     /**
      * 姓名
      */
@@ -76,14 +81,8 @@ public class UserDetails implements Serializable {
      */
     @Column(name = "DESCRIPTION")
     private String description;
-    /**
-     * 用户头像存储
-     */
-    @Column(name = "AVATAR", length = 500)
-    @Convert(converter = ImageConverter.class)
-    private Image avatar;
 
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = User.class, mappedBy = "details")
+    @OneToOne(fetch = FetchType.LAZY, targetEntity = User.class, mappedBy = "employee")
     private User user;
 
     public String getName() {

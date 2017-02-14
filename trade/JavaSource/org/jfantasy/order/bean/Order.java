@@ -136,8 +136,6 @@ public class Order extends BaseBusEntity {
     private Invoice invoice;//开票信息
     @Column(name = "PAYER")
     private Long payer;//付款人
-    @Column(name = "PAYEE")
-    private Long payee;//收款人
     @ManyToOne
     @JoinColumn(name = "PAYMENT_TRANSACTION_ID", foreignKey = @ForeignKey(name = "FK_ORDER_PAYMENTTRANSACTION"))
     private Transaction paymentTransaction;//支付交易
@@ -434,14 +432,6 @@ public class Order extends BaseBusEntity {
 
     public void setPayer(Long payer) {
         this.payer = payer;
-    }
-
-    public Long getPayee() {
-        return payee;
-    }
-
-    public void setPayee(Long payee) {
-        this.payee = payee;
     }
 
     public List<ProfitChain> getProfitChains() {

@@ -1,7 +1,7 @@
 package org.jfantasy.security.bean.enums;
 
 public enum UserType {
-    member("注册会员"), admin("后台管理员");
+    employee("员工"), admin("管理员");
 
     private String value;
 

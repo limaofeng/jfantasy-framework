@@ -94,7 +94,7 @@ public class AccessTokenService {
             case password:
                 switch (request.getScope()) {
                     case "user":
-                        retrieveUser(userDetails, userService.login(PasswordTokenType.password,request.getUsername(), request.getPassword()));
+                        retrieveUser(userDetails, userService.login(request.getUsername(), request.getPassword()));
                         break;
                     case "member":
                         retrieveUser(userDetails, memberService.login(PasswordTokenType.password, request.getUsername(), request.getPassword()));
@@ -194,7 +194,7 @@ public class AccessTokenService {
     private void retrieveUser(OAuthUserDetails userDetails, User user) {
         userDetails.setId(user.getId());
         userDetails.setUsername(user.getUsername());
-        userDetails.setUserType(user.getUserType());
+        userDetails.setUserType(user.getUserType().name());
         userDetails.setScope(Scope.user);
         userDetails.setNickName(user.getNickName());
 

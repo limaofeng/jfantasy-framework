@@ -2,8 +2,6 @@ package org.jfantasy.security.service;
 
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
-import org.jfantasy.framework.service.PasswordTokenEncoder;
-import org.jfantasy.framework.service.PasswordTokenType;
 import org.jfantasy.framework.spring.mvc.error.LoginException;
 import org.jfantasy.framework.spring.mvc.error.NotFoundException;
 import org.jfantasy.framework.spring.mvc.error.ValidationException;
@@ -12,8 +10,11 @@ import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.framework.util.regexp.RegexpCst;
 import org.jfantasy.framework.util.regexp.RegexpUtil;
+import org.jfantasy.security.bean.Employee;
 import org.jfantasy.security.bean.User;
 import org.jfantasy.security.bean.UserDetails;
+import org.jfantasy.security.bean.enums.EmployeeStatus;
+import org.jfantasy.security.bean.enums.UserType;
 import org.jfantasy.security.context.LoginEvent;
 import org.jfantasy.security.context.LogoutEvent;
 import org.jfantasy.security.dao.UserDao;
@@ -36,7 +37,6 @@ public class UserService {
 
     private ApplicationContext applicationContext;
     private PasswordEncoder passwordEncoder;
-    private PasswordTokenEncoder passwordTokenEncoder;
 
     @Autowired
     public UserService(UserDao userDao) {
@@ -50,16 +50,30 @@ public class UserService {
      */
     @CacheEvict(value = {"fantasy.security.userService"}, allEntries = true)
     public User save(User user) {
-        UserDetails details = ObjectUtil.defaultValue(user.getDetails(), new UserDetails());
-        // 如果用email注册
-        if (RegexpUtil.isMatch(user.getUsername(), RegexpCst.VALIDATOR_EMAIL)) {
-            details.setEmail(user.getUsername());
+        if (UserType.admin == user.getUserType()) {
+            UserDetails details = ObjectUtil.defaultValue(user.getDetails(), new UserDetails());
+            // 如果用email注册
+            if (RegexpUtil.isMatch(user.getUsername(), RegexpCst.VALIDATOR_EMAIL)) {
+                details.setEmail(user.getUsername());
+            }
+            // 如果用手机注册
+            if (RegexpUtil.isMatch(user.getUsername(), RegexpCst.VALIDATOR_MOBILE)) {
+                details.setMobile(user.getUsername());
+            }
+            user.setDetails(details);
+        } else if (UserType.employee == user.getUserType()) {
+            Employee employee = ObjectUtil.defaultValue(user.getEmployee(), new Employee());
+            employee.setStatus(EmployeeStatus.work);
+            // 如果用email注册
+            if (RegexpUtil.isMatch(user.getUsername(), RegexpCst.VALIDATOR_EMAIL)) {
+                employee.setEmail(user.getUsername());
+            }
+            // 如果用手机注册
+            if (RegexpUtil.isMatch(user.getUsername(), RegexpCst.VALIDATOR_MOBILE)) {
+                employee.setMobile(user.getUsername());
+            }
+            user.setEmployee(employee);
         }
-        // 如果用手机注册
-        if (RegexpUtil.isMatch(user.getUsername(), RegexpCst.VALIDATOR_MOBILE)) {
-            details.setMobile(user.getUsername());
-        }
-        user.setDetails(details);
 
         // 默认昵称与用户名一致
         if (StringUtil.isBlank(user.getNickName())) {
@@ -78,7 +92,7 @@ public class UserService {
         return this.userDao.save(user);
     }
 
-    public User changePassword(Long id, PasswordTokenType type, String oldPassword, String newPassword) {
+    public User changePassword(Long id, String oldPassword, String newPassword) {
         User user = this.userDao.get(id);
         if (user == null) {
             throw new NotFoundException("用户不存在");
@@ -86,7 +100,7 @@ public class UserService {
         if (!user.isEnabled()) {
             throw new ValidationException(100101, "用户已被禁用");
         }
-        if (!this.passwordTokenEncoder.matches("login", type, user.getUsername(), user.getPassword(), oldPassword)) {
+        if (!this.passwordEncoder.matches(user.getPassword(), oldPassword)) {
             throw new ValidationException(100102, "提供的 password token 不正确!");
         }
         user.setPassword(passwordEncoder.encode(newPassword));
@@ -113,17 +127,15 @@ public class UserService {
         return this.userDao.get(id);
     }
 
-    public User login(PasswordTokenType type, String username, String password) {
+    public User login(String username, String password) {
         User user = this.userDao.findUniqueBy("username", username);
-
-        if (!this.passwordTokenEncoder.matches("login", type, username, user != null ? user.getPassword() : "", password)) {
-            throw new ValidationException(100201, "用户名和密码错误");
-        }
 
         if (user == null) {//用户不存在
             throw new ValidationException(100202, "用户名和密码错误");
         }
-
+        if (!this.passwordEncoder.matches(user.getPassword(), password)) {
+            throw new ValidationException(100201, "用户名和密码错误");
+        }
         if (!user.isEnabled()) {
             throw new LoginException("用户被禁用");
         }
@@ -143,11 +155,6 @@ public class UserService {
     @Autowired
     public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
         this.passwordEncoder = passwordEncoder;
-    }
-
-    @Autowired
-    public void setPasswordTokenEncoder(PasswordTokenEncoder passwordTokenEncoder) {
-        this.passwordTokenEncoder = passwordTokenEncoder;
     }
 
     @Autowired

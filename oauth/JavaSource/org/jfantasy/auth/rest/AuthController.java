@@ -109,7 +109,7 @@ public class AuthController {
     }
 
     private User userLogin(LoginForm loginForm) {
-        User user = this.userService.login(loginForm.getType(), loginForm.getUsername(), loginForm.getPassword());
+        User user = this.userService.login(loginForm.getUsername(), loginForm.getPassword());
         return validateUserType(user, loginForm.getUserType());
     }
 

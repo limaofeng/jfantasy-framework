@@ -94,8 +94,7 @@ public class Organization extends BaseBusEntity {
      * 用户
      */
     @OneToMany(mappedBy = "organization", fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE})
-    private List<User> users;
-
+    private List<Employee> employees;
 
     public String getId() {
         return id;
@@ -153,12 +152,12 @@ public class Organization extends BaseBusEntity {
         this.jobs = jobs;
     }
 
-    public List<User> getUsers() {
-        return users;
+    public List<Employee> getEmployees() {
+        return employees;
     }
 
-    public void setUsers(List<User> users) {
-        this.users = users;
+    public void setEmployees(List<Employee> employees) {
+        this.employees = employees;
     }
 
     public Integer getSort() {
