@@ -11,6 +11,7 @@ import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.framework.util.regexp.RegexpCst;
 import org.jfantasy.framework.util.regexp.RegexpUtil;
 import org.jfantasy.security.bean.Employee;
+import org.jfantasy.security.bean.Role;
 import org.jfantasy.security.bean.User;
 import org.jfantasy.security.bean.UserDetails;
 import org.jfantasy.security.bean.enums.EmployeeStatus;
@@ -37,6 +38,7 @@ public class UserService {
 
     private ApplicationContext applicationContext;
     private PasswordEncoder passwordEncoder;
+    private RoleService roleService;
 
     @Autowired
     public UserService(UserDao userDao) {
@@ -90,6 +92,15 @@ public class UserService {
         user.setCredentialsNonExpired(true);
         // 保存用户
         return this.userDao.save(user);
+    }
+
+    public User update(User user, boolean patch) {
+        if (UserType.admin == user.getUserType()) {
+            user.setEmployee(null);
+        } else if (UserType.employee == user.getUserType()) {
+            user.setDetails(null);
+        }
+        return this.userDao.update(user, patch);
     }
 
     public User changePassword(Long id, String oldPassword, String newPassword) {
@@ -150,6 +161,34 @@ public class UserService {
 
     public void logout(String username) {
         this.applicationContext.publishEvent(new LogoutEvent(findUniqueByUsername(username)));
+    }
+
+    public List<Role> addRoles(Long id, boolean clear, String[] roles) {
+        User user = this.userDao.get(id);
+        if (clear) {
+            user.getRoles().clear();
+        }
+        for (String role : roles) {
+            if (!ObjectUtil.exists(user.getRoles(), "id", role)) {
+                user.getRoles().add(this.roleService.get(role));
+            }
+        }
+        this.userDao.update(user);
+        return user.getRoles();
+    }
+
+    public List<Role> removeRoles(Long id, String... roles) {
+        User user = this.userDao.get(id);
+        for (String role : roles) {
+            ObjectUtil.remove(user.getRoles(), "id", role);
+        }
+        this.userDao.update(user);
+        return user.getRoles();
+    }
+
+    @Autowired
+    public void setRoleService(RoleService roleService) {
+        this.roleService = roleService;
     }
 
     @Autowired

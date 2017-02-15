@@ -11,7 +11,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "AUTH_ROLE")
-@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "menus", "permissions", "users", "jobs", "members", "roleAuthorities"})
+@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "menus", "permissions", "users", "jobs", "roleAuthorities"})
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Role extends BaseBusEntity {
 
@@ -21,18 +21,21 @@ public class Role extends BaseBusEntity {
      * 角色编码
      */
     @Id
-    @Column(name = "CODE",length = 32)
+    @Column(name = "CODE", length = 32)
     private String id;
     /**
      * 角色名称
      */
-    @Column(name = "NAME",length = 50)
+    @Column(name = "NAME", length = 50)
     private String name;
     /**
-     * 角色类型，用于区分不同类型的角色。比如：后台管理与前台会员之间的角色
+     * 角色范围
+     * admin = 管理端
+     * group = 集团
+     * hospital = 诊所／医院
      */
-    @Column(name = "TYPE", length = 20)
-    private String type;
+    @Column(name = "SCOPE", length = 20)
+    private String scope;
     /**
      * 是否启用 0禁用 1 启用
      */
@@ -41,7 +44,7 @@ public class Role extends BaseBusEntity {
     /**
      * 描述信息
      */
-    @Column(name = "DESCRIPTION",length = 250)
+    @Column(name = "DESCRIPTION", length = 250)
     private String description;
     /**
      * 角色对应的菜单
@@ -129,14 +132,6 @@ public class Role extends BaseBusEntity {
         this.users = users;
     }
 
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
     public List<Job> getJobs() {
         return jobs;
     }
@@ -147,6 +142,14 @@ public class Role extends BaseBusEntity {
 
     public String getAuthority() {
         return "ROLE_" + getId();
+    }
+
+    public String getScope() {
+        return scope;
+    }
+
+    public void setScope(String scope) {
+        this.scope = scope;
     }
 
     @Override

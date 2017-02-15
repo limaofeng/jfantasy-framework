@@ -10,6 +10,7 @@ import org.jfantasy.framework.dao.hibernate.converter.MapConverter;
 import org.jfantasy.framework.dao.hibernate.converter.StringsConverter;
 import org.jfantasy.framework.spring.validation.RESTful;
 import org.jfantasy.member.bean.enums.TeamMemberStatus;
+import org.jfantasy.security.bean.Role;
 import org.jfantasy.security.bean.enums.Sex;
 
 import javax.persistence.*;
@@ -90,19 +91,19 @@ public class TeamMember extends BaseBusEntity {
      * 用户
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "MEMBER_ID", foreignKey = @ForeignKey(name = "FK_TEAM_MEMBER_MEMBER"))
+    @JoinColumn(name = "MEMBER_ID", foreignKey = @ForeignKey(name = "FK_TEAMMEMBER_MEMBER"))
     private Member member;
     /**
      * 动态属性
      */
     @Convert(converter = MapConverter.class)
     @Column(name = "PROPERTIES", columnDefinition = "Text")
-    private Map<String,String> properties;
+    private Map<String, String> properties;
     /**
      * 团队ID
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "TEAM_ID", nullable = false, updatable = false, foreignKey = @ForeignKey(name = "FK_TEAM_MEMBER_TEAM"))
+    @JoinColumn(name = "TEAM_ID", nullable = false, updatable = false, foreignKey = @ForeignKey(name = "FK_TEAMMEMBER_TEAM"))
     private Team team;
     /**
      * 标签
@@ -110,6 +111,12 @@ public class TeamMember extends BaseBusEntity {
     @Convert(converter = StringsConverter.class)
     @Column(name = "TAGS", length = 2000)
     private String[] tags;
+    /**
+     * 关联角色
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ROLE_ID", foreignKey = @ForeignKey(name = "FK_TEAMMEMBER_ROLE"))
+    private Role role;
 
     public Long getId() {
         return id;
@@ -151,12 +158,12 @@ public class TeamMember extends BaseBusEntity {
         this.team = team;
     }
 
-    public void setProperties(Map<String,String> properties) {
+    public void setProperties(Map<String, String> properties) {
         this.properties = properties;
     }
 
     @JsonAnyGetter
-    public Map<String,String> getProperties() {
+    public Map<String, String> getProperties() {
         return this.properties;
     }
 
@@ -170,7 +177,9 @@ public class TeamMember extends BaseBusEntity {
 
     @Transient
     public String get(String key) {
-        if (this.properties == null) return null;
+        if (this.properties == null) {
+            return null;
+        }
         return this.properties.get(key);
     }
 
@@ -241,7 +250,7 @@ public class TeamMember extends BaseBusEntity {
     @Transient
     @NotNull(groups = RESTful.POST.class)
     public String getTeamId() {
-        return this.team == null ? null : this.team.getKey();
+        return this.team.getKey();
     }
 
     public void setTeamId(String id) {
@@ -250,7 +259,6 @@ public class TeamMember extends BaseBusEntity {
     }
 
     @Transient
-    @NotNull(groups = RESTful.POST.class)
     public Long getMemberId() {
         return this.member == null ? null : this.member.getId();
     }
@@ -259,4 +267,13 @@ public class TeamMember extends BaseBusEntity {
         this.member = new Member();
         this.member.setId(id);
     }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
 }

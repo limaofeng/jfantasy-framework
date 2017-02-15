@@ -90,13 +90,13 @@ public class Team extends BaseBusEntity {
         this.type = type;
     }
 
+    public Team() {
+        super();
+    }
+
     public Team(String id) {
         this();
         this.setKey(id);
-    }
-
-    public Team() {
-        super();
     }
 
     public String getKey() {
@@ -187,6 +187,5 @@ public class Team extends BaseBusEntity {
         }
         return this.member.getId();
     }
-
 
 }

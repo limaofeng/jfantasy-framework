@@ -141,8 +141,6 @@ public class MemberService {
         if (defaultRole != null) {
             roles.add(defaultRole);
         }
-        member.setRoles(roles);
-        member.setUserGroups(new ArrayList<>());
         //初始化用户状态
         member.setEnabled(true);
         member.setAccountNonLocked(true);

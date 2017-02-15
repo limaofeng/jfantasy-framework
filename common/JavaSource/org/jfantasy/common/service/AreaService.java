@@ -20,8 +20,12 @@ import java.util.List;
 @Transactional
 public class AreaService {
 
+    private final AreaDao areaDao;
+
     @Autowired
-    private AreaDao areaDao;
+    public AreaService(AreaDao areaDao) {
+        this.areaDao = areaDao;
+    }
 
     public Area save(Area area) {
         if (area.getParent() == null || StringUtil.isBlank(area.getParent().getId())) {// 如果新增在顶级
@@ -30,7 +34,7 @@ public class AreaService {
             Area parent = this.areaDao.get(area.getParent().getId());// 查询上级
             area.setPath(parent.getPath() + Area.PATH_SEPARATOR + area.getId());// 设置path
         }
-        area.setLayer(ObjectUtil.defaultValue(area.getPath().split(Area.PATH_SEPARATOR).length, 1) - 1);// 设置层级
+        area.setLayer(ObjectUtil.defaultValue(area.getPath().split(Area.PATH_SEPARATOR).length, 2) - 1);// 设置层级
         StringBuilder displayName = new StringBuilder();
         List<Area> parentAreas = !area.getPath().contains(Area.PATH_SEPARATOR) ? Collections.<Area>emptyList() : this.areaDao.find(Restrictions.in("id", StringUtils.substringBeforeLast(area.getPath(), Area.PATH_SEPARATOR).split(Area.PATH_SEPARATOR)));
         if (!parentAreas.isEmpty()) {
@@ -96,7 +100,7 @@ public class AreaService {
         //重新 path / displayName / layer
         area.setParent(parent);
         area.setPath(parent.getPath() + Area.PATH_SEPARATOR + area.getId());// 设置path
-        area.setLayer(ObjectUtil.defaultValue(area.getPath().split(Area.PATH_SEPARATOR).length, 1) - 1);// 设置层级
+        area.setLayer(ObjectUtil.defaultValue(area.getPath().split(Area.PATH_SEPARATOR).length, 2) - 1);// 设置层级
         // 设置完整地区名称
         StringBuilder displayName = new StringBuilder();
         List<Area> parentAreas = !area.getPath().contains(Area.PATH_SEPARATOR) ? Collections.<Area>emptyList() : this.areaDao.find(Restrictions.in("id", StringUtils.substringBeforeLast(area.getPath(), Area.PATH_SEPARATOR).split(Area.PATH_SEPARATOR)));

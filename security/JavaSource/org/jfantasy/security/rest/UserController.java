@@ -9,7 +9,8 @@ import org.jfantasy.framework.jackson.annotation.IgnoreProperty;
 import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
 import org.jfantasy.framework.spring.validation.RESTful;
-import org.jfantasy.framework.util.common.ObjectUtil;
+import org.jfantasy.framework.util.web.WebUtil;
+import org.jfantasy.security.bean.Menu;
 import org.jfantasy.security.bean.Role;
 import org.jfantasy.security.bean.User;
 import org.jfantasy.security.bean.UserDetails;
@@ -18,11 +19,14 @@ import org.jfantasy.security.rest.models.PasswordForm;
 import org.jfantasy.security.rest.models.assembler.UserResourceAssembler;
 import org.jfantasy.security.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+import java.util.Set;
 
 
 @RestController
@@ -76,15 +80,15 @@ public class UserController {
     /**
      * 获取用户的详细信息
      *
-     * @param id
-     * @return
+     * @param id UID
+     * @return Details
      */
     @RequestMapping(value = "/{id}/profile", method = RequestMethod.GET)
     public Object profile(@PathVariable("id") Long id) {
-        User user = this.userService.get(id);
-        if(user.getUserType() == UserType.employee){
+        User user = this.get(id);
+        if (user.getUserType() == UserType.employee) {
             return user.getEmployee();
-        }else {
+        } else {
             return user.getDetails();
         }
     }
@@ -120,26 +124,48 @@ public class UserController {
      * @param user
      * @return
      */
-    @RequestMapping(value = "/{id}", method = {RequestMethod.PATCH})
-    public ResultResourceSupport update(@PathVariable("id") Long id, @RequestBody User user) {
+    @RequestMapping(value = "/{id}", method = {RequestMethod.PATCH, RequestMethod.POST})
+    public ResultResourceSupport update(@PathVariable("id") Long id, @RequestBody User user, HttpServletRequest request) {
         user.setId(id);
-        return assembler.toResource(this.userService.save(user));
+        return assembler.toResource(this.userService.update(user, WebUtil.hasMethod(request, HttpMethod.PATCH.name())));
     }
 
     /**
      * 获取用户授权的菜单信息
      *
-     * @param id
-     * @return
+     * @param id UID
+     * @return Set<Menu>
      */
     @RequestMapping(value = "/{id}/menus", method = {RequestMethod.GET})
     @ResponseBody
-    public List<String> menus(@PathVariable("id") Long id) {
-        Set<String> menuIds = new HashSet<>();
-        for (Role role : this.get(id).getRoles()) {
-            menuIds.addAll(Arrays.asList(ObjectUtil.toFieldArray(role.getMenus(), "id", String.class)));
-        }
-        return new ArrayList<>(menuIds);
+    public Set<Menu> menus(@PathVariable("id") Long id) {
+        User user = this.get(id);
+        return user.getAllMenus();
+    }
+
+    /**
+     * 获取用户的角色
+     *
+     * @param id UID
+     * @return Set<Role>
+     */
+    @GetMapping("/{id}/roles")
+    @ResponseBody
+    public Set<Role> roles(@PathVariable("id") Long id) {
+        User user = this.get(id);
+        return user.getAllRoles();
+    }
+
+    @RequestMapping(value = "/{id}/roles", method = {RequestMethod.POST, RequestMethod.PATCH})
+    @ResponseBody
+    public List<Role> roles(@PathVariable("id") Long id, @RequestBody String[] roles, HttpServletRequest request) {
+        return userService.addRoles(id, WebUtil.hasMethod(request, HttpMethod.POST.name()), roles);
+    }
+
+    @DeleteMapping("/{id}/roles")
+    @ResponseBody
+    public List<Role> rroles(@PathVariable("id") Long id, @RequestParam(value = "role") String[] roles) {
+        return userService.removeRoles(id, roles);
     }
 
     private User get(Long id) {

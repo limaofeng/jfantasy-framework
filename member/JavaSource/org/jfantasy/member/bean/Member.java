@@ -13,12 +13,10 @@ import org.jfantasy.framework.spring.validation.RESTful.POST;
 import org.jfantasy.framework.spring.validation.RESTful.PUT;
 import org.jfantasy.framework.spring.validation.Use;
 import org.jfantasy.member.validators.UsernameCannotRepeatValidator;
-import org.jfantasy.security.bean.Role;
-import org.jfantasy.security.bean.UserGroup;
 
 import javax.persistence.*;
 import javax.validation.constraints.Null;
-import java.util.*;
+import java.util.Date;
 
 /**
  * 会员
@@ -109,18 +107,6 @@ public class Member extends BaseBusEntity {
     @JsonProperty("last_login_time")
     @Column(name = "LAST_LOGIN_TIME")
     private Date lastLoginTime;
-    /**
-     * 关联用户组
-     */
-    @ManyToMany(targetEntity = UserGroup.class, fetch = FetchType.LAZY)
-    @JoinTable(name = "AUTH_USERGROUP_MEMBER", joinColumns = @JoinColumn(name = "MEMBER_ID"), inverseJoinColumns = @JoinColumn(name = "USERGROUP_ID"), foreignKey = @ForeignKey(name = "FK_USERGROUP_MEMBER_MEM"))
-    private List<UserGroup> userGroups;
-    /**
-     * 关联角色
-     */
-    @ManyToMany(targetEntity = Role.class, fetch = FetchType.LAZY)
-    @JoinTable(name = "AUTH_ROLE_MEMBER", joinColumns = @JoinColumn(name = "MEMBER_ID"), inverseJoinColumns = @JoinColumn(name = "ROLE_CODE"), foreignKey = @ForeignKey(name = "FK_ROLE_MEMBER_MID"))
-    private List<Role> roles;
     /**
      * 会员其他信息
      */
@@ -239,22 +225,6 @@ public class Member extends BaseBusEntity {
         this.lastLoginTime = lastLoginTime;
     }
 
-    public List<UserGroup> getUserGroups() {
-        return userGroups;
-    }
-
-    public void setUserGroups(List<UserGroup> userGroups) {
-        this.userGroups = userGroups;
-    }
-
-    public List<Role> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(List<Role> roles) {
-        this.roles = roles;
-    }
-
     public MemberDetails getDetails() {
         return details;
     }
@@ -264,30 +234,6 @@ public class Member extends BaseBusEntity {
         if (details != null) {
             this.details.setMember(this);
         }
-    }
-
-    @Transient
-    public String[] getAuthorities() {
-        if (this.authorities != null) {
-            return this.authorities;
-        }
-        Set<String> authoritieSet = new LinkedHashSet<>();
-        for (UserGroup userGroup : this.getUserGroups()) {
-            if (!userGroup.isEnabled()) {
-                continue;
-            }
-            authoritieSet.add(userGroup.getAuthority());
-            authoritieSet.addAll(Arrays.asList(userGroup.getRoleAuthorities()));
-        }
-        // 添加角色权限
-        for (Role role : this.getRoles()) {
-            if (!role.isEnabled()) {
-                continue;
-            }
-            authoritieSet.add(role.getAuthority());
-        }
-        this.authorities = authoritieSet.toArray(new String[authoritieSet.size()]);
-        return this.authorities;
     }
 
     public void setAuthorities(String[] authorities) {

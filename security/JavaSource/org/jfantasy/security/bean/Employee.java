@@ -1,5 +1,6 @@
 package org.jfantasy.security.bean;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -14,7 +15,9 @@ import org.jfantasy.security.bean.enums.Sex;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 员工
@@ -219,4 +222,14 @@ public class Employee extends BaseBusEntity {
     public void setEmail(String email) {
         this.email = email;
     }
+
+    @JsonIgnore
+    @Transient
+    public List<Role> getRoles() {
+        if(this.getJob() == null){
+            return Collections.emptyList();
+        }
+        return this.getJob().getRoles();
+    }
+
 }

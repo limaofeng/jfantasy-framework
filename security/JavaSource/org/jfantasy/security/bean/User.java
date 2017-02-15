@@ -1,5 +1,6 @@
 package org.jfantasy.security.bean;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.annotations.Cache;
@@ -9,6 +10,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import org.jfantasy.framework.dao.BaseBusEntity;
 import org.jfantasy.framework.spring.validation.RESTful;
 import org.jfantasy.framework.spring.validation.Use;
+import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.security.bean.enums.UserType;
 import org.jfantasy.security.validators.UsernameCannotRepeatValidator;
 
@@ -257,6 +259,51 @@ public class User extends BaseBusEntity {
         return authorities.toArray(new String[authorities.size()]);
     }
 
+    public UserType getUserType() {
+        return userType;
+    }
+
+    public void setUserType(UserType userType) {
+        this.userType = userType;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    @JsonIgnore
+    @Transient
+    public Set<Role> getAllRoles(){
+        Set<Role> allroles = new HashSet<>();
+        allroles.addAll(ObjectUtil.filter(ObjectUtil.defaultValue(this.getRoles(),new ArrayList<>()), Role::isEnabled));
+        if (this.getUserType() != UserType.employee) {
+            return allroles;
+        }
+        allroles.addAll(ObjectUtil.filter(this.getEmployee().getRoles(), Role::isEnabled));
+        return allroles;
+    }
+
+    @JsonIgnore
+    @Transient
+    public Set<Menu> getAllMenus() {
+        Set<Menu> menus = new HashSet<>();
+        for (Role role : this.getAllRoles()) {
+            menus.addAll(role.getMenus());
+        }
+        for (UserGroup group : this.getUserGroups()) {
+            menus.addAll(group.getMenus());
+        }
+        if (this.getUserType() != UserType.employee) {
+            return menus;
+        }
+        return menus;
+    }
+
+
     @Override
     public String toString() {
         return "User{" +
@@ -273,19 +320,4 @@ public class User extends BaseBusEntity {
                 '}';
     }
 
-    public UserType getUserType() {
-        return userType;
-    }
-
-    public void setUserType(UserType userType) {
-        this.userType = userType;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public String getCode() {
-        return code;
-    }
 }

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.jfantasy.framework.dao.BaseBusEntity;
+import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.security.bean.databind.MenuDeserializer;
 import org.jfantasy.security.bean.databind.MenuSerializer;
 import org.jfantasy.security.bean.enums.MenuType;
@@ -19,7 +20,7 @@ import java.util.List;
  */
 @Entity
 @Table(name = "AUTH_MENU")
-@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "children"})
+@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "children", "roles"})
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Menu extends BaseBusEntity {
 
@@ -87,6 +88,10 @@ public class Menu extends BaseBusEntity {
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.REFRESH})
     @JoinColumn(name = "PID", foreignKey = @ForeignKey(name = "FK_AUTH_MENU_PID"))
     private Menu parent;
+
+    @ManyToMany(targetEntity = Menu.class, fetch = FetchType.LAZY)
+    @JoinTable(name = "AUTH_ROLE_MENU", joinColumns = @JoinColumn(name = "MENU_ID"), inverseJoinColumns = @JoinColumn(name = "ROLE_CODE"), foreignKey = @ForeignKey(name = "FK_MENU_ROLE"))
+    private List<Role> roles;
 
     public Menu() {
     }
@@ -181,5 +186,26 @@ public class Menu extends BaseBusEntity {
 
     public void setPath(String path) {
         this.path = path;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Menu) {
+            return this.id.equals(((Menu) obj).getId());
+        }
+        return super.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+        return StringUtil.isNotBlank(id) ? id.hashCode() : super.hashCode();
+    }
+
+    public List<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<Role> roles) {
+        this.roles = roles;
     }
 }

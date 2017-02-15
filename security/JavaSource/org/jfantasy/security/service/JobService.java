@@ -75,11 +75,6 @@ public class JobService {
         return job.getRoles();
     }
 
-    @Autowired
-    public void setRoleService(RoleService roleService) {
-        this.roleService = roleService;
-    }
-
     public List<Role> removeRoles(String id, String... roles) {
         Job job = this.jobDao.get(id);
         for (String role : roles) {
@@ -88,4 +83,10 @@ public class JobService {
         this.jobDao.update(job);
         return job.getRoles();
     }
+
+    @Autowired
+    public void setRoleService(RoleService roleService) {
+        this.roleService = roleService;
+    }
+
 }

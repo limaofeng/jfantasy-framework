@@ -14,24 +14,38 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 
-/** 团队成员 **/
+/**
+ * 团队成员
+ */
 @RestController
 @RequestMapping("/team-members")
 public class TeamMemberController {
 
     public static final TeamMemberResourceAssembler assembler = new TeamMemberResourceAssembler();
 
-    @Autowired
-    private TeamMemberService teamMemberService;
+    private final TeamMemberService teamMemberService;
 
-    /** 查看团队成员 - 查看团队成员 **/
+    @Autowired
+    public TeamMemberController(TeamMemberService teamMemberService) {
+        this.teamMemberService = teamMemberService;
+    }
+
+    /**
+     * 查看团队成员 - 查看团队成员
+     * @param id TMID
+     * @return TeamMember
+     */
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public ResultResourceSupport view(@PathVariable("id") Long id) {
         return assembler.toResource(this.get(id));
     }
 
+    /**
+     * 添加团队成员 - 添加团队成员
+     * @param member TMID
+     * @return TeamMember
+     */
     @JsonResultFilter(ignore = @IgnoreProperty(pojo = TeamMember.class,name = "team"))
-    /** 添加团队成员 - 添加团队成员 **/
     @RequestMapping(method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     public ResultResourceSupport create(@RequestBody TeamMember member) {

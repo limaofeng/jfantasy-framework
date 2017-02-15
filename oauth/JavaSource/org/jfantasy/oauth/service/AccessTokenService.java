@@ -230,9 +230,6 @@ public class AccessTokenService {
         userDetails.setCredentialsNonExpired(member.getCredentialsNonExpired());
 
         List<GrantedAuthority> authorities = new ArrayList<>();
-        for (String authority : member.getAuthorities()) {
-            authorities.add(new SimpleGrantedAuthority(authority));
-        }
         userDetails.setAuthorities(authorities);
 
         userDetails.setTargetType(member.getTargetType());
