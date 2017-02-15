@@ -27,7 +27,7 @@ spring:
       test-on-borrow: false
       test-on-return: false
   redis:
-    host: 127.0.0.1
+    host: 114.55.142.155
     port: 6379
     password:
   jpa:
@@ -57,7 +57,7 @@ spring:
       packages: org.jfantasy.pay.product,org.jfantasy.pay.bean,org.jfantasy.pay.order.entity
   oauth:
     redis:
-      host: 127.0.0.1
+      host: 114.55.142.155
       port: 6379
   apigateway:
     url: http://localhost:8000

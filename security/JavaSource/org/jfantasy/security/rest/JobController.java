@@ -1,6 +1,7 @@
 package org.jfantasy.security.rest;
 
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
+import org.jfantasy.framework.spring.mvc.error.NotFoundException;
 import org.jfantasy.framework.util.web.WebUtil;
 import org.jfantasy.security.bean.Job;
 import org.jfantasy.security.bean.Role;
@@ -33,7 +34,7 @@ public class JobController {
     @RequestMapping(value = "/{id}", method = {RequestMethod.GET})
     @ResponseBody
     public Job view(@PathVariable("id") String id) {
-        return jobService.get(id);
+        return get(id);
     }
 
     @RequestMapping(method = {RequestMethod.POST})
@@ -47,31 +48,39 @@ public class JobController {
     @ResponseBody
     public Job update(@PathVariable("id") String id, @RequestBody Job job, HttpServletRequest request) {
         job.setId(id);
-        return jobService.update(job, WebUtil.hasMethod(request,RequestMethod.PATCH.name()));
+        return jobService.update(job, WebUtil.hasMethod(request, RequestMethod.PATCH.name()));
     }
 
     @GetMapping("/{id}/roles")
     @ResponseBody
     public List<Role> roles(@PathVariable("id") String id) {
-        return jobService.get(id).getRoles();
+        return get(id).getRoles();
     }
 
     @RequestMapping(value = "/{id}/roles", method = {RequestMethod.POST, RequestMethod.PATCH})
     @ResponseBody
-    public List<Role> roles(@PathVariable("id") String id, @RequestBody String[] roles,HttpServletRequest request) {
-        return jobService.addRoles(id,WebUtil.hasMethod(request, HttpMethod.POST.name()),roles);
+    public List<Role> roles(@PathVariable("id") String id, @RequestBody String[] roles, HttpServletRequest request) {
+        return jobService.addRoles(id, WebUtil.hasMethod(request, HttpMethod.POST.name()), roles);
     }
 
     @DeleteMapping("/{id}/roles")
     @ResponseBody
-    public List<Role> rroles(@PathVariable("id") String id,  @RequestParam(value = "role") String[] roles) {
-        return jobService.removeRoles(id,roles);
+    public List<Role> rroles(@PathVariable("id") String id, @RequestParam(value = "role") String[] roles) {
+        return jobService.removeRoles(id, roles);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable("id") String id) {
         this.jobService.delete(id);
+    }
+
+    private Job get(String id) {
+        Job job = this.jobService.get(id);
+        if (job == null) {
+            throw new NotFoundException(String.format("岗位[%s]不存在", id));
+        }
+        return job;
     }
 
 }

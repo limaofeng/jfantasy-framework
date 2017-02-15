@@ -22,11 +22,20 @@ import java.util.List;
  */
 @Entity
 @Table(name = "AUTH_ORGANIZATION")
-@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "jobs", "children","employees"})
+@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "jobs", "children", "employees"})
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Organization extends BaseBusEntity {
 
     private static final long serialVersionUID = -6159187521342750200L;
+
+    public Organization() {
+        super();
+    }
+
+    public Organization(String id) {
+        super();
+        this.id = id;
+    }
 
     /**
      * 组织机构类型
@@ -82,19 +91,19 @@ public class Organization extends BaseBusEntity {
      * 下属机构
      */
     @JsonInclude(content = JsonInclude.Include.NON_NULL)
-    @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE})
+    @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @OrderBy("sort ASC")
     private List<Organization> children;
     /**
      * 对于的岗位
      */
     @JsonInclude(content = JsonInclude.Include.NON_NULL)
-    @OneToMany(mappedBy = "organization", fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE})
+    @OneToMany(mappedBy = "organization", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<Job> jobs;
     /**
      * 用户
      */
-    @OneToMany(mappedBy = "organization", fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE})
+    @OneToMany(mappedBy = "organization", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<Employee> employees;
 
     public String getId() {
