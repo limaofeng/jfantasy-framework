@@ -17,7 +17,7 @@ import java.util.List;
  */
 @Entity
 @Table(name = "AUTH_JOB")
-@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler"})
+@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler","roles"})
 public class Job extends BaseBusEntity {
 
     private static final long serialVersionUID = -7020427994563623645L;

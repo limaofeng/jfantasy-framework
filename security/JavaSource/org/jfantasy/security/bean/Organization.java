@@ -22,7 +22,7 @@ import java.util.List;
  */
 @Entity
 @Table(name = "AUTH_ORGANIZATION")
-@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "jobs", "children"})
+@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "jobs", "children","employees"})
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Organization extends BaseBusEntity {
 
@@ -75,7 +75,7 @@ public class Organization extends BaseBusEntity {
     @JsonProperty("parent_id")
     @JsonSerialize(using = OrgSerializer.class)
     @JsonDeserialize(using = OrgDeserializer.class)
-    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.REFRESH})
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REFRESH)
     @JoinColumn(name = "PID", foreignKey = @ForeignKey(name = "FK_AUTH_ORGANIZATION_PID"))
     private Organization parent;
     /**
