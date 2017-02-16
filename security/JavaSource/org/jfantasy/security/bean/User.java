@@ -222,6 +222,9 @@ public class User extends BaseBusEntity {
 
     public void setEmployee(Employee employee) {
         this.employee = employee;
+        if (this.employee == null) {
+            return;
+        }
         this.employee.setUser(this);
     }
 
@@ -235,6 +238,9 @@ public class User extends BaseBusEntity {
 
     public void setDetails(UserDetails details) {
         this.details = details;
+        if (this.details == null) {
+            return;
+        }
         this.details.setUser(this);
     }
 
@@ -277,9 +283,9 @@ public class User extends BaseBusEntity {
 
     @JsonIgnore
     @Transient
-    public Set<Role> getAllRoles(){
+    public Set<Role> getAllRoles() {
         Set<Role> allroles = new HashSet<>();
-        allroles.addAll(ObjectUtil.filter(ObjectUtil.defaultValue(this.getRoles(),new ArrayList<>()), Role::isEnabled));
+        allroles.addAll(ObjectUtil.filter(ObjectUtil.defaultValue(this.getRoles(), new ArrayList<>()), Role::isEnabled));
         if (this.getUserType() != UserType.employee) {
             return allroles;
         }

@@ -47,11 +47,6 @@ public class DateUtilTest {
     }
 
     @Test
-    public void format4() throws Exception {
-
-    }
-
-    @Test
     public void format5() throws Exception {
 
     }
@@ -235,7 +230,8 @@ public class DateUtilTest {
 
     @Test
     public void truncatedCompareTo() throws Exception {
-        System.out.println(DateUtil.truncatedCompareTo(DateUtil.now(),DateUtil.parse("2017-01-19 21:21:11","yyyy-MM-dd"), Calendar.DATE));
+        LOGGER.debug(DateUtil.truncatedCompareTo(DateUtil.now(),DateUtil.parse("2017-01-19 21:21:11","yyyy-MM-dd"), Calendar.DATE));
+        LOGGER.debug(DateUtil.truncatedCompareTo(DateUtil.parse("2017-02-15","yyyy-MM-dd"),DateUtil.now(), Calendar.DATE));
     }
 
     @Test
