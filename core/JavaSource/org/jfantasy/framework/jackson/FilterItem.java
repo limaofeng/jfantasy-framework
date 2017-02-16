@@ -23,7 +23,7 @@ public class FilterItem {
         FilterItem item = new FilterItem();
         item.clazz = clazz;
         item.fields = fields;
-        item.pattern = Pattern.IGNORE;
+        item.pattern = Pattern.ALLOW;
         return item;
     }
 
