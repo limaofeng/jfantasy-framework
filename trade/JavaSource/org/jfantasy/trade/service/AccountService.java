@@ -116,11 +116,13 @@ public class AccountService {
         }
         if ("personal".equals(member.getType()) || "doctor".equals(member.getType())) {//个人
             account.setType(AccountType.personal);
+            account.setOwnerId(member.getId().toString());
+            account.setOwnerType(member.getType());
         } else if (ObjectUtil.exists(new String[]{"company", "pharmacy", "clinic"}, member.getType())) {//集团
             account.setType(AccountType.enterprise);
+            account.setOwnerId(member.getTargetId());
+            account.setOwnerType(member.getType());
         }
-        account.setOwnerId(member.getTargetId());
-        account.setOwnerType(member.getType());
         account.setOwnerName(member.getNickName());
     }
 
