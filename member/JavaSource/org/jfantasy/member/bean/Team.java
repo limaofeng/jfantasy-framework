@@ -9,6 +9,7 @@ import org.jfantasy.framework.dao.hibernate.converter.MapConverter;
 import org.jfantasy.framework.spring.validation.RESTful;
 import org.jfantasy.framework.spring.validation.Use;
 import org.jfantasy.member.validators.TeamIdCannotRepeatValidator;
+import org.jfantasy.security.bean.User;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -21,7 +22,7 @@ import java.util.Map;
  */
 @Entity
 @Table(name = "MEM_TEAM")
-@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "team_members", "member"})
+@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "team_members", "member","officer"})
 public class Team extends BaseBusEntity {
 
     private static final long serialVersionUID = 4465203760129454882L;
@@ -88,6 +89,12 @@ public class Team extends BaseBusEntity {
      */
     @OneToMany(mappedBy = "team", fetch = FetchType.LAZY)
     private List<TeamMember> teamMembers;
+    /**
+     * 负责人
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "OFFICER", foreignKey = @ForeignKey(name = "FK_TEAM_USER"))
+    private User officer;
 
     public String getType() {
         return type;
@@ -193,6 +200,14 @@ public class Team extends BaseBusEntity {
 
     public void setOwner(TeamMember owner) {
         this.owner = owner;
+    }
+
+    public User getOfficer() {
+        return officer;
+    }
+
+    public void setOfficer(User officer) {
+        this.officer = officer;
     }
 
     @Transient
