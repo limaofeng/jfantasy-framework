@@ -3,6 +3,7 @@ package org.jfantasy.member.bean;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 import org.jfantasy.framework.dao.BaseBusEntity;
@@ -11,6 +12,7 @@ import org.jfantasy.framework.dao.hibernate.converter.StringsConverter;
 import org.jfantasy.framework.spring.validation.RESTful;
 import org.jfantasy.member.bean.enums.TeamMemberStatus;
 import org.jfantasy.security.bean.Role;
+import org.jfantasy.security.bean.databind.RoleDeserializer;
 import org.jfantasy.security.bean.enums.Sex;
 
 import javax.persistence.*;
@@ -119,6 +121,7 @@ public class TeamMember extends BaseBusEntity {
     /**
      * 关联角色
      */
+    @JsonDeserialize(using = RoleDeserializer.class)
     @NotNull(groups = RESTful.POST.class)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ROLE_ID", foreignKey = @ForeignKey(name = "FK_TEAMMEMBER_ROLE"))

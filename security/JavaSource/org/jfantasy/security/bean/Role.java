@@ -71,6 +71,14 @@ public class Role extends BaseBusEntity {
     @JoinTable(name = "AUTH_ROLE_JOB", joinColumns = @JoinColumn(name = "ROLE_CODE"), inverseJoinColumns = @JoinColumn(name = "JOB_ID"), foreignKey = @ForeignKey(name = "FK_ROLE_JOB_RID"))
     private List<Job> jobs;
 
+    public Role(){
+    }
+
+    public Role(String id) {
+        super();
+        this.id = id;
+    }
+
     public List<Menu> getMenus() {
         return menus;
     }
