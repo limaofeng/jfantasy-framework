@@ -38,8 +38,8 @@ public class RoleService {
         return roleDao.save(role);
     }
 
-    public Role update(Role role) {
-        return this.roleDao.update(role);
+    public Role update(Role role,boolean patch) {
+        return this.roleDao.update(role,patch);
     }
 
     public Role get(String id) {
@@ -50,6 +50,18 @@ public class RoleService {
         for (String code : ids) {
             this.roleDao.delete(code);
         }
+    }
+
+    public List<Menu> removeMenus(String id,String[] menuIds){
+        Role role = this.roleDao.get(id);
+        if (menuIds.length == 1 && "clear".equals(menuIds[0])) {
+            role.getMenus().clear();
+        } else {
+            for (String menuId : menuIds) {
+                ObjectUtil.remove(role.getMenus(), "id", menuId);
+            }
+        }
+        return this.roleDao.update(role).getMenus();
     }
 
     public List<Menu> addMenus(String id, boolean clear, String[] menuIds) {

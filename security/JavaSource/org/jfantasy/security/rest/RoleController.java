@@ -55,11 +55,11 @@ public class RoleController {
         return roleService.save(role);
     }
 
-    @RequestMapping(value = "/{id}", method = {RequestMethod.PATCH})
+    @RequestMapping(value = "/{id}",  method = {RequestMethod.POST, RequestMethod.PATCH})
     @ResponseBody
-    public Role update(@PathVariable("id") String id, @RequestBody Role role) {
+    public Role update(@PathVariable("id") String id, @RequestBody Role role,HttpServletRequest request) {
         role.setId(id);
-        return roleService.save(role);
+        return roleService.update(role,WebUtil.hasMethod(request,HttpMethod.PATCH.name()));
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
@@ -101,16 +101,8 @@ public class RoleController {
 
     @RequestMapping(value = "/{id}/menus", method = RequestMethod.DELETE)
     @ResponseBody
-    public String[] menus(@PathVariable("id") String id, @RequestParam(value = "id") String[] menuIds) {
-        Role role = this.roleService.get(id);
-        if (menuIds.length == 1 && "clear".equals(menuIds[0])) {
-            role.getMenus().clear();
-        } else {
-            for (String menuId : menuIds) {
-                ObjectUtil.remove(role.getMenus(), "id", menuId);
-            }
-        }
-        return ObjectUtil.toFieldArray(this.roleService.update(role).getMenus(), "id", String.class);
+    public List<Menu> menus(@PathVariable("id") String id, @RequestParam(value = "id") String[] menuIds) {
+        return this.roleService.removeMenus(id,menuIds);
     }
 
     /**
