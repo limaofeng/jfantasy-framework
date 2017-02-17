@@ -49,10 +49,17 @@ public class Team extends BaseBusEntity {
     /**
      * 所有者账号
      */
-    @NotNull(groups = RESTful.POST.class)
+    @Deprecated
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "MEMBER_ID", nullable = false, updatable = false, foreignKey = @ForeignKey(name = "FK_TEAM_MEMBER"))
+    @JoinColumn(name = "MEMBER_ID", updatable = false, foreignKey = @ForeignKey(name = "FK_TEAM_MEMBER"))
     private Member member;
+    /**
+     * 集团所有者
+     */
+    @NotNull(groups = RESTful.POST.class)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "OWNER_ID", nullable = false, foreignKey = @ForeignKey(name = "FK_TEAM_TEAMMEMBER"))
+    private TeamMember owner;
     /**
      * 描述
      */
@@ -63,7 +70,7 @@ public class Team extends BaseBusEntity {
      */
     @Convert(converter = MapConverter.class)
     @Column(name = "PROPERTIES", columnDefinition = "Text")
-    private Map<String, Object> properties;
+    private Map<String, Object> attributes;
     /**
      * 目标Id
      */
@@ -128,19 +135,19 @@ public class Team extends BaseBusEntity {
         if (value == null) {
             return;
         }
-        if (this.properties == null) {
-            this.properties = new HashMap<>();
+        if (this.attributes == null) {
+            this.attributes = new HashMap<>();
         }
-        this.properties.put(key, value);
+        this.attributes.put(key, value);
     }
 
     @JsonAnyGetter
-    public Map<String, Object> getProperties() {
-        return properties;
+    public Map<String, Object> getAttributes() {
+        return attributes;
     }
 
-    public void setProperties(Map<String, Object> properties) {
-        this.properties = properties;
+    public void setAttributes(Map<String, Object> attributes) {
+        this.attributes = attributes;
     }
 
     public String getDescription() {
@@ -178,6 +185,14 @@ public class Team extends BaseBusEntity {
     @Transient
     public void setMemberId(Long id) {
         this.member = new Member(id);
+    }
+
+    public TeamMember getOwner() {
+        return owner;
+    }
+
+    public void setOwner(TeamMember owner) {
+        this.owner = owner;
     }
 
     @Transient

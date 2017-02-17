@@ -9,9 +9,9 @@ import org.jfantasy.framework.util.common.BeanUtil;
 import org.jfantasy.member.bean.Team;
 import org.jfantasy.member.bean.TeamMember;
 import org.jfantasy.member.bean.enums.TeamMemberStatus;
+import org.jfantasy.member.dao.TeamDao;
 import org.jfantasy.member.dao.TeamMemberDao;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,14 +21,14 @@ import java.util.List;
 @Service
 public class TeamMemberService {
 
+    private final TeamMemberDao teamMemberDao;
+    private final TeamDao teamDao;
+
     @Autowired
-    private ApplicationContext applicationContext;
-    @Autowired
-    private TeamMemberDao teamMemberDao;
-    @Autowired
-    private TeamService teamService;
-    @Autowired
-    private MemberService memberService;
+    public TeamMemberService(TeamMemberDao teamMemberDao, TeamDao teamDao) {
+        this.teamMemberDao = teamMemberDao;
+        this.teamDao = teamDao;
+    }
 
     public Pager<TeamMember> findPager(Pager<TeamMember> pager, List<PropertyFilter> filters) {
         return teamMemberDao.findPager(pager, filters);
@@ -59,7 +59,7 @@ public class TeamMemberService {
     @Transactional
     public TeamMember save(TeamMember member) {
         member.setStatus(TeamMemberStatus.unactivated);
-        Team team = this.teamService.get(member.getTeamId());
+        Team team = this.teamDao.get(member.getTeamId());
         if (team == null) {
             throw new ValidationException(100000, "团队不存在");
         }
@@ -89,4 +89,5 @@ public class TeamMemberService {
         this.teamMemberDao.save(teamMember);
         // 添加集团标签到用户
     }
+
 }

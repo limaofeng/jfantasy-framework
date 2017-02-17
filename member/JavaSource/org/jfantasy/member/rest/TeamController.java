@@ -55,7 +55,7 @@ public class TeamController {
      **/
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
+    @ApiImplicitParam(value = "filters", name = "filters", paramType = "query", dataType = "string")
     public Pager<ResultResourceSupport> search(@RequestParam(value = "type", required = false) String type, Pager<Team> pager, List<PropertyFilter> filters) {
         filters.add(new PropertyFilter("EQS_type", type));
         return assembler.toResources(this.teamService.findPager(pager, filters));
@@ -83,7 +83,12 @@ public class TeamController {
     @RequestMapping(value = "/{id}", method = {RequestMethod.PUT, RequestMethod.PATCH})
     public ResultResourceSupport update(@PathVariable("id") String id, @RequestBody Team team, HttpServletRequest request) {
         team.setKey(id);
-        return assembler.toResource(this.teamService.update(team, WebUtil.has(request,RequestMethod.PATCH)));
+        return assembler.toResource(this.teamService.update(team, WebUtil.has(request, RequestMethod.PATCH)));
+    }
+
+    @PutMapping(value = "/{id}/owner")
+    public ResultResourceSupport update(@PathVariable("id") String id, @RequestParam("tmid") Long tmid) {
+        return assembler.toResource(this.teamService.owner(id, tmid));
     }
 
     /**
@@ -101,8 +106,8 @@ public class TeamController {
      **/
     @RequestMapping(value = "/{id}/invites", method = RequestMethod.GET)
     @ResponseBody
-    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
-    public Pager<ResultResourceSupport> invites(@PathVariable("id") String id, Pager<Invite> pager,@ApiParam(hidden = true) List<PropertyFilter> filters) {
+    @ApiImplicitParam(value = "filters", name = "filters", paramType = "query", dataType = "string")
+    public Pager<ResultResourceSupport> invites(@PathVariable("id") String id, Pager<Invite> pager, @ApiParam(hidden = true) List<PropertyFilter> filters) {
         filters.add(new PropertyFilter("EQS_team.key", id));
         return InviteController.assembler.toResources(this.inviteService.findPager(pager, filters));
     }
@@ -127,8 +132,8 @@ public class TeamController {
     @JsonResultFilter(ignore = @IgnoreProperty(pojo = TeamMember.class, name = {"team", "member"}))
     @RequestMapping(value = "/{id}/members", method = RequestMethod.GET)
     @ResponseBody
-    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
-    public Pager<ResultResourceSupport> members(@PathVariable("id") String id, Pager<TeamMember> pager,@ApiParam(hidden = true) List<PropertyFilter> filters) {
+    @ApiImplicitParam(value = "filters", name = "filters", paramType = "query", dataType = "string")
+    public Pager<ResultResourceSupport> members(@PathVariable("id") String id, Pager<TeamMember> pager, @ApiParam(hidden = true) List<PropertyFilter> filters) {
         filters.add(new PropertyFilter("EQS_team.key", id));
         return TeamMemberController.assembler.toResources(this.teamMemberService.findPager(pager, filters));
     }
@@ -138,8 +143,8 @@ public class TeamController {
      **/
     @RequestMapping(value = "/{id}/addresses", method = RequestMethod.GET)
     @ResponseBody
-    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
-    public List<Address> addresses(@PathVariable("id") String id, Pager<Address> pager,@ApiParam(hidden = true) List<PropertyFilter> filters) {
+    @ApiImplicitParam(value = "filters", name = "filters", paramType = "query", dataType = "string")
+    public List<Address> addresses(@PathVariable("id") String id, Pager<Address> pager, @ApiParam(hidden = true) List<PropertyFilter> filters) {
         filters.add(new PropertyFilter("EQS_ownerType", "team"));
         filters.add(new PropertyFilter("EQS_ownerId", get(id).getKey()));
         return this.addressController.search(pager, filters).getPageItems();
@@ -147,6 +152,7 @@ public class TeamController {
 
     /**
      * 集团的发票申请列表
+     *
      * @param teamId
      * @param pager
      * @param filters

@@ -44,48 +44,53 @@ public class TeamMember extends BaseBusEntity {
     /**
      * 用户名称
      */
-    @Column(name = "NAME")
+    @NotNull(groups = RESTful.POST.class)
+    @Column(name = "NAME", length = 50)
     private String name;
     /**
      * 性别
      */
-    @Column(name = "SEX")
+    @Enumerated(EnumType.STRING)
+    @NotNull(groups = RESTful.POST.class)
+    @Column(name = "SEX", length = 20)
     private Sex sex;
     /**
      * 邮箱
      */
-    @Column(name = "EMAIL")
+    @NotNull(groups = RESTful.POST.class)
+    @Column(name = "EMAIL", length = 50)
     private String email;
     /**
      * 电话
      */
-    @Column(name = "MOBILE")
+    @NotNull(groups = RESTful.POST.class)
+    @Column(name = "MOBILE", length = 20)
     private String mobile;
     /**
      * 身份证
      */
-    @Column(name = "ID_CARD")
+    @Column(name = "ID_CARD", length = 18)
     private String idCard;
     /**
      * 岗位
      */
-    @Column(name = "POSITION")
+    @Column(name = "POSITION", length = 20)
     private String position;
     /**
      * 部门
      */
-    @Column(name = "DEPT")
+    @Column(name = "DEPT", length = 20)
     private String dept;
     /**
      * 备注
      */
-    @Column(name = "NOTES")
+    @Column(name = "NOTES", length = 250)
     private String notes;
     /**
      * 状态
      */
     @Enumerated(EnumType.STRING)
-    @Column(name = "STATUS", nullable = false)
+    @Column(name = "STATUS", nullable = false, length = 20)
     private TeamMemberStatus status;
     /**
      * 用户
@@ -114,6 +119,7 @@ public class TeamMember extends BaseBusEntity {
     /**
      * 关联角色
      */
+    @NotNull(groups = RESTful.POST.class)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ROLE_ID", foreignKey = @ForeignKey(name = "FK_TEAMMEMBER_ROLE"))
     private Role role;
