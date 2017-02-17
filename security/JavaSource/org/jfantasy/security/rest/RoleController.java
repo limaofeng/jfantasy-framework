@@ -55,7 +55,7 @@ public class RoleController {
         return roleService.save(role);
     }
 
-    @RequestMapping(value = "/{id}",  method = {RequestMethod.POST, RequestMethod.PATCH})
+    @RequestMapping(value = "/{id}",  method = {RequestMethod.PUT, RequestMethod.PATCH})
     @ResponseBody
     public Role update(@PathVariable("id") String id, @RequestBody Role role,HttpServletRequest request) {
         role.setId(id);
