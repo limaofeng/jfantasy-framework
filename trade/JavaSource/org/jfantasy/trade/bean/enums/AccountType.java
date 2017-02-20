@@ -6,10 +6,6 @@ public enum AccountType {
      */
     personal,
     /**
-     * 团体账户
-     */
-    team,
-    /**
      * 企业账户
      */
     enterprise,

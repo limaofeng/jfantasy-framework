@@ -25,10 +25,13 @@ public class OrderPayee extends BaseBusEntity {
      * 数据类型
      */
     @Enumerated(EnumType.STRING)
-    @Column(name = "DATA_TYPE", nullable = false, updatable = false,length = 20)
+    @Column(name = "DATA_TYPE", nullable = false, updatable = false, length = 20)
     private DataType dataType;
     /**
      * 数据类型
+     * 会员 提供 member_id
+     * team 提供 team_id
+     * account 为直接提供 账户
      */
     @Enumerated(EnumType.STRING)
     @Column(name = "TYPE", length = 20, nullable = false, updatable = false)
@@ -47,7 +50,7 @@ public class OrderPayee extends BaseBusEntity {
      * type = share 时，reference 不能为空
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "REFERENCE", updatable = false,foreignKey = @ForeignKey(name = "FK_ORDERPAYEE_REFERENCE"))
+    @JoinColumn(name = "REFERENCE", updatable = false, foreignKey = @ForeignKey(name = "FK_ORDERPAYEE_REFERENCE"))
     private OrderPayee reference;
     /**
      * 订单配置

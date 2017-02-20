@@ -128,6 +128,16 @@ public class OrderTypeService {
             return payee.getCode();
         }
         OrderPayeeValue value = ObjectUtil.find(order.getPayees(), "code", cashFlow.getPayee().getCode());
+        switch (value.getType()) {
+            case team:
+                break;
+            case member:
+                break;
+            case account:
+                return value.getValue();
+            default:
+                throw new ValidationException(String.format("type = %s 错误",value.getType()));
+        }
         return payee.getType() == PayeeType.account ? value.getValue() : accountService.loadAccountByOwner(value.getValue()).getSn();
     }
 

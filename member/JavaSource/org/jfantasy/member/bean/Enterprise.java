@@ -14,7 +14,7 @@ import javax.validation.constraints.NotNull;
  */
 @Entity
 @Table(name = "MEM_TEAM_ENTERPRISE")
-@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler"})
+@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "team"})
 public class Enterprise extends BaseBusEntity {
 
     @Id

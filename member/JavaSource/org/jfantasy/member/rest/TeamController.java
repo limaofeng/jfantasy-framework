@@ -110,6 +110,11 @@ public class TeamController {
         return this.enterpriseService.save(enterprise);
     }
 
+    @GetMapping(value = "/{id}/enterprise")
+    public Enterprise enterprise(@PathVariable("id") String id) {
+        return get(id).getEnterprise();
+    }
+
     /**
      * 删除团队 - 删除团队
      **/

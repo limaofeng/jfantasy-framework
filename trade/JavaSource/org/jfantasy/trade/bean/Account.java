@@ -56,6 +56,9 @@ public class Account extends BaseBusEntity {
     private Long points;
     /**
      * 所有者
+     * type = personal 时，owner 存储 member_id
+     * type = enterprise 时，owner 存储 team_id
+     * type = platform 时, owner 为 NULL
      */
     @Column(name = "OWNER", length = 10, nullable = false, updatable = false, unique = true)
     private String owner;

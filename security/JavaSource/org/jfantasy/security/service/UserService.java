@@ -18,6 +18,7 @@ import org.jfantasy.security.bean.enums.EmployeeStatus;
 import org.jfantasy.security.bean.enums.UserType;
 import org.jfantasy.security.context.LoginEvent;
 import org.jfantasy.security.context.LogoutEvent;
+import org.jfantasy.security.dao.EmployeeDao;
 import org.jfantasy.security.dao.UserDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -35,14 +36,16 @@ import java.util.List;
 public class UserService {
 
     private final UserDao userDao;
+    private final EmployeeDao employeeDao;
 
     private ApplicationContext applicationContext;
     private PasswordEncoder passwordEncoder;
     private RoleService roleService;
 
     @Autowired
-    public UserService(UserDao userDao) {
+    public UserService(UserDao userDao, EmployeeDao employeeDao) {
         this.userDao = userDao;
+        this.employeeDao = employeeDao;
     }
 
     /**
@@ -175,6 +178,10 @@ public class UserService {
         }
         this.userDao.update(user);
         return user.getRoles();
+    }
+
+    public Pager<Employee> findEmployeePager(Pager<Employee> pager, List<PropertyFilter> filters) {
+        return this.employeeDao.findPager(pager, filters);
     }
 
     public List<Role> removeRoles(Long id, String... roles) {

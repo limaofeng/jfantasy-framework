@@ -9,10 +9,12 @@ import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
 import org.jfantasy.framework.spring.mvc.error.RestException;
 import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.spring.validation.RESTful;
+import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.member.bean.Member;
 import org.jfantasy.member.service.MemberService;
 import org.jfantasy.security.bean.User;
+import org.jfantasy.security.bean.enums.UserType;
 import org.jfantasy.security.service.UserService;
 import org.jfantasy.sns.bean.Snser;
 import org.jfantasy.sns.bean.enums.PlatformType;
@@ -30,10 +32,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
-
-/**
- * 用于处理登陆及退出
- */
 
 /**
  * 用户登录退出
@@ -110,11 +108,11 @@ public class AuthController {
 
     private User userLogin(LoginForm loginForm) {
         User user = this.userService.login(loginForm.getUsername(), loginForm.getPassword());
-        return validateUserType(user, loginForm.getUserType());
+        return validateUserType(user, UserType.valueOf(loginForm.getUserType()));
     }
 
-    private User validateUserType(User user, String userType) {
-        if (StringUtil.isNotBlank(userType) && !userType.equals(user.getUserType())) {
+    public static User validateUserType(User user, UserType userType) {
+        if (userType != null && !userType.equals(user.getUserType())) {
             throw new RestException("UserType 不一致");
         }
         return user;
@@ -125,11 +123,11 @@ public class AuthController {
         return validateUserType(member, loginForm.getUserType());
     }
 
-    private Member validateUserType(Member user, String userType) {
-        if (StringUtil.isNotBlank(userType) && !userType.equals(user.getType())) {
+    public static Member validateUserType(Member member, String userType) {
+        if (StringUtil.isNotBlank(userType) && !ObjectUtil.exists(member.getTypes(), "id", Member.MEMBER_TYPE_PERSONAL)) {
             throw new RestException("UserType 不一致");
         }
-        return user;
+        return member;
     }
 
     /**

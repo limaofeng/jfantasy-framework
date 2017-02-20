@@ -17,7 +17,9 @@ import org.jfantasy.framework.util.regexp.RegexpCst;
 import org.jfantasy.framework.util.regexp.RegexpUtil;
 import org.jfantasy.member.bean.Member;
 import org.jfantasy.member.bean.MemberDetails;
+import org.jfantasy.member.bean.MemberType;
 import org.jfantasy.member.dao.MemberDao;
+import org.jfantasy.member.dao.MemberTypeDao;
 import org.jfantasy.member.event.LoginEvent;
 import org.jfantasy.member.event.LogoutEvent;
 import org.jfantasy.member.event.RegisterEvent;
@@ -45,6 +47,8 @@ public class MemberService {
     private static final Log LOG = LogFactory.getLog(MemberService.class);
 
     private MemberDao memberDao;
+    private MemberTypeDao memberTypeDao;
+
     private RoleService roleService;
     private ApplicationContext applicationContext;
     private PasswordEncoder passwordEncoder;
@@ -63,7 +67,7 @@ public class MemberService {
 
     private Member signUp(String username) {
         Member member = new Member();
-        member.setType(Member.MEMBER_TYPE_PERSONAL);
+        member.addType(this.memberTypeDao.get(Member.MEMBER_TYPE_PERSONAL));
         member.setUsername(username);
         member.setPassword(StringUtil.generateNonceString(20));
         return this.save(member);

@@ -29,10 +29,10 @@ import java.util.List;
 public class Employee extends BaseBusEntity {
 
     @Id
-    @Column(name = "USER_ID", nullable = false, updatable = false, precision = 22, scale = 0)
+    @Column(name = "USER_ID", nullable = false, updatable = false, precision = 22)
     @GenericGenerator(name = "pkGenerator", strategy = "foreign", parameters = {@Parameter(name = "property", value = "user")})
     @GeneratedValue(generator = "pkGenerator")
-    private Long userId;
+    private Long id;
     /**
      * 状态
      */
@@ -111,12 +111,12 @@ public class Employee extends BaseBusEntity {
     @OneToOne(fetch = FetchType.LAZY, targetEntity = User.class, mappedBy = "employee")
     private User user;
 
-    public Long getUserId() {
-        return userId;
+    public Long getId() {
+        return id;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Job getJob() {

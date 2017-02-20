@@ -3,6 +3,7 @@ package org.jfantasy.oauth.service;
 import org.jfantasy.framework.service.PasswordTokenType;
 import org.jfantasy.framework.spring.mvc.error.RestException;
 import org.jfantasy.framework.util.common.DateUtil;
+import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.member.bean.Member;
 import org.jfantasy.member.service.MemberService;
 import org.jfantasy.oauth.bean.ApiKey;
@@ -155,7 +156,7 @@ public class AccessTokenService {
     private void retrieveUser(OAuthUserDetails userDetails, OAuthUserDetails user) {
         userDetails.setId(user.getId());
         userDetails.setUsername(user.getUsername());
-        userDetails.setUserType(user.getUserType());
+        userDetails.setUserTypes(user.getUserTypes());
         userDetails.setScope(user.getScope());
         userDetails.setNickName(user.getNickName());
 
@@ -176,7 +177,7 @@ public class AccessTokenService {
     private void retrieveUser(OAuthUserDetails userDetails, ApiKey apiKey) {
         userDetails.setId(0L);
         userDetails.setUsername(apiKey.getKey());
-        userDetails.setUserType(null);
+        userDetails.setUserTypes(null);
         userDetails.setScope(Scope.apiKey);
         userDetails.setNickName(apiKey.getDescription());
 
@@ -194,7 +195,7 @@ public class AccessTokenService {
     private void retrieveUser(OAuthUserDetails userDetails, User user) {
         userDetails.setId(user.getId());
         userDetails.setUsername(user.getUsername());
-        userDetails.setUserType(user.getUserType().name());
+        userDetails.setUserTypes(new String[]{user.getUserType().name()});
         userDetails.setScope(Scope.user);
         userDetails.setNickName(user.getNickName());
 
@@ -217,7 +218,7 @@ public class AccessTokenService {
     private void retrieveUser(OAuthUserDetails userDetails, Member member) {
         userDetails.setId(member.getId());
         userDetails.setUsername(member.getUsername());
-        userDetails.setUserType(member.getType());
+        userDetails.setUserTypes(ObjectUtil.toFieldArray(member.getTypes(),"id",String.class));
         userDetails.setScope(Scope.member);
         userDetails.setNickName(member.getNickName());
 

@@ -11,6 +11,7 @@ import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
 import org.jfantasy.framework.spring.mvc.error.NotFoundException;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
 import org.jfantasy.framework.spring.validation.RESTful;
+import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.framework.util.web.RedirectAttributesWriter;
 import org.jfantasy.framework.util.web.WebUtil;
@@ -109,8 +110,8 @@ public class MemberController {
     @ResponseBody
     public ResultResourceSupport profile(HttpServletResponse response, @PathVariable("id") Long id) {
         Member member = get(id);
-        if (Member.MEMBER_TYPE_PERSONAL.equals(member.getType())) {
-            return profileAssembler.toResource(member.getDetails());
+        if (ObjectUtil.exists(member.getTypes(),"id",Member.MEMBER_TYPE_PERSONAL)) {
+                return profileAssembler.toResource(member.getDetails());
         }
         response.setStatus(307);
         return assembler.toResource(member);
@@ -123,7 +124,7 @@ public class MemberController {
     @ResponseBody
     public ResultResourceSupport profile(HttpServletResponse response, @PathVariable("id") Long id, @RequestBody MemberDetails details) {
         Member member = get(id);
-        if (Member.MEMBER_TYPE_PERSONAL.equals(member.getType())) {
+        if (ObjectUtil.exists(member.getTypes(),"id",Member.MEMBER_TYPE_PERSONAL)) {
             details.setMemberId(id);
             return profileAssembler.toResource(memberService.update(details));
         }

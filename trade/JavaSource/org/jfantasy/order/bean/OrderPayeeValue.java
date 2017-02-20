@@ -2,6 +2,7 @@ package org.jfantasy.order.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.jfantasy.framework.dao.BaseBusEntity;
+import org.jfantasy.order.bean.enums.PayeeType;
 
 import javax.persistence.*;
 
@@ -42,6 +43,14 @@ public class OrderPayeeValue extends BaseBusEntity {
      */
     @Column(name = "VALUE", nullable = false, updatable = false,length = 32)
     private String value;
+
+    public String getTarget() {
+        return target;
+    }
+
+    public void setTarget(String target) {
+        this.target = target;
+    }
 
     public Long getId() {
         return id;
@@ -99,12 +108,12 @@ public class OrderPayeeValue extends BaseBusEntity {
         return this.getPayee().getTitle();
     }
 
-    public String getTarget() {
-        return target;
-    }
-
-    public void setTarget(String target) {
-        this.target = target;
+    @Transient
+    public PayeeType getType() {
+        if (this.getPayee() == null) {
+            return null;
+        }
+        return this.getPayee().getType();
     }
 
 }

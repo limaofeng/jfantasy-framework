@@ -12,11 +12,15 @@ import org.jfantasy.framework.dao.hibernate.converter.StringsConverter;
 import org.jfantasy.framework.spring.validation.RESTful.POST;
 import org.jfantasy.framework.spring.validation.RESTful.PUT;
 import org.jfantasy.framework.spring.validation.Use;
+import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.member.validators.UsernameCannotRepeatValidator;
+import org.jfantasy.security.bean.Menu;
 
 import javax.persistence.*;
 import javax.validation.constraints.Null;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 会员
@@ -37,7 +41,7 @@ import java.util.Date;
 public class Member extends BaseBusEntity {
 
     public static final String MEMBER_TYPE_PERSONAL = "personal";
-    public static final String MEMBER_TYPE_TEAM = "team";
+    public static final String MEMBER_TYPE_DOCTOR = "team";
 
     private static final long serialVersionUID = -4479116155241989100L;
 
@@ -50,8 +54,9 @@ public class Member extends BaseBusEntity {
      * 用户类型
      */
     @NotEmpty(groups = {POST.class})
-    @Column(name = "MEMBER_TYPE", length = 20, nullable = false, updatable = false)
-    private String type;
+    @ManyToMany(targetEntity = Menu.class, fetch = FetchType.LAZY)
+    @JoinTable(name = "MEM_MEMBER_TYPES", joinColumns = @JoinColumn(name = "MEMBER"), inverseJoinColumns = @JoinColumn(name = "TYPE"), foreignKey = @ForeignKey(name = "FK_MEMBERTYPES_MID"))
+    private List<MemberType> types;
     /**
      * 用户登录名称
      */
@@ -248,12 +253,12 @@ public class Member extends BaseBusEntity {
         this.code = code;
     }
 
-    public String getType() {
-        return type;
+    public List<MemberType> getTypes() {
+        return types;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setTypes(List<MemberType> types) {
+        this.types = types;
     }
 
     public String getTargetId() {
@@ -280,11 +285,18 @@ public class Member extends BaseBusEntity {
         this.tags = tags;
     }
 
+    public void addType(MemberType type) {
+        if (this.types == null) {
+            this.types = new ArrayList<>();
+        }
+        this.types.add(type);
+    }
+
     @Override
     public String toString() {
         return "Member{" +
                 "id=" + id +
-                ", type='" + type + '\'' +
+                ", type='" + ObjectUtil.toString(this.types, "id", ",") + '\'' +
                 ", username='" + username + '\'' +
                 ", nickName='" + nickName + '\'' +
                 ", enabled=" + enabled +
@@ -298,4 +310,5 @@ public class Member extends BaseBusEntity {
                 ", code='" + code + '\'' +
                 '}';
     }
+
 }

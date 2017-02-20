@@ -41,7 +41,7 @@ public class OAuthUserDetails implements UserDetails {
     /**
      * 用户类型
      */
-    private String userType;
+    private String[] userTypes;
     /**
      * 用于标记权限范围
      */
@@ -133,16 +133,16 @@ public class OAuthUserDetails implements UserDetails {
         this.username = username;
     }
 
-    public void setUserType(String userType) {
-        this.userType = userType;
+    public void setUserTypes(String[] userTypes) {
+        this.userTypes = userTypes;
     }
 
     public void setNickName(String nickName) {
         this.nickName = nickName;
     }
 
-    public String getUserType() {
-        return userType;
+    public String[] getUserTypes() {
+        return userTypes;
     }
 
     public Scope getScope() {
