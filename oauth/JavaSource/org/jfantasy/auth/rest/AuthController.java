@@ -2,7 +2,6 @@ package org.jfantasy.auth.rest;
 
 import org.jfantasy.auth.rest.models.LoginForm;
 import org.jfantasy.auth.rest.models.LogoutForm;
-import org.jfantasy.auth.rest.models.Scope;
 import org.jfantasy.auth.rest.models.SnsLoginForm;
 import org.jfantasy.framework.jackson.annotation.IgnoreProperty;
 import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
@@ -60,19 +59,20 @@ public class AuthController {
      * @param loginForm 登陆表单
      * @return Object
      */
+    @JsonResultFilter(ignore = {@IgnoreProperty(pojo = Member.class, name = {"types", Member.BASE_JSONFIELDS})})
     @RequestMapping(value = "/login", method = RequestMethod.POST)
-    @JsonResultFilter(ignore = {
-            @IgnoreProperty(pojo = Member.class, name = {Member.BASE_JSONFIELDS})
-    })
     @ResponseBody
     public Object login(@Validated(RESTful.POST.class) @RequestBody LoginForm loginForm) {
-        if (StringUtil.isBlank(loginForm.getUserType())) {
-            loginForm.setUserType(Scope.member == loginForm.getScope() ? Member.MEMBER_TYPE_PERSONAL : null);
-        }
         switch (loginForm.getScope()) {
             case user:
+                if (StringUtil.isBlank(loginForm.getUserType())) {
+                    loginForm.setUserType(UserType.admin.name());
+                }
                 return userLogin(loginForm);
             case member:
+                if (StringUtil.isBlank(loginForm.getUserType())) {
+                    loginForm.setUserType(Member.MEMBER_TYPE_PERSONAL);
+                }
                 return memberLogin(loginForm);
             default:
                 throw new RestException("不能识别的 scope 类型");
@@ -84,6 +84,7 @@ public class AuthController {
      *
      * @return Member
      */
+    @JsonResultFilter(ignore = {@IgnoreProperty(pojo = Member.class, name = {"types", Member.BASE_JSONFIELDS})})
     @PostMapping("/snslogin")
     @ResponseBody
     public Object snslogin(@RequestBody SnsLoginForm login, HttpServletResponse response) throws WeixinException {
@@ -127,6 +128,7 @@ public class AuthController {
         if (StringUtil.isNotBlank(userType) && !ObjectUtil.exists(member.getTypes(), "id", Member.MEMBER_TYPE_PERSONAL)) {
             throw new RestException("UserType 不一致");
         }
+        member.setType(userType);
         return member;
     }
 

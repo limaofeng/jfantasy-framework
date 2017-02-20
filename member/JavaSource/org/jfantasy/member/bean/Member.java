@@ -14,7 +14,6 @@ import org.jfantasy.framework.spring.validation.RESTful.PUT;
 import org.jfantasy.framework.spring.validation.Use;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.member.validators.UsernameCannotRepeatValidator;
-import org.jfantasy.security.bean.Menu;
 
 import javax.persistence.*;
 import javax.validation.constraints.Null;
@@ -41,7 +40,6 @@ import java.util.List;
 public class Member extends BaseBusEntity {
 
     public static final String MEMBER_TYPE_PERSONAL = "personal";
-    public static final String MEMBER_TYPE_DOCTOR = "team";
 
     private static final long serialVersionUID = -4479116155241989100L;
 
@@ -54,7 +52,7 @@ public class Member extends BaseBusEntity {
      * 用户类型
      */
     @NotEmpty(groups = {POST.class})
-    @ManyToMany(targetEntity = Menu.class, fetch = FetchType.LAZY)
+    @ManyToMany(targetEntity = MemberType.class, fetch = FetchType.LAZY)
     @JoinTable(name = "MEM_MEMBER_TYPES", joinColumns = @JoinColumn(name = "MEMBER"), inverseJoinColumns = @JoinColumn(name = "TYPE"), foreignKey = @ForeignKey(name = "FK_MEMBERTYPES_MID"))
     private List<MemberType> types;
     /**
@@ -139,6 +137,8 @@ public class Member extends BaseBusEntity {
     private String[] tags;
     @Transient
     private String code;
+    @Transient
+    private String type;
     @Transient
     private String[] authorities;
 
@@ -290,6 +290,14 @@ public class Member extends BaseBusEntity {
             this.types = new ArrayList<>();
         }
         this.types.add(type);
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getType() {
+        return type;
     }
 
     @Override
