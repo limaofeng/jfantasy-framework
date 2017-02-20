@@ -17,6 +17,7 @@ import org.jfantasy.framework.util.regexp.RegexpConstant;
 import org.jfantasy.framework.util.regexp.RegexpUtil;
 import org.jfantasy.member.bean.Member;
 import org.jfantasy.member.bean.MemberDetails;
+import org.jfantasy.member.bean.enums.SignUpType;
 import org.jfantasy.member.dao.MemberDao;
 import org.jfantasy.member.dao.MemberTypeDao;
 import org.jfantasy.member.event.LoginEvent;
@@ -64,12 +65,12 @@ public class MemberService {
         return this.memberDao.findPager(pager, filters);
     }
 
-    private Member signUp(String username) {
+    private Member signUp(String username, SignUpType signUpType) {
         Member member = new Member();
         member.addType(this.memberTypeDao.get(Member.MEMBER_TYPE_PERSONAL));
         member.setUsername(username);
         member.setPassword(StringUtil.generateNonceString(20));
-        return this.save(member);
+        return this.save(member,signUpType);
     }
 
     public Member login(String username) {
@@ -106,7 +107,7 @@ public class MemberService {
         }
 
         if (member == null && type == PasswordTokenType.macode) {
-            signUp(username);
+            signUp(username,SignUpType.sms);
         }
         return login(username);
     }
@@ -117,19 +118,19 @@ public class MemberService {
      * @param member 注册信息
      * @return Member
      */
-    public Member save(Member member) {
+    public Member save(Member member, SignUpType signUpType) {
         MemberDetails details = ObjectUtil.defaultValue(member.getDetails(), new MemberDetails());
         // 设置默认属性
         details.setMailValid(false);
         details.setMobileValid(false);
         details.setLevel(0L);
-        // 如果用email注册
-        if (RegexpUtil.isMatch(member.getUsername(), RegexpConstant.VALIDATOR_EMAIL)) {
+
+        if (RegexpUtil.isMatch(member.getUsername(), RegexpConstant.VALIDATOR_EMAIL)) {// 如果用email注册
             details.setEmail(member.getUsername());
-        }
-        // 如果用手机注册
-        if (RegexpUtil.isMatch(member.getUsername(), RegexpConstant.VALIDATOR_MOBILE)) {
+            details.setMailValid(signUpType == SignUpType.email);
+        }else if (RegexpUtil.isMatch(member.getUsername(), RegexpConstant.VALIDATOR_MOBILE)) {// 如果用手机注册
             details.setMobile(member.getUsername());
+            details.setMobileValid(signUpType == SignUpType.sms);
         }
         member.setDetails(details);
 
