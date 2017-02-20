@@ -83,31 +83,26 @@ public class Member extends BaseBusEntity {
     /**
      * 未过期
      */
-    @JsonProperty("non_expired")
     @Column(name = "NON_EXPIRED", nullable = false)
     private Boolean accountNonExpired;
     /**
      * 未锁定
      */
-    @JsonProperty("non_locked")
     @Column(name = "NON_LOCKED", nullable = false)
     private Boolean accountNonLocked;
     /**
      * 未失效
      */
-    @JsonProperty("credentials_non_expired")
     @Column(name = "CREDENTIALS_NON_EXPIRED", nullable = false)
     private Boolean credentialsNonExpired;
     /**
      * 锁定时间
      */
-    @JsonProperty("lock_time")
     @Column(name = "LOCK_TIME")
     private Date lockTime;
     /**
      * 最后登录时间
      */
-    @JsonProperty("last_login_time")
     @Column(name = "LAST_LOGIN_TIME")
     private Date lastLoginTime;
     /**

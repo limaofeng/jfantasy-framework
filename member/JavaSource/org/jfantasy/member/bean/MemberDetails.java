@@ -27,7 +27,7 @@ import java.util.Map;
  * @since 2013-3-25 下午03:43:54
  */
 @Entity
-@Table(name = "MEM_MEMBER_DETAILS")
+@Table(name = "MEM_MEMBER_DETAILS", uniqueConstraints = @UniqueConstraint(name = "UK_MEMBER_MOBILE", columnNames = "MOBILE"))
 @JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "member"})
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class MemberDetails implements Serializable {
@@ -70,16 +70,6 @@ public class MemberDetails implements Serializable {
      */
     @Column(name = "EMAIL", length = 50)
     private String email;
-    /**
-     * 邮箱是否验证
-     */
-    @Column(name = "MAIL_VALID", nullable = false)
-    private Boolean mailValid;
-    /**
-     * 手机号是否验证
-     */
-    @Column(name = "MOBILE_VALID", nullable = false)
-    private Boolean mobileValid;
     /**
      * 网址
      */
@@ -189,22 +179,6 @@ public class MemberDetails implements Serializable {
         this.member = member;
     }
 
-    public Boolean getMailValid() {
-        return mailValid;
-    }
-
-    public void setMailValid(Boolean mailValid) {
-        this.mailValid = mailValid;
-    }
-
-    public Boolean getMobileValid() {
-        return mobileValid;
-    }
-
-    public void setMobileValid(Boolean mobileValid) {
-        this.mobileValid = mobileValid;
-    }
-
     @JsonDeserialize(using = ImageDeserializer.class)
     public void setAvatar(Image image) {
         this.avatar = image;
@@ -237,13 +211,13 @@ public class MemberDetails implements Serializable {
 
     @Transient
     public String get(String key) {
-        if (this.properties == null || !this.properties.containsKey(key)){
+        if (this.properties == null || !this.properties.containsKey(key)) {
             return null;
-        } 
+        }
         return this.properties.get(key).toString();
     }
 
-    public void setProperties(Map<String,Object> properties) {
+    public void setProperties(Map<String, Object> properties) {
         this.properties = properties;
     }
 

@@ -24,7 +24,7 @@ import org.jfantasy.member.event.LoginEvent;
 import org.jfantasy.member.event.LogoutEvent;
 import org.jfantasy.member.event.RegisterEvent;
 import org.jfantasy.security.bean.Role;
-import org.jfantasy.security.service.RoleService;
+import org.jfantasy.security.dao.RoleDao;
 import org.jfantasy.sns.bean.Snser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -46,13 +46,20 @@ public class MemberService {
 
     private static final Log LOG = LogFactory.getLog(MemberService.class);
 
-    private MemberDao memberDao;
-    private MemberTypeDao memberTypeDao;
+    private final MemberDao memberDao;
+    private final MemberTypeDao memberTypeDao;
+    private final RoleDao roleDao;
 
-    private RoleService roleService;
     private ApplicationContext applicationContext;
     private PasswordEncoder passwordEncoder;
     private PasswordTokenEncoder passwordTokenEncoder;
+
+    @Autowired
+    public MemberService(MemberDao memberDao, MemberTypeDao memberTypeDao, RoleDao roleDao) {
+        this.memberDao = memberDao;
+        this.memberTypeDao = memberTypeDao;
+        this.roleDao = roleDao;
+    }
 
     /**
      * 列表查询
@@ -70,7 +77,7 @@ public class MemberService {
         member.addType(this.memberTypeDao.get(Member.MEMBER_TYPE_PERSONAL));
         member.setUsername(username);
         member.setPassword(StringUtil.generateNonceString(20));
-        return this.save(member,signUpType);
+        return this.save(member, signUpType);
     }
 
     public Member login(String username) {
@@ -107,7 +114,7 @@ public class MemberService {
         }
 
         if (member == null && type == PasswordTokenType.macode) {
-            signUp(username,SignUpType.sms);
+            signUp(username, SignUpType.sms);
         }
         return login(username);
     }
@@ -121,16 +128,12 @@ public class MemberService {
     public Member save(Member member, SignUpType signUpType) {
         MemberDetails details = ObjectUtil.defaultValue(member.getDetails(), new MemberDetails());
         // 设置默认属性
-        details.setMailValid(false);
-        details.setMobileValid(false);
         details.setLevel(0L);
 
-        if (RegexpUtil.isMatch(member.getUsername(), RegexpConstant.VALIDATOR_EMAIL)) {// 如果用email注册
+        if (signUpType == SignUpType.email) {// 如果用email注册
             details.setEmail(member.getUsername());
-            details.setMailValid(signUpType == SignUpType.email);
-        }else if (RegexpUtil.isMatch(member.getUsername(), RegexpConstant.VALIDATOR_MOBILE)) {// 如果用手机注册
+        } else if (signUpType == SignUpType.sms) {// 如果用手机注册
             details.setMobile(member.getUsername());
-            details.setMobileValid(signUpType == SignUpType.sms);
         }
         member.setDetails(details);
 
@@ -141,7 +144,7 @@ public class MemberService {
 
         // 初始化用户权限
         List<Role> roles = new ArrayList<>();
-        Role defaultRole = roleService.get(DEFAULT_ROLE_CODE);
+        Role defaultRole = roleDao.get(DEFAULT_ROLE_CODE);
         if (defaultRole != null) {
             roles.add(defaultRole);
         }
@@ -252,15 +255,9 @@ public class MemberService {
         Member member = this.memberDao.findUniqueBy("username", username);// 用户名
         if (member == null && RegexpUtil.isMatch(username, RegexpConstant.VALIDATOR_EMAIL)) {//  email
             member = this.memberDao.findUniqueBy("details.email", username);
-            if (!member.getDetails().getMobileValid()) {
-                member = null;
-            }
         }
         if (member == null && RegexpUtil.isMatch(username, RegexpConstant.VALIDATOR_MOBILE)) {// 手机
             member = this.memberDao.findUniqueBy("details.mobile", username);
-            if (!member.getDetails().getMailValid()) {
-                member = null;
-            }
         }
         return member;
     }
@@ -268,16 +265,6 @@ public class MemberService {
     @Autowired(required = false)
     public void setPasswordTokenEncoder(PasswordTokenEncoder passwordTokenEncoder) {
         this.passwordTokenEncoder = passwordTokenEncoder;
-    }
-
-    @Autowired
-    public void setMemberDao(MemberDao memberDao) {
-        this.memberDao = memberDao;
-    }
-
-    @Autowired
-    public void setRoleService(RoleService roleService) {
-        this.roleService = roleService;
     }
 
     @Autowired
