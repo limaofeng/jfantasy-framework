@@ -86,7 +86,7 @@ public class CardBatchController {
     @RequestMapping(value = "/{id}/make", method = RequestMethod.POST)
     @ResponseBody
     public List<ResultResourceSupport> make(@PathVariable("id") Long id, @RequestBody LogForm form) {
-        return CardController.assembler.toResources(this.cardBatchService.make(id, form.getNotes()));
+        return CardController.ASSEMBLER.toResources(this.cardBatchService.make(id, form.getNotes()));
     }
 
     /** 正式发行卡 **/

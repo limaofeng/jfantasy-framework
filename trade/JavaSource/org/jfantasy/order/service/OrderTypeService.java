@@ -14,6 +14,7 @@ import org.jfantasy.order.bean.enums.PayeeType;
 import org.jfantasy.order.bean.enums.Stage;
 import org.jfantasy.order.dao.*;
 import org.jfantasy.trade.bean.Project;
+import org.jfantasy.trade.bean.enums.AccountType;
 import org.jfantasy.trade.dao.ProjectDao;
 import org.jfantasy.trade.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -130,15 +131,14 @@ public class OrderTypeService {
         OrderPayeeValue value = ObjectUtil.find(order.getPayees(), "code", cashFlow.getPayee().getCode());
         switch (value.getType()) {
             case team:
-                break;
+                return accountService.loadAccountByOwner(AccountType.enterprise,value.getValue()).getSn();
             case member:
-                break;
+                return accountService.loadAccountByOwner(AccountType.personal,value.getValue()).getSn();
             case account:
                 return value.getValue();
             default:
                 throw new ValidationException(String.format("type = %s 错误",value.getType()));
         }
-        return payee.getType() == PayeeType.account ? value.getValue() : accountService.loadAccountByOwner(value.getValue()).getSn();
     }
 
     @Transactional

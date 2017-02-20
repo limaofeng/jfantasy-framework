@@ -29,7 +29,7 @@ import java.util.List;
 @RequestMapping("/cards")
 public class CardController {
 
-    public static CardResourceAssembler assembler = new CardResourceAssembler();
+    static final CardResourceAssembler ASSEMBLER = new CardResourceAssembler();
 
     private final CardService cardService;
 
@@ -41,9 +41,9 @@ public class CardController {
     /**
      * 查询卡列表
      *
-     * @param pager
-     * @param filters
-     * @return
+     * @param pager Pager
+     * @param filters Filters
+     * @return Pager<Card>
      */
     @JsonResultFilter(
             allow = {
@@ -56,7 +56,7 @@ public class CardController {
     @ResponseBody
     @ApiImplicitParam(value = "filters", name = "filters", paramType = "query", dataType = "string")
     public Pager<ResultResourceSupport> search(Pager<Card> pager, List<PropertyFilter> filters) {
-        return assembler.toResources(cardService.findPager(pager, filters));
+        return ASSEMBLER.toResources(cardService.findPager(pager, filters));
     }
 
     /**
@@ -68,7 +68,7 @@ public class CardController {
     @RequestMapping(method = RequestMethod.GET, value = "/{id}")
     @ResponseBody
     public ResultResourceSupport view(@PathVariable("id") String id) {
-        return assembler.toResource(get(id));
+        return ASSEMBLER.toResource(get(id));
     }
 
     @JsonResultFilter(
@@ -90,7 +90,7 @@ public class CardController {
             }
             owner = user.getId().toString();
         }
-        return assembler.toResource(this.cardService.bind(owner, id, form.getPassword()));
+        return ASSEMBLER.toResource(this.cardService.bind(owner, id, form.getPassword()));
     }
 
     private Card get(String id) {

@@ -16,6 +16,7 @@ import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.framework.util.web.RedirectAttributesWriter;
 import org.jfantasy.framework.util.web.WebUtil;
 import org.jfantasy.member.bean.*;
+import org.jfantasy.member.bean.enums.SignUpType;
 import org.jfantasy.member.bean.enums.TeamMemberStatus;
 import org.jfantasy.member.rest.models.PasswordForm;
 import org.jfantasy.member.rest.models.assembler.MemberResourceAssembler;
@@ -110,8 +111,8 @@ public class MemberController {
     @ResponseBody
     public ResultResourceSupport profile(HttpServletResponse response, @PathVariable("id") Long id) {
         Member member = get(id);
-        if (ObjectUtil.exists(member.getTypes(),"id",Member.MEMBER_TYPE_PERSONAL)) {
-                return profileAssembler.toResource(member.getDetails());
+        if (ObjectUtil.exists(member.getTypes(), "id", Member.MEMBER_TYPE_PERSONAL)) {
+            return profileAssembler.toResource(member.getDetails());
         }
         response.setStatus(307);
         return assembler.toResource(member);
@@ -124,7 +125,7 @@ public class MemberController {
     @ResponseBody
     public ResultResourceSupport profile(HttpServletResponse response, @PathVariable("id") Long id, @RequestBody MemberDetails details) {
         Member member = get(id);
-        if (ObjectUtil.exists(member.getTypes(),"id",Member.MEMBER_TYPE_PERSONAL)) {
+        if (ObjectUtil.exists(member.getTypes(), "id", Member.MEMBER_TYPE_PERSONAL)) {
             details.setMemberId(id);
             return profileAssembler.toResource(memberService.update(details));
         }
@@ -144,7 +145,7 @@ public class MemberController {
     @ResponseStatus(value = HttpStatus.CREATED)
     @ResponseBody
     public ResultResourceSupport create(@Validated(RESTful.POST.class) @RequestBody Member member) {
-        return assembler.toResource(memberService.save(member));
+        return assembler.toResource(memberService.save(member, SignUpType.username));
     }
 
     @JsonResultFilter(

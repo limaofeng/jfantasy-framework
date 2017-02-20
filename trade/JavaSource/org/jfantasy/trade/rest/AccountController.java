@@ -93,7 +93,7 @@ public class AccountController {
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
     public ResultResourceSupport save(@RequestBody AccountForm form) {
-        return assembler.toResource(this.accountService.save(form.getOwner(), form.getPassword()));
+        return assembler.toResource(this.accountService.save(form.getType(),form.getOwner(), form.getPassword()));
     }
 
     /**

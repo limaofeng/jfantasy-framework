@@ -12,6 +12,7 @@ import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.pay.bean.enums.OwnerType;
 import org.jfantasy.pay.service.LogService;
 import org.jfantasy.trade.bean.Account;
+import org.jfantasy.trade.bean.enums.AccountType;
 import org.jfantasy.trade.dao.AccountDao;
 import org.jfantasy.trade.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +57,7 @@ public class CardService {
         if (card.getStatus() != CardStatus.activated) {
             throw new ValidationException(100000, "卡状态不正确");
         }
-        Account account = accountService.loadAccountByOwner(owner);//自动创建账号
+        Account account = accountService.loadAccountByOwner(AccountType.personal,owner);//自动创建账号
         if (!card.getSecret().equals(password)) {
             throw new ValidationException(100000, "密钥错误");
         }

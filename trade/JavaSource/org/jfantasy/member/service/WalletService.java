@@ -10,6 +10,7 @@ import org.jfantasy.member.bean.Wallet;
 import org.jfantasy.member.dao.WalletDao;
 import org.jfantasy.order.bean.ExtraService;
 import org.jfantasy.trade.bean.Account;
+import org.jfantasy.trade.bean.enums.AccountType;
 import org.jfantasy.trade.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -60,7 +61,7 @@ public class WalletService {
     private Wallet save(Long memberId) {
         Wallet wallet = this.walletDao.findUnique(Restrictions.eq("memberId", memberId));
         if (wallet == null) {
-            return newWallet(this.accountService.loadAccountByOwner(memberId.toString()));
+            return newWallet(this.accountService.loadAccountByOwner(AccountType.personal, memberId.toString()));
         }
         return wallet;
     }
@@ -98,7 +99,7 @@ public class WalletService {
         ExtraService[] services = card.getExtras();
         if (services.length != 0) {
             //添加成长值
-            ExtraService service = ObjectUtil.find(services,"project",ExtraService.ExtraProject.growth);
+            ExtraService service = ObjectUtil.find(services, "project", ExtraService.ExtraProject.growth);
             if (service != null) {
                 if (wallet.getGrowth() == null) {
                     wallet.setGrowth(0L);
@@ -106,7 +107,7 @@ public class WalletService {
                 wallet.setGrowth(wallet.getGrowth() + service.getValue());
             }
             //添加积分
-            service = ObjectUtil.find(services,"project",ExtraService.ExtraProject.point);
+            service = ObjectUtil.find(services, "project", ExtraService.ExtraProject.point);
             if (service != null) {
                 if (wallet.getPoints() == null) {
                     wallet.setPoints(0L);

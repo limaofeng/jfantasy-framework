@@ -39,7 +39,7 @@ public class AccountService {
     private PasswordEncoder passwordEncoder = new StandardPasswordEncoder();
 
     @Autowired
-    public AccountService(PointDao pointDao, ProjectDao projectDao, TransactionDao transactionDao, BillDao billDao, AccountDao accountDao, CardDao cardDao,MemberService memberService) {
+    public AccountService(PointDao pointDao, ProjectDao projectDao, TransactionDao transactionDao, BillDao billDao, AccountDao accountDao, CardDao cardDao, MemberService memberService) {
         this.pointDao = pointDao;
         this.projectDao = projectDao;
         this.transactionDao = transactionDao;
@@ -68,12 +68,12 @@ public class AccountService {
     }
 
     @Transactional
-    public Account loadAccountByOwner(String owner) {
-        Account account = this.accountDao.findUnique(Restrictions.eq("owner", owner));
+    public Account loadAccountByOwner(AccountType type, String owner) {
+        Account account = this.accountDao.findUnique(Restrictions.eq("type", type), Restrictions.eq("owner", owner));
         if (account != null) {
             return account;
         }
-        return this.save(owner, null);
+        return this.save(type, owner, null);
     }
 
     /**
@@ -83,7 +83,7 @@ public class AccountService {
      * @return Account
      */
     @Transactional
-    public Account save(String owner, String password) {
+    public Account save(AccountType type, String owner, String password) {
         if (this.accountDao.count(Restrictions.eq("owner", owner)) > 0) {
             throw new ValidationException(100000, "账号存在,创建失败");
         }
@@ -92,9 +92,10 @@ public class AccountService {
         account.setPoints(0L);
         account.setOwner(owner);
         account.setStatus(StringUtil.isBlank(password) ? AccountStatus.unactivated : AccountStatus.activated);
+        account.setType(type);
 
         //加载 owner 详细信息
-        ownerByMember(account);
+        ownerBy(account, type);
 
         return this.accountDao.save(account);
     }
@@ -109,7 +110,29 @@ public class AccountService {
         this.accountDao.update(old);
     }
 
+    private void ownerBy(Account account, AccountType type) {
+        switch (type) {
+            case enterprise:
+                ownerByTeam(account);
+                break;
+            case personal:
+                ownerByMember(account);
+                break;
+            default:
+        }
+    }
+
     private void ownerByMember(Account account) {
+        Member member = this.memberService.get(account.getOwner());
+        if (member == null) {
+            return;
+        }
+        account.setOwnerType(member.getType());
+        account.setOwnerId(member.getId().toString());
+        account.setOwnerName(member.getNickName());
+    }
+
+    private void ownerByTeam(Account account) {
         Member member = this.memberService.get(account.getOwner());
         if (member == null) {
             return;
@@ -280,7 +303,7 @@ public class AccountService {
 
     @Transactional
     public Account getByOwner(String owner) {
-        return this.accountDao.findUnique(Restrictions.eq("owner",owner));
+        return this.accountDao.findUnique(Restrictions.eq("owner", owner));
     }
 
 }

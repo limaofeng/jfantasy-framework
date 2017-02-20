@@ -42,6 +42,7 @@ import org.jfantasy.schedule.service.ScheduleService;
 import org.jfantasy.trade.bean.Account;
 import org.jfantasy.trade.bean.Project;
 import org.jfantasy.trade.bean.Transaction;
+import org.jfantasy.trade.bean.enums.AccountType;
 import org.jfantasy.trade.bean.enums.TxStatus;
 import org.jfantasy.trade.service.AccountService;
 import org.jfantasy.trade.service.TransactionService;
@@ -213,7 +214,7 @@ public class OrderService {
         if (order.getStatus() != OrderStatus.unpaid) {
             throw new ValidationException("订单" + order.getStatus().getValue() + ",不能支付");
         }
-        Account from = accountService.loadAccountByOwner(order.getMemberId().toString());// 付款方 - 只能是用户自己付款
+        Account from = accountService.loadAccountByOwner(AccountType.personal,order.getMemberId().toString());// 付款方 - 只能是用户自己付款
         Transaction transaction = this.transactionService.payment(from.getSn(), order.getPayableAmount(), "", data);
         order.setPaymentTransaction(transaction);
         return this.orderDao.update(order);
