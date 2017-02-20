@@ -2,27 +2,27 @@ package org.jfantasy.member.rest.models.assembler;
 
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
-import org.jfantasy.member.bean.Invite;
-import org.jfantasy.member.rest.InviteController;
+import org.jfantasy.member.bean.TeamInvite;
+import org.jfantasy.member.rest.MemberInviteController;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
 
-public class InviteResourceAssembler extends ResourceAssemblerSupport<Invite, ResultResourceSupport> {
+public class InviteResourceAssembler extends ResourceAssemblerSupport<TeamInvite, ResultResourceSupport> {
 
     public InviteResourceAssembler() {
-        super(InviteController.class, ResultResourceSupport.class);
+        super(MemberInviteController.class, ResultResourceSupport.class);
     }
 
     @Override
-    protected ResultResourceSupport<Invite> instantiateResource(Invite entity) {
+    protected ResultResourceSupport<TeamInvite> instantiateResource(TeamInvite entity) {
         return new ResultResourceSupport<>(entity);
     }
 
     @Override
-    public ResultResourceSupport toResource(Invite entity) {
+    public ResultResourceSupport toResource(TeamInvite entity) {
         return createResourceWithId(entity.getId(), entity);
     }
 
-    public Pager<ResultResourceSupport> toResources(Pager<Invite> pager) {
+    public Pager<ResultResourceSupport> toResources(Pager<TeamInvite> pager) {
         return new Pager<>(pager,this.toResources(pager.getPageItems()));
     }
 

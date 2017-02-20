@@ -107,7 +107,7 @@ public class Invoice extends BaseBusEntity {
     /*             开票人                */
     /*************************************/
     @Column(name = "DRAWER", nullable = false)
-    private Long drawer;
+    private String drawer;
 
     public Invoice() {
     }
@@ -244,11 +244,11 @@ public class Invoice extends BaseBusEntity {
         this.memberId = memberId;
     }
 
-    public Long getDrawer() {
+    public String getDrawer() {
         return drawer;
     }
 
-    public void setDrawer(Long drawer) {
+    public void setDrawer(String drawer) {
         this.drawer = drawer;
     }
 

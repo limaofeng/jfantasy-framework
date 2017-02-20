@@ -38,7 +38,7 @@ public class InvoiceService {
 
     @Transactional
     public List<Invoice> save(Invoice invoice) {
-        Map<Long, Invoice> invoices = new HashMap<>();
+        Map<String, Invoice> invoices = new HashMap<>();
         for (InvoiceItem item : invoice.getItems()) {
             Order order = orderDao.get(item.getOrder().getId());
             if (order == null) {
@@ -51,7 +51,7 @@ public class InvoiceService {
                 throw new ValidationException(100000, "只能为自己的订单申请发票");
             }
             //自动拆单逻辑
-            Long drawer = order.getDrawer();
+            String drawer = order.getDrawer();
             Invoice tinvoice = invoices.get(drawer);
             if (tinvoice == null) {
                 tinvoice = BeanUtil.copyProperties(new Invoice(), invoice);
@@ -70,7 +70,7 @@ public class InvoiceService {
         }
 
         //保存发票
-        for (Map.Entry<Long, Invoice> entry : invoices.entrySet()) {
+        for (Map.Entry<String, Invoice> entry : invoices.entrySet()) {
             Invoice tinvoice = entry.getValue();
             tinvoice.setAmount(tinvoice.getAmount().setScale(2, BigDecimal.ROUND_UP));
             tinvoice.setStatus(InvoiceStatus.NONE);

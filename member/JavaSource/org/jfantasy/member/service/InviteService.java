@@ -2,7 +2,7 @@ package org.jfantasy.member.service;
 
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
-import org.jfantasy.member.bean.Invite;
+import org.jfantasy.member.bean.TeamInvite;
 import org.jfantasy.member.bean.Team;
 import org.jfantasy.member.dao.InviteDao;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +17,7 @@ public class InviteService {
     @Autowired
     private InviteDao inviteDao;
 
-    public Pager<Invite> findPager(Pager<Invite> pager, List<PropertyFilter> filters) {
+    public Pager<TeamInvite> findPager(Pager<TeamInvite> pager, List<PropertyFilter> filters) {
         return this.inviteDao.findPager(pager, filters);
     }
 
@@ -28,23 +28,23 @@ public class InviteService {
         }
     }
 
-    public Invite get(Long id) {
+    public TeamInvite get(Long id) {
         return this.inviteDao.get(id);
     }
 
     @Transactional
-    public List<Invite> save(String teamid, List<Invite> invites) {
-        for (int i = 0, size = invites.size(); i < size; i++) {
-            Invite invite = invites.get(i);
-            invite.setTeam(new Team(teamid));
-            invites.set(i, this.save(invite));
+    public List<TeamInvite> save(String teamid, List<TeamInvite> teamInvites) {
+        for (int i = 0, size = teamInvites.size(); i < size; i++) {
+            TeamInvite teamInvite = teamInvites.get(i);
+            teamInvite.setTeam(Team.newInstance(teamid));
+            teamInvites.set(i, this.save(teamInvite));
         }
-        return invites;
+        return teamInvites;
     }
 
     @Transactional
-    public Invite save(Invite invite) {
-        return this.inviteDao.save(invite);
+    public TeamInvite save(TeamInvite teamInvite) {
+        return this.inviteDao.save(teamInvite);
     }
 
 }

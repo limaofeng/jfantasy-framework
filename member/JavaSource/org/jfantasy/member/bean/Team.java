@@ -4,12 +4,19 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.jfantasy.framework.dao.BaseBusEntity;
 import org.jfantasy.framework.dao.hibernate.converter.MapConverter;
 import org.jfantasy.framework.spring.validation.RESTful;
 import org.jfantasy.framework.spring.validation.Use;
+import org.jfantasy.member.bean.databind.TeamTypeDeserializer;
+import org.jfantasy.member.bean.databind.TeamTypeSerializer;
+import org.jfantasy.member.bean.enums.TeamStatus;
 import org.jfantasy.member.validators.TeamIdCannotRepeatValidator;
 import org.jfantasy.security.bean.User;
+import org.jfantasy.security.bean.databind.UserDeserializer;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -22,7 +29,7 @@ import java.util.Map;
  */
 @Entity
 @Table(name = "MEM_TEAM")
-@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "team_members", "member","officer"})
+@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler","team_members", "member"})
 public class Team extends BaseBusEntity {
 
     private static final long serialVersionUID = 4465203760129454882L;
@@ -33,14 +40,23 @@ public class Team extends BaseBusEntity {
     @NotNull(groups = RESTful.POST.class)
     @Use(vali = TeamIdCannotRepeatValidator.class, groups = {RESTful.POST.class})
     @Id
-    @Column(name = "CODE", nullable = false)
+    @Column(name = "CODE", nullable = false, length = 32)
     private String key;
     /**
      * 团队类型
      */
     @NotNull(groups = RESTful.POST.class)
-    @Column(name = "type", nullable = false)
-    private String type;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonDeserialize(using = TeamTypeDeserializer.class)
+    @JsonSerialize(using = TeamTypeSerializer.class)
+    @JoinColumn(name = "TYPE", nullable = false, foreignKey = @ForeignKey(name = "FK_TEAM_TEAMTYPE"))
+    private TeamType type;
+    /**
+     * 状态
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "STATUS", nullable = false,length = 10)
+    private TeamStatus status;
     /**
      * 名称
      */
@@ -48,42 +64,16 @@ public class Team extends BaseBusEntity {
     @Column(name = "NAME", nullable = false, length = 20)
     private String name;
     /**
-     * 所有者账号
-     */
-    @Deprecated
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "MEMBER_ID", updatable = false, foreignKey = @ForeignKey(name = "FK_TEAM_MEMBER"))
-    private Member member;
-    /**
      * 集团所有者
      */
-    @NotNull(groups = RESTful.POST.class)
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "OWNER_ID", nullable = false, foreignKey = @ForeignKey(name = "FK_TEAM_TEAMMEMBER"))
-    private TeamMember owner;
+    @Column(name = "OWNER_ID",precision = 22)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private Long ownerId;
     /**
      * 描述
      */
     @Column(name = "DESCRIPTION", length = 1000)
     private String description;
-    /**
-     * 扩展属性
-     */
-    @Convert(converter = MapConverter.class)
-    @Column(name = "PROPERTIES", columnDefinition = "Text")
-    private Map<String, Object> attributes;
-    /**
-     * 目标Id
-     */
-    @JsonProperty("target_id")
-    @Column(name = "TARGET_ID", updatable = false, length = 32)
-    private String targetId;
-    /**
-     * 目标类型
-     */
-    @JsonProperty("target_type")
-    @Column(name = "TARGET_TYPE", updatable = false, length = 10)
-    private String targetType;
     /**
      * 团队成员
      */
@@ -92,25 +82,42 @@ public class Team extends BaseBusEntity {
     /**
      * 负责人
      */
+    @JsonDeserialize(using = UserDeserializer.class)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "OFFICER", foreignKey = @ForeignKey(name = "FK_TEAM_USER"))
     private User officer;
+    /**
+     * 扩展属性
+     */
+    @Convert(converter = MapConverter.class)
+    @Column(name = "PROPERTIES", columnDefinition = "Text")
+    private Map<String, Object> attributes;
+    /**
+     * 企业信息
+     */
+    @OneToOne(fetch = FetchType.LAZY)
+    @PrimaryKeyJoinColumn
+    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private Enterprise enterprise;
 
-    public String getType() {
+    @Transient
+    private TeamMember owner;
+
+    public TeamType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(TeamType type) {
         this.type = type;
     }
 
-    public Team() {
-        super();
+    public TeamStatus getStatus() {
+        return status;
     }
 
-    public Team(String id) {
-        this();
-        this.setKey(id);
+    public void setStatus(TeamStatus status) {
+        this.status = status;
     }
 
     public String getKey() {
@@ -127,14 +134,6 @@ public class Team extends BaseBusEntity {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public Member getMember() {
-        return member;
-    }
-
-    public void setMember(Member member) {
-        this.member = member;
     }
 
     @JsonAnySetter
@@ -165,33 +164,12 @@ public class Team extends BaseBusEntity {
         this.description = description;
     }
 
-    public String getTargetId() {
-        return targetId;
-    }
-
-    public void setTargetId(String targetId) {
-        this.targetId = targetId;
-    }
-
-    public String getTargetType() {
-        return targetType;
-    }
-
-    public void setTargetType(String targetType) {
-        this.targetType = targetType;
-    }
-
     public List<TeamMember> getTeamMembers() {
         return teamMembers;
     }
 
     public void setTeamMembers(List<TeamMember> teamMembers) {
         this.teamMembers = teamMembers;
-    }
-
-    @Transient
-    public void setMemberId(Long id) {
-        this.member = new Member(id);
     }
 
     public TeamMember getOwner() {
@@ -210,12 +188,26 @@ public class Team extends BaseBusEntity {
         this.officer = officer;
     }
 
-    @Transient
-    public Long getMemberId() {
-        if (this.member == null) {
-            return null;
-        }
-        return this.member.getId();
+    public Long getOwnerId() {
+        return ownerId;
+    }
+
+    public void setOwnerId(Long ownerId) {
+        this.ownerId = ownerId;
+    }
+
+    public Enterprise getEnterprise() {
+        return enterprise;
+    }
+
+    public void setEnterprise(Enterprise enterprise) {
+        this.enterprise = enterprise;
+    }
+
+    public static Team newInstance(String id) {
+        Team team = new Team();
+        team.setKey(id);
+        return team;
     }
 
 }

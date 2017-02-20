@@ -108,7 +108,7 @@ public class Employee extends BaseBusEntity {
     @Column(name = "PERSON_ID", precision = 22)
     private Long personId;
 
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = User.class, mappedBy = "details")
+    @OneToOne(fetch = FetchType.LAZY, targetEntity = User.class, mappedBy = "employee")
     private User user;
 
     public Long getUserId() {

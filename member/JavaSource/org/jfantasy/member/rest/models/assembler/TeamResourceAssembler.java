@@ -1,9 +1,7 @@
 package org.jfantasy.member.rest.models.assembler;
 
 import org.jfantasy.framework.dao.Pager;
-import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
-import org.jfantasy.member.bean.Invite;
 import org.jfantasy.member.bean.Team;
 import org.jfantasy.member.rest.TeamController;
 import org.jfantasy.member.rest.TeamTagController;
@@ -28,7 +26,7 @@ public class TeamResourceAssembler extends ResourceAssemblerSupport<Team, Result
     @Override
     public ResultResourceSupport toResource(Team entity) {
         ResultResourceSupport resource = createResourceWithId(entity.getKey(), entity);
-        resource.add(linkTo(methodOn(TeamController.class).invites(entity.getKey(), new Pager<Invite>(), new ArrayList<PropertyFilter>())).withRel("invites"));
+        resource.add(linkTo(methodOn(TeamController.class).invites(entity.getKey(), new Pager<>(), new ArrayList<>())).withRel("invites"));
         resource.add(linkTo(methodOn(TeamTagController.class).tags(entity.getKey(), "")).withRel("tags"));
         return resource;
     }

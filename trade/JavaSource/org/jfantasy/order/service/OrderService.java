@@ -313,10 +313,10 @@ public class OrderService {
         }
     }
 
-    public Long getDrawer(Order order) {
+    public String getDrawer(Order order) {
         OrderType type = this.orderTypeService.get(order.getType());
         OrderPayeeValue drawer = ObjectUtil.find(order.getPayees(), "code", type.getDrawer());
-        return drawer != null && drawer.getPayee().getType() == PayeeType.member ? Long.valueOf(drawer.getValue()) : null;
+        return drawer != null && drawer.getPayee().getType() == PayeeType.member ? drawer.getValue() : null;
     }
 
     /**

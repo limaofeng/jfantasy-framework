@@ -2,7 +2,7 @@ package org.jfantasy.member.rest;
 
 import org.jfantasy.framework.spring.mvc.error.NotFoundException;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
-import org.jfantasy.member.bean.Invite;
+import org.jfantasy.member.bean.TeamInvite;
 import org.jfantasy.member.rest.models.assembler.InviteResourceAssembler;
 import org.jfantasy.member.service.InviteService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,30 +10,32 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/invites")
-public class InviteController {
+@RequestMapping("/members/{mid}/invites")
+public class MemberInviteController {
 
     protected static InviteResourceAssembler assembler = new InviteResourceAssembler();
 
     private final InviteService inviteService;
 
     @Autowired
-    public InviteController(InviteService inviteService) {
+    public MemberInviteController(InviteService inviteService) {
         this.inviteService = inviteService;
     }
 
     /**
      * 发起邀请
-     * @param invite
+     *
+     * @param teamInvite
      * @return
      */
     @RequestMapping(method = RequestMethod.POST)
-    public ResultResourceSupport create(@RequestBody Invite invite) {
-        return assembler.toResource(this.inviteService.save(invite));
+    public ResultResourceSupport create(@RequestBody TeamInvite teamInvite) {
+        return assembler.toResource(this.inviteService.save(teamInvite));
     }
 
     /**
      * 查看邀请
+     *
      * @param id
      * @return
      */
@@ -44,6 +46,7 @@ public class InviteController {
 
     /**
      * 删除邀请
+     *
      * @param id
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
@@ -52,12 +55,12 @@ public class InviteController {
         this.inviteService.deltele(id);
     }
 
-    private Invite get(Long id) {
-        Invite invite = this.inviteService.get(id);
-        if (invite == null) {
+    private TeamInvite get(Long id) {
+        TeamInvite teamInvite = this.inviteService.get(id);
+        if (teamInvite == null) {
             throw new NotFoundException("[id =" + id + "]对应的发票申请信息不存在");
         }
-        return invite;
+        return teamInvite;
     }
 
 }

@@ -10,11 +10,9 @@ import org.jfantasy.framework.spring.mvc.error.NotFoundException;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
 import org.jfantasy.framework.spring.validation.RESTful;
 import org.jfantasy.framework.util.web.WebUtil;
-import org.jfantasy.member.bean.Address;
-import org.jfantasy.member.bean.Invite;
-import org.jfantasy.member.bean.Team;
-import org.jfantasy.member.bean.TeamMember;
+import org.jfantasy.member.bean.*;
 import org.jfantasy.member.rest.models.assembler.TeamResourceAssembler;
+import org.jfantasy.member.service.EnterpriseService;
 import org.jfantasy.member.service.InviteService;
 import org.jfantasy.member.service.TeamMemberService;
 import org.jfantasy.member.service.TeamService;
@@ -40,15 +38,17 @@ public class TeamController {
     private final TeamService teamService;
     private final InviteService inviteService;
     private final TeamMemberService teamMemberService;
+    private final EnterpriseService enterpriseService;
+
     private AddressController addressController;
 
     @Autowired
-    public TeamController(TeamService teamService, InviteService inviteService, TeamMemberService teamMemberService) {
+    public TeamController(TeamService teamService, InviteService inviteService, TeamMemberService teamMemberService, EnterpriseService enterpriseService) {
         this.teamService = teamService;
         this.inviteService = inviteService;
         this.teamMemberService = teamMemberService;
+        this.enterpriseService = enterpriseService;
     }
-
 
     /**
      * 团队列表 - 团队列表
@@ -64,14 +64,20 @@ public class TeamController {
     /**
      * 查看团队 - 查看团队
      **/
+    @JsonResultFilter(ignore = @IgnoreProperty(pojo = Team.class, name = "owner_id"))
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public ResultResourceSupport view(@PathVariable("id") String id) {
-        return assembler.toResource(this.get(id));
+        Team team = this.get(id);
+        if (team.getOwnerId() != null) {
+            team.setOwner(this.teamMemberService.get(team.getOwnerId()));
+        }
+        return assembler.toResource(team);
     }
 
     /**
      * 添加团队 - 添加团队
      **/
+    @JsonResultFilter(ignore = @IgnoreProperty(pojo = Team.class, name = "owner_id"))
     @RequestMapping(method = RequestMethod.POST)
     public ResultResourceSupport create(@Validated(RESTful.POST.class) @RequestBody Team team) {
         return assembler.toResource(this.teamService.save(team));
@@ -86,9 +92,22 @@ public class TeamController {
         return assembler.toResource(this.teamService.update(team, WebUtil.has(request, RequestMethod.PATCH)));
     }
 
+    /**
+     * 更新团队所有者
+     *
+     * @param id   TID
+     * @param tmid TMID
+     * @return TeamMember
+     */
     @PutMapping(value = "/{id}/owner")
     public ResultResourceSupport update(@PathVariable("id") String id, @RequestParam("tmid") Long tmid) {
         return assembler.toResource(this.teamService.owner(id, tmid));
+    }
+
+    @PutMapping(value = "/{id}/enterprise")
+    public Enterprise enterprise(@PathVariable("id") String id, @Validated(RESTful.PUT.class) @RequestBody Enterprise enterprise) {
+        enterprise.setTeam(teamService.get(id));
+        return this.enterpriseService.save(enterprise);
     }
 
     /**
@@ -107,9 +126,9 @@ public class TeamController {
     @RequestMapping(value = "/{id}/invites", method = RequestMethod.GET)
     @ResponseBody
     @ApiImplicitParam(value = "filters", name = "filters", paramType = "query", dataType = "string")
-    public Pager<ResultResourceSupport> invites(@PathVariable("id") String id, Pager<Invite> pager, @ApiParam(hidden = true) List<PropertyFilter> filters) {
+    public Pager<ResultResourceSupport> invites(@PathVariable("id") String id, Pager<TeamInvite> pager, @ApiParam(hidden = true) List<PropertyFilter> filters) {
         filters.add(new PropertyFilter("EQS_team.key", id));
-        return InviteController.assembler.toResources(this.inviteService.findPager(pager, filters));
+        return MemberInviteController.assembler.toResources(this.inviteService.findPager(pager, filters));
     }
 
     /**
@@ -117,8 +136,8 @@ public class TeamController {
      **/
     @RequestMapping(value = "/{id}/invites", method = RequestMethod.POST)
     @ResponseBody
-    public List<ResultResourceSupport> invites(@PathVariable("id") String id, @RequestBody List<Invite> invites) {
-        return InviteController.assembler.toResources(inviteService.save(id, invites));
+    public List<ResultResourceSupport> invites(@PathVariable("id") String id, @RequestBody List<TeamInvite> teamInvites) {
+        return MemberInviteController.assembler.toResources(inviteService.save(id, teamInvites));
     }
 
     /**
@@ -153,15 +172,15 @@ public class TeamController {
     /**
      * 集团的发票申请列表
      *
-     * @param teamId
-     * @param pager
-     * @param filters
-     * @return
+     * @param teamId  TID
+     * @param pager   Pager
+     * @param filters Filters
+     * @return Redirect
      */
     @GetMapping("{id}/invoices")
     public ModelAndView invoices(@PathVariable("id") String teamId, RedirectAttributes attrs, Pager pager, List<PropertyFilter> filters) {
         Team team = get(teamId);
-        attrs.addAttribute("EQL_drawer", team.getMemberId());
+        attrs.addAttribute("EQL_drawer", team.getKey());
         pager.writeTo(attrs).write(filters);
         return new ModelAndView("redirect:/invoices");
     }

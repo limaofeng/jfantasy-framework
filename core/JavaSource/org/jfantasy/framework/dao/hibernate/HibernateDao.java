@@ -1,15 +1,5 @@
 package org.jfantasy.framework.dao.hibernate;
 
-import org.jfantasy.framework.dao.Pager;
-import org.jfantasy.framework.dao.hibernate.util.ReflectionUtils;
-import org.jfantasy.framework.dao.hibernate.util.TypeFactory;
-import org.jfantasy.framework.error.IgnoreException;
-import org.jfantasy.framework.util.common.BeanUtil;
-import org.jfantasy.framework.util.common.ClassUtil;
-import org.jfantasy.framework.util.common.ObjectUtil;
-import org.jfantasy.framework.util.common.StringUtil;
-import org.jfantasy.framework.util.ognl.OgnlUtil;
-import org.jfantasy.framework.util.regexp.RegexpUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -22,6 +12,16 @@ import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.transform.ResultTransformer;
 import org.hibernate.transform.Transformers;
 import org.hibernate.type.Type;
+import org.jfantasy.framework.dao.Pager;
+import org.jfantasy.framework.dao.hibernate.util.ReflectionUtils;
+import org.jfantasy.framework.dao.hibernate.util.TypeFactory;
+import org.jfantasy.framework.error.IgnoreException;
+import org.jfantasy.framework.util.common.BeanUtil;
+import org.jfantasy.framework.util.common.ClassUtil;
+import org.jfantasy.framework.util.common.ObjectUtil;
+import org.jfantasy.framework.util.common.StringUtil;
+import org.jfantasy.framework.util.ognl.OgnlUtil;
+import org.jfantasy.framework.util.regexp.RegexpUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
@@ -29,7 +29,6 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
-import java.sql.Blob;
 import java.util.*;
 import java.util.regex.Matcher;
 
@@ -193,32 +192,34 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
         if (entity == oldEntity) {
             return entity;
         }
+        return (T) merge(entity, oldEntity, this.entityClass, ognlUtil);
+    }
+
+    private Object merge(Object entity, Object oldEntity, Class entityClass, OgnlUtil ognlUtil) {
         if (ObjectUtil.isNotNull(oldEntity)) {// 主键对应的数据存在
             // 为普通字段做值转换操作
-            this.cleanColumn(entity, oldEntity, ClassUtil.getDeclaredFields(this.entityClass, Column.class), ognlUtil);
+            this.cleanColumn(entity, oldEntity, ClassUtil.getDeclaredFields(entityClass, Column.class), ognlUtil);
             // 一对一关联关系的表
-            this.cleanOneToOne(entity, oldEntity, ClassUtil.getDeclaredFields(this.entityClass, OneToOne.class), ognlUtil);
+            this.cleanOneToOne(entity, oldEntity, ClassUtil.getDeclaredFields(entityClass, OneToOne.class), ognlUtil);
             // 多对一关联关系的表
-            this.cleanManyToOne(entity, oldEntity, ClassUtil.getDeclaredFields(this.entityClass, ManyToOne.class), ognlUtil);
+            this.cleanManyToOne(entity, oldEntity, ClassUtil.getDeclaredFields(entityClass, ManyToOne.class), ognlUtil);
             // 多对多关联关系的表
-            this.cleanManyToMany(entity, oldEntity, ClassUtil.getDeclaredFields(this.entityClass, ManyToMany.class), ognlUtil);
+            this.cleanManyToMany(entity, oldEntity, ClassUtil.getDeclaredFields(entityClass, ManyToMany.class), ognlUtil);
             // 一对多关联关系的表
-            this.cleanOneToMany(entity, oldEntity, ClassUtil.getDeclaredFields(this.entityClass, OneToMany.class), ognlUtil);
+            this.cleanOneToMany(entity, oldEntity, ClassUtil.getDeclaredFields(entityClass, OneToMany.class), ognlUtil);
             return oldEntity;
         } else {
-            this.cleanManyToOne(entity, null, ClassUtil.getDeclaredFields(this.entityClass, ManyToOne.class), ognlUtil);
+            this.cleanManyToOne(entity, null, ClassUtil.getDeclaredFields(entityClass, ManyToOne.class), ognlUtil);
             // 多对多关联关系的表
-            this.cleanManyToMany(entity, null, ClassUtil.getDeclaredFields(this.entityClass, ManyToMany.class), ognlUtil);
+            this.cleanManyToMany(entity, null, ClassUtil.getDeclaredFields(entityClass, ManyToMany.class), ognlUtil);
             // 一对多关联关系的表
-            this.cleanOneToMany(entity, null, ClassUtil.getDeclaredFields(this.entityClass, OneToMany.class), ognlUtil);
+            this.cleanOneToMany(entity, null, ClassUtil.getDeclaredFields(entityClass, OneToMany.class), ognlUtil);
             return entity;
         }
     }
 
-    private void cleanColumn(T entity, T oldEntity, Field[] fields, OgnlUtil ognlUtil) {
+    private void cleanColumn(Object entity, Object oldEntity, Field[] fields, OgnlUtil ognlUtil) {
         for (Field field : fields) {
-            // TODO 为什么要取方法
-            //String getterMethodName = (boolean.class.equals(field.getType()) ? "is" : "get") + StringUtils.capitalize(field.getName()) + "()";
             Object value = ognlUtil.getValue(field.getName(), entity);
             if (value != null) {
                 ClassUtil.setValue(oldEntity, field.getName(), value);
@@ -226,7 +227,7 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
         }
     }
 
-    private void cleanOneToOne(T entity, T oldEntity, Field[] fields, OgnlUtil ognlUtil) {
+    private void cleanOneToOne(Object entity, Object oldEntity, Field[] fields, OgnlUtil ognlUtil) {
         for (Field field : fields) {
             OneToOne oneToOne = field.getAnnotation(OneToOne.class);
             if (!(ObjectUtil.indexOf(oneToOne.cascade(), CascadeType.ALL) > -1 || ObjectUtil.indexOf(oneToOne.cascade(), CascadeType.MERGE) > -1)) {
@@ -240,23 +241,12 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
             if (oldValue == null) {
                 ClassUtil.setValue(oldEntity, field.getName(), value);
             } else {
-                for (Field fkField : ClassUtil.getDeclaredFields(field.getType(), Column.class)) {
-                    if (!fkField.isAnnotationPresent(Id.class)) {
-                        Object fkValue = ClassUtil.getValue(value, fkField.getName());
-                        if (fkValue != null) {
-                            if (fkValue instanceof Blob) {
-                                ClassUtil.setValue(oldValue, fkField.getName(), fkValue);
-                            } else {
-                                ognlUtil.setValue(field.getName() + "." + fkField.getName(), oldEntity, fkValue);
-                            }
-                        }
-                    }
-                }
+                merge(value, oldValue, ClassUtil.getRealClass(field.getType()), ognlUtil);
             }
         }
     }
 
-    private void cleanManyToOne(T entity, T oldEntity, Field[] manyToOneFields, OgnlUtil ognlUtil) {
+    private void cleanManyToOne(Object entity, Object oldEntity, Field[] manyToOneFields, OgnlUtil ognlUtil) {
         for (Field field : manyToOneFields) {
             Object fk = ognlUtil.getValue(field.getName(), entity);
             if (fk == null) {
@@ -269,7 +259,7 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
         }
     }
 
-    private void cleanManyToMany(T entity, T oldEntity, Field[] manyToManyFields, OgnlUtil ognlUtil) {
+    private void cleanManyToMany(Object entity, Object oldEntity, Field[] manyToManyFields, OgnlUtil ognlUtil) {
         for (Field field : manyToManyFields) {
             ManyToMany manyToMany = field.getAnnotation(ManyToMany.class);
             Class targetEntityClass = manyToMany.targetEntity();
@@ -293,7 +283,7 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
         }
     }
 
-    private void cleanOneToMany(T entity, T oldEntity, Field[] oneToManyFields, OgnlUtil ognlUtil) {
+    private void cleanOneToMany(Object entity, Object oldEntity, Field[] oneToManyFields, OgnlUtil ognlUtil) {
         for (Field field : oneToManyFields) {
             OneToMany oneToMany = field.getAnnotation(OneToMany.class);
             Class targetEntityClass = oneToMany.targetEntity();

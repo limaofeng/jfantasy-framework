@@ -82,7 +82,7 @@ public class UserDetails implements Serializable {
     @Column(name = "DESCRIPTION")
     private String description;
 
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = User.class, mappedBy = "employee")
+    @OneToOne(fetch = FetchType.LAZY, targetEntity = User.class, mappedBy = "details")
     private User user;
 
     public String getName() {

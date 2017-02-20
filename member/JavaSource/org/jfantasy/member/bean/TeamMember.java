@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 import org.jfantasy.framework.dao.BaseBusEntity;
@@ -13,6 +14,7 @@ import org.jfantasy.framework.spring.validation.RESTful;
 import org.jfantasy.member.bean.enums.TeamMemberStatus;
 import org.jfantasy.security.bean.Role;
 import org.jfantasy.security.bean.databind.RoleDeserializer;
+import org.jfantasy.security.bean.databind.RoleSerializer;
 import org.jfantasy.security.bean.enums.Sex;
 
 import javax.persistence.*;
@@ -34,7 +36,7 @@ import java.util.Map;
                 @Parameter(name = "increment_size", value = "10"),
                 @Parameter(name = "optimizer", value = "pooled-lo")
         })
-@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler","team"})
+@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "team", "role"})
 public class TeamMember extends BaseBusEntity {
 
     private static final long serialVersionUID = -7880093458033934231L;
@@ -122,6 +124,7 @@ public class TeamMember extends BaseBusEntity {
      * 关联角色
      */
     @JsonDeserialize(using = RoleDeserializer.class)
+    @JsonSerialize(using = RoleSerializer.class)
     @NotNull(groups = RESTful.POST.class)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ROLE_ID", foreignKey = @ForeignKey(name = "FK_TEAMMEMBER_ROLE"))

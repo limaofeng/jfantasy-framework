@@ -15,43 +15,43 @@ import java.util.Map;
  * 邀请
  */
 @Entity
-@Table(name = "MEM_INVITE")
-@TableGenerator(name = "invite_gen", table = "sys_sequence", pkColumnName = "gen_name", pkColumnValue = "mem_invite:id", valueColumnName = "gen_value")
+@Table(name = "MEM_TEAM_INVITE")
+@TableGenerator(name = "teaminvite_gen", table = "sys_sequence", pkColumnName = "gen_name", pkColumnValue = "mem_teaminvite:id", valueColumnName = "gen_value")
 @JsonIgnoreProperties({"hibernate_lazy_initializer", "handler"})
-public class Invite extends BaseBusEntity {
+public class TeamInvite extends BaseBusEntity {
 
     private static final long serialVersionUID = 4892269028206173172L;
     @Id
     @Column(name = "ID", nullable = false, updatable = false, precision = 22, scale = 0)
-    @GeneratedValue(strategy = GenerationType.TABLE, generator = "invite_gen")
+    @GeneratedValue(strategy = GenerationType.TABLE, generator = "teaminvite_gen")
     private Long id;
     /**
      * 用户名称
      */
-    @Column(name = "NAME")
+    @Column(name = "NAME", length = 50)
     private String name;
     /**
      * 状态
      */
     @Enumerated(EnumType.STRING)
-    @Column(name = "STATUS", nullable = false)
+    @Column(name = "STATUS", nullable = false, length = 20)
     private InviteStatus status;
     /**
      * 用户
      */
-    @Column(name = "member")
+    @Column(name = "member", length = 20)
     private String member;
     /**
      * 动态属性
      */
     @Convert(converter = MapConverter.class)
     @Column(name = "PROPERTIES", columnDefinition = "Text")
-    private Map<String,Object> properties;
+    private Map<String, Object> properties;
     /**
      * 团队ID
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "TEAM_ID", foreignKey = @ForeignKey(name = "FK_INVITE_TEAM"))
+    @JoinColumn(name = "TEAM_ID", nullable = false, foreignKey = @ForeignKey(name = "FK_INVITE_TEAM"))
     private Team team;
 
     public Team getTeam() {
@@ -94,12 +94,12 @@ public class Invite extends BaseBusEntity {
         this.member = member;
     }
 
-    public void setProperties(Map<String,Object> properties) {
+    public void setProperties(Map<String, Object> properties) {
         this.properties = properties;
     }
 
     @JsonAnyGetter
-    public Map<String,Object> getProperties() {
+    public Map<String, Object> getProperties() {
         return this.properties;
     }
 

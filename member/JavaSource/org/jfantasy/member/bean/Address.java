@@ -20,7 +20,7 @@ public class Address extends BaseBusEntity {
     private static final long serialVersionUID = 1682664107868380251L;
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE, generator = "address_gen")
-    @TableGenerator(name = "address_gen", table = "sys_sequence",pkColumnName = "gen_name",pkColumnValue = "",valueColumnName = "gen_value")
+    @TableGenerator(name = "address_gen", table = "sys_sequence",pkColumnName = "gen_name",pkColumnValue = "mem_address:id",valueColumnName = "gen_value")
     @Column(name = "ID", updatable = false)
     private Long id;
     /**

@@ -610,7 +610,7 @@ public class Order extends BaseBusEntity {
 
     @Transient
     @JsonIgnore
-    public Long getDrawer() {
+    public String getDrawer() {
         return orderService().getDrawer(this);
     }
 
