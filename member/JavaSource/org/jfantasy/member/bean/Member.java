@@ -145,7 +145,6 @@ public class Member extends BaseBusEntity {
     public Member() {//NOSONAR
     }//NOSONAR
 
-
     public Member(Long id) {//NOSONAR
         this.id = id;//NOSONAR
     }//NOSONAR

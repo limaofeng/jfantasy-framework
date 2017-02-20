@@ -5,9 +5,9 @@ import java.util.regex.Pattern;
 /**
  * 验证常量定义类
  */
-public class RegexpCst {
+public class RegexpConstant {
     // 匹配空行的正则表达式：\n[\s| ]*\r
-    private RegexpCst() {
+    private RegexpConstant() {
     }
 
     private static final String ATTR_STR = "\\s+(\\w+)\\s*=\\s*(\"[^\"]*\"|\'[^\']*\'|[^\\s>]+)";
@@ -93,7 +93,7 @@ public class RegexpCst {
     /**
      * 手机
      */
-    public static final Pattern VALIDATOR_MOBILE = getPattern("^(13|15|18|14)[0-9]{9}$");
+    public static final Pattern VALIDATOR_MOBILE = getPattern("^(13|15|18|14|17)[0-9]{9}$");
     /**
      * ip4 地址
      */

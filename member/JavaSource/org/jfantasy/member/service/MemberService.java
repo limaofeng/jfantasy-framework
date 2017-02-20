@@ -13,11 +13,10 @@ import org.jfantasy.framework.util.common.BeanUtil;
 import org.jfantasy.framework.util.common.DateUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
-import org.jfantasy.framework.util.regexp.RegexpCst;
+import org.jfantasy.framework.util.regexp.RegexpConstant;
 import org.jfantasy.framework.util.regexp.RegexpUtil;
 import org.jfantasy.member.bean.Member;
 import org.jfantasy.member.bean.MemberDetails;
-import org.jfantasy.member.bean.MemberType;
 import org.jfantasy.member.dao.MemberDao;
 import org.jfantasy.member.dao.MemberTypeDao;
 import org.jfantasy.member.event.LoginEvent;
@@ -125,11 +124,11 @@ public class MemberService {
         details.setMobileValid(false);
         details.setLevel(0L);
         // 如果用email注册
-        if (RegexpUtil.isMatch(member.getUsername(), RegexpCst.VALIDATOR_EMAIL)) {
+        if (RegexpUtil.isMatch(member.getUsername(), RegexpConstant.VALIDATOR_EMAIL)) {
             details.setEmail(member.getUsername());
         }
         // 如果用手机注册
-        if (RegexpUtil.isMatch(member.getUsername(), RegexpCst.VALIDATOR_MOBILE)) {
+        if (RegexpUtil.isMatch(member.getUsername(), RegexpConstant.VALIDATOR_MOBILE)) {
             details.setMobile(member.getUsername());
         }
         member.setDetails(details);
@@ -249,13 +248,14 @@ public class MemberService {
     }
 
     private Member findUnique(String username) {
-//        if (RegexpUtil.isMatch(username, RegexpCst.VALIDATOR_EMAIL)) {//  email
-//            member = this.memberDao.findUniqueBy("details.email", username);
-//        }
-//        if (RegexpUtil.isMatch(username, RegexpCst.VALIDATOR_MOBILE)) {// 手机
-//            member = this.memberDao.findUniqueBy("details.mobile", username);
-//        }
-        return this.memberDao.findUniqueBy("username", username);// 用户名
+        Member member = this.memberDao.findUniqueBy("username", username);// 用户名
+        if (member == null && RegexpUtil.isMatch(username, RegexpConstant.VALIDATOR_EMAIL)) {//  email
+            member = this.memberDao.findUniqueBy("details.email", username);
+        }
+        if (member == null && RegexpUtil.isMatch(username, RegexpConstant.VALIDATOR_MOBILE)) {// 手机
+            member = this.memberDao.findUniqueBy("details.mobile", username);
+        }
+        return member;
     }
 
     @Autowired(required = false)

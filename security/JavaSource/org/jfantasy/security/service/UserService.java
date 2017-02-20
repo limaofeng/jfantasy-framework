@@ -8,7 +8,7 @@ import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.util.common.DateUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
-import org.jfantasy.framework.util.regexp.RegexpCst;
+import org.jfantasy.framework.util.regexp.RegexpConstant;
 import org.jfantasy.framework.util.regexp.RegexpUtil;
 import org.jfantasy.security.bean.Employee;
 import org.jfantasy.security.bean.Role;
@@ -58,11 +58,11 @@ public class UserService {
         if (UserType.admin == user.getUserType()) {
             UserDetails details = ObjectUtil.defaultValue(user.getDetails(), new UserDetails());
             // 如果用email注册
-            if (RegexpUtil.isMatch(user.getUsername(), RegexpCst.VALIDATOR_EMAIL)) {
+            if (RegexpUtil.isMatch(user.getUsername(), RegexpConstant.VALIDATOR_EMAIL)) {
                 details.setEmail(user.getUsername());
             }
             // 如果用手机注册
-            if (RegexpUtil.isMatch(user.getUsername(), RegexpCst.VALIDATOR_MOBILE)) {
+            if (RegexpUtil.isMatch(user.getUsername(), RegexpConstant.VALIDATOR_MOBILE)) {
                 details.setMobile(user.getUsername());
             }
             user.setDetails(details);
@@ -70,11 +70,11 @@ public class UserService {
             Employee employee = ObjectUtil.defaultValue(user.getEmployee(), new Employee());
             employee.setStatus(EmployeeStatus.work);
             // 如果用email注册
-            if (RegexpUtil.isMatch(user.getUsername(), RegexpCst.VALIDATOR_EMAIL)) {
+            if (RegexpUtil.isMatch(user.getUsername(), RegexpConstant.VALIDATOR_EMAIL)) {
                 employee.setEmail(user.getUsername());
             }
             // 如果用手机注册
-            if (RegexpUtil.isMatch(user.getUsername(), RegexpCst.VALIDATOR_MOBILE)) {
+            if (RegexpUtil.isMatch(user.getUsername(), RegexpConstant.VALIDATOR_MOBILE)) {
                 employee.setMobile(user.getUsername());
             }
             user.setEmployee(employee);

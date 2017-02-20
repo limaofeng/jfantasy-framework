@@ -6,7 +6,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.commons.mail.*;
 import org.jfantasy.framework.util.HandlebarsTemplateUtils;
 import org.jfantasy.framework.util.common.ObjectUtil;
-import org.jfantasy.framework.util.regexp.RegexpCst;
+import org.jfantasy.framework.util.regexp.RegexpConstant;
 import org.jfantasy.framework.util.regexp.RegexpUtil;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
@@ -104,7 +104,7 @@ public class MailSendService implements InitializingBean {
     }
 
     private boolean validateEmail(String email) {
-        return RegexpUtil.isMatch(email, RegexpCst.VALIDATOR_EMAIL);
+        return RegexpUtil.isMatch(email, RegexpConstant.VALIDATOR_EMAIL);
     }
 
     /**
