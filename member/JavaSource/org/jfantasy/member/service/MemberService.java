@@ -251,9 +251,15 @@ public class MemberService {
         Member member = this.memberDao.findUniqueBy("username", username);// 用户名
         if (member == null && RegexpUtil.isMatch(username, RegexpConstant.VALIDATOR_EMAIL)) {//  email
             member = this.memberDao.findUniqueBy("details.email", username);
+            if (!member.getDetails().getMobileValid()) {
+                member = null;
+            }
         }
         if (member == null && RegexpUtil.isMatch(username, RegexpConstant.VALIDATOR_MOBILE)) {// 手机
             member = this.memberDao.findUniqueBy("details.mobile", username);
+            if (!member.getDetails().getMailValid()) {
+                member = null;
+            }
         }
         return member;
     }
