@@ -168,7 +168,7 @@ public class AccountService {
             if (StringUtil.isBlank(password)) {
                 throw new ValidationException("支付密码不能为空");
             }
-            if (!passwordEncoder.matches(from.getPassword(), password)) {
+            if (!passwordEncoder.matches(password,from.getPassword())) {
                 throw new ValidationException("支付密码错误");
             }
         }
