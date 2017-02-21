@@ -109,9 +109,9 @@ public class MemberController {
     )
     @RequestMapping(value = "/{id}/profile", method = RequestMethod.GET)
     @ResponseBody
-    public ResultResourceSupport profile(HttpServletResponse response, @PathVariable("id") Long id) {
+    public ResultResourceSupport profile(HttpServletResponse response, @PathVariable("id") Long id, @RequestParam(value = "type", defaultValue = Member.MEMBER_TYPE_PERSONAL) String type) {
         Member member = get(id);
-        if (ObjectUtil.exists(member.getTypes(), "id", Member.MEMBER_TYPE_PERSONAL)) {
+        if (ObjectUtil.exists(member.getTypes(), "id", type)) {
             return profileAssembler.toResource(member.getDetails());
         }
         response.setStatus(307);

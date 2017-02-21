@@ -19,7 +19,14 @@ public class MemberType extends BaseBusEntity {
      */
     @Column(name = "NAME", nullable = false, length = 50)
     private String name;
-
+    /**
+     * profileUrl
+     */
+    @Column(name = "PROFILE_URL", nullable = false, length = 50)
+    private String profileUrl;
+    /**
+     * 对于的用户
+     */
     @ManyToMany(targetEntity = Member.class, fetch = FetchType.LAZY)
     @JoinTable(name = "MEM_MEMBER_TYPES", joinColumns = @JoinColumn(name = "TYPE"), inverseJoinColumns = @JoinColumn(name = "MEMBER"), foreignKey = @ForeignKey(name = "FK_MEMBERTYPES_TID"))
     private List<Member> members;
@@ -46,5 +53,13 @@ public class MemberType extends BaseBusEntity {
 
     public void setMembers(List<Member> members) {
         this.members = members;
+    }
+
+    public String getProfileUrl() {
+        return profileUrl;
+    }
+
+    public void setProfileUrl(String profileUrl) {
+        this.profileUrl = profileUrl;
     }
 }
