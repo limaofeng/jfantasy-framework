@@ -129,6 +129,11 @@ public class Member extends BaseBusEntity {
     @Column(name = "TAGS", length = 300)
     @Convert(converter = StringsConverter.class)
     private String[] tags;
+    /**
+     * 用户类型
+     */
+    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE})
+    private List<MemberTarget> targets;
     @Transient
     private String code;
     @Transient
@@ -291,6 +296,14 @@ public class Member extends BaseBusEntity {
 
     public String getType() {
         return type;
+    }
+
+    public List<MemberTarget> getTargets() {
+        return targets;
+    }
+
+    public void setTargets(List<MemberTarget> targets) {
+        this.targets = targets;
     }
 
     @Override
