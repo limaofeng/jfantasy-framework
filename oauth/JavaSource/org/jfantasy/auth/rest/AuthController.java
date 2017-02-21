@@ -122,7 +122,7 @@ public class AuthController {
     }
 
     public static Member validateUserType(Member member, String userType) {
-        if (StringUtil.isNotBlank(userType) && !ObjectUtil.exists(member.getTypes(), "id", Member.MEMBER_TYPE_PERSONAL)) {
+        if (StringUtil.isNotBlank(userType) && !ObjectUtil.exists(member.getTypes(), "id", userType)) {
             throw new RestException("UserType 不一致");
         }
         member.setType(userType);
