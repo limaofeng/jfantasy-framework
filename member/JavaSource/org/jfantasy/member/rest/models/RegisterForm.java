@@ -19,7 +19,6 @@ public class RegisterForm {
     /**
      * 注册短信码
      */
-    @NotNull(groups = RESTful.POST.class)
     private String macode;
 
     public String getUsername() {
