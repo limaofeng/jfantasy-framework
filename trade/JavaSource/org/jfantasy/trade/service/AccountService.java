@@ -298,6 +298,7 @@ public class AccountService {
     public Account activate(String no, String password) {
         Account account = this.accountDao.get(no);
         account.setPassword(passwordEncoder.encode(password));
+        account.setStatus(AccountStatus.activated);
         return this.accountDao.save(account);
     }
 
