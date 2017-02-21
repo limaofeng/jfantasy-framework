@@ -169,8 +169,7 @@ public class AccessTokenService {
 
         userDetails.setAuthorities(new ArrayList<>(user.getAuthorities()));
 
-        userDetails.setTargetType(user.getTargetType());
-        userDetails.setTargetId(user.getTargetId());
+        userDetails.setTarget(user.getTarget());
     }
 
     private void retrieveUser(OAuthUserDetails userDetails, ApiKey apiKey) {
@@ -236,8 +235,7 @@ public class AccessTokenService {
         List<GrantedAuthority> authorities = new ArrayList<>();
         userDetails.setAuthorities(authorities);
 
-        userDetails.setTargetType(member.getTargetType());
-        userDetails.setTargetId(member.getTargetId());
+        userDetails.setTarget(member.getTarget());
     }
 
 }

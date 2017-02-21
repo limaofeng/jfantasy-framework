@@ -34,7 +34,7 @@ import java.util.List;
 })
 @JsonPropertyOrder({"id", "type", "username", "nick_name", "enabled", "non_locked", "non_expired", "credentials_non_expired", "lock_time", "last_login_time", "code"})
 @TableGenerator(name = "member_gen", table = "sys_sequence", pkColumnName = "gen_name", pkColumnValue = "mem_member:id", valueColumnName = "gen_value")
-@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "user_groups", "roles", "authorities"})
+@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "user_groups", "roles", "authorities", "targets"})
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @DynamicUpdate
 public class Member extends BaseBusEntity {
@@ -112,18 +112,6 @@ public class Member extends BaseBusEntity {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private MemberDetails details;
     /**
-     * 目标Id
-     */
-    @Column(name = "TARGET_ID", updatable = false, length = 32)
-    @JsonProperty("target_id")
-    private String targetId;
-    /**
-     * 目标类型
-     */
-    @Column(name = "TARGET_TYPE", updatable = false, length = 10)
-    @JsonProperty("target_type")
-    private String targetType;
-    /**
      * 用户标签
      */
     @Column(name = "TAGS", length = 300)
@@ -138,6 +126,8 @@ public class Member extends BaseBusEntity {
     private String code;
     @Transient
     private String type;
+    @Transient
+    private String target;
     @Transient
     private String[] authorities;
 
@@ -259,22 +249,6 @@ public class Member extends BaseBusEntity {
         this.types = types;
     }
 
-    public String getTargetId() {
-        return targetId;
-    }
-
-    public void setTargetId(String targetId) {
-        this.targetId = targetId;
-    }
-
-    public String getTargetType() {
-        return targetType;
-    }
-
-    public void setTargetType(String targetType) {
-        this.targetType = targetType;
-    }
-
     public String[] getTags() {
         return tags;
     }
@@ -292,10 +266,25 @@ public class Member extends BaseBusEntity {
 
     public void setType(String type) {
         this.type = type;
+        if (Member.MEMBER_TYPE_PERSONAL.equals(this.getType())) {
+            return;
+        }
+        MemberTarget memberTarget = ObjectUtil.find(this.targets, "type.id", this.getType());
+        if (memberTarget != null) {
+            this.target = getTarget();
+        }
     }
 
     public String getType() {
         return type;
+    }
+
+    public void setTarget(String target) {
+        this.target = target;
+    }
+
+    public String getTarget() {
+        return this.target;
     }
 
     public List<MemberTarget> getTargets() {
@@ -319,8 +308,7 @@ public class Member extends BaseBusEntity {
                 ", credentialsNonExpired=" + credentialsNonExpired +
                 ", lockTime=" + lockTime +
                 ", lastLoginTime=" + lastLoginTime +
-                ", targetId='" + targetId + '\'' +
-                ", targetType='" + targetType + '\'' +
+                ", target='" + getTarget() + '\'' +
                 ", code='" + code + '\'' +
                 '}';
     }

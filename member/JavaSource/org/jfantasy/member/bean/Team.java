@@ -29,7 +29,7 @@ import java.util.Map;
  */
 @Entity
 @Table(name = "MEM_TEAM")
-@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler","team_members", "member"})
+@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "team_members", "member", "enterprise"})
 public class Team extends BaseBusEntity {
 
     private static final long serialVersionUID = 4465203760129454882L;
@@ -55,7 +55,7 @@ public class Team extends BaseBusEntity {
      * 状态
      */
     @Enumerated(EnumType.STRING)
-    @Column(name = "STATUS", nullable = false,length = 10)
+    @Column(name = "STATUS", nullable = false, length = 10)
     private TeamStatus status;
     /**
      * 名称
@@ -66,7 +66,7 @@ public class Team extends BaseBusEntity {
     /**
      * 集团所有者
      */
-    @Column(name = "OWNER_ID",precision = 22)
+    @Column(name = "OWNER_ID", precision = 22)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Long ownerId;
     /**

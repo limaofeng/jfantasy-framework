@@ -88,7 +88,8 @@ public class OAuthUserDetails implements UserDetails {
     private boolean credentialsNonExpired;
     /**
      * 用于标示唯一<br/>
-     * 结构如下: type:username
+     * 结构如下:
+     * type:username
      * member:15921884771
      */
     private String key;
@@ -97,13 +98,9 @@ public class OAuthUserDetails implements UserDetails {
      */
     private String platform;
     /**
-     * 目标类型
-     */
-    private String targetType;
-    /**
      * 目标ID
      */
-    private String targetId;
+    private String target;
 
     public void setType(Type type) {
         this.type = type;
@@ -240,19 +237,11 @@ public class OAuthUserDetails implements UserDetails {
         return platform;
     }
 
-    public String getTargetType() {
-        return targetType;
+    public String getTarget() {
+        return target;
     }
 
-    public void setTargetType(String targetType) {
-        this.targetType = targetType;
-    }
-
-    public String getTargetId() {
-        return targetId;
-    }
-
-    public void setTargetId(String targetId) {
-        this.targetId = targetId;
+    public void setTarget(String target) {
+        this.target = target;
     }
 }
