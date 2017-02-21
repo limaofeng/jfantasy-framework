@@ -107,7 +107,7 @@ public class MemberService {
      * @return Member
      */
     public Member login(PasswordTokenType type, String username, String password) {
-        Member member = this.findUnique(username);
+        Member member = this.findUnique(type, username);
 
         if (!this.passwordTokenEncoder.matches("login", type, username, member != null ? member.getPassword() : "", password)) {
             throw new ValidationException(100101, "用户名和密码错误");
@@ -249,6 +249,17 @@ public class MemberService {
      */
     public Member findUniqueByUsername(String username) {
         return this.memberDao.findUniqueBy("username", username);
+    }
+
+    private Member findUnique(PasswordTokenType type, String username) {
+        switch (type) {
+            case macode:
+                return this.memberDao.findUniqueBy("details.mobile", username);
+            case token:
+            case password:
+            default:
+                return findUnique(username);
+        }
     }
 
     private Member findUnique(String username) {
