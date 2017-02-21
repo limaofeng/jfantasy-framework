@@ -72,11 +72,14 @@ public class MemberService {
         return this.memberDao.findPager(pager, filters);
     }
 
-    private Member signUp(String username, SignUpType signUpType) {
+    public Member signUp(String username, SignUpType signUpType) {
+        return this.signUp(username, null, signUpType);
+    }
+
+    public Member signUp(String username, String password, SignUpType signUpType) {
         Member member = new Member();
-        member.addType(this.memberTypeDao.get(Member.MEMBER_TYPE_PERSONAL));
         member.setUsername(username);
-        member.setPassword(StringUtil.generateNonceString(20));
+        member.setPassword(StringUtil.defaultValue(password, StringUtil.generateNonceString(20)));
         return this.save(member, signUpType);
     }
 
@@ -148,7 +151,9 @@ public class MemberService {
         if (defaultRole != null) {
             roles.add(defaultRole);
         }
-        //初始化用户状态
+        // 设置默认用户类型
+        member.addType(this.memberTypeDao.get(Member.MEMBER_TYPE_PERSONAL));
+        // 初始化用户状态
         member.setEnabled(true);
         member.setAccountNonLocked(true);
         member.setAccountNonExpired(true);

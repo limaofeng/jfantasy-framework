@@ -15,10 +15,14 @@ import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.framework.util.web.RedirectAttributesWriter;
 import org.jfantasy.framework.util.web.WebUtil;
-import org.jfantasy.member.bean.*;
+import org.jfantasy.member.bean.Comment;
+import org.jfantasy.member.bean.Favorite;
+import org.jfantasy.member.bean.Member;
+import org.jfantasy.member.bean.MemberDetails;
 import org.jfantasy.member.bean.enums.SignUpType;
 import org.jfantasy.member.bean.enums.TeamMemberStatus;
 import org.jfantasy.member.rest.models.PasswordForm;
+import org.jfantasy.member.rest.models.RegisterForm;
 import org.jfantasy.member.rest.models.assembler.MemberResourceAssembler;
 import org.jfantasy.member.rest.models.assembler.ProfileResourceAssembler;
 import org.jfantasy.member.service.FavoriteService;
@@ -144,8 +148,11 @@ public class MemberController {
     @RequestMapping(method = RequestMethod.POST)
     @ResponseStatus(value = HttpStatus.CREATED)
     @ResponseBody
-    public ResultResourceSupport create(@Validated(RESTful.POST.class) @RequestBody Member member) {
-        return assembler.toResource(memberService.save(member, SignUpType.username));
+    public ResultResourceSupport create(@Validated(RESTful.POST.class) @RequestBody RegisterForm form) {
+        if (StringUtil.isNotBlank(form.getMacode())) {
+            //TODO 需要验证注册验证码
+        }
+        return assembler.toResource(memberService.signUp(form.getUsername(), form.getPassword(), SignUpType.sms));
     }
 
     @JsonResultFilter(
