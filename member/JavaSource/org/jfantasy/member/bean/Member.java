@@ -12,6 +12,7 @@ import org.jfantasy.framework.dao.hibernate.converter.StringsConverter;
 import org.jfantasy.framework.spring.validation.RESTful.POST;
 import org.jfantasy.framework.spring.validation.RESTful.PUT;
 import org.jfantasy.framework.spring.validation.Use;
+import org.jfantasy.framework.util.HandlebarsTemplateUtils;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.member.validators.UsernameCannotRepeatValidator;
 
@@ -32,7 +33,7 @@ import java.util.List;
 @Table(name = "MEM_MEMBER", uniqueConstraints = @UniqueConstraint(name = "UK_MEMBER_USERNAME", columnNames = {"USERNAME"}))
 @JsonPropertyOrder({"id", "type", "username", "nick_name", "enabled", "non_locked", "non_expired", "credentials_non_expired", "lock_time", "last_login_time", "code"})
 @TableGenerator(name = "member_gen", table = "sys_sequence", pkColumnName = "gen_name", pkColumnValue = "mem_member:id", valueColumnName = "gen_value")
-@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "user_groups", "roles", "authorities", "targets"})
+@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "user_groups", "roles", "targets"})
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @DynamicUpdate
 public class Member extends BaseBusEntity {
@@ -49,8 +50,7 @@ public class Member extends BaseBusEntity {
     /**
      * 用户类型
      */
-    @ManyToMany(targetEntity = MemberType.class, fetch = FetchType.LAZY)
-    @JoinTable(name = "MEM_MEMBER_TARGET", joinColumns = @JoinColumn(name = "MEMBER"), inverseJoinColumns = @JoinColumn(name = "TYPE"), foreignKey = @ForeignKey(name = "FK_MEMBERTARGET_MID"))
+    @Transient
     private List<MemberType> types;
     /**
      * 用户登录名称
@@ -126,8 +126,6 @@ public class Member extends BaseBusEntity {
     private String type;
     @Transient
     private String target;
-    @Transient
-    private String[] authorities;
 
     public Member() {//NOSONAR
     }//NOSONAR
@@ -227,10 +225,6 @@ public class Member extends BaseBusEntity {
         }
     }
 
-    public void setAuthorities(String[] authorities) {
-        this.authorities = authorities;
-    }
-
     public String getCode() {
         return code;
     }
@@ -240,6 +234,13 @@ public class Member extends BaseBusEntity {
     }
 
     public List<MemberType> getTypes() {
+        if (this.types != null) {
+            return this.types;
+        }
+        this.types = new ArrayList<>();
+        for (MemberTarget mtarget : this.getTargets()) {
+            this.types.add(mtarget.getType());
+        }
         return types;
     }
 
@@ -285,6 +286,14 @@ public class Member extends BaseBusEntity {
         return this.target;
     }
 
+    public void addTarget(MemberTarget target) {
+        if (this.targets == null) {
+            this.targets = new ArrayList<>();
+        }
+        this.targets.add(target);
+        this.addType(target.getType());
+    }
+
     public List<MemberTarget> getTargets() {
         return targets;
     }
@@ -293,11 +302,20 @@ public class Member extends BaseBusEntity {
         this.targets = targets;
     }
 
+    @Transient
+    public String getProfileUrl(String type) {
+        MemberTarget memberTarget = ObjectUtil.find(this.targets, "type.id", type);
+        if (memberTarget == null) {
+            return null;
+        }
+        return HandlebarsTemplateUtils.processTemplateIntoString(memberTarget.getType().getProfileUrl(), memberTarget);
+    }
+
     @Override
     public String toString() {
         return "Member{" +
                 "id=" + id +
-                ", type='" + ObjectUtil.toString(this.types, "id", ",") + '\'' +
+                ", type='" + ObjectUtil.toString(ObjectUtil.defaultValue(this.types, new ArrayList<>()), "id", ",") + '\'' +
                 ", username='" + username + '\'' +
                 ", nickName='" + nickName + '\'' +
                 ", enabled=" + enabled +

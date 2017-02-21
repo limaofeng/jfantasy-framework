@@ -8,19 +8,20 @@ import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.jackson.annotation.AllowProperty;
 import org.jfantasy.framework.jackson.annotation.IgnoreProperty;
 import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
+import org.jfantasy.framework.service.PasswordTokenEncoder;
+import org.jfantasy.framework.service.PasswordTokenType;
 import org.jfantasy.framework.spring.mvc.error.NotFoundException;
+import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
 import org.jfantasy.framework.spring.validation.RESTful;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.framework.util.web.RedirectAttributesWriter;
 import org.jfantasy.framework.util.web.WebUtil;
-import org.jfantasy.member.bean.Comment;
-import org.jfantasy.member.bean.Favorite;
-import org.jfantasy.member.bean.Member;
-import org.jfantasy.member.bean.MemberDetails;
+import org.jfantasy.member.bean.*;
 import org.jfantasy.member.bean.enums.SignUpType;
 import org.jfantasy.member.bean.enums.TeamMemberStatus;
+import org.jfantasy.member.rest.models.ConnectForm;
 import org.jfantasy.member.rest.models.PasswordForm;
 import org.jfantasy.member.rest.models.RegisterForm;
 import org.jfantasy.member.rest.models.assembler.MemberResourceAssembler;
@@ -57,6 +58,8 @@ public class MemberController {
     private TeamController teamController;
     private CommentController commentController;
 
+    private PasswordTokenEncoder passwordTokenEncoder;
+
     @Autowired
     public MemberController(MemberService memberService, FavoriteService favoriteService) {
         this.memberService = memberService;
@@ -73,7 +76,10 @@ public class MemberController {
      */
     @JsonResultFilter(
             ignore = @IgnoreProperty(pojo = Member.class, name = {"password", "enabled", "accountNonExpired", "accountNonLocked", "credentialsNonExpired"}),
-            allow = @AllowProperty(pojo = MemberDetails.class, name = {"name", "sex", "birthday", "avatar"})
+            allow = {
+                    @AllowProperty(pojo = MemberDetails.class, name = {"name", "sex", "birthday", "avatar"}),
+                    @AllowProperty(pojo = MemberType.class, name = {"id", "name"})
+            }
     )
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
@@ -88,6 +94,7 @@ public class MemberController {
      * @param id KEY
      * @return Member
      */
+    @JsonResultFilter(allow = @AllowProperty(pojo = MemberType.class, name = {"id", "name"}))
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     @ResponseBody
     public ResultResourceSupport view(@PathVariable("id") Long id) {
@@ -104,8 +111,7 @@ public class MemberController {
     /**
      * 获取用户的详细信息
      *
-     * @param response HttpServletResponse
-     * @param id       id
+     * @param id id
      * @return ResultResourceSupport
      */
     @JsonResultFilter(
@@ -113,13 +119,22 @@ public class MemberController {
     )
     @RequestMapping(value = "/{id}/profile", method = RequestMethod.GET)
     @ResponseBody
-    public ResultResourceSupport profile(HttpServletResponse response, @PathVariable("id") Long id, @RequestParam(value = "type", defaultValue = Member.MEMBER_TYPE_PERSONAL) String type) {
+    public Object profile(@PathVariable("id") Long id, @RequestParam(value = "type", defaultValue = Member.MEMBER_TYPE_PERSONAL) String type) {
         Member member = get(id);
-        if (ObjectUtil.exists(member.getTypes(), "id", type)) {
-            return profileAssembler.toResource(member.getDetails());
+        if (!ObjectUtil.exists(member.getTypes(), "id", type)) {
+            throw new ValidationException(String.format("[type=%s]不匹配", type));
         }
-        response.setStatus(307);
-        return assembler.toResource(member);
+        if (Member.MEMBER_TYPE_PERSONAL.equals(type)) {
+            return member.getDetails();
+        } else {
+            return new ModelAndView("redirect:" + member.getProfileUrl(type));
+        }
+    }
+
+    @RequestMapping(value = "/{id}/connect", method = RequestMethod.GET)
+    @ResponseBody
+    public void connect(@PathVariable("id") Long id, @RequestBody ConnectForm form) {
+        this.memberService.connect(id, form.getType(), form.getTarget());
     }
 
     @JsonResultFilter(
@@ -145,12 +160,13 @@ public class MemberController {
         return member;
     }
 
+    @JsonResultFilter(allow = @AllowProperty(pojo = MemberType.class, name = {"id", "name"}))
     @RequestMapping(method = RequestMethod.POST)
     @ResponseStatus(value = HttpStatus.CREATED)
     @ResponseBody
     public ResultResourceSupport create(@Validated(RESTful.POST.class) @RequestBody RegisterForm form) {
-        if (StringUtil.isNotBlank(form.getMacode())) {
-            //TODO 需要验证注册验证码
+        if (StringUtil.isNotBlank(form.getMacode()) && !this.passwordTokenEncoder.matches("register", PasswordTokenType.macode, form.getUsername(), null, form.getMacode())) {
+            throw new ValidationException(100000, "注册验证码错误");
         }
         return assembler.toResource(memberService.signUp(form.getUsername(), form.getPassword(), SignUpType.sms));
     }
@@ -165,6 +181,7 @@ public class MemberController {
         return assembler.toResource(this.memberService.changePassword(id, form.getType(), form.getOldPassword(), form.getNewPassword()));
     }
 
+    @JsonResultFilter(allow = @AllowProperty(pojo = MemberType.class, name = {"id", "name"}))
     @RequestMapping(value = "/{id}", method = {RequestMethod.PATCH, RequestMethod.PUT})
     @ResponseBody
     public ResultResourceSupport update(HttpServletRequest request, @PathVariable("id") Long id, @RequestBody Member member) {
@@ -269,6 +286,11 @@ public class MemberController {
     @Autowired
     public void setCommentController(CommentController commentController) {
         this.commentController = commentController;
+    }
+
+    @Autowired
+    public void setPasswordTokenEncoder(PasswordTokenEncoder passwordTokenEncoder) {
+        this.passwordTokenEncoder = passwordTokenEncoder;
     }
 
 }

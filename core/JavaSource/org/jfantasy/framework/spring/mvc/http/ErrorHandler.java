@@ -45,8 +45,8 @@ public class ErrorHandler {
             response.setStatus(restException.getStatusCode());
         } else if (exception instanceof MethodArgumentNotValidException) {
             response.setStatus(HttpStatus.UNPROCESSABLE_ENTITY.value());
-            error.setCode(40000);
-            error.setMessage("输入的数据不合法,详情见 fieldErrors 字段");
+            error.setCode(42200);
+            error.setMessage("输入的数据不合法,详情见 errors 字段");
             for (FieldError fieldError : ((MethodArgumentNotValidException) exception).getBindingResult().getFieldErrors()) {
                 error.addError(fieldError.getField(), fieldError.getDefaultMessage());
             }

@@ -17,14 +17,14 @@ import org.jfantasy.framework.util.regexp.RegexpConstant;
 import org.jfantasy.framework.util.regexp.RegexpUtil;
 import org.jfantasy.member.bean.Member;
 import org.jfantasy.member.bean.MemberDetails;
+import org.jfantasy.member.bean.MemberTarget;
 import org.jfantasy.member.bean.enums.SignUpType;
 import org.jfantasy.member.dao.MemberDao;
+import org.jfantasy.member.dao.MemberTargetDao;
 import org.jfantasy.member.dao.MemberTypeDao;
 import org.jfantasy.member.event.LoginEvent;
 import org.jfantasy.member.event.LogoutEvent;
 import org.jfantasy.member.event.RegisterEvent;
-import org.jfantasy.security.bean.Role;
-import org.jfantasy.security.dao.RoleDao;
 import org.jfantasy.sns.bean.Snser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -32,7 +32,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -42,23 +41,22 @@ import java.util.List;
 @Transactional
 public class MemberService {
 
-    private static final String DEFAULT_ROLE_CODE = "MEMBER";
 
     private static final Log LOG = LogFactory.getLog(MemberService.class);
 
     private final MemberDao memberDao;
     private final MemberTypeDao memberTypeDao;
-    private final RoleDao roleDao;
+    private final MemberTargetDao memberTargetDao;
 
     private ApplicationContext applicationContext;
     private PasswordEncoder passwordEncoder;
     private PasswordTokenEncoder passwordTokenEncoder;
 
     @Autowired
-    public MemberService(MemberDao memberDao, MemberTypeDao memberTypeDao, RoleDao roleDao) {
+    public MemberService(MemberDao memberDao, MemberTypeDao memberTypeDao, MemberTargetDao memberTargetDao) {
         this.memberDao = memberDao;
         this.memberTypeDao = memberTypeDao;
-        this.roleDao = roleDao;
+        this.memberTargetDao = memberTargetDao;
     }
 
     /**
@@ -132,27 +130,16 @@ public class MemberService {
         MemberDetails details = ObjectUtil.defaultValue(member.getDetails(), new MemberDetails());
         // 设置默认属性
         details.setLevel(0L);
-
         if (signUpType == SignUpType.email) {// 如果用email注册
             details.setEmail(member.getUsername());
         } else if (signUpType == SignUpType.sms) {// 如果用手机注册
             details.setMobile(member.getUsername());
         }
         member.setDetails(details);
-
         // 默认昵称与用户名一致
         if (StringUtil.isBlank(member.getNickName())) {
             member.setNickName(member.getUsername());
         }
-
-        // 初始化用户权限
-        List<Role> roles = new ArrayList<>();
-        Role defaultRole = roleDao.get(DEFAULT_ROLE_CODE);
-        if (defaultRole != null) {
-            roles.add(defaultRole);
-        }
-        // 设置默认用户类型
-        member.addType(this.memberTypeDao.get(Member.MEMBER_TYPE_PERSONAL));
         // 初始化用户状态
         member.setEnabled(true);
         member.setAccountNonLocked(true);
@@ -160,6 +147,9 @@ public class MemberService {
         member.setCredentialsNonExpired(true);
         // 保存用户
         this.memberDao.save(member);
+        // 设置默认用户类型
+        member.addTarget(connect(member.getId(),Member.MEMBER_TYPE_PERSONAL,details.getMemberId().toString()));
+        // 公布事件
         applicationContext.publishEvent(new RegisterEvent(member));
         return member;
     }
@@ -245,6 +235,18 @@ public class MemberService {
     public void logout(String username) {
         this.applicationContext.publishEvent(new LogoutEvent(findUniqueByUsername(username)));
     }
+
+    /**
+     * 连接服务
+     *
+     * @param id    ID
+     * @param type  类型
+     * @param value 目标
+     */
+    public MemberTarget connect(Long id, String type, String value) {
+        return this.memberTargetDao.save(MemberTarget.newInstance(this.memberDao.get(id), this.memberTypeDao.get(type), value));
+    }
+
 
     /**
      * 根据用户名查询用户
