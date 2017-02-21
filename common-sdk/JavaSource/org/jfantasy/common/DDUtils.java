@@ -52,7 +52,7 @@ public class DDUtils {
             assert apiGatewaySettings != null;
             return RESTful.restTemplate.getForObject(apiGatewaySettings.getUrl() + "/system/dds/" + id, DataDict.class);
         }catch (Exception e){
-            LOG.error(e);
+            LOG.error(e.getMessage(),e);
             return null;
         }
     }
