@@ -65,9 +65,6 @@ public class AuthController {
     public Object login(@Validated(RESTful.POST.class) @RequestBody LoginForm loginForm) {
         switch (loginForm.getScope()) {
             case user:
-                if (StringUtil.isBlank(loginForm.getUserType())) {
-                    loginForm.setUserType(UserType.admin.name());
-                }
                 return userLogin(loginForm);
             case member:
                 if (StringUtil.isBlank(loginForm.getUserType())) {
@@ -108,10 +105,10 @@ public class AuthController {
     }
 
     private User userLogin(LoginForm loginForm) {
-        User user = this.userService.login(loginForm.getUsername(), loginForm.getPassword());
-        return validateUserType(user, UserType.valueOf(loginForm.getUserType()));
+        return this.userService.login(loginForm.getUsername(), loginForm.getPassword());
     }
 
+    @Deprecated
     public static User validateUserType(User user, UserType userType) {
         if (userType != null && !userType.equals(user.getUserType())) {
             throw new RestException("UserType 不一致");
