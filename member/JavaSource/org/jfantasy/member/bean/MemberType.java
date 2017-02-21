@@ -12,7 +12,7 @@ import java.util.List;
 public class MemberType extends BaseBusEntity {
 
     @Id
-    @Column(name = "ID", nullable = false, updatable = false, precision = 20)
+    @Column(name = "ID", nullable = false, updatable = false, length = 20)
     private String id;
     /**
      * 名称
@@ -28,7 +28,7 @@ public class MemberType extends BaseBusEntity {
      * 对于的用户
      */
     @ManyToMany(targetEntity = Member.class, fetch = FetchType.LAZY)
-    @JoinTable(name = "MEM_MEMBER_TYPES", joinColumns = @JoinColumn(name = "TYPE"), inverseJoinColumns = @JoinColumn(name = "MEMBER"), foreignKey = @ForeignKey(name = "FK_MEMBERTYPES_TID"))
+    @JoinTable(name = "MEM_MEMBER_TARGET", joinColumns = @JoinColumn(name = "TYPE"), inverseJoinColumns = @JoinColumn(name = "MEMBER"), foreignKey = @ForeignKey(name = "FK_MEMBERTARGET_TID"))
     private List<Member> members;
 
     public String getId() {

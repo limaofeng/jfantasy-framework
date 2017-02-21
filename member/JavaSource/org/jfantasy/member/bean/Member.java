@@ -52,7 +52,7 @@ public class Member extends BaseBusEntity {
      * 用户类型
      */
     @ManyToMany(targetEntity = MemberType.class, fetch = FetchType.LAZY)
-    @JoinTable(name = "MEM_MEMBER_TYPES", joinColumns = @JoinColumn(name = "MEMBER"), inverseJoinColumns = @JoinColumn(name = "TYPE"), foreignKey = @ForeignKey(name = "FK_MEMBERTYPES_MID"))
+    @JoinTable(name = "MEM_MEMBER_TARGET", joinColumns = @JoinColumn(name = "MEMBER"), inverseJoinColumns = @JoinColumn(name = "TYPE"), foreignKey = @ForeignKey(name = "FK_MEMBERTARGET_MID"))
     private List<MemberType> types;
     /**
      * 用户登录名称
