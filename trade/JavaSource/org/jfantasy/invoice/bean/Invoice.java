@@ -47,6 +47,7 @@ public class Invoice extends BaseBusEntity {
     @Column(name = "TYPE", length = 10)
     private String type;
     @Null(groups = {RESTful.POST.class})
+    @Enumerated(EnumType.STRING)
     @Column(name = "STATUS", length = 10)
     private InvoiceStatus status;
     /*************************************/
