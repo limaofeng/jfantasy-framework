@@ -7,8 +7,11 @@ import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.jackson.annotation.AllowProperty;
 import org.jfantasy.framework.jackson.annotation.IgnoreProperty;
 import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
+import org.jfantasy.framework.spring.mvc.error.NotFoundException;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
 import org.jfantasy.framework.spring.validation.RESTful;
+import org.jfantasy.framework.util.regexp.RegexpConstant;
+import org.jfantasy.framework.util.regexp.RegexpUtil;
 import org.jfantasy.framework.util.web.WebUtil;
 import org.jfantasy.security.bean.Menu;
 import org.jfantasy.security.bean.Role;
@@ -59,12 +62,19 @@ public class UserController {
     /**
      * 获取用户
      *
-     * @param id
-     * @return
+     * @param id UID
+     * @return User
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public ResultResourceSupport view(@PathVariable("id") Long id) {
-        return assembler.toResource(this.userService.get(id));
+    public ResultResourceSupport view(@PathVariable("id") String id) {
+        User user = this.userService.findUniqueByUsername(id);
+        if (user == null && RegexpUtil.isMatch(id, RegexpConstant.VALIDATOR_INTEGE)) {
+            user = this.userService.get(Long.valueOf(id));
+        }
+        if (user == null) {
+            throw new NotFoundException(String.format(" %s 对于的用户不存在", id));
+        }
+        return assembler.toResource(user);
     }
 
     @JsonResultFilter(
@@ -124,7 +134,7 @@ public class UserController {
      * @param user
      * @return
      */
-    @RequestMapping(value = "/{id}", method = {RequestMethod.PATCH, RequestMethod.POST})
+    @RequestMapping(value = "/{id}", method = {RequestMethod.PATCH, RequestMethod.PUT})
     public ResultResourceSupport update(@PathVariable("id") Long id, @RequestBody User user, HttpServletRequest request) {
         user.setId(id);
         return assembler.toResource(this.userService.update(user, WebUtil.hasMethod(request, HttpMethod.PATCH.name())));

@@ -1,9 +1,9 @@
 package org.jfantasy.member.rest.models.assembler;
 
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
+import org.jfantasy.member.bean.Member;
 import org.jfantasy.member.bean.MemberDetails;
 import org.jfantasy.member.rest.MemberController;
-import org.jfantasy.security.rest.UserController;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
@@ -23,8 +23,8 @@ public class ProfileResourceAssembler extends ResourceAssemblerSupport<MemberDet
     @Override
     public ResultResourceSupport toResource(MemberDetails entity) {
         ResultResourceSupport resource = instantiateResource(entity);
-        resource.add(linkTo(methodOn(UserController.class).profile(entity.getMemberId())).withSelfRel());
-        resource.add(linkTo(methodOn(UserController.class).view(entity.getMemberId())).withRel("member"));
+        resource.add(linkTo(methodOn(MemberController.class).profile(entity.getMemberId(), Member.MEMBER_TYPE_PERSONAL)).withSelfRel());
+        resource.add(linkTo(methodOn(MemberController.class).view(entity.getMemberId())).withRel("member"));
         return resource;
     }
 

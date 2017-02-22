@@ -200,10 +200,10 @@ public class AccessTokenService {
         userDetails.setType(OAuthUserDetails.Type.user);
         userDetails.setKey(OAuthUserDetails.Type.user.name() + ":" + user.getUsername());
 
-        userDetails.setEnabled(user.isEnabled());
-        userDetails.setAccountNonExpired(user.isAccountNonExpired());
-        userDetails.setAccountNonLocked(user.isAccountNonLocked());
-        userDetails.setCredentialsNonExpired(user.isCredentialsNonExpired());
+        userDetails.setEnabled(user.getEnabled());
+        userDetails.setAccountNonExpired(user.getAccountNonExpired());
+        userDetails.setAccountNonLocked(user.getAccountNonLocked());
+        userDetails.setCredentialsNonExpired(user.getCredentialsNonExpired());
 
         List<GrantedAuthority> authorities = new ArrayList<>();
         for (String authority : user.getAuthorities()) {

@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 @ControllerAdvice
 public class ErrorHandler {
 
-    private static Log LOG = LogFactory.getLog(ErrorHandler.class);
+    private static final Log LOG = LogFactory.getLog(ErrorHandler.class);
 
     @ExceptionHandler(value = Exception.class)
     @ResponseBody

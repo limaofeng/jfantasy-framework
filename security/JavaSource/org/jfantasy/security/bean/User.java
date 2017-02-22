@@ -20,7 +20,7 @@ import java.util.*;
 @Entity
 @Table(name = "AUTH_USER")
 @TableGenerator(name = "user_gen", table = "sys_sequence", pkColumnName = "gen_name", pkColumnValue = "auth_user:id", valueColumnName = "gen_value")
-@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "roles", "userGroups", "website", "menus", "authorities", "details"})
+@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "roles", "user_groups", "website", "menus", "authorities", "details"})
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class User extends BaseBusEntity {
 
@@ -71,22 +71,22 @@ public class User extends BaseBusEntity {
      * 是否启用
      */
     @Column(name = "ENABLED")
-    private boolean enabled;
+    private Boolean enabled;
     /**
      * 未过期
      */
     @Column(name = "NON_EXPIRED")
-    private boolean accountNonExpired;
+    private Boolean accountNonExpired;
     /**
      * 未锁定
      */
     @Column(name = "NON_LOCKED")
-    private boolean accountNonLocked;
+    private Boolean accountNonLocked;
     /**
      * 未失效
      */
     @Column(name = "CREDENTIALS_NON_EXPIRED")
-    private boolean credentialsNonExpired;
+    private Boolean credentialsNonExpired;
     /**
      * 锁定时间
      */
@@ -178,22 +178,6 @@ public class User extends BaseBusEntity {
 
     public void setUserGroups(List<UserGroup> userGroups) {
         this.userGroups = userGroups;
-    }
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public boolean isAccountNonExpired() {
-        return accountNonExpired;
-    }
-
-    public boolean isAccountNonLocked() {
-        return accountNonLocked;
-    }
-
-    public boolean isCredentialsNonExpired() {
-        return credentialsNonExpired;
     }
 
     public List<UserGroup> getUserGroups() {
@@ -309,6 +293,37 @@ public class User extends BaseBusEntity {
         return menus;
     }
 
+    public Boolean getEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public Boolean getAccountNonExpired() {
+        return accountNonExpired;
+    }
+
+    public void setAccountNonExpired(Boolean accountNonExpired) {
+        this.accountNonExpired = accountNonExpired;
+    }
+
+    public Boolean getAccountNonLocked() {
+        return accountNonLocked;
+    }
+
+    public void setAccountNonLocked(Boolean accountNonLocked) {
+        this.accountNonLocked = accountNonLocked;
+    }
+
+    public Boolean getCredentialsNonExpired() {
+        return credentialsNonExpired;
+    }
+
+    public void setCredentialsNonExpired(Boolean credentialsNonExpired) {
+        this.credentialsNonExpired = credentialsNonExpired;
+    }
 
     @Override
     public String toString() {

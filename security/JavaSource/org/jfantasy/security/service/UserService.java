@@ -111,7 +111,7 @@ public class UserService {
         if (user == null) {
             throw new NotFoundException("用户不存在");
         }
-        if (!user.isEnabled()) {
+        if (!user.getEnabled()) {
             throw new ValidationException(100101, "用户已被禁用");
         }
         if (!this.passwordEncoder.matches(user.getPassword(), oldPassword)) {
@@ -150,10 +150,10 @@ public class UserService {
         if (!this.passwordEncoder.matches(user.getPassword(), password)) {
             throw new ValidationException(100201, "用户名和密码错误");
         }
-        if (!user.isEnabled()) {
+        if (!user.getEnabled()) {
             throw new LoginException("用户被禁用");
         }
-        if (!user.isAccountNonLocked()) {
+        if (!user.getAccountNonLocked()) {
             throw new LoginException("用户被锁定");
         }
         user.setLastLoginTime(DateUtil.now());
