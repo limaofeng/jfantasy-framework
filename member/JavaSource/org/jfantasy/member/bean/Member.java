@@ -270,7 +270,7 @@ public class Member extends BaseBusEntity {
         }
         MemberTarget memberTarget = ObjectUtil.find(this.targets, "type.id", this.getType());
         if (memberTarget != null) {
-            this.target = getTarget();
+            this.target = memberTarget.getValue();
         }
     }
 
