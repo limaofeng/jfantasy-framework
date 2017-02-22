@@ -24,7 +24,26 @@ public class DESPlus {
     private Cipher encryptCipher = null;
     private Cipher decryptCipher = null;
 
-    public static String byteArr2HexStr(byte[] arrB) {
+    public DESPlus() throws CryptoException {
+        this(DEFAULT_KEY);
+    }
+
+    public DESPlus(String strKey) throws CryptoException {
+        Security.addProvider(new SunJCE());
+        try {
+            Key key = getKey(strKey.getBytes());
+            this.encryptCipher = Cipher.getInstance(CIPHER_TYPE);
+            this.encryptCipher.init(1, key);
+
+            this.decryptCipher = Cipher.getInstance(CIPHER_TYPE);
+            this.decryptCipher.init(2, key);
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException e) {
+            LOG.error(e.getMessage(), e);
+            throw new CryptoException(e.getMessage(), e);
+        }
+    }
+
+    private static String byteArr2HexStr(byte[] arrB) {
         int iLen = arrB.length;
 
         StringBuilder sb = new StringBuilder(iLen * 2);
@@ -43,7 +62,7 @@ public class DESPlus {
         return sb.toString();
     }
 
-    public static byte[] hexStr2ByteArr(String strIn) {
+    private static byte[] hexStr2ByteArr(String strIn) {
         byte[] arrB = strIn.getBytes();
         int iLen = arrB.length;
 
@@ -53,25 +72,6 @@ public class DESPlus {
             arrOut[i / 2] = (byte) Integer.parseInt(strTmp, 16);
         }
         return arrOut;
-    }
-
-    public DESPlus() throws CryptoException {
-        this(DEFAULT_KEY);
-    }
-
-    public DESPlus(String strKey) throws CryptoException {
-        Security.addProvider(new SunJCE());
-        try {
-            Key key = getKey(strKey.getBytes());
-            this.encryptCipher = Cipher.getInstance(CIPHER_TYPE);
-            this.encryptCipher.init(1, key);
-
-            this.decryptCipher = Cipher.getInstance(CIPHER_TYPE);
-            this.decryptCipher.init(2, key);
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException e) {
-            LOG.error(e.getMessage(), e);
-            throw new CryptoException(e.getMessage(), e);
-        }
     }
 
     public byte[] encrypt(byte[] arrB) throws CryptoException {
