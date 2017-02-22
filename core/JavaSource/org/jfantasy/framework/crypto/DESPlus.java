@@ -24,11 +24,11 @@ public class DESPlus {
     private Cipher encryptCipher = null;
     private Cipher decryptCipher = null;
 
-    public DESPlus() throws CryptoException {
+    public DESPlus() {
         this(DEFAULT_KEY);
     }
 
-    public DESPlus(String strKey) throws CryptoException {
+    public DESPlus(String strKey) {
         Security.addProvider(new SunJCE());
         try {
             Key key = getKey(strKey.getBytes());
@@ -39,7 +39,6 @@ public class DESPlus {
             this.decryptCipher.init(2, key);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException e) {
             LOG.error(e.getMessage(), e);
-            throw new CryptoException(e.getMessage(), e);
         }
     }
 
