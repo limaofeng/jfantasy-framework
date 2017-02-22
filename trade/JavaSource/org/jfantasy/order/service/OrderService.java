@@ -43,7 +43,9 @@ import org.jfantasy.trade.bean.Account;
 import org.jfantasy.trade.bean.Project;
 import org.jfantasy.trade.bean.Transaction;
 import org.jfantasy.trade.bean.enums.AccountType;
+import org.jfantasy.trade.bean.enums.TxChannel;
 import org.jfantasy.trade.bean.enums.TxStatus;
+import org.jfantasy.trade.dao.ProjectDao;
 import org.jfantasy.trade.service.AccountService;
 import org.jfantasy.trade.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,6 +68,7 @@ public class OrderService {
     private final OrderTypeDao orderTypeDao;
     private final OrderPriceValueDao orderPriceValueDao;
     private final OrderPayeeValueDao orderPayeeValueDao;
+    private final ProjectDao projectDao;
     private TransactionService transactionService;
     private ReceiverService receiverService;
     private ScheduleService scheduleService;
@@ -74,9 +77,10 @@ public class OrderService {
     private OrderTypeService orderTypeService;
 
     @Autowired
-    public OrderService(OrderTypeDao orderTypeDao, OrderDao orderDao, OrderPriceValueDao orderPriceValueDao, OrderPayeeValueDao orderPayeeValueDao) {
-        this.orderTypeDao = orderTypeDao;
+    public OrderService(OrderTypeDao orderTypeDao, OrderDao orderDao, OrderPriceValueDao orderPriceValueDao, OrderPayeeValueDao orderPayeeValueDao, ProjectDao projectDao) {
         this.orderDao = orderDao;
+        this.projectDao = projectDao;
+        this.orderTypeDao = orderTypeDao;
         this.orderPriceValueDao = orderPriceValueDao;
         this.orderPayeeValueDao = orderPayeeValueDao;
     }
@@ -214,7 +218,7 @@ public class OrderService {
         if (order.getStatus() != OrderStatus.unpaid) {
             throw new ValidationException("订单" + order.getStatus().getValue() + ",不能支付");
         }
-        Account from = accountService.loadAccountByOwner(AccountType.personal,order.getMemberId().toString());// 付款方 - 只能是用户自己付款
+        Account from = accountService.loadAccountByOwner(AccountType.personal, order.getMemberId().toString());// 付款方 - 只能是用户自己付款
         Transaction transaction = this.transactionService.payment(from.getSn(), order.getPayableAmount(), "", data);
         order.setPaymentTransaction(transaction);
         return this.orderDao.update(order);
@@ -230,6 +234,10 @@ public class OrderService {
         transaction.setStatusText(TxStatus.success.getValue());
         transaction.setPayConfigName(payConfig.getName());
         transactionService.update(transaction);
+        // 更新收款人账户金额
+        if (transaction.getChannel() != TxChannel.internal) {
+            accountService.in(transaction.getTo(), transaction.getAmount(), this.projectDao.get(transaction.getProject()), transaction);
+        }
         // 更新订单状态
         order.setStatus(OrderStatus.paid);
         order.setPaymentStatus(org.jfantasy.order.entity.enums.PaymentStatus.paid);
@@ -237,8 +245,8 @@ public class OrderService {
         order.setPaymentConfig(payConfig);
         order.setPayConfigName(payConfig.getName());
         // 查询付款人信息
-        Account account = accountService.get(transaction.getFrom());
-        order.setPayer(Long.valueOf(account.getOwner()));
+        Account from = accountService.get(transaction.getFrom());
+        order.setPayer(Long.valueOf(from.getOwner()));
         return this.orderDao.update(order);
     }
 
@@ -287,6 +295,10 @@ public class OrderService {
         transaction.setStatusText(TxStatus.success.getValue());
         transaction.setPayConfigName(payConfig.getName());
         transactionService.update(transaction);
+        // 更新收款人账户金额
+        if (transaction.getChannel() != TxChannel.internal) {
+            accountService.out(transaction.getFrom(), transaction.getAmount(), this.projectDao.get(transaction.getProject()), transaction);
+        }
         // 更新订单状态
         order.setStatus(OrderStatus.refunded);
         order.setPaymentStatus(order.getPayableAmount().equals(refund.getTotalAmount()) ? PaymentStatus.refunded : PaymentStatus.partRefund);

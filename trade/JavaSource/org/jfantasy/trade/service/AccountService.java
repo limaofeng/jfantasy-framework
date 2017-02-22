@@ -232,7 +232,7 @@ public class AccountService {
         return transactionDao.update(transaction);
     }
 
-    private void in(String account, BigDecimal amount, Project project, Transaction transaction) {
+    public void in(String account, BigDecimal amount, Project project, Transaction transaction) {
         if (project.getType().getAccountNotNull() == ProjectType.AccountNotNull.FROM) {
             return;
         }
@@ -254,7 +254,7 @@ public class AccountService {
         this.accountDao.update(to);
     }
 
-    private void out(String account, BigDecimal amount, Project project, Transaction transaction) {
+    public void out(String account, BigDecimal amount, Project project, Transaction transaction) {
         if (project.getType().getAccountNotNull() == ProjectType.AccountNotNull.TO) {
             return;
         }

@@ -2,11 +2,11 @@ package org.jfantasy.trade.bean.enums;
 
 public enum  BillType {
     /**
-     * 收入
+     * 支出
      */
     debit,
     /**
-     * 支出
+     * 收入
      */
     credit;
 }
