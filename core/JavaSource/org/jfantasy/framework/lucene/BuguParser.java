@@ -131,10 +131,8 @@ public final class BuguParser {
         Assert.isTrue(fields.length != 0, "param fields length must be greater than 1 ");
         Assert.isTrue(fields.length == values.length, "length of fields and values must be equal");
         BooleanClause.Occur[] clauses = new BooleanClause.Occur[fields.length];
-        if (fields.length == values.length) {
-            for (int i = 0; i < fields.length; i++) {
-                clauses[i] = BooleanClause.Occur.SHOULD;
-            }
+        for (int i = 0; i < fields.length; i++) {
+            clauses[i] = BooleanClause.Occur.SHOULD;
         }
         return parse(fields, clauses, values);
     }
@@ -186,6 +184,11 @@ public final class BuguParser {
         } catch (ParseException ex) {
             LOGGER.error("MultiFieldQueryParser can not parse the values " + Arrays.toString(values), ex);
         }
+        return query;
+    }
+
+    public static Query boot(Query query, float boot) {
+        query.setBoost(boot);
         return query;
     }
 
