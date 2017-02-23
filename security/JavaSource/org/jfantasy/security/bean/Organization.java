@@ -177,4 +177,5 @@ public class Organization extends BaseBusEntity {
     public void setSort(Integer sort) {
         this.sort = sort;
     }
+
 }

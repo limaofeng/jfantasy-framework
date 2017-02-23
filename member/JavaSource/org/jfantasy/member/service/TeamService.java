@@ -2,6 +2,8 @@ package org.jfantasy.member.service;
 
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
+import org.jfantasy.framework.spring.mvc.error.ValidationException;
+import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.member.bean.Team;
 import org.jfantasy.member.bean.TeamMember;
 import org.jfantasy.member.bean.TeamType;
@@ -65,10 +67,25 @@ public class TeamService {
     }
 
     @Transactional
-    public Team owner(String id, Long tmid) {
+    public TeamMember owner(String id, TeamMember member) {
         Team team = this.teamDao.get(id);
-        team.setOwner(this.teamMemberDao.get(tmid));
-        return this.teamDao.update(team);
+        TeamType teamType = this.teamTypeDao.get(team.getType().getId());
+
+        // 保存集团所有者
+        if (member.getId() == null) {
+            if (StringUtil.isBlank(member.getMobile()) || teamMemberDao.findUnique(team.getKey(),member.getMobile()) == null) {
+                throw new ValidationException("[" + member.getMobile() + "]电话已经存在");
+            }
+            member.setTeam(team);
+            member.setStatus(TeamMemberStatus.unactivated);
+            member.setRole(this.roleDao.get(teamType.getOwnerRole()));
+            this.teamMemberDao.save(member);
+            team.setOwnerId(member.getId());
+        }
+
+        team.setOwnerId(member.getId());
+        this.teamDao.update(team);
+        return member;
     }
 
     @Transactional

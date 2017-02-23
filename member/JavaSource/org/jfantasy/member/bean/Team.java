@@ -210,4 +210,9 @@ public class Team extends BaseBusEntity {
         return team;
     }
 
+    public interface Owner {
+        public interface PUT {
+        }
+    }
+
 }

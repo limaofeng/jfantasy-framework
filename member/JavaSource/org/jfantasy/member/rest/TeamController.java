@@ -7,6 +7,7 @@ import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.jackson.annotation.IgnoreProperty;
 import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
 import org.jfantasy.framework.spring.mvc.error.NotFoundException;
+import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
 import org.jfantasy.framework.spring.validation.RESTful;
 import org.jfantasy.framework.util.web.WebUtil;
@@ -96,12 +97,21 @@ public class TeamController {
      * 更新团队所有者
      *
      * @param id   TID
-     * @param tmid TMID
+     * @param member TeamMember
      * @return TeamMember
      */
     @PutMapping(value = "/{id}/owner")
-    public ResultResourceSupport update(@PathVariable("id") String id, @RequestParam("tmid") Long tmid) {
-        return assembler.toResource(this.teamService.owner(id, tmid));
+    public TeamMember update(@PathVariable("id") String id,@Validated(Team.Owner.PUT.class) @RequestBody TeamMember member) {
+        return this.teamService.owner(id, member);
+    }
+
+    @GetMapping(value = "/{id}/owner")
+    public TeamMember viewOwner(@PathVariable("id") String id) {
+        Long ownerId = this.get(id).getOwnerId();
+        if(ownerId == null){
+            throw new ValidationException("该团队未设置所有人");
+        }
+        return this.teamMemberService.get(ownerId);
     }
 
     @PutMapping(value = "/{id}/enterprise")
