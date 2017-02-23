@@ -28,6 +28,7 @@ import org.jfantasy.member.rest.models.assembler.MemberResourceAssembler;
 import org.jfantasy.member.rest.models.assembler.ProfileResourceAssembler;
 import org.jfantasy.member.service.FavoriteService;
 import org.jfantasy.member.service.MemberService;
+import org.jfantasy.member.service.TeamMemberService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -54,6 +55,7 @@ public class MemberController {
 
     private final MemberService memberService;
     private final FavoriteService favoriteService;
+    private final TeamMemberService teamMemberService;
 
     private TeamController teamController;
     private CommentController commentController;
@@ -61,9 +63,10 @@ public class MemberController {
     private PasswordTokenEncoder passwordTokenEncoder;
 
     @Autowired
-    public MemberController(MemberService memberService, FavoriteService favoriteService) {
+    public MemberController(MemberService memberService, FavoriteService favoriteService,TeamMemberService teamMemberService) {
         this.memberService = memberService;
         this.favoriteService = favoriteService;
+        this.teamMemberService = teamMemberService;
     }
 
     /**
@@ -272,10 +275,15 @@ public class MemberController {
     @RequestMapping(value = "/{memid}/teams", method = RequestMethod.GET)
     @ResponseBody
     @ApiImplicitParam(value = "filters", name = "filters", paramType = "query", dataType = "string")
-    public List<ResultResourceSupport> teams(@PathVariable("memid") Long memberId, @RequestParam(value = "type", required = false) String type, @ApiParam(hidden = true) List<PropertyFilter> filters) {
+    public List<Team> teams(@PathVariable("memid") Long memberId, @RequestParam(value = "type", required = false) String type,List<PropertyFilter> filters) {
+        Member member = get(memberId);
         filters.add(new PropertyFilter("EQL_teamMembers.member.id", memberId.toString()));//包含当前会员
         filters.add(new PropertyFilter("EQE_teamMembers.status", TeamMemberStatus.activated));//状态有效
-        return teamController.search(type, new Pager<>(1000), filters).getPageItems();
+        List<Team> teams = teamController.search(type, new Pager<>(1000), filters).getPageItems();
+        for(Team team :teams){
+            team.setRole(this.teamMemberService.findUnique(team.getKey(),member.getDetails().getMobile()).getRole());
+        }
+        return teams;
     }
 
     @Autowired

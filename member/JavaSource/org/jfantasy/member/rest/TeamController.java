@@ -57,9 +57,9 @@ public class TeamController {
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
     @ApiImplicitParam(value = "filters", name = "filters", paramType = "query", dataType = "string")
-    public Pager<ResultResourceSupport> search(@RequestParam(value = "type", required = false) String type, Pager<Team> pager, List<PropertyFilter> filters) {
+    public Pager<Team> search(@RequestParam(value = "type", required = false) String type, Pager<Team> pager, List<PropertyFilter> filters) {
         filters.add(new PropertyFilter("EQS_type.id", type));
-        return assembler.toResources(this.teamService.findPager(pager, filters));
+        return this.teamService.findPager(pager, filters);
     }
 
     /**

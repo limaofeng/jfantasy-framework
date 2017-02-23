@@ -15,6 +15,7 @@ import org.jfantasy.member.bean.databind.TeamTypeDeserializer;
 import org.jfantasy.member.bean.databind.TeamTypeSerializer;
 import org.jfantasy.member.bean.enums.TeamStatus;
 import org.jfantasy.member.validators.TeamIdCannotRepeatValidator;
+import org.jfantasy.security.bean.Role;
 import org.jfantasy.security.bean.User;
 import org.jfantasy.security.bean.databind.UserDeserializer;
 
@@ -103,6 +104,10 @@ public class Team extends BaseBusEntity {
 
     @Transient
     private TeamMember owner;
+    @Transient
+    private String role;
+    @Transient
+    private String roleName;
 
     public TeamType getType() {
         return type;
@@ -202,6 +207,22 @@ public class Team extends BaseBusEntity {
 
     public void setEnterprise(Enterprise enterprise) {
         this.enterprise = enterprise;
+    }
+
+    public void setRole(Role role) {
+        if (role == null) {
+            return;
+        }
+        this.role = role.getId();
+        this.roleName = role.getName();
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public String getRoleName() {
+        return roleName;
     }
 
     public static Team newInstance(String id) {
