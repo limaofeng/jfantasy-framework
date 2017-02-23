@@ -63,7 +63,7 @@ public class MemberController {
     private PasswordTokenEncoder passwordTokenEncoder;
 
     @Autowired
-    public MemberController(MemberService memberService, FavoriteService favoriteService,TeamMemberService teamMemberService) {
+    public MemberController(MemberService memberService, FavoriteService favoriteService, TeamMemberService teamMemberService) {
         this.memberService = memberService;
         this.favoriteService = favoriteService;
         this.teamMemberService = teamMemberService;
@@ -272,16 +272,17 @@ public class MemberController {
      * @param filters  筛选
      * @return List<ResultResourceSupport>
      */
+    @JsonResultFilter(ignore = @IgnoreProperty(pojo = Team.class, name = "officer"))
     @RequestMapping(value = "/{memid}/teams", method = RequestMethod.GET)
     @ResponseBody
     @ApiImplicitParam(value = "filters", name = "filters", paramType = "query", dataType = "string")
-    public List<Team> teams(@PathVariable("memid") Long memberId, @RequestParam(value = "type", required = false) String type,List<PropertyFilter> filters) {
+    public List<Team> teams(@PathVariable("memid") Long memberId, @RequestParam(value = "type", required = false) String type, List<PropertyFilter> filters) {
         Member member = get(memberId);
         filters.add(new PropertyFilter("EQL_teamMembers.member.id", memberId.toString()));//包含当前会员
         filters.add(new PropertyFilter("EQE_teamMembers.status", TeamMemberStatus.activated));//状态有效
         List<Team> teams = teamController.search(type, new Pager<>(1000), filters).getPageItems();
-        for(Team team :teams){
-            team.setRole(this.teamMemberService.findUnique(team.getKey(),member.getDetails().getMobile()).getRole());
+        for (Team team : teams) {
+            team.setRole(this.teamMemberService.findUnique(team.getKey(), member.getDetails().getMobile()).getRole());
         }
         return teams;
     }
