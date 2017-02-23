@@ -63,18 +63,12 @@ spring:
   apigateway:
     url: http://114.55.142.155:8000
 
+#  aliyun config
 aliyun:
-  ons:
-    accessKey: 44IzFLqkj8Pw2YOi
-    secretKey: XexMYOXZGBrPgQTUq4HtKuxxl9zMx1
-    producerId: PID-DEV_TRADE
-    consumerId: CID-DEV_TRADE
-    pay:
-      topicId: DEV-PAYNOTIFICATION
-    doctorincome:
-      topicId: TEST-DOCTOR_INCOME
-    order:
-      topicId: DEV-ORDER
+  accessKey: 44IzFLqkj8Pw2YOi
+  secretKey: XexMYOXZGBrPgQTUq4HtKuxxl9zMx1
+  mns:
+    accountEndpoint: http://1744260525350210.mns.cn-hangzhou.aliyuncs.com
 
 netty:
   server:

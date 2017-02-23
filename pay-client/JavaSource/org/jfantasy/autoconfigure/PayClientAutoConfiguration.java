@@ -1,12 +1,7 @@
 package org.jfantasy.autoconfigure;
 
-import com.aliyun.openservices.ons.api.MessageListener;
-import com.aliyun.openservices.ons.api.bean.ConsumerBean;
-import com.aliyun.openservices.ons.api.bean.ProducerBean;
-import com.aliyun.openservices.ons.api.bean.Subscription;
 import org.jfantasy.aliyun.AliyunSettings;
 import org.jfantasy.order.OrderServiceByClient;
-import org.jfantasy.order.PayMessageListener;
 import org.jfantasy.rpc.config.NettyClientSettings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -15,8 +10,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 import javax.annotation.Resource;
-import java.util.HashMap;
-import java.util.Map;
 
 @Configuration
 @Import(OrderServiceByClient.class)
@@ -44,26 +37,6 @@ public class PayClientAutoConfiguration {
     @ConfigurationProperties(prefix = "netty.client.pay")
     public NettyClientSettings nettyClientSettings() {
         return new NettyClientSettings();
-    }
-
-    @Bean(name = "order.producer", initMethod = "start", destroyMethod = "shutdown")
-    public ProducerBean producer() {
-        return aliyunConfiguration.producer(orderAliyunSettings());
-    }
-
-    @Bean(initMethod = "start", destroyMethod = "shutdown")
-    public ConsumerBean consumer() {
-        Map<Subscription, MessageListener> subscriptions = new HashMap<>();
-        Subscription key = new Subscription();
-        key.setTopic(aliyunSettings().getTopicId());
-        key.setExpression("*");
-        subscriptions.put(key, payMessageListener());
-        return aliyunConfiguration.consumer(aliyunSettings(), subscriptions);
-    }
-
-    @Bean
-    public PayMessageListener payMessageListener() {
-        return new PayMessageListener();
     }
 
 }
