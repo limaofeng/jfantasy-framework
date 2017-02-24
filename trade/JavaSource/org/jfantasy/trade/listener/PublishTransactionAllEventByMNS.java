@@ -50,16 +50,16 @@ public class PublishTransactionAllEventByMNS implements ApplicationListener<Tran
             LOGGER.debug("Interrupted!", e);
             Thread.currentThread().interrupt();
         }
-        // 发布 transaction.* 事件
+        // 发布 trade.* 事件
         if (transaction == null) {
             return;
         }
         if (transaction.getStatus() == TxStatus.unprocessed) {
             if (ProjectType.withdraw == project.getType()) {
-                eventEmitter.fireEvent("transaction." + project.getType().name(), sn, String.format("%s发起提现请求", transaction.getFrom()), JSON.serialize(transaction));
+                eventEmitter.fireEvent("trade." + project.getType().name(), sn, String.format("%s发起提现请求", transaction.getFrom()), JSON.serialize(transaction));
             }
         } else {
-            eventEmitter.fireEvent("transaction." + project.getType().name(), sn, String.format("%s交易处理成功", transaction.getSn()), JSON.serialize(transaction));
+            eventEmitter.fireEvent("trade." + project.getType().name(), sn, String.format("%s交易处理成功", transaction.getSn()), JSON.serialize(transaction));
         }
     }
 
