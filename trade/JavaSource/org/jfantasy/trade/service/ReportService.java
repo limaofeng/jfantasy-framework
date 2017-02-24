@@ -59,20 +59,20 @@ public class ReportService {
             String day = DateUtil.format(transaction.getTime(TxStatus.success), "yyyyMMdd");
             if (project.getType() == ProjectType.order || project.getType() == ProjectType.transfer) {//转账及订单支付与退款
                 if (!this.exists(new ReportUnique(ReportTargetType.account,transaction.getFrom() ,transaction.getSn(), "out"))) {
-                    this.analyze(ReportTargetType.account, transaction.getFrom(), TimeUnit.day, day, BillType.credit, code, amount);//记录出帐
+                    this.analyze(ReportTargetType.account, transaction.getFrom(), TimeUnit.day, day, BillType.debit, code, amount);//记录出帐
                 }
                 if (!this.exists(new ReportUnique(ReportTargetType.account,transaction.getTo(), transaction.getSn(), "in"))) {
-                    this.analyze(ReportTargetType.account, transaction.getTo(), TimeUnit.day, day, BillType.debit, code, amount);//记录入帐
+                    this.analyze(ReportTargetType.account, transaction.getTo(), TimeUnit.day, day, BillType.credit, code, amount);//记录入帐
                 }
             } else if (project.getType() == ProjectType.deposit) {//充值
                 if (!this.exists(new ReportUnique(ReportTargetType.account,transaction.getTo(), transaction.getSn(), "in"))) {
-                    this.analyze(ReportTargetType.account, transaction.getTo(), TimeUnit.day, day, BillType.debit, code, amount);//记录入帐
+                    this.analyze(ReportTargetType.account, transaction.getTo(), TimeUnit.day, day, BillType.credit, code, amount);//记录入帐
                 }
             }
         } else if (transaction.getStatus() == TxStatus.unprocessed && ProjectType.withdraw == project.getType()) {//提现
             if (!this.exists(new ReportUnique(ReportTargetType.account,transaction.getFrom(), transaction.getSn(), "out"))) {
                 String day = DateUtil.format(transaction.getTime(TxStatus.unprocessed), "yyyyMMdd");
-                this.analyze(ReportTargetType.account, transaction.getFrom(), TimeUnit.day, day, BillType.credit, code, amount);//记录出帐
+                this.analyze(ReportTargetType.account, transaction.getFrom(), TimeUnit.day, day, BillType.debit, code, amount);//记录出帐
             }
         }
     }

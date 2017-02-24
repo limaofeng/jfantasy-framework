@@ -37,7 +37,7 @@ public class TransactionResourceAssembler extends ResourceAssemblerSupport<Trans
         ResultResourceSupport resource = createResourceWithId(entity.getSn(), entity);
         resource.add(linkTo(methodOn(LogController.class).search(OwnerType.transaction, entity.getSn())).withRel("logs"));
         if (account != null) {
-            resource.set("type", account.equals(entity.getFrom()) ? BillType.credit : BillType.debit);
+            resource.set("type", account.equals(entity.getFrom()) ? BillType.debit : BillType.credit);
         }
         return resource;
     }

@@ -48,12 +48,12 @@ public class ReportServiceTest {
 
                 if (Project.PAYMENT.equals(transaction.getProject()) || Project.REFUND.equals(transaction.getProject()) || Project.INCOME.equals(transaction.getProject())) {
                     //记录出帐
-                    reportService.analyze(ReportTargetType.account, transaction.getFrom(), TimeUnit.day, day, BillType.credit, code, amount);
+                    reportService.analyze(ReportTargetType.account, transaction.getFrom(), TimeUnit.day, day, BillType.debit, code, amount);
                     //记录入帐
-                    reportService.analyze(ReportTargetType.account, transaction.getTo(), TimeUnit.day, day, BillType.debit, code, amount);
+                    reportService.analyze(ReportTargetType.account, transaction.getTo(), TimeUnit.day, day, BillType.credit, code, amount);
                 } else if (Project.INPOUR.equals(transaction.getProject())) {
                     //记录入帐
-                    reportService.analyze(ReportTargetType.account, transaction.getTo(), TimeUnit.day, day, BillType.debit, code, amount);
+                    reportService.analyze(ReportTargetType.account, transaction.getTo(), TimeUnit.day, day, BillType.credit, code, amount);
                 } else if (Project.WITHDRAWAL.equals(transaction.getProject())) {
                     //记录出帐
                     reportService.analyze(ReportTargetType.account, transaction.getFrom(), TimeUnit.day, day, BillType.credit, code, amount);
