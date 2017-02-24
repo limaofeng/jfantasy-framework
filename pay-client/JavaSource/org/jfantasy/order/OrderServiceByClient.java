@@ -13,10 +13,14 @@ import java.math.BigDecimal;
 @Component
 public class OrderServiceByClient implements OrderDetailService, InitializingBean {
 
-    @Autowired
-    private NettyClientSettings nettyClientSettings;
+    private final NettyClientSettings nettyClientSettings;
 
     private OrderDetailService orderServiceProxy;
+
+    @Autowired
+    public OrderServiceByClient(NettyClientSettings nettyClientSettings) {
+        this.nettyClientSettings = nettyClientSettings;
+    }
 
     @Override
     public void afterPropertiesSet() throws Exception {

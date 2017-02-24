@@ -1,6 +1,5 @@
 package org.jfantasy.autoconfigure;
 
-import com.aliyun.openservices.ons.api.bean.ProducerBean;
 import org.jfantasy.aliyun.AliyunSettings;
 import org.jfantasy.pay.product.PaySettings;
 import org.jfantasy.pay.service.PayProductConfiguration;
@@ -44,14 +43,6 @@ public class TradeAutoConfiguration {
     @ConfigurationProperties(prefix = "aliyun.ons.pay")
     public AliyunSettings payAliyunSettings() {
         return new AliyunSettings(aliyunSettings);
-    }
-
-    /**
-     * 发布者 支付相关通知
-     */
-    @Bean(name = "pay.producer", initMethod = "start", destroyMethod = "shutdown")
-    public ProducerBean producer() {
-        return aliyunConfiguration.producer(payAliyunSettings());
     }
 
 }

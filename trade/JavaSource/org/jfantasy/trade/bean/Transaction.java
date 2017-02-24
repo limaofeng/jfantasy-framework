@@ -150,6 +150,9 @@ public class Transaction extends BaseBusEntity {
     }
 
     public String getFrom() {
+        if(this.fromAccount == null){
+            return null;
+        }
         return fromAccount.getSn();
     }
 
@@ -161,6 +164,9 @@ public class Transaction extends BaseBusEntity {
     }
 
     public String getTo() {
+        if(this.toAccount == null){
+            return null;
+        }
         return toAccount.getSn();
     }
 
