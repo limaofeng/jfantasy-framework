@@ -111,6 +111,10 @@ public class OrderService {
     @Transactional
     public void complete(String id) {
         Order order = this.orderDao.get(id);
+        if (order == null) {
+            LOG.error(String.format("订单中心不存在该订单[%s]", id));
+            return;
+        }
         if (OrderStatus.complete == order.getStatus()) {
             return;
         }
