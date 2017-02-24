@@ -5,7 +5,6 @@ import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.crypto.password.StandardPasswordEncoder;
-import org.springframework.util.DigestUtils;
 
 /**
  * 账户测试
@@ -18,12 +17,11 @@ public class AccountServiceTest {
 
     @Test
     public void encode(){
-        String password = passwordEncoder.encode("895973");
+        String password = passwordEncoder.encode("123456");
 
-        String md5 = DigestUtils.md5DigestAsHex("1111".getBytes());
         LOG.debug(password);
 
-        LOG.debug(md5);
+        LOG.debug(passwordEncoder.matches("123456",password));
     }
 
     @Test
