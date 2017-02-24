@@ -4,9 +4,9 @@ package org.jfantasy.trade.event;
 import org.jfantasy.trade.bean.Account;
 import org.springframework.context.ApplicationEvent;
 
-public class AccountChangedEvent extends ApplicationEvent {
+public class AccountNewEvent extends ApplicationEvent {
 
-    public AccountChangedEvent(Account account) {
+    public AccountNewEvent(Account account) {
         super(account);
     }
 

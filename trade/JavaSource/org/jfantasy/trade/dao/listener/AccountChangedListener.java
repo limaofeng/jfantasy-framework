@@ -5,7 +5,8 @@ import org.hibernate.event.spi.PostInsertEvent;
 import org.hibernate.event.spi.PostUpdateEvent;
 import org.jfantasy.framework.dao.hibernate.listener.AbstractChangedListener;
 import org.jfantasy.trade.bean.Account;
-import org.jfantasy.trade.event.AccountChangedEvent;
+import org.jfantasy.trade.event.AccountAmountChangedEvent;
+import org.jfantasy.trade.event.AccountNewEvent;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -19,13 +20,13 @@ public class AccountChangedListener extends AbstractChangedListener<Account> {
 
     @Override
     public void onPostInsert(Account account, PostInsertEvent event) {
-        applicationContext.publishEvent(new AccountChangedEvent(account));
+        applicationContext.publishEvent(new AccountNewEvent(account));
     }
 
     @Override
     public void onPostUpdate(Account account, PostUpdateEvent event) {
         if (modify(event, "amount")) {
-            applicationContext.publishEvent(new AccountChangedEvent(account));
+            applicationContext.publishEvent(new AccountAmountChangedEvent(account));
         }
     }
 
