@@ -54,7 +54,7 @@ public class ConsumerBean implements Consumer {
     public void start() {
         // step 1 : 创建队列
         this.queue = client.getQueueRef(this.queueName);
-        if(this.queue == null || !this.queue.isQueueExist()) {
+        if (this.queue == null || !this.queue.isQueueExist()) {
             QueueMeta queueMeta = new QueueMeta();
             queueMeta.setQueueName(this.queueName);
             queue = client.createQueue(queueMeta);
@@ -62,23 +62,20 @@ public class ConsumerBean implements Consumer {
         if (StringUtil.isNotBlank(this.topicName)) {
             // step 2 : 创建主题
             this.topic = client.getTopicRef(this.topicName);
-            if(this.topic == null) {
+            if (this.topic == null) {
                 TopicMeta topicMeta = new TopicMeta();
                 topicMeta.setTopicName(this.topicName);
                 this.topic = client.createTopic(topicMeta);
             }
             // step 3 : 创建订阅
-            SubscriptionMeta subMeta = topic.getSubscriptionAttr(this.subscriptionName);
-            if(subMeta == null) {
-                subMeta = new SubscriptionMeta();
-                subMeta.setSubscriptionName(this.subscriptionName);
-                subMeta.setNotifyContentFormat(SubscriptionMeta.NotifyContentFormat.SIMPLIFIED);
-                subMeta.setEndpoint(topic.generateQueueEndpoint(this.queueName));
-                if (StringUtil.isNotBlank(this.filterTag)) {
-                    subMeta.setFilterTag(this.filterTag);
-                }
-                topic.subscribe(subMeta);
+            SubscriptionMeta subMeta = new SubscriptionMeta();
+            subMeta.setSubscriptionName(this.subscriptionName);
+            subMeta.setNotifyContentFormat(SubscriptionMeta.NotifyContentFormat.SIMPLIFIED);
+            subMeta.setEndpoint(topic.generateQueueEndpoint(this.queueName));
+            if (StringUtil.isNotBlank(this.filterTag)) {
+                subMeta.setFilterTag(this.filterTag);
             }
+            topic.subscribe(subMeta);
         }
         // step 4 : 从订阅的队列中获取消息
         new Thread(() -> {
