@@ -129,15 +129,18 @@ public class OrderTypeService {
             return payee.getCode();
         }
         OrderPayeeValue value = ObjectUtil.find(order.getPayees(), "code", cashFlow.getPayee().getCode());
+        if (value == null) {
+            throw new ValidationException(String.format("订单[%s]缺少[%s]收款人信息", order.getId(), cashFlow.getPayee().getCode()));
+        }
         switch (value.getType()) {
             case team:
-                return accountService.loadAccountByOwner(AccountType.enterprise,value.getValue()).getSn();
+                return accountService.loadAccountByOwner(AccountType.enterprise, value.getValue()).getSn();
             case member:
-                return accountService.loadAccountByOwner(AccountType.personal,value.getValue()).getSn();
+                return accountService.loadAccountByOwner(AccountType.personal, value.getValue()).getSn();
             case account:
                 return value.getValue();
             default:
-                throw new ValidationException(String.format("type = %s 错误",value.getType()));
+                throw new ValidationException(String.format("type = %s 错误", value.getType()));
         }
     }
 
