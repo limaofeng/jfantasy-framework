@@ -282,7 +282,7 @@ public class MemberController {
         filters.add(new PropertyFilter("EQE_teamMembers.status", TeamMemberStatus.activated));//状态有效
         List<Team> teams = teamController.search(type, new Pager<>(1000), filters).getPageItems();
         for (Team team : teams) {
-            team.setRole(this.teamMemberService.findUnique(team.getKey(), member.getId().toString()).getRole());
+            team.setRole(this.teamMemberService.findUnique(team.getKey(), member.getId()).getRole());
         }
         return teams;
     }

@@ -43,7 +43,7 @@ public class TeamMemberService {
         this.teamMemberDao.delete(ids);
     }
 
-    public TeamMember findUnique(String teamId, String memberId) {
+    public TeamMember findUnique(String teamId, Long memberId) {
         return this.teamMemberDao.findUnique(Restrictions.eq("member.id", memberId), Restrictions.eq("team.key", teamId));
     }
 

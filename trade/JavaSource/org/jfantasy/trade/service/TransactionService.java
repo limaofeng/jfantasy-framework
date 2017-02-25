@@ -121,7 +121,7 @@ public class TransactionService {
     @Transactional
     public Transaction syncSave(String projectKey, String from, String to, BigDecimal amount, String notes, Map<String, Object> properties) {
         Transaction transaction = this.save(projectKey, from, to, amount, notes, properties);
-        if(transaction.getStatus() == TxStatus.success){
+        if (transaction.getStatus() == TxStatus.success) {
             return transaction;
         }
         this.handleAllowFailure(transaction.getSn(), "");
@@ -202,10 +202,10 @@ public class TransactionService {
         Transaction transaction = new Transaction();
         transaction.setUnionId(unionid);
         transaction.setProject(project.getKey());
-        if(StringUtil.isNotBlank(from)) {
+        if (StringUtil.isNotBlank(from)) {
             transaction.setFromAccount(this.accountDao.get(from));
         }
-        if(StringUtil.isNotBlank(to)) {
+        if (StringUtil.isNotBlank(to)) {
             transaction.setToAccount(this.accountDao.get(to));
         }
         transaction.setAmount(amount);
@@ -266,6 +266,11 @@ public class TransactionService {
             throw new ValidationException("交易已经完成或者关闭，不能继续操作");
         }
         transaction.setStatus(status);
+        if (status == TxStatus.close) {
+            transaction.setFlowStatus(-1);
+        } else if (status == TxStatus.success) {
+            transaction.setFlowStatus(9);
+        }
         transaction.setStatusText(ObjectUtil.defaultValue(statusText, status.getValue()));
         transaction.setNotes(notes);
         return this.transactionDao.update(transaction);
@@ -294,7 +299,7 @@ public class TransactionService {
         transaction.setNotes("会员卡充值");
         transaction.setPayConfigName(TxChannel.card.getValue());
         this.transactionDao.save(transaction);
-        this.handleAllowFailure(transaction.getSn(),"会员卡充值");
+        this.handleAllowFailure(transaction.getSn(), "会员卡充值");
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)

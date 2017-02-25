@@ -7,6 +7,8 @@ import org.jfantasy.framework.dao.hibernate.listener.AbstractChangedListener;
 import org.jfantasy.trade.bean.Transaction;
 import org.jfantasy.trade.event.TransactionAddedEvent;
 import org.jfantasy.trade.event.TransactionChangedEvent;
+import org.jfantasy.trade.event.TransactionFlowEvent;
+import org.jfantasy.trade.event.source.TxnFlowSource;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -21,12 +23,16 @@ public class TransactionChangedListener extends AbstractChangedListener<Transact
     @Override
     public void onPostInsert(Transaction transaction, PostInsertEvent event) {
         applicationContext.publishEvent(new TransactionAddedEvent(transaction));
+        applicationContext.publishEvent(new TransactionFlowEvent(new TxnFlowSource(transaction.getSn(), transaction.getFlowStatus())));
     }
 
     @Override
     public void onPostUpdate(Transaction transaction, PostUpdateEvent event) {
         if (modify(event, "status")) {
             applicationContext.publishEvent(new TransactionChangedEvent(transaction.getStatus(), transaction));
+        }
+        if (modify(event, "flowStatus")) {
+            applicationContext.publishEvent(new TransactionFlowEvent(new TxnFlowSource(transaction.getSn(), transaction.getFlowStatus())));
         }
     }
 

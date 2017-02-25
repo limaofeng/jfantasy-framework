@@ -50,7 +50,6 @@ public class ReportService {
         if (transaction.getStatus() == TxStatus.processing || transaction.getStatus() == TxStatus.close) {
             return;
         }
-
         Project project = this.projectDao.get(transaction.getProject());
         BigDecimal amount = transaction.getAmount();
         String code = transaction.getProject() + (StringUtil.isBlank(transaction.getSubject()) ? "" : ("-" + transaction.getSubject()));
