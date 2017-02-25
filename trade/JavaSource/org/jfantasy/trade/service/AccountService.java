@@ -84,7 +84,7 @@ public class AccountService {
      */
     @Transactional
     public Account save(AccountType type, String owner, String password) {
-        if (this.accountDao.count(Restrictions.eq("owner", owner)) > 0) {
+        if (this.accountDao.exists(Restrictions.eq("type", type), Restrictions.eq("owner", owner))) {
             throw new ValidationException(100000, "账号存在,创建失败");
         }
         Account account = new Account();
