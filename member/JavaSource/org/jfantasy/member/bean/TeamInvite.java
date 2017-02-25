@@ -22,7 +22,7 @@ public class TeamInvite extends BaseBusEntity {
 
     private static final long serialVersionUID = 4892269028206173172L;
     @Id
-    @Column(name = "ID", nullable = false, updatable = false, precision = 22, scale = 0)
+    @Column(name = "ID", nullable = false, updatable = false, precision = 22)
     @GeneratedValue(strategy = GenerationType.TABLE, generator = "teaminvite_gen")
     private Long id;
     /**
