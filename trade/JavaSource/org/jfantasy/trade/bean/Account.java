@@ -12,7 +12,7 @@ import javax.persistence.*;
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "PAY_ACCOUNT")
+@Table(name = "PAY_ACCOUNT", uniqueConstraints = @UniqueConstraint(name = "UK_ACCOUNT", columnNames = {"TYPE", "OWNER"}))
 @JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "password", "version"})
 public class Account extends BaseBusEntity {
 
