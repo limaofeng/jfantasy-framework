@@ -134,6 +134,9 @@ public class OrderService {
     @Transactional
     public Order close(String id) {
         Order order = this.orderDao.get(id);
+        if (OrderStatus.closed == order.getStatus()) {
+            return order;
+        }
         if (!(OrderStatus.unpaid == order.getStatus() || OrderStatus.refunded == order.getStatus())) {
             throw new ValidationException("[" + id + "] 只有未支付及已经退款的订单，才能关闭!");
         }
