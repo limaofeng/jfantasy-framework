@@ -2,6 +2,7 @@ package org.jfantasy.member.service;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.Arrays;
 import java.util.Date;
 
 public class Member {
@@ -9,17 +10,9 @@ public class Member {
 
     private Long id;
     /**
-     * 用户类型
-     */
-    private String type;
-    /**
      * 用户登录名称
      */
     private String username;
-    /**
-     * 登录密码
-     */
-    private String password;
     /**
      * 用户显示昵称
      */
@@ -54,16 +47,6 @@ public class Member {
     @JsonProperty("last_login_time")
     private Date lastLoginTime;
     /**
-     * 目标Id
-     */
-    @JsonProperty("target_id")
-    private String targetId;
-    /**
-     * 目标类型
-     */
-    @JsonProperty("target_type")
-    private String targetType;
-    /**
      * 用户标签
      */
     private String[] tags;
@@ -76,28 +59,12 @@ public class Member {
         this.id = id;
     }
 
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
     public String getUsername() {
         return username;
     }
 
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public String getNickName() {
@@ -156,22 +123,6 @@ public class Member {
         this.lastLoginTime = lastLoginTime;
     }
 
-    public String getTargetId() {
-        return targetId;
-    }
-
-    public void setTargetId(String targetId) {
-        this.targetId = targetId;
-    }
-
-    public String getTargetType() {
-        return targetType;
-    }
-
-    public void setTargetType(String targetType) {
-        this.targetType = targetType;
-    }
-
     public String[] getTags() {
         return tags;
     }
@@ -180,4 +131,19 @@ public class Member {
         this.tags = tags;
     }
 
+    @Override
+    public String toString() {
+        return "Member{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", nickName='" + nickName + '\'' +
+                ", enabled=" + enabled +
+                ", accountNonExpired=" + accountNonExpired +
+                ", accountNonLocked=" + accountNonLocked +
+                ", credentialsNonExpired=" + credentialsNonExpired +
+                ", lockTime=" + lockTime +
+                ", lastLoginTime=" + lastLoginTime +
+                ", tags=" + Arrays.toString(tags) +
+                '}';
+    }
 }

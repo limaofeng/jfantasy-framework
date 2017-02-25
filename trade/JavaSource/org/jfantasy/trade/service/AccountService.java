@@ -1,5 +1,7 @@
 package org.jfantasy.trade.service;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.criterion.Restrictions;
 import org.jfantasy.card.bean.Card;
 import org.jfantasy.card.dao.CardDao;
@@ -26,6 +28,8 @@ import java.util.List;
 
 @Service
 public class AccountService {
+
+    private final static Log LOG = LogFactory.getLog(AccountService.class);
 
     public static final ProjectType[] PROJECT_TYPES = new ProjectType[]{ProjectType.withdraw, ProjectType.transfer, ProjectType.deposit};
 
@@ -95,7 +99,7 @@ public class AccountService {
         account.setType(type);
 
         //加载 owner 详细信息
-        ownerBy(account, type);
+        //ownerBy(account, type);
 
         return this.accountDao.save(account);
     }
@@ -127,7 +131,7 @@ public class AccountService {
         if (member == null) {
             return;
         }
-        account.setOwnerType(member.getType());
+        LOG.error(member);
         account.setOwnerId(member.getId().toString());
         account.setOwnerName(member.getNickName());
     }
@@ -137,16 +141,16 @@ public class AccountService {
         if (member == null) {
             return;
         }
-        if ("personal".equals(member.getType()) || "doctor".equals(member.getType())) {//个人
-            account.setType(AccountType.personal);
-            account.setOwnerId(member.getId().toString());
-            account.setOwnerType(member.getType());
-        } else if (ObjectUtil.exists(new String[]{"company", "pharmacy", "clinic"}, member.getType())) {//集团
+//        if ("personal".equals(member.getType()) || "doctor".equals(member.getType())) {//个人
+//            account.setType(AccountType.personal);
+//            account.setOwnerId(member.getId().toString());
+//            account.setOwnerType(member.getType());
+//        } else if (ObjectUtil.exists(new String[]{"company", "pharmacy", "clinic"}, member.getType())) {//集团
             account.setType(AccountType.enterprise);
-            account.setOwnerId(member.getTargetId());
-            account.setOwnerType(member.getType());
-        }
-        account.setOwnerName(member.getNickName());
+//            account.setOwnerId(member.getTargetId());
+//            account.setOwnerType(member.getType());
+//        }
+//        account.setOwnerName(member.getNickName());
     }
 
     /**
