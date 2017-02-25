@@ -19,7 +19,7 @@ public class ConsumerBeanTest {
         CloudAccount account = new CloudAccount("44IzFLqkj8Pw2YOi", "XexMYOXZGBrPgQTUq4HtKuxxl9zMx1", "http://1744260525350210.mns.cn-hangzhou.aliyuncs.com");
         MNSClient client = account.getMNSClient();
 
-        consumer = new ConsumerBean(client, "dev-notification", "dev-platform", "dev-platform");
+        consumer = new ConsumerBean(client, "dev-notification", "test-platform", "test-platform");
         consumer.start();
     }
 

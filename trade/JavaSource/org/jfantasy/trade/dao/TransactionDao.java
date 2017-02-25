@@ -2,6 +2,8 @@ package org.jfantasy.trade.dao;
 
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.type.StringType;
+import org.hibernate.type.Type;
 import org.jfantasy.framework.dao.hibernate.HibernateDao;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.util.common.ObjectUtil;
@@ -20,7 +22,7 @@ public class TransactionDao extends HibernateDao<Transaction, String> {
         PropertyFilter filter = ObjectUtil.remove(filters, "filterName", "EQS_account.sn");
         if (filter != null) {
             String accountSn = filter.getPropertyValue(String.class);
-            criterions = ObjectUtil.join(criterions, Restrictions.or(Restrictions.eq("fromAccount.sn", accountSn), Restrictions.eq("toAccount.sn", accountSn)));
+            criterions = ObjectUtil.join(criterions, Restrictions.sqlRestriction("{alias}.from_account = ? or {alias}.to_account = ?",new String[]{accountSn,accountSn},new Type[]{StringType.INSTANCE,StringType.INSTANCE}));
         }
 
         filter = ObjectUtil.remove(filters, "filterName", "EQS_from");
