@@ -47,6 +47,10 @@ public class TeamMemberService {
         return this.teamMemberDao.findUnique(Restrictions.eq("member.id", memberId), Restrictions.eq("team.key", teamId));
     }
 
+    public TeamMember findUnique(String teamId, String mobile) {
+        return this.teamMemberDao.findUnique(Restrictions.eq("mobile", mobile), Restrictions.eq("team.key", teamId));
+    }
+
     @Transactional
     public TeamMember update(TeamMember member, boolean patch) {
         if (!patch) {
