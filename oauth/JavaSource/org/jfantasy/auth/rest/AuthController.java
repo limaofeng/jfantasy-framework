@@ -8,12 +8,10 @@ import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
 import org.jfantasy.framework.spring.mvc.error.RestException;
 import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.spring.validation.RESTful;
-import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.member.bean.Member;
 import org.jfantasy.member.service.MemberService;
 import org.jfantasy.security.bean.User;
-import org.jfantasy.security.bean.enums.UserType;
 import org.jfantasy.security.service.UserService;
 import org.jfantasy.sns.bean.Snser;
 import org.jfantasy.sns.bean.enums.PlatformType;
@@ -95,8 +93,7 @@ public class AuthController {
                     response.setStatus(422);
                     return fans;
                 }
-                Member member = this.memberService.login(snser.getMember().getUsername());
-                return validateUserType(member, login.getUserType());
+                return this.memberService.login(login.getUserType(), snser.getMember().getUsername());
             } finally {
                 WeixinSessionUtils.closeSession();
             }
@@ -108,25 +105,8 @@ public class AuthController {
         return this.userService.login(loginForm.getUsername(), loginForm.getPassword());
     }
 
-    @Deprecated
-    public static User validateUserType(User user, UserType userType) {
-        if (userType != null && !userType.equals(user.getUserType())) {
-            throw new RestException("UserType 不一致");
-        }
-        return user;
-    }
-
     private Member memberLogin(LoginForm loginForm) {
-        Member member = memberService.login(loginForm.getType(), loginForm.getUsername(), loginForm.getPassword());
-        return validateUserType(member, loginForm.getUserType());
-    }
-
-    public static Member validateUserType(Member member, String userType) {
-        if (StringUtil.isNotBlank(userType) && !ObjectUtil.exists(member.getTypes(), "id", userType)) {
-            throw new RestException("UserType 不一致");
-        }
-        member.setType(userType);
-        return member;
+        return memberService.login(loginForm.getType(), loginForm.getUserType(), loginForm.getUsername(), loginForm.getPassword());
     }
 
     /**

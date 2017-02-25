@@ -97,7 +97,7 @@ public class AccessTokenService {
                         retrieveUser(userDetails, userService.login(request.getUsername(), request.getPassword()));
                         break;
                     case "member":
-                        retrieveUser(userDetails, memberService.login(PasswordTokenType.password, request.getUsername(), request.getPassword()));
+                        retrieveUser(userDetails, memberService.login(PasswordTokenType.password, Member.MEMBER_TYPE_PERSONAL, request.getUsername(), request.getPassword()));
                         break;
                 }
                 redisTemplate.delete(SecurityStorage.AUTHORIZATION_CODE_PREFIX + request.getCode());
@@ -214,7 +214,7 @@ public class AccessTokenService {
     }
 
     private void retrieveUser(OAuthUserDetails userDetails, Member member) {
-        if(member.getType() == null){
+        if (member.getType() == null) {
             member.setType(Member.MEMBER_TYPE_PERSONAL);
         }
 

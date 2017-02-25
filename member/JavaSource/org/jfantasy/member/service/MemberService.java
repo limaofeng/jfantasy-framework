@@ -3,11 +3,14 @@ package org.jfantasy.member.service;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.Restrictions;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.service.PasswordTokenEncoder;
 import org.jfantasy.framework.service.PasswordTokenType;
+import org.jfantasy.framework.spring.SpringContextUtil;
 import org.jfantasy.framework.spring.mvc.error.NotFoundException;
+import org.jfantasy.framework.spring.mvc.error.RestException;
 import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.util.common.BeanUtil;
 import org.jfantasy.framework.util.common.DateUtil;
@@ -15,6 +18,9 @@ import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.framework.util.regexp.RegexpConstant;
 import org.jfantasy.framework.util.regexp.RegexpUtil;
+import org.jfantasy.member.Profile;
+import org.jfantasy.member.ProfileFactory;
+import org.jfantasy.member.ProfileService;
 import org.jfantasy.member.bean.Member;
 import org.jfantasy.member.bean.MemberDetails;
 import org.jfantasy.member.bean.MemberTarget;
@@ -39,7 +45,7 @@ import java.util.List;
  */
 @Service
 @Transactional
-public class MemberService {
+public class MemberService implements ProfileService {
 
 
     private static final Log LOG = LogFactory.getLog(MemberService.class);
@@ -81,7 +87,7 @@ public class MemberService {
         return this.save(member, signUpType);
     }
 
-    public Member login(String username) {
+    public Member login(String userType, String username) {
         Member member = this.findUnique(username);
         if (member == null) {//用户不存在
             throw new ValidationException(100301, "用户名和密码错误");
@@ -93,6 +99,7 @@ public class MemberService {
             throw new ValidationException(100303, "用户被锁定");
         }
         member.setLastLoginTime(DateUtil.now());
+        validateUserType(member, userType);
         this.memberDao.update(member);
         Member mirror = ObjectUtil.clone(member);
         this.applicationContext.publishEvent(new LoginEvent(mirror));
@@ -107,7 +114,7 @@ public class MemberService {
      * @param password 密码
      * @return Member
      */
-    public Member login(PasswordTokenType type, String username, String password) {
+    public Member login(PasswordTokenType type, String userType, String username, String password) {
         Member member = this.findUnique(type, username);
 
         if (!this.passwordTokenEncoder.matches("login", type, username, member != null ? member.getPassword() : "", password)) {
@@ -115,9 +122,47 @@ public class MemberService {
         }
 
         if (member == null && type == PasswordTokenType.macode) {
-            signUp(username, SignUpType.sms);
+            member = signUp(username, SignUpType.sms);
         }
-        return login(username);
+
+        if (RegexpUtil.isMatch(username, RegexpConstant.VALIDATOR_MOBILE)) {//如果为手机号登陆
+            Profile profile = getProfile(userType, username);
+            if (profile != null) {
+                if (member == null) {
+                    member = signUp(username, SignUpType.sms);
+                }
+                if (!ObjectUtil.exists(member.getTypes(), "id", userType)) {
+                    member.addTarget(connect(member.getId(), userType, profile.getId()));
+                }
+            }
+        }
+
+        if (member == null) {
+            throw new ValidationException(100101, "用户不存在");
+        }
+
+        return login(userType, username);
+    }
+
+    private Profile getProfile(String type, String phone) {
+        return getProfileService(type).loadProfileByPhone(phone);
+    }
+
+    private ProfileService getProfileService(String type) {
+        ProfileFactory profileFactory = SpringContextUtil.getBeanByType(ProfileFactory.class);
+        ProfileService profileService = profileFactory.getProfileService(type);
+        if (profileService == null) {
+            throw new ValidationException("type 对应的 ProfileService 缺失");
+        }
+        return profileService;
+    }
+
+    private static Member validateUserType(Member member, String userType) {
+        if (StringUtil.isNotBlank(userType) && !ObjectUtil.exists(member.getTypes(), "id", userType)) {
+            throw new RestException("UserType 不一致");
+        }
+        member.setType(userType);
+        return member;
     }
 
     /**
@@ -148,7 +193,7 @@ public class MemberService {
         // 保存用户
         this.memberDao.save(member);
         // 设置默认用户类型
-        member.addTarget(connect(member.getId(),Member.MEMBER_TYPE_PERSONAL,details.getMemberId().toString()));
+        member.addTarget(connect(member.getId(), Member.MEMBER_TYPE_PERSONAL, details.getMemberId().toString()));
         // 公布事件
         applicationContext.publishEvent(new RegisterEvent(member));
         return member;
@@ -227,6 +272,15 @@ public class MemberService {
         }
     }
 
+    @Override
+    public Profile loadProfileByPhone(String name) {
+        Member member = this.memberDao.findUnique(Restrictions.eq("details.mobile", name));
+        if (member == null) {
+            return null;
+        }
+        return member.getDetails();
+    }
+
     /**
      * 退出
      *
@@ -246,7 +300,6 @@ public class MemberService {
     public MemberTarget connect(Long id, String type, String value) {
         return this.memberTargetDao.save(MemberTarget.newInstance(this.memberDao.get(id), this.memberTypeDao.get(type), value));
     }
-
 
     /**
      * 根据用户名查询用户

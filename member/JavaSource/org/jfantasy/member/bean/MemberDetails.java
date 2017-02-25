@@ -11,6 +11,7 @@ import org.jfantasy.filestore.Image;
 import org.jfantasy.filestore.converter.ImageConverter;
 import org.jfantasy.filestore.databind.ImageDeserializer;
 import org.jfantasy.framework.dao.hibernate.converter.MapConverter;
+import org.jfantasy.member.Profile;
 import org.jfantasy.security.bean.enums.Sex;
 
 import javax.persistence.*;
@@ -30,7 +31,7 @@ import java.util.Map;
 @Table(name = "MEM_MEMBER_DETAILS", uniqueConstraints = @UniqueConstraint(name = "UK_MEMBER_MOBILE", columnNames = "MOBILE"))
 @JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "member"})
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class MemberDetails implements Serializable {
+public class MemberDetails implements Profile, Serializable {
 
     private static final long serialVersionUID = -5738290484268799275L;
 
@@ -165,6 +166,14 @@ public class MemberDetails implements Serializable {
 
     public String getDescription() {
         return description;
+    }
+
+    @Override
+    public String getId() {
+        if (this.getMemberId() == null) {
+            return null;
+        }
+        return this.getMemberId().toString();
     }
 
     public void setDescription(String description) {

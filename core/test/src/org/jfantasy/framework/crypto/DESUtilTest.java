@@ -17,7 +17,9 @@ public class DESUtilTest {
 
     @Test
     public void decrypt() throws Exception {
-
+        DESPlus desPlus = new DESPlus("hooluesoft");
+        System.out.println(desPlus.decrypt("76e7d85003fc8963592483e28a53c290"));
+        System.out.println(desPlus.encrypt("15921884771"));
     }
 
 }

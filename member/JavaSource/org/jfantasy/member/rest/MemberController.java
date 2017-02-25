@@ -134,10 +134,10 @@ public class MemberController {
         }
     }
 
-    @RequestMapping(value = "/{id}/connect", method = RequestMethod.GET)
+    @PostMapping(value = "/{id}/connect")
     @ResponseBody
-    public void connect(@PathVariable("id") Long id, @RequestBody ConnectForm form) {
-        this.memberService.connect(id, form.getType(), form.getTarget());
+    public MemberTarget connect(@PathVariable("id") Long id, @RequestBody ConnectForm form) {
+        return this.memberService.connect(id, form.getType(), form.getTarget());
     }
 
     @JsonResultFilter(
