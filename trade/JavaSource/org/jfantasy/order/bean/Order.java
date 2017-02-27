@@ -42,7 +42,7 @@ import java.util.*;
 @Entity
 @Table(name = "PAY_ORDER", uniqueConstraints = @UniqueConstraint(name = "UK_ORDER_TARGET", columnNames = {"TARGET_TYPE", "TARGET_ID"}))
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "ship_area", "memeo", "shippings", "details_type", "details_id", "expired", "payment_transaction", "refund_transaction", "redirect_url", "profit_chains"})
+@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "ship_area", "memeo", "shippings", "details_type", "details_id", "expired", "payment_transaction", "refund_transaction", "redirect_url", "profit_chains", "payments", "refunds"})
 public class Order extends BaseBusEntity {
 
     private static final long serialVersionUID = -8541323033439515148L;
@@ -145,6 +145,16 @@ public class Order extends BaseBusEntity {
     @ManyToOne
     @JoinColumn(name = "REFUND_TRANSACTION_ID", foreignKey = @ForeignKey(name = "FK_ORDER_REFUNDTRANSACTION"))
     private Transaction refundTransaction;//退款交易
+    /**
+     * 支付记录
+     **/
+    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE})
+    private List<Payment> payments;
+    /**
+     * 退款记录
+     **/
+    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE})
+    private List<Refund> refunds;
     /**
      * 收益链
      */
@@ -411,6 +421,22 @@ public class Order extends BaseBusEntity {
         this.completionTime = completionTime;
     }
 
+    public List<Payment> getPayments() {
+        return payments;
+    }
+
+    public void setPayments(List<Payment> payments) {
+        this.payments = payments;
+    }
+
+    public List<Refund> getRefunds() {
+        return refunds;
+    }
+
+    public void setRefunds(List<Refund> refunds) {
+        this.refunds = refunds;
+    }
+
     @JsonAnySetter
     public void set(String key, Object value) {
         if (value == null) {
@@ -613,20 +639,12 @@ public class Order extends BaseBusEntity {
 
     @JsonIgnoreProperties(value = {"bank_name", "bank_account", "total_amount", "payment_fee", "payer", "memo", "status", "pay_config", "order", "transaction", "pay_config_name", "transaction_id", "order_id", "creator", "modifier", "create_time", "modify_time"})
     public Payment getPayment() {
-        Transaction transaction = this.getPaymentTransaction();
-        if (transaction == null) {
-            return null;
-        }
-        return ObjectUtil.find(transaction.getPayments(), "status", org.jfantasy.pay.bean.enums.PaymentStatus.success);
+        return ObjectUtil.find(this.getPayments(), "status", org.jfantasy.pay.bean.enums.PaymentStatus.success);
     }
 
     @JsonIgnoreProperties(value = {"payment", "bank_name", "bank_account", "total_amount", "payment_fee", "payer", "memo", "status", "pay_config", "order", "transaction", "pay_config_name", "transaction_id", "order_id", "creator", "modifier", "create_time", "modify_time"})
     public Refund getRefund() {
-        Transaction transaction = this.getRefundTransaction();
-        if (transaction == null) {
-            return null;
-        }
-        return ObjectUtil.find(transaction.getRefunds(), "status", RefundStatus.success);
+        return ObjectUtil.find(this.getRefunds(), "status", RefundStatus.success);
     }
 
     @Transient
