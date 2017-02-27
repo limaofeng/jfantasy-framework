@@ -124,12 +124,8 @@ public class MemberController {
     @ResponseBody
     public Object profile(@PathVariable("id") Long id, @RequestParam(value = "type", defaultValue = Member.MEMBER_TYPE_PERSONAL) String type) {
         Member member = get(id);
-        //TODO type 临时处理方案
-        if (member.getTypes().size() == 1) {
-            type = member.getTypes().get(0).getId();
-        }
         if (!ObjectUtil.exists(member.getTypes(), "id", type)) {
-            throw new ValidationException(String.format("[type=%s]不匹配", type));
+            throw new NotFoundException(String.format("[type=%s]不匹配", type));
         }
         if (Member.MEMBER_TYPE_PERSONAL.equals(type)) {
             return member.getDetails();
