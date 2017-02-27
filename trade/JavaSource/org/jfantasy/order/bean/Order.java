@@ -611,7 +611,7 @@ public class Order extends BaseBusEntity {
         return total;
     }
 
-    @JsonIgnoreProperties(value = {"bank_name", "bank_account", "total_amount", "payment_fee", "payer", "memo", "status", "pay_config", "order", "transaction", Payment.BASE_JSONFIELDS})
+    @JsonIgnoreProperties(value = {"bank_name", "bank_account", "total_amount", "payment_fee", "payer", "memo", "status", "pay_config", "order", "transaction", "pay_config_name", "transaction_id", "order_id", "creator", "modifier", "create_time", "modify_time"})
     public Payment getPayment() {
         Transaction transaction = this.getPaymentTransaction();
         if (transaction == null) {
@@ -620,7 +620,7 @@ public class Order extends BaseBusEntity {
         return ObjectUtil.find(transaction.getPayments(), "status", org.jfantasy.pay.bean.enums.PaymentStatus.success);
     }
 
-    @JsonIgnoreProperties(value = {"payment", "bank_name", "bank_account", "total_amount", "payment_fee", "payer", "memo", "status", "pay_config", "order", "transaction", Payment.BASE_JSONFIELDS})
+    @JsonIgnoreProperties(value = {"payment", "bank_name", "bank_account", "total_amount", "payment_fee", "payer", "memo", "status", "pay_config", "order", "transaction", "pay_config_name", "transaction_id", "order_id", "creator", "modifier", "create_time", "modify_time"})
     public Refund getRefund() {
         Transaction transaction = this.getRefundTransaction();
         if (transaction == null) {
