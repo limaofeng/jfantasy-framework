@@ -134,7 +134,7 @@ public class MemberController {
         }
     }
 
-    @PostMapping(value = "/{id}/connect")
+    @RequestMapping(value = "/{id}/connect",method = RequestMethod.POST)
     @ResponseBody
     public MemberTarget connect(@PathVariable("id") Long id, @RequestBody ConnectForm form) {
         return this.memberService.connect(id, form.getType(), form.getTarget());
