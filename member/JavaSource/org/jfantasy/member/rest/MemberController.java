@@ -100,8 +100,8 @@ public class MemberController {
     @JsonResultFilter(allow = @AllowProperty(pojo = MemberType.class, name = {"id", "name"}))
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     @ResponseBody
-    public ResultResourceSupport view(@PathVariable("id") Long id) {
-        return assembler.toResource(get(id));
+    public ResultResourceSupport view(@PathVariable("id") String id, @RequestParam(value = "type", defaultValue = "id") String type) {
+        return assembler.toResource(get(type, id));
     }
 
     @JsonResultFilter(ignore = @IgnoreProperty(pojo = Favorite.class, name = {"member", "member_id"}))
@@ -153,14 +153,6 @@ public class MemberController {
         }
         response.setStatus(307);
         return assembler.toResource(member);
-    }
-
-    private Member get(Long id) {
-        Member member = this.memberService.get(id);
-        if (member == null) {
-            throw new NotFoundException("用户不存在");
-        }
-        return member;
     }
 
     @JsonResultFilter(allow = @AllowProperty(pojo = MemberType.class, name = {"id", "name"}))
@@ -285,6 +277,31 @@ public class MemberController {
             team.setRole(this.teamMemberService.findUnique(team.getKey(), member.getId()).getRole());
         }
         return teams;
+    }
+
+    private Member get(Long id) {
+        return get("id", id.toString());
+    }
+
+    private Member get(String type, String id) {
+        Member member;
+        switch (type) {
+            case "id":
+                member = this.memberService.get(Long.valueOf(id));
+                break;
+            case "username":
+                member = this.memberService.findUniqueByUsername(id);
+                break;
+            case "phone":
+                member = this.memberService.findUniqueByPhone(id);
+                break;
+            default:
+                throw new ValidationException("不支持的查询方式");
+        }
+        if (member == null) {
+            throw new NotFoundException("用户不存在");
+        }
+        return member;
     }
 
     @Autowired

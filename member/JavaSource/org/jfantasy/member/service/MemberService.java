@@ -121,20 +121,20 @@ public class MemberService implements ProfileService {
             throw new ValidationException(100101, "用户名和密码错误");
         }
 
-        if (member == null && type == PasswordTokenType.macode) {
+        // 个人短信登陆，自动完成注册
+        if (member == null && type == PasswordTokenType.macode && Member.MEMBER_TYPE_PERSONAL.equals(userType)) {
             member = signUp(username, SignUpType.sms);
         }
 
-        if (RegexpUtil.isMatch(username, RegexpConstant.VALIDATOR_MOBILE)) {//如果为手机号登陆
+        if (type == PasswordTokenType.macode && (member == null || !ObjectUtil.exists(member.getTypes(), "id", userType))) {
             Profile profile = getProfile(userType, username);
-            if (profile != null) {
-                if (member == null) {
-                    member = signUp(username, SignUpType.sms);
-                }
-                if (!ObjectUtil.exists(member.getTypes(), "id", userType)) {
-                    member.addTarget(connect(member.getId(), userType, profile.getId()));
-                }
+            if (profile == null) {
+                throw new ValidationException("您还没有入住平台");
             }
+            if (member == null) {
+                member = signUp(username, SignUpType.sms);
+            }
+            member.addTarget(connect(member.getId(), userType, profile.getId()));
         }
 
         if (member == null) {
@@ -311,10 +311,14 @@ public class MemberService implements ProfileService {
         return this.memberDao.findUniqueBy("username", username);
     }
 
+    public Member findUniqueByPhone(String phone) {
+        return this.memberDao.findUniqueBy("details.mobile", phone);
+    }
+
     private Member findUnique(PasswordTokenType type, String username) {
         switch (type) {
             case macode:
-                return this.memberDao.findUniqueBy("details.mobile", username);
+                return findUniqueByPhone(username);
             case token:
             case password:
             default:
