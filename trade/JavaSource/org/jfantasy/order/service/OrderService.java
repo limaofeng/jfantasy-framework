@@ -124,10 +124,6 @@ public class OrderService {
         // 更新订单状态为完成
         order.setStatus(OrderStatus.complete);
         order.setCompletionTime(DateUtil.now());
-        // 更新发票状态
-        if (!NumberUtil.isEquals(BigDecimal.ZERO, order.getTotalAmount()) && !"walletpay".equals(order.getPaymentConfig().getPayProductId())) {// 非钱包支付，可以开发票
-            order.setInvoiceStatus(InvoiceStatus.wait);
-        }
         this.orderDao.update(order);
     }
 
@@ -312,6 +308,13 @@ public class OrderService {
         order.setRefundAmount(refund.getTotalAmount());
         order.setRefundTime(refund.getTradeTime());
         return this.orderDao.update(order);
+    }
+
+    @Transactional
+    public void updateAllowInvoice(String id) {
+        Order order = this.orderDao.get(id);
+        order.setInvoiceStatus(InvoiceStatus.wait);
+        this.orderDao.update(order);
     }
 
     @Transactional

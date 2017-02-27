@@ -1,7 +1,7 @@
 package org.jfantasy.order.event;
 
 /**
- * 订单完成事件
+ * 订单存档
  */
 public class OrderArchiveEvent extends OrderFlowEvent {
 

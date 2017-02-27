@@ -22,6 +22,9 @@ import org.jfantasy.order.entity.enums.ShippingStatus;
 import org.jfantasy.order.rest.models.ProfitChain;
 import org.jfantasy.order.service.OrderService;
 import org.jfantasy.pay.bean.PayConfig;
+import org.jfantasy.pay.bean.Payment;
+import org.jfantasy.pay.bean.Refund;
+import org.jfantasy.pay.bean.enums.RefundStatus;
 import org.jfantasy.trade.bean.Transaction;
 
 import javax.persistence.*;
@@ -606,6 +609,24 @@ public class Order extends BaseBusEntity {
             total = this.getTotalAmount();
         }
         return total;
+    }
+
+    @JsonIgnoreProperties(value = {"bank_name", "bank_account", "total_amount", "payment_fee", "payer", "memo", "status", "pay_config", "order", "transaction", Payment.BASE_JSONFIELDS})
+    public Payment getPayment() {
+        Transaction transaction = this.getPaymentTransaction();
+        if (transaction == null) {
+            return null;
+        }
+        return ObjectUtil.find(transaction.getPayments(), "status", org.jfantasy.pay.bean.enums.PaymentStatus.success);
+    }
+
+    @JsonIgnoreProperties(value = {"payment", "bank_name", "bank_account", "total_amount", "payment_fee", "payer", "memo", "status", "pay_config", "order", "transaction", Payment.BASE_JSONFIELDS})
+    public Refund getRefund() {
+        Transaction transaction = this.getRefundTransaction();
+        if (transaction == null) {
+            return null;
+        }
+        return ObjectUtil.find(transaction.getRefunds(), "status", RefundStatus.success);
     }
 
     @Transient

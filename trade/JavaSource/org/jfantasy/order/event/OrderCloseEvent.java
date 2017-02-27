@@ -1,7 +1,7 @@
 package org.jfantasy.order.event;
 
 /**
- * 订单完成事件
+ * 订单关闭事件
  */
 public class OrderCloseEvent extends OrderStatusEvent {
 

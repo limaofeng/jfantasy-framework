@@ -1,7 +1,7 @@
 package org.jfantasy.order.event;
 
 /**
- * 订单完成事件
+ * 订单发起退款事件
  */
 public class OrderRefundingEvent extends OrderStatusEvent {
 

@@ -62,7 +62,7 @@ public class InvoiceService {
             //设置发票
             item.setInvoice(tinvoice);
             item.setOrder(order);
-            //更新订单状态
+            //更新订单发票状态
             order.setInvoiceStatus(org.jfantasy.order.bean.enums.InvoiceStatus.submitted);
             this.orderDao.save(order);
             //开票金额

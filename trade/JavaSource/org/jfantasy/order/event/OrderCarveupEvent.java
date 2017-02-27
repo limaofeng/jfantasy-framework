@@ -1,7 +1,7 @@
 package org.jfantasy.order.event;
 
 /**
- * 订单完成事件
+ * 订单收益分配完毕
  */
 public class OrderCarveupEvent extends OrderFlowEvent {
 

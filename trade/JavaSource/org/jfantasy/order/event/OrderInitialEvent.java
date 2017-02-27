@@ -1,7 +1,7 @@
 package org.jfantasy.order.event;
 
 /**
- * 订单完成事件
+ * 订单现金流初始事件
  */
 public class OrderInitialEvent extends OrderFlowEvent {
 

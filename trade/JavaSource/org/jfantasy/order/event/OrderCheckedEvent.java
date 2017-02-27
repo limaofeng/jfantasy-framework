@@ -1,7 +1,7 @@
 package org.jfantasy.order.event;
 
 /**
- * 订单完成事件
+ * 订单检查
  */
 public class OrderCheckedEvent extends OrderFlowEvent {
 

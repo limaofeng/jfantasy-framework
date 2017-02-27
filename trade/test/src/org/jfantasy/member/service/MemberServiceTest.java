@@ -14,7 +14,6 @@ public class MemberServiceTest {
 
         HttpResponse<Member> response = Unirest.get("http://114.55.142.155:8000/members/14").asObject(Member.class);
         Member member = response.getBody();
-        System.out.println(member.getType());
         System.out.println(member.getId().toString());
         System.out.println(member.getNickName());
     }

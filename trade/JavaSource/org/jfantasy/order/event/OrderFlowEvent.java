@@ -4,7 +4,7 @@ import org.jfantasy.framework.error.IgnoreException;
 import org.jfantasy.order.bean.Order;
 
 /**
- * 订单完成事件
+ * 订单处理流程变更事件
  */
 public class OrderFlowEvent extends OrderStatusEvent {
 
