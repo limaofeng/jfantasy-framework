@@ -124,6 +124,10 @@ public class MemberController {
     @ResponseBody
     public Object profile(@PathVariable("id") Long id, @RequestParam(value = "type", defaultValue = Member.MEMBER_TYPE_PERSONAL) String type) {
         Member member = get(id);
+        //TODO type 临时处理方案
+        if (member.getTypes().size() == 1) {
+            type = member.getTypes().get(0).getId();
+        }
         if (!ObjectUtil.exists(member.getTypes(), "id", type)) {
             throw new ValidationException(String.format("[type=%s]不匹配", type));
         }
@@ -134,7 +138,7 @@ public class MemberController {
         }
     }
 
-    @RequestMapping(value = "/{id}/connect",method = RequestMethod.POST)
+    @PostMapping("/{id}/connect")
     @ResponseBody
     public MemberTarget connect(@PathVariable("id") Long id, @RequestBody ConnectForm form) {
         return this.memberService.connect(id, form.getType(), form.getTarget());
