@@ -3,11 +3,9 @@ package org.jfantasy.member.bean;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.GenericGenerator;
 import org.jfantasy.framework.dao.BaseBusEntity;
-import org.jfantasy.framework.spring.validation.RESTful;
 import org.jfantasy.member.bean.enums.EnterpriseStatus;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 
 /**
  * 企业信息
@@ -32,19 +30,16 @@ public class Enterprise extends BaseBusEntity {
     /**
      * 公司名称
      */
-    @NotNull(groups = RESTful.POST.class)
     @Column(name = "NAME", length = 30)
     private String name;
     /**
      * 地址
      */
-    @NotNull(groups = RESTful.POST.class)
     @Column(name = "ADDRESS", length = 150)
     private String address;
     /**
      * 电话
      */
-    @NotNull(groups = RESTful.POST.class)
     @Column(name = "TEL", length = 12)
     private String tel;
     /**
@@ -55,13 +50,11 @@ public class Enterprise extends BaseBusEntity {
     /**
      * 联系人名称
      */
-    @NotNull(groups = RESTful.POST.class)
     @Column(name = "CONTACT", length = 50)
     private String contact;
     /**
      * 联系人电话
      */
-    @NotNull(groups = RESTful.POST.class)
     @Column(name = "CONTACT_TEL", length = 12)
     private String contactTel;
     /**

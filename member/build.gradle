@@ -8,5 +8,6 @@ dependencies {
     compile project(':jfantasy-security')
     compile project(':jfantasy-aliyun')
     compile project(':jfantasy-weixin')
+    compile 'cn.com.zbsg:api-mcenter-sdk:2.2.3'
     testCompile "org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
 }
