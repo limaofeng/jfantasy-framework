@@ -24,7 +24,7 @@ public class ProfileResourceAssembler extends ResourceAssemblerSupport<MemberDet
     public ResultResourceSupport toResource(MemberDetails entity) {
         ResultResourceSupport resource = instantiateResource(entity);
         resource.add(linkTo(methodOn(MemberController.class).profile(entity.getMemberId(), Member.MEMBER_TYPE_PERSONAL)).withSelfRel());
-        resource.add(linkTo(methodOn(MemberController.class).view(entity.getMemberId())).withRel("member"));
+        resource.add(linkTo(methodOn(MemberController.class).view(entity.getMemberId().toString(),"id")).withRel("member"));
         return resource;
     }
 
