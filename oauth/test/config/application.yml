@@ -63,16 +63,10 @@ spring:
     url: http://localhost:8000
 
 aliyun:
-  ons:
-    accessKey: 44IzFLqkj8Pw2YOi
-    secretKey: XexMYOXZGBrPgQTUq4HtKuxxl9zMx1
-    invoice:
-      topicId: T-INVOICE_TEST
-      consumerId: CID-INVOICE_TEST
-    pay:
-      topicId: T-PAY_TEST
-      consumerId: CID-PAY_WALLET_TEST
-
+  accessKey: 44IzFLqkj8Pw2YOi
+  secretKey: XexMYOXZGBrPgQTUq4HtKuxxl9zMx1
+  mns:
+    accountEndpoint: http://1744260525350210.mns.cn-hangzhou.aliyuncs.com
 springfox:
   documentation:
     swagger:

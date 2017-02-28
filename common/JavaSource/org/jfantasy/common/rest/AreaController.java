@@ -7,6 +7,7 @@ import org.jfantasy.common.rest.models.assembler.AreaResourceAssembler;
 import org.jfantasy.common.service.AreaService;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
+import org.jfantasy.framework.spring.mvc.error.NotFoundException;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -79,6 +80,14 @@ public class AreaController {
     public ResultResourceSupport update(@PathVariable("id") String id, @RequestBody Area area) {
         area.setId(id);
         return assembler.toResource(areaService.save(area));
+    }
+
+    public Area get(String id){
+        Area area = this.areaService.get(id);
+        if(area == null){
+            throw new NotFoundException( id + "不存在");
+        }
+        return area;
     }
 
 }
