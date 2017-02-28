@@ -85,7 +85,7 @@ public class TeamService {
 
         team.setOwnerId(member.getId());
         this.teamDao.update(team);
-        return member;
+        return this.teamMemberDao.get(member.getId());
     }
 
     @Transactional
