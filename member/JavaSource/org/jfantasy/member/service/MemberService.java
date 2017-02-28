@@ -87,6 +87,14 @@ public class MemberService implements ProfileService {
         return this.save(member, signUpType);
     }
 
+    private String generateNonceUsername() {
+        String username;
+        do {
+            username = StringUtil.generateNonceString(12);
+        } while (this.memberDao.exists(Restrictions.eq("username", username)));
+        return username;
+    }
+
     public Member login(String userType, String username) {
         Member member = this.findUnique(username);
         if (member == null) {//用户不存在
@@ -173,23 +181,31 @@ public class MemberService implements ProfileService {
      */
     public Member save(Member member, SignUpType signUpType) {
         MemberDetails details = ObjectUtil.defaultValue(member.getDetails(), new MemberDetails());
+
         // 设置默认属性
         details.setLevel(0L);
-        if (signUpType == SignUpType.email) {// 如果用email注册
-            details.setEmail(member.getUsername());
-        } else if (signUpType == SignUpType.sms) {// 如果用手机注册
+
+        // 生成随机的用户名
+        if(signUpType == SignUpType.sms){ // 使用 手机短信 注册
             details.setMobile(member.getUsername());
+            member.setUsername(generateNonceUsername());
+        }else if (signUpType == SignUpType.email){// 使用 email 注册
+            details.setEmail(member.getUsername());
+            member.setUsername(generateNonceUsername());
         }
         member.setDetails(details);
+
         // 默认昵称与用户名一致
         if (StringUtil.isBlank(member.getNickName())) {
             member.setNickName(member.getUsername());
         }
+
         // 初始化用户状态
         member.setEnabled(true);
         member.setAccountNonLocked(true);
         member.setAccountNonExpired(true);
         member.setCredentialsNonExpired(true);
+
         // 保存用户
         this.memberDao.save(member);
         // 设置默认用户类型
