@@ -7,7 +7,10 @@ import javax.persistence.*;
 
 @Entity
 @IdClass(MemberTargetKey.class)
-@Table(name = "MEM_MEMBER_TARGET", uniqueConstraints = @UniqueConstraint(name = "UK_MEMBERTARGET", columnNames = {"MEMBER", "TYPE", "VALUE"}))
+@Table(name = "MEM_MEMBER_TARGET", uniqueConstraints = {
+        @UniqueConstraint(name = "UK_MEMBERTARGET_TYPE", columnNames = {"MEMBER", "TYPE"}),
+        @UniqueConstraint(name = "UK_MEMBERTARGET_VALUE", columnNames = {"TYPE", "VALUE"})
+})
 @JsonIgnoreProperties({"hibernate_lazy_initializer", "handler"})
 public class MemberTarget extends BaseBusEntity {
 
