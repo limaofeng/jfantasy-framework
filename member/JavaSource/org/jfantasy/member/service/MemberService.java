@@ -21,9 +21,7 @@ import org.jfantasy.framework.util.regexp.RegexpUtil;
 import org.jfantasy.member.Profile;
 import org.jfantasy.member.ProfileFactory;
 import org.jfantasy.member.ProfileService;
-import org.jfantasy.member.bean.Member;
-import org.jfantasy.member.bean.MemberDetails;
-import org.jfantasy.member.bean.MemberTarget;
+import org.jfantasy.member.bean.*;
 import org.jfantasy.member.bean.enums.SignUpType;
 import org.jfantasy.member.dao.MemberDao;
 import org.jfantasy.member.dao.MemberTargetDao;
@@ -83,7 +81,6 @@ public class MemberService implements ProfileService {
         Member member = new Member();
         member.setUsername(profile.getMobile());
         member.setPassword(StringUtil.generateNonceString(20));
-        member.setNickName(profile.getName());
 
         MemberDetails details = new MemberDetails();
         details.setMobile(profile.getMobile());
@@ -330,7 +327,28 @@ public class MemberService implements ProfileService {
      * @param value 目标
      */
     public MemberTarget connect(Long id, String type, String value) {
-        return this.memberTargetDao.save(MemberTarget.newInstance(this.memberDao.get(id), this.memberTypeDao.get(type), value));
+        Member member = this.memberDao.get(id);
+        MemberType memberType = this.memberTypeDao.get(type);
+        MemberTargetKey key = MemberTargetKey.newInstance(member, memberType);
+        MemberTarget target = this.memberTargetDao.get(key);
+        if (target != null) {
+            return target;
+        }
+        target = this.memberTargetDao.save(MemberTarget.newInstance(key, value));
+        if (!Member.MEMBER_TYPE_PERSONAL.equals(type)) {//通过 Profile 更新 MemberDetails 信息
+            Profile profile = getProfile(type, value);
+
+            MemberDetails details = ObjectUtil.defaultValue(member.getDetails(), new MemberDetails());
+            details.setMobile(ObjectUtil.defaultValue(details.getMobile(),profile.getMobile()));
+            details.setName(ObjectUtil.defaultValue(details.getName(),profile.getName()));
+            details.setSex(ObjectUtil.defaultValue(details.getSex(),profile.getSex()));
+            details.setBirthday(ObjectUtil.defaultValue(details.getBirthday(),profile.getBirthday()));
+            details.setTel(StringUtil.defaultValue(details.getTel(),profile.getTel()));
+            member.setDetails(details);
+
+            this.memberDao.update(member);
+        }
+        return target;
     }
 
     /**

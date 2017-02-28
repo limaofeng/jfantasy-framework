@@ -48,10 +48,10 @@ public class MemberTarget extends BaseBusEntity {
         this.value = value;
     }
 
-    public static MemberTarget newInstance(Member member, MemberType type, String value) {
+    public static MemberTarget newInstance(MemberTargetKey key, String value) {
         MemberTarget target = new MemberTarget();
-        target.setMember(member);
-        target.setType(type);
+        target.setMember(key.getMember());
+        target.setType(key.getType());
         target.setValue(value);
         return target;
     }

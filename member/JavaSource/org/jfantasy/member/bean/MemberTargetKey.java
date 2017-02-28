@@ -34,4 +34,11 @@ public class MemberTargetKey implements Serializable {
         this.type = type;
     }
 
+    public static MemberTargetKey newInstance(Member member, MemberType type) {
+        MemberTargetKey targetKey = new MemberTargetKey();
+        targetKey.setMember(member);
+        targetKey.setType(type);
+        return targetKey;
+    }
+
 }
