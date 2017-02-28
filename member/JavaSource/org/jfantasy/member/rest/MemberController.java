@@ -98,7 +98,7 @@ public class MemberController {
      * @return Member
      */
     @JsonResultFilter(allow = @AllowProperty(pojo = MemberType.class, name = {"id", "name"}))
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{id}", method = {RequestMethod.GET, RequestMethod.HEAD})
     @ResponseBody
     public ResultResourceSupport view(@PathVariable("id") String id, @RequestParam(value = "type", defaultValue = "id") String type) {
         return assembler.toResource(get(type, id));

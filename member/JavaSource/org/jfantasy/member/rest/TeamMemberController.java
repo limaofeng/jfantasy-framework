@@ -32,34 +32,40 @@ public class TeamMemberController {
 
     /**
      * 查看团队成员 - 查看团队成员
+     *
      * @param id TMID
      * @return TeamMember
      */
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{id}", method = {RequestMethod.GET, RequestMethod.HEAD})
     public ResultResourceSupport view(@PathVariable("id") Long id) {
         return assembler.toResource(this.get(id));
     }
 
     /**
      * 添加团队成员 - 添加团队成员
+     *
      * @param member TMID
      * @return TeamMember
      */
-    @JsonResultFilter(ignore = @IgnoreProperty(pojo = TeamMember.class,name = "team"))
+    @JsonResultFilter(ignore = @IgnoreProperty(pojo = TeamMember.class, name = "team"))
     @RequestMapping(method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     public ResultResourceSupport create(@RequestBody TeamMember member) {
         return assembler.toResource(this.teamMemberService.save(member));
     }
 
-    /** 更新团队成员 - 更新团队成员地址 **/
+    /**
+     * 更新团队成员 - 更新团队成员地址
+     **/
     @RequestMapping(value = "/{id}", method = RequestMethod.PATCH)
     public ResultResourceSupport update(@PathVariable("id") Long id, HttpServletRequest request, @RequestBody TeamMember member) {
         member.setId(id);
-        return assembler.toResource(this.teamMemberService.update(member, WebUtil.has(request,RequestMethod.PATCH)));
+        return assembler.toResource(this.teamMemberService.update(member, WebUtil.has(request, RequestMethod.PATCH)));
     }
 
-    /** 删除团队成员 - 删除团队成员 **/
+    /**
+     * 删除团队成员 - 删除团队成员
+     **/
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable("id") Long id) {

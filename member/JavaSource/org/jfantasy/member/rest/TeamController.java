@@ -66,7 +66,7 @@ public class TeamController {
      * 查看团队 - 查看团队
      **/
     @JsonResultFilter(ignore = @IgnoreProperty(pojo = Team.class, name = "owner_id"))
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{id}", method = {RequestMethod.GET, RequestMethod.HEAD})
     public ResultResourceSupport view(@PathVariable("id") String id) {
         Team team = this.get(id);
         if (team.getOwnerId() != null) {
@@ -96,19 +96,19 @@ public class TeamController {
     /**
      * 更新团队所有者
      *
-     * @param id   TID
+     * @param id     TID
      * @param member TeamMember
      * @return TeamMember
      */
     @PutMapping(value = "/{id}/owner")
-    public TeamMember update(@PathVariable("id") String id,@Validated(Team.Owner.PUT.class) @RequestBody TeamMember member) {
+    public TeamMember update(@PathVariable("id") String id, @Validated(Team.Owner.PUT.class) @RequestBody TeamMember member) {
         return this.teamService.owner(id, member);
     }
 
     @GetMapping(value = "/{id}/owner")
     public TeamMember viewOwner(@PathVariable("id") String id) {
         Long ownerId = this.get(id).getOwnerId();
-        if(ownerId == null){
+        if (ownerId == null) {
             throw new ValidationException("该团队未设置所有人");
         }
         return this.teamMemberService.get(ownerId);
