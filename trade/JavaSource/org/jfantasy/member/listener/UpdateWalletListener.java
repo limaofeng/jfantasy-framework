@@ -1,6 +1,8 @@
 package org.jfantasy.member.listener;
 
 import org.jfantasy.member.service.WalletService;
+import org.jfantasy.trade.bean.Account;
+import org.jfantasy.trade.bean.enums.AccountType;
 import org.jfantasy.trade.event.AccountAmountChangedEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
@@ -15,7 +17,10 @@ public class UpdateWalletListener implements ApplicationListener<AccountAmountCh
     @Async
     @Override
     public void onApplicationEvent(AccountAmountChangedEvent event) {
-        this.walletService.saveOrUpdateWallet(event.getAccount());
+        Account account = event.getAccount();
+        if (AccountType.personal == account.getType()) {
+            this.walletService.saveOrUpdateWallet(event.getAccount());
+        }
     }
 
     @Autowired

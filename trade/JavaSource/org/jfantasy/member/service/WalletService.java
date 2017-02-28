@@ -5,7 +5,6 @@ import org.jfantasy.card.bean.Card;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.util.common.ObjectUtil;
-import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.member.bean.Wallet;
 import org.jfantasy.member.dao.WalletDao;
 import org.jfantasy.order.bean.ExtraService;
@@ -46,7 +45,7 @@ public class WalletService {
      */
     private Wallet newWallet(Account account) {
         Wallet wallet = new Wallet();
-        wallet.setMemberId(StringUtil.isNotBlank(account.getOwner()) ? Long.valueOf(account.getOwner()) : null);
+        wallet.setMemberId(Long.valueOf(account.getOwner()));
         wallet.setAccount(account.getSn());
         wallet.setAmount(account.getAmount());
         wallet.setIncome(BigDecimal.ZERO);
