@@ -68,7 +68,7 @@ public class AccountController {
     /**
      * 账户详情
      **/
-    @RequestMapping(method = RequestMethod.GET, value = "/{id}")
+    @RequestMapping(method = {RequestMethod.GET, RequestMethod.HEAD}, value = "/{id}")
     @ResponseBody
     public ResultResourceSupport view(@PathVariable("id") String id) {
         return assembler.toResource(get(id));
@@ -93,7 +93,7 @@ public class AccountController {
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
     public ResultResourceSupport save(@RequestBody AccountForm form) {
-        return assembler.toResource(this.accountService.save(form.getType(),form.getOwner(), form.getPassword()));
+        return assembler.toResource(this.accountService.save(form.getType(), form.getOwner(), form.getPassword()));
     }
 
     /**
