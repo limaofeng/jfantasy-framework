@@ -163,7 +163,7 @@ public class MemberController {
         if (StringUtil.isNotBlank(form.getMacode()) && !this.passwordTokenEncoder.matches("register", PasswordTokenType.macode, form.getUsername(), null, form.getMacode())) {
             throw new ValidationException(100000, "注册验证码错误");
         }
-        return assembler.toResource(memberService.signUp(form.getUsername(), form.getPassword(), SignUpType.sms));
+        return assembler.toResource(memberService.signUp(form.getUsername(), form.getPassword(), SignUpType.password));
     }
 
     @JsonResultFilter(
