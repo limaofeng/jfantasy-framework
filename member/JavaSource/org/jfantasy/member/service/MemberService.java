@@ -47,7 +47,6 @@ import java.util.List;
 @Transactional
 public class MemberService implements ProfileService {
 
-
     private static final Log LOG = LogFactory.getLog(MemberService.class);
 
     private final MemberDao memberDao;
@@ -78,6 +77,23 @@ public class MemberService implements ProfileService {
 
     public Member signUp(String username, SignUpType signUpType) {
         return this.signUp(username, null, signUpType);
+    }
+
+    public Member signUp(Profile profile, SignUpType signUpType) {
+        Member member = new Member();
+        member.setUsername(profile.getMobile());
+        member.setPassword(StringUtil.generateNonceString(20));
+        member.setNickName(profile.getName());
+
+        MemberDetails details = new MemberDetails();
+        details.setMobile(profile.getMobile());
+        details.setName(profile.getName());
+        details.setSex(profile.getSex());
+        details.setBirthday(profile.getBirthday());
+        details.setTel(profile.getTel());
+        member.setDetails(details);
+
+        return this.save(member, signUpType);
     }
 
     public Member signUp(String username, String password, SignUpType signUpType) {
@@ -140,7 +156,7 @@ public class MemberService implements ProfileService {
                 throw new ValidationException("您还没有入住平台");
             }
             if (member == null) {
-                member = signUp(username, SignUpType.sms);
+                member = signUp(profile, SignUpType.sms);
             }
             member.addTarget(connect(member.getId(), userType, profile.getId()));
         }
@@ -186,10 +202,10 @@ public class MemberService implements ProfileService {
         details.setLevel(0L);
 
         // 生成随机的用户名
-        if(signUpType == SignUpType.sms){ // 使用 手机短信 注册
+        if (signUpType == SignUpType.sms && StringUtil.isBlank(details.getMobile())) { // 使用 手机短信 注册
             details.setMobile(member.getUsername());
             member.setUsername(generateNonceUsername());
-        }else if (signUpType == SignUpType.email){// 使用 email 注册
+        } else if (signUpType == SignUpType.email && StringUtil.isBlank(details.getEmail())) {// 使用 email 注册
             details.setEmail(member.getUsername());
             member.setUsername(generateNonceUsername());
         }

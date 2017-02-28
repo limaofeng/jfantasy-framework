@@ -60,7 +60,7 @@ spring:
       host: 127.0.0.1
       port: 6379
   apigateway:
-    url: http://localhost:8000
+    url: http://114.55.142.155:8000
 
 aliyun:
   accessKey: 44IzFLqkj8Pw2YOi
