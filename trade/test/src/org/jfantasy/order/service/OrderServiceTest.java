@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 
@@ -30,6 +31,12 @@ public class OrderServiceTest {
     @After
     public void tearDown() throws Exception {
 
+    }
+
+    @Test
+    @Transactional
+    public void getDrawer() throws Exception {
+        System.out.println(this.orderService.getDrawer(this.orderService.get("2017022101180")));
     }
 
     @Test

@@ -43,7 +43,7 @@ public class OrderCashFlowPlan extends BaseBusEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonSerialize(using = OrderTypeSerializer.class)
     @JsonDeserialize(using = OrderTypeDeserializer.class)
-    @JoinColumn(name = "ORDER_TYPE", nullable = false, updatable = false, foreignKey = @ForeignKey(name = "FK_ORDERCASHFLOW_ORDERTYPE"))
+    @JoinColumn(name = "ORDER_TYPE", nullable = false, updatable = false, foreignKey = @ForeignKey(name = "FK_ORDERCASHFLOWPLAN_ORDERTYPE"))
     private OrderType orderType;
 
     public Long getId() {

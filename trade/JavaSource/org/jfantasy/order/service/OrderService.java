@@ -339,7 +339,7 @@ public class OrderService {
     public String getDrawer(Order order) {
         OrderType type = this.orderTypeService.get(order.getType());
         OrderPayeeValue drawer = ObjectUtil.find(order.getPayees(), "code", type.getDrawer());
-        return drawer != null && drawer.getPayee().getType() == PayeeType.member ? drawer.getValue() : null;
+        return drawer != null && drawer.getPayee().getType() == PayeeType.team ? drawer.getValue() : null;
     }
 
     /**
