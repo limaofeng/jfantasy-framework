@@ -311,13 +311,6 @@ public class OrderService {
     }
 
     @Transactional
-    public void updateAllowInvoice(String id) {
-        Order order = this.orderDao.get(id);
-        order.setInvoiceStatus(InvoiceStatus.wait);
-        this.orderDao.update(order);
-    }
-
-    @Transactional
     public void updateInvoiceStatus(org.jfantasy.invoice.bean.enums.InvoiceStatus status, String... ids) {
         InvoiceStatus invoiceStatus = InvoiceStatus.submitted;
         switch (status) {
@@ -501,6 +494,9 @@ public class OrderService {
             order.setProfitChains(profitChains);
             order.setPaymentStatus(PaymentStatus.archived);
             order.setFlow(OrderFlow.carveup);
+            if (!"walletpay".equals(order.getPaymentConfig().getPayProductId())) {// 更新发票状态 非钱包支付，可以开发票
+                order.setInvoiceStatus(InvoiceStatus.wait);
+            }
             this.orderDao.update(order);
         }
         return order.getProfitChains();

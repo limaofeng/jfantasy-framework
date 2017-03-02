@@ -19,7 +19,7 @@ public class PublishOrderCompleteEventByMNS implements ApplicationListener<Order
     @Override
     public void onApplicationEvent(OrderCompleteEvent event) {
         Order order = this.orderService.get(event.getOrderId());
-        eventEmitter.fireEvent("order.complete", order.getId(), String.format("订单[%s]关闭", order.getId()), JSON.serialize(order, "payments", "refunds", "payment_config"));
+        eventEmitter.fireEvent("order.complete", order.getId(), String.format("订单[%s]完成", order.getId()), JSON.serialize(order, "payments", "refunds", "payment_config"));
     }
 
     @Autowired

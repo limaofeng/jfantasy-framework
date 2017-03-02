@@ -164,7 +164,7 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
     public T mergeEntity(T entity) {
         PK id = getIdValue(entity);
         if (id != null) {
-            T oldentity = (T) this.getSession().get(this.entityClass, id);
+            T oldentity = this.getSession().get(this.entityClass, id);
             return BeanUtil.copyNotNull(oldentity, entity);
         }
         throw new HibernateException(" id 为空,不能使用合并模式");
