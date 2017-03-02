@@ -472,6 +472,7 @@ public class Order extends BaseBusEntity {
     }
 
     @JsonAnyGetter
+    @JsonIgnoreProperties("id")
     public Map<String, Object> getAttrs() {
         return attrs;
     }
