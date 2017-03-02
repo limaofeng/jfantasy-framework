@@ -111,13 +111,13 @@ public class MemberService implements ProfileService {
     public Member login(String userType, String username) {
         Member member = this.findUnique(username);
         if (member == null) {//用户不存在
-            throw new ValidationException(100301, "用户名和密码错误");
+            throw new ValidationException(100100, "用户不存在");
         }
         if (!member.getEnabled()) {
-            throw new ValidationException(100302, "用户被禁用");
+            throw new ValidationException(100102, "用户被禁用");
         }
         if (!member.getAccountNonLocked()) {
-            throw new ValidationException(100303, "用户被锁定");
+            throw new ValidationException(100103, "用户被锁定");
         }
         member.setLastLoginTime(DateUtil.now());
         validateUserType(member, userType);
@@ -159,7 +159,7 @@ public class MemberService implements ProfileService {
         }
 
         if (member == null) {
-            throw new ValidationException(100101, "用户不存在");
+            throw new ValidationException(100100, "用户不存在");
         }
 
         return login(userType, username);

@@ -77,7 +77,7 @@ public class OrderController {
             ignore = @IgnoreProperty(pojo = Order.class, name = {"refunds", "items", "payments"}),
             allow = @AllowProperty(pojo = PayConfig.class, name = {"id", "name"})
     )
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{id}", method = {RequestMethod.GET, RequestMethod.HEAD})
     @ResponseBody
     public ResultResourceSupport view(@PathVariable("id") String id) {
         Order order = get(id);
@@ -129,11 +129,11 @@ public class OrderController {
     @JsonResultFilter(allow = @AllowProperty(pojo = PayConfig.class, name = {"id", "pay_product_id", "name", "platforms", "default", "disabled"}))
     @RequestMapping(value = "/{id}/transactions", method = RequestMethod.GET)
     @ResponseBody
-    public Map<String,Transaction> transactions(@PathVariable("id") String id) {
+    public Map<String, Transaction> transactions(@PathVariable("id") String id) {
         Order order = get(id);
-        Map<String,Transaction> transactions = new HashMap<>();
-        transactions.put("payment",order.getPaymentTransaction());
-        transactions.put("refund",order.getRefundTransaction());
+        Map<String, Transaction> transactions = new HashMap<>();
+        transactions.put("payment", order.getPaymentTransaction());
+        transactions.put("refund", order.getRefundTransaction());
         return transactions;
     }
 
