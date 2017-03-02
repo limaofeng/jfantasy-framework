@@ -57,7 +57,6 @@ public class MpOpenapi implements Openapi {
         }
     }
 
-
     @Override
     public String getAuthorizationUrl(String redirectUri, Scope scope, String state) throws WeixinException {
         String url = "https://open.weixin.qq.com/connect/oauth2/authorize?";

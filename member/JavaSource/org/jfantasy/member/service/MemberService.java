@@ -150,7 +150,7 @@ public class MemberService implements ProfileService {
         if (type == PasswordTokenType.macode && (member == null || !ObjectUtil.exists(member.getTypes(), "id", userType))) {
             Profile profile = getProfile(userType, username);
             if (profile == null) {
-                throw new ValidationException("您还没有入住平台");
+                throw new ValidationException(100105,"您还没有入住平台");
             }
             if (member == null) {
                 member = signUp(profile, SignUpType.sms);
