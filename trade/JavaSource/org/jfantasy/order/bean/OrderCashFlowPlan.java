@@ -13,7 +13,7 @@ import javax.persistence.*;
  * 订单现金流方案
  */
 @Entity
-@Table(name = "ORDER_CASHFLOW_PLAN")
+@Table(name = "ORDER_CASHFLOW_PLAN", uniqueConstraints = @UniqueConstraint(name = "UK_CASHFLOWPLAN", columnNames = {"ORDER_TYPE", "CODE"}))
 @JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "subflows"})
 public class OrderCashFlowPlan extends BaseBusEntity {
 
@@ -32,6 +32,17 @@ public class OrderCashFlowPlan extends BaseBusEntity {
      */
     @Column(name = "NAME", length = 50, nullable = false)
     private String name;
+    /**
+     * 自动触发绑定的事件,
+     * 如果为NULL，表示不能自动触发
+     */
+    @Column(name = "TRIGGER", length = 50)
+    private String trigger;
+    /**
+     * 触发时的判断表达式
+     */
+    @Column(name = "TRIGGER_EXPRESSION", length = 250)
+    private String triggerExpression;
     /**
      * 备注
      */
@@ -84,5 +95,21 @@ public class OrderCashFlowPlan extends BaseBusEntity {
 
     public void setOrderType(OrderType orderType) {
         this.orderType = orderType;
+    }
+
+    public String getTrigger() {
+        return trigger;
+    }
+
+    public void setTrigger(String trigger) {
+        this.trigger = trigger;
+    }
+
+    public String getTriggerExpression() {
+        return triggerExpression;
+    }
+
+    public void setTriggerExpression(String triggerExpression) {
+        this.triggerExpression = triggerExpression;
     }
 }

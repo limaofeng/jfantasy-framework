@@ -54,7 +54,7 @@ public class SnserService {
             return snser;
         }
         if (snser != null) {
-            throw new ValidationException(String.format("用户已绑定其他 %s 账号，请先解绑。", type.toString()));
+            this.deltele(memberId, snser.getId());
         }
         if (get(type, appId, openId) != null) {
             throw new ValidationException(String.format("%s 已被其他账号绑定，请先解绑。", type.toString()));
@@ -64,16 +64,16 @@ public class SnserService {
             Fans fans = fansService.get(appId, openId);
             snser = new Snser();
             snser.setName(fans.getNickname());
-            snser.setAvatar(UploadUtils.uploadImage(fans.getAvatar(),"avatar"));
+            snser.setAvatar(UploadUtils.uploadImage(fans.getAvatar(), "avatar"));
             snser.setSex(Sex.valueOf(fans.getSex().name()));
             snser.setPlatform(platform);
             snser.setMember(this.memberDao.get(memberId));
             snser.setOpenId(fans.getOpenId());
 
-            snser.set("country",fans.getCountry());
-            snser.set("province",fans.getProvince());
-            snser.set("city",fans.getCity());
-            snser.set("language",fans.getLanguage());
+            snser.set("country", fans.getCountry());
+            snser.set("province", fans.getProvince());
+            snser.set("city", fans.getCity());
+            snser.set("language", fans.getLanguage());
 
             return this.snserDao.save(snser);
         } else {
