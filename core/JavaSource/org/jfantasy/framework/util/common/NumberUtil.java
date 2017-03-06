@@ -39,6 +39,10 @@ public class NumberUtil {
         return random.nextLong();
     }
 
+    public static Long toLong(String s, int radix) {
+        return Long.parseLong(s, radix);
+    }
+
     public static Integer toInteger(String num) {
         if (!isNumber(num)) {
             return null;
@@ -160,6 +164,10 @@ public class NumberUtil {
 
     public static boolean isEquals(BigDecimal left, BigDecimal right) {
         return left.compareTo(right) == 0;
+    }
+
+    public static String toHex(int num) {
+        return Integer.toHexString(num);
     }
 
     /**
