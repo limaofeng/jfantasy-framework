@@ -1,6 +1,8 @@
 package org.jfantasy.order.rest;
 
 import io.swagger.annotations.ApiImplicitParam;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.jackson.annotation.AllowProperty;
@@ -46,6 +48,7 @@ import java.util.concurrent.TimeUnit;
 @RequestMapping("/orders")
 public class OrderController {
 
+    private static final Log LOG = LogFactory.getLog(OrderController.class);
     public static final OrderResourceAssembler assembler = new OrderResourceAssembler();
 
     private OrderService orderService;
@@ -80,14 +83,19 @@ public class OrderController {
     )
     @RequestMapping(value = "/{id}", method = {RequestMethod.GET, RequestMethod.HEAD})
     @ResponseBody
-    public ResultResourceSupport view(@PathVariable("id") String id, @RequestParam(name = "fetch", required = false) String fetch) throws InterruptedException {
+    public ResultResourceSupport view(@PathVariable("id") String id, @RequestParam(name = "fetch", required = false) String fetch) {
         Order order = get(id);
         if (order == null) {
             throw new NotFoundException("[ID=" + id + "]的订单不存在");
         }
+        long start = System.currentTimeMillis();
         if ("wait".equals(fetch)) {
-            while (order.getStatus() == OrderStatus.unpaid) {
-                Thread.sleep(TimeUnit.SECONDS.toMillis(5));
+            while (order.getStatus() == OrderStatus.unpaid && System.currentTimeMillis() - start < 15000) {
+                try {
+                    Thread.sleep(TimeUnit.SECONDS.toMillis(3));
+                } catch (InterruptedException e) {
+                    LOG.error(e.getMessage(),e);
+                }
                 order = get(id);
             }
         }
