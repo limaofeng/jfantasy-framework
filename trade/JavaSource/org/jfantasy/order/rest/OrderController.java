@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 订单
@@ -79,10 +80,16 @@ public class OrderController {
     )
     @RequestMapping(value = "/{id}", method = {RequestMethod.GET, RequestMethod.HEAD})
     @ResponseBody
-    public ResultResourceSupport view(@PathVariable("id") String id) {
+    public ResultResourceSupport view(@PathVariable("id") String id, @RequestParam(name = "fetch", required = false) String fetch) throws InterruptedException {
         Order order = get(id);
         if (order == null) {
             throw new NotFoundException("[ID=" + id + "]的订单不存在");
+        }
+        if ("wait".equals(fetch)) {
+            while (order.getStatus() == OrderStatus.unpaid) {
+                Thread.sleep(TimeUnit.SECONDS.toMillis(5));
+                order = get(id);
+            }
         }
         return assembler.toResource(order);
     }
