@@ -6,9 +6,9 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.net.URLEncoder;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 public class StringUtilTest {
 
@@ -18,7 +18,7 @@ public class StringUtilTest {
 
         LOG.debug(StringUtil.decodeURI(source, "utf-8"));
 
-        System.out.println(URLEncoder.encode("+ ","utf-8"));
+        System.out.println(URLEncoder.encode("+ ", "utf-8"));
 
 
 
@@ -81,10 +81,10 @@ public class StringUtilTest {
 
     @Test
     public void testNullValue() throws Exception {
-        Map<String,Object> data = new HashMap<>();
-        data.put("123","123");
+        Map<String, Object> data = new HashMap<>();
+        data.put("123", "123");
 
-        String s = (String)data.get("1234");
+        String s = (String) data.get("1234");
         System.out.print(s);
     }
 
@@ -294,7 +294,19 @@ public class StringUtilTest {
     }
 
     @Test
-    public void testHexTo64() throws Exception {
-        LOG.debug(StringUtil.hexTo64("0" + UUID.randomUUID().toString().replaceAll("-", "")));
+    public void shortUrl() throws Exception {
+        LOG.debug(Arrays.toString(StringUtil.shortUrl("/articles/1230")));
     }
+
+    @Test
+    public void testHexTo64() throws Exception {
+    }
+
+    @Test
+    public void uuid() throws Exception {
+        String uuid = StringUtil.uuid();
+        System.out.println(uuid);
+        System.out.println(uuid.length());
+    }
+
 }

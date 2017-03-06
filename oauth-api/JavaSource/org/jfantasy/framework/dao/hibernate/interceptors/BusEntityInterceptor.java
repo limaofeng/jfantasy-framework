@@ -71,8 +71,11 @@ public class BusEntityInterceptor extends EmptyInterceptor {
                 } else if ("createTime".equals(propertyNames[i]) || "modifyTime".equals(propertyNames[i])) {
                     state[i] = now;
                     count++;
+                } else if ("uuid".equals(propertyNames[i])) {
+                    state[i] = StringUtil.uuid();
+                    count++;
                 }
-                if (count >= 4) {
+                if (count >= 5) {
                     return true;
                 }
             }

@@ -45,6 +45,11 @@ public abstract class BaseBusEntity implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "MODIFY_TIME")
     private Date modifyTime;
+    /**
+     * UUID
+     */
+    @Column(updatable = false, unique = true, name = "UUID", length = 32)
+    private String uuid;
 
     public Date getCreateTime() {
         if (this.createTime == null) {
@@ -74,6 +79,14 @@ public abstract class BaseBusEntity implements Serializable {
         } else {
             this.modifyTime = (Date) modifyTime.clone();
         }
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 
     public String getCreator() {

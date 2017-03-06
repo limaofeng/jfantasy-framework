@@ -474,7 +474,6 @@ public abstract class StringUtil {
         } catch (UnsupportedEncodingException e) {
             throw new IllegalArgumentException(e);
         }
-
     }
 
     public static String toString(byte[] b, String charset) {
@@ -630,4 +629,8 @@ public abstract class StringUtil {
         return noceStr.toString();
     }
 
+    public static String uuid() {
+        UUID uuid = UUID.randomUUID();
+        return uuid.toString().replaceAll("-","");
+    }
 }
