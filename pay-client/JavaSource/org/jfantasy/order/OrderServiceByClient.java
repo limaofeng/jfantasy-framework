@@ -25,7 +25,7 @@ public class OrderServiceByClient implements OrderDetailService, InitializingBea
     @Override
     public void afterPropertiesSet() throws Exception {
         RpcProxyFactory rpcProxyFactory = new RpcProxyFactory(new NettyClientFactory(nettyClientSettings.getHost(), nettyClientSettings.getPort()));
-        orderServiceProxy = rpcProxyFactory.proxyBean(OrderDetailService.class, 10000);
+        orderServiceProxy = rpcProxyFactory.proxyBean(OrderDetailService.class, 100000);
     }
 
     public OrderDTO save(OrderDTO order) {

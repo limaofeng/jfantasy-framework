@@ -36,7 +36,7 @@ public class OrderCashFlowPlan extends BaseBusEntity {
      * 自动触发绑定的事件,
      * 如果为NULL，表示不能自动触发
      */
-    @Column(name = "TRIGGER", length = 50)
+    @Column(name = "_TRIGGER", length = 50)
     private String trigger;
     /**
      * 触发时的判断表达式

@@ -50,7 +50,7 @@ public class OrderDetailServiceImpl implements OrderDetailService{
             return null;
         }
         OrderDTO dto = new OrderDTO();
-        return BeanUtil.copyProperties(dto,order);
+        return BeanUtil.copyProperties(dto,order,"items","payees","prices");
     }
 
     @Override
