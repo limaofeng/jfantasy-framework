@@ -151,7 +151,7 @@ public class Weixinpay extends PayProductSupport {
             data.put("nonce_str", StringUtil.generateNonceString(16));
             data.put("transaction_id", payment.getTradeNo());
             data.put("out_refund_no", refund.getSn());
-            data.put("total_fee", String.valueOf(payment.getTotalAmount().multiply(BigDecimal.valueOf(100d).setScale(0, BigDecimal.ROUND_DOWN))));
+            data.put("total_fee", String.valueOf(payment.getTotalAmount().multiply(BigDecimal.valueOf(100d)).setScale(0, BigDecimal.ROUND_DOWN)));
             data.put("refund_fee", String.valueOf(refund.getTotalAmount().multiply(BigDecimal.valueOf(100d)).setScale(0, BigDecimal.ROUND_DOWN)));
             data.put("refund_fee_type", "CNY");//货币类型
             data.put("op_user_id", config.getBargainorId());
