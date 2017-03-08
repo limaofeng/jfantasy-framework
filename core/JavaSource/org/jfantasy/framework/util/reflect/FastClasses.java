@@ -1,5 +1,6 @@
 package org.jfantasy.framework.util.reflect;
 
+import net.sf.cglib.reflect.FastClass;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.error.IgnoreException;
@@ -21,6 +22,7 @@ import java.util.Map;
 public class FastClasses<T> implements IClass<T> {
     private static final Log LOGGER = LogFactory.getLog(FastClasses.class);
     private Class<T> clazz;
+    private FastClass fastClass;
     private BeanInfo beanInfo;
     private Map<String, Property> propertys = new HashMap<>();
     private Map<String, MethodProxy> methodProxys = new HashMap<>();
@@ -31,6 +33,7 @@ public class FastClasses<T> implements IClass<T> {
     @SuppressWarnings("unchecked")
     public FastClasses(Class<T> clazz) {
         this.clazz = clazz;
+        this.fastClass = FastClass.create(clazz);
         if (!clazz.isInterface()) {
             this.beanInfo = ClassUtil.getBeanInfo(clazz);
             PropertyDescriptor[] propertyDescriptors = this.beanInfo.getPropertyDescriptors();
@@ -54,7 +57,7 @@ public class FastClasses<T> implements IClass<T> {
                 }
                 try {
                     if (method.isAccessible()) {
-                        this.methodProxys.put(name.toString(), new MethodProxy(method, parameters));
+                        this.methodProxys.put(name.toString(), new MethodProxy(this.fastClass.getMethod(method), parameters));
                     } else {
                         if (!method.isAccessible()) {
                             method.setAccessible(true);
@@ -73,13 +76,13 @@ public class FastClasses<T> implements IClass<T> {
             }
         } else {
             for (Method method : clazz.getDeclaredMethods()) {
-                String name = method.getName();
+                StringBuilder name = new StringBuilder(method.getName());
                 Class<?>[] parameters = method.getParameterTypes();
                 for (int i = 0; i < parameters.length; i++) {
                     Class<?> parameterType = parameters[i];
-                    name = name + (i == 0 ? "(" : "") + parameterType.getName() + (i + 1 == parameters.length ? ")" : ",");
+                    name.append(i == 0 ? "(" : "").append(parameterType.getName()).append(i + 1 == parameters.length ? ")" : ",");
                 }
-                this.methodProxys.put(name, new MethodProxy(method, parameters));
+                this.methodProxys.put(name.toString(), new MethodProxy(this.fastClass.getMethod(method), parameters));
             }
         }
         for (Class<?> superClass = clazz; superClass != Object.class; ) {
@@ -168,10 +171,10 @@ public class FastClasses<T> implements IClass<T> {
 
     @Override
     public MethodProxy getMethod(String methodName, Class<?>... parameterTypes) {
-        StringBuilder methodname = new StringBuilder();
+        StringBuilder methodname = new StringBuilder(methodName);
         if (parameterTypes.length != 0) {
             for (int i = 0; i < parameterTypes.length; i++) {
-                methodname.append(methodname).append(i == 0 ? "(" : "").append(parameterTypes[i].getName()).append(i + 1 == parameterTypes.length ? ")" : ",");
+                methodname.append(i == 0 ? "(" : "").append(parameterTypes[i].getName()).append(i + 1 == parameterTypes.length ? ")" : ",");
             }
         } else {
             methodname.append("()");
@@ -202,6 +205,7 @@ public class FastClasses<T> implements IClass<T> {
         }
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public <V> V getValue(Object target, Field field) throws IllegalAccessException, NoSuchFieldException {
         if (field == null) {
             throw new NoSuchFieldException("字段不存在");
