@@ -73,11 +73,11 @@ public class MemberService implements ProfileService {
         return this.memberDao.findPager(pager, filters);
     }
 
-    public Member signUp(String username, SignUpType signUpType) {
+    private Member signUp(String username, SignUpType signUpType) {
         return this.signUp(username, null, signUpType);
     }
 
-    public Member signUp(Profile profile, SignUpType signUpType) {
+    private Member signUp(Profile profile, SignUpType signUpType) {
         Member member = new Member();
         member.setUsername(profile.getMobile());
         member.setPassword(StringUtil.generateNonceString(20));
@@ -90,7 +90,9 @@ public class MemberService implements ProfileService {
         details.setTel(profile.getTel());
         member.setDetails(details);
 
-        return this.save(member, signUpType);
+        member = this.save(member, signUpType);
+        member.setRegister(true);
+        return member;
     }
 
     public Member signUp(String username, String password, SignUpType signUpType) {
@@ -109,7 +111,10 @@ public class MemberService implements ProfileService {
     }
 
     public Member login(String userType, String username) {
-        Member member = this.findUnique(username);
+        return login(userType, this.findUnique(username));
+    }
+
+    private Member login(String userType, Member member) {
         if (member == null) {//用户不存在
             throw new ValidationException(100100, "用户不存在");
         }
@@ -150,7 +155,7 @@ public class MemberService implements ProfileService {
         if (type == PasswordTokenType.macode && (member == null || !ObjectUtil.exists(member.getTypes(), "id", userType))) {
             Profile profile = getProfile(userType, username);
             if (profile == null) {
-                throw new ValidationException(100105,"您还没有入住平台");
+                throw new ValidationException(100105, "您还没有入住平台");
             }
             if (member == null) {
                 member = signUp(profile, SignUpType.sms);
@@ -158,11 +163,7 @@ public class MemberService implements ProfileService {
             member.addTarget(connect(member.getId(), userType, profile.getId()));
         }
 
-        if (member == null) {
-            throw new ValidationException(100100, "用户不存在");
-        }
-
-        return login(userType, username);
+        return login(userType, member);
     }
 
     private Profile getProfile(String type, String phone) {
@@ -339,11 +340,11 @@ public class MemberService implements ProfileService {
             Profile profile = getProfile(type, value);
 
             MemberDetails details = ObjectUtil.defaultValue(member.getDetails(), new MemberDetails());
-            details.setMobile(ObjectUtil.defaultValue(details.getMobile(),profile.getMobile()));
-            details.setName(ObjectUtil.defaultValue(details.getName(),profile.getName()));
-            details.setSex(ObjectUtil.defaultValue(details.getSex(),profile.getSex()));
-            details.setBirthday(ObjectUtil.defaultValue(details.getBirthday(),profile.getBirthday()));
-            details.setTel(StringUtil.defaultValue(details.getTel(),profile.getTel()));
+            details.setMobile(ObjectUtil.defaultValue(details.getMobile(), profile.getMobile()));
+            details.setName(ObjectUtil.defaultValue(details.getName(), profile.getName()));
+            details.setSex(ObjectUtil.defaultValue(details.getSex(), profile.getSex()));
+            details.setBirthday(ObjectUtil.defaultValue(details.getBirthday(), profile.getBirthday()));
+            details.setTel(StringUtil.defaultValue(details.getTel(), profile.getTel()));
             member.setDetails(details);
 
             this.memberDao.update(member);

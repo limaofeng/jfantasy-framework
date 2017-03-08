@@ -121,6 +121,8 @@ public class Member extends BaseBusEntity {
     @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE})
     private List<MemberTarget> targets;
     @Transient
+    private Boolean register;
+    @Transient
     private String code;
     @Transient
     private String type;
@@ -292,6 +294,14 @@ public class Member extends BaseBusEntity {
         }
         this.targets.add(target);
         this.addType(target.getType());
+    }
+
+    public Boolean getRegister() {
+        return register;
+    }
+
+    public void setRegister(Boolean register) {
+        this.register = register;
     }
 
     public List<MemberTarget> getTargets() {

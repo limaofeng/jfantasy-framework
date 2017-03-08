@@ -16,7 +16,7 @@ spring:
     driver-class-name: com.mysql.jdbc.Driver
     druid:
       filters: stat,wall
-      max-active: 20
+      max-active: 5
       initial-size: 1
       min-idle: 3
       max-wait: 60000
