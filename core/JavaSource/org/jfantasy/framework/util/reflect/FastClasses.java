@@ -1,11 +1,10 @@
 package org.jfantasy.framework.util.reflect;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.error.IgnoreException;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
-import net.sf.cglib.reflect.FastClass;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import java.beans.BeanInfo;
 import java.beans.PropertyDescriptor;
@@ -22,7 +21,6 @@ import java.util.Map;
 public class FastClasses<T> implements IClass<T> {
     private static final Log LOGGER = LogFactory.getLog(FastClasses.class);
     private Class<T> clazz;
-    private FastClass fastClass;
     private BeanInfo beanInfo;
     private Map<String, Property> propertys = new HashMap<>();
     private Map<String, MethodProxy> methodProxys = new HashMap<>();
@@ -33,7 +31,6 @@ public class FastClasses<T> implements IClass<T> {
     @SuppressWarnings("unchecked")
     public FastClasses(Class<T> clazz) {
         this.clazz = clazz;
-        this.fastClass = FastClass.create(clazz);
         if (!clazz.isInterface()) {
             this.beanInfo = ClassUtil.getBeanInfo(clazz);
             PropertyDescriptor[] propertyDescriptors = this.beanInfo.getPropertyDescriptors();
@@ -57,7 +54,7 @@ public class FastClasses<T> implements IClass<T> {
                 }
                 try {
                     if (method.isAccessible()) {
-                        this.methodProxys.put(name.toString(), new MethodProxy(this.fastClass.getMethod(method), parameters));
+                        this.methodProxys.put(name.toString(), new MethodProxy(method, parameters));
                     } else {
                         if (!method.isAccessible()) {
                             method.setAccessible(true);
@@ -82,7 +79,7 @@ public class FastClasses<T> implements IClass<T> {
                     Class<?> parameterType = parameters[i];
                     name = name + (i == 0 ? "(" : "") + parameterType.getName() + (i + 1 == parameters.length ? ")" : ",");
                 }
-                this.methodProxys.put(name, new MethodProxy(this.fastClass.getMethod(method), parameters));
+                this.methodProxys.put(name, new MethodProxy(method, parameters));
             }
         }
         for (Class<?> superClass = clazz; superClass != Object.class; ) {
@@ -163,36 +160,39 @@ public class FastClasses<T> implements IClass<T> {
         return null;
     }
 
+    @Override
     public MethodProxy getMethod(String methodName, Class<?>... parameterTypes) {
+        StringBuilder methodname = new StringBuilder();
         if (parameterTypes.length != 0) {
             for (int i = 0; i < parameterTypes.length; i++) {
-                methodName = methodName + (i == 0 ? "(" : "") + parameterTypes[i].getName() + (i + 1 == parameterTypes.length ? ")" : ",");
+                methodname.append(methodname).append(i == 0 ? "(" : "").append(parameterTypes[i].getName()).append(i + 1 == parameterTypes.length ? ")" : ",");
             }
         } else {
-            methodName += "()";
+            methodname.append("()");
         }
-        return this.methodProxys.get(methodName);
+        return this.methodProxys.get(methodname.toString());
     }
 
-
+    @Override
     public void setValue(Object target, String name, Object value) {
         Field field = this.fields.get(name);
         try {
             if (field != null) {
                 field.set(target, value);
             } else {
-                throw new IgnoreException("没有找到[" + this.fastClass.getName() + "." + name + "]对应的属性!");
+                throw new IgnoreException(String.format("没有找到[%s.%s]对应的属性!", clazz.getName(), name));
             }
         } catch (Exception e) {
             throw new IgnoreException(e.getMessage(), e);
         }
     }
 
+    @Override
     public <V> V getValue(Object target, String name) {
         try {
             return getValue(target, this.fields.get(name));
         } catch (IllegalAccessException | NoSuchFieldException ex) {
-            throw new IgnoreException("没有找到[" + this.fastClass.getName() + "." + name + "]对应的属性!" + ex.getMessage(), ex);
+            throw new IgnoreException(String.format("没有找到[%s.%s]对应的属性!", clazz.getName(), name),ex);
         }
     }
 
@@ -203,6 +203,7 @@ public class FastClasses<T> implements IClass<T> {
         return (V) field.get(target);
     }
 
+    @Override
     public T newInstance(Class<?>[] parameterTypes, Object[] parameters) {
         if (parameterTypes.length == 0) {
             return newInstance();
@@ -213,22 +214,25 @@ public class FastClasses<T> implements IClass<T> {
         throw new IgnoreException("还不支持多个参数的构造器");
     }
 
+    @Override
     public Field[] getDeclaredFields() {
         return this.fields.values().toArray(new Field[this.fields.size()]);
     }
 
+    @Override
     public Field getDeclaredField(String fieldName) {
         return this.fields.get(fieldName);
     }
 
+    @Override
     public Field[] getDeclaredFields(Class<? extends Annotation> annotClass) {
-        List<Field> fields = new ArrayList<>();
+        List<Field> retvalues = new ArrayList<>();
         for (Field field : this.fields.values()) {
             if (field.isAnnotationPresent(annotClass)) {
-                fields.add(field);
+                retvalues.add(field);
             }
         }
-        return fields.toArray(new Field[fields.size()]);
+        return retvalues.toArray(new Field[retvalues.size()]);
     }
 
     @Override
@@ -236,7 +240,7 @@ public class FastClasses<T> implements IClass<T> {
         try {
             return this.getValue(null, this.staticFields.get(name));
         } catch (IllegalAccessException | NoSuchFieldException ex) {
-            throw new IgnoreException("没有找到[" + this.fastClass.getName() + "." + name + "]对应的属性!" + ex.getMessage(), ex);
+            throw new IgnoreException(String.format("没有找到[%s.%s]对应的属性!", clazz.getName(), name),ex);
         }
 
     }
