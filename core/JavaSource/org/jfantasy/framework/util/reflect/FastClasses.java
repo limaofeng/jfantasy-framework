@@ -106,6 +106,7 @@ public class FastClasses<T> implements IClass<T> {
         return result;
     }
 
+    @Override
     public T newInstance() {
         try {
             return this.clazz.newInstance();
@@ -114,6 +115,7 @@ public class FastClasses<T> implements IClass<T> {
         }
     }
 
+    @Override
     public T newInstance(Object object) {
         try {
             if (object == null) {
@@ -125,6 +127,7 @@ public class FastClasses<T> implements IClass<T> {
         }
     }
 
+    @Override
     public T newInstance(Class<?> type, Object object) {
         try {
             return this.constructors.get(type).newInstance(new Object[]{object});
@@ -133,6 +136,7 @@ public class FastClasses<T> implements IClass<T> {
         }
     }
 
+    @Override
     public Property getProperty(String name) {
         if (this.propertys.containsKey(name)) {
             return this.propertys.get(name);
@@ -140,10 +144,12 @@ public class FastClasses<T> implements IClass<T> {
         return null;
     }
 
+    @Override
     public Property[] getPropertys() {
         return this.propertys.values().toArray(new Property[this.propertys.size()]);
     }
 
+    @Override
     public MethodProxy getMethod(String methodName) {
         MethodProxy methodProxy = this.methodProxys.get(methodName + "()");
         if (ObjectUtil.isNotNull(methodProxy)) {
