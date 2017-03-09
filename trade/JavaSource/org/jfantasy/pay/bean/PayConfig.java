@@ -103,6 +103,11 @@ public class PayConfig extends BaseBusEntity {
     @Column(name = "SORT")
     private Integer sort;
     /**
+     * 是否启用
+     */
+    @Column(name = "ENABLED", nullable = false)
+    private Boolean enabled;
+    /**
      * 支付记录
      */
     @OneToMany(mappedBy = "payConfig", fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE})
@@ -308,6 +313,14 @@ public class PayConfig extends BaseBusEntity {
 
     public Boolean getDisabled() {
         return disabled;
+    }
+
+    public Boolean getEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
     }
 
     public void setDisabled(Boolean disabled) {

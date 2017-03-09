@@ -138,7 +138,7 @@ public class TransactionController {
 
     private List<PayConfig> payconfigs(Transaction transaction, final OAuthUserDetails user) {
         // 按平台过滤掉不能使用的支付方式
-        List<PayConfig> payconfigs = ObjectUtil.filter(configService.find(), item -> item.getPlatforms().contains(user.getPlatform()));
+        List<PayConfig> payconfigs = ObjectUtil.filter(configService.find(), item -> item.getEnabled() && item.getPlatforms().contains(user.getPlatform()));
         // 判断余额支付，金额是否可以支付
         PayConfig payConfig = ObjectUtil.find(payconfigs, "payProductId", "walletpay");
         if (payConfig != null && accountService.get(transaction.getFrom()).getAmount().compareTo(transaction.getAmount()) < 0) {
