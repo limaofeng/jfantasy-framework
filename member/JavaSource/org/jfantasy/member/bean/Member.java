@@ -9,11 +9,15 @@ import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.jfantasy.framework.dao.BaseBusEntity;
 import org.jfantasy.framework.dao.hibernate.converter.StringsConverter;
+import org.jfantasy.framework.spring.SpringContextUtil;
+import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.spring.validation.RESTful.POST;
 import org.jfantasy.framework.spring.validation.RESTful.PUT;
 import org.jfantasy.framework.spring.validation.Use;
 import org.jfantasy.framework.util.HandlebarsTemplateUtils;
 import org.jfantasy.framework.util.common.ObjectUtil;
+import org.jfantasy.member.Profile;
+import org.jfantasy.member.service.MemberService;
 import org.jfantasy.member.validators.UsernameCannotRepeatValidator;
 
 import javax.persistence.*;
@@ -33,7 +37,7 @@ import java.util.List;
 @Table(name = "MEM_MEMBER", uniqueConstraints = @UniqueConstraint(name = "UK_MEMBER_USERNAME", columnNames = {"USERNAME"}))
 @JsonPropertyOrder({"id", "type", "username", "nick_name", "enabled", "non_locked", "non_expired", "credentials_non_expired", "lock_time", "last_login_time", "code"})
 @TableGenerator(name = "member_gen", table = "sys_sequence", pkColumnName = "gen_name", pkColumnValue = "mem_member:id", valueColumnName = "gen_value")
-@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "user_groups", "roles", "targets"})
+@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "user_groups", "roles", "targets", "profile"})
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @DynamicUpdate
 public class Member extends BaseBusEntity {
@@ -319,6 +323,18 @@ public class Member extends BaseBusEntity {
             return null;
         }
         return HandlebarsTemplateUtils.processTemplateIntoString(memberTarget.getType().getProfileUrl(), memberTarget);
+    }
+
+    @Transient
+    public Profile getProfile() {
+        MemberService memberService = SpringContextUtil.getBeanByType(MemberService.class);
+        for (MemberTarget mtarget : this.getTargets()) {
+            Profile profile = memberService.loadProfile(mtarget.getValue());
+            if (profile != null) {
+                return profile;
+            }
+        }
+        throw new ValidationException("匹配 profile 失败");
     }
 
     @Override

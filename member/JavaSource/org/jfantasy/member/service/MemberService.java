@@ -249,7 +249,7 @@ public class MemberService implements ProfileService {
             throw new ValidationException(100301, "用户已被禁用");
         }
 
-        if (!this.passwordTokenEncoder.matches("password", type, member.getUsername(), member.getPassword(), oldPassword)) {
+        if (!this.passwordTokenEncoder.matches("password", type, type == PasswordTokenType.macode ? member.getProfile().getMobile() : member.getUsername(), member.getPassword(), oldPassword)) {
             throw new ValidationException(100000, "提供的 password token 不正确!");
         }
 
@@ -300,6 +300,15 @@ public class MemberService implements ProfileService {
         for (Long id : ids) {
             this.memberDao.delete(id);
         }
+    }
+
+    @Override
+    public Profile loadProfile(String id) {
+        Member member = this.memberDao.get(Long.valueOf(id));
+        if (member == null) {
+            return null;
+        }
+        return member.getDetails();
     }
 
     @Override
