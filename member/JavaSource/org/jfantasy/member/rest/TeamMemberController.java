@@ -3,7 +3,9 @@ package org.jfantasy.member.rest;
 import org.jfantasy.framework.jackson.annotation.IgnoreProperty;
 import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
 import org.jfantasy.framework.spring.mvc.error.NotFoundException;
+import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
+import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.framework.util.web.WebUtil;
 import org.jfantasy.member.bean.TeamMember;
 import org.jfantasy.member.rest.models.assembler.TeamMemberResourceAssembler;
@@ -37,8 +39,8 @@ public class TeamMemberController {
      * @return TeamMember
      */
     @RequestMapping(value = "/{id}", method = {RequestMethod.GET, RequestMethod.HEAD})
-    public ResultResourceSupport view(@PathVariable("id") Long id) {
-        return assembler.toResource(this.get(id));
+    public ResultResourceSupport view(@PathVariable("id") String id, @RequestParam(value = "type", defaultValue = "id") String type, @RequestParam(value = "tid", required = false) String tid) {
+        return assembler.toResource(this.get(type, id, tid));
     }
 
     /**
@@ -79,4 +81,26 @@ public class TeamMemberController {
         }
         return member;
     }
+
+    private TeamMember get(String type, String id, String tid) {
+        TeamMember member;
+        switch (type) {
+            case "id":
+                member = this.teamMemberService.get(Long.valueOf(id));
+                break;
+            case "phone":
+                if(StringUtil.isBlank(tid)){
+                    throw new ValidationException("type = phone 时，必须提供 tid 参数");
+                }
+                member = this.teamMemberService.findUnique(tid, id);
+                break;
+            default:
+                throw new ValidationException("不支持的查询方式");
+        }
+        if (member == null) {
+            throw new NotFoundException("用户不存在");
+        }
+        return member;
+    }
+
 }
