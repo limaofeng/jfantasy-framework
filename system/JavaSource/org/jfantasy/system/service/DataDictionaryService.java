@@ -202,7 +202,7 @@ public class DataDictionaryService {
     }
 
     public List<DataDictionary> find(Criterion... criterions) {
-        return this.dataDictionaryDao.find(criterions);
+        return this.dataDictionaryDao.find(criterions, "sort", Pager.SORT_ASC);
     }
 
 }
