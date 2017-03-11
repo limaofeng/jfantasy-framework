@@ -13,7 +13,6 @@ import org.jfantasy.member.dao.TeamDao;
 import org.jfantasy.member.dao.TeamMemberDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -82,7 +81,7 @@ public class TeamMemberService {
         return this.teamMemberDao.find(criterions);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public void activate(Long id, Long memberId) {
         TeamMember teamMember = this.teamMemberDao.get(id);
         if (teamMember.getStatus() != TeamMemberStatus.unactivated) {

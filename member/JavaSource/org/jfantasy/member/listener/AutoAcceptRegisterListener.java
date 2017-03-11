@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class AutoAcceptRegisterListener implements ApplicationListener<RegisterEvent> {
 
-    @Autowired
     private TeamMemberService teamMemberService;
 
     @Override
@@ -22,6 +21,11 @@ public class AutoAcceptRegisterListener implements ApplicationListener<RegisterE
         for (TeamMember teamMember : teamMemberService.find(Restrictions.eq("mobile", member.getUsername()), Restrictions.eq("status", TeamMemberStatus.unactivated))) {
             teamMemberService.activate(teamMember.getId(), member.getId());
         }
+    }
+
+    @Autowired
+    public void setTeamMemberService(TeamMemberService teamMemberService) {
+        this.teamMemberService = teamMemberService;
     }
 
 }
