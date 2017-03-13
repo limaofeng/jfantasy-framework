@@ -45,7 +45,7 @@ public class User extends BaseBusEntity {
      * 用户登录名称
      */
     @NotEmpty(groups = {RESTful.POST.class, RESTful.PUT.class})
-    @Length(min = 8, max = 20, groups = {RESTful.POST.class, RESTful.PUT.class})
+    @Length(min = 6, max = 20, groups = {RESTful.POST.class, RESTful.PUT.class})
     @Use(vali = UsernameCannotRepeatValidator.class, groups = {RESTful.POST.class})
     @Column(name = "USERNAME", length = 20, updatable = false, nullable = false, unique = true)
     private String username;
