@@ -8,7 +8,7 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.jfantasy.framework.dao.BaseBusEntity;
-import org.jfantasy.framework.dao.hibernate.converter.StringsConverter;
+import org.jfantasy.framework.dao.hibernate.converter.StringArrayConverter;
 import org.jfantasy.framework.spring.SpringContextUtil;
 import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.spring.validation.RESTful.POST;
@@ -117,7 +117,7 @@ public class Member extends BaseBusEntity {
      * 用户标签
      */
     @Column(name = "TAGS", length = 300)
-    @Convert(converter = StringsConverter.class)
+    @Convert(converter = StringArrayConverter.class)
     private String[] tags;
     /**
      * 用户类型

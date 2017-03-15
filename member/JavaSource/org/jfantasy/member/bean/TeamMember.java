@@ -9,7 +9,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 import org.jfantasy.framework.dao.BaseBusEntity;
 import org.jfantasy.framework.dao.hibernate.converter.MapConverter;
-import org.jfantasy.framework.dao.hibernate.converter.StringsConverter;
+import org.jfantasy.framework.dao.hibernate.converter.StringArrayConverter;
 import org.jfantasy.framework.spring.validation.RESTful;
 import org.jfantasy.framework.spring.validation.UseLong;
 import org.jfantasy.member.bean.enums.TeamMemberStatus;
@@ -120,7 +120,7 @@ public class TeamMember extends BaseBusEntity {
     /**
      * 标签
      */
-    @Convert(converter = StringsConverter.class)
+    @Convert(converter = StringArrayConverter.class)
     @Column(name = "TAGS", length = 2000)
     private String[] tags;
     /**

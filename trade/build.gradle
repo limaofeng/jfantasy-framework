@@ -12,7 +12,9 @@ dependencies {
     compile project(':jfantasy-rpc-client')
     compile project(':jfantasy-rpc-server')
     compile project(':jfantasy-common-sdk')
-    compile 'cn.com.zbsg:api-mcenter-sdk:2.2.3'
+    compile('cn.com.zbsg:api-mcenter-sdk:2.2.3'){
+        exclude group: "org.jfantasy", module: "jfantasy-core"
+    }
     compile "com.google.zxing:javase:3.1.0"
     testCompile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile "org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
