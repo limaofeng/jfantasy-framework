@@ -166,7 +166,7 @@ public class MemberService implements ProfileService {
         return login(userType, member);
     }
 
-    private Profile getProfile(String type, String phone) {
+    public Profile getProfile(String type, String phone) {
         return getProfileService(type).loadProfileByPhone(phone);
     }
 

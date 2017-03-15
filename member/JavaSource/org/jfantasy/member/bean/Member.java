@@ -329,7 +329,7 @@ public class Member extends BaseBusEntity {
     public Profile getProfile() {
         MemberService memberService = SpringContextUtil.getBeanByType(MemberService.class);
         for (MemberTarget mtarget : this.getTargets()) {
-            Profile profile = memberService.loadProfile(mtarget.getValue());
+            Profile profile = memberService.getProfile(mtarget.getType().getId(),mtarget.getValue());
             if (profile != null) {
                 return profile;
             }
