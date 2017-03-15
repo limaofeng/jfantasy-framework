@@ -7,7 +7,7 @@ dependencies {
     compile project(':jfantasy-security')
     compile project(':jfantasy-aliyun')
     compile project(':jfantasy-weixin')
-    runtime ('cn.com.zbsg:api-mcenter-sdk:2.2.3'){
+    compile ('cn.com.zbsg:api-mcenter-sdk:2.2.3'){
         exclude group: "org.jfantasy", module: "jfantasy-core"
     }
     compile project(':jfantasy-core')
