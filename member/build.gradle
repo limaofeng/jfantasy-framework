@@ -1,6 +1,7 @@
 
 description = ' 会员模块 '
 dependencies {
+    compile project(':jfantasy-core')
     compile project(':jfantasy-oauth-api')
     compile project(':jfantasy-common-sdk')
     compile project(':jfantasy-file-sdk')
@@ -8,8 +9,7 @@ dependencies {
     compile project(':jfantasy-aliyun')
     compile project(':jfantasy-weixin')
     compile ('cn.com.zbsg:api-mcenter-sdk:2.2.3'){
-        exclude group: "org.jfantasy", module: "jfantasy-core"
+        exclude group: "org.jfantasy"
     }
-    compile project(':jfantasy-core')
     testCompile "org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
 }
