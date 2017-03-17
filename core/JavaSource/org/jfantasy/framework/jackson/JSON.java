@@ -1,5 +1,6 @@
 package org.jfantasy.framework.jackson;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
@@ -25,7 +26,7 @@ public class JSON {
             LOG.warn("重置 JSON 工具类中的 ObjectMapper 对象.");
         }
         JSON.objectMapper = objectMapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
-                //.setSerializationInclusion(JsonInclude.Include.NON_NULL)//为空的字段不序列化
+                .setSerializationInclusion(JsonInclude.Include.NON_NULL)//为空的字段不序列化
                 .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)// 当找不到对应的序列化器时 忽略此字段
                 .enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES)// 允许非空字段
                 .enable(JsonParser.Feature.ALLOW_SINGLE_QUOTES)// 允许单引号
