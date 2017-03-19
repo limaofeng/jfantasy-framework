@@ -195,7 +195,7 @@ public class TeamController {
     @GetMapping("{id}/invoices")
     public ModelAndView invoices(@PathVariable("id") String teamId, RedirectAttributes attrs, Pager pager, List<PropertyFilter> filters) {
         Team team = get(teamId);
-        attrs.addAttribute("EQL_drawer", team.getKey());
+        attrs.addAttribute("EQS_drawer", team.getKey());
         pager.writeTo(attrs).write(filters);
         return new ModelAndView("redirect:/invoices");
     }
