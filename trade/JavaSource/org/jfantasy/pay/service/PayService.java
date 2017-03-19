@@ -78,6 +78,16 @@ public class PayService {
      */
     @Transactional
     public ToPayment pay(Transaction transaction, Long payConfigId, PayType payType, String payer, Properties properties) throws PayException {
+        boolean paySuccess = false;
+        for(Payment payment : ObjectUtil.filter(transaction.getPayments(),"status", PaymentStatus.ready)){
+            payment = this.query(payment.getSn());
+            if(!paySuccess && payment.getStatus() == PaymentStatus.success){
+                paySuccess = true;
+            }
+        }
+        if(paySuccess){
+            throw new ValidationException(100000, "订单已支付成功");
+        }
         LOG.debug("开始付款");
         Project project = this.projectService.get(transaction.getProject());
         if (project.getType() != ProjectType.order) {
@@ -192,13 +202,22 @@ public class PayService {
         }
     }
 
-    public boolean query(String sn) throws PayException {
+    public Payment query(String sn) throws PayException {
         Payment payment = this.paymentService.get(sn);
         PayConfig payConfig = payment.getPayConfig();
         //获取支付产品
         PayProduct payProduct = payProductConfiguration.loadPayProduct(payConfig.getPayProductId());
+
+        PaymentStatus oldStatus = payment.getStatus();
+
         payProduct.query(payment);
-        return false;
+
+        //支付状态发生变化
+        if (payment.getStatus() != oldStatus) {
+            this.update(payment);
+        }
+
+        return payment;
     }
 
     /**
@@ -223,26 +242,22 @@ public class PayService {
 
         Object result = payProduct.payNotify(payment, body);
 
-        //支付状态未发生变化
-        if (payment.getStatus() == oldStatus) {
-            return result == null ? order : result;
-        }
-
-        // 更新支付状态
-        paymentService.save(payment);
-
-        // 更新订单信息
-        if (payment.getStatus() == PaymentStatus.success) {
-            this.orderService.updatePaymentStatus(payment);
-        }
-
-        // 如果为完成 或者 初始状态 不触发事件
-        if (payment.getStatus() == PaymentStatus.finished || payment.getStatus() == PaymentStatus.ready) {
-            return result == null ? order : result;
+        //支付状态发生变化
+        if (payment.getStatus() != oldStatus) {
+            this.update(payment);
         }
 
         //返回订单信息
         return result != null ? result : order;
+    }
+
+    public void update(Payment payment){
+        // 更新支付状态
+        paymentService.save(payment);
+        // 更新订单信息
+        if (payment.getStatus() == PaymentStatus.success) {
+            this.orderService.updatePaymentStatus(payment);
+        }
     }
 
     /**

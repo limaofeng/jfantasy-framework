@@ -1,7 +1,7 @@
 package org.jfantasy.pay.product;
 
-import com.alipay.api.AlipayClient;
-import com.alipay.api.DefaultAlipayClient;
+//import com.alipay.api.AlipayClient;
+//import com.alipay.api.DefaultAlipayClient;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import org.jfantasy.framework.jackson.JSON;
@@ -135,8 +135,8 @@ public class AlipayTest {
         System.out.println("response:" + response.getBody());
     }
 
-    public void xxx(){
-        AlipayClient alipayClient = new DefaultAlipayClient("","","","json","","","");
-    }
+//    public void xxx(){
+//        AlipayClient alipayClient = new DefaultAlipayClient("","","","json","","","");
+//    }
 
 }

@@ -3,8 +3,10 @@ package org.jfantasy.pay.product;
 import org.jfantasy.order.bean.Order;
 import org.jfantasy.pay.bean.Payment;
 import org.jfantasy.pay.bean.Refund;
+import org.jfantasy.pay.bean.enums.PaymentStatus;
 import org.jfantasy.pay.error.PayException;
 
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -66,7 +68,7 @@ public interface PayProduct {
      * @param payment 支付对象
      * @return PaymentStatus
      */
-    Object query(Payment payment) throws PayException;
+    PaymentStatus query(Payment payment) throws PayException;
 
     /**
      * 关闭交易

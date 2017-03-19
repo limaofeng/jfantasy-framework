@@ -6,6 +6,7 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
+import org.jfantasy.framework.spring.mvc.error.RestException;
 import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.util.HandlebarsTemplateUtils;
 import org.jfantasy.framework.util.common.DateUtil;
@@ -37,7 +38,12 @@ import org.jfantasy.order.rest.models.ProfitChain;
 import org.jfantasy.pay.bean.PayConfig;
 import org.jfantasy.pay.bean.Payment;
 import org.jfantasy.pay.bean.Refund;
+import org.jfantasy.pay.error.PayException;
+import org.jfantasy.pay.product.PayProduct;
 import org.jfantasy.pay.rest.models.OrderTransaction;
+import org.jfantasy.pay.service.PayProductConfiguration;
+import org.jfantasy.pay.service.PayService;
+import org.jfantasy.pay.service.PaymentService;
 import org.jfantasy.schedule.service.ScheduleService;
 import org.jfantasy.trade.bean.Account;
 import org.jfantasy.trade.bean.Project;
@@ -75,9 +81,11 @@ public class OrderService {
     private DeliveryTypeService deliveryTypeService;
     private AccountService accountService;
     private OrderTypeService orderTypeService;
+    private PayService payService;
+
 
     @Autowired
-    public OrderService(OrderTypeDao orderTypeDao, OrderDao orderDao, OrderPriceValueDao orderPriceValueDao, OrderPayeeValueDao orderPayeeValueDao, ProjectDao projectDao) {
+    public OrderService(OrderTypeDao orderTypeDao, OrderDao orderDao, OrderPriceValueDao orderPriceValueDao, OrderPayeeValueDao orderPayeeValueDao, ProjectDao projectDao, PayProductConfiguration payProductConfiguration) {
         this.orderDao = orderDao;
         this.projectDao = projectDao;
         this.orderTypeDao = orderTypeDao;
@@ -136,7 +144,11 @@ public class OrderService {
         if (!(OrderStatus.unpaid == order.getStatus() || OrderStatus.refunded == order.getStatus())) {
             throw new ValidationException("[" + id + "] 只有未支付及已经退款的订单，才能关闭!");
         }
-        // 确认第三方支付成功后，修改关闭状态
+        //判断支付状态
+        if (!syncStatus(order)){
+            throw new RestException("订单已支付，无法关闭");
+        }
+        // 确认第三方支付状态后，修改关闭状态
         Transaction transaction = this.transactionService.getByUniqueId(Transaction.generateUnionid(Project.PAYMENT, order.getId()));
         if (transaction != null) {
             transaction.setStatus(TxStatus.close);
@@ -228,6 +240,9 @@ public class OrderService {
     }
 
     public Order updatePaymentStatus(Payment payment) {
+
+        // TODO 判断订单原始状态后，继续操作
+
         Order order = payment.getOrder();
         Transaction transaction = payment.getTransaction();
         PayConfig payConfig = payment.getPayConfig();
@@ -561,6 +576,44 @@ public class OrderService {
         return transactionService.syncSave(cashFlow.getProject(), from, to, amount, notes, data);
     }
 
+    @Transactional
+    private boolean syncStatus(String id){
+        try {
+            Order order = this.orderDao.get(id);
+
+            for(Payment payment : ObjectUtil.filter(order.getPayments(),"status", org.jfantasy.pay.bean.enums.PaymentStatus.ready)){
+                payService.query(payment.getSn());
+            }
+
+
+            //List<Payment> payments = paymentService.find(Restrictions.eq("order", order));
+            for (Payment payment:payments){
+                //微信支付
+                PayProduct payProduct = payProductConfiguration.loadPayProduct(payment.getPayConfig().getPayProductId());
+                //TODO
+                Map<String, String> map = payProduct.query(payment);
+                String trade_state = map.get("trade_state");
+                if ("SUCCESS".equals(trade_state)) {
+                    payment.setStatus(org.jfantasy.pay.bean.enums.PaymentStatus.success);
+                    paymentService.save(payment);
+                    return false;
+                }
+                //支付宝支付
+//                else if (payment.getPayConfig().getId()==6){
+//                    org.jfantasy.pay.bean.enums.PaymentStatus trade_status = alipay.query(payment);
+//                    if ("SUCCESS".equals(trade_status)){
+//                        payment.setStatus(org.jfantasy.pay.bean.enums.PaymentStatus.success);
+//                        paymentService.save(payment);
+//                        return false;
+//                    }
+//                }
+            }
+            return true;
+        } catch (PayException e) {
+            throw new RestException(e.getMessage());
+        }
+    }
+
     @Autowired
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
@@ -589,6 +642,11 @@ public class OrderService {
     @Autowired
     public void setOrderTypeService(OrderTypeService orderTypeService) {
         this.orderTypeService = orderTypeService;
+    }
+
+    @Autowired
+    public void setPayService(PayService payService) {
+        this.payService = payService;
     }
 
 }

@@ -14,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -45,4 +46,11 @@ public class WeixinpayTest {
         weixinpay.app(payment, order, props);
     }
 
+    @Test
+    @Transactional
+    public void query() throws Exception{
+        Payment payment = paymentService.get("P2016081500001");
+        Map<String, String> map = weixinpay.query(payment);
+        System.out.println(map);
+    }
 }

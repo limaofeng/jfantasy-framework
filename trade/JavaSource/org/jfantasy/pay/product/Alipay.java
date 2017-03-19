@@ -241,7 +241,12 @@ public class Alipay extends PayProductSupport {
     }
 
     @Override
-    public PaymentStatus query(Payment payment) throws PayException {
+    public Map<String, String> query(Payment payment) throws PayException {
+        return null;
+    }
+
+    //@Override
+    public PaymentStatus queryO(Payment payment) throws PayException {
         PayConfig config = payment.getPayConfig();
 
         final Map<String, String> data = new TreeMap<>();
