@@ -1,15 +1,28 @@
 package org.jfantasy.member.service;
 
+import org.jfantasy.member.MemberApplication;
+import org.jfantasy.member.bean.Member;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Created by limaofeng on 2016/10/19.
- */
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = MemberApplication.class)
+@ActiveProfiles("dev")
 public class MemberServiceTest {
 
-    @Test
-    public void login() throws Exception {
+    @Autowired
+    private MemberService memberService;
 
+    @Test
+    @Transactional
+    public void get() throws Exception {
+        Member member = memberService.get(1L);
+        member.getProfile();
     }
 
 }

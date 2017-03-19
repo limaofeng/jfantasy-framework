@@ -153,7 +153,7 @@ public class MemberService implements ProfileService {
         }
 
         if (type == PasswordTokenType.macode && (member == null || !ObjectUtil.exists(member.getTypes(), "id", userType))) {
-            Profile profile = getProfile(userType, username);
+            Profile profile = getProfileByPhone(userType, username);
             if (profile == null) {
                 throw new ValidationException(100105, "您还没有入住平台");
             }
@@ -166,8 +166,12 @@ public class MemberService implements ProfileService {
         return login(userType, member);
     }
 
-    public Profile getProfile(String type, String phone) {
-        return getProfileService(type).loadProfileByPhone(phone);
+    public Profile getProfile(String type, String value) {
+        return getProfileService(type).loadProfile(value);
+    }
+
+    public Profile getProfileByPhone(String type, String value) {
+        return getProfileService(type).loadProfileByPhone(value);
     }
 
     private ProfileService getProfileService(String type) {
