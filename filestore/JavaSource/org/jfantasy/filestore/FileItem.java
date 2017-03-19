@@ -50,7 +50,7 @@ public interface FileItem {
     String getContentType();
 
     /**
-     * 文文件
+     * 父文件
      *
      * @return FileItem
      */

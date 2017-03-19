@@ -207,7 +207,7 @@ public class OSSFileManager implements FileManager {
                 listObjectsRequest.setPrefix(prefix);
             }
             ObjectListing listing = client.listObjects(listObjectsRequest);
-            List<FileItem> fileItems = new ArrayList<FileItem>();
+            List<FileItem> fileItems = new ArrayList<>();
             for (String commonPrefix : listing.getCommonPrefixes()) {
                 if (commonPrefix.equals(ossAbsolutePath)) {
                     continue;
