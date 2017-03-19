@@ -79,13 +79,13 @@ public class PayService {
     @Transactional
     public ToPayment pay(Transaction transaction, Long payConfigId, PayType payType, String payer, Properties properties) throws PayException {
         boolean paySuccess = false;
-        for(Payment payment : ObjectUtil.filter(transaction.getPayments(),"status", PaymentStatus.ready)){
+        for (Payment payment : ObjectUtil.filter(transaction.getPayments(), "status", PaymentStatus.ready)) {
             payment = this.query(payment.getSn());
-            if(!paySuccess && payment.getStatus() == PaymentStatus.success){
+            if (!paySuccess && payment.getStatus() == PaymentStatus.success) {
                 paySuccess = true;
             }
         }
-        if(paySuccess){
+        if (paySuccess) {
             throw new ValidationException(100000, "订单已支付成功");
         }
         LOG.debug("开始付款");
@@ -251,12 +251,18 @@ public class PayService {
         return result != null ? result : order;
     }
 
-    public void update(Payment payment){
+    public void update(Payment payment) {
         // 更新支付状态
         paymentService.save(payment);
         // 更新订单信息
-        if (payment.getStatus() == PaymentStatus.success) {
-            this.orderService.updatePaymentStatus(payment);
+        switch (this.orderService.paySuccess(payment)) {
+            case 1:
+                // TODO 关闭其他支付记录
+                break;
+            case 0:
+                //  TODO 记录异常信息
+                break;
+            default:
         }
     }
 

@@ -6,6 +6,7 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
+import org.jfantasy.framework.error.IgnoreException;
 import org.jfantasy.framework.spring.mvc.error.RestException;
 import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.util.HandlebarsTemplateUtils;
@@ -39,11 +40,9 @@ import org.jfantasy.pay.bean.PayConfig;
 import org.jfantasy.pay.bean.Payment;
 import org.jfantasy.pay.bean.Refund;
 import org.jfantasy.pay.error.PayException;
-import org.jfantasy.pay.product.PayProduct;
 import org.jfantasy.pay.rest.models.OrderTransaction;
 import org.jfantasy.pay.service.PayProductConfiguration;
 import org.jfantasy.pay.service.PayService;
-import org.jfantasy.pay.service.PaymentService;
 import org.jfantasy.schedule.service.ScheduleService;
 import org.jfantasy.trade.bean.Account;
 import org.jfantasy.trade.bean.Project;
@@ -95,6 +94,24 @@ public class OrderService {
 
     @Transactional(readOnly = true)
     public Order get(String id) {
+        try {
+            return get(id, false);
+        } catch (PayException e) {
+            LOG.debug(e.getMessage(), e);
+            throw new IgnoreException(e);
+        }
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public Order get(String id, boolean fetch) throws PayException {
+        Order order = this.orderDao.get(id);
+        if (!fetch) {
+            return order;
+        }
+        // 查询订单交易记录状态
+        for (Payment payment : ObjectUtil.filter(order.getPayments(), "status", org.jfantasy.pay.bean.enums.PaymentStatus.ready)) {
+            payService.query(payment.getSn());
+        }
         return this.orderDao.get(id);
     }
 
@@ -137,16 +154,18 @@ public class OrderService {
 
     @Transactional
     public Order close(String id) {
-        Order order = this.orderDao.get(id);
+        Order order;
+        try {
+            order = this.get(id, true);
+        } catch (PayException e) {
+            LOG.error(e.getMessage(),e);
+            throw new ValidationException(e.getMessage());
+        }
         if (OrderStatus.closed == order.getStatus()) {
             return order;
         }
         if (!(OrderStatus.unpaid == order.getStatus() || OrderStatus.refunded == order.getStatus())) {
             throw new ValidationException("[" + id + "] 只有未支付及已经退款的订单，才能关闭!");
-        }
-        //判断支付状态
-        if (!syncStatus(order)){
-            throw new RestException("订单已支付，无法关闭");
         }
         // 确认第三方支付状态后，修改关闭状态
         Transaction transaction = this.transactionService.getByUniqueId(Transaction.generateUnionid(Project.PAYMENT, order.getId()));
@@ -239,12 +258,24 @@ public class OrderService {
         return this.orderDao.update(order);
     }
 
-    public Order updatePaymentStatus(Payment payment) {
-
-        // TODO 判断订单原始状态后，继续操作
-
+    /**
+     * 更新订单状态
+     *
+     * @param payment 支付记录
+     * @return int  <br/>
+     * 1  订单被标记支付成功，并更新了订单及交易状态
+     * 0  订单已经支付
+     * 9  支付记录不是支付成功的
+     */
+    public int paySuccess(Payment payment) {
+        if (payment.getStatus() != org.jfantasy.pay.bean.enums.PaymentStatus.success) {
+            return 9;
+        }
         Order order = payment.getOrder();
         Transaction transaction = payment.getTransaction();
+        if (TxStatus.unprocessed == transaction.getStatus()) {
+            return 0;
+        }
         PayConfig payConfig = payment.getPayConfig();
         // 更新交易状态
         transaction.setStatus(TxStatus.success);
@@ -265,7 +296,8 @@ public class OrderService {
         // 查询付款人信息
         Account from = accountService.get(transaction.getFrom());
         order.setPayer(Long.valueOf(from.getOwner()));
-        return this.orderDao.update(order);
+        this.orderDao.update(order);
+        return 1;
     }
 
     @Transactional
@@ -577,28 +609,28 @@ public class OrderService {
     }
 
     @Transactional
-    private boolean syncStatus(String id){
+    private boolean syncStatus(String id) {
         try {
             Order order = this.orderDao.get(id);
 
-            for(Payment payment : ObjectUtil.filter(order.getPayments(),"status", org.jfantasy.pay.bean.enums.PaymentStatus.ready)){
+            for (Payment payment : ObjectUtil.filter(order.getPayments(), "status", org.jfantasy.pay.bean.enums.PaymentStatus.ready)) {
                 payService.query(payment.getSn());
             }
 
 
             //List<Payment> payments = paymentService.find(Restrictions.eq("order", order));
-            for (Payment payment:payments){
-                //微信支付
-                PayProduct payProduct = payProductConfiguration.loadPayProduct(payment.getPayConfig().getPayProductId());
-                //TODO
-                Map<String, String> map = payProduct.query(payment);
-                String trade_state = map.get("trade_state");
-                if ("SUCCESS".equals(trade_state)) {
-                    payment.setStatus(org.jfantasy.pay.bean.enums.PaymentStatus.success);
-                    paymentService.save(payment);
-                    return false;
-                }
-                //支付宝支付
+//            for (Payment payment : payments) {
+//                //微信支付
+//                PayProduct payProduct = payProductConfiguration.loadPayProduct(payment.getPayConfig().getPayProductId());
+//                //TODO
+//                Map<String, String> map = payProduct.query(payment);
+//                String trade_state = map.get("trade_state");
+//                if ("SUCCESS".equals(trade_state)) {
+//                    payment.setStatus(org.jfantasy.pay.bean.enums.PaymentStatus.success);
+//                    paymentService.save(payment);
+//                    return false;
+//                }
+            //支付宝支付
 //                else if (payment.getPayConfig().getId()==6){
 //                    org.jfantasy.pay.bean.enums.PaymentStatus trade_status = alipay.query(payment);
 //                    if ("SUCCESS".equals(trade_status)){
@@ -607,7 +639,7 @@ public class OrderService {
 //                        return false;
 //                    }
 //                }
-            }
+//            }
             return true;
         } catch (PayException e) {
             throw new RestException(e.getMessage());
