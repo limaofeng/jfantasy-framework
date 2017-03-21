@@ -84,6 +84,7 @@ public class TeamService {
         }
 
         team.setOwnerId(member.getId());
+        team.setRole(this.roleDao.get(teamType.getOwnerRole()));
         this.teamDao.update(team);
         return this.teamMemberDao.get(member.getId());
     }

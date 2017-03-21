@@ -1,5 +1,6 @@
 package org.jfantasy.member.service;
 
+import org.jfantasy.framework.service.PasswordTokenType;
 import org.jfantasy.member.MemberApplication;
 import org.jfantasy.member.bean.Member;
 import org.junit.Test;
@@ -23,6 +24,12 @@ public class MemberServiceTest {
     public void get() throws Exception {
         Member member = memberService.get(1L);
         member.getProfile();
+    }
+
+    @Test
+    @Transactional
+    public void changePassword() throws Exception {
+        memberService.changePassword(2181L, PasswordTokenType.macode,"772987","772987");
     }
 
 }
