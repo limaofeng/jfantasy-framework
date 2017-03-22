@@ -91,7 +91,7 @@ public class Employee extends BaseBusEntity {
     @JsonUnwrapped(prefix = "organization_")
     @JsonIgnoreProperties({"layer", "path", "description", "sort", "parent_id", "creator", "modifier", "create_time", "modify_time"})
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ORGANIZATION_ID", foreignKey = @ForeignKey(name = "FK_EMPLOYEE_ORGANIZATION"))
+    @JoinColumn(name = "ORGANIZATION_ID", nullable = false, foreignKey = @ForeignKey(name = "FK_EMPLOYEE_ORGANIZATION"))
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private Organization organization;
     /**
@@ -124,6 +124,9 @@ public class Employee extends BaseBusEntity {
     }
 
     public void setJob(Job job) {
+        if(job.getId() == null){
+            return;
+        }
         this.job = job;
     }
 
@@ -180,6 +183,9 @@ public class Employee extends BaseBusEntity {
     }
 
     public void setOrganization(Organization organization) {
+        if(organization.getId() == null){
+            return;
+        }
         this.organization = organization;
     }
 

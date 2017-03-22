@@ -250,7 +250,7 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
         for (Field field : manyToOneFields) {
             Object fk = ognlUtil.getValue(field.getName(), entity);
             if (fk == null) {
-                ognlUtil.setValue(field.getName(), entity, null);
+                ognlUtil.setValue(field.getName(), entity, ognlUtil.getValue(field.getName(),oldEntity));
                 continue;
             }
             Serializable fkId = getIdValue(field.getType(), fk);
