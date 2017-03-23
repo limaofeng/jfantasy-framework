@@ -221,6 +221,19 @@ public class PayService {
     }
 
     /**
+     * 调用支付产品接口关闭支付订单
+     * @param sn
+     */
+    @Transactional
+    public void close(String sn) throws PayException {
+        Payment payment = this.paymentService.get(sn);
+        PayConfig payConfig = payment.getPayConfig();
+        //获取支付产品
+        PayProduct payProduct = payProductConfiguration.loadPayProduct(payConfig.getPayProductId());
+        payProduct.close(payment);
+    }
+
+    /**
      * 支付通知
      *
      * @param sn   支付对象
@@ -257,7 +270,17 @@ public class PayService {
         // 更新订单信息
         switch (this.orderService.paySuccess(payment)) {
             case 1:
-                // TODO 关闭其他支付记录
+                //关闭其他支付记录
+                String orderId = payment.getOrderId();
+                List<Payment> payments = paymentService.find(Restrictions.eq("order.id", orderId));
+                if (payments.size()>1){
+                    for (Payment payment1:payments){
+                        if (payment1.getSn()!=payment.getSn()){
+                            payment1.setStatus(PaymentStatus.close);
+                            paymentService.save(payment1);
+                        }
+                    }
+                }
                 break;
             case 0:
                 //  TODO 记录异常信息

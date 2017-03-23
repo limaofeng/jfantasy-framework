@@ -7,6 +7,7 @@ import org.hibernate.criterion.Restrictions;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.error.IgnoreException;
+import org.jfantasy.framework.spring.SpringContextUtil;
 import org.jfantasy.framework.spring.mvc.error.RestException;
 import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.util.HandlebarsTemplateUtils;
@@ -156,7 +157,7 @@ public class OrderService {
     public Order close(String id) {
         Order order;
         try {
-            order = this.get(id, true);
+            order = SpringContextUtil.getBeanByType(OrderService.class).get(id, true);
         } catch (PayException e) {
             LOG.error(e.getMessage(),e);
             throw new ValidationException(e.getMessage());
@@ -273,7 +274,7 @@ public class OrderService {
         }
         Order order = payment.getOrder();
         Transaction transaction = payment.getTransaction();
-        if (TxStatus.unprocessed == transaction.getStatus()) {
+        if (TxStatus.success == transaction.getStatus()) {
             return 0;
         }
         PayConfig payConfig = payment.getPayConfig();

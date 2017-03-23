@@ -47,6 +47,7 @@ public class Alipay extends PayProductSupport {
         urls.paymentUrl = "https://mapi.alipay.com/gateway.do?_input_charset=" + INPUT_CHARSET;// 支付请求URL
         urls.refundUrl = "https://mapi.alipay.com/gateway.do";//统一收单交易退款接口
         urls.queryUrl = "https://openapi.alipay.com/gateway.do";
+        urls.closeUrl = "https://openapi.alipay.com/gateway.do";
     }
 
     @Override
@@ -239,19 +240,13 @@ public class Alipay extends PayProductSupport {
             throw new RestException("调用支付宝接口,网络错误!");
         }
     }
-
+    
     @Override
-    public Map<String, String> query(Payment payment) throws PayException {
-        return null;
-    }
-
-    //@Override
-    public PaymentStatus queryO(Payment payment) throws PayException {
+    public HashMap<String,String> query(Payment payment) throws PayException {
         PayConfig config = payment.getPayConfig();
-
         final Map<String, String> data = new TreeMap<>();
         //公共请求参数
-        data.put("app_id", "2088021598024164");//支付宝分配给开发者的应用Id
+        data.put("app_id", "2016051201394880");//支付宝分配给开发者的应用Id 2088021598024164
         data.put("method", "alipay.trade.query");
         data.put("format", "JSON");
         data.put("charset", INPUT_CHARSET);
@@ -264,11 +259,25 @@ public class Alipay extends PayProductSupport {
         bizcontent.put("out_trade_no", payment.getSn());//商户订单号
 
         data.put("biz_content", JSON.serialize(bizcontent));
-        data.put("sign", sign(data,data.get("sign_type"), getPrivateKey(config, data.get("sign_type"))));
-
+        data.put("sign", sign(data,data.get("sign_type"), getPrivateKeyQuery(config, data.get("sign_type"))));
         try {
-            Response response = HttpClientUtil.doPost(urls.refundUrl, data);
-            return PaymentStatus.valueOf(response.text());
+            Response response = HttpClientUtil.doPost(urls.queryUrl, data);
+            LinkedHashMap<String,String> result = (LinkedHashMap) JSON.deserialize(response.text(), HashMap.class).get("alipay_trade_query_response");
+            if (!"Success".equalsIgnoreCase(result.get("msg"))){
+                throw new RestException(result.get("msg"));
+            }
+            //记录支付流水
+            payment.setTradeNo(result.get("trade_no"));
+            //判断支付结果
+            String status = result.get("trade_status");
+            if ("TRADE_SUCCESS".equalsIgnoreCase(status)){
+                payment.setStatus(PaymentStatus.success);
+            }else if ("TRADE_CLOSED".equalsIgnoreCase(status)){
+                payment.setStatus(PaymentStatus.close);
+            }else if ("WAIT_BUYER_PAY".equalsIgnoreCase(status)){
+                payment.setStatus(PaymentStatus.failure);
+            }
+            return result;
         } catch (IOException e) {
             LOG.error(e);
             return null;
@@ -277,7 +286,33 @@ public class Alipay extends PayProductSupport {
 
     @Override
     public void close(Payment payment) throws PayException {
-        // Do Nothing
+        PayConfig payConfig = payment.getPayConfig();
+        Map<String, String> data = new TreeMap<>();
+        //公共请求参数
+        data.put("app_id", "2016051201394880");//支付宝分配给开发者的应用Id 2088021598024164
+        data.put("method", "alipay.trade.close");
+        data.put("format", "JSON");
+        data.put("charset", INPUT_CHARSET);
+        data.put("sign_type", "RSA");
+        data.put("timestamp", DateUtil.format("yyyy-MM-dd HH:mm:ss"));
+        data.put("version", "1.0");//调用的接口版本，固定为：1.0
+
+        //请求参数
+        Map<String, String> bizcontent = new TreeMap<>();
+        bizcontent.put("out_trade_no", payment.getSn());//商户订单号
+
+        data.put("biz_content", JSON.serialize(bizcontent));
+        data.put("sign", sign(data,data.get("sign_type"), getPrivateKeyQuery(payConfig, data.get("sign_type"))));
+        try {
+            Response response = HttpClientUtil.doPost(urls.closeUrl, data);
+            LinkedHashMap<String,String> result = (LinkedHashMap) JSON.deserialize(response.text(), HashMap.class).get("alipay_trade_close_response");
+            if (!"Success".equalsIgnoreCase(result.get("msg"))){
+                throw new RestException(result.get("sub_msg"));
+            }
+            payment.setStatus(PaymentStatus.close);
+        } catch (IOException e) {
+            LOG.error(e);
+        }
     }
 
     @Override
@@ -336,6 +371,10 @@ public class Alipay extends PayProductSupport {
          * 查询地址
          */
         String queryUrl;
+        /**
+         * 关闭接口
+         */
+        String closeUrl;
     }
 
     /**
@@ -373,6 +412,16 @@ public class Alipay extends PayProductSupport {
                 throw new PayException("获取 PrivateKey 出错,不支持的加密方式:" + type);
         }
     }
+    public static String getPrivateKeyQuery(PayConfig config, String type) throws PayException {
+        switch (type) {
+            case "MD5":
+                return config.getBargainorKey();
+            case "RSA":
+                return config.get("rsaPrivateKeyQ", String.class).replaceAll("[-]+[A-Z ]+[-]+", "").replaceAll("[\\n]", "");
+            default:
+                throw new PayException("获取 PrivateKey 出错,不支持的加密方式:" + type);
+        }
+    }
 
     private String getPublicKey(PayConfig config, String type) throws PayException {
         switch (type) {
@@ -400,7 +449,7 @@ public class Alipay extends PayProductSupport {
         if ("MD5".equals(signType)) {
             return MD5.sign(SignUtil.coverMapString(data, "sign", "sign_type"), key, INPUT_CHARSET);
         } else if ("RSA".equals(signType)) {
-            return RSA.sign(SignUtil.coverMapString(data, "sign", "sign_type"), key, INPUT_CHARSET);
+            return RSA.sign(SignUtil.coverMapString(data, "sign"), key, INPUT_CHARSET);
         } else if ("DSA".equals(signType)) {
             throw new PayException("DSA 签名方式还未实现");
         }
