@@ -58,7 +58,7 @@ public class Alipay extends PayProductSupport {
             data.put("service", "create_direct_pay_by_user");// 接口类型（create_direct_pay_by_user：即时交易）
             data.put("_input_charset", INPUT_CHARSET);//字符编码格式
             data.put("payment_type", "1");// 支付类型（固定值：1）
-            data.put("notify_url", paySettings.getUrl() + "/pays/" + payment.getSn() + "/notify");// 消息通知URL
+            data.put("notify_url", String.format("%s/pays/%s/notify", paySettings.getUrl(), payment.getSn()));// 消息通知URL
 
             //data.put("anti_phishing_key", "");防钓鱼时间戳
             //data.put("exter_invoke_ip", "");客户端的IP地址
@@ -95,7 +95,7 @@ public class Alipay extends PayProductSupport {
 
             // 参数处理
             data.put("sign_type", "MD5");
-            data.put("sign", sign(data, data.get("sign_type"),config.getBargainorKey()));
+            data.put("sign", sign(data, data.get("sign_type"), config.getBargainorKey()));
 
             data.put("subject", WebUtil.transformCoding(order.getSubject(), INPUT_CHARSET, INPUT_CHARSET));// 订单的名称、标题、关键字等
             data.put("body", WebUtil.transformCoding(order.getBody(), INPUT_CHARSET, INPUT_CHARSET));// 订单描述
@@ -150,7 +150,7 @@ public class Alipay extends PayProductSupport {
         }
 
         data.put("sign_type", "RSA");//签名方式
-        data.put("sign", StringUtil.encodeURI(sign(data,data.get("sign_type"), getPrivateKey(config, data.get("sign_type"))), INPUT_CHARSET));
+        data.put("sign", StringUtil.encodeURI(sign(data, data.get("sign_type"), getPrivateKey(config, data.get("sign_type"))), INPUT_CHARSET));
 
         return SignUtil.coverMapString(data);
     }
@@ -231,7 +231,7 @@ public class Alipay extends PayProductSupport {
             data.put("batch_num", "1");
             data.put("detail_data", payment.getTradeNo() + "^" + RMB_YUAN_FORMAT.format(refund.getTotalAmount()) + "^退款");
 
-            data.put("sign", sign(data, data.get("sign_type"),config.getBargainorKey()));
+            data.put("sign", sign(data, data.get("sign_type"), config.getBargainorKey()));
 
 
             Map<String, Object> params = new HashMap<>();
@@ -264,7 +264,7 @@ public class Alipay extends PayProductSupport {
         bizcontent.put("out_trade_no", payment.getSn());//商户订单号
 
         data.put("biz_content", JSON.serialize(bizcontent));
-        data.put("sign", sign(data,data.get("sign_type"), getPrivateKey(config, data.get("sign_type"))));
+        data.put("sign", sign(data, data.get("sign_type"), getPrivateKey(config, data.get("sign_type"))));
 
         try {
             Response response = HttpClientUtil.doPost(urls.refundUrl, data);
@@ -392,7 +392,7 @@ public class Alipay extends PayProductSupport {
      * @param key  sign_type = MD5 时为 安全校验码 如果为 sign_type = RSA 时为
      * @return 签名结果字符串
      */
-    public static String sign(Map<String, String> data,String signType, String key) throws PayException {
+    public static String sign(Map<String, String> data, String signType, String key) throws PayException {
 //        if (!data.containsKey("sign_type")) {
 //            data.put("sign_type", "MD5");
 //        }
