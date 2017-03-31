@@ -24,6 +24,17 @@ public interface PayProduct {
     Object web(Payment payment, Order order, Properties properties) throws PayException;
 
     /**
+     * WAP支付
+     *
+     * @param payment    订单对象
+     * @param order      支付记录
+     * @param properties 额外属性(一般由调用端自定义)
+     * @return Object
+     * @throws PayException 支付异常
+     */
+    Object wap(Payment payment, Order order, Properties properties) throws PayException;
+
+    /**
      * app支付
      *
      * @param order   待支付订单

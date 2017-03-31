@@ -51,6 +51,11 @@ public abstract class PayProductSupport implements PayProduct {
         throw new PayException(this.getName() + " 的 app 支付未实现");
     }
 
+    @Override
+    public Object wap(Payment payment, Order order, Properties properties) throws PayException {
+        throw new PayException(this.getName() + " 的 wap 支付未实现");
+    }
+
     public String getName() {
         return name;
     }

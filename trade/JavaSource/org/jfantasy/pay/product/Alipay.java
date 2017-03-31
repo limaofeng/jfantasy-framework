@@ -112,6 +112,11 @@ public class Alipay extends PayProductSupport {
     }
 
     @Override
+    public Object wap(Payment payment, Order order, Properties properties) throws PayException {
+        return super.wap(payment, order, properties);
+    }
+
+    @Override
     public Object app(Payment payment, Order order, Properties properties) throws PayException {
         PayConfig config = payment.getPayConfig();
 
