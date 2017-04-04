@@ -660,4 +660,14 @@ public class Order extends BaseBusEntity {
         return ObjectUtil.find(this.getPrices(), "code", code).getValue();
     }
 
+    @Transient
+    public String getPaymentTransactionId() {
+        return this.paymentTransaction != null ? this.paymentTransaction.getSn() : null;
+    }
+
+    @Transient
+    public String getRefundTransactionId() {
+        return this.refundTransaction != null ? this.refundTransaction.getSn() : null;
+    }
+
 }
