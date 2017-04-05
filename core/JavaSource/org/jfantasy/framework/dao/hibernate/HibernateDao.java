@@ -230,7 +230,7 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
     private void cleanOneToOne(Object entity, Object oldEntity, Field[] fields, OgnlUtil ognlUtil) {
         for (Field field : fields) {
             OneToOne oneToOne = field.getAnnotation(OneToOne.class);
-            if (!ObjectUtil.exists(new CascadeType[]{CascadeType.ALL,CascadeType.MERGE},oneToOne.cascade())) {
+            if (!(ObjectUtil.indexOf(oneToOne.cascade(), CascadeType.ALL) > -1 || ObjectUtil.indexOf(oneToOne.cascade(), CascadeType.MERGE) > -1)) {
                 continue;
             }
             Object value = ClassUtil.getValue(entity, field.getName());
@@ -250,7 +250,7 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
         for (Field field : manyToOneFields) {
             Object fk = ognlUtil.getValue(field.getName(), entity);
             if (fk == null) {
-                ognlUtil.setValue(field.getName(), entity, null);
+                ognlUtil.setValue(field.getName(), entity, ognlUtil.getValue(field.getName(),oldEntity));
                 continue;
             }
             Serializable fkId = getIdValue(field.getType(), fk);
