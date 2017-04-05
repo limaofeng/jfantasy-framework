@@ -170,6 +170,11 @@ public class OrderController {
         return paymentController.search(new Pager<>(), filters);
     }
 
+    /**
+     * 关闭订单
+     * @param id
+     * @param form
+     */
     @JsonResultFilter(
             ignore = @IgnoreProperty(pojo = Order.class, name = {"refunds", "orderItems", "payments"}),
             allow = @AllowProperty(pojo = PayConfig.class, name = {"id", "name"})

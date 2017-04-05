@@ -5,6 +5,7 @@ import org.jfantasy.order.service.OrderService;
 import org.jfantasy.pay.PayServerApplication;
 import org.jfantasy.pay.bean.Payment;
 import org.jfantasy.pay.service.PayProductConfiguration;
+import org.jfantasy.pay.service.PayService;
 import org.jfantasy.pay.service.PaymentService;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -29,6 +31,8 @@ public class WeixinpayTest {
     private PaymentService paymentService;
     @Autowired
     private OrderService orderService;
+    @Autowired
+    private PayService payService;
     private Weixinpay weixinpay;
 
     @Before
@@ -45,4 +49,20 @@ public class WeixinpayTest {
         weixinpay.app(payment, order, props);
     }
 
+    @Test
+    @Transactional
+    public void query() throws Exception{
+        Payment payment = paymentService.get("P2016081500001");
+        Map<String, String> map = weixinpay.query(payment);
+        System.out.println(map);
+    }
+
+    @Test
+    public void close() throws Exception{
+        //Payment payment = paymentService.get("P2016081500001");
+//        Payment payment = new Payment();
+//        payment.setSn("P2016081500001");
+        payService.close("PDEV2017030600052");
+        //weixinpay.close(payment);
+    }
 }
