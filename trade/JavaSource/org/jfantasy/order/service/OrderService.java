@@ -609,6 +609,44 @@ public class OrderService {
         return transactionService.syncSave(cashFlow.getProject(), from, to, amount, notes, data);
     }
 
+    @Transactional
+    private boolean syncStatus(String id) {
+        try {
+            Order order = this.orderDao.get(id);
+
+            for (Payment payment : ObjectUtil.filter(order.getPayments(), "status", org.jfantasy.pay.bean.enums.PaymentStatus.ready)) {
+                payService.query(payment.getSn());
+            }
+
+
+            //List<Payment> payments = paymentService.find(Restrictions.eq("order", order));
+//            for (Payment payment : payments) {
+//                //微信支付
+//                PayProduct payProduct = payProductConfiguration.loadPayProduct(payment.getPayConfig().getPayProductId());
+//                //TODO
+//                Map<String, String> map = payProduct.query(payment);
+//                String trade_state = map.get("trade_state");
+//                if ("SUCCESS".equals(trade_state)) {
+//                    payment.setStatus(org.jfantasy.pay.bean.enums.PaymentStatus.success);
+//                    paymentService.save(payment);
+//                    return false;
+//                }
+            //支付宝支付
+//                else if (payment.getPayConfig().getId()==6){
+//                    org.jfantasy.pay.bean.enums.PaymentStatus trade_status = alipay.query(payment);
+//                    if ("SUCCESS".equals(trade_status)){
+//                        payment.setStatus(org.jfantasy.pay.bean.enums.PaymentStatus.success);
+//                        paymentService.save(payment);
+//                        return false;
+//                    }
+//                }
+//            }
+            return true;
+        } catch (PayException e) {
+            throw new RestException(e.getMessage());
+        }
+    }
+
     @Autowired
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;

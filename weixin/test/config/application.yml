@@ -10,9 +10,9 @@ spring:
   datasource:
     name: datasource
     type: com.alibaba.druid.pool.DruidDataSource
-    url: jdbc:mysql://shzbsg2006.mysql.rds.aliyuncs.com:3306/pay?autoReconnect=true&useUnicode=true&characterEncoding=UTF-8
-    username: shzbsgv2
-    password: shzbsg
+    url: jdbc:mysql://192.16.10.211:3306/pay?autoReconnect=true&useUnicode=true&characterEncoding=UTF-8
+    username: zbsg
+    password: zbsg
     driver-class-name: com.mysql.jdbc.Driver
     druid:
       filters: stat,wall
@@ -27,7 +27,7 @@ spring:
       test-on-borrow: false
       test-on-return: false
   redis:
-    host: 127.0.0.1
+    host: 192.16.10.211
     port: 6379
     password:
   jpa:
@@ -57,7 +57,7 @@ spring:
       packages: org.jfantasy.pay.product,org.jfantasy.pay.bean,org.jfantasy.pay.order.entity
   oauth:
     redis:
-      host: 114.55.142.155
+      host: 192.16.10.211
       port: 6379
       password:
   apigateway:

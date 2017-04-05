@@ -1,12 +1,10 @@
 package org.jfantasy.security.service;
 
+import org.hibernate.Hibernate;
 import org.jfantasy.framework.jackson.JSON;
 import org.jfantasy.framework.util.common.DateUtil;
 import org.jfantasy.security.SecurityServerApplication;
-import org.jfantasy.security.bean.Employee;
-import org.jfantasy.security.bean.Job;
-import org.jfantasy.security.bean.Organization;
-import org.jfantasy.security.bean.User;
+import org.jfantasy.security.bean.*;
 import org.jfantasy.security.bean.enums.Sex;
 import org.jfantasy.security.bean.enums.UserType;
 import org.junit.Test;
@@ -15,6 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = SecurityServerApplication.class)
@@ -22,6 +23,20 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class UserServiceTest {
 
     private UserService userService;
+
+    @Test
+    public void update(){
+        //User user = userService.get(302l);
+        User user = new User();
+        user.setId(302l);
+//        Employee employee = new Employee();
+//        employee.setName("123123123123123");
+        UserDetails userDetails = new UserDetails();
+        userDetails.setName("11");
+        user.setDetails(userDetails);
+//        user.setEmployee(employee);
+        userService.update(user,true);
+    }
 
     @Test
     public void save() throws Exception {
