@@ -240,7 +240,7 @@ public class Alipay extends PayProductSupport {
             throw new RestException("调用支付宝接口,网络错误!");
         }
     }
-    
+
     @Override
     public HashMap<String,String> query(Payment payment) throws PayException {
         PayConfig config = payment.getPayConfig();
