@@ -7,6 +7,7 @@ import org.jfantasy.pay.bean.Payment;
 import org.jfantasy.pay.bean.Refund;
 import org.jfantasy.pay.error.PayException;
 import org.jfantasy.pay.service.PayService;
+import org.jfantasy.pay.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,10 +19,12 @@ import org.springframework.web.bind.annotation.*;
 public class PayController {
 
     private final PayService payService;
+    private final PaymentService paymentService;
 
     @Autowired
-    public PayController(PayService payService) {
+    public PayController(PayService payService,PaymentService paymentService) {
         this.payService = payService;
+        this.paymentService = paymentService;
     }
 
     /**
@@ -48,9 +51,22 @@ public class PayController {
         }
     }
 
+    /**
+     * 返回true:支付状态一致
+     * 返回false：支付状态不一致，并同步
+     * @param sn
+     * @return
+     * @throws PayException
+     */
     @RequestMapping(value = "/{sn}/query", method = RequestMethod.GET)
     public boolean query(@PathVariable("sn") String sn) throws PayException {
-        return payService.query(sn);
+        Payment payment = paymentService.get(sn);
+        Payment paymentSync = payService.query(sn);
+        if (payment.getStatus().equals(paymentSync.getStatus())){
+            return true;
+        }else {
+            return false;
+        }
     }
 
 }

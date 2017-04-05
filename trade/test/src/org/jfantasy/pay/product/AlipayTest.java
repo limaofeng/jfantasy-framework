@@ -1,33 +1,61 @@
 package org.jfantasy.pay.product;
 
-import com.alipay.api.AlipayClient;
-import com.alipay.api.DefaultAlipayClient;
+//import com.alipay.api.AlipayClient;
+//import com.alipay.api.DefaultAlipayClient;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import org.jfantasy.framework.jackson.JSON;
 import org.jfantasy.framework.jackson.UnirestObjectMapper;
 import org.jfantasy.framework.util.common.DateUtil;
+import org.jfantasy.pay.PayServerApplication;
 import org.jfantasy.pay.bean.PayConfig;
+import org.jfantasy.pay.bean.Payment;
 import org.jfantasy.pay.bean.Refund;
+import org.jfantasy.pay.bean.enums.PaymentStatus;
 import org.jfantasy.pay.product.sign.RSA;
+import org.jfantasy.pay.service.PayConfigService;
+import org.jfantasy.pay.service.PayProductConfiguration;
+import org.jfantasy.pay.service.PayService;
+import org.jfantasy.pay.service.PaymentService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Profile;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
-
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = PayServerApplication.class)
+@Profile("dev")
 public class AlipayTest {
 
-    private Alipay alipay = new Alipay();
+    @Autowired
+    private PayProductConfiguration payProductConfiguration;
+    @Autowired
+    private PaymentService paymentService;
+    @Autowired
+    private PayConfigService payConfigService;
+    @Autowired
+    private PayService payService;
+    private Alipay alipay;
     private PayConfig payConfig = new PayConfig();
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() throws Exception{
+        alipay = payProductConfiguration.loadPayProduct("alipay");
+    }
+    //@Before
+    public void setUp1() throws Exception {
 //        payConfig.setName("正本上工支付宝支付");
 //        payConfig.setPayConfigType(PayConfig.PayConfigType.online);
 //        payConfig.setPayProductId("alipayDirect");
@@ -50,23 +78,21 @@ public class AlipayTest {
         payConfig.setBargainorKey("2s6pd34rf1u95t1hjlry13o1u13qxlbs");
         payConfig.set("sellerEmail", "2088021598024164");
         //一些高级接口需要使用 RSA 或者 DSA 加密
-        payConfig.set("rsaPrivateKey", "-----BEGIN PRIVATE KEY-----\n" +
-                "MIICeAIBADANBgkqhkiG9w0BAQEFAASCAmIwggJeAgEAAoGBANIRPFVSTuGL4OGW\n" +
-                "dbLTUDCEI4sVy80YfQh9dqnR+u57xWWrciC16jtdYQjxLFm9fOIq21D3u1UHcmhr\n" +
-                "L4CAZrkjHL2Udfwusp827ogUyVyAJojccsEyFLk6KwoeYc3U9byBctGOwzLvWCCT\n" +
-                "OMg8YK0JP9XaiMciSlunqhrOjDyNAgMBAAECgYA5EU2esDmVtHZnUoSvDBEg3QT6\n" +
-                "5/TxxtFQ2SS/hbfxydYahLUAhesYLYoK79nolz2yA4qJOIO/2cIO8+93rWo6Kzeu\n" +
-                "pnNsmAICB/GW/64jpKWLmcIxku909NbIALHk37tt4FPkcU6XuasHyzY753ll2/IZ\n" +
-                "VK7KSDVjNG7PPkUbUQJBAPd/WcaSSUFusb2mWn9gk+csTQDpHigQV/P+uwgUZISM\n" +
-                "dunAfIIoH0xtk9TddHbQT5cofV+YTSsCU+T/LFcQPTMCQQDZSLNf5AAQFQYBMhuB\n" +
-                "b2hVquq2s79gvDMzQR4IwlExHl0tYhZl4hfUzLxkM4oZWETAmZlf9ofIsubkoVTF\n" +
-                "TB8/AkEAghhWB3QDv7pBAbB853HLrPtzaqQfLu4QXXgrtf6KK8ZuB0cf64bNlO4Q\n" +
-                "hBb4TjAHdixZYrN69L2ffcLH+ufVUwJBANEJ2lgkd9MBBtfbpw6tackRN+Ixp6qf\n" +
-                "JProaMawe4Av4CCrPzUhgR/fIFeeJfwgKXTJ0P67pQJ26x+F/pIZm+0CQQDA5xPm\n" +
-                "vjH2tlPB4H4uUEDWVQJnPLV/rhv+JWacZqMkp6gJMsHOiSmY8tMsHoiioMDujcDb\n" +
-                "Zup+8ttxRYIwcAoO\n" +
-                "-----END PRIVATE KEY-----");//RSA 加密时的私钥
-        payConfig.set("rsaPublicKey", "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDDI6d306Q8fIfCOaTXyiUeJHkrIvYISRcc73s3vF1ZT7XN8RNPwJxo8pWaJMmvyTn9N4HQ632qJBVHf8sxHi/fEsraprwCtzvzQETrNRwVxLO5jVmRGi60j8Ue1efIlzPXV9je9mkjzOmdssymZkh2QhUrCmZYI/FCEa3/cNMW0QIDAQAB");//RSA 支付宝公钥
+        payConfig.set("rsaPrivateKey","MIICeAIBADANBgkqhkiG9w0BAQEFAASCAmIwggJeAgEAAoGBANIRPFVSTuGL4OGW" +
+                "dbLTUDCEI4sVy80YfQh9dqnR+u57xWWrciC16jtdYQjxLFm9fOIq21D3u1UHcmhr" +
+                "L4CAZrkjHL2Udfwusp827ogUyVyAJojccsEyFLk6KwoeYc3U9byBctGOwzLvWCCT" +
+                "OMg8YK0JP9XaiMciSlunqhrOjDyNAgMBAAECgYA5EU2esDmVtHZnUoSvDBEg3QT6" +
+                "5/TxxtFQ2SS/hbfxydYahLUAhesYLYoK79nolz2yA4qJOIO/2cIO8+93rWo6Kzeu" +
+                "pnNsmAICB/GW/64jpKWLmcIxku909NbIALHk37tt4FPkcU6XuasHyzY753ll2/IZ" +
+                "VK7KSDVjNG7PPkUbUQJBAPd/WcaSSUFusb2mWn9gk+csTQDpHigQV/P+uwgUZISM" +
+                "dunAfIIoH0xtk9TddHbQT5cofV+YTSsCU+T/LFcQPTMCQQDZSLNf5AAQFQYBMhuB" +
+                "b2hVquq2s79gvDMzQR4IwlExHl0tYhZl4hfUzLxkM4oZWETAmZlf9ofIsubkoVTF" +
+                "TB8/AkEAghhWB3QDv7pBAbB853HLrPtzaqQfLu4QXXgrtf6KK8ZuB0cf64bNlO4Q" +
+                "hBb4TjAHdixZYrN69L2ffcLH+ufVUwJBANEJ2lgkd9MBBtfbpw6tackRN+Ixp6qf" +
+                "JProaMawe4Av4CCrPzUhgR/fIFeeJfwgKXTJ0P67pQJ26x+F/pIZm+0CQQDA5xPm" +
+                "vjH2tlPB4H4uUEDWVQJnPLV/rhv+JWacZqMkp6gJMsHOiSmY8tMsHoiioMDujcDb" +
+                "Zup+8ttxRYIwcAoO");//RSA 加密时的私钥
+        payConfig.set("rsaPublicKey","MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDDI6d306Q8fIfCOaTXyiUeJHkrIvYISRcc73s3vF1ZT7XN8RNPwJxo8pWaJMmvyTn9N4HQ632qJBVHf8sxHi/fEsraprwCtzvzQETrNRwVxLO5jVmRGi60j8Ue1efIlzPXV9je9mkjzOmdssymZkh2QhUrCmZYI/FCEa3/cNMW0QIDAQAB");//RSA 支付宝公钥
     }
 
     @Test
@@ -110,7 +136,19 @@ public class AlipayTest {
     }
 
     @Test
-    public void query() throws Exception {
+    public void close() throws Exception{
+        payService.close("P2016052300002");
+    }
+
+    @Test
+    @Transactional
+    public void query() throws Exception{
+        Payment payment = paymentService.get("P2016052300002");
+        HashMap<String, String> query = alipay.query(payment);
+        System.out.println(query);
+    }
+    @Test
+    public void query1() throws Exception {
         Unirest.setObjectMapper(new UnirestObjectMapper(JSON.getObjectMapper()));
 
         Map<String, String> data = new HashMap<>();
@@ -122,7 +160,7 @@ public class AlipayTest {
         data.put("sign_type", "RSA");
         data.put("timestamp",  DateUtil.format("yyyy-MM-dd HH:mm:ss"));
         data.put("version", "1.0");
-        data.put("biz_content","{\"out_trade_no\":\"P2016051900001\"}");
+        data.put("biz_content","{\"trade_no\":\"2017022521001004920266297785\"}");
 
 //        Map<String,String> test = new HashMap<>();
 //        test.put("a","123");
@@ -135,8 +173,52 @@ public class AlipayTest {
         System.out.println("response:" + response.getBody());
     }
 
-    public void xxx(){
-        AlipayClient alipayClient = new DefaultAlipayClient("","","","json","","","");
+//    public void xxx(){
+//        AlipayClient alipayClient = new DefaultAlipayClient("","","","json","","","");
+//    }
+
+
+    @Test
+    @Transactional
+    public void payConfig(){
+        //Payment payment = paymentService.get("PDEV2017022500013");
+        PayConfig payConfig = payConfigService.get(6l);
+        Properties properties = payConfig.getProperties();
+        System.out.println(properties);
     }
 
+    @Test
+    public void updatePayConfig(){
+        PayConfig payConfig = payConfigService.get(6l);
+        payConfig.set("rsaPrivateKeyQ","MIICeAIBADANBgkqhkiG9w0BAQEFAASCAmIwggJeAgEAAoGBANIRPFVSTuGL4OGW" +
+                "dbLTUDCEI4sVy80YfQh9dqnR+u57xWWrciC16jtdYQjxLFm9fOIq21D3u1UHcmhr" +
+                "L4CAZrkjHL2Udfwusp827ogUyVyAJojccsEyFLk6KwoeYc3U9byBctGOwzLvWCCT" +
+                "OMg8YK0JP9XaiMciSlunqhrOjDyNAgMBAAECgYA5EU2esDmVtHZnUoSvDBEg3QT6" +
+                "5/TxxtFQ2SS/hbfxydYahLUAhesYLYoK79nolz2yA4qJOIO/2cIO8+93rWo6Kzeu" +
+                "pnNsmAICB/GW/64jpKWLmcIxku909NbIALHk37tt4FPkcU6XuasHyzY753ll2/IZ" +
+                "VK7KSDVjNG7PPkUbUQJBAPd/WcaSSUFusb2mWn9gk+csTQDpHigQV/P+uwgUZISM" +
+                "dunAfIIoH0xtk9TddHbQT5cofV+YTSsCU+T/LFcQPTMCQQDZSLNf5AAQFQYBMhuB" +
+                "b2hVquq2s79gvDMzQR4IwlExHl0tYhZl4hfUzLxkM4oZWETAmZlf9ofIsubkoVTF" +
+                "TB8/AkEAghhWB3QDv7pBAbB853HLrPtzaqQfLu4QXXgrtf6KK8ZuB0cf64bNlO4Q" +
+                "hBb4TjAHdixZYrN69L2ffcLH+ufVUwJBANEJ2lgkd9MBBtfbpw6tackRN+Ixp6qf" +
+                "JProaMawe4Av4CCrPzUhgR/fIFeeJfwgKXTJ0P67pQJ26x+F/pIZm+0CQQDA5xPm" +
+                "vjH2tlPB4H4uUEDWVQJnPLV/rhv+JWacZqMkp6gJMsHOiSmY8tMsHoiioMDujcDb" +
+                "Zup+8ttxRYIwcAoO");
+        payConfig.set("rsaPrivateKey","MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBANIyubyDZB728Na2" +
+                "wDfqUJEXq3C/DBmWPX/1FiEI6GuCu0lb4ulCsCF/qASWGrnIijZ0ZfjXpB79gihZ" +
+                "2FgP/g86IRPf7lLNT0L+X6ux+b4ENNANwXtYFcW+lhOpylbLUC1t2uaOjpoZ2Srd" +
+                "eoVlb9NNCkpk9uK9bwDn2AD/Ns2dAgMBAAECgYAGsmcIgocmFWgG7zugjG6UsNRd" +
+                "ezi/d/HtqblSxB3jjv64j5zjIaTK7G5F9yJS2PjOU1cMXpJ0Ck+jSXmDFL9bXgap" +
+                "ggtbydfHj4RhJx1FU6YXRC4+n9cqnMh6Cwx5y3i6bsYeAIYqw7NigM39ifLmgmGL" +
+                "da/UjOaYfpdBezekYQJBAPebjzCJW5+fgMxgwmM5wMuiTDPdxwJcgF/syLr4xbYc" +
+                "0NjZIzgl9tgh8ld9N4pmZAOsT+zSUb5NDEudKY2KIisCQQDZUpJUj2hRilCA9gBr" +
+                "Yz7TIGE+PZkbJNzqiwfNpsvwmaBSPf1ftL2CraHw10EcsxB6ZxIajzQ3osPpvz8c" +
+                "NBNXAkAu3S54zUaeK55BEH86MJAg+pLZrjwgYkmZ3kMPwE4LbeDJai+UTPsvZR1t" +
+                "GbINa9u6Jj7qX9RA5GxTU2et9lsJAkEArpKC04SDcwTdmEqEmb8Wh3h6RQosRD6/" +
+                "a3UVZqC3MGXoAEilkUzZ8vBRpury9f/tm7XSOB2S/6IzKECljJ1UbwJAHbouY5Jz" +
+                "7xvZUHovYtsTI47pbwNaozBDQk4YOZgu68sJ7SIs9dYhS+3/cxSiHBglk69UL/7X" +
+                "oc/kb8dK+jrAPw==");
+        payConfigService.update(payConfig);
+        //payConfigService.save(payConfig);
+    }
 }

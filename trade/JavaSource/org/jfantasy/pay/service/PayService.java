@@ -78,6 +78,16 @@ public class PayService {
      */
     @Transactional
     public ToPayment pay(Transaction transaction, Long payConfigId, PayType payType, String payer, Properties properties) throws PayException {
+        boolean paySuccess = false;
+        for (Payment payment : ObjectUtil.filter(transaction.getPayments(), "status", PaymentStatus.ready)) {
+            payment = this.query(payment.getSn());
+            if (!paySuccess && payment.getStatus() == PaymentStatus.success) {
+                paySuccess = true;
+            }
+        }
+        if (paySuccess) {
+            throw new ValidationException(100000, "订单已支付成功");
+        }
         LOG.debug("开始付款");
         Project project = this.projectService.get(transaction.getProject());
         if (project.getType() != ProjectType.order) {
@@ -192,13 +202,35 @@ public class PayService {
         }
     }
 
-    public boolean query(String sn) throws PayException {
+    public Payment query(String sn) throws PayException {
         Payment payment = this.paymentService.get(sn);
         PayConfig payConfig = payment.getPayConfig();
         //获取支付产品
         PayProduct payProduct = payProductConfiguration.loadPayProduct(payConfig.getPayProductId());
+
+        PaymentStatus oldStatus = payment.getStatus();
+
         payProduct.query(payment);
-        return false;
+
+        //支付状态发生变化
+        if (payment.getStatus() != oldStatus) {
+            this.update(payment);
+        }
+
+        return payment;
+    }
+
+    /**
+     * 调用支付产品接口关闭支付订单
+     * @param sn
+     */
+    @Transactional
+    public void close(String sn) throws PayException {
+        Payment payment = this.paymentService.get(sn);
+        PayConfig payConfig = payment.getPayConfig();
+        //获取支付产品
+        PayProduct payProduct = payProductConfiguration.loadPayProduct(payConfig.getPayProductId());
+        payProduct.close(payment);
     }
 
     /**
@@ -223,26 +255,38 @@ public class PayService {
 
         Object result = payProduct.payNotify(payment, body);
 
-        //支付状态未发生变化
-        if (payment.getStatus() == oldStatus) {
-            return result == null ? order : result;
-        }
-
-        // 更新支付状态
-        paymentService.save(payment);
-
-        // 更新订单信息
-        if (payment.getStatus() == PaymentStatus.success) {
-            this.orderService.updatePaymentStatus(payment);
-        }
-
-        // 如果为完成 或者 初始状态 不触发事件
-        if (payment.getStatus() == PaymentStatus.finished || payment.getStatus() == PaymentStatus.ready) {
-            return result == null ? order : result;
+        //支付状态发生变化
+        if (payment.getStatus() != oldStatus) {
+            this.update(payment);
         }
 
         //返回订单信息
         return result != null ? result : order;
+    }
+
+    public void update(Payment payment) {
+        // 更新支付状态
+        paymentService.save(payment);
+        // 更新订单信息
+        switch (this.orderService.paySuccess(payment)) {
+            case 1:
+                //关闭其他支付记录
+                String orderId = payment.getOrderId();
+                List<Payment> payments = paymentService.find(Restrictions.eq("order.id", orderId));
+                if (payments.size()>1){
+                    for (Payment payment1:payments){
+                        if (payment1.getSn()!=payment.getSn()){
+                            payment1.setStatus(PaymentStatus.close);
+                            paymentService.save(payment1);
+                        }
+                    }
+                }
+                break;
+            case 0:
+                //  TODO 记录异常信息
+                break;
+            default:
+        }
     }
 
     /**

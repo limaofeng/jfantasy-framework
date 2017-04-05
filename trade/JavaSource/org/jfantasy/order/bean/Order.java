@@ -54,94 +54,132 @@ public class Order extends BaseBusEntity {
     @GeneratedValue(generator = "serialnumber")
     @GenericGenerator(name = "serialnumber", strategy = "serialnumber", parameters = {@org.hibernate.annotations.Parameter(name = "expression", value = "#DateUtil.format('yyyyMMdd') + #StringUtil.addZeroLeft(#SequenceInfo.nextValue('ORDER-SN'), 5)")})
     private String id;// 订单编号
+
     @Column(name = "TYPE", length = 20, updatable = false, nullable = false)
     private String type;//订单类型
+
     @Enumerated(EnumType.STRING)
     @Column(name = "ORDER_STATUS", length = 20, nullable = false)
     private OrderStatus status;// 订单状态
+
     @Enumerated(EnumType.STRING)
     @Column(name = "PAYMENT_STATUS", length = 20, nullable = false)
     private PaymentStatus paymentStatus;// 支付状态
+
     @Enumerated(EnumType.STRING)
     @Column(name = "SHIPPING_STATUS", length = 20, nullable = false)
     private ShippingStatus shippingStatus;// 发货状态
+
     @Enumerated(EnumType.STRING)
     @Column(name = "INVOICE_STATUS", length = 20)
     private InvoiceStatus invoiceStatus;// 发票状态
+
     @Enumerated(EnumType.STRING)
     @Column(name = "FLOW", length = 20)
     private OrderFlow flow;//订单流程
+
     @Column(name = "TOTAL_PRODUCT_WEIGHT", nullable = false)
     private Integer totalProductWeight;// 总商品重量(单位: 克)
+
     @Column(name = "TOTAL_PRODUCT_QUANTITY", nullable = false)
     private Integer totalProductQuantity;// 总商品数量
+
     @Column(name = "TOTAL_PRODUCT_PRICE", nullable = false, precision = 15, scale = 2)
     private BigDecimal totalProductPrice;// 总商品价格
+
     @Column(name = "SHIP_NAME", length = 20)
     private String shipName;// 收货人姓名
+
     @Column(name = "SHIP_AREA_STORE", length = 500)
     @Convert(converter = AreaConverter.class)
     private Area shipArea;// 收货地区存储
+
     @Column(name = "SHIP_ADDRESS", length = 200)
     private String shipAddress;// 收货地址
+
     @Column(name = "SHIP_ZIP_CODE", length = 10)
     private String shipZipCode;// 收货邮编
+
     @Column(name = "SHIP_MOBILE", length = 15)
     private String shipMobile;// 收货手机
+
     @Column(name = "MEMO", length = 50)
     private String memo;// 买家附言
+
     @Column(name = "DELIVERY_TYPE_NAME", length = 100)
     private String deliveryTypeName;// 配送方式名称
+
     @Column(name = "DELIVERY_TYPE_ID")
     private Long deliveryTypeId;// 配送方式
+
     @Column(name = "PAY_CONFIG_NAME", length = 20)
     private String payConfigName;// 支付方式名称
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PAY_CONFIG_ID", foreignKey = @ForeignKey(name = "FK_ORDER_PAY_CONFIG"))
     private PayConfig paymentConfig;// 支付方式
+
     @Column(name = "DELIVERY_AMOUNT", nullable = false, precision = 15, scale = 2)
     private BigDecimal deliveryAmount;// 配送费用
+
     @Column(name = "TOTAL_AMOUNT", nullable = false, precision = 15, scale = 2)
     private BigDecimal totalAmount;// 订单总额
+
     @Column(name = "PAID_AMOUNT", nullable = false, precision = 15, scale = 2)
     private BigDecimal paidAmount;// 已付金额
+
     @Column(name = "PAYABLE_AMOUNT", nullable = false, updatable = false, precision = 15, scale = 2)
     private BigDecimal payableAmount;//订单应付金额
+
     @Column(name = "PAYMENT_TIME")
     @Temporal(TemporalType.TIMESTAMP)
     private Date paymentTime;//付款时间
+
     @Column(name = "COMPLETION_TIME")
     @Temporal(TemporalType.TIMESTAMP)
     private Date completionTime;//完成时间
+
     @Column(name = "REFUND_AMOUNT", precision = 15, scale = 2)
     private BigDecimal refundAmount;//退款金额
+
     @Column(name = "REFUND_TIME")
     @Temporal(TemporalType.TIMESTAMP)
     private Date refundTime;//退款时间
+
     @Column(name = "MEMBER_ID", nullable = false, updatable = false)
     private Long memberId;// 会员
+
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     @OrderBy("createTime asc")
     private List<OrderItem> items = new ArrayList<>();// 订单支付信息
+
     @Convert(converter = MapConverter.class)
     @Column(name = "PROPERTIES", columnDefinition = "Text")
     private Map<String, Object> attrs;//NOSONAR 扩展属性
+
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private List<OrderPriceValue> prices = new ArrayList<>();//订单价格目录
+
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private List<OrderPayeeValue> payees = new ArrayList<>();//订单收款人列表
+
     @Column(name = "TARGET_TYPE", nullable = false, updatable = false)
     private String detailsType;
+
     @Column(name = "TARGET_ID", nullable = false, updatable = false)
     private String detailsId;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "INVOICE_ID", foreignKey = @ForeignKey(name = "FK_ORDER_INVOICE"))
     private Invoice invoice;//开票信息
+
     @Column(name = "PAYER")
     private Long payer;//付款人
+
     @ManyToOne
     @JoinColumn(name = "PAYMENT_TRANSACTION_ID", foreignKey = @ForeignKey(name = "FK_ORDER_PAYMENTTRANSACTION"))
     private Transaction paymentTransaction;//支付交易
+
     @ManyToOne
     @JoinColumn(name = "REFUND_TRANSACTION_ID", foreignKey = @ForeignKey(name = "FK_ORDER_REFUNDTRANSACTION"))
     private Transaction refundTransaction;//退款交易
