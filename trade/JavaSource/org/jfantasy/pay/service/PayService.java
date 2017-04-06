@@ -202,6 +202,7 @@ public class PayService {
         }
     }
 
+    @Transactional
     public Payment query(String sn) throws PayException {
         Payment payment = this.paymentService.get(sn);
         PayConfig payConfig = payment.getPayConfig();
@@ -264,6 +265,7 @@ public class PayService {
         return result != null ? result : order;
     }
 
+    @Transactional
     public void update(Payment payment) {
         // 更新支付状态
         paymentService.save(payment);
