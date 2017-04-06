@@ -21,11 +21,13 @@ import org.jfantasy.order.service.OrderService;
 import org.jfantasy.pay.bean.PayConfig;
 import org.jfantasy.pay.bean.Payment;
 import org.jfantasy.pay.bean.Refund;
+import org.jfantasy.pay.error.PayException;
 import org.jfantasy.pay.rest.PaymentController;
 import org.jfantasy.pay.rest.RefundController;
 import org.jfantasy.pay.rest.models.OrderStatusForm;
 import org.jfantasy.pay.rest.models.OrderTransaction;
 import org.jfantasy.pay.rest.models.assembler.OrderResourceAssembler;
+import org.jfantasy.pay.service.PayService;
 import org.jfantasy.trade.bean.Transaction;
 import org.jfantasy.trade.rest.TransactionController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +41,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 订单
@@ -52,9 +53,17 @@ public class OrderController {
     public static final OrderResourceAssembler assembler = new OrderResourceAssembler();
 
     private OrderService orderService;
+    private PayService payService;
+
     private PaymentController paymentController;
     private RefundController refundController;
     private TransactionController transactionController;
+
+    @Autowired
+    public OrderController(OrderService orderService,PayService payService){
+        this.orderService = orderService;
+        this.payService = payService;
+    }
 
     @JsonResultFilter(
             ignore = @IgnoreProperty(pojo = Order.class, name = {"refunds", "items", "payments"}),
@@ -83,21 +92,10 @@ public class OrderController {
     )
     @RequestMapping(value = "/{id}", method = {RequestMethod.GET, RequestMethod.HEAD})
     @ResponseBody
-    public ResultResourceSupport view(@PathVariable("id") String id, @RequestParam(name = "fetch", required = false) String fetch) {
-        Order order = get(id);
+    public ResultResourceSupport view(@PathVariable("id") String id, @RequestParam(name = "fetch", required = false) String fetch) throws PayException {
+        Order order = this.orderService.get(id,"wait".equals(fetch));
         if (order == null) {
             throw new NotFoundException("[ID=" + id + "]的订单不存在");
-        }
-        long start = System.currentTimeMillis();
-        if ("wait".equals(fetch)) {
-            while (order.getStatus() == OrderStatus.unpaid && System.currentTimeMillis() - start < 15000) {
-                try {
-                    Thread.sleep(TimeUnit.SECONDS.toMillis(3));
-                } catch (InterruptedException e) {
-                    LOG.error(e.getMessage(),e);
-                }
-                order = get(id);
-            }
         }
         return assembler.toResource(order);
     }
@@ -236,11 +234,6 @@ public class OrderController {
 
     private Order get(String id) {
         return id.contains(":") ? orderService.get(OrderTargetKey.newInstance(id)) : orderService.get(id);
-    }
-
-    @Autowired
-    public void setOrderService(OrderService orderService) {
-        this.orderService = orderService;
     }
 
     @Autowired
