@@ -131,8 +131,8 @@ public class Alipay extends PayProductSupport {
             data.put("notify_url", String.format("%s/pays/%s/notify", paySettings.getUrl(), payment.getSn()));// 消息通知URL
             //请求参数
             Map<String, String> bizcontent = new TreeMap<>();
-            bizcontent.put("body", order.getBody());// 订单描述
-            bizcontent.put("subject", order.getSubject());// 订单的名称、标题、关键字等
+            bizcontent.put("body", WebUtil.transformCoding(order.getBody(), INPUT_CHARSET, INPUT_CHARSET));// 订单描述
+            bizcontent.put("subject", WebUtil.transformCoding(order.getSubject(), INPUT_CHARSET, INPUT_CHARSET));// 订单的名称、标题、关键字等
             bizcontent.put("out_trade_no", payment.getSn());// 支付编号
             bizcontent.put("timeout_express", properties.getProperty("timeout_express", order.getExpires() + "m"));//未付款交易的超时时间 设置未付款交易的超时时间，一旦超时，该笔交易就会自动被关闭。当用户输入支付密码、点击确认付款后（即创建支付宝交易后）开始计时。取值范围：1m～15d，或者使用绝对时间（示例格式：2014-06-13 16:00:00）。m-分钟，h-小时，d-天，1c-当天（1c-当天的情况下，无论交易何时创建，都在0点关闭）。该参数数值不接受小数点，如1.5h，可转换为90m。
             bizcontent.put("total_amount", RMB_YUAN_FORMAT.format(payment.getTotalAmount()));// 总金额（单位：元）
@@ -161,6 +161,8 @@ public class Alipay extends PayProductSupport {
             Map<String, Object> tdata = new HashMap<>();
             tdata.put("url", urls.wappayUrl);
             tdata.put("params", data.entrySet());
+            data.put("subject", WebUtil.transformCoding(order.getSubject(), INPUT_CHARSET, INPUT_CHARSET));// 订单的名称、标题、关键字等
+            data.put("body", WebUtil.transformCoding(order.getBody(), INPUT_CHARSET, INPUT_CHARSET));// 订单描述
             //拼接支付表单
             return HandlebarsTemplateUtils.processTemplateIntoString(HandlebarsTemplateUtils.template("/org.jfantasy.pay.product.template/pay"), tdata);
         } catch (IOException e) {

@@ -9,6 +9,7 @@ import org.jfantasy.framework.jackson.UnirestObjectMapper;
 import org.jfantasy.framework.util.HandlebarsTemplateUtils;
 import org.jfantasy.framework.util.common.DateUtil;
 import org.jfantasy.framework.util.common.StringUtil;
+import org.jfantasy.framework.util.web.WebUtil;
 import org.jfantasy.pay.PayServerApplication;
 import org.jfantasy.pay.bean.PayConfig;
 import org.jfantasy.pay.bean.Payment;
@@ -241,8 +242,8 @@ public class AlipayTest {
             data.put("notify_url", "www.baidu.com");// 消息通知URL
             //请求参数
             Map<String, String> bizcontent = new TreeMap<>();
-            bizcontent.put("body", URLEncoder.encode("啊啊啊啊","utf-8"));// 订单描述
-            bizcontent.put("subject", URLEncoder.encode("山山水水","utf-8"));// 订单的名称、标题、关键字等
+            bizcontent.put("body", WebUtil.transformCoding("啊啊啊啊", "utf-8", "utf-8"));// 订单描述
+            bizcontent.put("subject", WebUtil.transformCoding("山山水水", "utf-8", "utf-8"));// 订单的名称、标题、关键字等
             bizcontent.put("out_trade_no", "20150320010101002");// 支付编号
             bizcontent.put("total_amount", "88.88");// 总金额（单位：元）
             bizcontent.put("seller_id", "2088123456789012");// 商家ID
@@ -266,6 +267,8 @@ public class AlipayTest {
             Map<String, Object> tdata = new HashMap<>();
             tdata.put("url", "https://openapi.alipay.com/gateway.do");
             tdata.put("params", data.entrySet());
+
+
             //拼接支付表单
             String s = HandlebarsTemplateUtils.processTemplateIntoString(HandlebarsTemplateUtils.template("/org.jfantasy.pay.product.template/pay"), tdata);
             System.out.println(s);
