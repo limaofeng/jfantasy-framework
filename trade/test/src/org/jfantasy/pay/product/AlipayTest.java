@@ -144,7 +144,7 @@ public class AlipayTest {
     @Transactional
     public void query() throws Exception{
         Payment payment = paymentService.get("P2016052300002");
-        HashMap<String, String> query = alipay.query(payment);
+        Map<String, String> query = alipay.query(payment);
         System.out.println(query);
     }
     @Test
