@@ -45,6 +45,7 @@ public class Alipay extends PayProductSupport {
 
     static {
         urls.paymentUrl = "https://mapi.alipay.com/gateway.do?_input_charset=" + INPUT_CHARSET;// 支付请求URL
+        urls.wappayUrl = "https://openapi.alipay.com/gateway.do";//手机网页支付URL
         urls.refundUrl = "https://mapi.alipay.com/gateway.do";//统一收单交易退款接口
         urls.queryUrl = "https://openapi.alipay.com/gateway.do";
         urls.closeUrl = "https://openapi.alipay.com/gateway.do";
@@ -103,6 +104,62 @@ public class Alipay extends PayProductSupport {
 
             Map<String, Object> tdata = new HashMap<>();
             tdata.put("url", urls.paymentUrl);
+            tdata.put("params", data.entrySet());
+            //拼接支付表单
+            return HandlebarsTemplateUtils.processTemplateIntoString(HandlebarsTemplateUtils.template("/org.jfantasy.pay.product.template/pay"), tdata);
+        } catch (IOException e) {
+            LOG.error(e);
+            throw new PayException("支付过程发生错误，错误信息为:" + e.getMessage());
+        }
+    }
+
+    @Override
+    public Object wap(Payment payment, Order order, Properties properties) throws PayException {
+        PayConfig config = payment.getPayConfig();
+        final Map<String, String> data = new TreeMap<>();
+        try {
+            data.put("app_id", "2016051201394880");//客户端号
+            data.put("method","alipay.trade.wap.pay");//接口名称
+            if (StringUtil.isNotBlank(properties.getProperty(PROPERTIES_BACKURL))) {
+                data.put("return_url", properties.getProperty(PROPERTIES_BACKURL));//同步通知
+                LOG.debug("添加参数 return_url = " + properties.getProperty("return_url"));
+            }
+            data.put("charset", INPUT_CHARSET);//字符编码格式
+            data.put("sign_type", "RSA");
+            data.put("timestamp", DateUtil.format("yyyy-MM-dd HH:mm:ss"));
+            data.put("version", "1.0");//调用的接口版本，固定为：1.0
+            data.put("notify_url", String.format("%s/pays/%s/notify", paySettings.getUrl(), payment.getSn()));// 消息通知URL
+            //请求参数
+            Map<String, String> bizcontent = new TreeMap<>();
+            bizcontent.put("body", order.getBody());// 订单描述
+            bizcontent.put("subject", order.getSubject());// 订单的名称、标题、关键字等
+            bizcontent.put("out_trade_no", payment.getSn());// 支付编号
+            bizcontent.put("timeout_express", properties.getProperty("timeout_express", order.getExpires() + "m"));//未付款交易的超时时间 设置未付款交易的超时时间，一旦超时，该笔交易就会自动被关闭。当用户输入支付密码、点击确认付款后（即创建支付宝交易后）开始计时。取值范围：1m～15d，或者使用绝对时间（示例格式：2014-06-13 16:00:00）。m-分钟，h-小时，d-天，1c-当天（1c-当天的情况下，无论交易何时创建，都在0点关闭）。该参数数值不接受小数点，如1.5h，可转换为90m。
+            bizcontent.put("total_amount", RMB_YUAN_FORMAT.format(payment.getTotalAmount()));// 总金额（单位：元）
+            bizcontent.put("seller_id", config.getBargainorId());// 商家ID
+            bizcontent.put("product_code", "QUICK_WAP_PAY");// 商家ID
+            if (StringUtil.isNotBlank(properties.getProperty("extend_params"))) {
+                bizcontent.put("extend_params", properties.getProperty("extend_params"));
+                LOG.debug("添加参数 extend_params = " + properties.getProperty("extend_params"));
+            }
+            data.put("biz_content", JSON.serialize(bizcontent));
+            // 参数处理
+            data.put("sign", sign(data, data.get("sign_type"), "MIICeAIBADANBgkqhkiG9w0BAQEFAASCAmIwggJeAgEAAoGBANIRPFVSTuGL4OGW" +
+                    "dbLTUDCEI4sVy80YfQh9dqnR+u57xWWrciC16jtdYQjxLFm9fOIq21D3u1UHcmhr" +
+                    "L4CAZrkjHL2Udfwusp827ogUyVyAJojccsEyFLk6KwoeYc3U9byBctGOwzLvWCCT" +
+                    "OMg8YK0JP9XaiMciSlunqhrOjDyNAgMBAAECgYA5EU2esDmVtHZnUoSvDBEg3QT6" +
+                    "5/TxxtFQ2SS/hbfxydYahLUAhesYLYoK79nolz2yA4qJOIO/2cIO8+93rWo6Kzeu" +
+                    "pnNsmAICB/GW/64jpKWLmcIxku909NbIALHk37tt4FPkcU6XuasHyzY753ll2/IZ" +
+                    "VK7KSDVjNG7PPkUbUQJBAPd/WcaSSUFusb2mWn9gk+csTQDpHigQV/P+uwgUZISM" +
+                    "dunAfIIoH0xtk9TddHbQT5cofV+YTSsCU+T/LFcQPTMCQQDZSLNf5AAQFQYBMhuB" +
+                    "b2hVquq2s79gvDMzQR4IwlExHl0tYhZl4hfUzLxkM4oZWETAmZlf9ofIsubkoVTF" +
+                    "TB8/AkEAghhWB3QDv7pBAbB853HLrPtzaqQfLu4QXXgrtf6KK8ZuB0cf64bNlO4Q" +
+                    "hBb4TjAHdixZYrN69L2ffcLH+ufVUwJBANEJ2lgkd9MBBtfbpw6tackRN+Ixp6qf" +
+                    "JProaMawe4Av4CCrPzUhgR/fIFeeJfwgKXTJ0P67pQJ26x+F/pIZm+0CQQDA5xPm" +
+                    "vjH2tlPB4H4uUEDWVQJnPLV/rhv+JWacZqMkp6gJMsHOiSmY8tMsHoiioMDujcDb" +
+                    "Zup+8ttxRYIwcAoO"));
+            Map<String, Object> tdata = new HashMap<>();
+            tdata.put("url", urls.wappayUrl);
             tdata.put("params", data.entrySet());
             //拼接支付表单
             return HandlebarsTemplateUtils.processTemplateIntoString(HandlebarsTemplateUtils.template("/org.jfantasy.pay.product.template/pay"), tdata);
@@ -363,6 +420,10 @@ public class Alipay extends PayProductSupport {
          * 支付接口
          */
         String paymentUrl;
+        /**
+         * 手机网页支付接口
+         */
+        String wappayUrl;
         /**
          * 退款接口
          */

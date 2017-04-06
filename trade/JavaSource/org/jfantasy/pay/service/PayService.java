@@ -131,6 +131,8 @@ public class PayService {
             toPayment.setSource(payProduct.web(payment, order, properties));
         } else if (PayType.app == payType) {
             toPayment.setSource(payProduct.app(payment, order, properties));
+        } else if (PayType.wap == payType) {
+            toPayment.setSource(payProduct.wap(payment,order,properties));
         }
         if (payConfig.getPayMethod() == PayMethod.thirdparty) {
             //有可能调用支付产品时,修改了支付状态,保存支付信息
