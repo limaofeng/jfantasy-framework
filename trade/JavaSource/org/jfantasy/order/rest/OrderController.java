@@ -10,6 +10,7 @@ import org.jfantasy.framework.jackson.annotation.IgnoreProperty;
 import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
 import org.jfantasy.framework.spring.mvc.error.NotFoundException;
 import org.jfantasy.framework.spring.mvc.error.RestException;
+import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
 import org.jfantasy.framework.util.common.NumberUtil;
 import org.jfantasy.order.bean.Order;
@@ -60,7 +61,7 @@ public class OrderController {
     private TransactionController transactionController;
 
     @Autowired
-    public OrderController(OrderService orderService,PayService payService){
+    public OrderController(OrderService orderService, PayService payService) {
         this.orderService = orderService;
         this.payService = payService;
     }
@@ -92,12 +93,17 @@ public class OrderController {
     )
     @RequestMapping(value = "/{id}", method = {RequestMethod.GET, RequestMethod.HEAD})
     @ResponseBody
-    public ResultResourceSupport view(@PathVariable("id") String id, @RequestParam(name = "fetch", required = false) String fetch) throws PayException {
-        Order order = this.orderService.get(id,"wait".equals(fetch));
-        if (order == null) {
-            throw new NotFoundException("[ID=" + id + "]的订单不存在");
+    public ResultResourceSupport view(@PathVariable("id") String id, @RequestParam(name = "fetch", required = false) String fetch) {
+        try {
+            Order order = this.orderService.get(id, "wait".equals(fetch));
+            if (order == null) {
+                throw new NotFoundException("[ID=" + id + "]的订单不存在");
+            }
+            return assembler.toResource(order);
+        } catch (PayException e) {
+            LOG.error(e.getMessage(), e);
+            throw new ValidationException(e.getMessage());
         }
-        return assembler.toResource(order);
     }
 
     /**
@@ -170,6 +176,7 @@ public class OrderController {
 
     /**
      * 关闭订单
+     *
      * @param id
      * @param form
      */
