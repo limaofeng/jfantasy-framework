@@ -18,6 +18,7 @@ import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.framework.util.web.RedirectAttributesWriter;
 import org.jfantasy.framework.util.web.WebUtil;
+import org.jfantasy.member.Profile;
 import org.jfantasy.member.bean.*;
 import org.jfantasy.member.bean.enums.SignUpType;
 import org.jfantasy.member.bean.enums.TeamMemberStatus;
@@ -122,16 +123,16 @@ public class MemberController {
     )
     @RequestMapping(value = "/{id}/profile", method = RequestMethod.GET)
     @ResponseBody
-    public Object profile(@PathVariable("id") Long id, @RequestParam(value = "type", defaultValue = Member.MEMBER_TYPE_PERSONAL) String type) {
+    public Profile profile(@PathVariable("id") Long id, @RequestParam(value = "type", defaultValue = Member.MEMBER_TYPE_PERSONAL) String type) {
         Member member = get(id);
         if (!ObjectUtil.exists(member.getTypes(), "id", type)) {
             throw new NotFoundException(String.format("[type=%s]不匹配", type));
         }
-        if (Member.MEMBER_TYPE_PERSONAL.equals(type)) {
-            return member.getDetails();
-        } else {
-            return new ModelAndView("redirect:" + member.getProfileUrl(type));
+        MemberTarget target = ObjectUtil.find(member.getTargets(),"type.id",type);
+        if(target == null){
+            throw new NotFoundException(String.format("[type=%s]不匹配", type));
         }
+        return memberService.getProfile(type,target.getValue());
     }
 
     @PostMapping("/{id}/connect")
