@@ -11,7 +11,6 @@ import org.jfantasy.pay.PayServerApplication;
 import org.jfantasy.pay.bean.PayConfig;
 import org.jfantasy.pay.bean.Payment;
 import org.jfantasy.pay.bean.Refund;
-import org.jfantasy.pay.bean.enums.PaymentStatus;
 import org.jfantasy.pay.product.sign.RSA;
 import org.jfantasy.pay.service.PayConfigService;
 import org.jfantasy.pay.service.PayProductConfiguration;
@@ -144,7 +143,7 @@ public class AlipayTest {
     @Transactional
     public void query() throws Exception{
         Payment payment = paymentService.get("P2016052300002");
-        HashMap<String, String> query = alipay.query(payment);
+        Map<String, String> query = alipay.query(payment);
         System.out.println(query);
     }
     @Test
