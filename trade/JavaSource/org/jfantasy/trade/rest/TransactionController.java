@@ -13,6 +13,7 @@ import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.oauth.userdetails.OAuthUserDetails;
 import org.jfantasy.pay.bean.PayConfig;
 import org.jfantasy.pay.bean.Payment;
+import org.jfantasy.pay.bean.Refund;
 import org.jfantasy.pay.bean.enums.PaymentStatus;
 import org.jfantasy.pay.error.PayException;
 import org.jfantasy.pay.rest.models.PayForm;
@@ -81,6 +82,18 @@ public class TransactionController {
     @ResponseBody
     public ResultResourceSupport view(@PathVariable("id") String sn) {
         return transform(get(sn));
+    }
+
+    @GetMapping("/{id}/payments")
+    @ResponseBody
+    public List<Payment> payments(@PathVariable("id") String id) {
+        return this.get(id).getPayments();
+    }
+
+    @GetMapping("/{id}/payments")
+    @ResponseBody
+    public List<Refund> refunds(@PathVariable("id") String id) {
+        return this.get(id).getRefunds();
     }
 
     @PutMapping("/{id}/status")

@@ -8,6 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class ObjectUtilTest {
@@ -144,6 +145,18 @@ public class ObjectUtilTest {
 
     @Test
     public void sort() throws Exception {
+
+        List<HashMap<String,String>> list = new ArrayList<>();
+
+        HashMap<String,String> d1 = new HashMap<>();
+        d1.put("properties","{\"name\":\"2\"}");
+        list.add(d1);
+
+        HashMap<String,String> d2 = new HashMap<>();
+        d1.put("properties","{\"name\":\"1\"}");
+        list.add(d2);
+
+        ObjectUtil.sort(list,"x.x.x1","");
 
     }
 
