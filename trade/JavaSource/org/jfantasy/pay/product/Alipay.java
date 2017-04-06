@@ -242,7 +242,7 @@ public class Alipay extends PayProductSupport {
     }
 
     @Override
-    public HashMap<String,String> query(Payment payment) throws PayException {
+    public Map<String,String> query(Payment payment) throws PayException {
         PayConfig config = payment.getPayConfig();
         final Map<String, String> data = new TreeMap<>();
         //公共请求参数
@@ -262,7 +262,7 @@ public class Alipay extends PayProductSupport {
         data.put("sign", sign(data,data.get("sign_type"), getPrivateKeyQuery(config, data.get("sign_type"))));
         try {
             Response response = HttpClientUtil.doPost(urls.queryUrl, data);
-            LinkedHashMap<String,String> result = (LinkedHashMap) JSON.deserialize(response.text(), HashMap.class).get("alipay_trade_query_response");
+            HashMap<String,String> result = (HashMap) JSON.deserialize(response.text(), HashMap.class).get("alipay_trade_query_response");
             if (!"Success".equalsIgnoreCase(result.get("msg"))){
                 throw new RestException(result.get("msg"));
             }
