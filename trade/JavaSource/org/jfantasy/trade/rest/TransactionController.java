@@ -90,7 +90,7 @@ public class TransactionController {
         return this.get(id).getPayments();
     }
 
-    @GetMapping("/{id}/payments")
+    @GetMapping("/{id}/refunds")
     @ResponseBody
     public List<Refund> refunds(@PathVariable("id") String id) {
         return this.get(id).getRefunds();
