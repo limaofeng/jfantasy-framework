@@ -6,11 +6,16 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import org.jfantasy.framework.jackson.JSON;
 import org.jfantasy.framework.jackson.UnirestObjectMapper;
+import org.jfantasy.framework.util.HandlebarsTemplateUtils;
 import org.jfantasy.framework.util.common.DateUtil;
+import org.jfantasy.framework.util.common.StringUtil;
+import org.jfantasy.framework.util.web.WebUtil;
 import org.jfantasy.pay.PayServerApplication;
 import org.jfantasy.pay.bean.PayConfig;
 import org.jfantasy.pay.bean.Payment;
 import org.jfantasy.pay.bean.Refund;
+import org.jfantasy.pay.bean.enums.PaymentStatus;
+import org.jfantasy.pay.error.PayException;
 import org.jfantasy.pay.product.sign.RSA;
 import org.jfantasy.pay.service.PayConfigService;
 import org.jfantasy.pay.service.PayProductConfiguration;
@@ -26,16 +31,19 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.URLEncoder;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.TreeMap;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest(classes = PayServerApplication.class)
-@Profile("dev")
+//@RunWith(SpringRunner.class)
+//@SpringBootTest(classes = PayServerApplication.class)
+//@Profile("dev")
 public class AlipayTest {
 
     @Autowired
@@ -49,7 +57,7 @@ public class AlipayTest {
     private Alipay alipay;
     private PayConfig payConfig = new PayConfig();
 
-    @Before
+    //@Before
     public void setUp() throws Exception{
         alipay = payProductConfiguration.loadPayProduct("alipay");
     }
@@ -219,5 +227,52 @@ public class AlipayTest {
                 "oc/kb8dK+jrAPw==");
         payConfigService.update(payConfig);
         //payConfigService.save(payConfig);
+    }
+
+    @Test
+    public void wappay(){
+        final Map<String, String> data = new TreeMap<>();
+        try {
+            data.put("app_id", "2016051201394880");//客户端号
+            data.put("method","alipay.trade.wap.pay");//接口名称
+            data.put("charset", "utf-8");//字符编码格式
+            data.put("sign_type", "RSA");
+            data.put("timestamp", DateUtil.format("yyyy-MM-dd HH:mm:ss"));
+            data.put("version", "1.0");//调用的接口版本，固定为：1.0
+            data.put("notify_url", "www.baidu.com");// 消息通知URL
+            //请求参数
+            Map<String, String> bizcontent = new TreeMap<>();
+            bizcontent.put("body", WebUtil.transformCoding("啊啊啊啊", "utf-8", "utf-8"));// 订单描述
+            bizcontent.put("subject", WebUtil.transformCoding("山山水水", "utf-8", "utf-8"));// 订单的名称、标题、关键字等
+            bizcontent.put("out_trade_no", "20150320010101002");// 支付编号
+            bizcontent.put("total_amount", "88.88");// 总金额（单位：元）
+            bizcontent.put("seller_id", "2088123456789012");// 商家ID
+            bizcontent.put("product_code", "QUICK_WAP_PAY");//
+            data.put("biz_content", JSON.serialize(bizcontent));
+            // 参数处理
+            data.put("sign", Alipay.sign(data, data.get("sign_type"), "MIICeAIBADANBgkqhkiG9w0BAQEFAASCAmIwggJeAgEAAoGBANIRPFVSTuGL4OGW" +
+                    "dbLTUDCEI4sVy80YfQh9dqnR+u57xWWrciC16jtdYQjxLFm9fOIq21D3u1UHcmhr" +
+                    "L4CAZrkjHL2Udfwusp827ogUyVyAJojccsEyFLk6KwoeYc3U9byBctGOwzLvWCCT" +
+                    "OMg8YK0JP9XaiMciSlunqhrOjDyNAgMBAAECgYA5EU2esDmVtHZnUoSvDBEg3QT6" +
+                    "5/TxxtFQ2SS/hbfxydYahLUAhesYLYoK79nolz2yA4qJOIO/2cIO8+93rWo6Kzeu" +
+                    "pnNsmAICB/GW/64jpKWLmcIxku909NbIALHk37tt4FPkcU6XuasHyzY753ll2/IZ" +
+                    "VK7KSDVjNG7PPkUbUQJBAPd/WcaSSUFusb2mWn9gk+csTQDpHigQV/P+uwgUZISM" +
+                    "dunAfIIoH0xtk9TddHbQT5cofV+YTSsCU+T/LFcQPTMCQQDZSLNf5AAQFQYBMhuB" +
+                    "b2hVquq2s79gvDMzQR4IwlExHl0tYhZl4hfUzLxkM4oZWETAmZlf9ofIsubkoVTF" +
+                    "TB8/AkEAghhWB3QDv7pBAbB853HLrPtzaqQfLu4QXXgrtf6KK8ZuB0cf64bNlO4Q" +
+                    "hBb4TjAHdixZYrN69L2ffcLH+ufVUwJBANEJ2lgkd9MBBtfbpw6tackRN+Ixp6qf" +
+                    "JProaMawe4Av4CCrPzUhgR/fIFeeJfwgKXTJ0P67pQJ26x+F/pIZm+0CQQDA5xPm" +
+                    "vjH2tlPB4H4uUEDWVQJnPLV/rhv+JWacZqMkp6gJMsHOiSmY8tMsHoiioMDujcDb" +
+                    "Zup+8ttxRYIwcAoO"));
+            Map<String, Object> tdata = new HashMap<>();
+            tdata.put("url", "https://openapi.alipay.com/gateway.do");
+            tdata.put("params", data.entrySet());
+
+
+            //拼接支付表单
+            String s = HandlebarsTemplateUtils.processTemplateIntoString(HandlebarsTemplateUtils.template("/org.jfantasy.pay.product.template/pay"), tdata);
+            System.out.println(s);
+        } catch (Exception e) {
+        }
     }
 }
