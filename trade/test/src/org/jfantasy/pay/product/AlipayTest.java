@@ -41,9 +41,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
 
-//@RunWith(SpringRunner.class)
-//@SpringBootTest(classes = PayServerApplication.class)
-//@Profile("dev")
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = PayServerApplication.class)
+@Profile("dev")
 public class AlipayTest {
 
     @Autowired
@@ -57,7 +57,7 @@ public class AlipayTest {
     private Alipay alipay;
     private PayConfig payConfig = new PayConfig();
 
-    //@Before
+    @Before
     public void setUp() throws Exception{
         alipay = payProductConfiguration.loadPayProduct("alipay");
     }
@@ -150,7 +150,7 @@ public class AlipayTest {
     @Test
     @Transactional
     public void query() throws Exception{
-        Payment payment = paymentService.get("P2016052300002");
+        Payment payment = paymentService.get("P2016092900003");//P2016052300002
         Map<String, String> query = alipay.query(payment);
         System.out.println(query);
     }
