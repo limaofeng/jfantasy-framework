@@ -23,7 +23,7 @@ import java.util.Map;
 @Entity
 @Table(name = "MEM_COMMENT")
 @TableGenerator(name = "comment_gen", table = "sys_sequence", pkColumnName = "gen_name", pkColumnValue = "mem_comment:id", valueColumnName = "gen_value")
-@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "for_comment"})
+@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "for_comment","member"})
 public class Comment extends BaseBusEntity {
 
     private static final long serialVersionUID = 8413023474799399082L;
