@@ -323,7 +323,7 @@ public class Alipay extends PayProductSupport {
             Response response = HttpClientUtil.doPost(urls.queryUrl, data);
             HashMap<String,String> result = (HashMap) JSON.deserialize(response.text(), HashMap.class).get("alipay_trade_query_response");
             if (!"Success".equalsIgnoreCase(result.get("msg"))){
-                throw new RestException(result.get("msg"));
+                return result;
             }
             //记录支付流水
             payment.setTradeNo(result.get("trade_no"));
