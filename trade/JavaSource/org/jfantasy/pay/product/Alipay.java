@@ -144,7 +144,7 @@ public class Alipay extends PayProductSupport {
             }
             data.put("biz_content", JSON.serialize(bizcontent));
             // 参数处理
-            data.put("sign", sign(data, data.get("sign_type"), "MIICeAIBADANBgkqhkiG9w0BAQEFAASCAmIwggJeAgEAAoGBANIRPFVSTuGL4OGW" +
+            data.put("sign", sign(data, "MIICeAIBADANBgkqhkiG9w0BAQEFAASCAmIwggJeAgEAAoGBANIRPFVSTuGL4OGW" +
                     "dbLTUDCEI4sVy80YfQh9dqnR+u57xWWrciC16jtdYQjxLFm9fOIq21D3u1UHcmhr" +
                     "L4CAZrkjHL2Udfwusp827ogUyVyAJojccsEyFLk6KwoeYc3U9byBctGOwzLvWCCT" +
                     "OMg8YK0JP9XaiMciSlunqhrOjDyNAgMBAAECgYA5EU2esDmVtHZnUoSvDBEg3QT6" +
@@ -318,7 +318,7 @@ public class Alipay extends PayProductSupport {
         bizcontent.put("out_trade_no", payment.getSn());//商户订单号
 
         data.put("biz_content", JSON.serialize(bizcontent));
-        data.put("sign", sign(data,data.get("sign_type"), getPrivateKeyQuery(config, data.get("sign_type"))));
+        data.put("sign", sign(data, getPrivateKeyQuery(config, data.get("sign_type"))));
         try {
             Response response = HttpClientUtil.doPost(urls.queryUrl, data);
             HashMap<String,String> result = (HashMap) JSON.deserialize(response.text(), HashMap.class).get("alipay_trade_query_response");
@@ -361,7 +361,7 @@ public class Alipay extends PayProductSupport {
         bizcontent.put("out_trade_no", payment.getSn());//商户订单号
 
         data.put("biz_content", JSON.serialize(bizcontent));
-        data.put("sign", sign(data,data.get("sign_type"), getPrivateKeyQuery(payConfig, data.get("sign_type"))));
+        data.put("sign", sign(data, getPrivateKeyQuery(payConfig, data.get("sign_type"))));
         try {
             Response response = HttpClientUtil.doPost(urls.closeUrl, data);
             LinkedHashMap<String,String> result = (LinkedHashMap) JSON.deserialize(response.text(), HashMap.class).get("alipay_trade_close_response");
@@ -512,11 +512,14 @@ public class Alipay extends PayProductSupport {
         if ("MD5".equals(signType)) {
             return MD5.sign(SignUtil.coverMapString(data, "sign", "sign_type"), key, INPUT_CHARSET);
         } else if ("RSA".equals(signType)) {
-            return RSA.sign(SignUtil.coverMapString(data, "sign"), key, INPUT_CHARSET);
+            return RSA.sign(SignUtil.coverMapString(data, "sign", "sign_type"), key, INPUT_CHARSET);
         } else if ("DSA".equals(signType)) {
             throw new PayException("DSA 签名方式还未实现");
         }
         throw new PayException("不支持的签名方式 => " + signType);
+    }
+    public static String sign(Map<String, String> data, String key) throws PayException {
+        return RSA.sign(SignUtil.coverMapString(data, "sign"), key, INPUT_CHARSET);
     }
 
     public static boolean verify(Map<String, String> data, String key) throws PayException {
