@@ -226,7 +226,7 @@ public class AlipayTest {
                 "7xvZUHovYtsTI47pbwNaozBDQk4YOZgu68sJ7SIs9dYhS+3/cxSiHBglk69UL/7X" +
                 "oc/kb8dK+jrAPw==");
         payConfigService.update(payConfig);
-        //payConfigService.save(payConfig);
+        //payConfigService.update(payConfig);
     }
 
     @Test

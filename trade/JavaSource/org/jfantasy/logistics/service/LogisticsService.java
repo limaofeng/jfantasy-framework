@@ -81,7 +81,7 @@ public class LogisticsService {
 //        for (DeliveryItem item : shipping.getDeliveryItems()) {
 //            item.initialize(ObjectUtil.find(order.getOrderItems(), "sn", item.getSn()));
 //            item.setLogistics(shipping);
-//            this.deliveryItemDao.save(item);
+//            this.deliveryItemDao.update(item);
 //        }
 //        applicationContext.publishEvent(new LogisticsEvent(shipping, order));
         return shipping;
