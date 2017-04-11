@@ -56,7 +56,7 @@ public class ChinapayTest {
             /*
             payConfig.setSignCert(signCert);
             payConfig.setValidateCert(validateCert);
-            payConfigService.save(payConfig);
+            payConfigService.update(payConfig);
             */
         // 银联支付 2
         //上传签名证书

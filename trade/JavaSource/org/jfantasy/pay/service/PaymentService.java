@@ -92,7 +92,7 @@ public class PaymentService {
         payment.setTransaction(transaction);
         payment = this.paymentDao.save(payment);
         //保存交易日志
-//        paymentLogDao.save(payment, "创建" + payment.getPayConfigName() + " 交易");
+//        paymentLogDao.update(payment, "创建" + payment.getPayConfigName() + " 交易");
         return payment;
     }
 
@@ -105,8 +105,8 @@ public class PaymentService {
      *
      * @param payment 支付对象
      */
-    public void save(Payment payment) {
-        this.paymentDao.save(payment);
+    public void update(Payment payment) {
+        this.paymentDao.update(payment);
     }
 
     /**

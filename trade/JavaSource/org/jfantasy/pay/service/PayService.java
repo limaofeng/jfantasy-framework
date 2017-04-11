@@ -136,7 +136,7 @@ public class PayService {
         }
         if (payConfig.getPayMethod() == PayMethod.thirdparty) {
             //有可能调用支付产品时,修改了支付状态,保存支付信息
-            paymentService.save(payment);
+            paymentService.update(payment);
         }
         return toPayment;
     }
@@ -270,7 +270,7 @@ public class PayService {
     @Transactional
     public void update(Payment payment) {
         // 更新支付状态
-        paymentService.save(payment);
+        paymentService.update(payment);
         // 更新订单信息
         switch (this.orderService.paySuccess(payment)) {
             case 1:
@@ -281,7 +281,7 @@ public class PayService {
                     for (Payment payment1:payments){
                         if (payment1.getSn()!=payment.getSn()){
                             payment1.setStatus(PaymentStatus.close);
-                            paymentService.save(payment1);
+                            paymentService.update(payment1);
                         }
                     }
                 }
