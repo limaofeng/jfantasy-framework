@@ -269,13 +269,16 @@ public class OrderService {
      * 9  支付记录不是支付成功的
      */
     public int paySuccess(Payment payment) {
+        String payProductId = payment.getPayConfig().getPayProductId();
         if (payment.getStatus() != org.jfantasy.pay.bean.enums.PaymentStatus.success) {
             return 9;
         }
         Order order = payment.getOrder();
         Transaction transaction = payment.getTransaction();
-        if (TxStatus.success == transaction.getStatus()) {
-            return 0;
+        if (!"walletpay".equals(payment.getPayConfig().getPayProductId())){
+            if (TxStatus.success == transaction.getStatus()) {
+                return 0;
+            }
         }
         PayConfig payConfig = payment.getPayConfig();
         // 更新交易状态
