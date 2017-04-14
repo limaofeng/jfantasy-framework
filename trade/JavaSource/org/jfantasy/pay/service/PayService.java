@@ -279,7 +279,7 @@ public class PayService {
                 List<Payment> payments = paymentService.find(Restrictions.eq("order.id", orderId));
                 if (payments.size()>1){
                     for (Payment payment1:payments){
-                        if (payment1.getSn()!=payment.getSn()){
+                        if (!payment1.getSn().equals(payment.getSn())){
                             payment1.setStatus(PaymentStatus.close);
                             paymentService.update(payment1);
                         }
