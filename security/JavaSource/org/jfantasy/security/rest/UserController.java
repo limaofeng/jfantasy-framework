@@ -99,7 +99,11 @@ public class UserController {
         if (user.getUserType() == UserType.employee) {
             return user.getEmployee();
         } else {
-            return user.getDetails();
+            UserDetails details = user.getDetails();
+            if(details == null){
+                throw new NotFoundException(String.format(" %s 对应的用户没有详细信息", id));
+            }
+            return details;
         }
     }
 

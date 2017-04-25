@@ -8,6 +8,7 @@ import org.hibernate.annotations.Parameter;
 import org.jfantasy.filestore.Image;
 import org.jfantasy.filestore.converter.ImageConverter;
 import org.jfantasy.filestore.databind.ImageDeserializer;
+import org.jfantasy.security.Profile;
 import org.jfantasy.security.bean.enums.Sex;
 
 import javax.persistence.*;
@@ -25,7 +26,7 @@ import java.util.Date;
 @Table(name = "AUTH_USER_DETAILS")
 @JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "user", "avatar"})
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class UserDetails implements Serializable {
+public class UserDetails implements Serializable, Profile {
 
     private static final long serialVersionUID = -5738290484268799275L;
 
@@ -151,6 +152,11 @@ public class UserDetails implements Serializable {
 
     public String getDescription() {
         return description;
+    }
+
+    @Override
+    public Long getId() {
+        return this.userId;
     }
 
     public void setDescription(String description) {
