@@ -19,7 +19,7 @@ public class PublishOrderCloseEventByMNS implements ApplicationListener<OrderClo
     @Override
     public void onApplicationEvent(OrderCloseEvent event) {
         Order order = this.orderService.get(event.getOrderId());
-        eventEmitter.fireEvent("order.close", order.getId(), String.format("订单[%s]支付成功", order.getId()), JSON.serialize(order, "payments", "refunds", "payment_config"));
+        eventEmitter.fireEvent("order.close", order.getId(), String.format("订单[%s]支付关闭", order.getId()), JSON.serialize(order, "payments", "refunds", "payment_config"));
     }
 
     @Autowired
