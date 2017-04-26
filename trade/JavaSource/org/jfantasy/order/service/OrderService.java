@@ -116,7 +116,7 @@ public class OrderService {
         return this.orderDao.get(id);
     }
 
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    @Transactional(propagation = Propagation.NOT_SUPPORTED,readOnly = true)
     public Pager<Order> findPager(Pager<Order> pager, List<PropertyFilter> filters) {
         return this.orderDao.findPager(pager, filters);
     }

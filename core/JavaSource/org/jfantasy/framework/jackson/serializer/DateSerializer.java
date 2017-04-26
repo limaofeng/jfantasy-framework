@@ -1,11 +1,10 @@
 package org.jfantasy.framework.jackson.serializer;
 
-import org.jfantasy.framework.util.common.DateUtil;
-import org.jfantasy.framework.util.common.StringUtil;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import org.jfantasy.framework.util.common.DateUtil;
+import org.jfantasy.framework.util.common.StringUtil;
 
 import java.io.IOException;
 import java.util.Date;
@@ -18,7 +17,7 @@ public class DateSerializer extends JsonSerializer<Date> {
 		this.dateFormat = dateFormat;
 	}
 
-	public void serialize(Date value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
+	public void serialize(Date value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
 		jgen.writeString(StringUtil.isNotBlank(dateFormat) ? DateUtil.format(value, dateFormat) : provider.getConfig().getDateFormat().format(value));
 	}
 

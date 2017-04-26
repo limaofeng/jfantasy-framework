@@ -10,6 +10,7 @@ import org.jfantasy.filestore.Image;
 import org.jfantasy.filestore.converter.ImageConverter;
 import org.jfantasy.framework.dao.BaseBusEntity;
 import org.jfantasy.framework.spring.validation.RESTful;
+import org.jfantasy.security.Profile;
 import org.jfantasy.security.bean.enums.EmployeeStatus;
 import org.jfantasy.security.bean.enums.Sex;
 
@@ -26,7 +27,7 @@ import java.util.List;
 @Table(name = "AUTH_EMPLOYEE")
 @TableGenerator(name = "employee_gen", table = "sys_sequence", pkColumnName = "gen_name", pkColumnValue = "auth_employee:id", valueColumnName = "gen_value")
 @JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "user"})
-public class Employee extends BaseBusEntity {
+public class Employee extends BaseBusEntity implements Profile {
 
     @Id
     @Column(name = "USER_ID", nullable = false, updatable = false, precision = 22)
@@ -223,6 +224,11 @@ public class Employee extends BaseBusEntity {
 
     public String getEmail() {
         return email;
+    }
+
+    @Override
+    public String getDescription() {
+        return null;
     }
 
     public void setEmail(String email) {

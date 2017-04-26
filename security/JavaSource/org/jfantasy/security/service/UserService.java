@@ -1,5 +1,6 @@
 package org.jfantasy.security.service;
 
+import org.hibernate.Hibernate;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.spring.mvc.error.LoginException;
@@ -158,6 +159,8 @@ public class UserService {
         }
         user.setLastLoginTime(DateUtil.now());
         this.userDao.save(user);
+        Hibernate.initialize(user.getRoles());
+        Hibernate.initialize(user.getUserGroups());
         this.applicationContext.publishEvent(new LoginEvent(user));
         return user;
     }
