@@ -155,13 +155,13 @@ public class OrderService {
 
     @Transactional
     public Order close(String id) {
-        Order order;
         try {
-            order = SpringContextUtil.getBeanByType(OrderService.class).get(id, true);
+            SpringContextUtil.getBeanByType(OrderService.class).get(id, true);
         } catch (PayException e) {
             LOG.error(e.getMessage(),e);
             throw new ValidationException(e.getMessage());
         }
+        Order order = orderDao.get(id);
         if (OrderStatus.closed == order.getStatus()) {
             return order;
         }
