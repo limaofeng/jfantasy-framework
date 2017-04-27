@@ -76,6 +76,7 @@ public class TeamMember extends BaseBusEntity {
     /**
      * 身份证
      */
+    @NotNull(groups = {RESTful.POST.class})
     @Column(name = "ID_CARD", length = 18)
     private String idCard;
     /**
