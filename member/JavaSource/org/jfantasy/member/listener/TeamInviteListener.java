@@ -41,10 +41,10 @@ public class TeamInviteListener implements ApplicationListener<TeamInviteEvent> 
             Map<String, Object> data = new HashMap<>();
             data.put("teamMemberId",teamMember.getId());
             data.put("status",teamMember.getStatus());
-            data.put("team",teamMember.getTeam().getName());
+            data.put("teamName",teamMember.getTeam().getName());
             data.put("teamId",teamMember.getTeam().getKey());
             eventEmitter.fireEvent("tmember.new",teamMember.getId()+"",String.format("[%s]新增集团员工",teamMember.getId()), JSON.serialize(data),
-                new LinkerBean("tmember",teamMember.getName(),teamMember.getId()+""));
+                new LinkerBean("teammember",teamMember.getName(),teamMember.getId()+""));
         }
     }
 
