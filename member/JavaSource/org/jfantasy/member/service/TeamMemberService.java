@@ -48,6 +48,16 @@ public class TeamMemberService {
         return this.teamMemberDao.findUnique(Restrictions.eq("member.id", memberId), Restrictions.eq("team.key", teamId));
     }
 
+    /**
+     * 根据身份证获取
+     * @param id
+     * @return
+     */
+    @Transactional
+    public TeamMember findByIdCard(String id) {
+        List<TeamMember> list = this.teamMemberDao.findBy("idCard", id);
+        return list==null?null:list.get(0);
+    }
     public TeamMember findUnique(String teamId, String mobile) {
         return this.teamMemberDao.findUnique(Restrictions.eq("mobile", mobile), Restrictions.eq("team.key", teamId));
     }
@@ -102,4 +112,6 @@ public class TeamMemberService {
         teamMember.setMemberId(295l);
         teamMemberDao.update(teamMember);
     }
+
+
 }
