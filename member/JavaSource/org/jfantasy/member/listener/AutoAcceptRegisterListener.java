@@ -18,7 +18,7 @@ public class AutoAcceptRegisterListener implements ApplicationListener<RegisterE
     @Override
     public void onApplicationEvent(RegisterEvent event) {
         Member member = event.getMember();
-        for (TeamMember teamMember : teamMemberService.find(Restrictions.eq("mobile", member.getUsername()), Restrictions.eq("status", TeamMemberStatus.unactivated))) {
+        for (TeamMember teamMember : teamMemberService.find(Restrictions.eq("mobile", member.getProfile().getMobile()), Restrictions.eq("status", TeamMemberStatus.unactivated))) {
             teamMemberService.activate(teamMember.getId(), member.getId());
         }
     }
