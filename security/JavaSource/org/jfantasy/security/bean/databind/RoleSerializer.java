@@ -12,7 +12,10 @@ public class RoleSerializer extends JsonSerializer<Role> {
 
     @Override
     public void serialize(Role value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-        gen.writeString(value.getId() != null ? value.getId() : "");
+        if(value.getId() == null ){
+            gen.writeNull();
+        }
+        gen.writeString(value.getId());
     }
 
 }

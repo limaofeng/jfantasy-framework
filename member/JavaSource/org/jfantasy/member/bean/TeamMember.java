@@ -38,7 +38,7 @@ import java.util.Map;
                 @Parameter(name = "increment_size", value = "10"),
                 @Parameter(name = "optimizer", value = "pooled-lo")
         })
-@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "team", "role", "member"})
+@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "team", "member"})
 public class TeamMember extends BaseBusEntity {
 
     private static final long serialVersionUID = -7880093458033934231L;
