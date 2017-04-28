@@ -30,8 +30,8 @@ public class TeamMemberBindListener implements ApplicationListener<TeamMemberBin
         Long teamMemberId = (long) event.getSource();
         TeamMember teamMember = teamMemberService.get(teamMemberId);
         Map<String,Object> data = new HashMap<>();
-        data.put("memberId",teamMember.getMemberId());
-        data.put("teamMemberId",teamMember.getId());
+        data.put("member_id",teamMember.getMemberId());
+        data.put("team_member_id",teamMember.getId());
         eventEmitter.fireEvent("tmember.bind",teamMember.getId()+"",String.format("[%s]集团员工档案绑定",teamMember.getId()), JSON.serialize(data),
                 new LinkerBean("teammember",teamMember.getName(),teamMember.getId()+""),
                 new LinkerBean("member",teamMember.getMember().getNickName(),teamMember.getMemberId()+""));

@@ -85,6 +85,9 @@ public class TeamMemberController {
     private TeamMember get(String type, String id, String tid) {
         TeamMember member;
         switch (type) {
+            case "idcard":
+                member = this.teamMemberService.findByIdCard(id);
+                break;
             case "id":
                 member = this.teamMemberService.get(Long.valueOf(id));
                 break;
