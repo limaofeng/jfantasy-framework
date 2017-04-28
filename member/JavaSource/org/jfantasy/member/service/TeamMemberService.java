@@ -81,6 +81,10 @@ public class TeamMemberService {
         return this.teamMemberDao.find(criterions);
     }
 
+    public List<TeamMember> find(List<PropertyFilter> filters) {
+        return this.teamMemberDao.find(filters);
+    }
+
     @Transactional
     public void activate(Long id, Long memberId) {
         TeamMember teamMember = this.teamMemberDao.get(id);

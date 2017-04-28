@@ -280,6 +280,15 @@ public class MemberController {
         return teams;
     }
 
+    @RequestMapping(value = "/{memid}/team-members", method = RequestMethod.GET)
+    @ResponseBody
+    public List<TeamMember> teamMembers(@PathVariable("memid") Long memberId, @RequestParam(value = "type", required = false) String type, List<PropertyFilter> filters) {
+        get(memberId);
+        filters.add(new PropertyFilter("EQL_member.id", memberId.toString()));//包含当前会员
+        filters.add(new PropertyFilter("EQE_status", TeamMemberStatus.activated));//状态有效
+        return teamMemberService.find(filters);
+    }
+
     private Member get(Long id) {
         return get("id", id.toString());
     }
