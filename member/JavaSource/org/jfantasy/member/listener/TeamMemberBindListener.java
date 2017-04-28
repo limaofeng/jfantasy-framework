@@ -6,6 +6,7 @@ import org.jfantasy.member.bean.TeamMember;
 import org.jfantasy.member.event.TeamMemberBindEvent;
 import org.jfantasy.member.service.TeamMemberService;
 import org.jfantasy.ms.EventEmitter;
+import org.jfantasy.ms.LinkerBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.scheduling.annotation.Async;
@@ -31,7 +32,9 @@ public class TeamMemberBindListener implements ApplicationListener<TeamMemberBin
         Map<String,Object> data = new HashMap<>();
         data.put("memberId",teamMember.getMemberId());
         data.put("teamMemberId",teamMember.getId());
-        eventEmitter.fireEvent("tmember.bind",teamMember.getId()+"",String.format("[%s]集团员工档案绑定",teamMember.getId()), JSON.serialize(data));
+        eventEmitter.fireEvent("tmember.bind",teamMember.getId()+"",String.format("[%s]集团员工档案绑定",teamMember.getId()), JSON.serialize(data),
+                new LinkerBean("teammember",teamMember.getName(),teamMember.getId()+""),
+                new LinkerBean("member",teamMember.getMember().getNickName(),teamMember.getMemberId()+""));
 
     }
     @Autowired
