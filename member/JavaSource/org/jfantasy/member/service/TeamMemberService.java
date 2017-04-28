@@ -6,6 +6,7 @@ import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.util.common.BeanUtil;
+import org.jfantasy.member.bean.Member;
 import org.jfantasy.member.bean.Team;
 import org.jfantasy.member.bean.TeamMember;
 import org.jfantasy.member.bean.enums.TeamMemberStatus;
@@ -33,6 +34,7 @@ public class TeamMemberService {
         return teamMemberDao.findPager(pager, filters);
     }
 
+    @Transactional(readOnly = true)
     public TeamMember get(Long id) {
         return this.teamMemberDao.get(id);
     }
@@ -93,8 +95,15 @@ public class TeamMemberService {
         }
         teamMember.setMemberId(memberId);
         teamMember.setStatus(TeamMemberStatus.activated);
-        this.teamMemberDao.save(teamMember);
+        this.teamMemberDao.update(teamMember);
         // 添加集团标签到用户
     }
 
+    @Transactional
+    public void test(){
+
+        TeamMember teamMember = teamMemberDao.get(850l);
+        teamMember.setMemberId(295l);
+        teamMemberDao.update(teamMember);
+    }
 }
