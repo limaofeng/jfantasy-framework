@@ -16,6 +16,8 @@ import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
 import org.jfantasy.framework.spring.validation.RESTful;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
+import org.jfantasy.framework.util.regexp.RegexpConstant;
+import org.jfantasy.framework.util.regexp.RegexpUtil;
 import org.jfantasy.framework.util.web.RedirectAttributesWriter;
 import org.jfantasy.framework.util.web.WebUtil;
 import org.jfantasy.member.Profile;
@@ -164,7 +166,7 @@ public class MemberController {
         if (StringUtil.isNotBlank(form.getMacode()) && !this.passwordTokenEncoder.matches("register", PasswordTokenType.macode, form.getUsername(), null, form.getMacode())) {
             throw new ValidationException(100000, "注册验证码错误");
         }
-        return assembler.toResource(memberService.signUp(form.getUsername(), form.getPassword(), SignUpType.password));
+        return assembler.toResource(memberService.signUp(form.getUsername(), form.getPassword(), RegexpUtil.isMatch(form.getUsername(), RegexpConstant.VALIDATOR_MOBILE) ? SignUpType.sms : SignUpType.password));
     }
 
     @JsonResultFilter(
