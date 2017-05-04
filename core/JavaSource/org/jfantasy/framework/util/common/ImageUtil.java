@@ -1,16 +1,16 @@
 package org.jfantasy.framework.util.common;
 
-import org.jfantasy.framework.dao.mybatis.keygen.GUIDKeyGenerator;
-import org.jfantasy.framework.error.IgnoreException;
-import org.jfantasy.framework.util.regexp.RegexpUtil;
 import com.sun.imageio.plugins.bmp.BMPImageReader;
 import com.sun.imageio.plugins.gif.GIFImageReader;
 import com.sun.imageio.plugins.jpeg.JPEGImageReader;
 import com.sun.imageio.plugins.png.PNGImageReader;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jfantasy.framework.dao.mybatis.keygen.GUIDKeyGenerator;
+import org.jfantasy.framework.error.IgnoreException;
+import org.jfantasy.framework.util.regexp.RegexpUtil;
+import org.springframework.util.Base64Utils;
 import sun.awt.image.ToolkitImage;
-import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 
 import javax.imageio.ImageIO;
@@ -790,9 +790,7 @@ public final class ImageUtil {
      */
     public static BufferedImage getImage(String base64) {
         try {
-            BASE64Decoder decoder = new BASE64Decoder();
-            ByteArrayInputStream in = new ByteArrayInputStream(decoder.decodeBuffer(base64));
-            return ImageIO.read(in);
+            return ImageIO.read(new ByteArrayInputStream(Base64Utils.decodeFromString(base64)));
         } catch (IOException e) {
             LOG.error(e.getMessage(), e);
             return null;

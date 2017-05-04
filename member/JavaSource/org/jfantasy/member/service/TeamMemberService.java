@@ -6,7 +6,6 @@ import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.util.common.BeanUtil;
-import org.jfantasy.member.bean.Member;
 import org.jfantasy.member.bean.Team;
 import org.jfantasy.member.bean.TeamMember;
 import org.jfantasy.member.bean.enums.TeamMemberStatus;
@@ -50,13 +49,13 @@ public class TeamMemberService {
 
     /**
      * 根据身份证获取
-     * @param id
-     * @return
+     * @param idCard 身份证
+     * @return TeamMember
      */
     @Transactional
-    public TeamMember findByIdCard(String id) {
-        List<TeamMember> list = this.teamMemberDao.findBy("idCard", id);
-        return list==null?null:list.get(0);
+    public TeamMember findByIdCard(String idCard) {
+        List<TeamMember> list = this.teamMemberDao.findBy("idCard", idCard,"status","asc");
+        return list.isEmpty() ? null : list.get(0);
     }
     public TeamMember findUnique(String teamId, String mobile) {
         return this.teamMemberDao.findUnique(Restrictions.eq("mobile", mobile), Restrictions.eq("team.key", teamId));
@@ -66,9 +65,9 @@ public class TeamMemberService {
     public TeamMember update(TeamMember member, boolean patch) {
         if (!patch) {
             TeamMember oldMember = this.teamMemberDao.get(member.getId());
-            member = BeanUtil.copyProperties(oldMember, member, "id", "status", "member", "team");
+            return this.teamMemberDao.update(BeanUtil.copyProperties(oldMember, member, "id", "status", "member", "team"));
         }
-        return this.teamMemberDao.update(member, patch);
+        return this.teamMemberDao.update(member, true);
     }
 
     @Transactional
@@ -108,14 +107,5 @@ public class TeamMemberService {
         this.teamMemberDao.update(teamMember);
         // 添加集团标签到用户
     }
-
-    @Transactional
-    public void test(){
-
-        TeamMember teamMember = teamMemberDao.get(850l);
-        teamMember.setMemberId(295l);
-        teamMemberDao.update(teamMember);
-    }
-
 
 }

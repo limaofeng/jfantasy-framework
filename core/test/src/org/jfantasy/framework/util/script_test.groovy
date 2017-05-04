@@ -4,7 +4,7 @@ class Question {
     def score = 0
 }
 
-println "Welcome to $language"
+println "Welcome to $user.username"
 
 def q1 = new Question(['value':'1'])
 def q2 = new Question(['value':'1'])

@@ -2,11 +2,16 @@ package org.jfantasy.framework.util.common;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jfantasy.framework.jackson.JSON;
 import org.jfantasy.framework.service.FTPService;
 import org.jfantasy.framework.util.common.file.FileUtil;
+import org.jfantasy.framework.util.ognl.OgnlUtil;
 import org.junit.Test;
+import org.springframework.util.Base64Utils;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 public class FileUtilTest {
 
@@ -45,4 +50,14 @@ public class FileUtilTest {
         LOG.debug(FileUtil.getMimeType(FileUtilTest.class.getResourceAsStream("FileUtilTest.class")));
     }
 
+    @Test
+    public void testWriteFile() throws Exception {
+        String basePath = "/Users/limaofeng/framework/core/test/src/org/jfantasy/framework/util/common/";
+        String file = FileUtil.readFile(basePath + "20170503_report.json");
+        Map<String,Object> data = JSON.deserialize(file, HashMap.class);
+        String base64 = OgnlUtil.getInstance().getValue("data.ecgData",data);
+        FileUtil.writeFile(Base64Utils.decodeFromString(base64),basePath + "test.jpg");
+
+        //ImageUtil.write(ImageUtil.getImage(base64),basePath + "/test.jpg");
+    }
 }

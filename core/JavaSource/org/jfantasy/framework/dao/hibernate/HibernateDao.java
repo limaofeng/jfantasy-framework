@@ -443,6 +443,11 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
         return find(Restrictions.eq(propertyName, value));
     }
 
+    public List<T> findBy(String propertyName, Object value,String orderBy,String order) {
+        Assert.hasText(propertyName, "propertyName不能为空");
+        return find(new Criterion[]{Restrictions.eq(propertyName, value)},orderBy,order);
+    }
+
     /**
      * 查询对象返回唯一值,propertyName 值必须是唯一的，value重复将会抛出异常
      *
