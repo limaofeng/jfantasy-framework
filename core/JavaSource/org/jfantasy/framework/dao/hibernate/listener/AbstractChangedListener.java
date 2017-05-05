@@ -120,7 +120,14 @@ public abstract class AbstractChangedListener<T> implements PostCommitUpdateEven
         }
         Arrays.binarySearch(event.getPersister().getPropertyNames(), property);
         int index = ObjectUtil.indexOf(event.getPersister().getPropertyNames(), property);
-        return index != -1 && !event.getState()[index].equals(event.getOldState()[index]);
+        if(index != -1){
+            if(event.getState()[index] != null){
+                return !event.getState()[index].equals(event.getOldState()[index]);
+            }else {
+                return event.getState()[index] != event.getOldState()[index];
+            }
+        }
+        return false;
     }
 
     @Autowired
