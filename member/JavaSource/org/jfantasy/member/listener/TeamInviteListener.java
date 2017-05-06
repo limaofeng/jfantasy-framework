@@ -31,7 +31,7 @@ public class TeamInviteListener implements ApplicationListener<TeamInviteEvent> 
     @Async
     @Transactional
     public void onApplicationEvent(TeamInviteEvent event) {
-        Member member = memberService.findUniqueByUsername(event.getMobile());
+        Member member = memberService.findUniqueByPhone(event.getMobile());
         TeamMember teamMember = teamMemberService.findUnique(event.getTeamId(), event.getMobile());
         if (member != null && teamMember != null) {
             teamMemberService.activate(teamMember.getId(),member.getId());
