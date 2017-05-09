@@ -17,6 +17,7 @@ import org.jfantasy.security.bean.User;
 import org.jfantasy.security.data.SecurityStorage;
 import org.jfantasy.security.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.SetOperations;
@@ -45,6 +46,8 @@ public class AccessTokenService {
     private UserService userService;
     @Autowired
     private MemberService memberService;
+    @Value("${spring.profiles.active}")
+    private String env;
 
     @Transactional
     @SuppressWarnings("unchecked")
@@ -63,8 +66,13 @@ public class AccessTokenService {
         accessToken.setGrantType(request.getGrantType());
         accessToken.setRefreshToken(request.getRefreshToken());
         //TODO 后期可以改为单独配置的属性
-        accessToken.setExpires(2 * 60 * 60);
-        accessToken.setReExpires(30 * 24 * 60 * 60);
+        if("prod".equals(env)) {
+            accessToken.setExpires(7200);
+            accessToken.setReExpires(2592000);
+        }else{
+            accessToken.setExpires(120);// 2 * 60
+            accessToken.setReExpires(1800);// 30 * 60
+        }
 
         ValueOperations valueOper = redisTemplate.opsForValue();
         HashOperations hashOper = redisTemplate.opsForHash();
