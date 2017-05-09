@@ -63,8 +63,8 @@ public class AccessTokenService {
         accessToken.setGrantType(request.getGrantType());
         accessToken.setRefreshToken(request.getRefreshToken());
         //TODO 后期可以改为单独配置的属性
-        accessToken.setExpires(30 * 60 * 60);
-        accessToken.setReExpires(40 * 60 * 60);
+        accessToken.setExpires(2 * 60 * 60);
+        accessToken.setReExpires(30 * 24 * 60 * 60);
 
         ValueOperations valueOper = redisTemplate.opsForValue();
         HashOperations hashOper = redisTemplate.opsForHash();
@@ -99,6 +99,7 @@ public class AccessTokenService {
                     case "member":
                         retrieveUser(userDetails, memberService.login(PasswordTokenType.password, Member.MEMBER_TYPE_PERSONAL, request.getUsername(), request.getPassword()));
                         break;
+                    default:
                 }
                 redisTemplate.delete(SecurityStorage.AUTHORIZATION_CODE_PREFIX + request.getCode());
                 break;
