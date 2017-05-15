@@ -14,8 +14,4 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class TeamMemberTest {
     @Autowired
     private TeamMemberService teamMemberService;
-    @Test
-    public void tt(){
-        teamMemberService.test();
-    }
 }

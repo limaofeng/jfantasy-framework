@@ -12,6 +12,7 @@ import org.jfantasy.framework.dao.hibernate.converter.MapConverter;
 import org.jfantasy.framework.dao.hibernate.converter.StringArrayConverter;
 import org.jfantasy.framework.spring.validation.RESTful;
 import org.jfantasy.framework.spring.validation.UseLong;
+import org.jfantasy.member.bean.enums.PapersType;
 import org.jfantasy.member.bean.enums.TeamMemberStatus;
 import org.jfantasy.member.rest.validators.ChangeTeamOwnerValidator;
 import org.jfantasy.security.bean.Role;
@@ -74,11 +75,18 @@ public class TeamMember extends BaseBusEntity {
     @Column(name = "MOBILE", length = 20)
     private String mobile;
     /**
-     * 身份证
+     * 证件类型
+     */
+    @Enumerated(EnumType.STRING)
+    @NotNull(groups = {RESTful.POST.class})
+    @Column(name = "PAPERS_TYPE", length = 20)
+    private PapersType papersType;
+    /**
+     * 证件号码
      */
     @NotNull(groups = {RESTful.POST.class})
-    @Column(name = "ID_CARD", length = 18)
-    private String idCard;
+    @Column(name = "PAPERS_NUMBER", length = 30)
+    private String papersNumber;
     /**
      * 岗位
      */
@@ -223,14 +231,6 @@ public class TeamMember extends BaseBusEntity {
         this.mobile = mobile;
     }
 
-    public String getIdCard() {
-        return idCard;
-    }
-
-    public void setIdCard(String idCard) {
-        this.idCard = idCard;
-    }
-
     public String getPosition() {
         return position;
     }
@@ -261,6 +261,22 @@ public class TeamMember extends BaseBusEntity {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public PapersType getPapersType() {
+        return papersType;
+    }
+
+    public void setPapersType(PapersType papersType) {
+        this.papersType = papersType;
+    }
+
+    public String getPapersNumber() {
+        return papersNumber;
+    }
+
+    public void setPapersNumber(String papersNumber) {
+        this.papersNumber = papersNumber;
     }
 
     @Transient
