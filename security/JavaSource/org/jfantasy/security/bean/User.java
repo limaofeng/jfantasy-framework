@@ -274,7 +274,9 @@ public class User extends BaseBusEntity {
         if (this.getUserType() != UserType.employee) {
             return allroles;
         }
-        allroles.addAll(ObjectUtil.filter(this.getEmployee().getRoles(), Role::isEnabled));
+        if (this.getEmployee()!=null){
+            allroles.addAll(ObjectUtil.filter(this.getEmployee().getRoles(), Role::isEnabled));
+        }
         return allroles;
     }
 
