@@ -62,7 +62,7 @@ public class Team extends BaseBusEntity {
      * 名称
      */
     @NotNull(groups = RESTful.POST.class)
-    @Column(name = "NAME", nullable = false, length = 20)
+    @Column(name = "NAME", nullable = false, length = 50)
     private String name;
     /**
      * 集团所有者
