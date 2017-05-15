@@ -263,6 +263,22 @@ public class TeamMember extends BaseBusEntity {
         this.email = email;
     }
 
+    public PapersType getPapersType() {
+        return papersType;
+    }
+
+    public void setPapersType(PapersType papersType) {
+        this.papersType = papersType;
+    }
+
+    public String getPapersNumber() {
+        return papersNumber;
+    }
+
+    public void setPapersNumber(String papersNumber) {
+        this.papersNumber = papersNumber;
+    }
+
     @Transient
     @NotNull(groups = RESTful.POST.class)
     public String getTeamId() {
