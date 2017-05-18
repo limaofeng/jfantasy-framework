@@ -54,7 +54,7 @@ public class TeamMemberService {
      */
     @Transactional
     public TeamMember findByIdCard(String idCard) {
-        List<TeamMember> list = this.teamMemberDao.findBy("idCard", idCard,"status","asc");
+        List<TeamMember> list = this.teamMemberDao.findBy("papersNumber", idCard,"status","asc");
         return list.isEmpty() ? null : list.get(0);
     }
     public TeamMember findUnique(String teamId, String mobile) {

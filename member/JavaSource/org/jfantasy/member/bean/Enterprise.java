@@ -30,7 +30,7 @@ public class Enterprise extends BaseBusEntity {
     /**
      * 公司名称
      */
-    @Column(name = "NAME", length = 30)
+    @Column(name = "NAME", length = 50)
     private String name;
     /**
      * 地址
@@ -67,6 +67,16 @@ public class Enterprise extends BaseBusEntity {
      */
     @Column(name = "TARGET_ID", length = 32)
     private String target;
+    /**
+     * 集团规模
+     */
+    @Column(name = "SCALE", length = 32)
+    private String scale;
+    /**
+     * 所属行业
+     */
+    @Column(name = "INDUSTRY", length = 32)
+    private String industry;
 
     public String getId() {
         return id;
@@ -148,4 +158,19 @@ public class Enterprise extends BaseBusEntity {
         this.email = email;
     }
 
+    public String getScale() {
+        return scale;
+    }
+
+    public void setScale(String scale) {
+        this.scale = scale;
+    }
+
+    public String getIndustry() {
+        return industry;
+    }
+
+    public void setIndustry(String industry) {
+        this.industry = industry;
+    }
 }

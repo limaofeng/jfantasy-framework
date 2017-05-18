@@ -20,7 +20,7 @@ import java.util.*;
 @Entity
 @Table(name = "AUTH_USER")
 @TableGenerator(name = "user_gen", table = "sys_sequence", pkColumnName = "gen_name", pkColumnValue = "auth_user:id", valueColumnName = "gen_value")
-@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "roles", "user_groups", "website", "menus", "authorities"})
+@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler", "user_groups", "website", "menus", "authorities"})
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class User extends BaseBusEntity {
 
@@ -107,6 +107,7 @@ public class User extends BaseBusEntity {
     /**
      * 用户对应的角色
      */
+    @JsonIgnore
     @ManyToMany(targetEntity = Role.class, fetch = FetchType.LAZY)
     @JoinTable(name = "AUTH_ROLE_USER", joinColumns = @JoinColumn(name = "USER_ID"), inverseJoinColumns = @JoinColumn(name = "ROLE_CODE"), foreignKey = @ForeignKey(name = "FK_ROLE_USER_UID"))
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
@@ -273,8 +274,16 @@ public class User extends BaseBusEntity {
         if (this.getUserType() != UserType.employee) {
             return allroles;
         }
-        allroles.addAll(ObjectUtil.filter(this.getEmployee().getRoles(), Role::isEnabled));
+        if (this.getEmployee()!=null){
+            allroles.addAll(ObjectUtil.filter(this.getEmployee().getRoles(), Role::isEnabled));
+        }
         return allroles;
+    }
+
+    @JsonProperty("roles")
+    @Transient
+    public String[] getAllStrRoles(){
+        return ObjectUtil.toFieldArray(new ArrayList<>(this.getAllRoles()),"id",String.class);
     }
 
     @JsonIgnore
