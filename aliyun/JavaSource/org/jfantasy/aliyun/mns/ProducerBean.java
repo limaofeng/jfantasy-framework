@@ -7,6 +7,8 @@ import com.aliyun.mns.model.Base64TopicMessage;
 import com.aliyun.mns.model.QueueMeta;
 import com.aliyun.mns.model.TopicMessage;
 import com.aliyun.mns.model.TopicMeta;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jfantasy.aliyun.api.Message;
 import org.jfantasy.aliyun.api.Mode;
 import org.jfantasy.aliyun.api.Producer;
@@ -17,16 +19,20 @@ import org.jfantasy.framework.util.common.StringUtil;
  */
 public class ProducerBean implements Producer {
 
+    private static final Log LOGGER = LogFactory.getLog(ProducerBean.class);
+
     private MNSClient client;
     private CloudQueue queue;
     private CloudTopic topic;
     private Mode mode;
     private String name;
+    private boolean enable;
 
     public ProducerBean(MNSClient client, Mode mode, String name) {
         this.client = client;
         this.mode = mode;
         this.name = name;
+        this.enable = Boolean.valueOf(StringUtil.defaultValue(System.getenv("aliyun.mns.enable"),"true"));
     }
 
     @Override
@@ -55,6 +61,10 @@ public class ProducerBean implements Producer {
 
     @Override
     public String send(String body) {
+        if(!this.enable){
+            LOGGER.error("消息功能已被禁用,请通过 aliyun.mns.enable=true 启用该功能");
+            return null;
+        }
         if (this.queue != null) {
             return queue.putMessage(new com.aliyun.mns.model.Message(body)).getMessageId();
         } else {
@@ -64,6 +74,10 @@ public class ProducerBean implements Producer {
 
     @Override
     public Message send(Message message) {
+        if(!this.enable){
+            LOGGER.error("消息功能已被禁用,请通过 aliyun.mns.enable=true 启用该功能");
+            return null;
+        }
         if (this.queue != null) {
             message.setId(send(message.getBody()));
             return message;

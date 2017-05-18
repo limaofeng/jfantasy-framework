@@ -29,10 +29,12 @@ public class ConsumerBean implements Consumer {
     private String queueName;
     private String subscriptionName;
     private String filterTag;
+    private boolean enable;
 
     public ConsumerBean(MNSClient client, String queueName) {
         this.client = client;
         this.queueName = queueName;
+        this.enable = Boolean.valueOf(StringUtil.defaultValue(System.getenv("aliyun.mns.enable"),"true"));
     }
 
     public ConsumerBean(MNSClient client, String topicName, String queueName, String subscriptionName) {
@@ -40,6 +42,7 @@ public class ConsumerBean implements Consumer {
         this.topicName = topicName;
         this.queueName = queueName;
         this.subscriptionName = subscriptionName;
+        this.enable = Boolean.valueOf(StringUtil.defaultValue(System.getenv("aliyun.mns.enable"),"true"));
     }
 
     public ConsumerBean(MNSClient client, String topicName, String queueName, String subscriptionName, String filterTag) {
@@ -48,6 +51,7 @@ public class ConsumerBean implements Consumer {
         this.queueName = queueName;
         this.subscriptionName = subscriptionName;
         this.filterTag = filterTag;
+        this.enable = Boolean.valueOf(StringUtil.defaultValue(System.getenv("aliyun.mns.enable"),"true"));
     }
 
     @Override
@@ -78,7 +82,7 @@ public class ConsumerBean implements Consumer {
             topic.subscribe(subMeta);
         }
         // step 4 : 从订阅的队列中获取消息
-        new Thread(() -> {
+        Thread thread = new Thread(() -> {
             do {
                 try {
                     Message popMsg = queue.popMessage(30);
@@ -107,7 +111,12 @@ public class ConsumerBean implements Consumer {
                     LOGGER.error("Unknown exception happened!", e);
                 }
             } while (client.isOpen());
-        }).start();
+        });
+        if(!this.enable){
+            LOGGER.error("消息功能已被禁用,请通过 aliyun.mns.enable=true 启用该功能");
+            return;
+        }
+        thread.start();
     }
 
 
