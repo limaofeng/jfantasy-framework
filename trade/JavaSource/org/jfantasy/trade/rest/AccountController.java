@@ -12,10 +12,7 @@ import org.jfantasy.framework.spring.validation.RESTful;
 import org.jfantasy.framework.util.common.DateUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.pay.error.PayException;
-import org.jfantasy.pay.rest.models.AccountForm;
-import org.jfantasy.pay.rest.models.ActivateForm;
-import org.jfantasy.pay.rest.models.TransactionForm;
-import org.jfantasy.pay.rest.models.WithdrawForm;
+import org.jfantasy.pay.rest.models.*;
 import org.jfantasy.pay.rest.models.assembler.AccountResourceAssembler;
 import org.jfantasy.pay.rest.models.assembler.TransactionResourceAssembler;
 import org.jfantasy.trade.bean.*;
@@ -182,8 +179,8 @@ public class AccountController {
      * @return
      */
     @PostMapping("/{sn}/checkfail")
-    public Transaction checkfail(@PathVariable("sn") String sn,@RequestBody String reason){
-        return this.transactionService.checkfail(sn,reason);
+    public Transaction checkfail(@PathVariable("sn") String sn,@RequestBody CheckForm checkForm){
+        return this.transactionService.checkfail(sn,checkForm.getReason());
     }
     /**
      * 打款成功回调
@@ -200,8 +197,8 @@ public class AccountController {
      * @return
      */
     @PostMapping("/{sn}/remitfail")
-    public Transaction remitfail(@PathVariable("sn") String sn,@RequestBody String reason){
-        return this.transactionService.remitfail(sn,reason);
+    public Transaction remitfail(@PathVariable("sn") String sn,@RequestBody CheckForm checkForm){
+        return this.transactionService.remitfail(sn,checkForm.getReason());
     }
 
     @JsonResultFilter(ignore = {
