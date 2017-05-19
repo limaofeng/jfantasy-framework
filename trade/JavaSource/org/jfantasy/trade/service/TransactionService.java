@@ -177,7 +177,8 @@ public class TransactionService {
             map.put("account",transaction.getFromAccount().getSn());
             Unirest.post(apiGatewaySettings.getUrl()+"/cash/start/"+transaction.getFromAccount().getOwner()).queryString(map).asString();
         } catch (UnirestException e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(),e);
+            throw new RestException("审核流程开启失败");
         }
         return transaction;
     }
