@@ -122,7 +122,7 @@ public class UserService {
         return this.userDao.update(user);
     }
 
-    @Cacheable(value = "fantasy.security.userService", key = "'findUniqueByUsername' + #username ")
+    //@Cacheable(value = "fantasy.security.userService", key = "'findUniqueByUsername' + #username ")
     public User findUniqueByUsername(String username) {
         return this.userDao.findUniqueBy("username", username);
     }
