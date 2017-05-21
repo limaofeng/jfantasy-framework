@@ -308,4 +308,15 @@ public class TeamMember extends BaseBusEntity {
         this.role = role;
     }
 
+    @Transient
+    public String getIdCard() {
+        return this.getPapersNumber();
+    }
+
+    @Transient
+    public void setIdCard(String idCard) {
+        this.setPapersType(PapersType.idcard);
+        this.setPapersNumber(idCard);
+    }
+
 }
