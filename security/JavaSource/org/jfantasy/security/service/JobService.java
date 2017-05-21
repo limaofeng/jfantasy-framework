@@ -2,6 +2,7 @@ package org.jfantasy.security.service;
 
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
+import org.jfantasy.autoconfigure.WebErrorConstant;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.spring.mvc.error.ValidationException;
@@ -54,7 +55,7 @@ public class JobService {
     public void delete(String... ids) {
         for (String id : ids) {
             if (this.employeeDao.exists(Restrictions.eq("job.id", id))) {
-                throw new ValidationException("岗位不能删除,有员工已经分配到该岗位");
+                throw new ValidationException(WebErrorConstant.JOBUSED,"岗位不能删除,有员工已经分配到该岗位");
             }
             this.jobDao.delete(id);
         }
