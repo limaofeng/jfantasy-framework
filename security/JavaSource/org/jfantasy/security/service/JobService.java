@@ -4,9 +4,11 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
+import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.security.bean.Job;
 import org.jfantasy.security.bean.Role;
+import org.jfantasy.security.dao.EmployeeDao;
 import org.jfantasy.security.dao.JobDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,10 +23,12 @@ public class JobService {
 
     private final JobDao jobDao;
     private RoleService roleService;
+    private EmployeeDao employeeDao;
 
     @Autowired
-    public JobService(JobDao jobDao) {
+    public JobService(JobDao jobDao, EmployeeDao employeeDao) {
         this.jobDao = jobDao;
+        this.employeeDao = employeeDao;
     }
 
     public Pager<Job> findPager(Pager<Job> pager, List<PropertyFilter> filters) {
@@ -49,6 +53,9 @@ public class JobService {
 
     public void delete(String... ids) {
         for (String id : ids) {
+            if (this.employeeDao.exists(Restrictions.eq("job.id", id))) {
+                throw new ValidationException("岗位不能删除,有员工已经分配到该岗位");
+            }
             this.jobDao.delete(id);
         }
     }
