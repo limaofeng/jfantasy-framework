@@ -1,13 +1,17 @@
 package org.jfantasy.trade.service;
 
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
+import org.jfantasy.autoconfigure.ApiGatewaySettings;
 import org.jfantasy.card.bean.Card;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.spring.SpringContextUtil;
+import org.jfantasy.framework.spring.mvc.error.NotFoundException;
 import org.jfantasy.framework.spring.mvc.error.RestException;
 import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.util.common.ObjectUtil;
@@ -29,6 +33,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -42,6 +47,8 @@ public class TransactionService {
     private final TransactionDao transactionDao;
     private final AccountDao accountDao;
     private AccountService accountService;
+    @Autowired
+    private ApiGatewaySettings apiGatewaySettings;
 
     @Autowired
     public TransactionService(TransactionDao transactionDao, ProjectDao projectDao, AccountDao accountDao) {
@@ -144,6 +151,35 @@ public class TransactionService {
     public Transaction syncSave(String project, String from, String to, TxChannel channel, BigDecimal amount, String notes, Map<String, Object> data) {
         Transaction transaction = this.save(project, from, to, channel, amount, notes, data);
         this.handleAllowFailure(transaction.getSn(), "");
+        return transaction;
+    }
+    /**
+     * 提现，通过activiti控制流程
+     *
+     * @param project 项目
+     * @param from    转出账户
+     * @param to      转入账户
+     * @param channel 渠道
+     * @param amount  交易金额
+     * @param notes   备注
+     * @param data    附加属性
+     * @return Transaction
+     */
+    @Transactional
+    public Transaction withdraw(String project, String from, String to, TxChannel channel, BigDecimal amount, String notes, Map<String, Object> data) {
+        Transaction transaction = this.save(project, from, to, channel, amount, notes, data);
+        this.handleAllowFailure(transaction.getSn(), "");
+        //开启流程
+        try {
+            Map<String, Object> map = new HashMap<>();
+            map.put("cash", transaction.getAmount());
+            map.put("sn",transaction.getSn());
+            map.put("account",transaction.getFromAccount().getSn());
+            Unirest.post(apiGatewaySettings.getUrl()+"/cash/start/"+transaction.getFromAccount().getOwner()).queryString(map).asString();
+        } catch (UnirestException e) {
+            LOG.error(e.getMessage(),e);
+            throw new RestException("审核流程开启失败");
+        }
         return transaction;
     }
 
@@ -327,4 +363,33 @@ public class TransactionService {
         this.accountService = accountService;
     }
 
+    @Transactional
+    public Transaction checkfail(String sn, String reason) {
+        Transaction transaction = this.transactionDao.get(sn);
+        if (transaction==null){
+            throw new NotFoundException(sn+"交易单不存在");
+        }
+        transaction.setNotes(reason);
+        transaction.setStatus(TxStatus.close);
+        transaction.setFlowStatus(-1);
+        Account account = transaction.getFromAccount();
+        account.setAmount(account.getAmount().add(transaction.getAmount()));
+        this.transactionDao.update(transaction);
+        this.accountDao.update(account);
+        return transaction;
+    }
+
+    public Transaction remitsucc(String sn) {
+        Transaction transaction = this.transactionDao.get(sn);
+        if (transaction==null){
+            throw new NotFoundException(sn+"交易单不存在");
+        }
+        transaction.setStatus(TxStatus.success);
+        transaction.setFlowStatus(9);
+        return this.transactionDao.save(transaction);
+    }
+
+    public Transaction remitfail(String sn, String reason) {
+        return this.checkfail(sn,reason);
+    }
 }

@@ -12,15 +12,14 @@ import org.jfantasy.framework.spring.validation.RESTful;
 import org.jfantasy.framework.util.common.DateUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.pay.error.PayException;
-import org.jfantasy.pay.rest.models.AccountForm;
-import org.jfantasy.pay.rest.models.ActivateForm;
-import org.jfantasy.pay.rest.models.TransactionForm;
+import org.jfantasy.pay.rest.models.*;
 import org.jfantasy.pay.rest.models.assembler.AccountResourceAssembler;
 import org.jfantasy.pay.rest.models.assembler.TransactionResourceAssembler;
 import org.jfantasy.trade.bean.*;
 import org.jfantasy.trade.bean.enums.ProjectType;
 import org.jfantasy.trade.bean.enums.ReportTargetType;
 import org.jfantasy.trade.bean.enums.TimeUnit;
+import org.jfantasy.trade.bean.enums.TxChannel;
 import org.jfantasy.trade.service.AccountService;
 import org.jfantasy.trade.service.ProjectService;
 import org.jfantasy.trade.service.ReportService;
@@ -147,6 +146,59 @@ public class AccountController {
             form.setTo(account.getSn());
         }
         return this.transactionService.syncSave(form.getProject(), form.getFrom(), form.getTo(), form.getChannel(), form.getAmount(), form.getNotes(), data);
+    }
+
+    /**
+     * 提现接口
+     * @param sn
+     * @param form
+     * @return
+     */
+    @JsonResultFilter(ignore = {
+            @IgnoreProperty(pojo = Project.class, name = "description")
+    })
+    @PostMapping("/{id}/withdraw")
+    @ResponseBody
+    public Transaction withdraw(@PathVariable("id") String sn, @Validated(RESTful.POST.class) @RequestBody WithdrawForm form){
+        Account account = get(sn);
+        Map<String, Object> data = ObjectUtil.defaultValue(form.getProperties(), new HashMap<>());
+        data.put(Transaction.UNION_KEY, sn + "|" + (DateUtil.now().getTime() / 1000 * 10) + "|" + form.getAmount().setScale(2, BigDecimal.ROUND_UP).toString() + "|" + TxChannel.offline);
+        if (form.getAmount().compareTo(new BigDecimal(200)) < 0) {
+            throw new ValidationException("提现金额不足200元，无法提现");
+        }
+        if (account.getAmount().compareTo(form.getAmount()) < 0) {
+            throw new ValidationException("账户余额不足,交易失败");
+        }
+        form.setFrom(account.getSn());
+        return this.transactionService.withdraw("withdrawal", form.getFrom(), "", TxChannel.offline, form.getAmount(), form.getNotes(), data);
+    }
+
+    /**
+     * 审核失败回调
+     * @param sn
+     * @return
+     */
+    @PostMapping("/{sn}/checkfail")
+    public Transaction checkfail(@PathVariable("sn") String sn,@RequestBody CheckForm checkForm){
+        return this.transactionService.checkfail(sn,checkForm.getReason());
+    }
+    /**
+     * 打款成功回调
+     * @param sn
+     * @return
+     */
+    @PostMapping("/{sn}/remitsucc")
+    public Transaction remitsucc(@PathVariable("sn") String sn){
+        return this.transactionService.remitsucc(sn);
+    }
+    /**
+     * 打款失败回调
+     * @param sn
+     * @return
+     */
+    @PostMapping("/{sn}/remitfail")
+    public Transaction remitfail(@PathVariable("sn") String sn,@RequestBody CheckForm checkForm){
+        return this.transactionService.remitfail(sn,checkForm.getReason());
     }
 
     @JsonResultFilter(ignore = {

@@ -4,6 +4,7 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
+import org.jfantasy.framework.spring.mvc.error.RestException;
 import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.util.common.BeanUtil;
 import org.jfantasy.member.bean.Team;
@@ -40,6 +41,12 @@ public class TeamMemberService {
 
     @Transactional
     public void deltele(Long... ids) {
+        for (Long id : ids) {
+            TeamMember teamMember = this.get(id);
+            if (teamMember.getRole()!=null&&teamMember.getRole().getId().equals("group_admin")) {
+                throw new RestException("无法删除集团管理员");
+            }
+        }
         this.teamMemberDao.delete(ids);
     }
 
