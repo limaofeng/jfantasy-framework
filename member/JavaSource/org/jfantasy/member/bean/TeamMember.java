@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
+import org.hibernate.validator.constraints.Length;
 import org.jfantasy.framework.dao.BaseBusEntity;
 import org.jfantasy.framework.dao.hibernate.converter.MapConverter;
 import org.jfantasy.framework.dao.hibernate.converter.StringArrayConverter;
@@ -53,7 +54,8 @@ public class TeamMember extends BaseBusEntity {
      * 用户名称
      */
     @NotNull(groups = RESTful.POST.class)
-    @Column(name = "NAME", length = 12)
+    @Length(max = 12, groups = {RESTful.POST.class, RESTful.PUT.class},message = "用户名称不能超过12")
+    @Column(name = "NAME", length = 50)
     private String name;
     /**
      * 性别
