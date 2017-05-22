@@ -67,7 +67,6 @@ public class TeamMember extends BaseBusEntity {
     /**
      * 邮箱
      */
-    @NotNull(groups = RESTful.POST.class)
     @Column(name = "EMAIL", length = 50)
     private String email;
     /**
@@ -80,7 +79,6 @@ public class TeamMember extends BaseBusEntity {
      * 证件类型
      */
     @Enumerated(EnumType.STRING)
-    @NotNull(groups = {RESTful.POST.class})
     @Column(name = "PAPERS_TYPE", length = 20)
     private PapersType papersType;
     /**
@@ -139,7 +137,6 @@ public class TeamMember extends BaseBusEntity {
      */
     @JsonDeserialize(using = RoleDeserializer.class)
     @JsonSerialize(using = RoleSerializer.class)
-    @NotNull(groups = RESTful.POST.class)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ROLE_ID", foreignKey = @ForeignKey(name = "FK_TEAMMEMBER_ROLE"))
     private Role role;
