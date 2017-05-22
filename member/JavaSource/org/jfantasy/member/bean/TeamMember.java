@@ -53,7 +53,7 @@ public class TeamMember extends BaseBusEntity {
      * 用户名称
      */
     @NotNull(groups = RESTful.POST.class)
-    @Column(name = "NAME", length = 50)
+    @Column(name = "NAME", length = 12)
     private String name;
     /**
      * 性别
