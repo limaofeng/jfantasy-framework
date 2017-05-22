@@ -7,10 +7,12 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
+import org.hibernate.validator.constraints.Length;
 import org.jfantasy.filestore.Image;
 import org.jfantasy.filestore.converter.ImageConverter;
 import org.jfantasy.filestore.databind.ImageDeserializer;
 import org.jfantasy.framework.dao.hibernate.converter.MapConverter;
+import org.jfantasy.framework.spring.validation.RESTful;
 import org.jfantasy.member.Profile;
 import org.jfantasy.security.bean.enums.Sex;
 
@@ -43,6 +45,7 @@ public class MemberDetails implements Profile, Serializable {
     /**
      * 姓名
      */
+    @Length(max = 20, groups = {RESTful.POST.class, RESTful.PUT.class},message = "姓名不能超过20")
     @Column(name = "NAME", length = 20)
     private String name;
     /**

@@ -71,7 +71,7 @@ public class TeamMemberController {
      * 更新团队成员 - 更新团队成员地址
      **/
     @RequestMapping(value = "/{id}", method = RequestMethod.PATCH)
-    public ResultResourceSupport update(@PathVariable("id") Long id, HttpServletRequest request,@Validated(RESTful.POST.class) @RequestBody TeamMember member) {
+    public ResultResourceSupport update(@PathVariable("id") Long id, HttpServletRequest request,@Validated(RESTful.PUT.class) @RequestBody TeamMember member) {
         member.setId(id);
         return assembler.toResource(this.teamMemberService.update(member, WebUtil.has(request, RequestMethod.PATCH)));
     }
