@@ -54,7 +54,7 @@ public class TeamMember extends BaseBusEntity {
      * 用户名称
      */
     @NotNull(groups = RESTful.POST.class)
-    @Length(max = 12, groups = {RESTful.POST.class, RESTful.PUT.class},message = "用户名称不能超过12")
+    @Length(max = 12, groups = {RESTful.POST.class, RESTful.PUT.class},message = "用户名称长度不能超过12")
     @Column(name = "NAME", length = 50)
     private String name;
     /**
