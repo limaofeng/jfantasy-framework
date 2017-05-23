@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.validator.constraints.Length;
 import org.jfantasy.framework.dao.BaseBusEntity;
 import org.jfantasy.framework.dao.hibernate.converter.MapConverter;
 import org.jfantasy.framework.spring.validation.RESTful;
@@ -62,6 +63,7 @@ public class Team extends BaseBusEntity {
      * 名称
      */
     @NotNull(groups = RESTful.POST.class)
+    @Length(max = 10, groups = {RESTful.POST.class, RESTful.PUT.class},message = "名称长度不能超过10")
     @Column(name = "NAME", nullable = false, length = 50)
     private String name;
     /**
