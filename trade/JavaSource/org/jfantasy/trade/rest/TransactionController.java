@@ -23,6 +23,7 @@ import org.jfantasy.pay.service.PayConfigService;
 import org.jfantasy.pay.service.PayService;
 import org.jfantasy.trade.bean.Project;
 import org.jfantasy.trade.bean.Transaction;
+import org.jfantasy.trade.bean.enums.AccountStatus;
 import org.jfantasy.trade.bean.enums.ProjectType;
 import org.jfantasy.trade.service.AccountService;
 import org.jfantasy.trade.service.ProjectService;
@@ -154,7 +155,7 @@ public class TransactionController {
         List<PayConfig> payconfigs = ObjectUtil.filter(configService.find(), item -> item.getEnabled() && item.getPlatforms().contains(user.getPlatform()));
         // 判断余额支付，金额是否可以支付
         PayConfig payConfig = ObjectUtil.find(payconfigs, "payProductId", "walletpay");
-        if (payConfig != null && accountService.get(transaction.getFrom()).getAmount().compareTo(transaction.getAmount()) < 0) {
+        if (payConfig != null &&(AccountStatus.unactivated.equals(accountService.get(transaction.getFrom()).getStatus())||accountService.get(transaction.getFrom()).getAmount().compareTo(transaction.getAmount()) < 0)) {
             payconfigs.remove(payConfig);
             payConfig.setDisabled(true);
             payconfigs.add(payConfig);
