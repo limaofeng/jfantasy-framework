@@ -88,7 +88,7 @@ public class TeamController {
      * 更新团队 - 更新团队地址
      **/
     @RequestMapping(value = "/{id}", method = {RequestMethod.PUT, RequestMethod.PATCH})
-    public ResultResourceSupport update(@PathVariable("id") String id, @RequestBody Team team, HttpServletRequest request) {
+    public ResultResourceSupport update(@PathVariable("id") String id,@Validated(RESTful.PUT.class) @RequestBody Team team, HttpServletRequest request) {
         team.setKey(id);
         return assembler.toResource(this.teamService.update(team, WebUtil.has(request, RequestMethod.PATCH)));
     }

@@ -146,7 +146,7 @@ public class MemberController {
     )
     @RequestMapping(value = "/{id}/profile", method = RequestMethod.PUT)
     @ResponseBody
-    public ResultResourceSupport profile(HttpServletResponse response, @PathVariable("id") Long id, @RequestBody MemberDetails details) {
+    public ResultResourceSupport profile(HttpServletResponse response, @PathVariable("id") Long id,@Validated(RESTful.PUT.class) @RequestBody MemberDetails details) {
         Member member = get(id);
         if (ObjectUtil.exists(member.getTypes(), "id", Member.MEMBER_TYPE_PERSONAL)) {
             details.setMemberId(id);

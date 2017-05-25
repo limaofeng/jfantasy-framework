@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
+import org.hibernate.validator.constraints.Length;
 import org.jfantasy.framework.dao.BaseBusEntity;
 import org.jfantasy.framework.dao.hibernate.converter.MapConverter;
 import org.jfantasy.framework.dao.hibernate.converter.StringArrayConverter;
@@ -53,6 +54,7 @@ public class TeamMember extends BaseBusEntity {
      * 用户名称
      */
     @NotNull(groups = RESTful.POST.class)
+    @Length(max = 12, groups = {RESTful.POST.class, RESTful.PUT.class},message = "用户名称长度不能超过12")
     @Column(name = "NAME", length = 50)
     private String name;
     /**
@@ -65,7 +67,6 @@ public class TeamMember extends BaseBusEntity {
     /**
      * 邮箱
      */
-    @NotNull(groups = RESTful.POST.class)
     @Column(name = "EMAIL", length = 50)
     private String email;
     /**
@@ -78,7 +79,6 @@ public class TeamMember extends BaseBusEntity {
      * 证件类型
      */
     @Enumerated(EnumType.STRING)
-    @NotNull(groups = {RESTful.POST.class})
     @Column(name = "PAPERS_TYPE", length = 20)
     private PapersType papersType;
     /**
@@ -137,7 +137,6 @@ public class TeamMember extends BaseBusEntity {
      */
     @JsonDeserialize(using = RoleDeserializer.class)
     @JsonSerialize(using = RoleSerializer.class)
-    @NotNull(groups = RESTful.POST.class)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ROLE_ID", foreignKey = @ForeignKey(name = "FK_TEAMMEMBER_ROLE"))
     private Role role;

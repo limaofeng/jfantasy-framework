@@ -3,8 +3,10 @@ package org.jfantasy.member.rest;
 import org.jfantasy.framework.jackson.annotation.IgnoreProperty;
 import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
 import org.jfantasy.framework.spring.mvc.error.NotFoundException;
+import org.jfantasy.framework.spring.mvc.error.RestException;
 import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
+import org.jfantasy.framework.spring.validation.RESTful;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.framework.util.web.WebUtil;
 import org.jfantasy.member.bean.TeamMember;
@@ -12,6 +14,7 @@ import org.jfantasy.member.rest.models.assembler.TeamMemberResourceAssembler;
 import org.jfantasy.member.service.TeamMemberService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -52,7 +55,15 @@ public class TeamMemberController {
     @JsonResultFilter(ignore = @IgnoreProperty(pojo = TeamMember.class, name = "team"))
     @RequestMapping(method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
-    public ResultResourceSupport create(@RequestBody TeamMember member) {
+    public ResultResourceSupport create(@Validated(RESTful.POST.class) @RequestBody TeamMember member) {
+        String[] tags = member.getTags();
+        if (tags!=null){
+            for (String tag:tags) {
+                if (tag.length()>10){
+                    throw new RestException("tag超出最大长度");
+                }
+            }
+        }
         return assembler.toResource(this.teamMemberService.save(member));
     }
 
@@ -60,7 +71,7 @@ public class TeamMemberController {
      * 更新团队成员 - 更新团队成员地址
      **/
     @RequestMapping(value = "/{id}", method = RequestMethod.PATCH)
-    public ResultResourceSupport update(@PathVariable("id") Long id, HttpServletRequest request, @RequestBody TeamMember member) {
+    public ResultResourceSupport update(@PathVariable("id") Long id, HttpServletRequest request,@Validated(RESTful.PUT.class) @RequestBody TeamMember member) {
         member.setId(id);
         return assembler.toResource(this.teamMemberService.update(member, WebUtil.has(request, RequestMethod.PATCH)));
     }
