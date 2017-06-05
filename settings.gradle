@@ -4,12 +4,8 @@ include ':jfantasy-cache'
 include ':jfantasy-filestore'
 include ':jfantasy-common'
 include ':jfantasy-pay-api'
-include ':jfantasy-trade'
 include ':jfantasy-pay-client'
-include ':jfantasy-security'
-include ':jfantasy-member'
 include ':jfantasy-system'
-include ':jfantasy-oauth'
 include ':jfantasy-oauth-api'
 include ':jfantasy-weixin'
 include ':jfantasy-file-sdk'
@@ -24,14 +20,10 @@ include ':jfantasy-rpc-client'
 project(':jfantasy-core').projectDir = "$rootDir/core" as File
 project(':jfantasy-cache').projectDir = "$rootDir/cache" as File
 project(':jfantasy-filestore').projectDir = "$rootDir/filestore" as File
-project(':jfantasy-common').projectDir = "$rootDir/common" as File
 project(':jfantasy-pay-api').projectDir = "$rootDir/pay-api" as File
-project(':jfantasy-trade').projectDir = "$rootDir/trade" as File
+project(':jfantasy-common').projectDir = "$rootDir/common" as File
 project(':jfantasy-pay-client').projectDir = "$rootDir/pay-client" as File
-project(':jfantasy-security').projectDir = "$rootDir/security" as File
-project(':jfantasy-member').projectDir = "$rootDir/member" as File
 project(':jfantasy-system').projectDir = "$rootDir/system" as File
-project(':jfantasy-oauth').projectDir = "$rootDir/oauth" as File
 project(':jfantasy-oauth-api').projectDir = "$rootDir/oauth-api" as File
 project(':jfantasy-weixin').projectDir = "$rootDir/weixin" as File
 
