@@ -4,4 +4,3 @@ org.jfantasy.autoconfigure.WebStarterAutoConfiguration,\
 org.jfantasy.autoconfigure.LuceneAutoConfiguration,\
 org.jfantasy.autoconfigure.QuartzAutoConfiguration,\
 org.jfantasy.framework.swagger.SwaggerAutoConfiguration
-
