@@ -1,4 +1,4 @@
-package org.jfantasy.framework.spring.config;
+package org.jfantasy.autoconfigure;
 
 import org.jfantasy.framework.quartz.JobBeanJobFactory;
 import org.springframework.context.annotation.Bean;
@@ -11,15 +11,14 @@ import javax.annotation.Resource;
 import javax.sql.DataSource;
 import java.util.Properties;
 
-
 @Configuration
 @EnableScheduling
-public class QuartzConfig {
+public class QuartzAutoConfiguration {
 
     @Resource(name = "dataSource")
     public DataSource dataSource;
     @Resource(name = "taskExecutor")
-    public SchedulingTaskExecutor taskExecutor;
+    private SchedulingTaskExecutor taskExecutor;
 
     @Bean(name = "jobBeanJobFactory")
     public JobBeanJobFactory jobBeanJobFactory(){

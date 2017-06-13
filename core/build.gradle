@@ -73,4 +73,10 @@ dependencies {
     testCompile 'junit:junit:4.12'
     testCompile "org.wltea:IKAnalyzer:3.2.8"
     testCompile 'org.codehaus.groovy:groovy-all:2.4.7'
+    testCompile 'org.xhtmlrenderer:flying-saucer-pdf-itext5:9.0.8'
+    //testCompile 'org.xhtmlrenderer:core-renderer:8.0'
+    //testCompile fileTree(dir: 'libs', include: ['*.jar'])
+    //testCompile group: 'com.itextpdf', name: 'itext-asian', version: '5.2.0'
+    //testCompile 'com.itextpdf:itextpdf:5.5.11'
+    //testCompile 'com.itextpdf.tool:xmlworker:5.5.11'
 }

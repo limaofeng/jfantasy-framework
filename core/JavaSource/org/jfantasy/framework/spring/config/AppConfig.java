@@ -25,7 +25,7 @@ import java.util.concurrent.Executor;
 @Configuration
 @EnableAsync
 @EnableAspectJAutoProxy(proxyTargetClass = true)
-@Import({DaoConfig.class, QuartzConfig.class})
+@Import(DaoConfig.class)
 public class AppConfig {
 
     @Bean
