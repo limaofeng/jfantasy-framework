@@ -22,10 +22,14 @@ import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 @Service
 public class ScheduleService {
 
-    @Autowired
-    private Scheduler scheduler;
+    private final Scheduler scheduler;
 
     private static final Log LOGGER = LogFactory.getLog(ScheduleService.class);
+
+    @Autowired(required = false)
+    public ScheduleService(Scheduler scheduler) {
+        this.scheduler = scheduler;
+    }
 
     /**
      * 返回 各时段的表达式
