@@ -6,7 +6,6 @@ import org.quartz.*;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.quartz.impl.matchers.StringMatcher;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,17 +18,12 @@ import static org.quartz.DailyTimeIntervalScheduleBuilder.dailyTimeIntervalSched
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 
-@Service
 public class ScheduleService {
-
-    private final Scheduler scheduler;
 
     private static final Log LOGGER = LogFactory.getLog(ScheduleService.class);
 
     @Autowired(required = false)
-    public ScheduleService(Scheduler scheduler) {
-        this.scheduler = scheduler;
-    }
+    private Scheduler scheduler;
 
     /**
      * 返回 各时段的表达式
