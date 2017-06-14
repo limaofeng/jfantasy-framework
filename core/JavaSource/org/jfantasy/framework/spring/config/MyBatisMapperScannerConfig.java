@@ -1,6 +1,8 @@
 package org.jfantasy.framework.spring.config;
 
 import org.jfantasy.framework.dao.mybatis.sqlmapper.SqlMapper;
+import org.jfantasy.framework.util.common.PropertiesHelper;
+import org.jfantasy.framework.util.common.StringUtil;
 import org.mybatis.spring.mapper.MapperScannerConfigurer;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Bean;
@@ -17,8 +19,10 @@ public class MyBatisMapperScannerConfig {
      */
     @Bean(name = "mapperScannerConfigurer")
     public MapperScannerConfigurer mapperScannerConfigurer() {
+        PropertiesHelper helper = PropertiesHelper.load("application.properties");
+
         MapperScannerConfigurer mapperScannerConfigurer = new MapperScannerConfigurer();
-        mapperScannerConfigurer.setBasePackage("org.jfantasy.framework;");
+        mapperScannerConfigurer.setBasePackage("org.jfantasy.framework;"+ StringUtil.join(helper.getMergeProperty("spring.mybatis.base-package"),";"));
         mapperScannerConfigurer.setMarkerInterface(SqlMapper.class);
         mapperScannerConfigurer.setSqlSessionFactoryBeanName("sqlSessionFactory");
         return mapperScannerConfigurer;

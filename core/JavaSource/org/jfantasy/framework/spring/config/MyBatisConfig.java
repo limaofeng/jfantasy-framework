@@ -50,7 +50,6 @@ public class MyBatisConfig {
         }
         sqlSessionFactoryBean.setPlugins(interceptors.toArray(new Interceptor[interceptors.size()]));
 
-
         sqlSessionFactoryBean.setTypeAliases(new Class[]{Pager.class, Sequence.class});
 
         ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
