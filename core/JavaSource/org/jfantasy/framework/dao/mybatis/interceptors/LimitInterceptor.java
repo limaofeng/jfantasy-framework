@@ -95,7 +95,7 @@ public class LimitInterceptor implements Interceptor {
      * @param parameterObject Object
      * @return Pager
      */
-    private Pager getPager(Object parameterObject) throws Throwable {
+    private Pager getPager(Object parameterObject) {
         Pager pager = null;
         if (ObjectUtil.isNotNull(parameterObject) && Map.class.isAssignableFrom(parameterObject.getClass())) {
             Map<String, Object> param = (Map<String, Object>) parameterObject;

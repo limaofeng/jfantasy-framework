@@ -152,6 +152,14 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
         return classFactory.getClass(clazz).getValue(name);
     }
 
+    public static <T> T getFieldValue(Object target, Class<?> clazz, String name) {
+        return classFactory.getClass(clazz).getValue(target, name);
+    }
+
+    public static void setFieldValue(Object target, Class<?> clazz, String name,Object value) {
+        classFactory.getClass(clazz).setValue(target, name,value);
+    }
+
     public static <T> T getValue(Object target, String name) {
         Property property = getProperty(target, name);
         if ((property != null) && (property.isRead())) {
