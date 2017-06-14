@@ -2,6 +2,7 @@ package org.jfantasy.framework.spring.config;
 
 import org.apache.ibatis.plugin.Interceptor;
 import org.jfantasy.framework.dao.Pager;
+import org.jfantasy.framework.dao.mybatis.DefaultSqlSessionFactoryBean;
 import org.jfantasy.framework.dao.mybatis.keygen.bean.Sequence;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
@@ -25,7 +26,7 @@ public class MyBatisConfig {
 
     @Bean(name = "sqlSessionFactory")
     public SqlSessionFactoryBean sqlSessionFactoryBean(DataSource dataSource) throws IOException {
-        SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
+        DefaultSqlSessionFactoryBean sqlSessionFactoryBean = new DefaultSqlSessionFactoryBean();
 
         sqlSessionFactoryBean.setDataSource(dataSource);
 
