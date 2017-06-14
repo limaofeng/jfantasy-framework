@@ -4,11 +4,13 @@ import org.apache.ibatis.plugin.Interceptor;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.mybatis.keygen.bean.Sequence;
 import org.jfantasy.framework.util.common.ClassUtil;
+import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.PropertiesHelper;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 
@@ -52,8 +54,13 @@ public class MyBatisConfig {
         sqlSessionFactoryBean.setTypeAliases(new Class[]{Pager.class, Sequence.class});
 
         ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-        sqlSessionFactoryBean.setMapperLocations(resolver.getResources("classpath*:org/jfantasy/**/dao/*-Mapper.xml"));
 
+        Resource[] resources = resolver.getResources("classpath*:org/jfantasy/**/dao/*-Mapper.xml");
+        for (String mapperLocation : helper.getMergeProperty("spring.mybatis.mapper-locations")) {
+            resources = ObjectUtil.join(resources,resolver.getResources(mapperLocation));
+        }
+
+        sqlSessionFactoryBean.setMapperLocations(resources);
         return sqlSessionFactoryBean;
     }
 
