@@ -8,7 +8,8 @@ package org.jfantasy.framework.dao.mybatis.dialect;
  * @since 2013-1-14 下午02:12:16
  */
 public class MySQLDialect implements Dialect {
-    protected static final String SQL_END_DELIMITER = ";";
+
+    private static final String SQL_END_DELIMITER = ";";
 
     public String getLimitString(String sql, int offset, int limit) {
         sql = trim(sql);

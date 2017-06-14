@@ -3,6 +3,8 @@ package org.jfantasy.framework.spring.config;
 import org.apache.ibatis.plugin.Interceptor;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.mybatis.DefaultSqlSessionFactoryBean;
+import org.jfantasy.framework.dao.mybatis.dialect.MySQLDialect;
+import org.jfantasy.framework.dao.mybatis.interceptors.LimitInterceptor;
 import org.jfantasy.framework.dao.mybatis.keygen.bean.Sequence;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
@@ -49,6 +51,7 @@ public class MyBatisConfig {
                 interceptors.add(interceptor);
             }
         }
+        interceptors.add(new LimitInterceptor(MySQLDialect.class));
         sqlSessionFactoryBean.setPlugins(interceptors.toArray(new Interceptor[interceptors.size()]));
 
         sqlSessionFactoryBean.setTypeAliases(new Class[]{Pager.class, Sequence.class});
