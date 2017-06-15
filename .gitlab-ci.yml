@@ -14,8 +14,6 @@ test:
   stage: test
   script:
     - gradle testClasses sonarqube -x test -Dsonar.host.url=http://sonar.zbsg.com.cn -Dsonar.login=$SONAR_TOKEN -Dsonar.verbose=true
-  only:
-    - tags
   tags:
     - shell
 
