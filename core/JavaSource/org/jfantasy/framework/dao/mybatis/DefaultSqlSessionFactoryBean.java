@@ -38,7 +38,7 @@ public class DefaultSqlSessionFactoryBean extends SqlSessionFactoryBean {
     private static final Log LOGGER = LogFactory.getLog(DefaultSqlSessionFactoryBean.class);
 
     @Override
-    protected SqlSessionFactory buildSqlSessionFactory() throws IOException {
+    protected SqlSessionFactory buildSqlSessionFactory() throws IOException {//NOSONAR
         Resource configLocation = ClassUtil.getFieldValue(this,SqlSessionFactoryBean.class,"configLocation");
         Properties configurationProperties = ClassUtil.getFieldValue(this,SqlSessionFactoryBean.class,"configurationProperties");
         ObjectFactory objectFactory = ClassUtil.getFieldValue(this,SqlSessionFactoryBean.class,"objectFactory");

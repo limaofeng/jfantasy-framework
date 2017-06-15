@@ -1,11 +1,5 @@
 package org.jfantasy.framework.dao.mybatis.interceptors;
 
-import org.jfantasy.framework.dao.Pager;
-import org.jfantasy.framework.dao.mybatis.dialect.Dialect;
-import org.jfantasy.framework.util.common.ClassUtil;
-import org.jfantasy.framework.util.common.ObjectUtil;
-import org.jfantasy.framework.util.common.PropertiesHelper;
-import org.jfantasy.framework.util.regexp.RegexpUtil;
 import org.apache.ibatis.builder.SqlSourceBuilder;
 import org.apache.ibatis.builder.StaticSqlSource;
 import org.apache.ibatis.executor.Executor;
@@ -22,6 +16,13 @@ import org.apache.ibatis.scripting.xmltags.SqlNode;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.log4j.Logger;
+import org.jfantasy.framework.dao.Pager;
+import org.jfantasy.framework.dao.mybatis.MyBatisException;
+import org.jfantasy.framework.dao.mybatis.dialect.Dialect;
+import org.jfantasy.framework.util.common.ClassUtil;
+import org.jfantasy.framework.util.common.ObjectUtil;
+import org.jfantasy.framework.util.common.PropertiesHelper;
+import org.jfantasy.framework.util.regexp.RegexpUtil;
 
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
@@ -31,7 +32,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.regex.Matcher;
 
 /**
  * 扩展翻页实现
@@ -46,15 +46,13 @@ public class LimitInterceptor implements Interceptor {
 
     private static final Logger LOGGER = Logger.getLogger(LimitInterceptor.class);
 
-    private static int MAPPED_STATEMENT_INDEX = 0;
-    private static int PARAMETER_INDEX = 1;
+    private static final int MAPPED_STATEMENT_INDEX = 0;
+    private static final int PARAMETER_INDEX = 1;
+    private static final String SQL_SOURCE_NAME = "sqlSource";
 
     private Dialect dialect;
 
-    public LimitInterceptor(){
-    }
-
-    public <T> LimitInterceptor(Class<? extends Dialect> tClass){
+    public LimitInterceptor(Class<? extends Dialect> tClass) {
         this.setDialectClass(tClass);
     }
 
@@ -75,13 +73,12 @@ public class LimitInterceptor implements Interceptor {
      * @param invocation invocation
      * @param queryArgs  queryArgs
      * @return Object
-     * @throws InvocationTargetException
-     * @throws IllegalAccessException
      */
-    private Object processIntercept(Invocation invocation, final Object[] queryArgs) throws Throwable {
+    private Object processIntercept(Invocation invocation, final Object[] queryArgs) throws InvocationTargetException, IllegalAccessException {
         MappedStatement ms = (MappedStatement) queryArgs[MAPPED_STATEMENT_INDEX];
         Map<String, Object> parameter = (Map<String, Object>) queryArgs[PARAMETER_INDEX];
         Pager pager = getPager(parameter);
+        assert pager != null;
         if (pager.getFirst() == 0) {
             pager.reset(executeForCount(ms, parameter));
         }
@@ -155,9 +152,8 @@ public class LimitInterceptor implements Interceptor {
      * @param ms              MappedStatement
      * @param parameterObject parameterObject
      * @return List
-     * @throws Throwable
      */
-    private List executeForList(Invocation invocation, MappedStatement ms, Map<String, Object> parameterObject) throws Throwable {
+    private List executeForList(Invocation invocation, MappedStatement ms, Map<String, Object> parameterObject) throws InvocationTargetException, IllegalAccessException {
         SqlSource sqlSource = getPageLimitSqlSource(ms, parameterObject);
         MappedStatement newMappedStatement = copyMappedStatementBySqlSource(ms, sqlSource);
         invocation.getArgs()[0] = newMappedStatement;
@@ -183,9 +179,8 @@ public class LimitInterceptor implements Interceptor {
      * @param mappedStatement MappedStatement
      * @param parameterObject parameterObject
      * @return SqlSource
-     * @throws Throwable
      */
-    private SqlSource getPageLimitSqlSource(MappedStatement mappedStatement, Map<String, Object> parameterObject) throws Throwable {
+    private SqlSource getPageLimitSqlSource(MappedStatement mappedStatement, Map<String, Object> parameterObject) {
         SqlSourceBuilder sqlSourceParser = new SqlSourceBuilder(mappedStatement.getConfiguration());
         String mapperSQL = getMapperSQL(mappedStatement, parameterObject);
         if (parameterObject == null) {
@@ -193,6 +188,7 @@ public class LimitInterceptor implements Interceptor {
         } else {
             Class<?> parameterType = parameterObject.getClass();
             Pager<?> pager = getPager(parameterObject);
+            assert pager != null;
             int pageSize = pager.getTotalCount() - pager.getFirst() < pager.getPageSize() ? pager.getTotalCount() - pager.getFirst() : pager.getPageSize();
             String newSql = this.dialect.getLimitString(mapperSQL, pager.getFirst(), pageSize);
             return sqlSourceParser.parse(newSql, parameterType, parameterObject);
@@ -206,27 +202,22 @@ public class LimitInterceptor implements Interceptor {
      * @param parameterObject parameterObject
      * @return String
      */
-    private String getMapperSQL(MappedStatement mappedStatement, Object parameterObject) {
+    private String getMapperSQL(MappedStatement mappedStatement, Object parameterObject) throws MyBatisException {
         SqlSource nowSqlSource = mappedStatement.getSqlSource();
         if (nowSqlSource instanceof DynamicSqlSource) {
-            SqlNode sqlNode = (SqlNode) ClassUtil.getValue(nowSqlSource, "rootSqlNode");
+            SqlNode sqlNode = ClassUtil.getValue(nowSqlSource, "rootSqlNode");
             DynamicContext context = new DynamicContext(mappedStatement.getConfiguration(), parameterObject);
             sqlNode.apply(context);
             return context.getSql();
         } else if (nowSqlSource instanceof RawSqlSource) {
-            if (ClassUtil.getValue(nowSqlSource, "sqlSource") instanceof StaticSqlSource) {
-                String sql = (String) ClassUtil.getValue(ClassUtil.getValue(nowSqlSource, "sqlSource"), "sql");
-                final List<ParameterMapping> parameterMappings = (List<ParameterMapping>) ClassUtil.getValue(ClassUtil.getValue(nowSqlSource, "sqlSource"), "parameterMappings");
-                return RegexpUtil.replace(sql, "\\?", new RegexpUtil.AbstractReplaceCallBack() {
-                    @Override
-                    public String doReplace(String text, int index, Matcher matcher) {
-                        return "#{" + parameterMappings.get(index).getProperty() + "}";
-                    }
-                });
+            if (ClassUtil.getValue(nowSqlSource, SQL_SOURCE_NAME) instanceof StaticSqlSource) {
+                String sql = ClassUtil.getValue(ClassUtil.getValue(nowSqlSource, SQL_SOURCE_NAME), "sql");
+                final List<ParameterMapping> parameterMappings = ClassUtil.getValue(ClassUtil.getValue(nowSqlSource, "sqlSource"), "parameterMappings");
+                return RegexpUtil.replace(sql, "\\?", (text, index, matcher) -> "#{" + parameterMappings.get(index).getProperty() + "}");
             }
-            throw new RuntimeException("不支持 [" + nowSqlSource.getClass() + "]，联系开发人员");
+            throw new MyBatisException("不支持 [" + nowSqlSource.getClass() + "]，联系开发人员");
         } else {
-            throw new RuntimeException("不支持 [" + nowSqlSource.getClass() + "]，联系开发人员");
+            throw new MyBatisException("不支持 [" + nowSqlSource.getClass() + "]，联系开发人员");
         }
     }
 
@@ -243,7 +234,9 @@ public class LimitInterceptor implements Interceptor {
         builder.fetchSize(mappedStatement.getFetchSize());
         builder.statementType(mappedStatement.getStatementType());
         builder.keyGenerator(mappedStatement.getKeyGenerator());
-        builder.keyProperty(ObjectUtil.isNull(mappedStatement.getKeyProperties()) ? null : mappedStatement.getKeyProperties().length > 0 ? mappedStatement.getKeyProperties()[0] : null);
+        if (ObjectUtil.isNotNull(mappedStatement.getKeyProperties()) && mappedStatement.getKeyProperties().length > 0) {
+            builder.keyProperty(mappedStatement.getKeyProperties()[0]);
+        }
         builder.timeout(mappedStatement.getTimeout());
         builder.parameterMap(mappedStatement.getParameterMap());
         builder.resultMaps(mappedStatement.getResultMaps());
@@ -266,11 +259,11 @@ public class LimitInterceptor implements Interceptor {
         this.setDialectClass(clazz);
     }
 
-    public void setDialectClass(Class<? extends Dialect> clazz) {
+    private void setDialectClass(Class<? extends Dialect> clazz) {
         try {
             this.dialect = clazz.newInstance();
         } catch (Exception e) {
-            throw new RuntimeException("cannot create dialect instance by dialectClass:" + clazz, e);
+            throw new MyBatisException("cannot create dialect instance by dialectClass:" + clazz, e);
         }
     }
 

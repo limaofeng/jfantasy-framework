@@ -11,8 +11,8 @@ public class MySQLDialect implements Dialect {
 
     private static final String SQL_END_DELIMITER = ";";
 
-    public String getLimitString(String sql, int offset, int limit) {
-        sql = trim(sql);
+    public String getLimitString(String osql, int offset, int limit) {
+        String sql = trim(osql);
         StringBuilder sb = new StringBuilder(sql.length() + 20);
         sb.append(sql);
         if (offset > 0) {
@@ -23,8 +23,8 @@ public class MySQLDialect implements Dialect {
         return sb.toString();
     }
 
-    private String trim(String sql) {
-        sql = sql.trim();
+    private String trim(String osql) {
+        String sql = osql.trim();
         if (sql.endsWith(";")) {
             sql = sql.substring(0, sql.length() - 1 - ";".length());
         }
