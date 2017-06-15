@@ -3,15 +3,21 @@ package org.jfantasy.common.databind;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
-import org.jfantasy.common.Area;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jfantasy.autoconfigure.ApiGatewaySettings;
+import org.jfantasy.common.Area;
 import org.jfantasy.framework.spring.SpringContextUtil;
-import org.jfantasy.framework.spring.validation.RESTful;
 import org.jfantasy.framework.util.common.StringUtil;
 
 import java.io.IOException;
 
 public class AreaDeserializer extends JsonDeserializer<Area> {
+
+    private static final Log LOG = LogFactory.getLog(AreaDeserializer.class);
 
     @Override
     public Area deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
@@ -22,7 +28,16 @@ public class AreaDeserializer extends JsonDeserializer<Area> {
     private Area getArea(String id) {
         ApiGatewaySettings apiGatewaySettings = SpringContextUtil.getBeanByType(ApiGatewaySettings.class);
         assert apiGatewaySettings != null;
-        return RESTful.restTemplate.getForObject(apiGatewaySettings.getUrl() + "/areas/" + id, Area.class);
+        try {
+            HttpResponse<Area> response = Unirest.get(apiGatewaySettings.getUrl() + "/areas/" + id).asObject(Area.class);
+            if (response.getStatus() == 404) {
+                return null;
+            }
+            return response.getBody();
+        }catch (UnirestException e){
+            LOG.error(e.getMessage(), e);
+            return null;
+        }
     }
 
 }

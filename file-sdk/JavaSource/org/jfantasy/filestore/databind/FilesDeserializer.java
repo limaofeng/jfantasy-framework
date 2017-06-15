@@ -5,10 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import org.jfantasy.filestore.File;
-import org.jfantasy.autoconfigure.ApiGatewaySettings;
 import org.jfantasy.framework.jackson.JSON;
-import org.jfantasy.framework.spring.SpringContextUtil;
-import org.jfantasy.framework.spring.validation.RESTful;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 
@@ -38,7 +35,7 @@ public class FilesDeserializer extends JsonDeserializer<File[]> {
         }
         fileDetails = new File[keys.length];
         for (int i = 0, len = keys.length; i < len; i++) {
-            File fileDetail = getFile(keys[i]);
+            File fileDetail = FileDeserializer.getFile(keys[i]);
             if (fileDetail == null) {
                 continue;
             }
@@ -47,9 +44,4 @@ public class FilesDeserializer extends JsonDeserializer<File[]> {
         return fileDetails;
     }
 
-    private File getFile(String path) {
-        ApiGatewaySettings apiGatewaySettings = SpringContextUtil.getBeanByType(ApiGatewaySettings.class);
-        assert apiGatewaySettings != null;
-        return RESTful.restTemplate.getForObject(apiGatewaySettings.getUrl() + "/files?path=" + path, File.class);
-    }
 }

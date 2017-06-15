@@ -16,7 +16,7 @@ public class WriteFileInterceptor {
     private static final Log LOGGER = LogFactory.getLog(WriteFileInterceptor.class);
 
     @After("execution(public void org.jfantasy.filestore.FileManager.writeFile(java.lang.String,java.io.File))")
-    public void writeFile(JoinPoint point) throws Throwable {
+    public void writeFile(JoinPoint point) {
         LOGGER.debug(point.getTarget());
         LOGGER.debug(point.getKind());
         for (int i = 0; i < point.getArgs().length; i++) {

@@ -35,10 +35,10 @@ public abstract class AbstracWeixinHandler implements WeixinHandler {
         if (!(outMessage instanceof AbstractWeixinMessage)) {
             return outMessage;
         }
-        AbstractWeixinMessage _outMessage = (AbstractWeixinMessage) outMessage;
-        _outMessage.setFromUserName(message.getToUserName());
-        _outMessage.setToUserName(message.getFromUserName());
-        return _outMessage;
+        AbstractWeixinMessage absoutMessage = (AbstractWeixinMessage) outMessage;
+        absoutMessage.setFromUserName(message.getToUserName());
+        absoutMessage.setToUserName(message.getFromUserName());
+        return absoutMessage;
     }
 
     protected abstract WeixinMessage handleEventMessage(WeixinSession session, EventMessage message);

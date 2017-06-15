@@ -14,6 +14,9 @@ import java.util.Map;
 
 public class PinyinUtils {
 
+    private PinyinUtils() {
+    }
+
     public static String getShort(String pinyin) throws PinyinException {
         return PinyinHelper.getShortPinyin(pinyin);
     }
@@ -22,18 +25,18 @@ public class PinyinUtils {
         return PinyinHelper.convertToPinyinString(pinyin, "", PinyinFormat.WITHOUT_TONE);
     }
 
-    public static void addMutilDict(String key,String value){
-        Map<String,String> data = new HashMap<>();
+    public static void addMutilDict(String key, String value) {
+        Map<String, String> data = new HashMap<>();
         data.put(key, value);
         addMutilDict(data);
     }
 
-    public static void addMutilDict(Map<String, String> data){
-        Map<String, String> mutilPinyinTable = ClassUtil.getFieldValue(PinyinHelper.class,"MUTIL_PINYIN_TABLE");
-        List<String> dict = ClassUtil.getFieldValue(PinyinHelper.class,"dict");
-        DoubleArrayTrie doubleArrayTrie = ClassUtil.getFieldValue(PinyinHelper.class,"DOUBLE_ARRAY_TRIE");
+    public static void addMutilDict(Map<String, String> data) {
+        Map<String, String> mutilPinyinTable = ClassUtil.getFieldValue(PinyinHelper.class, "MUTIL_PINYIN_TABLE");
+        List<String> dict = ClassUtil.getFieldValue(PinyinHelper.class, "dict");
+        DoubleArrayTrie doubleArrayTrie = ClassUtil.getFieldValue(PinyinHelper.class, "DOUBLE_ARRAY_TRIE");
 
-        MethodProxy methodProxy = ClassUtil.getMethodProxy(DoubleArrayTrie.class,"clear");
+        MethodProxy methodProxy = ClassUtil.getMethodProxy(DoubleArrayTrie.class, "clear");
 
         mutilPinyinTable.putAll(data);
         dict.clear();

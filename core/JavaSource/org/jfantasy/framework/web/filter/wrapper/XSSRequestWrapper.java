@@ -18,7 +18,7 @@ public class XSSRequestWrapper extends HttpServletRequestWrapper {
 
     private static final Log LOGGER = LogFactory.getLog(XSSRequestWrapper.class);
 
-    private Map<String, String[]> parameterMaps = new LinkedHashMap<String, String[]>();
+    private Map<String, String[]> parameterMaps = new LinkedHashMap<>();
 
     private boolean transform = false;
 
@@ -31,11 +31,13 @@ public class XSSRequestWrapper extends HttpServletRequestWrapper {
         this.transform = transform;
     }
 
+    @Override
     public String getParameter(String name) {
         String[] values = getParameterValues(name);
         return values == null || values.length == 0 ? null : values[0];
     }
 
+    @Override
     public String[] getParameterValues(String name) {
         if (parameterMaps.containsKey(name)) {
             return parameterMaps.get(name);
@@ -46,18 +48,7 @@ public class XSSRequestWrapper extends HttpServletRequestWrapper {
         }
         Object vals = ClassUtil.newInstance(String.class, values.length);
         for (int i = 0; i < values.length; i++) {
-            String escapeStr;
-            // 普通Html过滤
-            if ("GET".equalsIgnoreCase(WebUtil.getMethod((HttpServletRequest) this.getRequest())) && isTransform()) {
-                escapeStr = WebUtil.transformCoding(values[i], "8859_1", this.getRequest().getCharacterEncoding());
-                escapeStr = StringUtil.isNotBlank(escapeStr) ? HtmlUtils.htmlEscape(escapeStr) : escapeStr;
-            } else {
-                escapeStr = StringUtil.isNotBlank(values[i]) ? HtmlUtils.htmlEscape(values[i]) : values[i];
-            }
-            // 防止链接注入 (如果以http开头的参数,同时与请求的域不相同的话,将值64位编码)
-            if (RegexpUtil.find(escapeStr, "^http://") && !WebUtil.getServerUrl((HttpServletRequest) super.getRequest()).startsWith(escapeStr)) {
-                escapeStr = "base64:" + new String(Base64Util.encode(escapeStr.getBytes()));
-            }
+            String escapeStr = transform(values[i]);
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug(name + "[" + values[i] + "]" + " => htmlEscape => [" + escapeStr + "]");
             }
@@ -65,6 +56,22 @@ public class XSSRequestWrapper extends HttpServletRequestWrapper {
         }
         parameterMaps.put(name, (String[]) vals);
         return parameterMaps.get(name);
+    }
+
+    private String transform(String value){
+        String escapeStr;
+        // 普通Html过滤
+        if ("GET".equalsIgnoreCase(WebUtil.getMethod((HttpServletRequest) this.getRequest())) && isTransform()) {
+            escapeStr = WebUtil.transformCoding(value, "8859_1", this.getRequest().getCharacterEncoding());
+            escapeStr = StringUtil.isNotBlank(escapeStr) ? HtmlUtils.htmlEscape(escapeStr) : escapeStr;
+        } else {
+            escapeStr = StringUtil.isNotBlank(value) ? HtmlUtils.htmlEscape(value) : value;
+        }
+        // 防止链接注入 (如果以http开头的参数,同时与请求的域不相同的话,将值64位编码)
+        if (RegexpUtil.find(escapeStr, "^http://") && !WebUtil.getServerUrl((HttpServletRequest) super.getRequest()).startsWith(escapeStr)) {
+            escapeStr = "base64:" + new String(Base64Util.encode(escapeStr.getBytes()));
+        }
+        return escapeStr;
     }
 
     private boolean isTransform() {

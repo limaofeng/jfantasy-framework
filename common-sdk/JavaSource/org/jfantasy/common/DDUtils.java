@@ -1,10 +1,11 @@
 package org.jfantasy.common;
 
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.Unirest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfantasy.autoconfigure.ApiGatewaySettings;
 import org.jfantasy.framework.spring.SpringContextUtil;
-import org.jfantasy.framework.spring.validation.RESTful;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
@@ -13,7 +14,7 @@ public class DDUtils {
 
     private static final Log LOG = LogFactory.getLog(DDUtils.class);
 
-    private DDUtils(){
+    private DDUtils() {
     }
 
     public static String getName(String key) {
@@ -43,16 +44,20 @@ public class DDUtils {
     }
 
     public static <T> T get(String key, T zero, Class<T> clazz) {
-        return ObjectUtil.defaultValue(getValue(key,clazz),zero);
+        return ObjectUtil.defaultValue(getValue(key, clazz), zero);
     }
 
     private static DataDict getDataDict(String id) {
         try {
             ApiGatewaySettings apiGatewaySettings = SpringContextUtil.getBeanByType(ApiGatewaySettings.class);
             assert apiGatewaySettings != null;
-            return RESTful.restTemplate.getForObject(apiGatewaySettings.getUrl() + "/system/dds/" + id, DataDict.class);
-        }catch (Exception e){
-            LOG.error(e.getMessage(),e);
+            HttpResponse<DataDict> response = Unirest.get(apiGatewaySettings.getUrl() + "/system/dds/" + id).asObject(DataDict.class);
+            if (response.getStatus() == 404) {
+                return null;
+            }
+            return response.getBody();
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
             return null;
         }
     }

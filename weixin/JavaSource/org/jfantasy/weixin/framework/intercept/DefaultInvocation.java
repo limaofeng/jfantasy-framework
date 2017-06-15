@@ -12,7 +12,7 @@ import java.util.Iterator;
  */
 public class DefaultInvocation implements Invocation {
 
-    public Object handler;
+    private Object handler;
     private WeixinSession session;
     private WeixinMessage message;
     private Iterator<?> iterator;

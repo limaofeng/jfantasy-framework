@@ -15,7 +15,10 @@ public class UploadUtils {
 
     private static final Log LOG = LogFactory.getLog(UploadUtils.class);
 
-    public static Image uploadImage(final String url,final String dir) {
+    private UploadUtils() {
+    }
+
+    public static Image uploadImage(final String url, final String dir) {
         Map<String, Object> data = new HashMap<>();
         data.put("url", url);
         data.put("dir", dir);
