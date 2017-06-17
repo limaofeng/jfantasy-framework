@@ -8,13 +8,12 @@ import javax.persistence.AttributeConverter;
 
 public class AreaConverter implements AttributeConverter<Area, String> {
 
-    public AreaConverter() {
-    }
-
+    @Override
     public String convertToDatabaseColumn(Area attribute) {
         return attribute == null ? null : JSON.serialize(attribute);
     }
 
+    @Override
     public Area convertToEntityAttribute(String dbData) {
         return StringUtil.isBlank(dbData) ? null : JSON.deserialize(dbData, Area.class);
     }

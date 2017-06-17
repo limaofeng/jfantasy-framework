@@ -1,5 +1,7 @@
 package org.jfantasy.framework.spring.validation;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.spring.SpringContextUtil;
 import org.jfantasy.framework.util.common.ClassUtil;
 
@@ -8,7 +10,9 @@ import javax.validation.ConstraintValidatorContext;
 
 public class UseLongConstraintValidator implements ConstraintValidator<UseLong, Long> {
 
-    private Validator<Long> validator;
+    private static final Log LOG = LogFactory.getLog(UseLongConstraintValidator.class);
+
+    private Validator validator;
 
     @Override
     public void initialize(UseLong use) {
@@ -24,6 +28,7 @@ public class UseLongConstraintValidator implements ConstraintValidator<UseLong, 
         try {
             validator.validate(str);
         } catch (ValidationException e) {
+            LOG.error(e.getMessage(),e);
             constraintValidatorContext.disableDefaultConstraintViolation();
             constraintValidatorContext.buildConstraintViolationWithTemplate(e.getMessage()).addConstraintViolation();
             return false;
