@@ -55,5 +55,4 @@ public abstract class AbstracWeixinHandler implements WeixinHandler {
 
     protected abstract WeixinMessage handleTextMessage(WeixinSession session, TextMessage message);
 
-
 }

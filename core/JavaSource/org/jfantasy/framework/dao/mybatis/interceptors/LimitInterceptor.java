@@ -56,6 +56,7 @@ public class LimitInterceptor implements Interceptor {
         this.setDialectClass(tClass);
     }
 
+    @Override
     public Object intercept(Invocation invocation) throws Throwable {
         try {
             Pager pager = getPager(invocation.getArgs()[PARAMETER_INDEX]);
