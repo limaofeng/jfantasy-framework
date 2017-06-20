@@ -11,6 +11,7 @@ public class MySQLDialect implements Dialect {
 
     private static final String SQL_END_DELIMITER = ";";
 
+    @Override
     public String getLimitString(String osql, int offset, int limit) {
         String sql = trim(osql);
         StringBuilder sb = new StringBuilder(sql.length() + 20);
@@ -31,6 +32,7 @@ public class MySQLDialect implements Dialect {
         return sql;
     }
 
+    @Override
     public String getCountString(String sql) {
         return DialectUtil.pretty("select count(1) from (" + trim(sql) + ") as countSql");
     }

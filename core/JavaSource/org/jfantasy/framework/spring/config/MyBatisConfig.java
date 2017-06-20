@@ -1,70 +1,67 @@
 package org.jfantasy.framework.spring.config;
 
-import org.apache.ibatis.plugin.Interceptor;
+import org.apache.ibatis.type.TypeAliasRegistry;
 import org.jfantasy.framework.dao.Pager;
-import org.jfantasy.framework.dao.mybatis.DefaultSqlSessionFactoryBean;
+import org.jfantasy.framework.dao.mybatis.binding.MyBatisMapperRegistry;
 import org.jfantasy.framework.dao.mybatis.dialect.MySQLDialect;
+import org.jfantasy.framework.dao.mybatis.interceptors.AutoKeyInterceptor;
 import org.jfantasy.framework.dao.mybatis.interceptors.LimitInterceptor;
+import org.jfantasy.framework.dao.mybatis.interceptors.MultiDataSourceInterceptor;
 import org.jfantasy.framework.dao.mybatis.keygen.bean.Sequence;
+import org.jfantasy.framework.dao.mybatis.keygen.util.DataBaseKeyGenerator;
+import org.jfantasy.framework.dao.mybatis.sqlmapper.SqlMapper;
 import org.jfantasy.framework.util.common.ClassUtil;
-import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.PropertiesHelper;
-import org.jfantasy.framework.util.common.StringUtil;
-import org.mybatis.spring.SqlSessionFactoryBean;
+import org.mybatis.spring.annotation.MapperScan;
+import org.mybatis.spring.boot.autoconfigure.ConfigurationCustomizer;
+import org.mybatis.spring.boot.autoconfigure.MybatisProperties;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.core.io.support.ResourcePatternResolver;
 
-import javax.sql.DataSource;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 
 @Configuration
+@EntityScan("org.jfantasy.framework.dao.mybatis.keygen.bean")
+@MapperScan(markerInterface = SqlMapper.class,basePackages = "org.jfantasy.framework.dao.mybatis.keygen")
 public class MyBatisConfig {
 
-    @Bean(name = "sqlSessionFactory")
-    public SqlSessionFactoryBean sqlSessionFactoryBean(DataSource dataSource) throws IOException {
-        DefaultSqlSessionFactoryBean sqlSessionFactoryBean = new DefaultSqlSessionFactoryBean();
-
-        sqlSessionFactoryBean.setDataSource(dataSource);
-
-        Properties settings = new Properties();
-        settings.setProperty("cacheEnabled", "false");
-        settings.setProperty("lazyLoadingEnabled", "true");
-        settings.setProperty("aggressiveLazyLoading", "false");
-        settings.setProperty("dialectClass", "org.jfantasy.framework.dao.mybatis.dialect.MySQLDialect");
-        sqlSessionFactoryBean.setConfigurationProperties(settings);
-
+    @Autowired
+    public MyBatisConfig(MybatisProperties properties){
         PropertiesHelper helper = PropertiesHelper.load("application.properties");
+        properties.setMapperLocations(helper.getMergeProperty("mybatis.mapper-locations"));
+    }
 
-        List<Interceptor> interceptors = new ArrayList<>();
-        for (String plugins : helper.getMergeProperty("spring.mybatis.plugins")) {
-            for (String plugin : StringUtil.tokenizeToStringArray(plugins)) {
-                if (StringUtil.isBlank(plugin)) {
-                    continue;
-                }
-                Interceptor interceptor = ClassUtil.newInstance(plugin.trim());
-                interceptors.add(interceptor);
-            }
-        }
-        interceptors.add(new LimitInterceptor(MySQLDialect.class));
-        sqlSessionFactoryBean.setPlugins(interceptors.toArray(new Interceptor[interceptors.size()]));
+    @Bean
+    public DataBaseKeyGenerator dataBaseKeyGenerator(@Value("${dataBaseKey.poolSize:10}") String dataBaseKeyPoolSize) {
+        DataBaseKeyGenerator dataBaseKeyGenerator = new DataBaseKeyGenerator();
+        dataBaseKeyGenerator.setPoolSize(Integer.valueOf(dataBaseKeyPoolSize));
+        return dataBaseKeyGenerator;
+    }
 
-        sqlSessionFactoryBean.setTypeAliases(new Class[]{Pager.class, Sequence.class});
+    @Bean
+    public ConfigurationCustomizer mybatisConfigurationCustomizer() {
+        return configuration -> {
+            ClassUtil.setFieldValue(configuration, "mapperRegistry", new MyBatisMapperRegistry(configuration));
 
-        ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+            configuration.setCacheEnabled(false);
+            configuration.setLazyLoadingEnabled(true);
+            configuration.setAggressiveLazyLoading(false);
 
-        Resource[] resources = resolver.getResources("classpath*:org/jfantasy/**/dao/*-Mapper.xml");
-        for (String mapperLocation : helper.getMergeProperty("spring.mybatis.mapper-locations")) {
-            resources = ObjectUtil.join(resources,resolver.getResources(mapperLocation));
-        }
+            Properties settings = new Properties();
+            settings.setProperty("dialectClass", "org.jfantasy.framework.dao.mybatis.dialect.MySQLDialect");
+            configuration.setVariables(settings);
 
-        sqlSessionFactoryBean.setMapperLocations(resources);
-        return sqlSessionFactoryBean;
+            configuration.addInterceptor(new MultiDataSourceInterceptor());
+            configuration.addInterceptor(new AutoKeyInterceptor());
+            configuration.addInterceptor(new LimitInterceptor(MySQLDialect.class));
+
+            TypeAliasRegistry typeAliasRegistry = configuration.getTypeAliasRegistry();
+            typeAliasRegistry.registerAlias(Pager.class);
+            typeAliasRegistry.registerAlias(Sequence.class);
+        };
     }
 
 }

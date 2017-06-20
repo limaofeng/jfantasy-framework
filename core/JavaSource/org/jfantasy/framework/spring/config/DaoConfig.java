@@ -31,7 +31,7 @@ import javax.sql.DataSource;
 @Configuration
 @EnableTransactionManagement(proxyTargetClass = true)
 @EnableJpaRepositories(transactionManagerRef = "jpaTransactionManager", includeFilters = {@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {JpaRepository.class})}, basePackages = "org.jfantasy.*.dao")
-@Import({DataSourceConfig.class, MyBatisConfig.class})
+@Import({DataSourceConfig.class,MyBatisConfig.class})
 public class DaoConfig {
 
     private static final Log LOG = LogFactory.getLog(DaoConfig.class);

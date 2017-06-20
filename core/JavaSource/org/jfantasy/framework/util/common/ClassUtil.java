@@ -156,8 +156,12 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
         return classFactory.getClass(clazz).getValue(target, name);
     }
 
-    public static void setFieldValue(Object target, Class<?> clazz, String name,Object value) {
-        classFactory.getClass(clazz).setValue(target, name,value);
+    public static void setFieldValue(Object target, String name, Object value) {
+        classFactory.getClass(getRealClass(target)).setValue(target, name, value);
+    }
+
+    public static void setFieldValue(Object target, Class<?> clazz, String name, Object value) {
+        classFactory.getClass(clazz).setValue(target, name, value);
     }
 
     public static <T> T getValue(Object target, String name) {
