@@ -2,5 +2,4 @@ org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 org.jfantasy.autoconfigure.JCoreAutoConfiguration,\
 org.jfantasy.autoconfigure.WebStarterAutoConfiguration,\
 org.jfantasy.autoconfigure.LuceneAutoConfiguration,\
-org.jfantasy.autoconfigure.QuartzAutoConfiguration,\
-org.jfantasy.framework.swagger.SwaggerAutoConfiguration
+org.jfantasy.autoconfigure.QuartzAutoConfiguration

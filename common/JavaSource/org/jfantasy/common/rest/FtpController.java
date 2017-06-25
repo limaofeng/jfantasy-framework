@@ -1,7 +1,5 @@
 package org.jfantasy.common.rest;
 
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiParam;
 import org.jfantasy.common.bean.FtpConfig;
 import org.jfantasy.common.service.FtpConfigService;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
@@ -22,8 +20,7 @@ public class FtpController {
     /** 查询FTP配置 - 筛选FTP配置信息，返回数据集 **/
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
-    public List<FtpConfig> search(@ApiParam(hidden = true) List<PropertyFilter> filters) {
+    public List<FtpConfig> search(List<PropertyFilter> filters) {
         return this.ftpConfigService.find(filters, "id", "asc");
     }
 

@@ -1,7 +1,5 @@
 package org.jfantasy.common.rest;
 
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiParam;
 import org.apache.lucene.search.Query;
 import org.jfantasy.common.bean.Keyword;
 import org.jfantasy.common.service.KeywordService;
@@ -26,8 +24,7 @@ public class KeywordController {
 
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    @ApiImplicitParam(value = "filters",name = "filters",paramType = "query",dataType = "string")
-    public Pager<Keyword> search(@RequestParam(value = "type", required = false) String type, @RequestParam(value = "q", required = false) String query,Pager<Keyword> pager, @ApiParam(hidden = true) List<PropertyFilter> filters) {
+    public Pager<Keyword> search(@RequestParam(value = "type", required = false) String type, @RequestParam(value = "q", required = false) String query,Pager<Keyword> pager,List<PropertyFilter> filters) {
         List<Query> queries = new ArrayList<Query>();
         if(StringUtil.isNotBlank(query)){
             queries.add(BuguParser.parseWildcard(new String[]{"words","pinyin", "qpin"}, "*" + query + "*"));

@@ -1,8 +1,8 @@
 ext {
-    springVersion = "4.3.3.RELEASE"
-    springBootVersion = "1.4.1.RELEASE"
-    springfoxVersion = "2.6.1"
-    jacksonVersion = '2.7.4'
+    springVersion = "4.3.9.RELEASE"
+    springBootVersion = "1.5.4.RELEASE"
+    jacksonVersion = '2.8.0'
+    quartzVersion = '2.2.3'
     groovy = "2.4.5"
     spock = "1.0-groovy-2.4"
 
@@ -18,21 +18,6 @@ ext {
                     "org.springframework.boot:spring-boot-starter-web:${springBootVersion}",
                     "org.springframework.boot:spring-boot-configuration-processor:${springBootVersion}",
             ],
-
-            springfoxPetstore : [
-                    "io.springfox:springfox-petstore:${springfoxVersion}"
-            ],
-            springfoxSwagger2 : [
-                    "io.springfox:springfox-swagger2:${springfoxVersion}"
-            ],
-            springfoxSwaggerUi: [
-//                  "io.springfox:springfox-swagger-ui:${springfoxVersion}"
-                    "io.springfox.ui:springfox-swagger-ui-rfc6570:1.0.0"
-            ],
-            jackson           : [
-                    "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}",
-                    "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
-            ],
             test              : [
                     "org.codehaus.groovy:groovy-all:${groovy}",
                     "org.spockframework:spock-spring:${spock}",
@@ -41,9 +26,6 @@ ext {
                     "cglib:cglib-nodep:3.2.4",
                     "org.objenesis:objenesis:2.4",
                     "org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
-            ],
-            springfoxStaticDocs: [
-                    "io.springfox:springfox-staticdocs:${springfoxVersion}"
-            ],
+            ]
     ]
 }
