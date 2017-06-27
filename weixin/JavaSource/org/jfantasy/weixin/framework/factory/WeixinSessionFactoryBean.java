@@ -47,7 +47,7 @@ public class WeixinSessionFactoryBean implements FactoryBean<WeixinSessionFactor
 
     private List<WeixinMessageInterceptor> weixinMessageInterceptors = new ArrayList<>();
 
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         long start = System.currentTimeMillis();
 
         weixinMessageInterceptors.add(new LogInterceptor());

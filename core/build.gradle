@@ -4,6 +4,12 @@ configurations {
     compile.exclude module: "spring-boot-starter-tomcat"
 }
 
+configurations{
+    compile.exclude module: "spring-boot-starte-tomcat"
+    compile.exclude module: "tomcat-jdbc"
+    compile.exclude module: "spring-boot-starter-logging"
+}
+
 dependencies {
     // spring
     compile "org.springframework:spring-core:$springVersion"
@@ -14,9 +20,7 @@ dependencies {
     compile "org.springframework:spring-context-support:$springVersion"
     // spring boot
     optional "org.springframework.boot:spring-boot-configuration-processor:${springBootVersion}"
-    compile("org.springframework.boot:spring-boot-starter-web:${springBootVersion}") {
-        exclude group: "org.springframework.boot", module: "spring-boot-starte-tomcat"
-    }
+    compile("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
     compile "org.springframework.boot:spring-boot-starter-undertow:${springBootVersion}"
     compile "org.springframework.boot:spring-boot-starter-data-jpa:${springBootVersion}"
     compile "org.springframework.boot:spring-boot-starter-actuator:${springBootVersion}"
