@@ -14,7 +14,6 @@ import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.Order;
-import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -62,7 +61,7 @@ public class JacksonResponseBodyAdvice implements ResponseBodyAdvice<Object> {
         if (returnValue == null && serverHttpRequest.getMethod() == HttpMethod.GET) {
             throw new NotFoundException("查询的对象不存在");
         }
-        if (mediaType.isCompatibleWith(MediaTypes.HAL_JSON) || mediaType.isCompatibleWith(MediaType.APPLICATION_JSON)) {
+        if (mediaType.isCompatibleWith(MediaType.APPLICATION_JSON)) {
             LOGGER.debug("启用自定义 FilterProvider ");
             MappingJacksonValue mappingJacksonValue = new MappingJacksonValue(returnValue);
             mappingJacksonValue.setFilters(getFilterProvider(methodParameter));

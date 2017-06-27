@@ -4,12 +4,11 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
-import org.springframework.hateoas.ResourceSupport;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class ResultResourceSupport<T> extends ResourceSupport {
+public class ResultResourceSupport<T> {
 
     private T model;
     private Map<String,Object> properties = new HashMap<>();
@@ -33,5 +32,4 @@ public class ResultResourceSupport<T> extends ResourceSupport {
     public void set(String key, Object value) {
         this.properties.put(key, value);
     }
-
 }

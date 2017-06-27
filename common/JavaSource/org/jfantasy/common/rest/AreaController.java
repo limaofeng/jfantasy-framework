@@ -1,12 +1,10 @@
 package org.jfantasy.common.rest;
 
 import org.jfantasy.common.bean.Area;
-import org.jfantasy.common.rest.models.assembler.AreaResourceAssembler;
 import org.jfantasy.common.service.AreaService;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.spring.mvc.error.NotFoundException;
-import org.jfantasy.framework.spring.mvc.hateoas.ResultResourceSupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -17,8 +15,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/areas")
 public class AreaController {
-
-    private AreaResourceAssembler assembler = new AreaResourceAssembler();
 
     @Autowired
     private AreaService areaService;
@@ -31,22 +27,22 @@ public class AreaController {
      */
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    public Pager<ResultResourceSupport> search(Pager<Area> pager,List<PropertyFilter> filters) {
-        return assembler.toResources(this.areaService.findPager(pager, filters));
+    public Pager<Area> search(Pager<Area> pager,List<PropertyFilter> filters) {
+        return this.areaService.findPager(pager, filters);
     }
 
     /** 获取地区的子集 **/
     @RequestMapping(value = "/{id}/children", method = RequestMethod.GET)
     @ResponseBody
-    public List<ResultResourceSupport> children(@PathVariable("id") String id) {
-        return assembler.toResources(this.areaService.get(id).getChildren());
+    public List<Area> children(@PathVariable("id") String id) {
+        return get(id).getChildren();
     }
 
     /** 获取地区 **/
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     @ResponseBody
-    public ResultResourceSupport view(@PathVariable("id") String id) {
-        return assembler.toResource(this.areaService.get(id));
+    public Area view(@PathVariable("id") String id) {
+        return this.areaService.get(id);
     }
 
     /** 删除地区 **/
@@ -67,16 +63,16 @@ public class AreaController {
     @RequestMapping(method = {RequestMethod.POST})
     @ResponseStatus(value = HttpStatus.CREATED)
     @ResponseBody
-    public ResultResourceSupport create(@RequestBody Area Area) {
-        return assembler.toResource(areaService.save(Area));
+    public Area create(@RequestBody Area Area) {
+        return areaService.save(Area);
     }
 
     /** 更新地区 **/
     @RequestMapping(value = "/{id}", method = RequestMethod.PATCH)
     @ResponseBody
-    public ResultResourceSupport update(@PathVariable("id") String id, @RequestBody Area area) {
+    public Area update(@PathVariable("id") String id, @RequestBody Area area) {
         area.setId(id);
-        return assembler.toResource(areaService.save(area));
+        return areaService.save(area);
     }
 
     public Area get(String id){
