@@ -2,9 +2,8 @@ package org.jfantasy.springboot.rest.form;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import org.jfantasy.springboot.bean.Article;
-import org.springframework.hateoas.ResourceSupport;
 
-public class ArticleForm extends ResourceSupport {
+public class ArticleForm {
 
     private Article article;
 

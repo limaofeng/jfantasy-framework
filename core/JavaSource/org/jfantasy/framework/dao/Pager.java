@@ -3,7 +3,6 @@ package org.jfantasy.framework.dao;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModelProperty;
 import org.apache.ibatis.type.Alias;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.framework.util.web.RedirectAttributesWriter;
@@ -36,43 +35,35 @@ public class Pager<T> implements Serializable {
      * 最大数据条数
      */
     @JsonProperty("count")
-    @ApiModelProperty("最大数据条数")
     private int totalCount = 0;
     /**
      * 每页显示的数据条数
      */
     @JsonProperty("per_page")
-    @ApiModelProperty("每页显示的数据条数")
     private int pageSize = 0;
     /**
      * 总页数
      */
     @JsonProperty("total")
-    @ApiModelProperty("总页数")
     private int totalPage = 1;
     /**
      * 当前页码
      */
     @JsonProperty("page")
-    @ApiModelProperty("当前页码")
     private int currentPage = 1;
     /**
      * 开始数据索引
      */
-    @ApiModelProperty(hidden = true)
     private int first = 0;
     /**
      * 排序字段
      */
     @JsonProperty("sort")
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ApiModelProperty("排序字段")
     private String orderBy;
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ApiModelProperty(value = "排序规则", allowableValues = "asc,desc")
     private String order;
     @JsonProperty("items")
-    @ApiModelProperty("结果集")
     private transient List<T> pageItems;
 
     public Pager() {
@@ -197,7 +188,6 @@ public class Pager<T> implements Serializable {
      *
      * @return boolean
      */
-    @ApiModelProperty(hidden = true)
     public boolean isOrderBySetted() {
         return StringUtil.isNotBlank(this.getOrderBy()) && StringUtil.isNotBlank(this.getOrder());
     }

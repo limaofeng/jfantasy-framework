@@ -5,7 +5,7 @@ buildscript {
         mavenLocal()
     }
     dependencies {
-        classpath "org.springframework.boot:spring-boot-gradle-plugin:1.4.1.RELEASE"
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:1.5.4.RELEASE"
         classpath 'org.springframework.build.gradle:propdeps-plugin:0.0.7'
         classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.5"
     }
@@ -39,24 +39,19 @@ subprojects {
     targetCompatibility = 1.8
 
     sonarqube {
-        //noinspection GroovyAssignabilityCheck
         properties {
-            //noinspection GroovyAssignabilityCheck
             property "sonar.sourceEncoding", "UTF-8"
-            //noinspection GroovyAssignabilityCheck
             property "sonar.links.ci", "http://git.zbsg.com.cn/ci"
-            //noinspection GroovyAssignabilityCheck
             property "sonar.links.issue", "http://git.zbsg.com.cn/apis/framework/issues"
-            //noinspection GroovyAssignabilityCheck
             property "sonar.links.scm", "http://git.zbsg.com.cn/apis/framework.git"
         }
     }
 
-    //noinspection GroovyAssignabilityCheck
     sourceSets {
         main {
             java.srcDirs = ['JavaSource']
             resources.srcDirs = ["resources"]
+            output.classesDir = new File(buildDir, "classes/main")
         }
         test {
             java.srcDirs = ['test/src']
