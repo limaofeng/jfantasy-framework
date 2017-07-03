@@ -12,8 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.*;
-
 
 @RestController
 public class TestController {
@@ -62,8 +60,7 @@ public class TestController {
     @RequestMapping(value = "/articles/{id}", method = RequestMethod.GET)
     public HttpEntity<ArticleForm> greeting(@PathVariable("id") Long id) {
         ArticleForm greeting = new ArticleForm(articleService.get(id));
-        greeting.add(linkTo(methodOn(TestController.class).greeting(id)).withSelfRel());
-        return new ResponseEntity<ArticleForm>(greeting, HttpStatus.OK);
+        return new ResponseEntity<>(greeting, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/articles", method = RequestMethod.POST)

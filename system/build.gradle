@@ -1,7 +1,0 @@
-
-description = ' 系统管理相关模块 '
-dependencies {
-    compile project(':jfantasy-core')
-    compile project(':jfantasy-oauth-api')
-    testCompile "org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
-}

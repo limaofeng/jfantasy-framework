@@ -3,12 +3,9 @@ package org.jfantasy.framework.dao.mybatis.keygen.util;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.dao.mybatis.keygen.service.SequenceService;
-import org.jfantasy.springboot.ApplicationTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.ArrayList;
@@ -18,7 +15,6 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(ApplicationTest.class)
 public class SequenceInfoTest {
 
     private static final Log LOG = LogFactory.getLog(SequenceInfoTest.class);

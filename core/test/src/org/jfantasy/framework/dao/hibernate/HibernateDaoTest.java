@@ -7,7 +7,6 @@ import org.hibernate.Session;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.jackson.JSON;
 import org.jfantasy.framework.util.common.BeanUtil;
-import org.jfantasy.springboot.ApplicationTest;
 import org.jfantasy.springboot.bean.Article;
 import org.jfantasy.springboot.dao.ArticleDao;
 import org.junit.After;
@@ -16,7 +15,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +22,6 @@ import java.util.List;
 import java.util.UUID;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(ApplicationTest.class)
 public class HibernateDaoTest {
 
     private static final Log LOG = LogFactory.getLog(HibernateDaoTest.class);
