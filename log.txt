@@ -1,5 +1,0 @@
-[2017-03-17 15:27:13] [WARN ] - EntityChangedEventListener's superclass not ParameterizedType
-[2017-03-17 15:34:57] [WARN ] - EntityChangedEventListener's superclass not ParameterizedType
-[2017-03-17 15:41:27] [WARN ] - EntityChangedEventListener's superclass not ParameterizedType
-[2017-03-17 15:48:10] [WARN ] - EntityChangedEventListener's superclass not ParameterizedType
-[2017-03-17 16:22:22] [WARN ] - EntityChangedEventListener's superclass not ParameterizedType
