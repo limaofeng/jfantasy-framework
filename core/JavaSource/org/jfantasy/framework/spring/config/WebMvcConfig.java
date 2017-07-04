@@ -114,7 +114,7 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter implements Environment
 
     @Bean
     public ObjectMapper objectMapper() {
-        ObjectMapper objectMapper = applicationContext.getBean("_halObjectMapper", ObjectMapper.class);
+        ObjectMapper objectMapper = applicationContext.getBean("jacksonObjectMapper", ObjectMapper.class);
         // 将 objectMapper 设置到 JSON 中
         JSON.initialize(objectMapper);
         // 读取 spring.jackson.mixin.packages
