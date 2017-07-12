@@ -18,6 +18,7 @@ public class PinyinUtilsTest {
     @Test
     public void getAll() throws Exception {
         System.out.println(PinyinUtils.getAll("白术"));
+        System.out.println(PinyinUtils.getAll("白术","-"));
     }
 
 }

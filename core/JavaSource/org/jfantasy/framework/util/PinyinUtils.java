@@ -22,7 +22,11 @@ public class PinyinUtils {
     }
 
     public static String getAll(String pinyin) throws PinyinException {
-        return PinyinHelper.convertToPinyinString(pinyin, "", PinyinFormat.WITHOUT_TONE);
+        return getAll(pinyin, "");
+    }
+
+    public static String getAll(String pinyin,String separator) throws PinyinException {
+        return PinyinHelper.convertToPinyinString(pinyin, separator, PinyinFormat.WITHOUT_TONE);
     }
 
     public static void addMutilDict(String key, String value) {
