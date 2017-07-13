@@ -1,4 +1,4 @@
-package org.jfantasy.framework.swagger;
+package org.jfantasy.autoconfigure;
 
 import com.google.common.base.Predicate;
 import org.jfantasy.framework.spring.config.WebMvcConfig;
