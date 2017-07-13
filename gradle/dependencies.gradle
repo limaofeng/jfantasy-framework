@@ -2,6 +2,7 @@ ext {
     springVersion = "4.3.9.RELEASE"
     springBootVersion = "1.5.4.RELEASE"
     jacksonVersion = '2.8.0'
+    springfoxVersion = "2.6.1"
     quartzVersion = '2.2.3'
     groovy = "2.4.5"
     spock = "1.0-groovy-2.4"

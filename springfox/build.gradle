@@ -1,0 +1,9 @@
+
+description = ' springfox 默认实现 '
+dependencies {
+    compile project(':jfantasy-core')
+    // springfox
+    compile "io.springfox:springfox-petstore:${springfoxVersion}"
+    compile "io.springfox:springfox-swagger2:${springfoxVersion}"
+    testCompile "org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
+}
