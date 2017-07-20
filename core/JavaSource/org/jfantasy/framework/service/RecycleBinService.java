@@ -7,7 +7,9 @@ import org.jfantasy.framework.jackson.JSON;
 import java.util.List;
 
 public final class RecycleBinService {
+
     private static final Log LOGGER = LogFactory.getLog(RecycleBinService.class);
+
     public <T> void recycle(T object) {
         LOGGER.debug(JSON.serialize(object));
     }
