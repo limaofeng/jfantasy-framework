@@ -10,11 +10,14 @@ include ':jfantasy-rpc-common'
 include ':jfantasy-rpc-server'
 include ':jfantasy-rpc-client'
 
+include ':demo'
+
 project(':jfantasy-core').projectDir = "$rootDir/core" as File
 project(':jfantasy-cache').projectDir = "$rootDir/cache" as File
 project(':jfantasy-pay-api').projectDir = "$rootDir/pay-api" as File
 project(':jfantasy-pay-client').projectDir = "$rootDir/pay-client" as File
 project(':jfantasy-weixin').projectDir = "$rootDir/weixin" as File
+project(':demo').projectDir = "$rootDir/demo" as File
 
 // sdk list
 project(':jfantasy-aliyun').projectDir = "$rootDir/aliyun" as File
