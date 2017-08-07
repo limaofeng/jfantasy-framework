@@ -20,6 +20,7 @@ import org.jfantasy.framework.web.filter.ConversionCharacterEncodingFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.boot.actuate.autoconfigure.ManagementServerProperties;
 import org.springframework.boot.bind.RelaxedPropertyResolver;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.MultipartConfigFactory;
@@ -65,9 +66,10 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter implements Environment
 
     private RelaxedPropertyResolver jacksonPropertyResolver;
 
-    @Autowired
-    public WebMvcConfig(ApplicationContext applicationContext) {
+    @Autowired(required = false)
+    public WebMvcConfig(ApplicationContext applicationContext,ManagementServerProperties properties) {
         this.applicationContext = applicationContext;
+        properties.getSecurity().setEnabled(true);
     }
 
     /**
