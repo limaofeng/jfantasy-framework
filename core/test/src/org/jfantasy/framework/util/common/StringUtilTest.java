@@ -15,7 +15,9 @@ public class StringUtilTest {
     public void encodeURI() throws Exception {
         // String source = "P7kxnMLbEJ7VVqd5FFdPdwHx8v070UeIVLUHQdeTVUoSEBJwBBMZ1rx9dMuOAmxzuV90mtN7A0J7Dv5LWUUgpuQcL3FCTWNxb2fnX+APObmVnjv0sta7/gycBdRKNw6Od5M3W3eVHXqvAGu/vzk+ TtUbuZZ3j8gISJcJK9wBAvQ=";
 
-        LOG.debug(StringUtil.decodeURI("11%", "utf-8"));
+        System.out.println(StringUtil.decodeURI("11%", "utf-8"));
+
+        System.out.println(StringUtil.decodeURI("%11", "utf-8"));
 
         //System.out.println(URLEncoder.encode("+ ", "utf-8"));
 
