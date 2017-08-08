@@ -1046,7 +1046,7 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
                     value = value.substring(1);
                 } else if (value.endsWith("%")) {
                     matchMode = MatchMode.START;
-                    value = value.substring(0, value.length() - 2);
+                    value = value.substring(0, value.length() - 1);
                 }
                 criterion = Restrictions.like(propertyName, value, matchMode);
             } else if (PropertyFilter.MatchType.LE.equals(matchType)) {
