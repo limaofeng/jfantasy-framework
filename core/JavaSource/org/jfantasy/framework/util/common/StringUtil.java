@@ -348,7 +348,7 @@ public abstract class StringUtil {
                 return s;
             }
             return isBlank(s) ? s : URLDecoder.decode(s, enc);
-        } catch (UnsupportedEncodingException e) {
+        } catch (UnsupportedEncodingException | IllegalArgumentException e) {
             LOG.error(e.getMessage(), e);
             return s;
         }
