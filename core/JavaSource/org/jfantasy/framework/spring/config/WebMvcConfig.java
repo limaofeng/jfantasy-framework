@@ -69,7 +69,7 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter implements Environment
     @Autowired(required = false)
     public WebMvcConfig(ApplicationContext applicationContext,ManagementServerProperties properties) {
         this.applicationContext = applicationContext;
-        properties.getSecurity().setEnabled(true);
+        properties.getSecurity().setEnabled(false);
     }
 
     /**
