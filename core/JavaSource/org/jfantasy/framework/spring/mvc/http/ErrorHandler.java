@@ -6,6 +6,8 @@ import org.jfantasy.framework.spring.mvc.error.RestException;
 import org.jfantasy.framework.spring.mvc.error.SecurityException;
 import org.jfantasy.framework.spring.mvc.error.ValidationException;
 import org.jfantasy.framework.util.web.context.ActionContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @ControllerAdvice
@@ -20,16 +23,18 @@ public class ErrorHandler {
 
     private static final Log LOG = LogFactory.getLog(ErrorHandler.class);
 
+    protected transient ApplicationContext applicationContext;
+
     @ExceptionHandler(value = Exception.class)
     @ResponseBody
-    public ErrorResponse errorResponse(Exception exception) {
+    public ErrorResponse errorAttributes(Exception exception, HttpServletRequest request) {
         ActionContext context = ActionContext.getContext();
-        if (context == null) {
-            return new ErrorResponse(50000, exception.getMessage());
-        }
-        ErrorResponse error = new ErrorResponse();
+        ErrorResponse error = new ErrorResponse(request);
         HttpServletResponse response = context.getHttpResponse();
-        if (exception instanceof SecurityException) {
+        if (context == null) {
+            error.setCode(50000);
+            error.setMessage(exception.getMessage());
+        } else if (exception instanceof SecurityException) {
             SecurityException securityException = (SecurityException) exception;
             error.setCode(securityException.getCode());
             error.setMessage(securityException.getMessage());
@@ -56,7 +61,13 @@ public class ErrorHandler {
             error.setMessage(exception.getMessage());
             response.setStatus(HttpStatus.BAD_REQUEST.value());
         }
+        applicationContext.publishEvent(new ErrorEvent(error));
         return error;
+    }
+
+    @Autowired
+    public void setApplicationContext(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
     }
 
 }

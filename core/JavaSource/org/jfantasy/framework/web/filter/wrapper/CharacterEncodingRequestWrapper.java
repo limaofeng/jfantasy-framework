@@ -16,7 +16,7 @@ public class CharacterEncodingRequestWrapper extends HttpServletRequestWrapper {
 
     protected static final Log LOG = LogFactory.getLog(CharacterEncodingRequestWrapper.class);
 
-    private Map<String, String[]> parameterMaps = new LinkedHashMap<String, String[]>();
+    private Map<String, String[]> parameterMaps = new LinkedHashMap<>();
 
     public CharacterEncodingRequestWrapper(HttpServletRequest request) {
         super(request);

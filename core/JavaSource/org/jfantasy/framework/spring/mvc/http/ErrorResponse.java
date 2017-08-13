@@ -1,21 +1,24 @@
 package org.jfantasy.framework.spring.mvc.http;
 
+import org.jfantasy.framework.util.common.DateUtil;
+
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 class ErrorResponse {
 
+    private Date timestamp;
     private float code;
+    private String path;
     private String message;
-
+    private String exception;
     private List<Error> errors;
 
-    ErrorResponse(){
-    }
-
-    ErrorResponse(float code, String message) {
-        this.code = code;
-        this.message = message;
+    ErrorResponse(HttpServletRequest request){
+        this.timestamp = DateUtil.now();
+        this.path = request.getRequestURI();
     }
 
     public String getMessage() {
@@ -45,4 +48,31 @@ class ErrorResponse {
         this.message = message;
     }
 
+    public Date getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Date timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    public String getException() {
+        return exception;
+    }
+
+    public void setException(String exception) {
+        this.exception = exception;
+    }
+
+    public void setErrors(List<Error> errors) {
+        this.errors = errors;
+    }
 }
