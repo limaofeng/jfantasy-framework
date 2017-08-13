@@ -30,6 +30,7 @@ public class ErrorHandler {
     public ErrorResponse errorAttributes(Exception exception, HttpServletRequest request) {
         ActionContext context = ActionContext.getContext();
         ErrorResponse error = new ErrorResponse(request);
+        Object state = exception instanceof RestException ? ((RestException) exception).getState() : null;
         HttpServletResponse response = context.getHttpResponse();
         if (context == null) {
             error.setCode(50000);
@@ -61,7 +62,7 @@ public class ErrorHandler {
             error.setMessage(exception.getMessage());
             response.setStatus(HttpStatus.BAD_REQUEST.value());
         }
-        applicationContext.publishEvent(new ErrorEvent(error));
+        applicationContext.publishEvent(new ErrorEvent(error, state));
         return error;
     }
 

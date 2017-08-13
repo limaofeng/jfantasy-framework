@@ -20,8 +20,8 @@ public class RestException extends RuntimeException {
         return statusCode;
     }
 
-    public <T> T getState() {
-        return (T)state;
+    public Object getState() {
+        return state;
     }
 
     public void setState(Object state) {

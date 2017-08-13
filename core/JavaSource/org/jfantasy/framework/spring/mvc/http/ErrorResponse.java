@@ -1,6 +1,5 @@
 package org.jfantasy.framework.spring.mvc.http;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.jfantasy.framework.util.common.DateUtil;
 
 import javax.servlet.http.HttpServletRequest;
@@ -8,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-@JsonIgnoreProperties("state")
 class ErrorResponse {
     /**
      * 错误发生时间
@@ -42,10 +40,6 @@ class ErrorResponse {
      * 当验证错误时，各项具体的错误信息
      */
     private List<Error> errors;
-    /**
-     * 出错时传入的相关数据,方便后期处理。
-     */
-    private Object state;
 
     ErrorResponse(HttpServletRequest request) {
         this.timestamp = DateUtil.now();
