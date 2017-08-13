@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 public class RestException extends RuntimeException {
 
     private int statusCode = HttpStatus.BAD_REQUEST.value();
+    private Object state;
 
     public RestException(int statusCode, String message) {
         super(message);
@@ -19,4 +20,11 @@ public class RestException extends RuntimeException {
         return statusCode;
     }
 
+    public <T> T getState() {
+        return (T)state;
+    }
+
+    public void setState(Object state) {
+        this.state = state;
+    }
 }
