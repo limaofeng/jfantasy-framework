@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-class ErrorResponse {
+public class ErrorResponse {
     /**
      * 错误发生时间
      */
