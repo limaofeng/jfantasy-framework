@@ -3,6 +3,7 @@ package org.jfantasy.framework.dao.hibernate;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.SQLQuery;
 import org.hibernate.transform.ResultTransformer;
 import org.hibernate.type.Type;
 import org.jfantasy.framework.dao.hibernate.util.TypeFactory;
@@ -78,6 +79,12 @@ public class AliasToBeanResultTransformer implements ResultTransformer {
     @SuppressWarnings("rawtypes")
     public List transformList(List collection) {
         return collection;
+    }
+
+    protected void custom(SQLQuery query) {
+        for (Map.Entry<String, Type> entry : propertyTypes.entrySet()){
+            query.addScalar(entry.getKey(), entry.getValue());
+        }
     }
 
 }
