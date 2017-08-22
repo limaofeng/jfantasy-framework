@@ -987,8 +987,14 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
     }
 
     private Object getPropertyValue(PropertyFilter filter) {
-        if (filter.getPropertyType() == null) {
-            return null;
+        if (!filter.isHavePropertyType()) {
+            Class<?> entityClassTemp = this.entityClass;
+            String[] propertyNames = filter.getPropertyName().split("\\.");
+            for (int i = 0; i < propertyNames.length - 1; i++) {
+                entityClassTemp = ClassUtil.getProperty(entityClassTemp, propertyNames[i]).getPropertyType();
+            }
+            Class propertyType = ClassUtil.getProperty(entityClassTemp, propertyNames[propertyNames.length - 1]).getPropertyType();
+            return ReflectionUtils.convertStringToObject((String) filter.getPropertyValue(), propertyType);
         }
         if (!filter.getPropertyType().isAssignableFrom(Enum.class)) {
             return filter.getPropertyValue();
