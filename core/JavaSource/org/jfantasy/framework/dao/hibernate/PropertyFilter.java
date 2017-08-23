@@ -64,19 +64,11 @@ public class PropertyFilter {
 
     public PropertyFilter(String filterName, Enum<?> value) {
         this.initialize(filterName);
-        if (this.propertyType != Enum.class) {
-            throw new IgnoreException("查询类型类型必须为枚举类型(E)");
-        }
-        this.propertyType = value.getClass();
         this.propertyValue = value;
     }
 
     public PropertyFilter(String filterName, Enum<?>... value) {
         this.initialize(filterName);
-        if (this.propertyType != Enum.class) {
-            throw new IgnoreException("");
-        }
-        this.propertyType = Array.get(value, 0).getClass();
         if (!(MatchType.IN.equals(this.matchType) || MatchType.NOTIN.equals(this.matchType))) {
             throw new IgnoreException("有多个条件时,查询条件必须为 in 或者 not in ");
         }
@@ -155,7 +147,7 @@ public class PropertyFilter {
 
     @SuppressWarnings("unchecked")
     public <T> T getPropertyValue(Class<T> clazz) {
-        if (clazz.isEnum()) {
+        if (clazz.isEnum()||(clazz.isArray()&&clazz.getComponentType().isEnum())) {
             AtomicReference<Class> enumClass = new AtomicReference<>(clazz.isArray() ? clazz.getComponentType() : clazz);
             if (propertyValue instanceof String) {
                 return (T)Enum.valueOf(enumClass.get(), (String) propertyValue);
