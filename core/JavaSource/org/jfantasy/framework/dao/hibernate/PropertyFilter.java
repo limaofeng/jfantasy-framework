@@ -41,10 +41,6 @@ public class PropertyFilter {
      * 完整表达式
      */
     private String filterName;
-    /**
-     * 是否携带参数类型
-     */
-    private boolean havePropertyType = true;
 
     public PropertyFilter(String filterName) {
         this.filterName = filterName;
@@ -185,14 +181,6 @@ public class PropertyFilter {
 
     public void setMatchType(MatchType matchType) {
         this.matchType = matchType;
-    }
-
-    public boolean isHavePropertyType() {
-        return havePropertyType;
-    }
-
-    public void setHavePropertyType(boolean havePropertyType) {
-        this.havePropertyType = havePropertyType;
     }
 
     public enum MatchType {
