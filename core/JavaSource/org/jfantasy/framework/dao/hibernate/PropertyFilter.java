@@ -170,7 +170,7 @@ public class PropertyFilter {
 
     @SuppressWarnings("unchecked")
     public <T> T getPropertyValue(Class<T> clazz) {
-        if (this.getPropertyType().isAssignableFrom(Enum.class)) {
+        if (clazz.isEnum()) {
             AtomicReference<Class> enumClass = new AtomicReference<>(clazz.isArray() ? clazz.getComponentType() : clazz);
             if (propertyValue instanceof String) {
                 return (T)Enum.valueOf(enumClass.get(), (String) propertyValue);
