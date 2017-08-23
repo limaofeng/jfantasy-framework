@@ -987,28 +987,8 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
     }
 
     private Object getPropertyValue(PropertyFilter filter) {
-        if (!filter.isHavePropertyType()) {
-            Class<?> entityClassTemp = this.entityClass;
-            String[] propertyNames = filter.getPropertyName().split("\\.");
-            for (int i = 0; i < propertyNames.length - 1; i++) {
-                entityClassTemp = ClassUtil.getProperty(entityClassTemp, propertyNames[i]).getPropertyType();
-            }
-            Class propertyType = ClassUtil.getProperty(entityClassTemp, propertyNames[propertyNames.length - 1]).getPropertyType();
-            if (propertyType.isEnum()){
-                return filter.getMatchType().isMulti() ? filter.getPropertyValue(ClassUtil.newInstance(propertyType, 0).getClass()) : filter.getPropertyValue(propertyType);
-            }
-            if (filter.getPropertyValue().getClass().isAssignableFrom(String[].class)){
-                String[] tempArray = (String[]) filter.getPropertyValue();
-                Object array = ClassUtil.newInstance(propertyType, tempArray.length);
-                for (int i = 0; i < tempArray.length; i++) {
-                    Array.set(array, i, ReflectionUtils.convertStringToObject(tempArray[i], propertyType));
-                }
-                return array;
-            }
-            return ReflectionUtils.convertStringToObject((String) filter.getPropertyValue(), propertyType);
-        }
-        if (!filter.getPropertyType().isAssignableFrom(Enum.class)) {
-            return filter.getPropertyValue();
+        if (filter.getPropertyType() == null) {
+            return null;
         }
         Class<?> entityClassTemp = this.entityClass;
         String[] propertyNames = filter.getPropertyName().split("\\.");
@@ -1016,7 +996,18 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
             entityClassTemp = ClassUtil.getProperty(entityClassTemp, propertyNames[i]).getPropertyType();
         }
         Class propertyType = ClassUtil.getProperty(entityClassTemp, propertyNames[propertyNames.length - 1]).getPropertyType();
-        return filter.getMatchType().isMulti() ? filter.getPropertyValue(ClassUtil.newInstance(propertyType, 0).getClass()) : filter.getPropertyValue(propertyType);
+        if (propertyType.isEnum()){
+            return filter.getMatchType().isMulti() ? filter.getPropertyValue(ClassUtil.newInstance(propertyType, 0).getClass()) : filter.getPropertyValue(propertyType);
+        }
+        if (filter.getPropertyValue().getClass().isAssignableFrom(String[].class)){
+            String[] tempArray = (String[]) filter.getPropertyValue();
+            Object array = ClassUtil.newInstance(propertyType, tempArray.length);
+            for (int i = 0; i < tempArray.length; i++) {
+                Array.set(array, i, ReflectionUtils.convertStringToObject(tempArray[i], propertyType));
+            }
+            return array;
+        }
+        return ReflectionUtils.convertStringToObject((String) filter.getPropertyValue(), propertyType);
     }
 
     public static String getAlias(String property) {
