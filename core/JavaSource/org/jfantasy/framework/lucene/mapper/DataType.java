@@ -93,4 +93,8 @@ public class DataType {
 	public static boolean isMap(Class<?> type) {
 		return (type.equals(Map.class)) || (type.equals(HashMap.class)) || (type.equals(TreeMap.class));
 	}
+
+	public static boolean isEnum(Class<?> type) {
+		return type.isEnum();
+	}
 }
