@@ -60,19 +60,11 @@ public class PropertyFilter {
 
     public PropertyFilter(String filterName, Enum<?> value) {
         this.initialize(filterName);
-        if (this.propertyType != Enum.class) {
-            throw new IgnoreException("查询类型类型必须为枚举类型(E)");
-        }
-        this.propertyType = value.getClass();
         this.propertyValue = value;
     }
 
     public PropertyFilter(String filterName, Enum<?>... value) {
         this.initialize(filterName);
-        if (this.propertyType != Enum.class) {
-            throw new IgnoreException("");
-        }
-        this.propertyType = Array.get(value, 0).getClass();
         if (!(MatchType.IN.equals(this.matchType) || MatchType.NOTIN.equals(this.matchType))) {
             throw new IgnoreException("有多个条件时,查询条件必须为 in 或者 not in ");
         }
@@ -118,21 +110,11 @@ public class PropertyFilter {
     private void initialize(String filterName) {
         this.filterName = filterName;
         String matchTypeStr = StringUtils.substringBefore(filterName, "_");
-        String matchTypeCode = StringUtils.substring(matchTypeStr, 0, matchTypeStr.length() - 1);
-        String propertyTypeCode = StringUtils.substring(matchTypeStr, matchTypeStr.length() - 1, matchTypeStr.length());
-        try {
-            this.matchType = Enum.valueOf(MatchType.class, matchTypeCode);
-        } catch (IgnoreException e) {
-            throw new IllegalArgumentException("filter名称" + filterName + "没有按规则编写,无法得到属性比较类型.", e);
-        }
-        try {
-            this.propertyType = (Enum.valueOf(PropertyType.class, propertyTypeCode)).getValue();
-        } catch (IgnoreException e) {
-            throw new IllegalArgumentException("filter名称" + filterName + "没有按规则编写,无法得到属性值类型.", e);
-        }
+        this.matchType = MatchType.get(matchTypeStr);
+        Assert.notNull(this.matchType,"filter名称" + filterName + "没有按规则编写,无法得到属性比较类型.");
+        this.propertyType = PropertyType.S.getValue();
         String propertyNameStr = StringUtils.substringAfter(filterName, "_");
         this.propertyNames = propertyNameStr.split(OR_SEPARATOR);
-
         Assert.isTrue(this.propertyNames.length > 0, "filter名称" + filterName + "没有按规则编写,无法得到属性名称.");
     }
 
@@ -161,7 +143,7 @@ public class PropertyFilter {
 
     @SuppressWarnings("unchecked")
     public <T> T getPropertyValue(Class<T> clazz) {
-        if (this.getPropertyType().isAssignableFrom(Enum.class)) {
+        if (clazz.isEnum()||(clazz.isArray()&&clazz.getComponentType().isEnum())) {
             AtomicReference<Class> enumClass = new AtomicReference<>(clazz.isArray() ? clazz.getComponentType() : clazz);
             if (propertyValue instanceof String) {
                 return (T)Enum.valueOf(enumClass.get(), (String) propertyValue);

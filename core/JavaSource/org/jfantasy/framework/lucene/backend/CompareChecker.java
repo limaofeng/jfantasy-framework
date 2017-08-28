@@ -50,7 +50,7 @@ public class CompareChecker {
         }
         String objStr = objValue.toString();
         Class<?> type = p.getPropertyType();
-        if (DataType.isString(type)) {
+        if (DataType.isString(type)||DataType.isEnum(type)) {
             return value.equals(objStr);
         }
         if ((DataType.isBoolean(type)) || (DataType.isBooleanObject(type))) {
