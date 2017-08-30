@@ -1,17 +1,14 @@
 package org.jfantasy.framework.dao.hibernate;
 
-import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.HibernateException;
-import org.hibernate.PropertyNotFoundException;
 import org.hibernate.SQLQuery;
-import org.hibernate.property.access.spi.Setter;
 import org.hibernate.transform.ResultTransformer;
 import org.hibernate.type.Type;
 import org.jfantasy.framework.dao.hibernate.util.TypeFactory;
 import org.jfantasy.framework.util.common.ClassUtil;
+import org.jfantasy.framework.util.ognl.OgnlUtil;
 
 import javax.persistence.Column;
 import java.lang.reflect.Field;
@@ -27,26 +24,21 @@ import java.util.StringTokenizer;
  * @version 1.0
  * @since 2013-9-12 上午9:52:00
  */
-@Deprecated
 public class AliasToBeanResultTransformer implements ResultTransformer {
     private static final long serialVersionUID = -5199190581393587893L;
 
     private static final Log LOGGER = LogFactory.getLog(AliasToBeanResultTransformer.class);
 
     private final Class<?> resultClass;
-    private Setter[] setters;
-//    private PropertyAccess propertyAccessor;
 
     private Map<String, String> propertyNames = new HashMap<>();
     private Map<String, Type> propertyTypes = new HashMap<>();
 
     public AliasToBeanResultTransformer(Class<?> resultClass) {
-        if (resultClass == null){
+        if (resultClass == null) {
             throw new IllegalArgumentException("resultClass cannot be null");
         }
         this.resultClass = resultClass;
-//        this.propertyAccessor = new ChainedPropertyAccessor(new PropertyAccessor[]{PropertyAccessorFactory.getPropertyAccessor(resultClass, null), PropertyAccessorFactory.getPropertyAccessor("field")});
-
         Field[] fields = ClassUtil.getDeclaredFields(resultClass, Column.class);
         for (Field field : fields) {
             Column column = ClassUtil.getFieldGenericType(field, Column.class);
@@ -63,37 +55,9 @@ public class AliasToBeanResultTransformer implements ResultTransformer {
     }
 
     public Object transformTuple(Object[] tuple, String[] aliases) {
-        Object result;
-        try {
-            if (setters == null) {
-                setters = new Setter[aliases.length];
-                for (int i = 0; i < aliases.length; i++) {
-                    String alias = convertColumnToProperty(aliases[i]);
-                    if (alias != null) {
-                        try {
-//                            setters[i] = propertyAccessor.getSetter(resultClass, alias);
-                        } catch (PropertyNotFoundException e) {
-                            LOGGER.error(e.getMessage(), e);
-                        }
-                    }
-                }
-            }
-            result = resultClass.newInstance();
-            for (int i = 0; i < aliases.length; i++) {
-                if (setters[i] != null) {
-                    Field field = ClassUtil.getDeclaredField(this.resultClass, convertColumnToProperty(aliases[i]));
-                    if (tuple[i] == null) {
-                        continue;
-                    }
-                    setters[i].set(result, ConvertUtils.convert(tuple[i], field.getType()), null);
-                }
-            }
-        } catch (InstantiationException e) {
-            LOGGER.error(e.getMessage(),e);
-            throw new HibernateException("Could not instantiate resultclass: " + resultClass.getName());
-        } catch (IllegalAccessException e) {
-            LOGGER.error(e.getMessage(),e);
-            throw new HibernateException("Could not instantiate resultclass: " + resultClass.getName());
+        Object result = ClassUtil.newInstance(this.resultClass);
+        for(int i=0;i<aliases.length;i++){
+            OgnlUtil.getInstance().setValue(convertColumnToProperty(aliases[i]),result,tuple[i]);
         }
         return result;
     }

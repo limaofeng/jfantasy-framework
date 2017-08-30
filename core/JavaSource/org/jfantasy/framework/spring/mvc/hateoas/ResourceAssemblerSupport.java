@@ -17,7 +17,7 @@ public abstract class ResourceAssemblerSupport<T, R extends ResultResourceSuppor
 
     public abstract ResultResourceSupport toResource(T entity);
 
-    protected List<ResultResourceSupport> toResources(List<T> items) {
+    public List<ResultResourceSupport> toResources(List<T> items) {
         List<ResultResourceSupport> supports = new ArrayList<>(items.size());
         for (T item : items) {
             supports.add(toResource(item));

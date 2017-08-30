@@ -1050,11 +1050,11 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
                 String value = (String) propertyValue;
                 MatchMode matchMode = MatchMode.ANYWHERE;
                 if (value.startsWith("%")) {
-                    matchMode = MatchMode.START;
+                    matchMode = MatchMode.END;
                     value = value.substring(1);
                 } else if (value.endsWith("%")) {
-                    matchMode = MatchMode.END;
-                    value = value.substring(0, value.length() - 2);
+                    matchMode = MatchMode.START;
+                    value = value.substring(0, value.length() - 1);
                 }
                 criterion = Restrictions.like(propertyName, value, matchMode);
             } else if (PropertyFilter.MatchType.LE.equals(matchType)) {

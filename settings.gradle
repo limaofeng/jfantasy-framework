@@ -1,24 +1,23 @@
 rootProject.name = 'jfantasy-framework'
 include ':jfantasy-core'
 include ':jfantasy-cache'
-include ':jfantasy-pay-api'
-include ':jfantasy-pay-client'
-include ':jfantasy-oauth-api'
 include ':jfantasy-weixin'
 include ':jfantasy-aliyun'
+include ':springfox'
 include ':jfantasy-rpc-common'
 include ':jfantasy-rpc-server'
 include ':jfantasy-rpc-client'
 
+//include ':demo'
+
 project(':jfantasy-core').projectDir = "$rootDir/core" as File
 project(':jfantasy-cache').projectDir = "$rootDir/cache" as File
-project(':jfantasy-pay-api').projectDir = "$rootDir/pay-api" as File
-project(':jfantasy-pay-client').projectDir = "$rootDir/pay-client" as File
-project(':jfantasy-oauth-api').projectDir = "$rootDir/oauth-api" as File
 project(':jfantasy-weixin').projectDir = "$rootDir/weixin" as File
+//project(':demo').projectDir = "$rootDir/demo" as File
 
 // sdk list
 project(':jfantasy-aliyun').projectDir = "$rootDir/aliyun" as File
+project(':springfox').projectDir = "$rootDir/springfox" as File
 
 // RPC 调用
 project(':jfantasy-rpc-common').projectDir = "$rootDir/rpc-common" as File

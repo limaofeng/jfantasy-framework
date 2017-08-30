@@ -1,8 +1,0 @@
-description = ''
-
-dependencies {
-    compile "com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}"
-    compile 'org.hibernate.javax.persistence:hibernate-jpa-2.1-api:1.0.0.Final'
-    compile 'commons-lang:commons-lang:2.6'
-    testCompile "org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
-}

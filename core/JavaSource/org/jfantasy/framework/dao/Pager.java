@@ -67,7 +67,7 @@ public class Pager<T> implements Serializable {
     private transient List<T> pageItems;
 
     public Pager() {
-        this.pageSize = 15;
+        this.pageSize = 10;
     }
 
     public Pager(int pageSize) {
