@@ -3,7 +3,6 @@ include ':jfantasy-core'
 include ':jfantasy-cache'
 include ':jfantasy-weixin'
 include ':jfantasy-aliyun'
-include ':springfox'
 include ':jfantasy-rpc-common'
 include ':jfantasy-rpc-server'
 include ':jfantasy-rpc-client'
@@ -17,7 +16,6 @@ project(':jfantasy-weixin').projectDir = "$rootDir/weixin" as File
 
 // sdk list
 project(':jfantasy-aliyun').projectDir = "$rootDir/aliyun" as File
-project(':springfox').projectDir = "$rootDir/springfox" as File
 
 // RPC 调用
 project(':jfantasy-rpc-common').projectDir = "$rootDir/rpc-common" as File
