@@ -10,7 +10,7 @@ import org.springframework.util.Assert;
 @SuppressWarnings("serial")
 public class CompositeLogOperationSource implements LogOperationSource, Serializable {
 
-    private final LogOperationSource[] logOperationSources;
+    private final transient LogOperationSource[] logOperationSources;
 
     public CompositeLogOperationSource(LogOperationSource... logOperationSources) {
         Assert.notEmpty(logOperationSources, "logOperationSources array must not be empty");
@@ -27,7 +27,7 @@ public class CompositeLogOperationSource implements LogOperationSource, Serializ
             Collection<LogOperation> logOperations = source.getOperations(method, targetClass);
             if (logOperations != null) {
                 if (ops == null) {
-                    ops = new ArrayList<LogOperation>();
+                    ops = new ArrayList<>();
                 }
                 ops.addAll(logOperations);
             }

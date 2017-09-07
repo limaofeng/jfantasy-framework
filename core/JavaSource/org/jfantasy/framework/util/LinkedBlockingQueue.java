@@ -220,22 +220,14 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E> implements Blocking
         if (o == null) {
             throw new NullPointerException();
         }
-        long nanos = unit.toNanos(timeout);// 将超时时间转为 毫微秒
         int c = -1;
         ReentrantLock tputLock = this.putLock;
         AtomicInteger tcount = this.count;
         tputLock.lockInterruptibly();
         try {
-            try {
-                while (tcount.get() == this.capacity) {// 如果容量已满。
-                    if (nanos <= 0) {
-                        return false;  // 等待时间耗尽，返回false
-                    }
-                    nanos = this.notFull.awaitNanos(nanos);// 挂起线程
-                }
-            } catch (InterruptedException ie) {
-                this.notFull.signal();
-                throw ie;
+            // 将超时时间转为 毫微秒
+            if (waiting(unit.toNanos(timeout), tcount, this.capacity)) { // 如果容量已满。
+                return false;  // 等待时间耗尽，返回false
             }
             insert(o);
             c = tcount.getAndIncrement();
@@ -338,18 +330,10 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E> implements Blocking
         AtomicInteger tcount = this.count;
         ReentrantLock ttakeLock = this.takeLock;
         ttakeLock.lockInterruptibly();
-        E x = null;
+        E x;
         try {
-            try {
-                while (tcount.get() == 0) {
-                    if (nanos <= 0) {
-                        return null;
-                    }
-                    nanos = this.notEmpty.awaitNanos(nanos);
-                }
-            } catch (InterruptedException ie) {
-                this.notEmpty.signal();
-                throw ie;
+            if(waiting(nanos,tcount,0)){
+                return null;
             }
             x = extract();// 获取元素
             c = tcount.getAndDecrement();// 计数器减1
@@ -363,6 +347,22 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E> implements Blocking
             }
         }
         return x;
+    }
+
+    private boolean waiting(long timeout, AtomicInteger tcount, int loop) throws InterruptedException {
+        long nanos = timeout;
+        try {
+            while (tcount.get() == loop) {
+                if (nanos <= 0) {
+                    return true;
+                }
+                nanos = this.notFull.awaitNanos(nanos);// 挂起线程
+            }
+        } catch (InterruptedException ie) {
+            this.notFull.signal();
+            throw ie;
+        }
+        return false;
     }
 
     /**
@@ -575,14 +575,12 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E> implements Blocking
     }
 
     /**
-     * jdk 中 为什么会有这个方法
+     * readObject
      *
      * @param s ObjectInputStream
      * @throws IOException
      * @throws ClassNotFoundException
      */
-    @Deprecated
-    @SuppressWarnings("unchecked")
     private void readObject(ObjectInputStream s) throws IOException, ClassNotFoundException {
         s.defaultReadObject();
         this.count.set(0);
@@ -840,10 +838,10 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E> implements Blocking
                     trail = p;
                     p = p.next;
                 }
+                if (p == null) {
+                    return;
+                }
                 if (p == node) {
-                    if (p == null) {
-                        return;
-                    }
                     p.item = null;
                     trail.next = p.next;
                     int c = LinkedBlockingQueue.this.count.getAndDecrement();

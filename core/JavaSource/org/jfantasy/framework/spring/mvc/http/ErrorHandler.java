@@ -5,7 +5,6 @@ import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.spring.mvc.error.RestException;
 import org.jfantasy.framework.spring.mvc.error.SecurityException;
 import org.jfantasy.framework.spring.mvc.error.ValidationException;
-import org.jfantasy.framework.util.web.context.ActionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
@@ -23,19 +22,14 @@ public class ErrorHandler {
 
     private static final Log LOG = LogFactory.getLog(ErrorHandler.class);
 
-    protected transient ApplicationContext applicationContext;
+    protected ApplicationContext applicationContext;
 
     @ExceptionHandler(value = Exception.class)
     @ResponseBody
-    public ErrorResponse errorAttributes(Exception exception, HttpServletRequest request) {
-        ActionContext context = ActionContext.getContext();
+    public ErrorResponse errorAttributes(Exception exception, HttpServletRequest request, HttpServletResponse response) {
         ErrorResponse error = new ErrorResponse(request);
         Object state = exception instanceof RestException ? ((RestException) exception).getState() : null;
-        HttpServletResponse response = context.getHttpResponse();
-        if (context == null) {
-            error.setCode(50000);
-            error.setMessage(exception.getMessage());
-        } else if (exception instanceof SecurityException) {
+        if (exception instanceof SecurityException) {
             SecurityException securityException = (SecurityException) exception;
             error.setCode(securityException.getCode());
             error.setMessage(securityException.getMessage());

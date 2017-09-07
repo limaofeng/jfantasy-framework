@@ -25,7 +25,7 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
     private static final Logger LOGGER = Logger.getLogger(ClassUtil.class);
 
     public static final IClassFactory classFactory = ClassFactory.getFastClassFactory();
-    private static final ConcurrentHashMap<Class<?>, BeanInfo> beanInfoCache = new ConcurrentHashMap<Class<?>, BeanInfo>();
+    private static final ConcurrentHashMap<Class<?>, BeanInfo> beanInfoCache = new ConcurrentHashMap<>();
 
     public static BeanInfo getBeanInfo(Class<?> clazz) {
         if (!beanInfoCache.containsKey(clazz)) {
@@ -169,7 +169,7 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
         if ((property != null) && (property.isRead())) {
             return (T) property.getValue(target);
         }
-        return (T) classFactory.getClass(target.getClass()).getValue(target, name);
+        return classFactory.getClass(target.getClass()).getValue(target, name);
     }
 
     public static Field getDeclaredField(Class<?> clazz, String fieldName) {
@@ -283,7 +283,7 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
             ParameterizedType type = (ParameterizedType) returnType;
             Type[] typeArguments = type.getActualTypeArguments();
             if ((index >= typeArguments.length) || (index < 0)) {
-                throw new IgnoreException("你输入的索引" + (index < 0 ? "不能小于0" : "超出了参数的总数"));
+                throw new IgnoreException(String.format("你输入的索引 %s", index < 0 ? "不能小于0" : "超出了参数的总数"));
             }
             return (Class<T>) typeArguments[index];
         }
@@ -302,7 +302,7 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
      * @return 泛型类型集合
      */
     public static List<Class> getMethodGenericParameterTypes(Method method, int index) {
-        List<Class> results = new ArrayList<Class>();
+        List<Class> results = new ArrayList<>();
         Type[] genericParameterTypes = method.getGenericParameterTypes();
         if ((index >= genericParameterTypes.length) || (index < 0)) {
             throw new IgnoreException("你输入的索引" + (index < 0 ? "不能小于0" : "超出了参数的总数"));
@@ -393,7 +393,7 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
                 }
             }
         }
-        return null;
+        return new Annotation[0];
     }
 
     public static Annotation getParamAnnos(Method method, int i, int j) {
@@ -418,76 +418,18 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
 
     public static Method getDeclaredMethod(Class<?> clazz, String methodName) {
         MethodProxy proxy = getMethodProxy(clazz, methodName);
-        return ObjectUtil.isNull(proxy) ? null : proxy.getMethod();
+        return proxy != null ? proxy.getMethod() : null;
     }
 
-    /**
-     * 方法不稳定，请不要使用
-     *
-     * @param annotClass Annotation class
-     * @return Annotation object
-     * @throws ClassNotFoundException
-     * @throws LinkageError
-     */
-    @Deprecated
-    public static Annotation getMethodAnnoByStackTrace(Class<? extends Annotation> annotClass) throws ClassNotFoundException, LinkageError {
-        long start = System.currentTimeMillis();
-        StackTraceElement[] stacks = new Throwable().getStackTrace();
-        for (StackTraceElement stack : stacks) {
-            Class<?> clasz = forName(stack.getClassName(), FantasyClassLoader.getClassLoader());
-            if ((ObjectUtil.isNotNull(clasz)) && (!ClassUtil.class.isAssignableFrom(clasz))) {
-                MethodProxy methodProxy = getMethodProxy(clasz, stack.getMethodName());
-                if (ObjectUtil.isNotNull(methodProxy)) {
-                    Annotation annotation = getMethodAnno(methodProxy.getMethod(), annotClass);
-                    if (ObjectUtil.isNotNull(annotation)) {
-                        LOGGER.error("找到" + annotation + "耗时：" + (System.currentTimeMillis() - start) + "ms");
-                        return annotation;
-                    }
-                }
-            }
-        }
-        LOGGER.error("未找到耗时：" + (System.currentTimeMillis() - start) + "ms");
-        return null;
-    }
 
     public static <T extends Annotation> T getAnnotation(Class clazz, Class<T> annotClass) {
-        return (T) clazz.getAnnotation(annotClass);
+        return annotClass.cast(clazz.getAnnotation(annotClass));
     }
 
     public static <T extends Annotation> T getAnnotation(Annotation[] annotations, Class<T> annotClass) {
         for (Annotation annot : annotations) {
             if (annotClass.equals(annot.annotationType())) {
                 return (T) annot;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * 获取调用堆栈中,类被标注的注解信息
-     *
-     * @param <T>        泛型
-     * @param annotClass 注解 class
-     * @return 注解对象
-     * @功能描述
-     */
-    @Deprecated
-    public static <T extends Annotation> T getClassAnnoByStackTrace(Class<T> annotClass) {
-        StackTraceElement[] stacks = new Throwable().getStackTrace();
-        for (StackTraceElement stack : stacks) {
-            try {
-                Class<?> clasz = forName(stack.getClassName(), FantasyClassLoader.getClassLoader());
-                if (ObjectUtil.isNull(clasz)) {
-                    continue;
-                }
-                Annotation annot = clasz.getAnnotation(annotClass);
-                if (ObjectUtil.isNotNull(annot)) {
-                    return (T) annot;
-                }
-            } catch (ClassNotFoundException e) {
-                LOGGER.error(e.getMessage(), e);
-            } catch (LinkageError e) {
-                LOGGER.error(e.getMessage(), e);
             }
         }
         return null;

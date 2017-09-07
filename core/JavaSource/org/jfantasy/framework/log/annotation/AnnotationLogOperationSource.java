@@ -16,7 +16,7 @@ public class AnnotationLogOperationSource extends AbstractFallbackLogOperationSo
 
     private final boolean publicMethodsOnly;
 
-    private final Set<LogAnnotationParser> annotationParsers;
+    private final transient Set<LogAnnotationParser> annotationParsers;
 
     public AnnotationLogOperationSource() {
         this(true);
@@ -24,7 +24,7 @@ public class AnnotationLogOperationSource extends AbstractFallbackLogOperationSo
 
     public AnnotationLogOperationSource(boolean publicMethodsOnly) {
         this.publicMethodsOnly = publicMethodsOnly;
-        this.annotationParsers = new LinkedHashSet<LogAnnotationParser>(1);
+        this.annotationParsers = new LinkedHashSet<>(1);
         this.annotationParsers.add(new SpringLogAnnotationParser());
     }
 
@@ -32,7 +32,7 @@ public class AnnotationLogOperationSource extends AbstractFallbackLogOperationSo
     public AnnotationLogOperationSource(LogAnnotationParser... annotationParsers) {
         this.publicMethodsOnly = true;
         Assert.notEmpty(annotationParsers, "At least one LogAnnotationParser needs to be specified");
-        Set<LogAnnotationParser> parsers = new LinkedHashSet<LogAnnotationParser>(annotationParsers.length);
+        Set<LogAnnotationParser> parsers = new LinkedHashSet<>(annotationParsers.length);
         Collections.addAll(parsers, annotationParsers);
         this.annotationParsers = parsers;
     }
@@ -53,7 +53,7 @@ public class AnnotationLogOperationSource extends AbstractFallbackLogOperationSo
             Collection<LogOperation> annOps = annotationParser.parseLogAnnotations(ae);
             if (annOps != null) {
                 if (ops == null) {
-                    ops = new ArrayList<LogOperation>();
+                    ops = new ArrayList<>();
                 }
                 ops.addAll(annOps);
             }

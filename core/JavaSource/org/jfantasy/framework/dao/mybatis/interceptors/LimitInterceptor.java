@@ -23,6 +23,7 @@ import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.PropertiesHelper;
 import org.jfantasy.framework.util.regexp.RegexpUtil;
+import org.springframework.jdbc.support.JdbcUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
@@ -129,19 +130,9 @@ public class LimitInterceptor implements Interceptor {
         } catch (SQLException e) {
             LOGGER.error(e.getMessage(), e);
         } finally {
-            try {
-                if (rs != null) {
-                    rs.close();
-                }
-                if (statement != null) {
-                    statement.close();
-                }
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                LOGGER.error(e.getMessage(), e);
-            }
+            JdbcUtils.closeResultSet(rs);
+            JdbcUtils.closeStatement(statement);
+            JdbcUtils.closeConnection(connection);
         }
         return count;
     }
@@ -203,7 +194,7 @@ public class LimitInterceptor implements Interceptor {
      * @param parameterObject parameterObject
      * @return String
      */
-    private String getMapperSQL(MappedStatement mappedStatement, Object parameterObject) throws MyBatisException {
+    private String getMapperSQL(MappedStatement mappedStatement, Object parameterObject) {
         SqlSource nowSqlSource = mappedStatement.getSqlSource();
         if (nowSqlSource instanceof DynamicSqlSource) {
             SqlNode sqlNode = ClassUtil.getValue(nowSqlSource, "rootSqlNode");
