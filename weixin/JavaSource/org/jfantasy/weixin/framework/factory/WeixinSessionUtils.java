@@ -11,6 +11,10 @@ public class WeixinSessionUtils {
      */
     private static ThreadLocal<WeixinSession> current = new ThreadLocal<>();
 
+    private WeixinSessionUtils() {
+        throw new IllegalStateException("Utility class");
+    }
+
     public static WeixinSession getCurrentSession() throws WeixinException {
         if (current.get() == null) {
             throw new NoSessionException("未初始化 WeiXinSession 对象");

@@ -9,6 +9,10 @@ import java.util.Date;
 
 public class WeixinUtil {
 
+    private WeixinUtil() {
+        throw new IllegalStateException("Utility class");
+    }
+
     public static User toUser(WxMpUser wxMpUser) {
         if (wxMpUser == null) {
             return null;
