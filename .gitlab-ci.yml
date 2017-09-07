@@ -13,7 +13,7 @@ build:
 test:
   stage: test
   script:
-    - gradle sonarqube -Dsonar.host.url=$SONAR_HOST -Dsonar.login=$SONAR_TOKEN -Dsonar.scm.provider=$CI_REPOSITORY_URL -Dsonar.verbose=true
+    - gradle sonarqube -Dsonar.host.url=$SONAR_HOST -Dsonar.login=$SONAR_TOKEN -Dsonar.scm.provider=$CI_PROJECT_URL -Dsonar.verbose=true
   tags:
     - shell
 
