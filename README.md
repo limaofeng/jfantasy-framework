@@ -66,7 +66,5 @@ Licensed under [MIT](http://jfantasy.org/mit.txt)
 
 [coveralls-img]: http://img.shields.io/coveralls/limaofeng/jfantasy/master.svg?style=flat-square
 [coveralls-url]: https://coveralls.io/r/limaofeng/jfantasy
-[gitter-img]:    http://img.shields.io/badge/asana-join_chat-1dce73.svg?style=flat-square
-[gitter-url]:    https://gitter.im/limaofeng/jfantasy
 [circle-img]:    http://git.zbsg.com.cn/apis/framework/badges/develop/build.svg
 [circle-url]:    http://git.zbsg.com.cn/apis/framework/commits/develop

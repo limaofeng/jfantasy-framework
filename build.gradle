@@ -42,11 +42,12 @@ subprojects {
     test {
         ignoreFailures = true
 
-        jacoco{
+        jacoco {
             append = false
             destinationFile = file("$buildDir/jacoco/jacocoTest.exec")
             classDumpDir = file("$buildDir/jacoco/classpathdumps")
         }
+
     }
 
     sonarqube {
@@ -62,7 +63,6 @@ subprojects {
         main {
             java.srcDirs = ['JavaSource']
             resources.srcDirs = ["resources"]
-            output.classesDir = new File(buildDir, "classes/main")
         }
         test {
             java.srcDirs = ['test/src']

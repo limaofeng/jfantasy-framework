@@ -13,14 +13,14 @@ build:
 test:
   stage: test
   script:
-    - gradle sonarqube -Dsonar.host.url=http://sonar.zbsg.com.cn -Dsonar.login=$SONAR_TOKEN -Dsonar.verbose=true
+    - gradle sonarqube -Dsonar.host.url=$SONAR_HOST -Dsonar.login=$SONAR_TOKEN -Dsonar.scm.provider=$CI_REPOSITORY_URL -Dsonar.verbose=true
   tags:
     - shell
 
 deploy:
   stage: deploy
   script:
-    - gradle upload -x test
+    - gradle clean testClasses upload -x test
   only:
     - tags
   tags:
