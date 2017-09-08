@@ -8,7 +8,6 @@ public class CipherUtilTest {
     public void generatePassword() throws Exception {
         String pwd1 = "123";
         String pwd2 = "";
-        CipherUtil cipher = new CipherUtil();
         System.out.println("未加密的密码:" + pwd1);
 
         pwd2 = CipherUtil.generatePassword(pwd1);
