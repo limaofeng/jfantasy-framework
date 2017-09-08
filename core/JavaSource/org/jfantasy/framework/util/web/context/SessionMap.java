@@ -12,10 +12,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 @SuppressWarnings("unchecked")
-public class SessionMap<K, V> extends AbstractMap<K, V> implements Serializable {
+public class SessionMap<K, V extends Serializable> extends AbstractMap<K, V> implements Serializable {
     private static final long serialVersionUID = 4678843241638046854L;
     protected transient HttpSession session;
-    protected Set<Map.Entry<K, V>> entries;
+    protected HashSet<Entry<K, V>> entries;
     protected transient HttpServletRequest request;
 
     public SessionMap(HttpServletRequest request) {
@@ -32,6 +32,7 @@ public class SessionMap<K, V> extends AbstractMap<K, V> implements Serializable 
         entries = null;
     }
 
+    @Override
     public void clear() {
         if (session == null) {
             return;
@@ -51,7 +52,7 @@ public class SessionMap<K, V> extends AbstractMap<K, V> implements Serializable 
         }
         synchronized (session) {
             if (entries == null) {
-                entries = new HashSet<Map.Entry<K, V>>();
+                entries = new HashSet<>();
                 Enumeration<? extends Object> enumeration = session.getAttributeNames();
                 while (enumeration.hasMoreElements()) {
                     final String key = enumeration.nextElement().toString();
@@ -73,9 +74,8 @@ public class SessionMap<K, V> extends AbstractMap<K, V> implements Serializable 
                         public V getValue() {
                             return (V) value;
                         }
-                        public V setValue(Object obj) {
+                        public V setValue(V obj) {
                             session.setAttribute(key, obj);
-
                             return (V) value;
                         }
                     });
@@ -85,6 +85,7 @@ public class SessionMap<K, V> extends AbstractMap<K, V> implements Serializable 
         return entries;
     }
 
+    @Override
     public V get(Object key) {
         if (session == null) {
             return null;
@@ -94,6 +95,7 @@ public class SessionMap<K, V> extends AbstractMap<K, V> implements Serializable 
         }
     }
 
+    @Override
     public V put(K key, V value) {
         synchronized (this) {
             if (session == null) {
@@ -108,6 +110,7 @@ public class SessionMap<K, V> extends AbstractMap<K, V> implements Serializable 
         }
     }
 
+    @Override
     public V remove(Object key) {
         if (session == null) {
             return null;
@@ -123,6 +126,7 @@ public class SessionMap<K, V> extends AbstractMap<K, V> implements Serializable 
         }
     }
 
+    @Override
     public boolean containsKey(Object key) {
         if (session == null) {
             return false;
