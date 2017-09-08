@@ -14,8 +14,15 @@ public class OpenSessionUtils {
 
     private static SessionFactory sessionFactory;
 
+    private OpenSessionUtils() {
+        throw new IllegalStateException("Utility class");
+    }
+
     private static SessionFactory getSessionFactory() {
-        return sessionFactory != null ? sessionFactory : (sessionFactory = SpringContextUtil.getBeanByType(SessionFactory.class));
+        if (sessionFactory == null) {
+            sessionFactory = SpringContextUtil.getBeanByType(SessionFactory.class);
+        }
+        return sessionFactory;
     }
 
     public static Session openSession() {
@@ -23,13 +30,14 @@ public class OpenSessionUtils {
     }
 
     public static Session openSession(SessionFactory sf) {
+        Session session = sessionFactory.openSession();
         try {
-            Session session = sessionFactory.openSession();
             session.setFlushMode(FlushMode.MANUAL);
             SessionHolder sessionHolder = new SessionHolder(session);
             TransactionSynchronizationManager.bindResource(sf, sessionHolder);
             return session;
         } catch (HibernateException ex) {
+            closeSession(session);
             throw new DataAccessResourceFailureException("Could not open Hibernate Session", ex);
         }
     }

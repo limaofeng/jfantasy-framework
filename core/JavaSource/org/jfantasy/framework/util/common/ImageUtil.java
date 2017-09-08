@@ -42,13 +42,9 @@ public final class ImageUtil {
     private static final String BMP_FORMAT_NAME = "bmp";// BMP文件格式名称
     private static final String PNG_FORMAT_NAME = "png";// PNG文件格式名称
 
-    private static ImageObserver imageObserver = new ImageObserver() {
-
-        public boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height) {
-            LOG.debug("ImageObserver : infoflags:" + infoflags + ",x:" + x + ",y:" + y + ",width:" + width + ",height:" + height);
-            return true;
-        }
-
+    private static ImageObserver imageObserver = (img, infoflags, x, y, width, height) -> {
+        LOG.debug("ImageObserver : infoflags:" + infoflags + ",x:" + x + ",y:" + y + ",width:" + width + ",height:" + height);
+        return true;
     };
 
 
@@ -312,7 +308,7 @@ public final class ImageUtil {
         } else {
             imageOriginal = ImageIO.read(target);
         }
-        if ((ratio == 1.0F) || (ratio == 0.0F)) {
+        if (Float.compare(ratio,1.0F) == 0 || Float.compare(ratio, 0.0F) == 0) {
             return imageOriginal;
         }
         int realWidth = imageOriginal.getWidth();
@@ -770,8 +766,7 @@ public final class ImageUtil {
      */
     public static String base64(InputStream in) {// 将图片文件转化为字节数组字符串，并对其进行Base64编码处理
         try {
-            byte[] data = new byte[in.available()];// 读取图片字节数组
-            in.read(data);
+            byte[] data = StreamUtil.getBytes(in);// 读取图片字节数组
             BASE64Encoder encoder = new BASE64Encoder();// 对字节数组Base64编码
             return encoder.encode(data);// 返回Base64编码过的字节数组字符串
         } catch (IOException e) {

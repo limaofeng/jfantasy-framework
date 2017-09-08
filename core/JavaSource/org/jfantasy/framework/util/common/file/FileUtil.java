@@ -91,12 +91,9 @@ public class FileUtil {
 
     public static String readFile(InputStream in, String charset) throws IOException {
         final StringBuilder html = new StringBuilder();
-        readFile(in, charset, new ReadLineCallback() {
-            @Override
-            public boolean readLine(String line) {
-                html.append(line).append(System.getProperty("line.separator"));
-                return true;
-            }
+        readFile(in, charset, line -> {
+            html.append(line).append(System.getProperty("line.separator"));
+            return true;
         });
         return html.toString();
     }
@@ -186,12 +183,7 @@ public class FileUtil {
         if (!folder.exists()) {
             throw new IgnoreException("(目录不存在。)folder [" + folder + "]not exist。");
         }
-        return folder.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File pathname) {
-                return pathname.isDirectory();
-            }
-        });
+        return folder.listFiles(pathname -> pathname.isDirectory());
     }
 
     /**
@@ -206,14 +198,11 @@ public class FileUtil {
         if (!folder.exists()) {
             throw new IgnoreException("(目录不存在。)folder [" + folder + "]not exist。");
         }
-        return folder.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File pathname) {
-                if (extNames.length == 0) {
-                    return pathname.isFile();
-                }
-                return pathname.isFile() && ObjectUtil.indexOf(extNames, getExtension(pathname)) != -1;
+        return folder.listFiles(pathname -> {
+            if (extNames.length == 0) {
+                return pathname.isFile();
             }
+            return pathname.isFile() && ObjectUtil.indexOf(extNames, getExtension(pathname)) != -1;
         });
     }
 
@@ -356,9 +345,12 @@ public class FileUtil {
         }
         StreamUtil.closeQuietly(in);
         FileWriter fw = new FileWriter(file);
-        fw.write(buf.toString());
-        fw.flush();
-        StreamUtil.closeQuietly(fw);
+        try {
+            fw.write(buf.toString());
+            fw.flush();
+        } finally {
+            StreamUtil.closeQuietly(fw);
+        }
         return url;
     }
 
@@ -436,42 +428,28 @@ public class FileUtil {
 
     public static File writeFile(InputStream in, String filePath) throws IOException {
         File file = createFile(filePath);
-        OutputStream out = new FileOutputStream(file);
-        byte[] buffer = new byte[1024];
-        while (in.read(buffer) != -1) {
-            out.write(buffer);
-        }
-        out.close();
-        in.close();
+        StreamUtil.copyThenClose(in, new FileOutputStream(file));
         return file;
     }
 
     public void writeFile(OutputStream out, InputStream in) throws IOException {
-        byte[] buffer = new byte[1024];
-        while (in.read(buffer) != -1) {
-            out.write(buffer);
-        }
-        out.close();
-        in.close();
+        StreamUtil.copyThenClose(in,out);
     }
 
     public static ZipOutputStream compress(String unZipFile, OutputStream zipOut) throws IOException {
         File srcFile = new File(unZipFile);
         DataInputStream dis = new DataInputStream(new FileInputStream(srcFile));
-        ZipOutputStream zos = new ZipOutputStream(zipOut);
-        zos.setMethod(ZipOutputStream.DEFLATED);
-        ZipEntry ze = new ZipEntry(srcFile.getName());
-        zos.putNextEntry(ze);
-        DataOutputStream dos = new DataOutputStream(zos);
-
-        byte[] buf = new byte[2048];
-        int len;
-        while ((len = dis.read(buf)) != -1) {
-            dos.write(buf, 0, len);
+        try {
+            ZipOutputStream zos = new ZipOutputStream(zipOut);
+            zos.setMethod(ZipOutputStream.DEFLATED);
+            ZipEntry ze = new ZipEntry(srcFile.getName());
+            zos.putNextEntry(ze);
+            DataOutputStream dos = new DataOutputStream(zos);
+            StreamUtil.copyThenClose(dis, dos);
+            return zos;
+        } finally {
+            StreamUtil.closeQuietly(dis);
         }
-        dos.close();
-        dis.close();
-        return zos;
     }
 
     private static Map<String, Integer> zipHtSizes(File file) {

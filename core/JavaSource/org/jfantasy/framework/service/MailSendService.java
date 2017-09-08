@@ -68,7 +68,7 @@ public class MailSendService implements InitializingBean {
         // 设置认证：用户名-密码。分别为发件人在邮件服务器上的注册名称和密码
         email.setAuthentication(this.username, this.password);
         // 解析字符串将中间有[,; \t\n]按多个发件人处理
-        List<String> toEmails = new ArrayList<String>();
+        List<String> toEmails = new ArrayList<>();
         for (String to : tos) {
             ObjectUtil.join(toEmails, Arrays.asList(StringUtils.tokenizeToStringArray(to, ",; \t\n")));
         }
@@ -219,15 +219,16 @@ public class MailSendService implements InitializingBean {
             HtmlEmail email = (HtmlEmail) this.createEmail(EmailType.html, to);
             email.setSubject(title);
             email.setContent(HandlebarsTemplateUtils.processTemplateIntoString(template, model), EmailConstants.TEXT_HTML);
-            if (attachs != null && attachs.length > 0) {
-                for (Attachment attachment : attachs) {// 添加流形式的附件
-                    if (attachment.getInputStream() != null) {
-                        email.attach(new ByteArrayDataSource(attachment.getInputStream(), attachment.getContentType()), MimeUtility.encodeText(attachment.getName()), attachment.getDescription());
-                    } else {// freemarker 模板
-                        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-                            HandlebarsTemplateUtils.writer(attachment.getModel(), attachment.getTemplate(), out);
-                            email.attach(new ByteArrayDataSource(out.toByteArray(), attachment.getContentType()), MimeUtility.encodeText(attachment.getName()), attachment.getDescription());
-                        }
+            if (attachs == null || attachs.length == 0) {
+                send(email);
+            }
+            for (Attachment attachment : attachs) {// 添加流形式的附件
+                if (attachment.getInputStream() != null) {
+                    email.attach(new ByteArrayDataSource(attachment.getInputStream(), attachment.getContentType()), MimeUtility.encodeText(attachment.getName()), attachment.getDescription());
+                } else {// freemarker 模板
+                    try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+                        HandlebarsTemplateUtils.writer(attachment.getModel(), attachment.getTemplate(), out);
+                        email.attach(new ByteArrayDataSource(out.toByteArray(), attachment.getContentType()), MimeUtility.encodeText(attachment.getName()), attachment.getDescription());
                     }
                 }
             }
@@ -373,9 +374,9 @@ public class MailSendService implements InitializingBean {
                 } catch (EmailException e) {
                     LOG.error("发送次数:" + num + "," + e.getMessage(), e);
                     try {
-                        Thread.currentThread().sleep(2000);
+                        Thread.sleep(2000);
                     } catch (InterruptedException e1) {
-                        //Do Nothing
+                        Thread.currentThread().interrupt();
                     }
                 }
             } while (!success && num++ < 5);

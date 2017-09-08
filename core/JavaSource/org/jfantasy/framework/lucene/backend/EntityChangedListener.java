@@ -10,6 +10,7 @@ import org.jfantasy.framework.lucene.cluster.MessageFactory;
 import org.jfantasy.framework.util.reflect.Property;
 
 import javax.persistence.Id;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -25,7 +26,7 @@ public class EntityChangedListener {
 
     public EntityChangedListener(Class clazz) {
         this.clazz = clazz;
-        Set<Class<?>> refBySet = new HashSet<Class<?>>();
+        Set<Class<?>> refBySet = new HashSet<>();
         boolean byId = false;
         boolean byOther = false;
         Property[] properties = PropertysCache.getInstance().get(clazz);
@@ -57,7 +58,7 @@ public class EntityChangedListener {
                 BuguIndex.getInstance().getExecutor().execute(task);
             }
             if (this.cluster() != null) {
-                EntityMessage message = MessageFactory.createInsertMessage(entity);
+                EntityMessage message = MessageFactory.createInsertMessage((Serializable)entity);
                 this.cluster().sendMessage(message);
             }
         }
@@ -72,7 +73,7 @@ public class EntityChangedListener {
                 BuguIndex.getInstance().getExecutor().execute(task);
             }
             if (this.cluster() != null) {
-                EntityMessage message = MessageFactory.createUpdateMessage(entity);
+                EntityMessage message = MessageFactory.createUpdateMessage((Serializable)entity);
                 this.cluster().sendMessage(message);
             }
         } else {

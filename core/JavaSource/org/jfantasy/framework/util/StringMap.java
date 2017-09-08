@@ -1,9 +1,6 @@
 package org.jfantasy.framework.util;
 
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
+import java.io.*;
 import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.HashMap;
@@ -18,12 +15,12 @@ import java.util.Set;
 @Deprecated
 public class StringMap<V> extends AbstractMap<String, V> implements Externalizable {
 	protected int _width = 17;
-	protected Node<V> _root = new Node<V>();
+	protected transient Node<V> _root = new Node<>();
 	protected boolean _ignoreCase = false;
-	protected NullEntry _nullEntry = null;
-	protected V _nullValue = null;
-	protected HashSet<Map.Entry<String, V>> _entrySet = new HashSet<Map.Entry<String, V>>(3);
-	protected Set<Map.Entry<String, V>> _umEntrySet = Collections.unmodifiableSet(this._entrySet);
+	protected transient NullEntry _nullEntry = null;
+	protected transient V _nullValue = null;
+	protected HashSet<Map.Entry<String, V>> _entrySet = new HashSet<>(3);
+	protected transient Set<Map.Entry<String, V>> _umEntrySet = Collections.unmodifiableSet(this._entrySet);
 
 	public StringMap() {
 	}
@@ -58,7 +55,7 @@ public class StringMap<V> extends AbstractMap<String, V> implements Externalizab
 		return this._width;
 	}
 
-	@SuppressWarnings("unchecked")
+	@Override
 	public V put(String key, V value) {
 		if (key == null) {
 			V oldValue = this._nullValue;
@@ -106,7 +103,7 @@ public class StringMap<V> extends AbstractMap<String, V> implements Externalizab
 				break;
 			}
 
-			node = new Node<V>(this._ignoreCase, key, i);
+			node = new Node<>(this._ignoreCase, key, i);
 
 			if (prev != null) {
 				prev._next = node;
@@ -384,7 +381,7 @@ public class StringMap<V> extends AbstractMap<String, V> implements Externalizab
 		if (key == null){
             return this._nullEntry != null;
         }
-		return getEntry(key.toString(), 0, key == null ? 0 : key.toString().length()) != null;
+		return getEntry(key.toString(), 0, key.toString().length()) != null;
 	}
 
 	public void clear() {

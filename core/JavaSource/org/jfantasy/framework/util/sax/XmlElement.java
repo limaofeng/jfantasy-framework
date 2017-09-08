@@ -1,12 +1,8 @@
 package org.jfantasy.framework.util.sax;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Observable;
+import java.util.*;
 
-public class XmlElement extends Observable implements Cloneable {
+public class XmlElement extends Observable {
 
     public static XmlElement Empty = new XmlElement();
 
@@ -112,4 +108,5 @@ public class XmlElement extends Observable implements Cloneable {
         }
         return XmlElement.Empty;
     }
+
 }

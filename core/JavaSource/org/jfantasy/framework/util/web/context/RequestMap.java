@@ -12,7 +12,7 @@ public class RequestMap extends AbstractMap implements Serializable {
 
     private static final long serialVersionUID = -7675640869293787926L;
 
-    private Set<Object> entries;
+    private transient Set<Object> entries;
     private transient HttpServletRequest request;
 
     public RequestMap(final HttpServletRequest request) {

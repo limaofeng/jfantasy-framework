@@ -16,7 +16,7 @@ public class ParameterMap extends HashMap<String, String[]> {
         this.request = request;
     }
 
-    private Set<Map.Entry<String, String[]>> entries;
+    private transient Set<Map.Entry<String, String[]>> entries;
 
     @Override
     public String[] get(Object key) {

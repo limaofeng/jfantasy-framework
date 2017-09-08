@@ -50,7 +50,7 @@ public class CompareChecker {
         }
         String objStr = objValue.toString();
         Class<?> type = p.getPropertyType();
-        if (DataType.isString(type)||DataType.isEnum(type)) {
+        if (DataType.isString(type) || DataType.isEnum(type)) {// 字符串 or 枚举
             return value.equals(objStr);
         }
         if ((DataType.isBoolean(type)) || (DataType.isBooleanObject(type))) {
@@ -69,10 +69,10 @@ public class CompareChecker {
             return Short.parseShort(objStr) == Short.parseShort(value);
         }
         if ((DataType.isFloat(type)) || (DataType.isFloatObject(type))) {
-            return Float.parseFloat(objStr) == Float.parseFloat(value);
+            return Float.compare(Float.parseFloat(objStr), Float.parseFloat(value)) == 0;
         }
         if (DataType.isDouble(type) || DataType.isDoubleObject(type)) {
-            return Double.parseDouble(objStr) == Double.parseDouble(value);
+            return Double.compare(Double.parseDouble(objStr), Double.parseDouble(value)) == 0;
         }
         return false;
 

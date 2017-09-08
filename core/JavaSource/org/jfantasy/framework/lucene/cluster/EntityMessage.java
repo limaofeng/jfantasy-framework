@@ -1,16 +1,18 @@
 package org.jfantasy.framework.lucene.cluster;
 
 
-public class EntityMessage implements ClusterMessage {
+import java.io.Serializable;
+
+public class EntityMessage<T extends Serializable> implements ClusterMessage {
     private static final long serialVersionUID = 1L;
     private int type;
-    private Object entity;
+    private T entity;
 
-    public Object getEntity() {
+    public T getEntity() {
         return this.entity;
     }
 
-    public void setEntity(Object entity) {
+    public void setEntity(T entity) {
         this.entity = entity;
     }
 
