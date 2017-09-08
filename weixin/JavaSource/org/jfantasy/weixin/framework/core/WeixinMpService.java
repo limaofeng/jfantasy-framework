@@ -168,7 +168,6 @@ public class WeixinMpService implements WeixinService {
 
     @Override
     public String parseInMessage(String encryptType, WeixinMessage message) throws WeixinException {
-        encryptType = StringUtils.isBlank(encryptType) ? "raw" : encryptType;
         WxMpXmlOutMessage outMessage;
         if (message instanceof TextMessage) {
             outMessage = WxMpXmlOutMessage.TEXT()
@@ -218,7 +217,7 @@ public class WeixinMpService implements WeixinService {
         } else {
             throw new WeixinException("不支持的消息类型");
         }
-        if ("raw".equals(encryptType)) {
+        if (StringUtils.isBlank(encryptType) || "raw".equals(encryptType)) {
             return outMessage.toXml();
         } else if ("aes".equals(encryptType)) {
             return outMessage.toEncryptedXml(wxMpConfigStorage);
