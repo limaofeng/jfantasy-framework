@@ -1,7 +1,7 @@
 package org.jfantasy.framework.crypto;
 
 public interface SecurityInc {
-    String CRYPTO_FORM = "RSA/NONE/PKCS1PADDING";
+    String CRYPTO_FORM = "RSA/ECB/OAEPWITHSHA-256ANDMGF1PADDING";
     String SIGNATURE_FORM = "MD5WithRSA";
     String ARITHMETIC_RSA = "RSA";
     String ARITHMETIC_DES = "DES";

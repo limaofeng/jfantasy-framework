@@ -1,5 +1,7 @@
 package org.jfantasy.framework.crypto;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import javax.crypto.BadPaddingException;
@@ -12,6 +14,9 @@ import java.security.*;
 import java.util.Arrays;
 
 public class AsymmetricCrypto implements SecurityInc {
+
+    private static final Log LOG = LogFactory.getLog(AsymmetricCrypto.class);
+
     private KeyPair keypair = null;
 
     private PublicKey publicKey = null;
@@ -30,44 +35,50 @@ public class AsymmetricCrypto implements SecurityInc {
         Security.addProvider(new BouncyCastleProvider());
     }
 
-    public AsymmetricCrypto() {
+    public AsymmetricCrypto() throws CryptoException {
         try {
             this.keypair = generatorKeyPair();
             this.privateKey = this.keypair.getPrivate();
             this.publicKey = this.keypair.getPublic();
 
-            System.out.println("=====================");
-            System.out.println(this.privateKey.getAlgorithm());
-            System.out.println(this.privateKey.getFormat());
-            System.out.println(Arrays.toString(this.privateKey.getEncoded()));
-            System.out.println("=====================");
+            if (LOG.isDebugEnabled()) {
+                StringBuilder builder = new StringBuilder();
+                builder.append("=====================").append("\r\n");
+                builder.append(this.privateKey.getAlgorithm()).append("\r\n");
+                builder.append(this.privateKey.getFormat()).append("\r\n");
+                builder.append(Arrays.toString(this.privateKey.getEncoded())).append("\r\n");
 
-            System.out.println(this.publicKey.getAlgorithm());
-            System.out.println(this.publicKey.getFormat());
-            System.out.println(Arrays.toString(this.publicKey.getEncoded()));
+                builder.append(this.publicKey.getAlgorithm()).append("\r\n");
+                builder.append(this.publicKey.getFormat()).append("\r\n");
+                builder.append(Arrays.toString(this.publicKey.getEncoded())).append("\r\n");
+                builder.append("=====================").append("\r\n");
+                LOG.debug(builder.toString());
+            }
 
-            System.out.println("=====================");
-
-            this.ecipher = Cipher.getInstance("RSA/NONE/PKCS1PADDING");
+            this.ecipher = Cipher.getInstance(CRYPTO_FORM);
             this.ecipher.init(1, this.publicKey);
 
-            this.dcipher = Cipher.getInstance("RSA/NONE/PKCS1PADDING");
+            this.dcipher = Cipher.getInstance(CRYPTO_FORM);
             this.dcipher.init(2, this.privateKey);
 
-            this.sSignature = Signature.getInstance("MD5WithRSA");
+            this.sSignature = Signature.getInstance(SIGNATURE_FORM);
             this.sSignature.initSign(this.privateKey);
 
-            this.vSignature = Signature.getInstance("MD5WithRSA");
+            this.vSignature = Signature.getInstance(SIGNATURE_FORM);
             this.vSignature.initVerify(this.publicKey);
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new CryptoException(e.getMessage(), e);
         }
     }
 
-    private KeyPair generatorKeyPair() throws Exception {
-        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
-        keyGen.initialize(1024);
-        return keyGen.genKeyPair();
+    private KeyPair generatorKeyPair() throws CryptoException {
+        try {
+            KeyPairGenerator keyGen = KeyPairGenerator.getInstance(ARITHMETIC_RSA);
+            keyGen.initialize(KEY_SIZE);
+            return keyGen.genKeyPair();
+        } catch (NoSuchAlgorithmException e) {
+            throw new CryptoException(e.getMessage(), e);
+        }
     }
 
     public byte[] encrypt(byte[] data) throws CryptoException {
@@ -85,7 +96,7 @@ public class AsymmetricCrypto implements SecurityInc {
                     this.ecipher.doFinal(data, i * blockSize, data.length - i * blockSize, encrypt, i * outputSize);
                 i++;
             }
-        } catch (ShortBufferException | IllegalBlockSizeException|  BadPaddingException e) {
+        } catch (ShortBufferException | IllegalBlockSizeException | BadPaddingException e) {
             throw new CryptoException(e.getMessage(), e);
         }
 
