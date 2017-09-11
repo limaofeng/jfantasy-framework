@@ -1,5 +1,6 @@
 package org.jfantasy.framework.util.common;
 
+import com.sun.image.codec.jpeg.ImageFormatException;
 import com.sun.imageio.plugins.bmp.BMPImageReader;
 import com.sun.imageio.plugins.gif.GIFImageReader;
 import com.sun.imageio.plugins.jpeg.JPEGImageReader;
@@ -350,7 +351,7 @@ public final class ImageUtil {
         if (BMP_FORMAT_NAME.equalsIgnoreCase(picextendname)) {
             imageOriginal = toBufferedImage((ToolkitImage) bmpReader(target));
         }else if (GIF_FORMAT_NAME.equalsIgnoreCase(picextendname)) {
-            throw new RuntimeException("暂不支持GIF图片缩放");
+            throw new ImageFormatException("暂不支持GIF图片缩放");
         } else {
             imageOriginal = ImageIO.read(target);
         }

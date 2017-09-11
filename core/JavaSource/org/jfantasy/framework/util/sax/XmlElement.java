@@ -4,7 +4,7 @@ import java.util.*;
 
 public class XmlElement extends Observable {
 
-    public static XmlElement Empty = new XmlElement();
+    public static final XmlElement Empty = new XmlElement();
 
     private String tagName;
     private String content;

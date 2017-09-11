@@ -298,12 +298,7 @@ public class AsmUtil implements Opcodes {
                 final String[] paramNames = new String[m.getParameterTypes().length];
                 if (paramNames.length > 0) {
                     final Class<?> clazz = m.getDeclaringClass();
-                    ClassReader cr;
-                    try {
-                        cr = new ClassReader(clazz.getResourceAsStream(clazz.getSimpleName() + ".class"));
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
+                    ClassReader cr = new ClassReader(clazz.getResourceAsStream(clazz.getSimpleName() + ".class"));
                     cr.accept(new ClassVisitor() {
                         public MethodVisitor visitMethod(final int access, final String name, final String desc, final String signature, final String[] exceptions) {
                             final Type[] args = Type.getArgumentTypes(desc);
@@ -427,6 +422,9 @@ public class AsmUtil implements Opcodes {
                     }, 0);
                 }
                 methodParamNameCache.put(m, paramNames);
+            } catch (IOException e) {
+                LOG.error(e.getMessage(),e);
+                throw new AsmException(e);
             } finally {
                 methodParamNameLock.unlock();
             }

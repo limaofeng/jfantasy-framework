@@ -10,9 +10,6 @@ import org.springframework.core.type.filter.AnnotationTypeFilter;
 
 import java.util.Set;
 
-/**
- * https://github.com/lindzh/rpc-spring/tree/master/src/main/java/com/linda/framework/rpc/spring/invoker
- */
 public class RpcScanner extends ClassPathBeanDefinitionScanner {
     public RpcScanner(BeanDefinitionRegistry registry) {
         super(registry);

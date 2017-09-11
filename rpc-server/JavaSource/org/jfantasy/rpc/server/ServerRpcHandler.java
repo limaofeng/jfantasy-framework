@@ -10,6 +10,7 @@ import org.jfantasy.rpc.exception.ServerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
 public class ServerRpcHandler extends SimpleChannelInboundHandler<RpcRequest> {
@@ -23,24 +24,24 @@ public class ServerRpcHandler extends SimpleChannelInboundHandler<RpcRequest> {
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext channelHandlerContext, RpcRequest rpcRequest) throws Exception {
+    protected void channelRead0(ChannelHandlerContext channelHandlerContext, RpcRequest rpcRequest) {
         RpcResponse response = new RpcResponse();
         response.setTraceId(rpcRequest.getTraceId());
         try {
-            logger.info("server handle request:{}",rpcRequest);
+            logger.info("server handle request:{}", rpcRequest);
             Object result = handle(rpcRequest);
             response.setResult(result);
-        } catch (Throwable t) {
-            logger.error(t.getMessage(),t);
+        } catch (InvocationTargetException t) {
+            logger.error(t.getMessage(), t);
             response.setError(t);
         }
         channelHandlerContext.writeAndFlush(response);
     }
 
-    private Object handle(RpcRequest request) throws Throwable {
+    private Object handle(RpcRequest request) throws InvocationTargetException {
         String className = request.getClassName();
         Object serviceBean = serviceMapping.get(className);
-        if(serviceBean == null) {
+        if (serviceBean == null) {
             return null;
         }
         Class<?> serviceClass = serviceBean.getClass();
@@ -57,7 +58,7 @@ public class ServerRpcHandler extends SimpleChannelInboundHandler<RpcRequest> {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         logger.error(cause.getMessage(), cause);
         RpcResponse response = new RpcResponse();
-        if(cause instanceof ServerException){
+        if (cause instanceof ServerException) {
             response.setTraceId(((ServerException) cause).getTraceId());
         }
         response.setError(cause);

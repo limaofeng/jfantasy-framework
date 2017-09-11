@@ -1,5 +1,7 @@
 package org.jfantasy.rpc.client;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jfantasy.rpc.dto.RpcRequest;
 import org.jfantasy.rpc.dto.RpcResponse;
 import io.netty.channel.ChannelHandler;
@@ -15,13 +17,15 @@ import java.util.concurrent.TimeUnit;
 @ChannelHandler.Sharable
 public class ClientRpcHandler extends SimpleChannelInboundHandler<RpcResponse> {
 
+    private static final Log LOG = LogFactory.getLog(ClientRpcHandler.class);
+
     //用blocking queue主要是用阻塞的功能，省的自己加锁
-    private final ConcurrentHashMap<String, BlockingQueue<RpcResponse>> responseMap = new ConcurrentHashMap<String, BlockingQueue<RpcResponse>>();
+    private final ConcurrentHashMap<String, BlockingQueue<RpcResponse>> responseMap = new ConcurrentHashMap<>();
 
     //messageReceived
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, RpcResponse rpcResponse) throws Exception {
-        System.out.println("receive response:"+rpcResponse);
+        LOG.info("receive response:"+rpcResponse);
         BlockingQueue<RpcResponse> queue = responseMap.get(rpcResponse.getTraceId());
         //高并发下可能为null
         if(queue == null){
@@ -34,7 +38,7 @@ public class ClientRpcHandler extends SimpleChannelInboundHandler<RpcResponse> {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         super.exceptionCaught(ctx, cause);
-        cause.printStackTrace();
+        LOG.error(cause.getMessage(),cause);
     }
 
     public RpcResponse send(RpcRequest request,Pair<Long,TimeUnit> timeout) throws InterruptedException {

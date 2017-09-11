@@ -230,7 +230,7 @@ public abstract class BuguSearcher<T> {
             String result;
             try {
                 result = highlighter.getResult(fieldName, value.toString());
-            } catch (Exception ex) {
+            } catch (BuguHighlighter.ResultParseException ex) {
                 LOGGER.error("Something is wrong when getting the highlighter result", ex);
                 continue;
             }

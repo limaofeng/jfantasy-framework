@@ -49,13 +49,12 @@ public class ThreeDESUtil {
      * @throws InvalidKeyException
      * @throws NoSuchAlgorithmException
      * @throws InvalidKeySpecException
-     * @throws Exception
      */
-    private static Key keyGenerator(String keyStr) throws Exception {
+    private static Key keyGenerator(String keyStr) throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException {
         byte input[] = HexString2Bytes(keyStr);
         DESedeKeySpec KeySpec = new DESedeKeySpec(input);
         SecretKeyFactory KeyFactory = SecretKeyFactory.getInstance(KEY_ALGORITHM);
-        return ((Key) (KeyFactory.generateSecret(((java.security.spec.KeySpec) (KeySpec)))));
+        return KeyFactory.generateSecret(KeySpec);
     }
 
     private static int parse(char c) {

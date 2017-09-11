@@ -19,7 +19,7 @@ public class ScheduleController {
 
     @RequestMapping(value = "/jobs", method = RequestMethod.GET)
     @ResponseBody
-    public List<JobDetail> jobs() throws Exception {
+    public List<JobDetail> jobs() {
         return this.scheduleService.jobs();
     }
 
@@ -50,7 +50,7 @@ public class ScheduleController {
      */
     @RequestMapping(value = "/jobs", method = RequestMethod.POST)
     @ResponseBody
-    public JobDetail createJob() throws Exception {
+    public JobDetail createJob() {
         return null;
     }
 

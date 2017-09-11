@@ -2,12 +2,11 @@ package org.jfantasy.framework.crypto;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
-import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
+import javax.crypto.*;
 import java.security.*;
 
 public class SymmetricCrypto implements SecurityInc {
+
     private SecretKey secretKey = null;
 
     private Cipher ecipher = null;
@@ -28,7 +27,7 @@ public class SymmetricCrypto implements SecurityInc {
         Security.addProvider(new BouncyCastleProvider());
     }
 
-    public SymmetricCrypto() {
+    public SymmetricCrypto() throws CryptoException {
         try {
             this.secretKey = KeyGenerator.getInstance("DES").generateKey();
 
@@ -47,36 +46,49 @@ public class SymmetricCrypto implements SecurityInc {
 
             this.vSignature = Signature.getInstance("DSA");
             this.vSignature.initVerify(this.publicKey);
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException e) {
+            throw new CryptoException(e.getMessage(), e);
         }
     }
 
-    private KeyPair generatorKeyPair()
-            throws Exception {
+    private KeyPair generatorKeyPair() throws NoSuchAlgorithmException {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DSA");
         keyGen.initialize(1024, new SecureRandom());
         return keyGen.generateKeyPair();
     }
 
-    public byte[] encrypt(byte[] data) throws Exception {
-        return this.ecipher.doFinal(data);
+    public byte[] encrypt(byte[] data) throws CryptoException {
+        try {
+            return this.ecipher.doFinal(data);
+        } catch (IllegalBlockSizeException | BadPaddingException e) {
+            throw new CryptoException(e.getMessage(), e);
+        }
     }
 
-    public byte[] decrypt(byte[] data) throws Exception {
-        return this.dcipher.doFinal(data);
+    public byte[] decrypt(byte[] data) throws CryptoException {
+        try {
+            return this.dcipher.doFinal(data);
+        } catch (IllegalBlockSizeException | BadPaddingException e) {
+            throw new CryptoException(e.getMessage(), e);
+        }
     }
 
-    public byte[] signature(byte[] data)
-            throws Exception {
-        this.sSignature.update(data);
-        return this.sSignature.sign();
+    public byte[] signature(byte[] data) throws CryptoException {
+        try {
+            this.sSignature.update(data);
+            return this.sSignature.sign();
+        } catch (SignatureException e) {
+            throw new CryptoException(e.getMessage(), e);
+        }
     }
 
-    public boolean verify(byte[] buffer, byte[] signData)
-            throws Exception {
-        this.vSignature.update(buffer);
-        return this.vSignature.verify(signData);
+    public boolean verify(byte[] buffer, byte[] signData) throws CryptoException {
+        try {
+            this.vSignature.update(buffer);
+            return this.vSignature.verify(signData);
+        } catch (SignatureException e) {
+            throw new CryptoException(e.getMessage(), e);
+        }
     }
 
 }
