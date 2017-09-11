@@ -1,6 +1,5 @@
 package org.jfantasy.framework.util.common;
 
-import com.sun.image.codec.jpeg.ImageFormatException;
 import com.sun.imageio.plugins.bmp.BMPImageReader;
 import com.sun.imageio.plugins.gif.GIFImageReader;
 import com.sun.imageio.plugins.jpeg.JPEGImageReader;
@@ -309,7 +308,7 @@ public final class ImageUtil {
         } else {
             imageOriginal = ImageIO.read(target);
         }
-        if (Float.compare(ratio,1.0F) == 0 || Float.compare(ratio, 0.0F) == 0) {
+        if (Float.compare(ratio, 1.0F) == 0 || Float.compare(ratio, 0.0F) == 0) {
             return imageOriginal;
         }
         int realWidth = imageOriginal.getWidth();
@@ -350,14 +349,14 @@ public final class ImageUtil {
         target = new ByteArrayInputStream(os.toByteArray());
         if (BMP_FORMAT_NAME.equalsIgnoreCase(picextendname)) {
             imageOriginal = toBufferedImage((ToolkitImage) bmpReader(target));
-        }else if (GIF_FORMAT_NAME.equalsIgnoreCase(picextendname)) {
+        } else if (GIF_FORMAT_NAME.equalsIgnoreCase(picextendname)) {
             throw new ImageFormatException("暂不支持GIF图片缩放");
         } else {
             imageOriginal = ImageIO.read(target);
         }
         int realWidth = imageOriginal.getWidth();
         int realHeight = imageOriginal.getHeight();
-        if ((realWidth == width) && (realHeight == heigth)){
+        if ((realWidth == width) && (realHeight == heigth)) {
             return imageOriginal;
         }
         return reduce(imageOriginal, realWidth, realHeight, width, heigth);
@@ -747,7 +746,7 @@ public final class ImageUtil {
      * @return
      */
     public static BufferedImage screenshots(BufferedImage img, int x, int y, int w, int h) {
-        if (LOG.isDebugEnabled()){
+        if (LOG.isDebugEnabled()) {
             LOG.debug("Method:screenshots,param:{x:" + x + ",y:" + y + ",w:" + w + ",h:" + h + "}");
         }
         ImageFilter cropFilter = new CropImageFilter(x, y, w, h);
@@ -825,6 +824,14 @@ public final class ImageUtil {
             }
             return null;
         }
+    }
+
+    static class ImageFormatException extends RuntimeException {
+
+        public ImageFormatException(String message) {
+            super(message);
+        }
+
     }
 
 }
