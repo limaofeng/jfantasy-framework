@@ -37,7 +37,7 @@ public class DefaultWeixinSessionFactory implements WeixinSessionFactory {
 
     private List<WeixinMessageInterceptor> weixinMessageInterceptors = new ArrayList<>();
 
-    private Map<EventMessage.EventType, List<WeixinEventListener>> eventListeners = new HashMap<>();
+    private Map<EventMessage.EventType, List<WeixinEventListener>> eventListeners = new EnumMap(EventMessage.EventType.class);
 
     private ConcurrentMap<String, WeixinSession> weiXinSessions = new ConcurrentHashMap<>();
 
@@ -110,7 +110,7 @@ public class DefaultWeixinSessionFactory implements WeixinSessionFactory {
     }
 
     public void setEventListeners(Map<EventMessage.EventType, List<WeixinEventListener>> eventListeners) {
-        this.eventListeners = eventListeners;
+        this.eventListeners.putAll(eventListeners);
     }
 
 }
