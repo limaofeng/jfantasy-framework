@@ -2,7 +2,6 @@ package org.jfantasy.weixin.framework.core;
 
 import me.chanjar.weixin.common.bean.menu.WxMenu;
 import me.chanjar.weixin.common.bean.menu.WxMenuButton;
-import me.chanjar.weixin.common.bean.result.WxMediaUploadResult;
 import me.chanjar.weixin.common.exception.WxErrorException;
 import me.chanjar.weixin.cp.api.WxCpConfigStorage;
 import me.chanjar.weixin.cp.api.WxCpService;
@@ -15,7 +14,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.jackson.JSON;
 import org.jfantasy.framework.util.common.StringUtil;
-import org.jfantasy.weixin.bean.enums.Sex;
 import org.jfantasy.weixin.framework.exception.WeixinException;
 import org.jfantasy.weixin.framework.message.*;
 import org.jfantasy.weixin.framework.message.content.*;
@@ -23,7 +21,6 @@ import org.jfantasy.weixin.framework.message.user.OpenIdList;
 import org.jfantasy.weixin.framework.message.user.User;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -302,7 +299,7 @@ public class WeixinCpService implements WeixinService {
 
     @Override
     public List<User> getUsers() throws WeixinException {
-        return null;
+        throw new WeixinException("未实现方法");
     }
 
     @Override
@@ -314,24 +311,6 @@ public class WeixinCpService implements WeixinService {
     public OpenIdList getOpenIds(String nextOpenId) {
         return null;
     }
-
-//    @Override
-//    public List<String> getUsers(String nextOpenId) throws WeiXinException {
-//        try {
-//            List<String> openIds = new ArrayList<String>();
-//            WxCpUserList userList = wxCpService.userList(null);
-//            openIds.addAll(userList.getOpenIds());
-//            while (userList.getTotal() > userList.getCount()) {
-//                userList = wxCpService.userList(userList.getNextOpenId());
-//                openIds.addAll(userList.getOpenIds());
-//            }
-//        } catch (WxErrorException e) {
-//            throw new WeiXinException(e.getMessage(),e);
-//        } catch (WeiXinException e) {
-//            throw new WeiXinException(e.getMessage(),e);
-//        }
-//        return null;
-//    }
 
     @Override
     public User getUser(String userId) throws WeixinException {
@@ -346,86 +325,21 @@ public class WeixinCpService implements WeixinService {
         if (wxCpUser == null) {
             return null;
         }
-        /*
-         User user = new User();
-        user.setOpenId(wxCpUser.getUserId());
-        user.setAvatar(wxCpUser.getHeadImgUrl());
-        user.setCity(wxCpUser.getCity());
-        user.setCountry(wxCpUser.getCountry());
-        user.setProvince(wxCpUser.getProvince());
-        user.setLanguage(wxCpUser.getLanguage());
-        user.setNickname(wxCpUser.getNickname());
-        user.setSex(toSex(wxCpUser.getSex()));
-        user.setSubscribe(wxCpUser.isSubscribe());
-        if (wxCpUser.getSubscribeTime() != null) {
-            user.setSubscribeTime(new Date(wxCpUser.getSubscribeTime()));
-        }
-        user.setUnionid(wxCpUser.getUnionId());
-        return user;
-        */
         return null;
-    }
-
-    private Sex toSex(String sex) {
-        if ("男".equals(sex)) {
-            return Sex.male;
-        }
-        if ("女".equals(sex)) {
-            return Sex.female;
-        }
-        return Sex.unknown;
     }
 
     @Override
     public String mediaUpload(Media.Type mediaType, Object fileItem) throws WeixinException {
-        try {
-            WxMediaUploadResult uploadMediaRes = wxCpService.mediaUpload(mediaType.name(), null, null);//WebUtil.getExtension(fileItem.getName()), fileItem.getInputStream());
-            return mediaType == Media.Type.thumb ? uploadMediaRes.getThumbMediaId() : uploadMediaRes.getMediaId();
-        } catch (WxErrorException | IOException e) {
-            throw new WeixinException(e.getMessage(), e);
-        }
+        throw new WeixinException("未实现方法");
     }
 
-//    private LocalFileManager fileManager = new LocalFileManager(System.getProperty("java.io.tmpdir"));
-
     public Object mediaDownload(String mediaId) throws WeixinException {
-        try {
-            File file = wxCpService.mediaDownload(mediaId);
-            if (file == null) {
-                return null;
-            }
-            return null;//fileManager.retrieveFileItem(file);
-        } catch (WxErrorException e) {
-            throw new WeixinException(e.getMessage(), e);
-        }
+        throw new WeixinException("未实现方法");
     }
 
     @Override
     public void refreshMenu(Menu... menus) throws WeixinException {
-        WxMenu wxMenu = new WxMenu();
-        for (Menu menu : menus) {
-            WxMenuButton wxMenuButton = new WxMenuButton();
-            wxMenuButton.setName(menu.getName());
-            wxMenuButton.setType(menu.getType().getValue());
-            wxMenuButton.setUrl(menu.getUrl());
-            wxMenuButton.setKey(menu.getKey());
-
-            for (Menu subMenu : menu.getChildren()) {
-                WxMenuButton subWxMenuButton = new WxMenuButton();
-                subWxMenuButton.setName(subMenu.getName());
-                subWxMenuButton.setType(subMenu.getType().getValue());
-                subWxMenuButton.setUrl(subMenu.getUrl());
-                subWxMenuButton.setKey(subMenu.getKey());
-                wxMenuButton.getSubButtons().add(subWxMenuButton);
-            }
-
-            wxMenu.getButtons().add(wxMenuButton);
-        }
-        try {
-            wxCpService.menuCreate(wxMenu);
-        } catch (WxErrorException e) {
-            throw new WeixinException(e.getMessage(), e);
-        }
+        throw new WeixinException("未实现方法");
     }
 
     public Jsapi getJsapi() throws WeixinException {

@@ -317,34 +317,9 @@ public class DateUtil extends DateUtils {
         }
         long elapsed = 0;
 
-        GregorianCalendar smallCalendar = new GregorianCalendar();
-        smallCalendar.setTime(small);
-        GregorianCalendar bigCalendar = new GregorianCalendar();
-        bigCalendar.setTime(big);
-        switch (field) {
-            case Calendar.YEAR:
-                smallCalendar.clear(Calendar.MONTH);
-                bigCalendar.clear(Calendar.MONTH);
-            case Calendar.MONTH:
-                smallCalendar.clear(Calendar.DATE);
-                bigCalendar.clear(Calendar.DATE);
-            case Calendar.DATE://NOSONAR
-                smallCalendar.clear(Calendar.HOUR);
-                smallCalendar.clear(Calendar.HOUR_OF_DAY);
-                smallCalendar.clear(Calendar.AM_PM);
-                bigCalendar.clear(Calendar.HOUR);
-                bigCalendar.clear(Calendar.HOUR_OF_DAY);
-                bigCalendar.clear(Calendar.AM_PM);
-            case Calendar.HOUR_OF_DAY:
-                smallCalendar.clear(Calendar.MINUTE);
-                bigCalendar.clear(Calendar.MINUTE);
-            case Calendar.MINUTE:
-                smallCalendar.clear(Calendar.SECOND);
-                bigCalendar.clear(Calendar.SECOND);
-            default:
-                smallCalendar.clear(Calendar.MILLISECOND);
-                bigCalendar.clear(Calendar.MILLISECOND);
-        }
+        GregorianCalendar smallCalendar = clear(small,field);
+        GregorianCalendar bigCalendar = clear(big,field);
+
         if (smallCalendar.equals(bigCalendar)) {
             return elapsed;
         }
@@ -353,6 +328,18 @@ public class DateUtil extends DateUtils {
             elapsed++;
         }
         return positive ? elapsed : -elapsed;
+    }
+
+    private static GregorianCalendar clear(Date date, int field) {
+        GregorianCalendar calendar = new GregorianCalendar();
+        calendar.setTime(date);
+        int[] fields = new int[]{Calendar.YEAR, Calendar.MONTH, Calendar.DATE, Calendar.HOUR, Calendar.HOUR_OF_DAY, Calendar.AM_PM, Calendar.MINUTE, Calendar.SECOND, Calendar.MILLISECOND};
+        for (int calendarField : fields) {
+            if(calendarField > field){
+                calendar.clear(field);
+            }
+        }
+        return calendar;
     }
 
     /**

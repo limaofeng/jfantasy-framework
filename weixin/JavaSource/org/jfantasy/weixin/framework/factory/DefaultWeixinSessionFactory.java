@@ -35,18 +35,18 @@ public class DefaultWeixinSessionFactory implements WeixinSessionFactory {
 
     private WeixinHandler eventHandler;
 
-    private List<WeixinMessageInterceptor> weixinMessageInterceptors = new ArrayList<WeixinMessageInterceptor>();
+    private List<WeixinMessageInterceptor> weixinMessageInterceptors = new ArrayList<>();
 
-    private Map<EventMessage.EventType, List<WeixinEventListener>> eventListeners = new HashMap<EventMessage.EventType, List<WeixinEventListener>>();
+    private Map<EventMessage.EventType, List<WeixinEventListener>> eventListeners = new HashMap<>();
 
-    public WeixinCoreHelper getWeixinCoreHelper() {
-        return this.weixinCoreHelper;
-    }
-
-    private ConcurrentMap<String, WeixinSession> weiXinSessions = new ConcurrentHashMap<String, WeixinSession>();
+    private ConcurrentMap<String, WeixinSession> weiXinSessions = new ConcurrentHashMap<>();
 
     public DefaultWeixinSessionFactory(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
+    }
+
+    public WeixinCoreHelper getWeixinCoreHelper() {
+        return this.weixinCoreHelper;
     }
 
     @Override
@@ -68,7 +68,7 @@ public class DefaultWeixinSessionFactory implements WeixinSessionFactory {
 
     @Override
     public WeixinMessage<?> execute(WeixinMessage message) throws WeixinException {
-        List<Object> handler = new ArrayList<Object>(weixinMessageInterceptors);
+        List<Object> handler = new ArrayList<>(weixinMessageInterceptors);
         if (message instanceof EventMessage) {
             applicationContext.publishEvent(new WeixinEventMessageEvent((EventMessage) message));//事件推送
             final List<WeixinEventListener> listeners = ObjectUtil.defaultValue(eventListeners.get(((EventMessage) message).getEventType()), Collections.<WeixinEventListener>emptyList());

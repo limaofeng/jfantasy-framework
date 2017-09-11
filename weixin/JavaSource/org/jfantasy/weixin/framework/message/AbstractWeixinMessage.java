@@ -18,6 +18,7 @@ public abstract class AbstractWeixinMessage<T> implements WeixinMessage<T> {
      * 消息id
      */
     private Long id;
+
     /**
      * 发送方帐号（一个OpenID）
      */

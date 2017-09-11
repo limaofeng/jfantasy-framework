@@ -14,7 +14,6 @@ import me.chanjar.weixin.mp.bean.result.WxMpMassUploadResult;
 import me.chanjar.weixin.mp.bean.result.WxMpUserList;
 import me.chanjar.weixin.mp.builder.outxml.MusicBuilder;
 import me.chanjar.weixin.mp.builder.outxml.NewsBuilder;
-import me.chanjar.weixin.mp.builder.outxml.VideoBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -58,8 +57,8 @@ public class WeixinMpService implements WeixinService {
         String signature = request.getParameter("signature");
         String nonce = request.getParameter("nonce");
         String timestamp = request.getParameter("timestamp");
-        String encrypt_type = request.getParameter("encrypt_type");
-        String msg_signature = request.getParameter("msg_signature");
+        String encryptType = StringUtil.defaultValue(request.getParameter("encrypt_type"),"raw");
+        String msgSignature = request.getParameter("msg_signature");
         InputStream input;
         try {
             input = request.getInputStream();
@@ -73,35 +72,35 @@ public class WeixinMpService implements WeixinService {
             throw new WeixinException("非法请求");
         }
 
-        String encryptType = StringUtils.isBlank(encrypt_type) ? "raw" : encrypt_type;
         WxMpXmlMessage inMessage;
         if ("raw".equals(encryptType)) {
             // 明文传输的消息
             inMessage = WxMpXmlMessage.fromXml(input);
         } else if ("aes".equals(encryptType)) {
             // 是aes加密的消息
-            inMessage = WxMpXmlMessage.fromEncryptedXml(input, wxMpConfigStorage, timestamp, nonce, msg_signature);
+            inMessage = WxMpXmlMessage.fromEncryptedXml(input, wxMpConfigStorage, timestamp, nonce, msgSignature);
         } else {
             throw new WeixinException("不可识别的加密类型");
         }
         LOG.debug("inMessage=>" + JSON.serialize(inMessage));
-        if ("text".equals(inMessage.getMsgType())) {
-            return MessageFactory.createTextMessage(inMessage.getMsgId(), inMessage.getFriendUserName(), new Date(inMessage.getCreateTime()), inMessage.getContent());
-        } else if ("image".equalsIgnoreCase(inMessage.getMsgType())) {
-            return MessageFactory.createImageMessage(this, inMessage.getMsgId(), inMessage.getFriendUserName(), new Date(inMessage.getCreateTime()), inMessage.getMediaId(), inMessage.getUrl());
-        } else if ("voice".equalsIgnoreCase(inMessage.getMsgType())) {
-            return MessageFactory.createVoiceMessage(inMessage.getMsgId(), inMessage.getFriendUserName(), new Date(inMessage.getCreateTime()), inMessage.getMediaId(), inMessage.getFormat(), inMessage.getRecognition());
-        } else if ("video".equalsIgnoreCase(inMessage.getMsgType())) {
-            return MessageFactory.createVideoMessage(inMessage.getMsgId(), inMessage.getFriendUserName(), new Date(inMessage.getCreateTime()), inMessage.getMediaId(), inMessage.getThumbMediaId());
-        } else if ("location".equalsIgnoreCase(inMessage.getMsgType())) {
-            return MessageFactory.createLocationMessage(inMessage.getMsgId(), inMessage.getFriendUserName(), new Date(inMessage.getCreateTime()), inMessage.getLocationX(), inMessage.getLocationY(), inMessage.getScale(), inMessage.getLabel());
-        } else if ("link".equalsIgnoreCase(inMessage.getMsgType())) {
-            return MessageFactory.createLinkMessage(inMessage.getMsgId(), inMessage.getFriendUserName(), new Date(inMessage.getCreateTime()), inMessage.getTitle(), inMessage.getDescription(), inMessage.getUrl());
-        } else if ("event".equalsIgnoreCase(inMessage.getMsgType())) {
-            return MessageFactory.createEventMessage(inMessage.getMsgId(), inMessage.getFriendUserName(), new Date(inMessage.getCreateTime()), inMessage.getEvent(), inMessage.getEventKey(), inMessage.getTicket(), inMessage.getLatitude(), inMessage.getLongitude(), inMessage.getPrecision());
-        } else {
-            LOG.debug(inMessage);
-            throw new WeixinException("无法处理的消息类型" + inMessage.getMsgType());
+        switch (inMessage.getMsgType()) {
+            case "text":
+                return MessageFactory.createTextMessage(inMessage.getMsgId(), inMessage.getFriendUserName(), new Date(inMessage.getCreateTime()), inMessage.getContent());
+            case "image":
+                return MessageFactory.createImageMessage(this, inMessage.getMsgId(), inMessage.getFriendUserName(), new Date(inMessage.getCreateTime()), inMessage.getMediaId(), inMessage.getUrl());
+            case "voice":
+                return MessageFactory.createVoiceMessage(inMessage.getMsgId(), inMessage.getFriendUserName(), new Date(inMessage.getCreateTime()), inMessage.getMediaId(), inMessage.getFormat(), inMessage.getRecognition());
+            case "video":
+                return MessageFactory.createVideoMessage(inMessage.getMsgId(), inMessage.getFriendUserName(), new Date(inMessage.getCreateTime()), inMessage.getMediaId(), inMessage.getThumbMediaId());
+            case "location":
+                return MessageFactory.createLocationMessage(inMessage.getMsgId(), inMessage.getFriendUserName(), new Date(inMessage.getCreateTime()), inMessage.getLocationX(), inMessage.getLocationY(), inMessage.getScale(), inMessage.getLabel());
+            case "link":
+                return MessageFactory.createLinkMessage(inMessage.getMsgId(), inMessage.getFriendUserName(), new Date(inMessage.getCreateTime()), inMessage.getTitle(), inMessage.getDescription(), inMessage.getUrl());
+            case "event":
+                return MessageFactory.createEventMessage(inMessage.getMsgId(), inMessage.getFriendUserName(), new Date(inMessage.getCreateTime()), inMessage.getEvent(), inMessage.getEventKey(), inMessage.getTicket(), inMessage.getLatitude(), inMessage.getLongitude(), inMessage.getPrecision());
+            default:
+                LOG.debug(inMessage);
+                throw new WeixinException("无法处理的消息类型" + inMessage.getMsgType());
         }
     }
 
@@ -125,15 +124,7 @@ public class WeixinMpService implements WeixinService {
 
     @Override
     public String mediaUpload(Media.Type mediaType, Object fileItem) throws WeixinException {
-        /*
-        try {
-            WxMediaUploadResult uploadMediaRes = this.wxMpService.massNewsUpload(mediaType.name(), null, null);//WebUtil.getExtension(fileItem.getName()),fileItem.getInputStream()
-            return mediaType == Media.Type.thumb ? uploadMediaRes.getThumbMediaId() : uploadMediaRes.getMediaId();
-        } catch (WxErrorException | IOException e) {
-            throw new WeiXinException(e.getMessage(), e);
-        }
-        */
-        return null;
+        throw new WeixinException("未实现方法");
     }
 
     @Override
@@ -145,13 +136,12 @@ public class WeixinMpService implements WeixinService {
             }
             //上传图片文件
             Media media = content.getMedia();
-            media.setId(this.mediaUpload(media.getType(), null));//media.getFileItem()
+            media.setId(this.mediaUpload(media.getType(), null));
             if (toUsers.length == 1) {
                 WxMpMassOpenIdsMessage message = new WxMpMassOpenIdsMessage();
                 message.setMediaId(media.getId());
-//                message.setMsgType(media.getType());
                 message.setToUsers(Arrays.asList(toUsers));
-                this.wxMpService.massOpenIdsMessageSend(message);//.customMessageSend(WxMpCustomMessage.IMAGE().toUser(toUsers[0]).mediaId(media.getId()).build());
+                this.wxMpService.massOpenIdsMessageSend(message);
             } else {
                 WxMpMassOpenIdsMessage openIdsMessage = new WxMpMassOpenIdsMessage();
                 openIdsMessage.setMsgType(WxConsts.MASS_MSG_IMAGE);
@@ -177,26 +167,26 @@ public class WeixinMpService implements WeixinService {
                     .build();
         } else if (message instanceof ImageMessage) {
             Media media = ((ImageMessage) message).getContent().getMedia();
-            media.setId(this.mediaUpload(media.getType(), null));//media.getFileItem()
+            media.setId(this.mediaUpload(media.getType(), null));
             outMessage = WxMpXmlOutMessage.IMAGE().mediaId(media.getId()).fromUser(message.getFromUserName())
                     .toUser(message.getToUserName())
                     .build();
         } else if (message instanceof VoiceMessage) {
             Media media = ((VoiceMessage) message).getContent().getMedia();
-            media.setId(this.mediaUpload(media.getType(), null));//media.getFileItem()
+            media.setId(this.mediaUpload(media.getType(), null));
             outMessage = WxMpXmlOutMessage.VOICE().mediaId(media.getId()).fromUser(message.getFromUserName())
                     .toUser(message.getToUserName())
                     .build();
         } else if (message instanceof VideoMessage) {
             Media media = ((VideoMessage) message).getContent().getMedia();
-            media.setId(this.mediaUpload(media.getType(), null));//media.getFileItem()
+            media.setId(this.mediaUpload(media.getType(), null));
             outMessage = WxMpXmlOutMessage.VIDEO().mediaId(media.getId()).fromUser(message.getFromUserName())
                     .toUser(message.getToUserName())
                     .build();
         } else if (message instanceof MusicMessage) {
             Music music = ((MusicMessage) message).getContent();
             Media thumb = music.getThumb();
-            thumb.setId(this.mediaUpload(thumb.getType(), null));//thumb.getFileItem()
+            thumb.setId(this.mediaUpload(thumb.getType(), null));
             outMessage = WxMpXmlOutMessage.MUSIC().musicUrl(music.getUrl()).hqMusicUrl(music.getHqUrl()).title(music.getTitle()).description(music.getDescription()).thumbMediaId(thumb.getId()).fromUser(message.getFromUserName())
                     .toUser(message.getToUserName())
                     .build();
@@ -281,33 +271,18 @@ public class WeixinMpService implements WeixinService {
             Media media = content.getMedia();
             media.setId(this.mediaUpload(media.getType(), null));//media.getFileItem()
             //发送消息
-            if (toUsers.length == 1) {
-                //上传缩略图
-                Media thumb = content.getThumb();
-                thumb.setId(this.mediaUpload(thumb.getType(), null));//thumb.getFileItem()
-                VideoBuilder videoBuilder = WxMpXmlOutVideoMessage.VIDEO().toUser(toUsers[0]).mediaId(media.getId());
-                if (StringUtil.isNotBlank(content.getTitle())) {
-                    videoBuilder.title(content.getTitle());
-                }
-                if (StringUtil.isNotBlank(content.getDescription())) {
-                    videoBuilder.description(content.getDescription());
-                }
-                WxMpXmlOutVideoMessage message = videoBuilder.build();
-//                wxMpService.massOpenIdsMessageSend(message);
-            } else {
-                WxMpMassVideo massVideo = new WxMpMassVideo();
-                massVideo.setMediaId(media.getId());
-                massVideo.setTitle(content.getTitle());
-                massVideo.setDescription(content.getDescription());
-                WxMpMassUploadResult result = wxMpService.massVideoUpload(massVideo);
-                WxMpMassOpenIdsMessage openIdsMessage = new WxMpMassOpenIdsMessage();
-                openIdsMessage.setMsgType(WxConsts.MASS_MSG_VIDEO);
-                for (String toUser : toUsers) {
-                    openIdsMessage.addUser(toUser);
-                }
-                openIdsMessage.setMediaId(result.getMediaId());
-                wxMpService.massOpenIdsMessageSend(openIdsMessage);
+            WxMpMassVideo massVideo = new WxMpMassVideo();
+            massVideo.setMediaId(media.getId());
+            massVideo.setTitle(content.getTitle());
+            massVideo.setDescription(content.getDescription());
+            WxMpMassUploadResult result = wxMpService.massVideoUpload(massVideo);
+            WxMpMassOpenIdsMessage openIdsMessage = new WxMpMassOpenIdsMessage();
+            openIdsMessage.setMsgType(WxConsts.MASS_MSG_VIDEO);
+            for (String toUser : toUsers) {
+                openIdsMessage.addUser(toUser);
             }
+            openIdsMessage.setMediaId(result.getMediaId());
+            wxMpService.massOpenIdsMessageSend(openIdsMessage);
         } catch (WxErrorException | WeixinException e) {
             throw new WeixinException(e.getMessage(), e);
         }
@@ -351,8 +326,6 @@ public class WeixinMpService implements WeixinService {
             if (StringUtil.isNotBlank(content.getDescription())) {
                 musicBuilder.description(content.getDescription());
             }
-            WxMpXmlOutMusicMessage outMusicMessage = musicBuilder.build();
-//            wxMpService.massOpenIdsMessageSend(outMusicMessage);
         } catch (WeixinException e) {
             throw new WeixinException(e.getMessage(), e);
         }
