@@ -1,6 +1,5 @@
 package org.jfantasy.autoconfigure;
 
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CachingConfigurerSupport;
@@ -15,9 +14,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 @EnableCaching
 public class JCacheAutoConfiguration extends CachingConfigurerSupport {
 
-    private static final Logger logger = Logger.getLogger(JCacheAutoConfiguration.class);
-
-    @Autowired
+    @Autowired(required = false)
     private RedisConnectionFactory factory;
 
     @Bean
