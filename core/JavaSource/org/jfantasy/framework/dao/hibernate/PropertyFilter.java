@@ -154,6 +154,7 @@ public class PropertyFilter {
                 }
                 return clazz.cast(array);
             }
+            return (T)propertyValue;
         }
         return ReflectionUtils.convert(this.getPropertyValue(), clazz);
     }
