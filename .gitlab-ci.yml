@@ -26,6 +26,7 @@ sonar:
     MYSQL_DATABASE: demo
     MYSQL_ROOT_PASSWORD: 123456
   script:
+    - env
     - mysql -e " SET PASSWORD FOR 'root'@'localhost' = PASSWORD('123456') " -uroot
 #    - gradle sonarqube -Dsonar.host.url=$SONAR_HOST -Dsonar.login=$SONAR_TOKEN -Dsonar.scm.provider=git -Dsonar.analysis.mode=publish -Dsonar.issuesReport.console.enable=true -Dsonar.verbose=true
 #  only:
