@@ -1,6 +1,7 @@
 
 services:
   - mysql:latest
+
 variables:
   MYSQL_DATABASE: demo
   MYSQL_ROOT_PASSWORD: 123456
