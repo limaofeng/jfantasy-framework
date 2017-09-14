@@ -1,3 +1,10 @@
+
+services:
+  - mysql:latest
+variables:
+  MYSQL_DATABASE: demo
+  MYSQL_ROOT_PASSWORD: 123456
+
 stages:
   - build
   - test
@@ -20,11 +27,6 @@ build:
 
 sonar:
   stage: test
-  services:
-    - mysql:latest
-  variables:
-    MYSQL_DATABASE: demo
-    MYSQL_ROOT_PASSWORD: 123456
   script:
     - env
     - ping mysql
