@@ -19,7 +19,7 @@ build:
 #    - shell
 
 sonar:
-  image: limaofeng/gradle-alpine
+  image: limaofeng/gradle-alpine:mysql
   stage: test
   services:
     - mysql:latest
