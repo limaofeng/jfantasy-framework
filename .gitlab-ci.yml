@@ -1,11 +1,3 @@
-
-services:
-  - mysql:latest
-
-variables:
-  MYSQL_DATABASE: demo
-  MYSQL_ROOT_PASSWORD: 123456
-
 stages:
   - build
   - test
@@ -27,7 +19,13 @@ build:
 #    - shell
 
 sonar:
+  image: limaofeng/gradle-alpine
   stage: test
+  services:
+    - mysql:latest
+  variables:
+    MYSQL_DATABASE: demo
+    MYSQL_ROOT_PASSWORD: 123456
   script:
     - env
     - ping mysql
@@ -36,7 +34,7 @@ sonar:
 #  only:
 #    - tags
   tags:
-    - shell
+    - docker
 
 deploy:
   stage: deploy
