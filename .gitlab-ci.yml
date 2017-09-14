@@ -20,6 +20,11 @@ build:
 
 sonar:
   stage: test
+  services:
+    - mysql:latest
+  variables:
+    MYSQL_DATABASE: demo
+    MYSQL_ROOT_PASSWORD: 123456
   script:
     - gradle sonarqube -Dsonar.host.url=$SONAR_HOST -Dsonar.login=$SONAR_TOKEN -Dsonar.scm.provider=git -Dsonar.analysis.mode=publish -Dsonar.issuesReport.console.enable=true -Dsonar.verbose=true
 #  only:
