@@ -28,6 +28,7 @@ sonar:
     MYSQL_ROOT_PASSWORD: 123456
   script:
     - env
+    - pwd
     - mysql -h mysql -u root -p123456 < core/database/tables.sql
     - gradle clean build -x test
     - cd ~/.gradle
