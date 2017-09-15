@@ -5,6 +5,7 @@ stages:
 
 build:
   stage: build
+  image: limaofeng/gradle-alpine:mysql
   before_script:
     - export GRADLE_USER_HOME=/cache/.gradle
   script:
@@ -27,6 +28,7 @@ build:
 
 sonar:
   stage: test
+  image: limaofeng/gradle-alpine:mysql
   services:
     - mysql:latest
   variables:
