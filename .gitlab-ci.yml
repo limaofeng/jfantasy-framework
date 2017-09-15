@@ -1,3 +1,12 @@
+before_script:
+  - export GRADLE_USER_HOME=/cache/.gradle
+
+cache:
+  paths:
+    - $GRADLE_USER_HOME/caches/
+    - $GRADLE_USER_HOME/wrapper/
+    - $GRADLE_USER_HOME/build-cache/
+
 stages:
   - build
   - test
@@ -36,9 +45,6 @@ sonar:
 #    - gradle sonarqube -Dsonar.host.url=$SONAR_HOST -Dsonar.login=$SONAR_TOKEN -Dsonar.scm.provider=git -Dsonar.analysis.mode=publish -Dsonar.issuesReport.console.enable=true -Dsonar.verbose=true
 #  only:
 #    - tags
-  cache:
-    paths:
-      - /root/.gradle
   tags:
     - docker
 
