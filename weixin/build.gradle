@@ -1,8 +1,0 @@
-description = '集成微信'
-
-dependencies {
-    compile 'com.github.binarywang:weixin-java-mp:2.4.0'
-    compile 'com.github.binarywang:weixin-java-cp:2.4.0'
-    compile project(':jfantasy-core')
-    testCompile "org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
-}

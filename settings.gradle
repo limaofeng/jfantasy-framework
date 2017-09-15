@@ -1,7 +1,6 @@
 rootProject.name = 'jfantasy-framework'
 include ':jfantasy-core'
 include ':jfantasy-cache'
-include ':jfantasy-weixin'
 include ':jfantasy-aliyun'
 include ':jfantasy-rpc-common'
 include ':jfantasy-rpc-server'
@@ -11,7 +10,6 @@ include ':jfantasy-rpc-client'
 
 project(':jfantasy-core').projectDir = "$rootDir/core" as File
 project(':jfantasy-cache').projectDir = "$rootDir/cache" as File
-project(':jfantasy-weixin').projectDir = "$rootDir/weixin" as File
 //project(':demo').projectDir = "$rootDir/demo" as File
 
 // sdk list
