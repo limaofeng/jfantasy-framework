@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 
-@RestController
+//@RestController
 public class TestController {
 
     @RequestMapping("/")
@@ -32,12 +32,10 @@ public class TestController {
     @RequestMapping(value="/response/annotation", method=RequestMethod.GET)
     public @ResponseBody Callable<String> responseBody() {
 
-        return new Callable<String>() {
-            public String call() throws Exception {
-                // Do some work..
-                Thread.sleep(3000L);
-                return "The String ResponseBody";
-            }
+        return () -> {
+            // Do some work..
+            Thread.sleep(3000L);
+            return "The String ResponseBody";
         };
     }
 
