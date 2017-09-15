@@ -29,8 +29,6 @@ sonar:
   before_script:
     - export GRADLE_USER_HOME=/cache/.gradle
   script:
-    - env
-    - pwd
     - mysql -h mysql -u root -p123456 < core/database/tables.sql
     - gradle sonarqube -Dsonar.host.url=$SONAR_HOST -Dsonar.login=$SONAR_TOKEN -Dsonar.scm.provider=git -Dsonar.analysis.mode=publish -Dsonar.issuesReport.console.enable=true -Dsonar.verbose=true
   cache:
