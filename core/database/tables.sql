@@ -1,6 +1,6 @@
-CREATE DATABASE website CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE core CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
-USE website;
+USE core;
 
 SET FOREIGN_KEY_CHECKS = 0;
 

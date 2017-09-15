@@ -18,22 +18,16 @@ build:
   tags:
     - docker
 
-#test:
-#  stage: test
-#  script:
-#    - export SONAR_OPTS="-Dsonar.gitlab.project_id=${CI_PROJECT_ID} -Dsonar.gitlab.commit_sha=${CI_BUILD_REF} -Dsonar.gitlab.ref_name=${CI_BUILD_REF_NAME}"
-#    - gradle sonarqube -Dsonar.host.url=$SONAR_HOST -Dsonar.login=$SONAR_TOKEN -Dsonar.scm.provider=git -Dsonar.analysis.mode=preview -Dsonar.issuesReport.console.enable=true -Dsonar.verbose=true $SONAR_OPTS
-#  tags:
-#    - shell
-
 sonar:
   stage: test
   image: limaofeng/gradle-alpine:mysql
   services:
     - mysql:latest
   variables:
-    MYSQL_DATABASE: demo
     MYSQL_ROOT_PASSWORD: 123456
+    DATABASE_HOST: mysql
+    DATABASE_USERNAME: root
+    DATABASE_PASSWORD: 123456
   before_script:
     - export GRADLE_USER_HOME=/cache/.gradle
   script:
