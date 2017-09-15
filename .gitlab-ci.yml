@@ -37,7 +37,7 @@ sonar:
 #    - tags
   cache:
     paths:
-      - ~/.gradle
+      - /root/.gradle
   tags:
     - docker
 
