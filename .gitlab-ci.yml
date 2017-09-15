@@ -32,13 +32,12 @@ sonar:
     - env
     - pwd
     - mysql -h mysql -u root -p123456 < core/database/tables.sql
-    - gradle clean build -x test
+    - gradle sonarqube -Dsonar.host.url=$SONAR_HOST -Dsonar.login=$SONAR_TOKEN -Dsonar.scm.provider=git -Dsonar.analysis.mode=publish -Dsonar.issuesReport.console.enable=true -Dsonar.verbose=true
   cache:
     paths:
       - $GRADLE_USER_HOME/caches/
       - $GRADLE_USER_HOME/wrapper/
       - $GRADLE_USER_HOME/build-cache/
-#    - gradle sonarqube -Dsonar.host.url=$SONAR_HOST -Dsonar.login=$SONAR_TOKEN -Dsonar.scm.provider=git -Dsonar.analysis.mode=publish -Dsonar.issuesReport.console.enable=true -Dsonar.verbose=true
 #  only:
 #    - tags
   tags:
