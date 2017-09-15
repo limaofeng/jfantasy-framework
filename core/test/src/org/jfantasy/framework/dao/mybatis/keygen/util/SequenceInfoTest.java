@@ -50,7 +50,7 @@ public class SequenceInfoTest {
         for (Thread thread : threads) {
             thread.start();
         }
-        Thread.sleep(TimeUnit.MINUTES.toMillis(2));
+        Thread.sleep(TimeUnit.MINUTES.toSeconds(10));
     }
 
 
