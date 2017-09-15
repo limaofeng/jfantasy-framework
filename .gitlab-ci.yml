@@ -26,6 +26,9 @@ sonar:
   variables:
     MYSQL_DATABASE: demo
     MYSQL_ROOT_PASSWORD: 123456
+  cache:
+    paths:
+      - ~/.gradle
   script:
     - env
     - mysql -h mysql -u root -p123456 < core/database/tables.sql
