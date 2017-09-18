@@ -111,11 +111,11 @@ public class PropertyFilterModelAttributeMethodProcessor extends FormModelMethod
             if (matchType.isNone()) {
                 target.add(new PropertyFilter(paramName));
             } else if (matchType.isMulti()) {
-                List<String> tvalues = new ArrayList<>();
+                List<String> tValues = new ArrayList<>();
                 for (String val : values) {
-                    tvalues.addAll(Arrays.asList(StringUtil.tokenizeToStringArray(val)));
+                    tValues.addAll(Arrays.asList(StringUtil.tokenizeToStringArray(val)));
                 }
-                target.add(new PropertyFilter(paramName, tvalues.toArray(new String[tvalues.size()])));
+                target.add(new PropertyFilter(paramName, tValues.toArray(new String[tValues.size()])));
             } else if (values.length != 0 && StringUtil.isNotBlank(values[0])) {
                 target.add(new PropertyFilter(paramName, values[0]));
             }
