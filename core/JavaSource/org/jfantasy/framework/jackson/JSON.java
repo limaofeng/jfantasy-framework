@@ -5,6 +5,8 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.ser.FilterProvider;
+import com.fasterxml.jackson.databind.ser.PropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import org.apache.commons.logging.Log;
@@ -57,11 +59,12 @@ public class JSON {
         try {
             SimpleFilterProvider provider = new SimpleFilterProvider().setFailOnUnknownId(false);
             for (FilterItem item : filter.items()) {
-                ThreadJacksonMixInHolder.MixInSource mixInSource = ThreadJacksonMixInHolder.createMixInSource(item.getClazz());
+                String id = MixInHolder.createMixInSource(item.getClazz()).getId();
                 if (item.getPattern() == FilterItem.Pattern.IGNORE) {
-                    provider.addFilter(mixInSource.getFilterName(), SimpleBeanPropertyFilter.serializeAllExcept(item.getFields()));
+                    provider.addFilter(id, SimpleBeanPropertyFilter.serializeAllExcept(item.getFields()));
                 } else {
-                    provider.addFilter(mixInSource.getFilterName(), SimpleBeanPropertyFilter.filterOutAllExcept(item.getFields()));
+                    provider.addFilter(id, SimpleBeanPropertyFilter.filterOutAllExcept(item.getFields()));
+
                 }
             }
             return objectMapper.writer(provider).writeValueAsString(object);
@@ -69,6 +72,34 @@ public class JSON {
             LOG.error(e.getMessage(), e);
         }
         return "";
+    }
+
+    public static String serialize(Object object, FilterProvider provider) {
+        if (object == null) {
+            return null;
+        }
+        try {
+            return objectMapper.writer(permixin(provider)).writeValueAsString(object);
+        } catch (IOException e) {
+            LOG.error(e.getMessage(), e);
+        }
+        return "";
+    }
+
+    public static FilterProvider permixin(FilterProvider provider) {
+        if (!(provider instanceof SimpleFilterProvider)) {
+            return provider;
+        }
+        PropertyFilter filter = ((SimpleFilterProvider) provider).getDefaultFilter();
+        if (!(filter instanceof BeanPropertyFilter)) {
+            return provider;
+        }
+        for (Class type : ((BeanPropertyFilter) filter).getTypes()) {
+            if (objectMapper.findMixInClassFor(type) == null) {
+                objectMapper.addMixIn(type, BeanPropertyFilter.class);
+            }
+        }
+        return provider;
     }
 
     public static JsonNode deserialize(String json) {

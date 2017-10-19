@@ -3,6 +3,7 @@ package org.jfantasy.framework.jackson;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -34,10 +35,10 @@ public class JSONTest {
         article = TestDataBuilder.build(Article.class, "JSONTest");
         assert article != null;
         category = article.getCategory();
-
-        ObjectMapper objectMapper = JSON.getObjectMapper();
-        ThreadJacksonMixInHolder.scan(Article.class, ArticleCategory.class);
-        objectMapper.setMixIns(ThreadJacksonMixInHolder.getSourceMixins());
+//
+//        ObjectMapper objectMapper = JSON.getObjectMapper();
+//        ThreadJacksonMixInHolder.scan(Article.class, ArticleCategory.class);
+//        objectMapper.setMixIns(ThreadJacksonMixInHolder.getSourceMixins());
     }
 
     @After
@@ -58,6 +59,10 @@ public class JSONTest {
 
     @Test
     public void filter() throws IOException {
+        article = TestDataBuilder.build(Article.class, "JSONTest");
+        assert article != null;
+        category = article.getCategory();
+
         ObjectMapper objectMapper = JSON.getObjectMapper();
         objectMapper.addMixIn(Article.class, ArticleFilterMixIn.class);
 
@@ -86,6 +91,15 @@ public class JSONTest {
         json = objectWriter.writeValueAsString(article);
 
         LOG.debug(json);
+    }
+
+    @Test
+    public void newFilter() throws JsonProcessingException {
+        ColorsSerializer colorsSerializer = new ColorsSerializer();
+        colorsSerializer.filter(ArticleCategory.class,"","articles");
+        colorsSerializer.filter(Article.class, "title,category","");
+        System.out.println(colorsSerializer.toJson(this.article));
+
     }
 
     @Test

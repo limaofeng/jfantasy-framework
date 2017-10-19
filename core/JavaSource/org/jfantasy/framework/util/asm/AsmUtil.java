@@ -55,6 +55,10 @@ public class AsmUtil implements Opcodes {
         return makeClass(className, superClassName, interfaces, properties, new MethodInfo[0]);
     }
 
+    public static Class makeInterface(String className, AnnotationDescriptor descriptor) {
+        return makeInterface(className, new AnnotationDescriptor[]{descriptor}, new Class[0]);
+    }
+
     public static Class makeInterface(String className, AnnotationDescriptor descriptor, Class interfacecls) {
         return makeInterface(className, new AnnotationDescriptor[]{descriptor}, interfacecls);
     }

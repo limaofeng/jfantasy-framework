@@ -11,11 +11,13 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface JsonResultFilter {
 
+    BeanFilter[] value() default {};
     /**
      * 要过滤的属性
      *
      * @return ignorePropertys
      */
+    @Deprecated
     IgnoreProperty[] ignore() default {};
 
     /**
@@ -23,6 +25,7 @@ public @interface JsonResultFilter {
      *
      * @return allowPropertys
      */
+    @Deprecated
     AllowProperty[] allow() default {};
 
 }

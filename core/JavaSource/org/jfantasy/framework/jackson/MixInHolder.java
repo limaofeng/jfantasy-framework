@@ -14,14 +14,14 @@ import java.util.UUID;
 /**
  * 在当前线程内保存ObjectMapper供Jackson2HttpMessageConverter使用
  */
-public class ThreadJacksonMixInHolder {
+public class MixInHolder {
 
     private static final Map<Class<?>, MixInSource> mixInSourceMap = new HashMap<>();
 
     public static MixInSource createMixInSource(Class<?> target) {
         if (!mixInSourceMap.containsKey(target)) {
             String uuid = UUID.randomUUID().toString().replaceAll("-", "");
-            Class mixIn = AsmUtil.makeInterface("org.jfantasy.framework.jackson.mixin." + target.getSimpleName() + "_" + uuid, AnnotationDescriptor.builder(JsonFilter.class).setValue("value", uuid).build(), FilterMixIn.class);
+            Class mixIn = AsmUtil.makeInterface("org.jfantasy.framework.jackson.mixin." + target.getSimpleName() + "_" + uuid, AnnotationDescriptor.builder(JsonFilter.class).setValue("value", uuid).build());
             MixInSource mixInSource = new MixInSource(uuid, target, mixIn);
             mixInSourceMap.put(target, mixInSource);
             return mixInSource;
@@ -64,6 +64,10 @@ public class ThreadJacksonMixInHolder {
         }
 
         public String getFilterName() {
+            return filterName;
+        }
+
+        public String getId() {
             return filterName;
         }
 

@@ -5,8 +5,11 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jfantasy.framework.jackson.ThreadJacksonMixInHolder;
+import org.jfantasy.framework.jackson.BeanPropertyFilter;
+import org.jfantasy.framework.jackson.JSON;
+import org.jfantasy.framework.jackson.MixInHolder;
 import org.jfantasy.framework.jackson.annotation.AllowProperty;
+import org.jfantasy.framework.jackson.annotation.BeanFilter;
 import org.jfantasy.framework.jackson.annotation.IgnoreProperty;
 import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
 import org.jfantasy.framework.spring.mvc.error.NotFoundException;
@@ -55,7 +58,7 @@ public class JacksonResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 
     @Override
     public Object beforeBodyWrite(Object returnValue, MethodParameter methodParameter, MediaType mediaType, Class<? extends HttpMessageConverter<?>> converterType, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
-        if(ClassUtil.isBasicType(methodParameter.getMethod().getReturnType())){
+        if (ClassUtil.isBasicType(methodParameter.getMethod().getReturnType())) {
             return returnValue;
         }
         if (returnValue == null && serverHttpRequest.getMethod() == HttpMethod.GET) {
@@ -70,48 +73,57 @@ public class JacksonResponseBodyAdvice implements ResponseBodyAdvice<Object> {
         return returnValue;
     }
 
-    private FilterProvider getFilterProvider(JsonResultFilter jsonResultFilter) {
+    public FilterProvider getFilterProvider(JsonResultFilter jsonResultFilter) {
         String key = jsonResultFilter.toString();
         if (PROVIDERS.containsKey(key)) {
             return PROVIDERS.get(key);
         }
         SimpleFilterProvider provider = new SimpleFilterProvider().setFailOnUnknownId(false);
-        //获取 allows 和 ignores
-        AllowProperty[] allowProperties = jsonResultFilter.allow();
-        IgnoreProperty[] ignoreProperties = jsonResultFilter.ignore();
-        //准备数据
-        Map<String, Set<String>> ignorePropertyNames = new HashMap<>();
-        Map<String, Set<String>> allowPropertyNames = new HashMap<>();
-        //将配置信息配置到 mixin
-        for (AllowProperty property : allowProperties) {
-            Class<?> target = property.pojo();
-            String[] names = StringUtil.tokenizeToStringArray(property.name());
-            //添加到FilterProvider
-            ThreadJacksonMixInHolder.MixInSource mixInSource = ThreadJacksonMixInHolder.createMixInSource(target);
-            if (!allowPropertyNames.containsKey(mixInSource.getFilterName())) {
-                allowPropertyNames.put(mixInSource.getFilterName(), new HashSet<>(Arrays.asList(names)));
-            } else {
-                allowPropertyNames.get(mixInSource.getFilterName()).addAll(Arrays.asList(names));
+        BeanPropertyFilter propertyFilter = new BeanPropertyFilter();
+        if (jsonResultFilter.value().length > 0) {
+            for (BeanFilter filter : jsonResultFilter.value()) {
+                propertyFilter.includes(filter.type(), filter.includes()).excludes(filter.type(), filter.excludes());
             }
-        }
-        //将配置信息配置到 mixin
-        for (IgnoreProperty property : ignoreProperties) {
-            Class<?> target = property.pojo();
-            String[] names = StringUtil.tokenizeToStringArray(property.name());
-            //添加到FilterProvider
-            ThreadJacksonMixInHolder.MixInSource mixInSource = ThreadJacksonMixInHolder.createMixInSource(target);
-            if (!ignorePropertyNames.containsKey(mixInSource.getFilterName())) {
-                ignorePropertyNames.put(mixInSource.getFilterName(), new HashSet<>(Arrays.asList(names)));
-            } else {
-                ignorePropertyNames.get(mixInSource.getFilterName()).addAll(Arrays.asList(names));
+            provider.setDefaultFilter(propertyFilter);
+            JSON.permixin(provider);
+        } else {
+            //获取 allows 和 ignores
+            AllowProperty[] allowProperties = jsonResultFilter.allow();
+            IgnoreProperty[] ignoreProperties = jsonResultFilter.ignore();
+            //准备数据
+            Map<String, Set<String>> ignorePropertyNames = new HashMap<>();
+            Map<String, Set<String>> allowPropertyNames = new HashMap<>();
+            //将配置信息配置到 mixin
+            for (AllowProperty property : allowProperties) {
+                Class<?> target = property.pojo();
+                String[] names = StringUtil.tokenizeToStringArray(property.name());
+                //添加到FilterProvider
+                String id = MixInHolder.createMixInSource(target).getId();
+                if (!allowPropertyNames.containsKey(id)) {
+                    allowPropertyNames.put(id, new HashSet<>(Arrays.asList(names)));
+                } else {
+                    allowPropertyNames.get(id).addAll(Arrays.asList(names));
+                }
             }
+            //将配置信息配置到 mixin
+            for (IgnoreProperty property : ignoreProperties) {
+                Class<?> target = property.pojo();
+                String[] names = StringUtil.tokenizeToStringArray(property.name());
+                //添加到FilterProvider
+                String id = MixInHolder.createMixInSource(target).getId();
+                if (!ignorePropertyNames.containsKey(id)) {
+                    ignorePropertyNames.put(id, new HashSet<>(Arrays.asList(names)));
+                } else {
+                    ignorePropertyNames.get(id).addAll(Arrays.asList(names));
+                }
+            }
+            //添加到
+            for (Map.Entry<String, Set<String>> entry : allowPropertyNames.entrySet()) {
+                provider.addFilter(entry.getKey(), SimpleBeanPropertyFilter.filterOutAllExcept(entry.getValue()));
+            }
+            ignorePropertyNames.entrySet().stream().filter(entry -> !allowPropertyNames.containsKey(entry.getKey())).forEach(entry -> provider.addFilter(entry.getKey(), SimpleBeanPropertyFilter.serializeAllExcept(entry.getValue())));
+            LOGGER.debug(provider);
         }
-        //添加到
-        for (Map.Entry<String, Set<String>> entry : allowPropertyNames.entrySet()) {
-            provider.addFilter(entry.getKey(), SimpleBeanPropertyFilter.filterOutAllExcept(entry.getValue()));
-        }
-        ignorePropertyNames.entrySet().stream().filter(entry -> !allowPropertyNames.containsKey(entry.getKey())).forEach(entry -> provider.addFilter(entry.getKey(), SimpleBeanPropertyFilter.serializeAllExcept(entry.getValue())));
-        LOGGER.debug(provider);
         PROVIDERS.putIfAbsent(key, provider);
         return provider;
     }
