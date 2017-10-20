@@ -7,59 +7,21 @@ configurations {
 
 dependencies {
     // spring
-    compile "org.springframework:spring-core:$springVersion"
-    compile "org.springframework:spring-web:$springVersion"
-    compile "org.springframework:spring-webmvc:$springVersion"
-    compile "org.springframework:spring-orm:$springVersion"
-    compile "org.springframework:spring-test:$springVersion"
-    compile "org.springframework:spring-context-support:$springVersion"
+    compile libs['spring']
     // spring boot
-    optional "org.springframework.boot:spring-boot-configuration-processor:${springBootVersion}"
-    compile("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
-    compile "org.springframework.boot:spring-boot-starter-undertow:${springBootVersion}"
-    compile "org.springframework.boot:spring-boot-starter-data-jpa:${springBootVersion}"
-    compile "org.springframework.boot:spring-boot-starter-actuator:${springBootVersion}"
-    // mybatis
-    compile 'org.mybatis.spring.boot:mybatis-spring-boot-starter:1.3.0'
+    compile libs['springBoot']
+    // orm
+    compile libs['orm']
     // quartz
-    compile "org.quartz-scheduler:quartz:${quartzVersion}"
-    compile "org.quartz-scheduler:quartz-jobs:${quartzVersion}"
-    // mysql
-    compile "mysql:mysql-connector-java:5.1.39"
+    compile libs['quartz']
     // unirest
-    compile "com.mashape.unirest:unirest-java:1.4.9"
+    compile libs['unirest']
     // lucene
-    compile "org.apache.lucene:lucene-core:3.6.2"
-    compile "org.apache.lucene:lucene-highlighter:3.6.2"
-    compile "org.apache.lucene:lucene-queryparser:3.6.2"
+    compile libs['lucene']
     // commons
-    compile "commons-lang:commons-lang:2.6"
-    compile "commons-net:commons-net:3.3"
-    compile "commons-beanutils:commons-beanutils:1.9.2"
-    compile "org.apache.ant:ant:1.9.5"
-    compile "com.github.jknack:handlebars:4.0.6"
-    compile "commons-io:commons-io:2.5"
+    compile libs['commons']
     // asm and cglib
-    compile "asm:asm-util:3.3.1"
-    compile "asm:asm-commons:3.3.1"
-    compile "cglib:cglib:2.2.2"
-    compile "net.sourceforge.htmlcleaner:htmlcleaner:2.8"
-    compile "org.apache.httpcomponents:httpmime:4.3.5"
-    compile "com.alibaba:druid:1.0.18"
-    compile("eu.medsea.mimeutil:mime-util:2.1.3") {
-        exclude group: "org.slf4j", module: "slf4j-log4j12"
-    }
-    compile("ognl:ognl:3.1.2") {
-        exclude group: "javassist", module: "javassist"
-    }
-    compile "org.bouncycastle:bcprov-jdk16:1.46"
-    compile "org.apache.commons:commons-email:1.3.2"
-    compile "com.github.stuxuhai:jpinyin:1.1.8"
-    compile "commons-fileupload:commons-fileupload:1.2.2"
-    compile "javax:javaee-api:7.0"
-    testCompile "org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
-    testCompile 'junit:junit:4.12'
-    testCompile "org.wltea:IKAnalyzer:3.2.8"
-    testCompile 'org.codehaus.groovy:groovy-all:2.4.7'
-    testCompile 'org.xhtmlrenderer:flying-saucer-pdf-itext5:9.0.8'
+    compile libs['third-party']
+
+    testCompile libs['test']
 }

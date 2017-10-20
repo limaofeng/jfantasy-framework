@@ -1,11 +1,14 @@
 buildscript {
+    ext {
+        springBootVersion = '1.5.8.RELEASE'
+    }
     repositories {
         maven { url "http://maven.zbsg.com.cn/content/groups/public/" }
         mavenCentral()
         mavenLocal()
     }
     dependencies {
-        classpath "org.springframework.boot:spring-boot-gradle-plugin:1.5.4.RELEASE"
+        classpath 'io.spring.gradle:dependency-management-plugin:1.0.0.RELEASE'
         classpath 'org.springframework.build.gradle:propdeps-plugin:0.0.7'
         classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.5"
     }
@@ -35,6 +38,7 @@ subprojects {
     apply plugin: 'java'
     apply plugin: 'idea'
     apply plugin: "jacoco"
+    apply plugin: 'io.spring.dependency-management'
 
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
@@ -115,6 +119,16 @@ subprojects {
 
     repositories {
         maven { url "http://maven.zbsg.com.cn/content/groups/public" }
+    }
+
+    dependencyManagement {
+        imports {
+            mavenBom 'io.spring.platform:platform-bom:Brussels-SR5'
+        }
+    }
+
+    dependencies {
+        optional "org.springframework.boot:spring-boot-configuration-processor"
     }
 
 }
