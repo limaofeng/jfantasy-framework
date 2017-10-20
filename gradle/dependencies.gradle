@@ -5,7 +5,7 @@ ext {
     jacksonVersion = '2.8.0'
     springfoxVersion = "2.6.1"
     quartzVersion = '2.2.3'
-    groovy = "2.4.5"
+    groovy = "2.4.7"
 
     libs = [
             lucene     : [
@@ -63,10 +63,10 @@ ext {
             ],
             test              : [
                     "org.springframework.boot:spring-boot-starter-test",
-                    'junit:junit',
+                    "junit:junit",
                     "org.wltea:IKAnalyzer:3.2.8",
-                    'org.codehaus.groovy:groovy-all:${groovy}',
-                    'org.xhtmlrenderer:flying-saucer-pdf-itext5:9.0.8',
+                    "org.codehaus.groovy:groovy-all:${groovy}",
+                    "org.xhtmlrenderer:flying-saucer-pdf-itext5:9.0.8",
             ]
     ]
 }
