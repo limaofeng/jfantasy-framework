@@ -6,7 +6,6 @@ ext {
     springfoxVersion = "2.6.1"
     quartzVersion = '2.2.3'
     groovy = "2.4.5"
-    spock = "1.0-groovy-2.4"
 
     libs = [
             lucene     : [
