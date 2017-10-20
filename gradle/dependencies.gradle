@@ -56,8 +56,12 @@ ext {
                     "cglib:cglib:2.2.2",
                     "net.sourceforge.htmlcleaner:htmlcleaner:2.8",
                     "org.apache.httpcomponents:httpmime:4.3.5",
-                    "eu.medsea.mimeutil:mime-util:2.1.3", // exclude group: "org.slf4j", module: "slf4j-log4j12"
-                    "ognl:ognl:3.1.2", // exclude group: "javassist", module: "javassist"
+                    dependencies.create("eu.medsea.mimeutil:mime-util:2.1.3"){
+                        exclude group: "org.slf4j", module: "slf4j-log4j12"
+                    },
+                    dependencies.create("ognl:ognl:3.1.2"){
+                        exclude group: "javassist", module: "javassist"
+                    },
                     "org.bouncycastle:bcprov-jdk16:1.46",
                     "com.github.stuxuhai:jpinyin:1.1.8"
             ],
