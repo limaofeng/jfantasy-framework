@@ -1,5 +1,9 @@
 package org.jfantasy.framework.jackson.annotation;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Target;
+
+@Target({ElementType.TYPE, ElementType.METHOD, ElementType.ANNOTATION_TYPE})
 public @interface BeanFilter {
     /**
      * 要忽略字段的POJO <br>

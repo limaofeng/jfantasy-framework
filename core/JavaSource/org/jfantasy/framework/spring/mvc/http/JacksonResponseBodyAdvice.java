@@ -6,13 +6,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.jackson.BeanPropertyFilter;
 import org.jfantasy.framework.jackson.JSON;
-import org.jfantasy.framework.jackson.annotation.AllowProperty;
 import org.jfantasy.framework.jackson.annotation.BeanFilter;
-import org.jfantasy.framework.jackson.annotation.IgnoreProperty;
 import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
 import org.jfantasy.framework.spring.mvc.error.NotFoundException;
 import org.jfantasy.framework.util.common.ClassUtil;
-import org.jfantasy.framework.util.common.StringUtil;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
@@ -77,17 +74,8 @@ public class JacksonResponseBodyAdvice implements ResponseBodyAdvice<Object> {
         }
         SimpleFilterProvider provider = new SimpleFilterProvider().setFailOnUnknownId(false);
         BeanPropertyFilter propertyFilter = new BeanPropertyFilter();
-        if (jsonResultFilter.value().length > 0) {
-            for (BeanFilter filter : jsonResultFilter.value()) {
-                propertyFilter.includes(filter.type(), filter.includes()).excludes(filter.type(), filter.excludes());
-            }
-        } else {
-            for (AllowProperty property : jsonResultFilter.allow()) {
-                propertyFilter.includes(property.pojo(), StringUtil.tokenizeToStringArray(property.name()));
-            }
-            for (IgnoreProperty property : jsonResultFilter.ignore()) {
-                propertyFilter.excludes(property.pojo(), StringUtil.tokenizeToStringArray(property.name()));
-            }
+        for (BeanFilter filter : jsonResultFilter.value()) {
+            propertyFilter.includes(filter.type(), filter.includes()).excludes(filter.type(), filter.excludes());
         }
         provider.setDefaultFilter(propertyFilter);
         PROVIDERS.putIfAbsent(key, JSON.permixin(provider));

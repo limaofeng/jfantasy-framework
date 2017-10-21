@@ -59,11 +59,9 @@ import java.util.Set;
 @ComponentScan(basePackages = {"org.jfantasy.*.rest"}, useDefaultFilters = false, includeFilters = {
         @ComponentScan.Filter(type = FilterType.ANNOTATION, value = {RestController.class, Controller.class})
 })
-public class WebMvcConfig extends WebMvcConfigurerAdapter implements EnvironmentAware {
+public class WebMvcConfig extends WebMvcConfigurerAdapter {
 
     private final ApplicationContext applicationContext;
-
-    private RelaxedPropertyResolver jacksonPropertyResolver;
 
     @Autowired(required = false)
     public WebMvcConfig(ApplicationContext applicationContext, ManagementServerProperties properties) {
@@ -106,11 +104,6 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter implements Environment
         MultipartConfigFactory factory = new MultipartConfigFactory();
         factory.setMaxFileSize(10485760);
         return factory.createMultipartConfig();
-    }
-
-    @Override
-    public void setEnvironment(Environment environment) {
-        this.jacksonPropertyResolver = new RelaxedPropertyResolver(environment, "spring.jackson.");
     }
 
     @Bean
