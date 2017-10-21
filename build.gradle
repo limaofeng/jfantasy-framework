@@ -1,7 +1,4 @@
 buildscript {
-    ext {
-        springBootVersion = '1.5.8.RELEASE'
-    }
     repositories {
         maven { url "http://maven.zbsg.com.cn/content/groups/public/" }
         mavenCentral()
