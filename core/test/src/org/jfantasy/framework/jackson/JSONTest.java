@@ -58,6 +58,11 @@ public class JSONTest {
     }
 
     @Test
+    public void serializeWithFilter() throws Exception {
+        LOG.debug(JSON.serialize(category, builder -> builder.excludes("articles")));
+    }
+
+    @Test
     public void filter() throws IOException {
         article = TestDataBuilder.build(Article.class, "JSONTest");
         assert article != null;

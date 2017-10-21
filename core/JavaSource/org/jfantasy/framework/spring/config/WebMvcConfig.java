@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.Unirest;
 import org.hibernate.validator.HibernateValidator;
 import org.jfantasy.framework.jackson.JSON;
-import org.jfantasy.framework.jackson.MixInHolder;
 import org.jfantasy.framework.jackson.UnirestObjectMapper;
 import org.jfantasy.framework.spring.mvc.method.annotation.FormModelMethodArgumentResolver;
 import org.jfantasy.framework.spring.mvc.method.annotation.PagerModelAttributeMethodProcessor;
@@ -67,7 +66,7 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter implements Environment
     private RelaxedPropertyResolver jacksonPropertyResolver;
 
     @Autowired(required = false)
-    public WebMvcConfig(ApplicationContext applicationContext,ManagementServerProperties properties) {
+    public WebMvcConfig(ApplicationContext applicationContext, ManagementServerProperties properties) {
         this.applicationContext = applicationContext;
         properties.getSecurity().setEnabled(false);
     }
@@ -126,8 +125,6 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter implements Environment
             packages.addAll(Arrays.asList(StringUtil.tokenizeToStringArray(_packages)));
         }
         packages.addAll(Arrays.asList(StringUtil.tokenizeToStringArray(this.jacksonPropertyResolver.getProperty("mixin.packages", "org.jfantasy.*.bean"))));
-        MixInHolder.scan(packages.toArray(new String[packages.size()]));
-        objectMapper.setMixIns(MixInHolder.getSourceMixins());
         // 设置到 Unirest 中
         Unirest.setObjectMapper(new UnirestObjectMapper(objectMapper));
         return objectMapper;

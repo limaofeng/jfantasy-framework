@@ -7,12 +7,12 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.PropertyFilter;
-import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.jackson.deserializer.DateDeserializer;
 import org.jfantasy.framework.jackson.serializer.DateSerializer;
+import org.jfantasy.framework.util.common.ClassUtil;
 
 import java.io.IOException;
 import java.util.Date;
@@ -44,12 +44,7 @@ public class JSON {
         if (object == null) {
             return null;
         }
-        return serialize(object, () -> {
-            if (ignoreProperties.length == 0) {
-                return new FilterItem[0];
-            }
-            return new FilterItem[]{FilterItem.ignore(object.getClass(), ignoreProperties)};
-        });
+        return serialize(object, (builder) -> builder.excludes(ignoreProperties));
     }
 
     public static String serialize(Object object, Filter filter) {
@@ -58,16 +53,8 @@ public class JSON {
         }
         try {
             SimpleFilterProvider provider = new SimpleFilterProvider().setFailOnUnknownId(false);
-            for (FilterItem item : filter.items()) {
-                String id = MixInHolder.createMixInSource(item.getClazz()).getId();
-                if (item.getPattern() == FilterItem.Pattern.IGNORE) {
-                    provider.addFilter(id, SimpleBeanPropertyFilter.serializeAllExcept(item.getFields()));
-                } else {
-                    provider.addFilter(id, SimpleBeanPropertyFilter.filterOutAllExcept(item.getFields()));
-
-                }
-            }
-            return objectMapper.writer(provider).writeValueAsString(object);
+            provider.setDefaultFilter(filter.setup(BeanPropertyFilter.newBuilder(ClassUtil.getRealType(object.getClass()))).build());
+            return objectMapper.writer(permixin(provider)).writeValueAsString(object);
         } catch (IOException e) {
             LOG.error(e.getMessage(), e);
         }
@@ -145,7 +132,8 @@ public class JSON {
     }
 
     public interface Filter {
-        FilterItem[] items();
+
+        BeanPropertyFilter.Builder setup(BeanPropertyFilter.Builder builder);
     }
 
 }

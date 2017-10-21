@@ -1,13 +1,11 @@
 package org.jfantasy.framework.spring.mvc.http;
 
 import com.fasterxml.jackson.databind.ser.FilterProvider;
-import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.jackson.BeanPropertyFilter;
 import org.jfantasy.framework.jackson.JSON;
-import org.jfantasy.framework.jackson.MixInHolder;
 import org.jfantasy.framework.jackson.annotation.AllowProperty;
 import org.jfantasy.framework.jackson.annotation.BeanFilter;
 import org.jfantasy.framework.jackson.annotation.IgnoreProperty;
@@ -26,7 +24,6 @@ import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
-import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -84,47 +81,16 @@ public class JacksonResponseBodyAdvice implements ResponseBodyAdvice<Object> {
             for (BeanFilter filter : jsonResultFilter.value()) {
                 propertyFilter.includes(filter.type(), filter.includes()).excludes(filter.type(), filter.excludes());
             }
-            provider.setDefaultFilter(propertyFilter);
-            JSON.permixin(provider);
         } else {
-            //获取 allows 和 ignores
-            AllowProperty[] allowProperties = jsonResultFilter.allow();
-            IgnoreProperty[] ignoreProperties = jsonResultFilter.ignore();
-            //准备数据
-            Map<String, Set<String>> ignorePropertyNames = new HashMap<>();
-            Map<String, Set<String>> allowPropertyNames = new HashMap<>();
-            //将配置信息配置到 mixin
-            for (AllowProperty property : allowProperties) {
-                Class<?> target = property.pojo();
-                String[] names = StringUtil.tokenizeToStringArray(property.name());
-                //添加到FilterProvider
-                String id = MixInHolder.createMixInSource(target).getId();
-                if (!allowPropertyNames.containsKey(id)) {
-                    allowPropertyNames.put(id, new HashSet<>(Arrays.asList(names)));
-                } else {
-                    allowPropertyNames.get(id).addAll(Arrays.asList(names));
-                }
+            for (AllowProperty property : jsonResultFilter.allow()) {
+                propertyFilter.includes(property.pojo(), StringUtil.tokenizeToStringArray(property.name()));
             }
-            //将配置信息配置到 mixin
-            for (IgnoreProperty property : ignoreProperties) {
-                Class<?> target = property.pojo();
-                String[] names = StringUtil.tokenizeToStringArray(property.name());
-                //添加到FilterProvider
-                String id = MixInHolder.createMixInSource(target).getId();
-                if (!ignorePropertyNames.containsKey(id)) {
-                    ignorePropertyNames.put(id, new HashSet<>(Arrays.asList(names)));
-                } else {
-                    ignorePropertyNames.get(id).addAll(Arrays.asList(names));
-                }
+            for (IgnoreProperty property : jsonResultFilter.ignore()) {
+                propertyFilter.excludes(property.pojo(), StringUtil.tokenizeToStringArray(property.name()));
             }
-            //添加到
-            for (Map.Entry<String, Set<String>> entry : allowPropertyNames.entrySet()) {
-                provider.addFilter(entry.getKey(), SimpleBeanPropertyFilter.filterOutAllExcept(entry.getValue()));
-            }
-            ignorePropertyNames.entrySet().stream().filter(entry -> !allowPropertyNames.containsKey(entry.getKey())).forEach(entry -> provider.addFilter(entry.getKey(), SimpleBeanPropertyFilter.serializeAllExcept(entry.getValue())));
-            LOGGER.debug(provider);
         }
-        PROVIDERS.putIfAbsent(key, provider);
+        provider.setDefaultFilter(propertyFilter);
+        PROVIDERS.putIfAbsent(key, JSON.permixin(provider));
         return provider;
     }
 
