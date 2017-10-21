@@ -118,13 +118,6 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter implements Environment
         ObjectMapper objectMapper = applicationContext.getBean("jacksonObjectMapper", ObjectMapper.class);
         // 将 objectMapper 设置到 JSON 中
         JSON.initialize(objectMapper);
-        // 读取 spring.jackson.mixin.packages
-        PropertiesHelper helper = PropertiesHelper.load("application.properties");
-        Set<String> packages = new HashSet<>();
-        for (String _packages : helper.getMergeProperty("spring.jackson.mixin.packages")) {
-            packages.addAll(Arrays.asList(StringUtil.tokenizeToStringArray(_packages)));
-        }
-        packages.addAll(Arrays.asList(StringUtil.tokenizeToStringArray(this.jacksonPropertyResolver.getProperty("mixin.packages", "org.jfantasy.*.bean"))));
         // 设置到 Unirest 中
         Unirest.setObjectMapper(new UnirestObjectMapper(objectMapper));
         return objectMapper;

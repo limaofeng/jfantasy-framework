@@ -6,11 +6,6 @@
       "description": "Description for spring.mybatis.plugins."
     },
     {
-      "name": "spring.jackson.mixin.packages",
-      "type": "java.lang.String",
-      "description": "Description for spring.jackson.mixin.packages."
-    },
-    {
       "name": "spring.datasource.druid.filters",
       "type": "java.lang.String",
       "description": "Description for spring.datasource.druid.filters."
