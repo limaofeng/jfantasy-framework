@@ -11,6 +11,7 @@ import org.jfantasy.framework.dao.mybatis.keygen.bean.Sequence;
 import org.jfantasy.framework.dao.mybatis.keygen.util.DataBaseKeyGenerator;
 import org.jfantasy.framework.dao.mybatis.sqlmapper.SqlMapper;
 import org.jfantasy.framework.util.common.ClassUtil;
+import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.PropertiesHelper;
 import org.mybatis.spring.annotation.MapperScan;
 import org.mybatis.spring.boot.autoconfigure.ConfigurationCustomizer;
@@ -26,14 +27,14 @@ import java.util.Properties;
 
 @Configuration
 @EntityScan("org.jfantasy.framework.dao.mybatis.keygen.bean")
-@MapperScan(markerInterface = SqlMapper.class,basePackages = "org.jfantasy.framework.dao.mybatis.keygen")
+@MapperScan(markerInterface = SqlMapper.class, basePackages = "org.jfantasy.framework.dao.mybatis.keygen")
 @EnableConfigurationProperties(MybatisProperties.class)
 public class MyBatisConfig {
 
     @Autowired
-    public MyBatisConfig(MybatisProperties properties){
+    public MyBatisConfig(MybatisProperties properties) {
         PropertiesHelper helper = PropertiesHelper.load("application.properties");
-        properties.setMapperLocations(helper.getMergeProperty("mybatis.mapper-locations"));
+        properties.setMapperLocations(ObjectUtil.merge(properties.getMapperLocations(), helper.getMergeProperty("mybatis.mapper-locations")));
     }
 
     @Bean

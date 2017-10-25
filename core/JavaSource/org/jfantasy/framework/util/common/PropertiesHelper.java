@@ -224,7 +224,7 @@ public class PropertiesHelper {
     }
 
     public String[] getMergeProperty(String key) {
-        List<String> values = new ArrayList<String>();
+        List<String> values = new ArrayList<>();
         for (Properties eProps : propertiesList) {
             for (Object pkey : eProps.keySet()) {
                 if (key.equals(pkey)) {

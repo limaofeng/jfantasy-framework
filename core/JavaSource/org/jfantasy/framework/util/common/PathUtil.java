@@ -32,7 +32,7 @@ public class PathUtil {
     static {
         try {
             // TODO 此处与DateUtil获取资源文件的地方需要修改
-            String webAppRootKey = PropertiesHelper.load("props/application.properties").getProperty("webAppRootKey", "webapp.root");
+            String webAppRootKey = PropertiesHelper.load("application.properties").getProperty("webAppRootKey", "webapp.root");
             PathUtil.WEBROOT_PATH = System.getProperty(webAppRootKey);
             if (StringUtil.isNull(PathUtil.WEBROOT_PATH)) {
                 LOGGER.debug("根据webAppRootKey[" + webAppRootKey + "]获取WebRoot路径失败");

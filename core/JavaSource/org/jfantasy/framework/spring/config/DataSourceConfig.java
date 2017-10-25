@@ -19,6 +19,7 @@ public class DataSourceConfig {
 
     @Autowired
     public DataSourceConfig(DataSourceProperties properties) {
+
         PropertiesHelper helper = PropertiesHelper.load("application.properties");
         if (properties.getType() == null) {
             properties.setType(ClassUtil.forName(helper.getProperty("spring.datasource.type")));

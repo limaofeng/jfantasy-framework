@@ -27,16 +27,7 @@ public class DateUtil extends DateUtils {
     /**
      * 日期驱动接口 针对DateUtil.now()方法获取时间
      */
-    private static DateDriver dateDriver = null;
-
-    static {
-        /**
-         * 加载时获取日期驱动
-         */
-        String dateDriverClass = SimpleDateDriver.class.getName();
-        dateDriverClass = PropertiesHelper.load("props/application.properties").getProperty("util.DateDriver", dateDriverClass);
-        dateDriver = ClassUtil.newInstance(dateDriverClass);
-    }
+    private static DateDriver dateDriver = new SimpleDateDriver();
 
     public static String formatRfc822Date(Date expirationTime) {
         SimpleDateFormat rfc822DateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.US);
@@ -591,7 +582,7 @@ public class DateUtil extends DateUtils {
      * @version 1.0
      * @since 2013-3-27 上午10:07:48
      */
-    public static interface DateDriver {
+    public interface DateDriver {
         Date getTime();
     }
 
