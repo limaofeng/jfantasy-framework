@@ -6,7 +6,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
-import com.fasterxml.jackson.databind.ser.PropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -54,7 +53,7 @@ public class JSON {
         try {
             SimpleFilterProvider provider = new SimpleFilterProvider().setFailOnUnknownId(false);
             provider.setDefaultFilter(filter.setup(BeanPropertyFilter.newBuilder(ClassUtil.getRealType(object.getClass()))).build());
-            return objectMapper.writer(permixin(provider)).writeValueAsString(object);
+            return objectMapper.writer(provider).writeValueAsString(object);
         } catch (IOException e) {
             LOG.error(e.getMessage(), e);
         }
@@ -66,27 +65,11 @@ public class JSON {
             return null;
         }
         try {
-            return objectMapper.writer(permixin(provider)).writeValueAsString(object);
+            return objectMapper.writer(provider).writeValueAsString(object);
         } catch (IOException e) {
             LOG.error(e.getMessage(), e);
         }
         return "";
-    }
-
-    public static FilterProvider permixin(FilterProvider provider) {
-        if (!(provider instanceof SimpleFilterProvider)) {
-            return provider;
-        }
-        PropertyFilter filter = ((SimpleFilterProvider) provider).getDefaultFilter();
-        if (!(filter instanceof BeanPropertyFilter)) {
-            return provider;
-        }
-        for (Class type : ((BeanPropertyFilter) filter).getTypes()) {
-            if (objectMapper.findMixInClassFor(type) == null) {
-                objectMapper.addMixIn(type, BeanPropertyFilter.class);
-            }
-        }
-        return provider;
     }
 
     public static JsonNode deserialize(String json) {
