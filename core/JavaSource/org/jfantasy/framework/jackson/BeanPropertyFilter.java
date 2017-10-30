@@ -76,16 +76,25 @@ public class BeanPropertyFilter extends SimpleBeanPropertyFilter {
         }
     }
 
+    public Builder mixin(Class<?> type) {
+        return new Builder(this, JSON.mixin(type));
+    }
+
     public static Builder newBuilder(Class type) {
         return new Builder(type);
     }
 
     public static class Builder {
-        private BeanPropertyFilter filter = new BeanPropertyFilter();
+        private BeanPropertyFilter filter;
         private Class<?> current;
 
-        public Builder(Class type) {
+        public Builder(BeanPropertyFilter filter, Class type) {
+            this.filter = filter;
             this.current = type;
+        }
+
+        public Builder(Class type) {
+            this(new BeanPropertyFilter(), type);
         }
 
         public BeanPropertyFilter build() {

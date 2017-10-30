@@ -131,6 +131,13 @@ public class JSON {
         }
     }
 
+    public static Class<?> mixin(Class<?> type) {
+        if (objectMapper.findMixInClassFor(type) == null) {
+            objectMapper.addMixIn(type, BeanPropertyFilter.class);
+        }
+        return type;
+    }
+
     public interface Filter {
 
         BeanPropertyFilter.Builder setup(BeanPropertyFilter.Builder builder);
