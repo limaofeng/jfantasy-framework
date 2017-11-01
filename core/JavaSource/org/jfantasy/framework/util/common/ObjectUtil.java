@@ -538,6 +538,9 @@ public final class ObjectUtil {
      * @return T[]
      */
     public static <T> T[] merge(T[] dest, T... items) {
+        if (dest == null) {
+            return items;
+        }
         if (items.length == 0) {
             return dest;
         }
