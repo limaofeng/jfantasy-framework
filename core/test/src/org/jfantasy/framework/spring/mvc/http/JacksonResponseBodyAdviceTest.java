@@ -23,7 +23,7 @@ public class JacksonResponseBodyAdviceTest {
 
     @Test
     @JsonResultFilter(value = {
-            @BeanFilter(type = JSONTest.Article.class, includes = {"title", "category"}),
+            @BeanFilter(type = JSONTest.Article.class, excludes = {"title", "category"}),
             @BeanFilter(type = JSONTest.ArticleCategory.class, excludes = "articles")
     })
     public void getFilterProvider() throws Exception {
@@ -33,15 +33,6 @@ public class JacksonResponseBodyAdviceTest {
         JsonResultFilter filter = ClassUtil.getMethodAnno(method,JsonResultFilter.class);
         FilterProvider provider = advice.getFilterProvider(filter);
         LOG.debug(JSON.serialize(article, provider));
-
-        SimpleFilterProvider sprovider = new SimpleFilterProvider();
-        BeanPropertyFilter beanPropertyFilter = BeanPropertyFilter.newBuilder(JSONTest.ArticleCategory.class)
-                .excludes("articles")
-                .type(JSONTest.Article.class).includes("category").build();
-
-        sprovider.setDefaultFilter(beanPropertyFilter);
-
-        LOG.debug(JSON.serialize(article,sprovider));
     }
 
 }

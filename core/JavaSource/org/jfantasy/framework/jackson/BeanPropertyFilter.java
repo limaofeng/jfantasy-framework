@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-@JsonFilter("BeanPropertyFilter")
 public class BeanPropertyFilter extends SimpleBeanPropertyFilter {
 
     private Set<Class<?>> types = new HashSet<>();

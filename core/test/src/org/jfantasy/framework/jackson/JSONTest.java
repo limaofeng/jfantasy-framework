@@ -50,11 +50,11 @@ public class JSONTest {
     public void serialize() throws Exception {
 //        ThreadJacksonMixInHolder holder = ThreadJacksonMixInHolder.getMixInHolder();
 //        holder.addIgnorePropertyNames(Article.class, "articles");
-        LOG.debug(JSON.serialize(category,"articles"));
+        LOG.debug(JSON.serialize(category,builder -> builder.excludes("articles")));
 
 //        holder = ThreadJacksonMixInHolder.getMixInHolder();
 //        holder.addIgnorePropertyNames(ArticleCategory.class, "articles");
-        LOG.debug(JSON.serialize(article,"category"));
+        LOG.debug(JSON.serialize(article,builder -> builder.excludes("category","content")));
     }
 
     @Test

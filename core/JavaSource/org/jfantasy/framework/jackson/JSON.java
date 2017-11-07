@@ -116,7 +116,8 @@ public class JSON {
 
     public static Class<?> mixin(Class<?> type) {
         if (objectMapper.findMixInClassFor(type) == null) {
-            objectMapper.addMixIn(type, BeanPropertyFilter.class);
+            MixInHolder.MixInSource mixInSource = MixInHolder.createMixInSource(type);
+            objectMapper.addMixIn(mixInSource.getType(), mixInSource.getMixIn());
         }
         return type;
     }

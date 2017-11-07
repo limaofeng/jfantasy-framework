@@ -102,8 +102,10 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
     }
 
     private ObjectMapper objectMapper() {
-        Unirest.setObjectMapper(new UnirestObjectMapper(JSON.getObjectMapper()));
-        return JSON.getObjectMapper();
+        ObjectMapper objectMapper = applicationContext.getBean("jacksonObjectMapper", ObjectMapper.class);
+        JSON.initialize(objectMapper);
+        Unirest.setObjectMapper(new UnirestObjectMapper(objectMapper));
+        return objectMapper;
     }
 
     @Override
