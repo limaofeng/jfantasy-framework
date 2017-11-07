@@ -101,14 +101,9 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
         return factory.createMultipartConfig();
     }
 
-    @Bean
-    public ObjectMapper objectMapper() {
-        ObjectMapper objectMapper = applicationContext.getBean("jacksonObjectMapper", ObjectMapper.class);
-        // 将 objectMapper 设置到 JSON 中
-        JSON.initialize(objectMapper);
-        // 设置到 Unirest 中
-        Unirest.setObjectMapper(new UnirestObjectMapper(objectMapper));
-        return objectMapper;
+    private ObjectMapper objectMapper() {
+        Unirest.setObjectMapper(new UnirestObjectMapper(JSON.getObjectMapper()));
+        return JSON.getObjectMapper();
     }
 
     @Override
