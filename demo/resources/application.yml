@@ -1,0 +1,42 @@
+
+management:
+  security:
+    enabled: false
+
+server:
+  port: 8080
+
+# datasource config
+spring:
+  datasource:
+    name: datasource
+    url: jdbc:mysql://127.0.0.1:3306/cms?autoReconnect=true&useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull
+    username: root
+    password:
+  redis:
+    host: 127.0.0.1
+    password:
+    port: 6379
+  jpa:
+    hibernate:
+      ddl-auto: none
+      use-new-id-generator-mappings: true
+      naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy
+    properties:
+      hibernate:
+        current_session_context_class: org.springframework.orm.hibernate5.SpringSessionContext
+        cache:
+          use_query_cache: false
+          use_second_level_cache: false
+          region:
+            factory_class: org.hibernate.cache.ehcache.EhCacheRegionFactory
+        dialect: org.hibernate.dialect.MySQL5Dialect
+        show_sql: true
+        #ejb:
+        #  interceptor: org.jfantasy.framework.dao.hibernate.interceptors.BusEntityInterceptor
+        #  identifier_generator_strategy_provider: org.jfantasy.framework.dao.hibernate.spi.CustomIdentifierGeneratorStrategyProvider
+    generate-ddl: false
+
+logging:
+  path: ~/logs
+  config: classpath:logback.xml

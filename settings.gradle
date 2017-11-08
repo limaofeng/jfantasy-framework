@@ -5,14 +5,11 @@ include ':jfantasy-aliyun'
 include ':jfantasy-rpc-common'
 include ':jfantasy-rpc-server'
 include ':jfantasy-rpc-client'
-
-//include ':crm'
-
-//include ':demo'
+include ':jfantasy-demo'
 
 project(':jfantasy-core').projectDir = "$rootDir/core" as File
 project(':jfantasy-cache').projectDir = "$rootDir/cache" as File
-//project(':demo').projectDir = "$rootDir/demo" as File
+project(':jfantasy-demo').projectDir = "$rootDir/demo" as File
 
 // sdk list
 project(':jfantasy-aliyun').projectDir = "$rootDir/aliyun" as File

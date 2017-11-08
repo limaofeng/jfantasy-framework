@@ -416,6 +416,10 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
         return null;
     }
 
+    public static Method[] getDeclaredMethods(Class<?> clazz) {
+        return ClassUtil.getRealClass(clazz).getDeclaredMethods();
+    }
+
     public static Method getDeclaredMethod(Class<?> clazz, String methodName) {
         MethodProxy proxy = getMethodProxy(clazz, methodName);
         return proxy != null ? proxy.getMethod() : null;

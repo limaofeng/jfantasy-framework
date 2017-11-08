@@ -33,6 +33,7 @@ public class ClassPathScanner implements ResourceLoaderAware {
 
     private String resourcePattern = DEFAULT_RESOURCE_PATTERN;
 
+    @Override
     public void setResourceLoader(ResourceLoader resourceLoader) {
         this.resourcePatternResolver = ResourcePatternUtils.getResourcePatternResolver(resourceLoader);
         this.metadataReaderFactory = new CachingMetadataReaderFactory(resourceLoader);
@@ -75,7 +76,7 @@ public class ClassPathScanner implements ResourceLoaderAware {
         LOG.debug("Scanning " + anno + " in " + basepackage);
         StopWatch watch = new StopWatch();
         watch.start();
-        Set<Class> candidates = new LinkedHashSet<Class>();
+        Set<Class> candidates = new LinkedHashSet<>();
         try {
             String packageSearchPath = "classpath*:" + ClassUtil.convertClassNameToResourcePath(basepackage) + "/" + this.resourcePattern;
             Resource[] resources = this.resourcePatternResolver.getResources(packageSearchPath);
