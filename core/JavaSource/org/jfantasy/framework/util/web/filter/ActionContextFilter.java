@@ -37,7 +37,10 @@ public class ActionContextFilter extends OncePerRequestFilter {
             }
         }
         ActionContext.getContext(request, response);
-        chain.doFilter(request, response);
+        try {
+            chain.doFilter(request, response);
+        } finally {
+            ActionContext.clear();
+        }
     }
-
 }

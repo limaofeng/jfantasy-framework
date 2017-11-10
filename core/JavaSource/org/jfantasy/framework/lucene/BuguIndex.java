@@ -21,6 +21,7 @@ import org.jfantasy.framework.spring.mvc.error.NotFoundException;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.file.FileUtil;
+import org.quartz.Scheduler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
@@ -187,9 +188,6 @@ public class BuguIndex implements ApplicationListener<ContextRefreshedEvent> {
      * 关闭方法
      */
     public void close() {
-        if (this.clusterConfig != null) {
-            this.clusterConfig.invalidate();
-        }
         Map<String, IndexWriter> map = IndexWriterCache.getInstance().getAll();
         for (IndexWriter writer : map.values()) {
             if (writer != null) {

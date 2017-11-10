@@ -54,6 +54,7 @@ public class AliasToBeanResultTransformer implements ResultTransformer {
         return TypeFactory.basic(type.getName());
     }
 
+    @Override
     public Object transformTuple(Object[] tuple, String[] aliases) {
         Object result = ClassUtil.newInstance(this.resultClass);
         for(int i=0;i<aliases.length;i++){
@@ -76,6 +77,7 @@ public class AliasToBeanResultTransformer implements ResultTransformer {
         return buff.toString();
     }
 
+    @Override
     @SuppressWarnings("rawtypes")
     public List transformList(List collection) {
         return collection;

@@ -14,7 +14,7 @@ import java.util.Properties;
 
 @Configuration
 @EnableScheduling
-@AutoConfigureAfter(JCoreAutoConfiguration.class)
+@AutoConfigureAfter(CoreAutoConfiguration.class)
 public class QuartzAutoConfiguration {
 
     @Resource(name = "dataSource")

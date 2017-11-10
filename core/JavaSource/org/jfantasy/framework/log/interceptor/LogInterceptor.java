@@ -6,7 +6,6 @@ import org.aopalliance.intercept.MethodInvocation;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 
-@SuppressWarnings("serial")
 public class LogInterceptor extends LogAspectSupport implements MethodInterceptor, Serializable {
 
     private static class ThrowableWrapper extends RuntimeException {
@@ -17,6 +16,7 @@ public class LogInterceptor extends LogAspectSupport implements MethodIntercepto
         }
     }
 
+    @Override
     public Object invoke(final MethodInvocation invocation) throws Throwable {
         Method method = invocation.getMethod();
         Invoker aopAllianceInvoker = () -> {

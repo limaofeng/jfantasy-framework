@@ -6,7 +6,7 @@ import org.jfantasy.framework.util.common.ObjectUtil;
 
 public class MultiDataSourceManager {
 
-    private static ThreadLocal<MultiDataSourceManager> threadLocal = new ThreadLocal<MultiDataSourceManager>();
+    private static ThreadLocal<MultiDataSourceManager> threadLocal = new ThreadLocal<>();
 
     private Stack<DataSource> stack = new Stack<DataSource>();
 

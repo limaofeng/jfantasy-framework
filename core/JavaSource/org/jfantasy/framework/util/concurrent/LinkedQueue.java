@@ -102,14 +102,17 @@ public class LinkedQueue<E> extends AbstractQueue<E> implements BlockingQueue<E>
 
     }
 
+    @Override
     public int size() {
         return count.get();
     }
 
+    @Override
     public int remainingCapacity() {
         return capacity - count.get();
     }
 
+    @Override
     public void put(E o) throws InterruptedException {
         if (o == null) {
             throw new NullPointerException();
@@ -138,6 +141,7 @@ public class LinkedQueue<E> extends AbstractQueue<E> implements BlockingQueue<E>
         }
     }
 
+    @Override
     public boolean offer(E o, long timeout, TimeUnit unit) throws InterruptedException {
 
         if (o == null) {
@@ -177,6 +181,7 @@ public class LinkedQueue<E> extends AbstractQueue<E> implements BlockingQueue<E>
         return true;
     }
 
+    @Override
     public boolean offer(E o) {
         if (o == null) {
             throw new NullPointerException();
@@ -205,6 +210,7 @@ public class LinkedQueue<E> extends AbstractQueue<E> implements BlockingQueue<E>
         return c >= 0;
     }
 
+    @Override
     public E take() throws InterruptedException {
         E x;
         int c = -1;
@@ -235,6 +241,7 @@ public class LinkedQueue<E> extends AbstractQueue<E> implements BlockingQueue<E>
         return x;
     }
 
+    @Override
     public E poll(long timeout, TimeUnit unit) throws InterruptedException {
         E x = null;
         int c = -1;
@@ -273,6 +280,7 @@ public class LinkedQueue<E> extends AbstractQueue<E> implements BlockingQueue<E>
         return x;
     }
 
+    @Override
     public E poll() {
         final AtomicInteger count = this.count;
         if (count.get() == 0) {
@@ -299,6 +307,7 @@ public class LinkedQueue<E> extends AbstractQueue<E> implements BlockingQueue<E>
         return x;
     }
 
+    @Override
     public E peek() {
         if (count.get() == 0) {
             return null;
@@ -317,6 +326,7 @@ public class LinkedQueue<E> extends AbstractQueue<E> implements BlockingQueue<E>
         }
     }
 
+    @Override
     public boolean remove(Object o) {
         if (o == null) {
             return false;
@@ -350,6 +360,7 @@ public class LinkedQueue<E> extends AbstractQueue<E> implements BlockingQueue<E>
         return removed;
     }
 
+    @Override
     @SuppressWarnings("NullableProblems")
     public Object[] toArray() {
         fullyLock();
@@ -366,6 +377,7 @@ public class LinkedQueue<E> extends AbstractQueue<E> implements BlockingQueue<E>
         }
     }
 
+    @Override
     @SuppressWarnings("NullableProblems")
     public <T> T[] toArray(T[] a) {
         fullyLock();
@@ -384,6 +396,7 @@ public class LinkedQueue<E> extends AbstractQueue<E> implements BlockingQueue<E>
         }
     }
 
+    @Override
     public String toString() {
         fullyLock();
         try {
@@ -393,6 +406,7 @@ public class LinkedQueue<E> extends AbstractQueue<E> implements BlockingQueue<E>
         }
     }
 
+    @Override
     public void clear() {
         fullyLock();
         try {
@@ -407,6 +421,7 @@ public class LinkedQueue<E> extends AbstractQueue<E> implements BlockingQueue<E>
         }
     }
 
+    @Override
     public int drainTo(Collection<? super E> c) {
         if (c == null) {
             throw new NullPointerException();
@@ -436,6 +451,7 @@ public class LinkedQueue<E> extends AbstractQueue<E> implements BlockingQueue<E>
         return n;
     }
 
+    @Override
     public int drainTo(Collection<? super E> c, int maxElements) {
         if (c == null) {
             throw new NullPointerException();
@@ -469,6 +485,7 @@ public class LinkedQueue<E> extends AbstractQueue<E> implements BlockingQueue<E>
         }
     }
 
+    @Override
     @SuppressWarnings("NullableProblems")
     public Iterator<E> iterator() {
         return new Itr();
@@ -495,10 +512,12 @@ public class LinkedQueue<E> extends AbstractQueue<E> implements BlockingQueue<E>
             }
         }
 
+        @Override
         public boolean hasNext() {
             return current != null;
         }
 
+        @Override
         public E next() {
             final ReentrantLock putLock = LinkedQueue.this.putLock;
             final ReentrantLock takeLock = LinkedQueue.this.takeLock;
@@ -521,6 +540,7 @@ public class LinkedQueue<E> extends AbstractQueue<E> implements BlockingQueue<E>
             }
         }
 
+        @Override
         public void remove() {
             if (lastRet == null) {
                 throw new IllegalStateException();
@@ -720,99 +740,122 @@ public class LinkedQueue<E> extends AbstractQueue<E> implements BlockingQueue<E>
 
     private class Li implements List<E> {
 
+        @Override
         public boolean add(E o) {
             return LinkedQueue.this.add(o);
         }
 
+        @Override
         public void add(int index, E element) {
             LinkedQueue.this.add(index, element);
         }
 
+        @Override
         public boolean addAll(Collection<? extends E> c) {
             return LinkedQueue.this.addAll(c);
         }
 
+        @Override
         public boolean addAll(int index, Collection<? extends E> c) {
             throw new IgnoreException("null method");
         }
 
+        @Override
         public void clear() {
             LinkedQueue.this.clear();
         }
 
+        @Override
         public boolean contains(Object o) {
             return LinkedQueue.this.contains(o);
         }
 
+        @Override
         public boolean containsAll(Collection<?> c) {
             return LinkedQueue.this.containsAll(c);
         }
 
+        @Override
         public E get(int index) {
             return LinkedQueue.this.get(index);
         }
 
+        @Override
         public int indexOf(Object o) {
             return LinkedQueue.this.indexOf((E) o);
         }
 
+        @Override
         public boolean isEmpty() {
             return LinkedQueue.this.isEmpty();
         }
 
+        @Override
         @SuppressWarnings("NullableProblems")
         public Iterator<E> iterator() {
             return LinkedQueue.this.iterator();
         }
 
+        @Override
         public int lastIndexOf(Object o) {
             throw new IgnoreException("null method");
         }
 
+        @Override
         @SuppressWarnings("NullableProblems")
         public ListIterator<E> listIterator() {
             throw new IgnoreException("null method");
         }
 
+        @Override
         @SuppressWarnings("NullableProblems")
         public ListIterator<E> listIterator(int index) {
             throw new IgnoreException("null method");
         }
 
+        @Override
         public boolean remove(Object o) {
             return LinkedQueue.this.remove(o);
         }
 
+        @Override
         public E remove(int index) {
             return LinkedQueue.this.remove(index);
         }
 
+        @Override
         public boolean removeAll(Collection<?> c) {
             return LinkedQueue.this.removeAll(c);
         }
 
+        @Override
         public boolean retainAll(Collection<?> c) {
             return LinkedQueue.this.retainAll(c);
         }
 
+        @Override
         public E set(int index, E element) {
             return LinkedQueue.this.set(index, element);
         }
 
+        @Override
         public int size() {
             return LinkedQueue.this.size();
         }
 
+        @Override
         @SuppressWarnings("NullableProblems")
         public List<E> subList(int fromIndex, int toIndex) {
             throw new IgnoreException("null method");
         }
 
+        @Override
         @SuppressWarnings("NullableProblems")
         public Object[] toArray() {
             return LinkedQueue.this.toArray();
         }
 
+        @Override
         @SuppressWarnings({"NullableProblems", "SuspiciousToArrayCall"})
         public <T> T[] toArray(T[] a) {
             return LinkedQueue.this.toArray(a);

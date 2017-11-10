@@ -10,6 +10,7 @@ public class JobBeanJobFactory extends SpringBeanJobFactory implements Applicati
 
     private ApplicationContext applicationContext;
 
+    @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
     }

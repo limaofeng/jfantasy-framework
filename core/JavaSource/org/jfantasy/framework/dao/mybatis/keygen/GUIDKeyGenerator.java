@@ -84,6 +84,7 @@ public class GUIDKeyGenerator implements KeyGenerator {
         return pretty(DigestUtils.md5DigestAsHex(sbValueBeforeMD5.toString().getBytes()));
     }
 
+    @Override
     public void processBefore(Executor paramExecutor, MappedStatement paramMappedStatement, Statement paramStatement, Object paramObject) {
         String[] keyProperties = paramMappedStatement.getKeyProperties();
         try {
@@ -93,6 +94,7 @@ public class GUIDKeyGenerator implements KeyGenerator {
         }
     }
 
+    @Override
     public void processAfter(Executor paramExecutor, MappedStatement paramMappedStatement, Statement paramStatement, Object paramObject) {
     }
 }

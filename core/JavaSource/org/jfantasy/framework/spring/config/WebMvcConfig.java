@@ -3,17 +3,14 @@ package org.jfantasy.framework.spring.config;
 
 import com.alibaba.druid.support.http.StatViewServlet;
 import com.alibaba.druid.support.http.WebStatFilter;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.Unirest;
 import org.hibernate.validator.HibernateValidator;
 import org.jfantasy.framework.jackson.JSON;
-import org.jfantasy.framework.jackson.MixInHolder;
 import org.jfantasy.framework.jackson.UnirestObjectMapper;
 import org.jfantasy.framework.jackson.annotation.BeanFilter;
 import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
 import org.jfantasy.framework.spring.ClassPathScanner;
-import org.jfantasy.framework.spring.mvc.method.annotation.FormModelMethodArgumentResolver;
 import org.jfantasy.framework.spring.mvc.method.annotation.PagerModelAttributeMethodProcessor;
 import org.jfantasy.framework.spring.mvc.method.annotation.PropertyFilterModelAttributeMethodProcessor;
 import org.jfantasy.framework.util.common.ClassUtil;
@@ -49,7 +46,6 @@ import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.MultipartConfigElement;
-import javax.validation.constraints.Min;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.util.HashSet;

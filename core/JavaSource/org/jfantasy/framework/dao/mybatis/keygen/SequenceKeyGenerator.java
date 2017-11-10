@@ -25,6 +25,7 @@ public class SequenceKeyGenerator implements KeyGenerator {
 
     private DataBaseKeyGenerator dataBaseKeyGenerator;
 
+    @Override
     public void processBefore(Executor paramExecutor, MappedStatement paramMappedStatement, Statement paramStatement, Object paramObject) {
         String[] keyProperties = paramMappedStatement.getKeyProperties();
         if (keyProperties.length == 1) {
@@ -43,6 +44,7 @@ public class SequenceKeyGenerator implements KeyGenerator {
         return this.dataBaseKeyGenerator;
     }
 
+    @Override
     public void processAfter(Executor paramExecutor, MappedStatement paramMappedStatement, Statement paramStatement, Object paramObject) {
     }
 

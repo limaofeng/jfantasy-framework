@@ -237,6 +237,7 @@ public class LimitInterceptor implements Interceptor {
         return builder.build();
     }
 
+    @Override
     public Object plugin(Object target) {
         return Plugin.wrap(target, this);
     }
@@ -245,6 +246,7 @@ public class LimitInterceptor implements Interceptor {
         this.dialect = dialect;
     }
 
+    @Override
     public void setProperties(Properties properties) {
         String dialectClass = new PropertiesHelper(properties).getRequiredString("dialectClass");
         Class<? extends Dialect> clazz = ClassUtil.forName(dialectClass);

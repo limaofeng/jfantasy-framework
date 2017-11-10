@@ -17,10 +17,10 @@ import org.apache.commons.logging.LogFactory;
 public class DateConverter extends DefaultTypeConverter {
     private static final Log LOGGER = LogFactory.getLog(DateConverter.class);
 
-    @SuppressWarnings("rawtypes")
+    @Override
     public Object convertValue(Map context, Object target, Member member, String propertyName, Object value, Class toType) {
         if (Date.class.isAssignableFrom(toType)) {
-            String dateFormatString = null;
+            String dateFormatString;
             try {
                 DateFormat dateFormat = (DateFormat) ClassUtil.getParamAnno((Method) member);
                 dateFormatString = dateFormat.pattern();

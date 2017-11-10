@@ -94,7 +94,6 @@ public class JSON {
         return null;
     }
 
-    @SuppressWarnings("unchecked")
     public static <T> T[] deserialize(String json, T[] classed) {
         try {
             return (T[]) objectMapper.readValue(json, classed.getClass());
@@ -104,7 +103,6 @@ public class JSON {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public static <T> T deserialize(String json, TypeReference<T> typeReference) {
         try {
             return (T) objectMapper.readValue(json, typeReference);
@@ -116,8 +114,7 @@ public class JSON {
 
     public static Class<?> mixin(Class<?> type) {
         if (objectMapper.findMixInClassFor(type) == null) {
-            MixInHolder.MixInSource mixInSource = MixInHolder.createMixInSource(type);
-            objectMapper.addMixIn(mixInSource.getType(), mixInSource.getMixIn());
+            objectMapper.addMixIn(type, BeanPropertyFilter.class);
         }
         return type;
     }

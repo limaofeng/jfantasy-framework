@@ -11,7 +11,8 @@ public class HandleMessageTask implements Runnable {
 		this.message = message;
 	}
 
-	public void run() {
+	@Override
+    public void run() {
 		switch (this.message.getType()) {
 		case 1:
 			handleInsert();

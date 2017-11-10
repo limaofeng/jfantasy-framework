@@ -8,11 +8,6 @@ public class RpcResponse {
 
     private Throwable error;
 
-    //不采用java体系的话，依赖status及msg
-//    private int status;
-
-//    private String msg;
-
     private Object result;
 
     public RpcResponse() {

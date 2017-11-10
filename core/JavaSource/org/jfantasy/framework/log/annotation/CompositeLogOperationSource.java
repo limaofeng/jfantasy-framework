@@ -21,6 +21,7 @@ public class CompositeLogOperationSource implements LogOperationSource, Serializ
         return this.logOperationSources;
     }
 
+    @Override
     public Collection<LogOperation> getOperations(Method method, Class<?> targetClass) {
         Collection<LogOperation> ops = null;
         for (LogOperationSource source : this.logOperationSources) {

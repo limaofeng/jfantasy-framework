@@ -54,6 +54,7 @@ public class LogAspectSupport implements InitializingBean {
         return this.keyGenerator;
     }
 
+    @Override
     public void afterPropertiesSet() {
 
         this.initialized = true;

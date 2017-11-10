@@ -17,7 +17,8 @@ public class DateSerializer extends JsonSerializer<Date> {
 		this.dateFormat = dateFormat;
 	}
 
-	public void serialize(Date value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+	@Override
+    public void serialize(Date value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
 		jgen.writeString(StringUtil.isNotBlank(dateFormat) ? DateUtil.format(value, dateFormat) : provider.getConfig().getDateFormat().format(value));
 	}
 

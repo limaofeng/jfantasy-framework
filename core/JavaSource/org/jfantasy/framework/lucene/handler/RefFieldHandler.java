@@ -14,6 +14,7 @@ public class RefFieldHandler extends AbstractFieldHandler {
         super(obj, property, prefix);
     }
 
+    @Override
     public void handle(Document doc) {
         Object entity = this.property.getValue(this.obj);
         if (entity == null) {

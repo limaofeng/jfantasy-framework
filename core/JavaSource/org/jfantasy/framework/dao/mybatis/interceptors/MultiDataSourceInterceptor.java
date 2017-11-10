@@ -25,6 +25,7 @@ import java.util.Properties;
 public class MultiDataSourceInterceptor implements Interceptor {
     static int MAPPED_STATEMENT_INDEX = 0;
 
+    @Override
     public Object intercept(Invocation invocation) throws Throwable {
         MappedStatement ms = (MappedStatement) invocation.getArgs()[MAPPED_STATEMENT_INDEX];
         DataSource dataSource = ClassUtil.getClassGenricType(ClassUtil.forName(RegexpUtil.replace(ms.getId(), ".[_a-zA-Z0-9]+$", "")), DataSource.class);
@@ -40,10 +41,12 @@ public class MultiDataSourceInterceptor implements Interceptor {
         }
     }
 
+    @Override
     public Object plugin(Object target) {
         return Plugin.wrap(target, this);
     }
 
+    @Override
     public void setProperties(Properties properties) {
     }
 }

@@ -16,6 +16,7 @@ public class IndexInsertTask implements Runnable {
         this.entity = entity;
     }
 
+    @Override
     public void run() {
         Class<?> clazz = this.entity.getClass();
         String name = MapperUtil.getEntityName(clazz);

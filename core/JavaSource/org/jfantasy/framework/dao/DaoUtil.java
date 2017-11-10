@@ -16,7 +16,7 @@ public class DaoUtil {
     }
 
     public static Connection getConnection(String dataSourceName) throws SQLException {
-        DataSource dataSource = (DataSource) SpringContextUtil.getBean(dataSourceName);
+        DataSource dataSource = SpringContextUtil.getBean(dataSourceName);
         if (ObjectUtil.isNotNull(dataSource)) {
             return dataSource.getConnection();
         }
@@ -30,20 +30,19 @@ public class DaoUtil {
      * @param pager
      * @param param
      * @param callBacks
-     * @return
-     * @功能描述
+     * @return Pager<T>
      */
     public static <T> Pager<T> findPager(Pager<T> pager, Map<String, Object> param, FindPagerCallBack<T>... callBacks) {
-        pager = pager == null ? new Pager<T>() : pager;
+        pager = pager == null ? new Pager<>() : pager;
         int totalCount = 0;
-        Map<Pager<T>, FindPagerCallBack<T>> pagers = new LinkedHashMap<Pager<T>, FindPagerCallBack<T>>();
+        Map<Pager<T>, FindPagerCallBack<T>> pagers = new LinkedHashMap<>();
         // 计算总条数
         for (FindPagerCallBack<T> callBack : callBacks) {
-            Pager<T> page = callBack.call(new Pager<T>(1), param);
+            Pager<T> page = callBack.call(new Pager<>(1), param);
             totalCount += page.getTotalCount();
             pagers.put(page, callBack);
         }
-        pager.reset(totalCount,new ArrayList<T>());
+        pager.reset(totalCount,new ArrayList<>());
         int first = pager.getFirst();
         int pageSize = pager.getPageSize();
         totalCount = 0;
@@ -72,8 +71,14 @@ public class DaoUtil {
      * @功能描述
      * @since 2012-10-31 下午09:01:21
      */
-    public static interface FindPagerCallBack<T> {
+    public interface FindPagerCallBack<T> {
 
+        /**
+         * 回调
+         * @param pager 分页对象
+         * @param param 查询参数
+         * @return Pager<T>
+         */
         Pager<T> call(Pager<T> pager, Map<String, Object> param);
 
     }

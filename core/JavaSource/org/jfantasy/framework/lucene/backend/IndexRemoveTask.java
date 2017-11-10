@@ -27,6 +27,7 @@ public class IndexRemoveTask implements Runnable {
         this.id = id;
     }
 
+    @Override
     public void run() {
         String name = MapperUtil.getEntityName(this.clazz);
         IndexWriterCache cache = IndexWriterCache.getInstance();

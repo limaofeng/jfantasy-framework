@@ -15,6 +15,7 @@ public class SpringCacheAccessStrategyFactoryImpl implements SpringCacheAccessSt
 
     private static final SpringCacheMessageLogger LOG = Logger.getMessageLogger(SpringCacheMessageLogger.class, SpringCacheAccessStrategyFactoryImpl.class.getName());
 
+    @Override
     public EntityRegionAccessStrategy createEntityRegionAccessStrategy(SpringCacheEntityRegion entityRegion, AccessType accessType) {
         switch (accessType) {
             case READ_ONLY:
@@ -35,6 +36,7 @@ public class SpringCacheAccessStrategyFactoryImpl implements SpringCacheAccessSt
 
     }
 
+    @Override
     public CollectionRegionAccessStrategy createCollectionRegionAccessStrategy(SpringCacheCollectionRegion collectionRegion, AccessType accessType) {
         switch (accessType) {
             case READ_ONLY:

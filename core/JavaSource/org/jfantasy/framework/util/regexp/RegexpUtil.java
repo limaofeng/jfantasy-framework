@@ -271,6 +271,7 @@ public class RegexpUtil {
     public abstract static class AbstractReplaceCallBack implements ReplaceCallBack {
         protected Matcher matcher;
 
+        @Override
         public final String replace(String text, int index, Matcher matcher) {
             this.matcher = matcher;
             try {

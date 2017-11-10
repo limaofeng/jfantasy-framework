@@ -19,6 +19,7 @@ public class PropertyFieldHandler extends AbstractFieldHandler {
         super(obj, property, prefix);
     }
 
+    @Override
     public void handle(Document doc) {
         IndexProperty ip = this.property.getAnnotation(IndexProperty.class);
         process(doc, ip.analyze(), ip.store(), ip.boost());

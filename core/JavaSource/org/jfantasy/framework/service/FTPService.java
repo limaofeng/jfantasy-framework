@@ -764,6 +764,7 @@ public class FTPService {
             Assert.notNull(this.inputStream, "inputStream is null");
         }
 
+        @Override
         public int read() throws IOException {
             return this.inputStream.read();
         }

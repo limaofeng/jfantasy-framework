@@ -26,9 +26,6 @@ import java.util.concurrent.ConcurrentMap;
 
 /**
  * 支持 REST 接口的响应头设置 <br/>
- * 1、X-Expend-Fields   设置需要返回的字段、在原返回字段中添加额外的字段 <br/>
- * 2、X-Result-Fields   完全由调用端控制返回的字段数量 <br/>
- * 例：X-Result-Fields：username,nickName <br/>
  */
 @Order(1)
 @ControllerAdvice

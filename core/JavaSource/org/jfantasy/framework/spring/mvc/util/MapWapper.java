@@ -64,6 +64,7 @@ public class MapWapper<K, V> {
         return innerMap.entrySet();
     }
 
+    @Override
     public boolean equals(Object o) {
         return innerMap.equals(o);
     }
@@ -72,6 +73,7 @@ public class MapWapper<K, V> {
         return innerMap.get(key);
     }
 
+    @Override
     public int hashCode() {
         return innerMap.hashCode();
     }

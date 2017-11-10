@@ -81,8 +81,9 @@ public class XSSRequestWrapper extends HttpServletRequestWrapper {
     @Override
     public Map<String, String[]> getParameterMap() {
         Enumeration<String> enumeration = super.getParameterNames();
-        if (parameterMaps.size() == super.getParameterMap().size())
+        if (parameterMaps.size() == super.getParameterMap().size()) {
             return parameterMaps;
+        }
         while (enumeration.hasMoreElements()) {
             String key = enumeration.nextElement();
             if (parameterMaps.containsKey(key)) {

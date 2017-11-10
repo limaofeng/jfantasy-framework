@@ -57,6 +57,7 @@ public class SymmetricCrypto implements SecurityInc {
         return keyGen.generateKeyPair();
     }
 
+    @Override
     public byte[] encrypt(byte[] data) throws CryptoException {
         try {
             return this.ecipher.doFinal(data);
@@ -65,6 +66,7 @@ public class SymmetricCrypto implements SecurityInc {
         }
     }
 
+    @Override
     public byte[] decrypt(byte[] data) throws CryptoException {
         try {
             return this.dcipher.doFinal(data);
@@ -73,6 +75,7 @@ public class SymmetricCrypto implements SecurityInc {
         }
     }
 
+    @Override
     public byte[] signature(byte[] data) throws CryptoException {
         try {
             this.sSignature.update(data);
@@ -82,6 +85,7 @@ public class SymmetricCrypto implements SecurityInc {
         }
     }
 
+    @Override
     public boolean verify(byte[] buffer, byte[] signData) throws CryptoException {
         try {
             this.vSignature.update(buffer);

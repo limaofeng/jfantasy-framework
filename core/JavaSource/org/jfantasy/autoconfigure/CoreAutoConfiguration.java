@@ -11,6 +11,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
+
 @ConditionalOnClass(SpringContextUtil.class)
 @ComponentScan({
         "org.jfantasy.framework.lucene.dao.hibernate",
@@ -20,7 +21,7 @@ import org.springframework.context.annotation.Import;
 @Configuration
 @AutoConfigureBefore(DataSourceAutoConfiguration.class)
 @Import({AppConfig.class})
-public class JCoreAutoConfiguration {
+public class CoreAutoConfiguration {
 
     @Bean
     public SpringContextUtil springContextUtil() {

@@ -34,6 +34,7 @@ public class ParameterMap extends HashMap<String, String[]> {
                 final String[] value = request.getParameterValues(key);
                 entries.add(new Entry<String, String[]>() {
 
+                    @Override
                     @SuppressWarnings("rawtypes")
                     public boolean equals(Object obj) {
                         if (!(obj instanceof Entry)) {
@@ -43,18 +44,22 @@ public class ParameterMap extends HashMap<String, String[]> {
                         return key == null ? (entry.getKey() == null) : key.equals(entry.getKey()) && value == null ? (entry.getValue() == null) : value == entry.getValue();
                     }
 
+                    @Override
                     public int hashCode() {
                         return ((key == null) ? 0 : key.hashCode()) ^ ((value == null) ? 0 : Arrays.hashCode(value));
                     }
 
+                    @Override
                     public String getKey() {
                         return key;
                     }
 
+                    @Override
                     public String[] getValue() {
                         return value;
                     }
 
+                    @Override
                     public String[] setValue(String[] value) {
                         return value;
                     }

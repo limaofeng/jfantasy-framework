@@ -31,10 +31,12 @@ public class CharacterEncodingRequestWrapper extends HttpServletRequestWrapper {
     @Override
     public String[] getParameterValues(String name) {
         String[] values = super.getParameterValues(name);
-        if (parameterMaps.containsKey(name))
+        if (parameterMaps.containsKey(name)) {
             return parameterMaps.get(name);
-        if (values == null || values.length == 0)
+        }
+        if (values == null || values.length == 0) {
             return values;
+        }
         String[] newValues = new String[values.length];
         for (int i = 0; i < values.length; i++) {
             if (Charset.forName("ISO-8859-1").newEncoder().canEncode(values[i])) {
@@ -52,8 +54,9 @@ public class CharacterEncodingRequestWrapper extends HttpServletRequestWrapper {
     @SuppressWarnings("unchecked")
     public Map<String, String[]> getParameterMap() {
         Enumeration<String> enumeration = super.getParameterNames();
-        if (parameterMaps.size() == super.getParameterMap().size())
+        if (parameterMaps.size() == super.getParameterMap().size()) {
             return parameterMaps;
+        }
         while (enumeration.hasMoreElements()) {
             String key = enumeration.nextElement();
             if (parameterMaps.containsKey(key)) {

@@ -14,6 +14,7 @@ public class RefByFieldHandler extends ByFieldHandler {
         this.refBy = refBy;
     }
 
+    @Override
     public void handle(Document doc) {
         IndexRefBy irb = this.property.getAnnotation(IndexRefBy.class);
         Class<?>[] cls = irb.value();

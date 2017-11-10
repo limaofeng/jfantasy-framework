@@ -17,11 +17,13 @@ public class GZipResponse extends HttpServletResponseWrapper {
 		this.stream = new GZipStream(response.getOutputStream());
 	}
 
-	public ServletOutputStream getOutputStream() throws IOException {
+	@Override
+    public ServletOutputStream getOutputStream() throws IOException {
 		return this.stream;
 	}
 
-	public PrintWriter getWriter() throws IOException {
+	@Override
+    public PrintWriter getWriter() throws IOException {
 		if (this.writer == null) {
 			this.writer = new PrintWriter(new OutputStreamWriter(getOutputStream(), getCharacterEncoding()));
 		}

@@ -5,6 +5,7 @@ public class UserStamp {
     private String passwordHash;
     private String str;
 
+    @Override
     public String toString() {
         return this.str;
     }

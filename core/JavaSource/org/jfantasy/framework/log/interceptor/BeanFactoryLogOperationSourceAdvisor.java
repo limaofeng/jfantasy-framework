@@ -17,6 +17,7 @@ public class BeanFactoryLogOperationSourceAdvisor extends AbstractBeanFactoryPoi
         }
     };
 
+    @Override
     public Pointcut getPointcut() {
         return pointcut;
     }

@@ -11,7 +11,6 @@ import java.util.Map;
 /**
  * 应用的上下文 提供给Action使用
  */
-@SuppressWarnings({"unchecked", "unused", "rawtypes"})
 public class ActionContext implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -112,6 +111,10 @@ public class ActionContext implements Serializable {
      */
     public static ActionContext getContext() {
         return threadLocal.get();
+    }
+
+    public static void clear() {
+        threadLocal.remove();
     }
 
     /**

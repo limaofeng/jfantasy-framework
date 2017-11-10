@@ -14,18 +14,22 @@ public class GZipStream extends ServletOutputStream {
         this.zipStream = new GZIPOutputStream(out);
     }
 
+    @Override
     public void flush() throws IOException {
         this.zipStream.flush();
     }
 
+    @Override
     public void write(byte[] b, int off, int len) throws IOException {
         this.zipStream.write(b, off, len);
     }
 
+    @Override
     public void write(byte[] b) throws IOException {
         this.zipStream.write(b);
     }
 
+    @Override
     public void write(int arg0) throws IOException {
         this.zipStream.write(arg0);
     }
@@ -34,6 +38,7 @@ public class GZipStream extends ServletOutputStream {
         this.zipStream.finish();
     }
 
+    @Override
     public void close() throws IOException {
         this.zipStream.close();
     }

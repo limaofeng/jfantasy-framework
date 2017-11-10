@@ -35,6 +35,7 @@ public class RpcProxy implements InvocationHandler {
         this.targetInterface = targetInterface;
     }
 
+    @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         RpcRequest request = new RpcRequest(); // 创建并初始化 RPC 请求
         request.setTraceId(UUID.randomUUID().toString());

@@ -22,6 +22,7 @@ public class ClusterServer implements Runnable {
     private ByteBuffer totalBuffer;
     private ClusterConfig cluster = BuguIndex.getInstance().getClusterConfig();
 
+    @Override
     public void run() {
         try {
             init();

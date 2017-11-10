@@ -19,6 +19,7 @@ public class RequestMap extends AbstractMap implements Serializable {
         this.request = request;
     }
 
+    @Override
     public void clear() {
         entries = null;
         Enumeration keys = request.getAttributeNames();
@@ -28,6 +29,7 @@ public class RequestMap extends AbstractMap implements Serializable {
         }
     }
 
+    @Override
     public Set entrySet() {
         if (entries == null) {
             entries = new HashSet<Object>();
@@ -39,6 +41,7 @@ public class RequestMap extends AbstractMap implements Serializable {
                     continue;
                 }
                 entries.add(new Entry() {
+                    @Override
                     public boolean equals(Object obj) {
                         if (!(obj instanceof Entry)) {
                             return false;
@@ -46,15 +49,19 @@ public class RequestMap extends AbstractMap implements Serializable {
                         Entry entry = (Entry) obj;
                         return key == null ? (entry.getKey() == null) : key.equals(entry.getKey()) && value == null ? (entry.getValue() == null) : value.equals(entry.getValue());
                     }
+                    @Override
                     public int hashCode() {
                         return ((key == null) ? 0 : key.hashCode()) ^ ((value == null) ? 0 : value.hashCode());
                     }
+                    @Override
                     public Object getKey() {
                         return key;
                     }
+                    @Override
                     public Object getValue() {
                         return value;
                     }
+                    @Override
                     public Object setValue(Object obj) {
                         request.setAttribute(key, obj);
                         return value;
@@ -65,10 +72,12 @@ public class RequestMap extends AbstractMap implements Serializable {
         return entries;
     }
 
+    @Override
     public Object get(Object key) {
         return request.getAttribute(key.toString());
     }
 
+    @Override
     public Object put(Object key, Object value) {
         Object oldValue = get(key);
         entries = null;
@@ -76,6 +85,7 @@ public class RequestMap extends AbstractMap implements Serializable {
         return oldValue;
     }
 
+    @Override
     public Object remove(Object key) {
         entries = null;
         Object value = get(key);

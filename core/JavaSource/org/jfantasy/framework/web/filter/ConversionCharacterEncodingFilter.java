@@ -16,6 +16,7 @@ public class ConversionCharacterEncodingFilter extends OncePerRequestFilter {
 
     private static final String TRANSFORM = "ConversionCharacterEncodingFilter.transform";
 
+    @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         Boolean transform = (Boolean) request.getAttribute(TRANSFORM);
         if (transform == null) {

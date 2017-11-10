@@ -15,10 +15,12 @@ public class RpcScanner extends ClassPathBeanDefinitionScanner {
         super(registry);
     }
 
+    @Override
     public void registerDefaultFilters() {
         this.addIncludeFilter(new AnnotationTypeFilter(ServiceExporter.class));
     }
 
+    @Override
     public boolean isCandidateComponent(AnnotatedBeanDefinition beanDefinition) {
         return super.isCandidateComponent(beanDefinition) && beanDefinition.getMetadata()
                 .hasAnnotation(ServiceExporter.class.getName());

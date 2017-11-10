@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.Serializable;
 import java.util.List;
 
-public class HibernateLuceneDao implements LuceneDao {//NOSONAR
+public class HibernateLuceneDao implements LuceneDao {
 
     private HibernateDao hibernateDao;
     private EntityChangedListener changedListener;
@@ -22,28 +22,25 @@ public class HibernateLuceneDao implements LuceneDao {//NOSONAR
     }
 
     @Override
-    @Transactional(readOnly = true, propagation = Propagation.NOT_SUPPORTED)
+    @Transactional(rollbackFor = Exception.class, readOnly = true, propagation = Propagation.NOT_SUPPORTED)
     public long count() {
         return hibernateDao.count();
     }
 
     @Override
-    @Transactional(readOnly = true, propagation = Propagation.NOT_SUPPORTED)
-    @SuppressWarnings("unchecked")
+    @Transactional(rollbackFor = Exception.class, readOnly = true, propagation = Propagation.NOT_SUPPORTED)
     public <T> List<T> find(final int start, final int size) {
         return hibernateDao.find(new Criterion[0], start, size);
     }
 
     @Override
-    @Transactional(readOnly = true, propagation = Propagation.NOT_SUPPORTED)
-    @SuppressWarnings("unchecked")
+    @Transactional(rollbackFor = Exception.class, readOnly = true, propagation = Propagation.NOT_SUPPORTED)
     public <T> List<T> findByField(final String fieldName, final String fieldValue) {
         return hibernateDao.findBy(fieldName, fieldValue);
     }
 
     @Override
-    @Transactional(readOnly = true, propagation = Propagation.NOT_SUPPORTED)
-    @SuppressWarnings("unchecked")
+    @Transactional(rollbackFor = Exception.class, readOnly = true, propagation = Propagation.NOT_SUPPORTED)
     public <T> T getById(final String id) {
         return (T) hibernateDao.get((Serializable) ClassUtil.newInstance(hibernateDao.getIdClass(), new Class[]{String.class}, new Object[]{id}));
     }

@@ -233,7 +233,7 @@ public class PathUtil {
         if (packages == null) {
             return null;
         }
-        List<String> pathPrefixes = new ArrayList<String>();
+        List<String> pathPrefixes = new ArrayList<>();
         String pathPrefix;
         for (StringTokenizer st = new StringTokenizer(packages, ", \n\t"); st.hasMoreTokens(); pathPrefixes.add(pathPrefix)) {
             pathPrefix = st.nextToken().replace('.', '/');

@@ -14,22 +14,19 @@ public class ClusterConfig {
     private Map<String, ClusterNode> clusterNodes;
     private ExecutorService executor;
     private int threadPoolSize = 10;
-    private ExecutorService serverExecutor;
     private ClusterServer server;
     private int bufferSize = 1024;
     private int maxEntitySize = 1048576;
 
     public ClusterConfig() {
-        this.clusterNodes = new ConcurrentHashMap<String, ClusterNode>();
+        this.clusterNodes = new ConcurrentHashMap<>();
         this.localAddresses = HostAddressUtil.getLocalAddresses();
     }
 
     public void validate() {
         this.executor = Executors.newFixedThreadPool(this.threadPoolSize);
-
-        this.serverExecutor = Executors.newSingleThreadExecutor();
         this.server = new ClusterServer();
-        this.serverExecutor.execute(this.server);
+        this.executor.execute(this.server);
     }
 
     public void addNode(String host) {
@@ -93,11 +90,7 @@ public class ClusterConfig {
         if (this.executor != null) {
             this.executor.shutdown();
         }
-
         this.server.close();
-        if (this.serverExecutor != null) {
-            this.serverExecutor.shutdown();
-        }
     }
 
     public boolean isSelfNode() {

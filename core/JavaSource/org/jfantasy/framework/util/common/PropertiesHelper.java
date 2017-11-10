@@ -251,6 +251,7 @@ public class PropertiesHelper {
         return getProperties().size();
     }
 
+    @Override
     public String toString() {
         return getProperties().toString();
     }
@@ -340,10 +341,12 @@ public class PropertiesHelper {
             return this;
         }
 
+        @Override
         public boolean hasNext() {
             return next != null;
         }
 
+        @Override
         public E next() {
             if (next != null) {
                 E prev = next;
@@ -384,6 +387,7 @@ public class PropertiesHelper {
 
         }
 
+        @Override
         public void remove() {
             throw new UnsupportedOperationException();
         }

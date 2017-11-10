@@ -1,13 +1,12 @@
 package org.jfantasy.framework.hibernate.cache.regions;
 
-import org.jfantasy.framework.hibernate.cache.strategy.SpringCacheAccessStrategyFactory;
 import org.hibernate.boot.spi.SessionFactoryOptions;
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.spi.CacheDataDescription;
 import org.hibernate.cache.spi.EntityRegion;
 import org.hibernate.cache.spi.access.AccessType;
 import org.hibernate.cache.spi.access.EntityRegionAccessStrategy;
-import org.hibernate.cfg.Settings;
+import org.jfantasy.framework.hibernate.cache.strategy.SpringCacheAccessStrategyFactory;
 import org.springframework.cache.Cache;
 
 import java.util.Properties;

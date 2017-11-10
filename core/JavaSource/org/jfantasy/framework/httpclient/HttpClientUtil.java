@@ -189,14 +189,17 @@ public class HttpClientUtil {
             this.inputStream = response.getEntity() == null ? new ByteArrayInputStream(new byte[0]) : response.getEntity().getContent();
         }
 
+        @Override
         public int read() throws IOException {
             return this.inputStream.read();
         }
 
+        @Override
         public int available() throws IOException {
             return this.inputStream.available();
         }
 
+        @Override
         public void close() throws IOException {
             try {
                 this.inputStream.close();
@@ -205,26 +208,32 @@ public class HttpClientUtil {
             }
         }
 
+        @Override
         public synchronized void mark(int readlimit) {
             this.inputStream.mark(readlimit);
         }
 
+        @Override
         public boolean markSupported() {
             return this.inputStream.markSupported();
         }
 
+        @Override
         public int read(byte[] b, int off, int len) throws IOException {
             return this.inputStream.read(b, off, len);
         }
 
+        @Override
         public int read(byte[] b) throws IOException {
             return this.inputStream.read(b);
         }
 
+        @Override
         public synchronized void reset() throws IOException {
             this.inputStream.reset();
         }
 
+        @Override
         public long skip(long n) throws IOException {
             return this.inputStream.skip(n);
         }

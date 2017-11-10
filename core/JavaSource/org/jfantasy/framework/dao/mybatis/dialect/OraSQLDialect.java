@@ -19,9 +19,11 @@ public class OraSQLDialect implements Dialect {
 
     protected static final String ORA_SQL_LIMIT = "select * from (select ora_a.*,rownum row_num from ({SQL}) ora_a ) ora_b where ora_b.row_num between {OFFSET} and {LIMIT}";
 
+    @Override
     public String getLimitString(final String sql, final int offset, final int limit) {
         return DialectUtil.pretty(RegexpUtil.replace(ORA_SQL_LIMIT, "\\{[A-Z]+\\}", new ReplaceCallBack() {
 
+            @Override
             public String replace(String group, int i, Matcher m) {
                 if ("{SQL}".equals(group)) {
                     return trim(sql);
@@ -44,6 +46,7 @@ public class OraSQLDialect implements Dialect {
         return sql;
     }
 
+    @Override
     public String getCountString(String sql) {
         return DialectUtil.pretty("select count(1) from (" + trim(sql) + ") countsql");
     }

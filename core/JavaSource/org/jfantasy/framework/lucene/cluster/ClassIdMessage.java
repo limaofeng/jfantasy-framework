@@ -22,10 +22,12 @@ public class ClassIdMessage implements ClusterMessage {
         this.id = id;
     }
 
+    @Override
     public int getType() {
         return this.type;
     }
 
+    @Override
     public void setType(int type) {
         this.type = type;
     }

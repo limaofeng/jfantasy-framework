@@ -14,6 +14,7 @@ public class EmbedByFieldHandler extends ByFieldHandler {
         this.embedBy = embedBy;
     }
 
+    @Override
     public void handle(Document doc) {
         IndexEmbedBy ieb = this.property.getAnnotation(IndexEmbedBy.class);
         Class<?>[] cls = ieb.value();

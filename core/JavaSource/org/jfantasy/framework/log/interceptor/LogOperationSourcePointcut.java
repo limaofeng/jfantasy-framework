@@ -12,6 +12,7 @@ import org.jfantasy.framework.log.annotation.LogOperationSource;
 @SuppressWarnings("serial")
 abstract class LogOperationSourcePointcut extends StaticMethodMatcherPointcut implements Serializable {
 
+    @Override
     public boolean matches(Method method, Class<?> targetClass) {
         LogOperationSource cas = getLogOperationSource();
         return cas != null && !CollectionUtils.isEmpty(cas.getOperations(method, targetClass));

@@ -19,6 +19,7 @@ public class EmbedListFieldHandler extends AbstractFieldHandler {
         super(obj, property, prefix);
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public void handle(Document doc) {
         Object value = this.property.getValue(this.obj);

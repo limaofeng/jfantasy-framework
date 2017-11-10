@@ -16,10 +16,12 @@ public class EntityMessage<T extends Serializable> implements ClusterMessage {
         this.entity = entity;
     }
 
+    @Override
     public int getType() {
         return this.type;
     }
 
+    @Override
     public void setType(int type) {
         this.type = type;
     }

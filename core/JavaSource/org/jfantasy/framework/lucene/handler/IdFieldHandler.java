@@ -11,6 +11,7 @@ public class IdFieldHandler extends AbstractFieldHandler {
         super(obj, property, prefix);
     }
 
+    @Override
     public void handle(Document doc) {
         String fieldName = this.property.getName();
         doc.add(new Field(fieldName, getEntityId(), Field.Store.YES, Field.Index.NOT_ANALYZED));

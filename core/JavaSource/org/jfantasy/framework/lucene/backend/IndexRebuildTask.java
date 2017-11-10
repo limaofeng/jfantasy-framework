@@ -39,6 +39,7 @@ public class IndexRebuildTask implements Runnable {
         rebuildLock = rebuildLocks.get(clazz);
     }
 
+    @Override
     public void run() {
         if (!rebuildLock.tryLock()) {
             if (LOG.isErrorEnabled()) {
@@ -116,6 +117,7 @@ public class IndexRebuildTask implements Runnable {
             this.size = size;
         }
 
+        @Override
         public abstract Void run();
 
     }

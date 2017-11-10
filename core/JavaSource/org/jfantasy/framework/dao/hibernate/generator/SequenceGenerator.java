@@ -39,7 +39,8 @@ public class SequenceGenerator implements IdentifierGenerator, Configurable {
 		this.keyName =  StringUtil.defaultValue(params.getProperty(KEY_NAME),params.getProperty("target_table")+":"+params.getProperty("target_column")).toLowerCase();
 	}
 
-	public Serializable generate(SessionImplementor session, Object object) throws HibernateException {
+	@Override
+    public Serializable generate(SessionImplementor session, Object object) throws HibernateException {
 		if (ObjectUtil.isNull(this.baseKeyGenerator)) {
 			SpringContextUtil.autowireBean(this);
 		}

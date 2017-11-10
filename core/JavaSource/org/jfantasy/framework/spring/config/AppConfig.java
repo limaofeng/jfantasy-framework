@@ -40,32 +40,6 @@ public class AppConfig {
         return dataBaseKeyGenerator;
     }
 
-    /*
-    @Value("${mail.hostname}")
-    private String hostname;
-    @Value("${mail.from}")
-    private String from;
-    @Value("${mail.displayName}")
-    private String displayName;
-    @Value("${mail.username}")
-    private String username;
-    @Value("${mail.password}")
-    private String passWord;
-    @Value("${mail.charset}")
-    private String charset;
-
-    @Bean
-    public MailSendService mailSendService() {
-        MailSendService mailSendService = new MailSendService();
-        mailSendService.setHostname(hostname);
-        mailSendService.setFrom(from);
-        mailSendService.setDisplayName(displayName);
-        mailSendService.setUsername(username);
-        mailSendService.setPassword(passWord);
-        mailSendService.setCharset(charset);
-        return mailSendService;
-    }*/
-
     @Bean(name = "taskExecutor")
     public SchedulingTaskExecutor taskExecutor() {
         ThreadPoolTaskExecutor pool = new ThreadPoolTaskExecutor();

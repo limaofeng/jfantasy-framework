@@ -21,12 +21,14 @@ public class FantasyClassLoader extends ClassLoader {
     private Lock lock = new ReentrantLock();
 
     private static final FantasyClassLoader fantasyClassLoader = AccessController.doPrivileged(new PrivilegedAction<FantasyClassLoader>() {
+        @Override
         public FantasyClassLoader run() {
             return new FantasyClassLoader();
         }
     });
 
     private DynamicClassLoader classLoader = AccessController.doPrivileged(new PrivilegedAction<DynamicClassLoader>() {
+        @Override
         public DynamicClassLoader run() {
             return new DynamicClassLoader(DynamicClassLoader.class.getClassLoader());
         }
@@ -96,6 +98,7 @@ public class FantasyClassLoader extends ClassLoader {
      * @return Class
      * @throws ClassNotFoundException
      */
+    @Override
     public Class loadClass(String classname) throws ClassNotFoundException {
         if (unloadclass.contains(classname)) {
             throw new ClassNotFoundException(classname);

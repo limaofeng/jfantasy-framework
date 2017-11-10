@@ -21,7 +21,8 @@ public abstract class AbstractFallbackLogOperationSource implements LogOperation
 
 	final Map<Object, Collection<LogOperation>> attributeCache = new ConcurrentHashMap<Object, Collection<LogOperation>>();
 
-	public Collection<LogOperation> getOperations(Method method, Class<?> targetClass) {
+	@Override
+    public Collection<LogOperation> getOperations(Method method, Class<?> targetClass) {
 		Object cacheKey = getCacheKey(method, targetClass);
 		Collection<LogOperation> logOperations = this.attributeCache.get(cacheKey);
 		if (logOperations != null) {

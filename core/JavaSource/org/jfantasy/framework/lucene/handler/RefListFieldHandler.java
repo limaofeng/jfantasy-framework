@@ -20,6 +20,7 @@ public class RefListFieldHandler extends AbstractFieldHandler {
         super(obj, property, prefix);
     }
 
+    @Override
     public void handle(Document doc) {
         Object value = this.property.getValue(this.obj);
         if (value == null) {
