@@ -26,7 +26,7 @@ import java.lang.reflect.Type;
 import java.net.URLDecoder;
 import java.util.*;
 
-public class PropertyFilterModelAttributeMethodProcessor extends FormModelMethodArgumentResolver {
+public class PropertyFilterModelAttributeMethodProcessor extends MethodArgumentResolver {
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {

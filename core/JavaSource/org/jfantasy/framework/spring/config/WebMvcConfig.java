@@ -144,7 +144,6 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
 
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
-        argumentResolvers.add(new FormModelMethodArgumentResolver());
         argumentResolvers.add(new PropertyFilterModelAttributeMethodProcessor());
         argumentResolvers.add(new PagerModelAttributeMethodProcessor());
         super.addArgumentResolvers(argumentResolvers);
