@@ -30,10 +30,7 @@ public class ArticleService {
 
     @Transactional
     public Pager<Article> findPager(Pager<Article> pager, List<PropertyFilter> filters) {
-        PageRequest pageRequest = new PageRequest(pager.getCurrentPage(),pager.getPageSize());
-        Page<Article> page = this.articleDao.findAll(pageRequest);
-        pager.reset(Long.valueOf(page.getTotalElements()).intValue(),page.getContent());
-        return pager;
+        return articleDao.findPager(pager, filters);
     }
 
     public Article get(Long id) {

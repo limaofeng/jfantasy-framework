@@ -26,7 +26,7 @@ public class PropertyFilterSpecification implements Specification {
 
     private List<PropertyFilter> filters;
 
-    private PropertyFilterSpecification(List<PropertyFilter> filters){
+    public PropertyFilterSpecification(List<PropertyFilter> filters){
         this.filters = filters;
     }
 
