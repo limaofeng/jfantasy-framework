@@ -1,7 +1,7 @@
-package org.jfantasy.springboot.rest.form;
+package org.jfantasy.demo.rest.form;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import org.jfantasy.springboot.bean.Article;
+import org.jfantasy.demo.bean.Article;
 
 public class ArticleForm {
 

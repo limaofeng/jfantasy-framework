@@ -48,7 +48,7 @@
     <logger name="org.hibernate.engine.query.HQLQueryPlan" level="ERROR" />
     <!--<logger name="org.jfantasy.framework" level="DEBUG"/>-->
 
-    <root level="ERROR">
+    <root level="DEBUG">
         <appender-ref ref="CONSOLE" />
         <appender-ref ref="INFO_FILE" />
         <appender-ref ref="ERROR_FILE" />

@@ -7,6 +7,7 @@ import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.EventType;
 import org.hibernate.id.factory.spi.MutableIdentifierGeneratorFactory;
+import org.jfantasy.framework.dao.ComplexJpaRepository;
 import org.jfantasy.framework.dao.hibernate.event.PropertyGeneratorPersistEventListener;
 import org.jfantasy.framework.dao.hibernate.event.PropertyGeneratorSaveOrUpdatEventListener;
 import org.jfantasy.framework.dao.hibernate.generator.SequenceGenerator;
@@ -30,8 +31,18 @@ import javax.sql.DataSource;
  */
 @Configuration
 @EnableTransactionManagement(proxyTargetClass = true)
-@EnableJpaRepositories(transactionManagerRef = "jpaTransactionManager", includeFilters = {@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {JpaRepository.class})}, basePackages = "org.jfantasy.*.dao")
-@Import({DataSourceConfig.class,MyBatisConfig.class})
+@EnableJpaRepositories(
+        transactionManagerRef = "jpaTransactionManager",
+        includeFilters = {
+                @ComponentScan.Filter(
+                        type = FilterType.ASSIGNABLE_TYPE,
+                        value = {JpaRepository.class}
+                )
+        },
+        basePackages = "org.jfantasy.*.dao",
+        repositoryBaseClass = ComplexJpaRepository.class
+)
+@Import({DataSourceConfig.class, MyBatisConfig.class})
 public class DaoConfig {
 
     private static final Log LOG = LogFactory.getLog(DaoConfig.class);
@@ -83,7 +94,6 @@ public class DaoConfig {
         return dataSourceTransactionManager;
     }
 
-    @Primary
     @Bean(name = "hibernateTransactionManager")
     public PlatformTransactionManager hibernateTransactionManager() {
         HibernateTransactionManager hibernateTransactionManager = new HibernateTransactionManager();
@@ -91,6 +101,7 @@ public class DaoConfig {
         return hibernateTransactionManager;
     }
 
+    @Primary
     @Bean(name = "jpaTransactionManager")
     public PlatformTransactionManager jpaTransactionManager() {
         return new JpaTransactionManager(entityManagerFactory);

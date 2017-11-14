@@ -1,19 +1,19 @@
-package org.jfantasy.springboot.rest;
+package org.jfantasy.demo.rest;
 
+import org.jfantasy.demo.bean.Article;
+import org.jfantasy.demo.service.ArticleService;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
-import org.jfantasy.springboot.bean.Article;
-import org.jfantasy.springboot.rest.form.ArticleForm;
-import org.jfantasy.springboot.service.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.concurrent.Callable;
+import org.jfantasy.demo.rest.form.ArticleForm;
 
 
-//@RestController
+@RestController
 public class TestController {
 
     @RequestMapping("/")
@@ -42,16 +42,14 @@ public class TestController {
     @RequestMapping(value="/response/entity/headers", method=RequestMethod.GET)
     public Callable<ResponseEntity<String>> responseEntityCustomHeaders() {
 
-        return new Callable<ResponseEntity<String>>() {
-            public ResponseEntity<String> call() throws Exception {
+        return () -> {
 
-                // Do some work..
-                Thread.sleep(3000L);
+            // Do some work..
+            Thread.sleep(3000L);
 
-                HttpHeaders headers = new HttpHeaders();
-                headers.setContentType(MediaType.TEXT_PLAIN);
-                return new ResponseEntity<String>("The String ResponseBody with custom header Content-Type=text/plain", headers, HttpStatus.OK);
-            }
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.TEXT_PLAIN);
+            return new ResponseEntity<>("The String ResponseBody with custom header Content-Type=text/plain", headers, HttpStatus.OK);
         };
     }
 

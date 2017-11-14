@@ -1,7 +1,7 @@
-package org.jfantasy.springboot.dao;
+package org.jfantasy.demo.dao;
 
+import org.jfantasy.demo.bean.Article;
 import org.jfantasy.framework.dao.hibernate.HibernateDao;
-import org.jfantasy.springboot.bean.Article;
 import org.springframework.stereotype.Repository;
 
 @Repository

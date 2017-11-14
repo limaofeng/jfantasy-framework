@@ -1,4 +1,4 @@
-package org.jfantasy.springboot.bean;
+package org.jfantasy.demo.bean;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
