@@ -169,8 +169,7 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
         registry.addMapping("/**")
                 .allowedOrigins("*")
                 .allowedMethods("GET", "POST", "HEAD", "PATCH", "PUT", "DELETE", "OPTIONS")
-                .allowedHeaders("Accept", "Origin", "X-Requested-With", "Content-Type", "Last-Modified")
-                .exposedHeaders("Set-Cookie")
+                .allowedHeaders("Accept", "Origin", "Authorization", "Content-Type", "Last-Modified")
                 .allowCredentials(true).maxAge(3600);
     }
 
