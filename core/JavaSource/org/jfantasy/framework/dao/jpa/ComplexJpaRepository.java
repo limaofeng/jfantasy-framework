@@ -17,7 +17,7 @@ import java.util.List;
  * @Description: 自己封装的 JpaRepository
  * @date 14/11/2017 11:23 AM
  */
-public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaRepository<T, ID> implements InactionJpaRepository<T, ID>{
+public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaRepository<T, ID> implements JpaRepository<T, ID> {
 
 
     public ComplexJpaRepository(JpaEntityInformation<T,?> entityInformation, EntityManager entityManager) {

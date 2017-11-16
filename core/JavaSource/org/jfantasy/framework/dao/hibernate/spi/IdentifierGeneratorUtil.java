@@ -43,25 +43,29 @@ public class IdentifierGeneratorUtil {
         if (entityState == AbstractSaveEventListener.EntityState.TRANSIENT) {
             Class<?> entityClass = object.getClass();
             // 获取实体中,需要自动生成的字段
-            if (IdentifierGeneratorUtil.contains(entityClass)) {
-                return;
-            }
-            Field[] fields = ClassUtil.getDeclaredFields(entityClass, GenericGenerator.class);
-            for (Field field : fields) {
-                if (!field.isAnnotationPresent(Id.class)) {
-                    GenericGenerator annotGenerator = field.getAnnotation(GenericGenerator.class);
-                    Properties properties = new Properties();
-                    properties.put(SequenceGenerator.KEY_NAME, entityClass.getAnnotation(Table.class).name() + ":" + field.getAnnotation(Column.class).name());
-                    for (Parameter parameter : annotGenerator.parameters()) {
-                        properties.put(parameter.name(), parameter.value());
-                        IdentifierGenerator generator = identifierGeneratorFactory.createIdentifierGenerator(annotGenerator.strategy(), TypeFactory.basic(field.getType().getName()), properties);
-                        generatorCache.get(entityClass).put(field.getName(), generator);
-                    }
-                }
-            }
+            loadEntityClass(identifierGeneratorFactory, entityClass);
             // 调用IdentifierGenerator生成
             for (Map.Entry<String, IdentifierGenerator> entry : IdentifierGeneratorUtil.getIdentifierGenerators(entityClass)) {
                 OgnlUtil.getInstance().setValue(entry.getKey(), object, entry.getValue().generate(eventSource, object));
+            }
+        }
+    }
+
+    private static void loadEntityClass(IdentifierGeneratorFactory identifierGeneratorFactory, Class<?> entityClass) {
+        if (IdentifierGeneratorUtil.contains(entityClass)) {
+            return;
+        }
+        Field[] fields = ClassUtil.getDeclaredFields(entityClass, GenericGenerator.class);
+        for (Field field : fields) {
+            if (!field.isAnnotationPresent(Id.class)) {
+                GenericGenerator annotGenerator = field.getAnnotation(GenericGenerator.class);
+                Properties properties = new Properties();
+                properties.put(SequenceGenerator.KEY_NAME, entityClass.getAnnotation(Table.class).name() + ":" + field.getAnnotation(Column.class).name());
+                for (Parameter parameter : annotGenerator.parameters()) {
+                    properties.put(parameter.name(), parameter.value());
+                    IdentifierGenerator generator = identifierGeneratorFactory.createIdentifierGenerator(annotGenerator.strategy(), TypeFactory.basic(field.getType().getName()), properties);
+                    generatorCache.get(entityClass).put(field.getName(), generator);
+                }
             }
         }
     }

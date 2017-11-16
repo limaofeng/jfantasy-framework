@@ -15,7 +15,7 @@ import java.util.List;
  * @date 14/11/2017 12:55 PM
  */
 @NoRepositoryBean
-public interface InactionJpaRepository<T, PK extends Serializable>  extends org.springframework.data.jpa.repository.JpaRepository<T,PK>, JpaSpecificationExecutor<T> {
+public interface JpaRepository<T, PK extends Serializable>  extends org.springframework.data.jpa.repository.JpaRepository<T,PK>, JpaSpecificationExecutor<T> {
 
     /**
      * 分页查询
