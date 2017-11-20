@@ -43,21 +43,24 @@ public class JSON {
         if (object == null) {
             return null;
         }
-        return serialize(object, (builder) -> builder.excludes(ignoreProperties));
+        if (ignoreProperties.length != 0 && ClassUtil.isBeanType(object.getClass())) {
+            serialize(object, (builder) -> builder.excludes(ignoreProperties));
+        }
+        try {
+            return objectMapper.writer().writeValueAsString(object);
+        } catch (IOException e) {
+            LOG.error(e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
     }
 
     public static String serialize(Object object, Filter filter) {
         if (object == null) {
             return null;
         }
-        try {
-            SimpleFilterProvider provider = new SimpleFilterProvider().setFailOnUnknownId(false);
-            provider.setDefaultFilter(filter.setup(BeanPropertyFilter.newBuilder(ClassUtil.getRealType(object.getClass()))).build());
-            return objectMapper.writer(provider).writeValueAsString(object);
-        } catch (IOException e) {
-            LOG.error(e.getMessage(), e);
-        }
-        return "";
+        SimpleFilterProvider provider = new SimpleFilterProvider().setFailOnUnknownId(false);
+        provider.setDefaultFilter(filter.setup(BeanPropertyFilter.newBuilder(ClassUtil.getRealType(object.getClass()))).build());
+        return serialize(object, provider);
     }
 
     public static String serialize(Object object, FilterProvider provider) {
@@ -68,8 +71,8 @@ public class JSON {
             return objectMapper.writer(provider).writeValueAsString(object);
         } catch (IOException e) {
             LOG.error(e.getMessage(), e);
+            throw new RuntimeException(e);
         }
-        return "";
     }
 
     public static JsonNode deserialize(String json) {

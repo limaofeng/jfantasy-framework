@@ -220,7 +220,7 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
     }
 
     public static boolean isBeanType(Class<?> clazz) {
-        return !isBasicType(clazz);
+        return !isArray(clazz) && !isMap(clazz) && !isList(clazz) && !isBasicType(clazz);
     }
 
     public static Object newInstance(Class<?> componentType, int length) {
