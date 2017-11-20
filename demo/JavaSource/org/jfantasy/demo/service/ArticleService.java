@@ -20,7 +20,9 @@ public class ArticleService {
 
     @Transactional
     public Article save(Article article) {
-        return this.articleDao.save(article);
+        return this.articleDao.save(article,(key, value) -> {
+            return value == null;
+        });
     }
 
     @Transactional
