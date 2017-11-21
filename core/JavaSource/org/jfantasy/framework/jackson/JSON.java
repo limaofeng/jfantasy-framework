@@ -27,13 +27,20 @@ public class JSON {
             LOG.warn("重置 JSON 工具类中的 ObjectMapper 对象.");
         }
         JSON.objectMapper = objectMapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
-                .setSerializationInclusion(JsonInclude.Include.NON_NULL)//为空的字段不序列化
-                .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)// 当找不到对应的序列化器时 忽略此字段
-                .enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES)// 允许非空字段
-                .enable(JsonParser.Feature.ALLOW_SINGLE_QUOTES)// 允许单引号
-                .enable(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS)// 转义字符异常
-                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)// 设置输入时忽略在JSON字符串中存在但Java对象实际没有的属性
-                .registerModule(new SimpleModule()// 默认日期转换方式
+                //为空的字段不序列化
+                .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+                // 当找不到对应的序列化器时 忽略此字段
+                .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+                // 允许非空字段
+                .enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES)
+                // 允许单引号
+                .enable(JsonParser.Feature.ALLOW_SINGLE_QUOTES)
+                // 转义字符异常
+                .enable(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS)
+                // 设置输入时忽略在JSON字符串中存在但Java对象实际没有的属性
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                // 默认日期转换方式
+                .registerModule(new SimpleModule()
                         .addSerializer(Date.class, new DateSerializer("yyyy-MM-dd HH:mm:ss"))
                         .addDeserializer(Date.class, new DateDeserializer()));
         return objectMapper;

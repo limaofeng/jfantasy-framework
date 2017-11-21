@@ -745,6 +745,64 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
         return pager;
     }
 
+    private String generateCountSQL(String sql) {
+        String fromSQL = sql;
+        fromSQL = "from " + StringUtils.substringAfter(fromSQL, "from");
+        fromSQL = StringUtils.substringBefore(fromSQL, "order by");
+        return "select count(*) " + fromSQL;
+    }
+
+    protected int countSQLResult(String hql, Map<String, ?> values) {
+        String countHql = generateCountSQL(hql);
+        try {
+            Long count = Long.valueOf(createSQLQuery(countHql, values).uniqueResult().toString());
+            return count.intValue();
+        } catch (Exception e) {
+            throw new IgnoreException("hql can't be auto count, hql is:" + countHql + "" + e.getMessage(), e);
+        }
+    }
+
+    protected int countSQLResult(String hql, Object... values) {
+        String countHql = generateCountHql(hql);
+        try {
+            Long count = Long.valueOf(createSQLQuery(countHql, values).uniqueResult().toString());
+            return count.intValue();
+        } catch (Exception e) {
+            throw new IgnoreException("hql can't be auto count, hql is:" + countHql + "" + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * SQL 查询分页
+     * @param pager
+     * @param sql
+     * @param values
+     * @param <E>
+     * @return
+     */
+    public <E> Pager<E> findSQLPager(Pager<E> pager, String sql, Map<String, ?> values, Class<E> resultClass) {
+        Query q = createSQLQuery(sql, values);
+        pager.reset(countSQLResult(sql, values));
+        setPageParameter(q, pager);
+        pager.reset(distinct(q,resultClass).list());
+        return pager;
+    }
+
+    /**
+     * SQL 查询分页
+     * @param pager
+     * @param sql
+     * @param resultClass
+     * @param <E>
+     * @return
+     */
+    public <E> Pager<E> findSQLPager(Pager<E> pager, String sql, Class<E> resultClass) {
+        Query q = createSQLQuery(sql, new Object[0]);
+        pager.reset(countSQLResult(sql, new Object[0]));
+        setPageParameter(q, pager);
+        pager.reset(distinct(q,resultClass).list());
+        return pager;
+    }
 
     /**
      * @param pager      翻页对象
