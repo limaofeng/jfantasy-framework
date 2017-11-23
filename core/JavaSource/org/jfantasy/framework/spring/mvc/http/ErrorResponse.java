@@ -23,7 +23,7 @@ public class ErrorResponse {
     /**
      * 定义的具体错误码
      */
-    private float code;
+    private int code;
     /**
      * 请求出错的地址
      */
@@ -57,7 +57,7 @@ public class ErrorResponse {
         this.errors.add(new Error(name, message));
     }
 
-    public float getCode() {
+    public int getCode() {
         return code;
     }
 
@@ -65,7 +65,7 @@ public class ErrorResponse {
         return errors;
     }
 
-    public void setCode(float code) {
+    public void setCode(int code) {
         this.code = code;
     }
 

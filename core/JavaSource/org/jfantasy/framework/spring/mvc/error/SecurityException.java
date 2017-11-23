@@ -6,9 +6,9 @@ public class SecurityException extends RestException {
 
     private static final int prefix = HttpStatus.FORBIDDEN.value() * 100;
 
-    private float code;
+    private int code;
 
-    public SecurityException(float code, String message) {
+    public SecurityException(int code, String message) {
         super(HttpStatus.FORBIDDEN.value(), message);
         this.code = prefix + code;
     }
@@ -17,7 +17,7 @@ public class SecurityException extends RestException {
         super(message);
     }
 
-    public float getCode() {
+    public int getCode() {
         return code;
     }
 
