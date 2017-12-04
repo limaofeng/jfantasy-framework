@@ -2,10 +2,8 @@ package org.jfantasy.demo.rest;
 
 import org.jfantasy.framework.jackson.annotation.BeanFilter;
 import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * @author limaofeng
@@ -14,10 +12,9 @@ import org.springframework.web.bind.annotation.RestController;
  * @date 07/11/2017 9:00 PM
  */
 @RestController
-@RequestMapping("/demos")
 public class DemoController {
 
-    @GetMapping("/{id}")
+    @GetMapping("/demos/{id}")
     @JsonResultFilter({
             @BeanFilter(type = Demo.class, excludes = "id"),
             @BeanFilter(type = Tag.class, excludes = "name")
@@ -28,6 +25,11 @@ public class DemoController {
         demo.setName("演示 - " + demo.getId());
         demo.setTag(new Tag(id, "Tag - " + id));
         return demo;
+    }
+
+    @PostMapping("/files")
+    public String files(@RequestParam(value = "file", required = false) MultipartFile file) {
+        return String.valueOf(file.getSize());
     }
 
 

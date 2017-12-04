@@ -98,13 +98,6 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
         registry.addResourceHandler("*.html").addResourceLocations("/");
     }
 
-    @Bean
-    public MultipartConfigElement multipartConfigElement() {
-        MultipartConfigFactory factory = new MultipartConfigFactory();
-        factory.setMaxFileSize(10485760);
-        return factory.createMultipartConfig();
-    }
-
     private ObjectMapper objectMapper() {
         ObjectMapper objectMapper = applicationContext.getBean("jacksonObjectMapper", ObjectMapper.class);
         JSON.initialize(objectMapper);
