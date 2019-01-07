@@ -2,6 +2,10 @@ pay-test
 oauth-test
 .vscode
 .idea
+.gradle
+.settings
+out
+bin
 #.gradle
 backup
 # Package Files #

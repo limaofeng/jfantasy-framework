@@ -25,6 +25,4 @@ public interface JpaRepository<T, PK extends Serializable>  extends org.springfr
      */
     Pager<T> findPager(Pager<T> pager,List<PropertyFilter> filters);
 
-    <S extends T> S update(S entity);
-
 }
