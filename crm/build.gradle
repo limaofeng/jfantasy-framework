@@ -1,6 +1,0 @@
-description = ' CRM 模块 '
-
-dependencies {
-    compile project(':jfantasy-core')
-    testCompile "org.springframework.boot:spring-boot-starter-test"
-}

@@ -1,8 +1,0 @@
-
-description = ' Netty RPC 协议服务客户端 '
-dependencies {
-    compile project(':jfantasy-rpc-common')
-    compile "org.springframework.boot:spring-boot-starter-actuator"
-    compile "ch.qos.logback:logback-classic:1.1.5"
-    testCompile "org.springframework.boot:spring-boot-starter-test"
-}

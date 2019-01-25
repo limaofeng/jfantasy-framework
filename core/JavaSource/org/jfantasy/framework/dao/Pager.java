@@ -1,14 +1,20 @@
 package org.jfantasy.framework.dao;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.ibatis.type.Alias;
+import org.hibernate.criterion.Order;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.framework.util.web.RedirectAttributesWriter;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.util.Assert;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -102,6 +108,7 @@ public class Pager<T> implements Serializable {
         return totalPage;
     }
 
+
     /**
      * 获取每页显示的条数
      *
@@ -109,6 +116,21 @@ public class Pager<T> implements Serializable {
      */
     public int getPageSize() {
         return pageSize;
+    }
+
+    public long getOffset() {
+        return this.getFirst();
+    }
+
+    @JsonIgnore
+    public Sort getSort() {
+        List<Sort.Order> orders = new ArrayList<>();
+        String[] _orderBys = StringUtil.tokenizeToStringArray(getOrderBy());
+        String[] _orders = StringUtil.tokenizeToStringArray(getOrder());
+        for (int i = 0; i < _orders.length; i++) {
+            orders.add(new Sort.Order(Pager.SORT_ASC.equals(_orders[i]) ? Sort.Direction.ASC : Sort.Direction.DESC, _orderBys[i]));
+        }
+        return Sort.by(orders);
     }
 
     /**
@@ -245,7 +267,6 @@ public class Pager<T> implements Serializable {
         }
         return RedirectAttributesWriter.writer(attrs);
     }
-
 
 
 }

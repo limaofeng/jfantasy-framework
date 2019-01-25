@@ -72,6 +72,9 @@ public class JacksonResponseBodyAdvice implements ResponseBodyAdvice<Object> {
         SimpleFilterProvider provider = new SimpleFilterProvider().setFailOnUnknownId(false);
         BeanPropertyFilter propertyFilter = new BeanPropertyFilter();
         for (BeanFilter filter : jsonResultFilter.value()) {
+            if(filter.type().isArray()){
+                continue;
+            }
             propertyFilter.mixin(filter.type()).includes(filter.includes()).excludes(filter.excludes());
         }
         provider.setDefaultFilter(propertyFilter);

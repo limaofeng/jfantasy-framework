@@ -1,8 +1,19 @@
 package org.jfantasy.framework.dao;
 
+import org.apache.commons.collections.map.HashedMap;
+import org.hibernate.SessionFactory;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.event.service.spi.EventListenerRegistry;
+import org.hibernate.event.spi.EventType;
+import org.hibernate.id.factory.spi.MutableIdentifierGeneratorFactory;
+import org.jfantasy.framework.dao.hibernate.event.PropertyGeneratorPersistEventListener;
+import org.jfantasy.framework.dao.hibernate.event.PropertyGeneratorSaveOrUpdatEventListener;
+import org.jfantasy.framework.dao.hibernate.generator.SequenceGenerator;
+import org.jfantasy.framework.dao.hibernate.generator.SerialNumberGenerator;
 import org.jfantasy.framework.spring.SpringContextUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
 
+import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -12,7 +23,7 @@ import java.util.Map;
 
 public class DaoUtil {
 
-    private DaoUtil() {
+    public DaoUtil() {
     }
 
     public static Connection getConnection(String dataSourceName) throws SQLException {
@@ -42,7 +53,7 @@ public class DaoUtil {
             totalCount += page.getTotalCount();
             pagers.put(page, callBack);
         }
-        pager.reset(totalCount,new ArrayList<>());
+        pager.reset(totalCount, new ArrayList<>());
         int first = pager.getFirst();
         int pageSize = pager.getPageSize();
         totalCount = 0;
@@ -75,6 +86,7 @@ public class DaoUtil {
 
         /**
          * 回调
+         *
          * @param pager 分页对象
          * @param param 查询参数
          * @return Pager<T>

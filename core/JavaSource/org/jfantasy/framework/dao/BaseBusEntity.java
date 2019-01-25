@@ -2,10 +2,7 @@ package org.jfantasy.framework.dao;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.persistence.Column;
-import javax.persistence.MappedSuperclass;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -45,11 +42,6 @@ public abstract class BaseBusEntity implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "MODIFY_TIME")
     private Date modifyTime;
-    /**
-     * UUID
-     */
-    @Column(updatable = false, unique = true, name = "UUID", length = 32)
-    private String uuid;
 
     public Date getCreateTime() {
         if (this.createTime == null) {
@@ -81,13 +73,6 @@ public abstract class BaseBusEntity implements Serializable {
         }
     }
 
-    public String getUuid() {
-        return uuid;
-    }
-
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
-    }
 
     public String getCreator() {
         return this.creator;

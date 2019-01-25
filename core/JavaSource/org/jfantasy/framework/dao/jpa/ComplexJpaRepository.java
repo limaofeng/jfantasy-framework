@@ -9,6 +9,7 @@ import org.jfantasy.framework.util.ognl.OgnlUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 
@@ -33,8 +34,16 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
 
     @Override
     public Pager<T> findPager(Pager<T> pager, List<PropertyFilter> filters) {
-        PageRequest pageRequest = new PageRequest(pager.getCurrentPage() - 1, pager.getPageSize());
+        PageRequest pageRequest = PageRequest.of(pager.getCurrentPage() - 1, pager.getPageSize());
         Page<T> page = this.findAll(new PropertyFilterSpecification(filters), pageRequest);
+        pager.reset(Long.valueOf(page.getTotalElements()).intValue(), page.getContent());
+        return pager;
+    }
+
+    @Override
+    public Pager<T> findPager(Pager<T> pager, Specification<T> spec) {
+        PageRequest pageRequest = PageRequest.of(pager.getCurrentPage() - 1, pager.getPageSize(), pager.getSort());
+        Page<T> page = this.findAll(spec, pageRequest);
         pager.reset(Long.valueOf(page.getTotalElements()).intValue(), page.getContent());
         return pager;
     }

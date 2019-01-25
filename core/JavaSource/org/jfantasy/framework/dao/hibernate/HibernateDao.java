@@ -12,10 +12,12 @@ import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.transform.ResultTransformer;
 import org.hibernate.transform.Transformers;
 import org.hibernate.type.Type;
+import org.jfantasy.framework.dao.DaoUtil;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.util.ReflectionUtils;
 import org.jfantasy.framework.dao.hibernate.util.TypeFactory;
 import org.jfantasy.framework.error.IgnoreException;
+import org.jfantasy.framework.spring.config.DaoConfig;
 import org.jfantasy.framework.util.common.BeanUtil;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
@@ -63,9 +65,9 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
         return this.idClass;
     }
 
-    @Autowired
-    public void setSessionFactory(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
+    @Autowired(required = false)
+    public void setEntityManagerFactory(EntityManagerFactory entityManagerFactory) {
+        this.sessionFactory = DaoConfig.getSessionFactory(entityManagerFactory);
     }
 
     /**
@@ -406,7 +408,7 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
      * @return <T>对象
      */
     @SuppressWarnings("unchecked")
-    public T load(PK id) {
+    public T findOne(PK id) {
         Assert.notNull(id, "id不能为空");
         return (T) getSession().load(this.entityClass, id);
     }
@@ -416,7 +418,7 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
      *
      * @return List<T>
      */
-    public List<T> getAll() {
+    public List<T> findAll() {
         return find();
     }
 

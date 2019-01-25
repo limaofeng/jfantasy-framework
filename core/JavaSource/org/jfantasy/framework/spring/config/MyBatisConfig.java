@@ -21,13 +21,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.Properties;
 
 @Configuration
 @EntityScan("org.jfantasy.framework.dao.mybatis.keygen.bean")
-@MapperScan(markerInterface = SqlMapper.class, basePackages = "org.jfantasy.framework.dao.mybatis.keygen")
+@ComponentScan("org.jfantasy.framework.dao.mybatis.keygen")
+@MapperScan(markerInterface = SqlMapper.class, basePackages = "org.jfantasy.framework.dao.mybatis.keygen.dao")
 @EnableConfigurationProperties(MybatisProperties.class)
 public class MyBatisConfig {
 

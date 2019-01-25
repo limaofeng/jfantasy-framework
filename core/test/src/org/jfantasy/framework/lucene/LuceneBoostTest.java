@@ -10,7 +10,6 @@ import org.apache.lucene.search.*;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
 import org.junit.Test;
-import org.wltea.analyzer.lucene.IKAnalyzer;
 
 public class LuceneBoostTest {
     /**
@@ -22,7 +21,7 @@ public class LuceneBoostTest {
     public void testBoost1() throws Exception {
         System.out.println("设置DOC boost 值影响查询排序结果");
         RAMDirectory ramDir = new RAMDirectory();
-        Analyzer analyzer = new IKAnalyzer();
+        Analyzer analyzer = null; //new IKAnalyzer();
         IndexWriter iw = new IndexWriter(ramDir, analyzer, true, IndexWriter.MaxFieldLength.LIMITED);
 
         String[] nameList = {"you are my friend", "a are my wife", "I love you"};
@@ -70,7 +69,7 @@ public class LuceneBoostTest {
     public void testBoost2() throws Exception {
         System.out.println("设置query boost值影响排序结果");
         RAMDirectory ramDir = new RAMDirectory();
-        Analyzer analyzer = new IKAnalyzer();
+        Analyzer analyzer = null; //new IKAnalyzer();
         IndexWriter iw = new IndexWriter(ramDir, analyzer, true, IndexWriter.MaxFieldLength.LIMITED);
 
         String[] nameList = {"you are my friend", "a are my wife", "I love you"};
@@ -129,7 +128,7 @@ public class LuceneBoostTest {
     public void reload() throws Exception {
         System.out.println("设置DOC boost 值影响查询排序结果");
         RAMDirectory ramDir = new RAMDirectory();
-        Analyzer analyzer = new IKAnalyzer();
+        Analyzer analyzer = null; //new IKAnalyzer();
         IndexWriter iw = new IndexWriter(ramDir, analyzer, true, IndexWriter.MaxFieldLength.LIMITED);
 
         iw.commit();

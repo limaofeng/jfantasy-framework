@@ -1,21 +1,4 @@
 rootProject.name = 'jfantasy-framework'
 include ':jfantasy-core'
-include ':jfantasy-cache'
-include ':jfantasy-aliyun'
-include ':jfantasy-rpc-common'
-include ':jfantasy-rpc-server'
-include ':jfantasy-rpc-client'
-include ':jfantasy-demo'
 
 project(':jfantasy-core').projectDir = "$rootDir/core" as File
-project(':jfantasy-cache').projectDir = "$rootDir/cache" as File
-project(':jfantasy-demo').projectDir = "$rootDir/demo" as File
-
-// sdk list
-project(':jfantasy-aliyun').projectDir = "$rootDir/aliyun" as File
-
-// RPC 调用
-project(':jfantasy-rpc-common').projectDir = "$rootDir/rpc-common" as File
-project(':jfantasy-rpc-server').projectDir = "$rootDir/rpc-server" as File
-project(':jfantasy-rpc-client').projectDir = "$rootDir/rpc-client" as File
-//project(':crm').projectDir = "$rootDir/crm" as File

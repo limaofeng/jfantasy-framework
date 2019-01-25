@@ -25,7 +25,6 @@ import java.util.concurrent.Executor;
 @Configuration
 @EnableAsync
 @EnableAspectJAutoProxy(proxyTargetClass = true)
-@Import(DaoConfig.class)
 public class AppConfig {
 
     @Bean
@@ -33,12 +32,12 @@ public class AppConfig {
         return new PropertySourcesPlaceholderConfigurer();
     }
 
-    @Bean
-    public DataBaseKeyGenerator dataBaseKeyGenerator(@Value("${dataBaseKey.poolSize:10}") String dataBaseKeyPoolSize) {
-        DataBaseKeyGenerator dataBaseKeyGenerator = new DataBaseKeyGenerator();
-        dataBaseKeyGenerator.setPoolSize(Integer.valueOf(dataBaseKeyPoolSize));
-        return dataBaseKeyGenerator;
-    }
+//    @Bean
+//    public DataBaseKeyGenerator dataBaseKeyGenerator(@Value("${dataBaseKey.poolSize:10}") String dataBaseKeyPoolSize) {
+//        DataBaseKeyGenerator dataBaseKeyGenerator = new DataBaseKeyGenerator();
+//        dataBaseKeyGenerator.setPoolSize(Integer.valueOf(dataBaseKeyPoolSize));
+//        return dataBaseKeyGenerator;
+//    }
 
     @Bean(name = "taskExecutor")
     public SchedulingTaskExecutor taskExecutor() {
@@ -75,14 +74,5 @@ public class AppConfig {
         }
 
     }
-
-    /*
-    @Bean(name = "applicationEventMulticaster")
-    public ApplicationEventMulticaster applicationEventMulticaster() {
-        SimpleApplicationEventMulticaster applicationEventMulticaster = new SimpleApplicationEventMulticaster();
-        applicationEventMulticaster.setTaskExecutor(taskExecutor());
-        return applicationEventMulticaster;
-    }*/
-
 
 }

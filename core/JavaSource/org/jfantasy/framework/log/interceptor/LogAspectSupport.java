@@ -8,7 +8,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.cache.interceptor.DefaultKeyGenerator;
+import org.springframework.cache.interceptor.SimpleKeyGenerator;
 import org.springframework.cache.interceptor.KeyGenerator;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.util.Assert;
@@ -34,7 +34,7 @@ public class LogAspectSupport implements InitializingBean {
 
     private LogManager logManager;
 
-    private KeyGenerator keyGenerator = new DefaultKeyGenerator();
+    private KeyGenerator keyGenerator = new SimpleKeyGenerator();
 
     private boolean initialized = false;
 

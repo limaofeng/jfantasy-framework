@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class CustomIdentifierGeneratorStrategyProvider implements IdentifierGeneratorStrategyProvider {
 
-    private Map<String, Class<?>> strategies = new HashMap<String, Class<?>>();
+    private Map<String, Class<?>> strategies = new HashMap<>();
 
     {
         strategies.put("fantasy-sequence", SequenceGenerator.class);

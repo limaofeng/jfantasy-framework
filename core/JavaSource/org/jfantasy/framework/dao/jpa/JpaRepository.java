@@ -2,6 +2,7 @@ package org.jfantasy.framework.dao.jpa;
 
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.NoRepositoryBean;
 
@@ -24,5 +25,7 @@ public interface JpaRepository<T, PK extends Serializable>  extends org.springfr
      * @return
      */
     Pager<T> findPager(Pager<T> pager,List<PropertyFilter> filters);
+
+    Pager<T> findPager(Pager<T> pager, Specification<T> spec);
 
 }

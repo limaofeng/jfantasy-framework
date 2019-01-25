@@ -1,8 +1,10 @@
 package org.jfantasy.autoconfigure;
 
 import org.jfantasy.framework.quartz.JobBeanJobFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.SchedulingTaskExecutor;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -14,16 +16,19 @@ import java.util.Properties;
 
 @Configuration
 @EnableScheduling
+@ComponentScan({
+        "org.jfantasy.schedule"
+})
 @AutoConfigureAfter(CoreAutoConfiguration.class)
 public class QuartzAutoConfiguration {
 
-    @Resource(name = "dataSource")
+    @Autowired(required = false)
     public DataSource dataSource;
-    @Resource(name = "taskExecutor")
+    @Autowired(required = false)
     private SchedulingTaskExecutor taskExecutor;
 
     @Bean(name = "jobBeanJobFactory")
-    public JobBeanJobFactory jobBeanJobFactory(){
+    public JobBeanJobFactory jobBeanJobFactory() {
         return new JobBeanJobFactory();
     }
 

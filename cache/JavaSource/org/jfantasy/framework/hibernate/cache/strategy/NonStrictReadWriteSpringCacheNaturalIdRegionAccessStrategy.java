@@ -1,6 +1,7 @@
 package org.jfantasy.framework.hibernate.cache.strategy;
 
 
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.jfantasy.framework.hibernate.cache.regions.SpringCacheNaturalIdRegion;
 import org.hibernate.boot.spi.SessionFactoryOptions;
 import org.hibernate.cache.CacheException;
@@ -22,9 +23,20 @@ public class NonStrictReadWriteSpringCacheNaturalIdRegionAccessStrategy extends 
         return region();
     }
 
+
     @Override
-    public Object get(SessionImplementor session, Object key, long txTimestamp) throws CacheException {
+    public Object get(SharedSessionContractImplementor session, Object key, long txTimestamp) throws CacheException {
         return region().get(key);
+    }
+
+    @Override
+    public boolean putFromLoad(SharedSessionContractImplementor session, Object key, Object value, long txTimestamp, Object version) throws CacheException {
+        return false;
+    }
+
+    @Override
+    public boolean putFromLoad(SharedSessionContractImplementor session, Object key, Object value, long txTimestamp, Object version, boolean minimalPutOverride) throws CacheException {
+        return false;
     }
 
     @Override
@@ -38,33 +50,38 @@ public class NonStrictReadWriteSpringCacheNaturalIdRegionAccessStrategy extends 
     }
 
     @Override
-    public SoftLock lockItem(SessionImplementor session, Object key, Object version) throws CacheException {
+    public SoftLock lockItem(SharedSessionContractImplementor session, Object key, Object version) throws CacheException {
         return null;
     }
 
     @Override
-    public void unlockItem(SessionImplementor session, Object key, SoftLock lock) throws CacheException {
+    public void unlockItem(SharedSessionContractImplementor session, Object key, SoftLock lock) throws CacheException {
         region().remove(key);
     }
 
     @Override
-    public boolean insert(SessionImplementor session, Object key, Object value) throws CacheException {
+    public void remove(SharedSessionContractImplementor session, Object key) throws CacheException {
+
+    }
+
+    @Override
+    public boolean insert(SharedSessionContractImplementor session, Object key, Object value) throws CacheException {
         return false;
     }
 
     @Override
-    public boolean afterInsert(SessionImplementor session, Object key, Object value) throws CacheException {
+    public boolean afterInsert(SharedSessionContractImplementor session, Object key, Object value) throws CacheException {
         return false;
     }
 
     @Override
-    public boolean update(SessionImplementor session, Object key, Object value) throws CacheException {
+    public boolean update(SharedSessionContractImplementor session, Object key, Object value) throws CacheException {
         remove(session, key);
         return false;
     }
 
     @Override
-    public boolean afterUpdate(SessionImplementor session, Object key, Object value, SoftLock lock) throws CacheException {
+    public boolean afterUpdate(SharedSessionContractImplementor session, Object key, Object value, SoftLock lock) throws CacheException {
         unlockItem(session, key, lock);
         return false;
     }
@@ -75,7 +92,7 @@ public class NonStrictReadWriteSpringCacheNaturalIdRegionAccessStrategy extends 
     }
 
     @Override
-    public Object generateCacheKey(Object[] naturalIdValues, EntityPersister persister, SessionImplementor session) {
+    public Object generateCacheKey(Object[] naturalIdValues, EntityPersister persister, SharedSessionContractImplementor session) {
         return DefaultCacheKeysFactory.staticCreateNaturalIdKey(naturalIdValues, persister, session);
     }
 

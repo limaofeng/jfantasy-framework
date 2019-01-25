@@ -9,7 +9,6 @@ import org.apache.lucene.search.*;
 import org.apache.lucene.store.RAMDirectory;
 import org.jfantasy.framework.util.common.DateUtil;
 import org.junit.Test;
-import org.wltea.analyzer.lucene.IKAnalyzer;
 
 import java.util.Date;
 
@@ -24,7 +23,7 @@ public class LuceneSortTest {
     public void testSort() throws Exception {
         System.out.println("日期排序");
         RAMDirectory ramDir = new RAMDirectory();
-        Analyzer analyzer = new IKAnalyzer();
+        Analyzer analyzer = null; //new IKAnalyzer();
         IndexWriter iw = new IndexWriter(ramDir, analyzer, true, IndexWriter.MaxFieldLength.LIMITED);
 
         String[] nameList = {"you are my friend", "a are my wife", "I love you . m"};

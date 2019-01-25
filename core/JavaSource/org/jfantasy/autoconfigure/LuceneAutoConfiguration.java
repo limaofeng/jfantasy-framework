@@ -13,7 +13,7 @@ import org.springframework.scheduling.SchedulingTaskExecutor;
 public class LuceneAutoConfiguration {
 
     @Bean(initMethod = "open", destroyMethod = "close")
-    public BuguIndex buguIndex(@Autowired SchedulingTaskExecutor taskExecutor) {
+    public BuguIndex buguIndex(@Autowired(required = false) SchedulingTaskExecutor taskExecutor) {
         PropertiesHelper helper = PropertiesHelper.load("props/lucene.properties");
 
         BuguIndex buguIndex = new BuguIndex();

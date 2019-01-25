@@ -1,6 +1,6 @@
 buildscript {
     repositories {
-        maven { url "http://maven.zbsg.com.cn/content/groups/public/" }
+        maven { url "https://oss.homeword.cn/artifactory/libs-release" }
         mavenCentral()
         mavenLocal()
     }
@@ -104,7 +104,7 @@ subprojects {
     uploadArchives {
         repositories {
             mavenDeployer {
-                repository(url: "http://maven.zbsg.com.cn/content/repositories/releases") {
+                repository(url: "https://maven.zbsg.com.cn/content/repositories/releases") {
                     authentication(userName: "admin", password: System.getenv()['MAVEN_PASSWORD'])
                 }
                 pom.version = "$project.version"
@@ -115,12 +115,13 @@ subprojects {
     }
 
     repositories {
-        maven { url "http://maven.zbsg.com.cn/content/groups/public" }
+        maven { url "https://maven.aliyun.com/repository/central" }
+        maven { url "https://oss.homeword.cn/artifactory/libs-release" }
     }
 
     dependencyManagement {
         imports {
-            mavenBom 'io.spring.platform:platform-bom:Brussels-SR5'
+            mavenBom 'io.spring.platform:platform-bom:Cairo-SR6'
         }
     }
 
