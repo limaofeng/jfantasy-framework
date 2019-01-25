@@ -27,7 +27,7 @@ allprojects {
     apply plugin: 'maven'
 
     group = 'org.jfantasy'
-    version = System.getenv()['CI_BUILD_TAG'] // Gitlab 集成时, 使用 Tag 作为版本号
+    version = "0.0.1" // System.getenv()['CI_BUILD_TAG'] // Gitlab 集成时, 使用 Tag 作为版本号
 
 }
 
@@ -104,10 +104,10 @@ subprojects {
     uploadArchives {
         repositories {
             mavenDeployer {
-                repository(url: "https://maven.zbsg.com.cn/content/repositories/releases") {
-                    authentication(userName: "admin", password: System.getenv()['MAVEN_PASSWORD'])
+                repository(url: "https://oss.homeword.cn/artifactory/libs-release-local/") {
+                    authentication(userName: System.getenv()['MAVEN_USER'], password: System.getenv()['MAVEN_PASSWORD'])
                 }
-                pom.version = "$project.version"
+                pom.version = "$project.version" + ".RELEASE"
                 pom.artifactId = "$project.name"
                 pom.groupId = "$project.group"
             }

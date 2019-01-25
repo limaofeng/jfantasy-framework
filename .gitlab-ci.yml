@@ -49,5 +49,3 @@ deploy:
     GRADLE_USER_HOME: /cache/.gradle
   script:
     - gradle clean testClasses upload -x test
-  only:
-    - tags
