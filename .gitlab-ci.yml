@@ -5,16 +5,16 @@ stages:
 
 build:
   stage: build
-  image: limaofeng/gradle-alpine:mysql
-  before_script:
-    - export GRADLE_USER_HOME=/cache/.gradle
-  script:
-    - ./gradlew clean classes -x test
+  image: registry.cn-hangzhou.aliyuncs.com/limaofeng/gradle-alpine
   cache:
     paths:
-      - $GRADLE_USER_HOME/caches/
-      - $GRADLE_USER_HOME/wrapper/
-      - $GRADLE_USER_HOME/build-cache/
+    - $GRADLE_USER_HOME/caches/
+    - $GRADLE_USER_HOME/wrapper/
+    - $GRADLE_USER_HOME/build-cache/
+  variables:
+    GRADLE_USER_HOME: /cache/.gradle
+  script:
+    - ./gradlew clean classes -x test
 
 #sonar:
 #  stage: test
@@ -39,6 +39,14 @@ build:
 
 deploy:
   stage: deploy
+  image: registry.cn-hangzhou.aliyuncs.com/limaofeng/gradle-alpine
+  cache:
+    paths:
+    - $GRADLE_USER_HOME/caches/
+    - $GRADLE_USER_HOME/wrapper/
+    - $GRADLE_USER_HOME/build-cache/
+  variables:
+    GRADLE_USER_HOME: /cache/.gradle
   script:
     - gradle clean testClasses upload -x test
   only:
