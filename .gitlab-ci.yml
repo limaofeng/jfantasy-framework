@@ -36,8 +36,6 @@ build:
 #      - $GRADLE_USER_HOME/caches/
 #      - $GRADLE_USER_HOME/wrapper/
 #      - $GRADLE_USER_HOME/build-cache/
-#  tags:
-#    - docker
 
 deploy:
   stage: deploy
