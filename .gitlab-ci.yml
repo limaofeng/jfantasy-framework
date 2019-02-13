@@ -5,7 +5,7 @@ stages:
 
 build:
   stage: build
-  image: registry.cn-hangzhou.aliyuncs.com/limaofeng/gradle-alpine
+  image: docker.oss.homeword.cn/limaofeng/gradle-alpine
   cache:
     paths:
     - $GRADLE_USER_HOME/caches/
@@ -39,7 +39,7 @@ build:
 
 deploy:
   stage: deploy
-  image: registry.cn-hangzhou.aliyuncs.com/limaofeng/gradle-alpine
+  image: docker.oss.homeword.cn/limaofeng/gradle-alpine
   cache:
     paths:
     - $GRADLE_USER_HOME/caches/
@@ -47,5 +47,7 @@ deploy:
     - $GRADLE_USER_HOME/build-cache/
   variables:
     GRADLE_USER_HOME: /cache/.gradle
+  only:
+    - tags
   script:
     - gradle clean testClasses upload -x test

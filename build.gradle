@@ -27,7 +27,7 @@ allprojects {
     apply plugin: 'maven'
 
     group = 'org.jfantasy'
-    version = "0.0.1" // System.getenv()['CI_BUILD_TAG'] // Gitlab 集成时, 使用 Tag 作为版本号
+    version = System.getenv()['CI_BUILD_TAG'] // Gitlab 集成时, 使用 Tag 作为版本号
 
 }
 
@@ -43,11 +43,11 @@ subprojects {
     test {
         ignoreFailures = true
 
-//        jacoco {
-//            append = false
-//            destinationFile = file("$buildDir/jacoco/jacocoTest.exec")
-//            classDumpDir = file("$buildDir/jacoco/classpathdumps")
-//        }
+        jacoco {
+            append = false
+            destinationFile = file("$buildDir/jacoco/jacocoTest.exec")
+            classDumpDir = file("$buildDir/jacoco/classpathdumps")
+        }
 
     }
 
@@ -91,7 +91,7 @@ subprojects {
         archives sourcesJar
     }
 
-    //如果希望gradle install，安装到.m2本地仓库，参考下面的内容
+    //如果希望 gradle install，安装到.m2本地仓库，参考下面的内容
     install {
         repositories.mavenInstaller {
             pom.version = "$project.version"
@@ -100,7 +100,6 @@ subprojects {
         }
     }
 
-    //noinspection GroovyAssignabilityCheck 上传到 nexus
     uploadArchives {
         repositories {
             mavenDeployer {
@@ -120,7 +119,7 @@ subprojects {
 
     dependencyManagement {
         imports {
-            mavenBom 'io.spring.platform:platform-bom:Cairo-SR6'
+            mavenBom 'io.spring.platform:platform-bom:Cairo-SR7'
         }
     }
 
