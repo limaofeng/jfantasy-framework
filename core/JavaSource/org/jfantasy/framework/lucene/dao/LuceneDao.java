@@ -14,7 +14,7 @@ public interface LuceneDao {
      *
      * @param fieldName    字段
      * @param fieldValue 字段值
-     * @return List<T>
+     * @return List
      */
     <T> List<T> findByField(String fieldName, String fieldValue);
 

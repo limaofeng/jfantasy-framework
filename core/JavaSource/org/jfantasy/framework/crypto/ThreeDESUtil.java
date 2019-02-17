@@ -26,7 +26,7 @@ public class ThreeDESUtil {
      * @param keyiv IV
      * @param data  明文
      * @return Base64编码的密文
-     * @throws Exception
+     * @throws CryptoException
      */
     public static byte[] des3EncodeCBC(byte[] key, byte[] keyiv, byte[] data) throws CryptoException {
         try {
@@ -90,7 +90,7 @@ public class ThreeDESUtil {
      * @param keyiv IV
      * @param data  Base64编码的密文
      * @return 明文
-     * @throws Exception
+     * @throws CryptoException
      */
     public static byte[] des3DecodeCBC(byte[] key, byte[] keyiv, byte[] data) throws CryptoException {
         try {

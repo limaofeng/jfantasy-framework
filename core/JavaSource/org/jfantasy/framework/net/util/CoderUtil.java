@@ -8,12 +8,12 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
 /**
- * <li>类型名称：
- * <li>说明：
- * <li>创建人：CshBBrain;技术博客：http://cshbbrain.iteye.com/
- * <li>创建日期：2011-9-21
- * <li>修改人：
- * <li>修改日期：
+ * 类型名称：
+ * 说明：
+ * 创建人：CshBBrain;技术博客：http://cshbbrain.iteye.com/
+ * 创建日期：2011-9-21
+ * 修改人：
+ * 修改日期：
  */
 public class CoderUtil {
     private CoderUtil() {
@@ -31,30 +31,30 @@ public class CoderUtil {
     private static Charset charset = Charset.forName("utf-8");
 
     /**
-     * <li>方法名：encode
-     * <li>@param str
-     * <li>@return
-     * <li>返回类型：ByteBuffer
-     * <li>说明：
-     * <li>创建人：CshBBrain;技术博客：http://cshbbrain.iteye.com/
-     * <li>创建日期：2011-5-3
-     * <li>修改人：
-     * <li>修改日期：
+     * 方法名：encode
+     * @param str
+     * @return
+     * 返回类型：ByteBuffer
+     * 说明：
+     * 创建人：CshBBrain;技术博客：http://cshbbrain.iteye.com/
+     * 创建日期：2011-5-3
+     * 修改人：
+     * 修改日期：
      */
     public static ByteBuffer encode(String str) {
         return charset.encode(str);
     }
 
     /**
-     * <li>方法名：toByte
-     * <li>@param str
-     * <li>@return
-     * <li>返回类型：byte[]
-     * <li>说明：获取字符串的utf-8编码
-     * <li>创建人：CshBBrain;技术博客：http://cshbbrain.iteye.com/
-     * <li>创建日期：2011-11-12
-     * <li>修改人：
-     * <li>修改日期：
+     * 方法名：toByte
+     * @param str
+     * @return
+     * 返回类型：byte[]
+     * 说明：获取字符串的utf-8编码
+     * 创建人：CshBBrain;技术博客：http://cshbbrain.iteye.com/
+     * 创建日期：2011-11-12
+     * 修改人：
+     * 修改日期：
      */
     public static byte[] toByte(String str) {
         if (str != null) {
@@ -69,15 +69,15 @@ public class CoderUtil {
     }
 
     /**
-     * <li>方法名：toNormalByte
-     * <li>@param str
-     * <li>@return
-     * <li>返回类型：byte[]
-     * <li>说明：获取平台相关的字节编码
-     * <li>创建人：CshBBrain;技术博客：http://cshbbrain.iteye.com/
-     * <li>创建日期：2012-9-19
-     * <li>修改人：
-     * <li>修改日期：
+     * 方法名：toNormalByte
+     * @param str
+     * @return
+     * 返回类型：byte[]
+     * 说明：获取平台相关的字节编码
+     * 创建人：CshBBrain;技术博客：http://cshbbrain.iteye.com/
+     * 创建日期：2012-9-19
+     * 修改人：
+     * 修改日期：
      */
     public static byte[] toNormalByte(String str) {
         if (str != null) {
@@ -87,15 +87,15 @@ public class CoderUtil {
     }
 
     /**
-     * <li>方法名：decode
-     * <li>@param bb
-     * <li>@return
-     * <li>返回类型：String
-     * <li>说明：
-     * <li>创建人：CshBBrain;技术博客：http://cshbbrain.iteye.com/
-     * <li>创建日期：2011-5-3
-     * <li>修改人：
-     * <li>修改日期：
+     * 方法名：decode
+     * @param bb
+     * @return
+     * 返回类型：String
+     * 说明：
+     * 创建人：CshBBrain;技术博客：http://cshbbrain.iteye.com/
+     * 创建日期：2011-5-3
+     * 修改人：
+     * 修改日期：
      */
     public static String decode(ByteBuffer bb) {
         return charset.decode(bb).toString();
@@ -111,15 +111,15 @@ public class CoderUtil {
     }
 
     /**
-     * <li>方法名：toLong
-     * <li>@param b
-     * <li>@return
-     * <li>返回类型：long
-     * <li>说明：将字节数组转换为Long型数据，高字节在前，该方法来自网络
-     * <li>创建人：CshBBrain;技术博客：http://cshbbrain.iteye.com/
-     * <li>创建日期：2012-9-18
-     * <li>修改人：
-     * <li>修改日期：
+     * 方法名：toLong
+     * @param b
+     * @return
+     * 返回类型：long
+     * 说明：将字节数组转换为Long型数据，高字节在前，该方法来自网络
+     * 创建人：CshBBrain;技术博客：http://cshbbrain.iteye.com/
+     * 创建日期：2012-9-18
+     * 修改人：
+     * 修改日期：
      */
     public static long toLong(byte... b) {
         int mask = 0xff;
@@ -138,46 +138,46 @@ public class CoderUtil {
     }
 
     /**
-     * <li>方法名：toInt
-     * <li>@param b
-     * <li>@return
-     * <li>返回类型：int
-     * <li>说明：将字节数组转换为整数，高字节在前，该方法来自网络
-     * <li>创建人：CshBBrain;技术博客：http://cshbbrain.iteye.com/
-     * <li>创建日期：2012-9-18
-     * <li>修改人：
-     * <li>修改日期：
+     * 方法名：toInt
+     * @param b
+     * @return
+     * 返回类型：int
+     * 说明：将字节数组转换为整数，高字节在前，该方法来自网络
+     * 创建人：CshBBrain;技术博客：http://cshbbrain.iteye.com/
+     * 创建日期：2012-9-18
+     * 修改人：
+     * 修改日期：
      */
     public static int toInt(byte... b) {
         return (int) toLong(b);
     }
 
     /**
-     * <li>方法名：toShort
-     * <li>@param b
-     * <li>@return
-     * <li>返回类型：short
-     * <li>说明：将字节转换为短整数，高字节在前，该方法来自网络
-     * <li>创建人：CshBBrain;技术博客：http://cshbbrain.iteye.com/
-     * <li>创建日期：2012-9-18
-     * <li>修改人：
-     * <li>修改日期：
+     * 方法名：toShort
+     * @param b
+     * @return
+     * 返回类型：short
+     * 说明：将字节转换为短整数，高字节在前，该方法来自网络
+     * 创建人：CshBBrain;技术博客：http://cshbbrain.iteye.com/
+     * 创建日期：2012-9-18
+     * 修改人：
+     * 修改日期：
      */
     public static short toShort(byte... b) {
         return (short) toLong(b);
     }
 
     /**
-     * <li>方法名：numberToByte
-     * <li>@param l
-     * <li>@param length
-     * <li>@return
-     * <li>返回类型：byte[]
-     * <li>说明：将数字转换为字节数组；从高位向低位取值，高位在前，该方法来自网络
-     * <li>创建人：CshBBrain;技术博客：http://cshbbrain.iteye.com/
-     * <li>创建日期：2012-9-19
-     * <li>修改人：
-     * <li>修改日期：
+     * 方法名：numberToByte
+     * @param l
+     * @param length
+     * @return
+     * 返回类型：byte[]
+     * 说明：将数字转换为字节数组；从高位向低位取值，高位在前，该方法来自网络
+     * 创建人：CshBBrain;技术博客：http://cshbbrain.iteye.com/
+     * 创建日期：2012-9-19
+     * 修改人：
+     * 修改日期：
      */
     private static byte[] numberToByte(long l, int length) {
         byte[] bts = new byte[length];
@@ -188,60 +188,60 @@ public class CoderUtil {
     }
 
     /**
-     * <li>方法名：shortToByte
-     * <li>@param i
-     * <li>@return
-     * <li>返回类型：byte[]
-     * <li>说明：短整形转换为字节数组，该方法来自网络
-     * <li>创建人：CshBBrain;技术博客：http://cshbbrain.iteye.com/
-     * <li>创建日期：2012-9-19
-     * <li>修改人：
-     * <li>修改日期：
+     * 方法名：shortToByte
+     * @param i
+     * @return
+     * 返回类型：byte[]
+     * 说明：短整形转换为字节数组，该方法来自网络
+     * 创建人：CshBBrain;技术博客：http://cshbbrain.iteye.com/
+     * 创建日期：2012-9-19
+     * 修改人：
+     * 修改日期：
      */
     public static byte[] shortToByte(int i) {
         return numberToByte(i, 2);
     }
 
     /**
-     * <li>方法名：intToByte
-     * <li>@param i
-     * <li>@return
-     * <li>返回类型：byte[]
-     * <li>说明：将整数转换为字节数组，该方法来自网络
-     * <li>创建人：CshBBrain;技术博客：http://cshbbrain.iteye.com/
-     * <li>创建日期：2012-9-19
-     * <li>修改人：
-     * <li>修改日期：
+     * 方法名：intToByte
+     * @param i
+     * @return
+     * 返回类型：byte[]
+     * 说明：将整数转换为字节数组，该方法来自网络
+     * 创建人：CshBBrain;技术博客：http://cshbbrain.iteye.com/
+     * 创建日期：2012-9-19
+     * 修改人：
+     * 修改日期：
      */
     public static byte[] intToByte(int i) {
         return numberToByte(i, 4);
     }
 
     /**
-     * <li>方法名：longToByte
-     * <li>@param i
-     * <li>@return
-     * <li>返回类型：byte[]
-     * <li>说明：将长整形转换为字节数组，该方法来自网络
-     * <li>创建人：CshBBrain;技术博客：http://cshbbrain.iteye.com/
-     * <li>创建日期：2012-9-19
-     * <li>修改人：
-     * <li>修改日期：
+     * 方法名：longToByte
+     * @param i
+     * @return
+     * 返回类型：byte[]
+     * 说明：将长整形转换为字节数组，该方法来自网络
+     * 创建人：CshBBrain;技术博客：http://cshbbrain.iteye.com/
+     * 创建日期：2012-9-19
+     * 修改人：
+     * 修改日期：
      */
     public static byte[] longToByte(long i) {
         return numberToByte(i, 8);
     }
 
     /**
-     * <li>方法名：formatBytes
-     * <li>@param bytes
-     * <li>@return
-     * <li>返回类型：String
-     * <li>说明：将字节数组转换为字符串，主要用于日志的输出，该方法来自网络
-     * <li>创建人：CshBBrain;技术博客：http://cshbbrain.iteye.com/
-     * <li>创建日期：2012-9-19
-     * <li>修改人：
-     * <li>修改日期：
+     * 方法名：formatBytes
+     * @param bytes
+     * @return
+     * 返回类型：String
+     * 说明：将字节数组转换为字符串，主要用于日志的输出，该方法来自网络
+     * 创建人：CshBBrain;技术博客：http://cshbbrain.iteye.com/
+     * 创建日期：2012-9-19
+     * 修改人：
+     * 修改日期：
      */
     public static String formatBytes(byte... bytes) {
         StringBuilder sb = new StringBuilder(bytes.length * 3);

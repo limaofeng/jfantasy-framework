@@ -6,8 +6,9 @@ buildscript {
     }
     dependencies {
         classpath 'io.spring.gradle:dependency-management-plugin:1.0.0.RELEASE'
-        classpath 'org.springframework.build.gradle:propdeps-plugin:0.0.7'
-        classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.5"
+        classpath 'io.spring.gradle:propdeps-plugin:0.0.9.RELEASE'
+        classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.5'
+        classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:4.+'
     }
 }
 
@@ -24,21 +25,44 @@ configure(allprojects) {
 }
 
 allprojects {
-    apply plugin: 'maven'
+    apply plugin: 'com.jfrog.artifactory'
+    apply plugin: 'idea'
 
     group = 'org.jfantasy'
-    version = '0.0.1.RELEASE' // System.getenv()['CI_BUILD_TAG'] // Gitlab 集成时, 使用 Tag 作为版本号
+    version = System.getenv()['CI_BUILD_TAG']
     status = 'integration'
+
+    repositories {
+        maven { url "https://artifactory.zbsg.com.cn/artifactory/libs-release" }
+    }
+
+    configurations {
+        apply plugin: 'java'
+        apply plugin: 'idea'
+        apply plugin: "jacoco"
+        apply plugin: 'io.spring.dependency-management'
+
+    }
 }
 
 subprojects {
-    apply plugin: 'java'
-    apply plugin: 'idea'
-    apply plugin: "jacoco"
-    apply plugin: 'io.spring.dependency-management'
+    apply plugin: 'maven'
 
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
+
+    sourceSets {
+        main {
+            java.srcDirs = ['JavaSource']
+            resources.srcDirs = ["resources"]
+        }
+        test {
+            java.srcDirs = ['test/src']
+            resources.srcDirs = ["test/config"]
+        }
+    }
+
+    [compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
 
     test {
         ignoreFailures = true
@@ -60,61 +84,30 @@ subprojects {
         }
     }
 
-    sourceSets {
-        main {
-            java.srcDirs = ['JavaSource']
-            resources.srcDirs = ["resources"]
-        }
-        test {
-            java.srcDirs = ['test/src']
-            resources.srcDirs = ["test/config"]
-        }
-    }
-
     compileJava.dependsOn(processResources)
 
-    [compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
-
-    task packageSources(type: Jar) {
-        classifier = 'sources'
-        from sourceSets.main.allSource
+    configurations {
+        published
     }
 
-    //打包源代码
-    task sourcesJar(type: Jar, dependsOn: classes) {
-        classifier = 'sources'
+    manifest {
+        attributes 'provider': 'gradle'
+    }
+    configurations {
+        published
+    }
+
+    task sourceJar(type: Jar) {
         from sourceSets.main.allSource
+        classifier = 'sources'
+    }
+
+    artifactoryPublish {
+        dependsOn sourceJar
     }
 
     artifacts {
-        archives packageSources
-        archives sourcesJar
-    }
-
-    //如果希望 gradle install，安装到.m2本地仓库，参考下面的内容
-    install {
-        repositories.mavenInstaller {
-            pom.version = "$project.version"
-            pom.artifactId = "$project.name"
-            pom.groupId = "$project.group"
-        }
-    }
-
-    uploadArchives {
-        repositories {
-            mavenDeployer {
-                repository(url: "https://artifactory.zbsg.com.cn/artifactory/libs-release") {
-                    authentication(userName: System.getenv()['MAVEN_USER'], password: System.getenv()['MAVEN_PASSWORD'])
-                }
-                pom.version = "$project.version" + ".RELEASE"
-                pom.artifactId = "$project.name"
-                pom.groupId = "$project.group"
-            }
-        }
-    }
-
-    repositories {
-        maven { url "https://artifactory.zbsg.com.cn/artifactory/libs-release" }
+        published sourceJar
     }
 
     dependencyManagement {
@@ -127,4 +120,21 @@ subprojects {
         optional "org.springframework.boot:spring-boot-configuration-processor"
     }
 
+}
+
+artifactory {
+    contextUrl = System.getenv()['ARTIFACTORY_URL']
+    publish {
+        repository {
+            repoKey = System.getenv()['MAVEN_REPO_KEY']
+            username = System.getenv()['ARTIFACTORY_USER']
+            password = System.getenv()['ARTIFACTORY_PASS']
+        }
+        defaults {
+            publishConfigs('archives', 'published')
+            publishPom = true
+            publishIvy = false
+        }
+    }
+    clientConfig.info.setBuildNumber($CI_JOB_ID)
 }

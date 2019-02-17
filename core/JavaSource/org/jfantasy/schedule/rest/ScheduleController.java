@@ -46,7 +46,6 @@ public class ScheduleController {
      * 添加新的任务。新添加的任务并不会执行，得添加触发器才行
      *
      * @return
-     * @throws Exception
      */
     @RequestMapping(value = "/jobs", method = RequestMethod.POST)
     @ResponseBody

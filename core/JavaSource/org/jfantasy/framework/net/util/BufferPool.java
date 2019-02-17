@@ -1,10 +1,10 @@
 /**
- * <li>文件名：BufferPool.java
- * <li>说明：
- * <li>创建人：CshBBrain;技术博客：http://cshbbrain.iteye.com/
- * <li>创建日期：2012-2-2
- * <li>修改人： 
- * <li>修改日期：
+ * 文件名：BufferPool.java
+ * 说明：
+ * 创建人：CshBBrain;技术博客：http://cshbbrain.iteye.com/
+ * 创建日期：2012-2-2
+ * 修改人： 
+ * 修改日期：
  */
 package org.jfantasy.framework.net.util;
 
@@ -13,12 +13,12 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * <li>类型名称：
- * <li>说明：直接缓冲区池，重复利用分配的直接缓冲区
- * <li>创建人：CshBBrain;技术博客：http://cshbbrain.iteye.com/
- * <li>创建日期：2012-2-2
- * <li>修改人：
- * <li>修改日期：
+ * 类型名称：
+ * 说明：直接缓冲区池，重复利用分配的直接缓冲区
+ * 创建人：CshBBrain;技术博客：http://cshbbrain.iteye.com/
+ * 创建日期：2012-2-2
+ * 修改人：
+ * 修改日期：
  */
 public class BufferPool {
 
@@ -45,14 +45,14 @@ public class BufferPool {
     }
 
     /**
-     * <li>方法名：getBuffer
-     * <li>@return
-     * <li>返回类型：ByteBuffer
-     * <li>说明：
-     * <li>创建人：CshBBrain;技术博客：http://cshbbrain.iteye.com/
-     * <li>创建日期：2012-2-2
-     * <li>修改人：
-     * <li>修改日期：
+     * 方法名：getBuffer
+     * @return
+     * 返回类型：ByteBuffer
+     * 说明：
+     * 创建人：CshBBrain;技术博客：http://cshbbrain.iteye.com/
+     * 创建日期：2012-2-2
+     * 修改人：
+     * 修改日期：
      */
     public ByteBuffer getBuffer() {
         ByteBuffer bb = this.queue.poll();
@@ -68,14 +68,14 @@ public class BufferPool {
     }
 
     /**
-     * <li>方法名：releaseBuffer
-     * <li>@param bb
-     * <li>返回类型：void
-     * <li>说明：释放缓冲区
-     * <li>创建人：CshBBrain;技术博客：http://cshbbrain.iteye.com/
-     * <li>创建日期：2012-2-2
-     * <li>修改人：
-     * <li>修改日期：
+     * 方法名：releaseBuffer
+     * @param bb
+     * 返回类型：void
+     * 说明：释放缓冲区
+     * 创建人：CshBBrain;技术博客：http://cshbbrain.iteye.com/
+     * 创建日期：2012-2-2
+     * 修改人：
+     * 修改日期：
      */
     public void releaseBuffer(ByteBuffer bb) {
         if (this.createCount.intValue() > maxBufferPoolSize && (this.usableCount.intValue() > (this.createCount.intValue() / 2))) {
