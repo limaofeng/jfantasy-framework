@@ -5,7 +5,7 @@ stages:
 
 build:
   stage: build
-  image: docker.artifactory.zbsg.com.cn/limaofeng/gradle-alpine
+  image: docker.artifactory.zbsg.com.cn/java:8
   cache:
     paths:
       - .gradle/caches/
