@@ -20,7 +20,7 @@ public class PropertiesHelper {
 
     public static final Log LOGGER = LogFactory.getLog(PropertiesHelper.class);
 
-    public static final PropertiesHelper nullPropertiesHelper = new PropertiesHelper(new Properties());
+    private static final PropertiesHelper nullPropertiesHelper = new PropertiesHelper(new Properties());
 
     private List<Properties> propertiesList = new ArrayList<Properties>();
     private ConcurrentMap<String, Properties> propertiesCache = new ConcurrentHashMap<String, Properties>();
@@ -40,6 +40,10 @@ public class PropertiesHelper {
         }
     }
 
+    public static PropertiesHelper load(Properties props) {
+        return new PropertiesHelper(props);
+    }
+
     private void add(Properties properties) {
         this.propertiesList.add(properties);
     }
@@ -48,6 +52,29 @@ public class PropertiesHelper {
         for (Properties p : ps) {
             this.add(p);
         }
+    }
+
+    public PropertiesHelper filter(CallBackMatch callBack) {
+        Properties props = new Properties();
+        for (Map.Entry entry : getProperties().entrySet()) {
+            if (callBack.call(entry)) {
+                props.put(entry.getKey(), entry.getValue());
+            }
+        }
+        this.clear();
+        this.add(props);
+        return this;
+    }
+
+    public PropertiesHelper map(CallBackTransform callBack) {
+        Properties props = new Properties();
+        for (Map.Entry entry : getProperties().entrySet()) {
+            Map.Entry newEntry = callBack.call(entry);
+            props.put(newEntry.getKey(), newEntry.getValue());
+        }
+        this.clear();
+        this.add(props);
+        return this;
     }
 
     public Properties getProperties(String... ignorePropertyNames) {
@@ -197,7 +224,7 @@ public class PropertiesHelper {
     }
 
     public String[] getMergeProperty(String key) {
-        List<String> values = new ArrayList<String>();
+        List<String> values = new ArrayList<>();
         for (Properties eProps : propertiesList) {
             for (Object pkey : eProps.keySet()) {
                 if (key.equals(pkey)) {
@@ -216,15 +243,56 @@ public class PropertiesHelper {
     }
 
     public void clear() {
-        getProperties().clear();
+        this.propertiesList.clear();
+        this.propertiesCache.clear();
     }
 
     public int size() {
         return getProperties().size();
     }
 
+    @Override
     public String toString() {
         return getProperties().toString();
+    }
+
+    public interface CallBackTransform {
+
+        Map.Entry call(Map.Entry entry);
+
+    }
+
+    public interface CallBackMatch {
+
+        boolean call(Map.Entry entry);
+
+    }
+
+    public static class MapEntry implements Map.Entry {
+
+        private Object key;
+        private Object value;
+
+        public MapEntry(Object key, Object value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        @Override
+        public Object getKey() {
+            return this.key;
+        }
+
+        @Override
+        public Object getValue() {
+            return this.value;
+        }
+
+        @Override
+        public Object setValue(Object value) {
+            return this.value = value;
+        }
+
     }
 
     public static Iterator<URL> getResources(String resourceName, Class callingClass, boolean aggregate) throws IOException {
@@ -273,10 +341,12 @@ public class PropertiesHelper {
             return this;
         }
 
+        @Override
         public boolean hasNext() {
             return next != null;
         }
 
+        @Override
         public E next() {
             if (next != null) {
                 E prev = next;
@@ -317,6 +387,7 @@ public class PropertiesHelper {
 
         }
 
+        @Override
         public void remove() {
             throw new UnsupportedOperationException();
         }

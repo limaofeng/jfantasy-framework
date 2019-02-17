@@ -3,23 +3,46 @@ package org.jfantasy.framework.crypto;
 import com.sun.crypto.provider.SunJCE;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jfantasy.framework.util.common.StringUtil;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
+import java.security.InvalidKeyException;
 import java.security.Key;
+import java.security.NoSuchAlgorithmException;
 import java.security.Security;
 
 public class DESPlus {
 
     private static final Log LOG = LogFactory.getLog(DESPlus.class);
 
-    private static final String strDefaultKey = "jfantasy.org";
+    private static final String DEFAULT_KEY = "jfantasy.org";
+    private static final String CIPHER_TYPE = "DES";
     private Cipher encryptCipher = null;
     private Cipher decryptCipher = null;
 
-    public static String byteArr2HexStr(byte[] arrB) {
+    public DESPlus() {
+        this(DEFAULT_KEY);
+    }
+
+    public DESPlus(String strKey) {
+        Security.addProvider(new SunJCE());
+        try {
+            Key key = getKey(strKey.getBytes());
+            this.encryptCipher = Cipher.getInstance(CIPHER_TYPE);
+            this.encryptCipher.init(1, key);
+
+            this.decryptCipher = Cipher.getInstance(CIPHER_TYPE);
+            this.decryptCipher.init(2, key);
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException e) {
+            LOG.error(e.getMessage(), e);
+        }
+    }
+
+    private static String byteArr2HexStr(byte[] arrB) {
         int iLen = arrB.length;
 
         StringBuilder sb = new StringBuilder(iLen * 2);
@@ -38,65 +61,46 @@ public class DESPlus {
         return sb.toString();
     }
 
-    public static byte[] hexStr2ByteArr(String strIn) {
+    private static byte[] hexStr2ByteArr(String strIn) {
         byte[] arrB = strIn.getBytes();
         int iLen = arrB.length;
 
         byte[] arrOut = new byte[iLen / 2];
         for (int i = 0; i < iLen; i += 2) {
             String strTmp = new String(arrB, i, 2);
-            arrOut[(i / 2)] = (byte) Integer.parseInt(strTmp, 16);
+            arrOut[i / 2] = (byte) Integer.parseInt(strTmp, 16);
         }
         return arrOut;
     }
 
-    public DESPlus() {
-        this(strDefaultKey);
-    }
-
-    public DESPlus(String strKey) {
-        Security.addProvider(new SunJCE());
+    public byte[] encrypt(byte[] arrB) throws CryptoException {
         try {
-            Key key = getKey(strKey.getBytes());
-            this.encryptCipher = Cipher.getInstance("DES");
-            this.encryptCipher.init(1, key);
-
-            this.decryptCipher = Cipher.getInstance("DES");
-            this.decryptCipher.init(2, key);
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            return this.encryptCipher.doFinal(arrB);
+        } catch (BadPaddingException | IllegalBlockSizeException e) {
+            throw new CryptoException(e.getMessage(), e);
         }
-
-
     }
 
-    public byte[] encrypt(byte[] arrB) throws BadPaddingException, IllegalBlockSizeException {
-        return this.encryptCipher.doFinal(arrB);
-    }
-
-    public String encrypt(String strIn) {
-        try {
-            return byteArr2HexStr(encrypt(strIn.getBytes()));
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+    public String encrypt(String strIn) throws CryptoException {
+        if (StringUtil.isBlank(strIn)) {
             return "";
         }
+        return byteArr2HexStr(encrypt(strIn.getBytes()));
     }
 
-    public byte[] decrypt(byte[] arrB) throws BadPaddingException, IllegalBlockSizeException {
-        return this.decryptCipher.doFinal(arrB);
-    }
-
-    public String decrypt(String strIn) {
+    public byte[] decrypt(byte[] arrB) throws CryptoException {
         try {
-            return new String(decrypt(hexStr2ByteArr(strIn)));
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-            return "";
+            return this.decryptCipher.doFinal(arrB);
+        } catch (BadPaddingException | IllegalBlockSizeException e) {
+            throw new CryptoException(e.getMessage(), e);
         }
     }
 
-    private Key getKey(byte[] arrBTmp) throws Exception {
+    public String decrypt(String strIn) throws CryptoException {
+        return new String(decrypt(hexStr2ByteArr(strIn)));
+    }
+
+    private Key getKey(byte[] arrBTmp) {
         byte[] arrB = new byte[8];
         for (int i = 0; (i < arrBTmp.length) && (i < arrB.length); i++) {
             arrB[i] = arrBTmp[i];

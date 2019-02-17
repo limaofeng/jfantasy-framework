@@ -18,6 +18,7 @@ public class ApplicationMap extends AbstractMap {
         this.context = ctx;
     }
 
+    @Override
     public void clear() {
         entries = null;
         Enumeration e = context.getAttributeNames();
@@ -26,6 +27,7 @@ public class ApplicationMap extends AbstractMap {
         }
     }
 
+    @Override
     public Set entrySet() {
         if (entries == null) {
             entries = new HashSet<Object>();
@@ -34,6 +36,7 @@ public class ApplicationMap extends AbstractMap {
                 final String key = enumeration.nextElement().toString();
                 final Object value = context.getAttribute(key);
                 entries.add(new Map.Entry() {
+                    @Override
                     public boolean equals(Object obj) {
                         if (!(obj instanceof Map.Entry)) {
                             return false;
@@ -42,18 +45,22 @@ public class ApplicationMap extends AbstractMap {
                         return key == null ? (entry.getKey() == null) : key.equals(entry.getKey()) && value == null ? (entry.getValue() == null) : value.equals(entry.getValue());
                     }
 
+                    @Override
                     public int hashCode() {
                         return ((key == null) ? 0 : key.hashCode()) ^ ((value == null) ? 0 : value.hashCode());
                     }
 
+                    @Override
                     public Object getKey() {
                         return key;
                     }
 
+                    @Override
                     public Object getValue() {
                         return value;
                     }
 
+                    @Override
                     public Object setValue(Object obj) {
                         context.setAttribute(key, obj);
                         return value;
@@ -65,6 +72,7 @@ public class ApplicationMap extends AbstractMap {
                 final String key = enumeration.nextElement().toString();
                 final Object value = context.getInitParameter(key);
                 entries.add(new Map.Entry() {
+                    @Override
                     public boolean equals(Object obj) {
                         if (!(obj instanceof Map.Entry)) {
                             return false;
@@ -74,18 +82,22 @@ public class ApplicationMap extends AbstractMap {
                         return (key == null) ? (entry.getKey() == null) : key.equals(entry.getKey()) && (value == null) ? (entry.getValue() == null) : value.equals(entry.getValue());
                     }
 
+                    @Override
                     public int hashCode() {
                         return ((key == null) ? 0 : key.hashCode()) ^ ((value == null) ? 0 : value.hashCode());
                     }
 
+                    @Override
                     public Object getKey() {
                         return key;
                     }
 
+                    @Override
                     public Object getValue() {
                         return value;
                     }
 
+                    @Override
                     public Object setValue(Object obj) {
                         context.setAttribute(key, obj);
                         return value;
@@ -96,12 +108,14 @@ public class ApplicationMap extends AbstractMap {
         return entries;
     }
 
+    @Override
     public Object get(Object key) {
         String keyString = key.toString();
         Object value = context.getAttribute(keyString);
         return (value == null) ? context.getInitParameter(keyString) : value;
     }
 
+    @Override
     public Object put(Object key, Object value) {
         Object oldValue = get(key);
         entries = null;
@@ -109,6 +123,7 @@ public class ApplicationMap extends AbstractMap {
         return oldValue;
     }
 
+    @Override
     public Object remove(Object key) {
         entries = null;
         Object value = get(key);

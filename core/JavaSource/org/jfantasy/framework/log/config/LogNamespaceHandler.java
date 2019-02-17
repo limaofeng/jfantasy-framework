@@ -23,6 +23,7 @@ public class LogNamespaceHandler extends NamespaceHandlerSupport {
         return def;
     }
 
+    @Override
     public void init() {
         registerBeanDefinitionParser("annotation-driven", new AnnotationDrivenLogBeanDefinitionParser());
     }

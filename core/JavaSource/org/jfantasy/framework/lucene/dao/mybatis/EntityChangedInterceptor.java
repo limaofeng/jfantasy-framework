@@ -32,6 +32,7 @@ public class EntityChangedInterceptor implements Interceptor {
         return entityChangeds.get(clazz);
     }
 
+    @Override
     public Object intercept(Invocation invocation) throws Throwable {
         Object[] queryArgs = invocation.getArgs();
         MappedStatement ms = (MappedStatement) queryArgs[MAPPED_STATEMENT_INDEX];
@@ -54,10 +55,12 @@ public class EntityChangedInterceptor implements Interceptor {
         }
     }
 
+    @Override
     public Object plugin(Object target) {
         return Plugin.wrap(target, this);
     }
 
+    @Override
     public void setProperties(Properties properties) {
     }
 

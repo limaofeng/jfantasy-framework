@@ -53,15 +53,15 @@ public class Encoder {
 		stamp[6] = NToC(randomType | userType << 4);
 		char[] pwChars = hashPassword(password);
 		for (int i = 0; i < 5; i++) {
-			stamp[RandomType.sequence[randomType][i]] = pwChars[i];
+			stamp[RandomType.SEQUENCE[randomType][i]] = pwChars[i];
 		}
 		int i = 5;
 		do{
-			stamp[RandomType.sequence[randomType][i++]] = NToC(userId % 62);
+			stamp[RandomType.SEQUENCE[randomType][i++]] = NToC(userId % 62);
 		}while ((userId /= 62) != 0);
 		stamp[2] = NToC(i - 5 | r.nextInt(8) << 3);
 		for (; i < 10; i++) {
-			stamp[RandomType.sequence[randomType][i]] = NToC(r.nextInt(62));
+			stamp[RandomType.SEQUENCE[randomType][i]] = NToC(r.nextInt(62));
 		}
 		stamp[12] = NToC(r.nextInt(62));
 		stamp[13] = NToC(cssStyle << 3 | r.nextInt(5));

@@ -1,0 +1,4 @@
+rootProject.name = 'jfantasy-framework'
+include ':jfantasy-core'
+
+project(':jfantasy-core').projectDir = "$rootDir/core" as File

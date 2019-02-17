@@ -15,7 +15,7 @@ import java.sql.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
-@ContextConfiguration(locations = {"classpath:spring/applicationContext.xml"})
+@ContextConfiguration(locations = {"classpath:backup/testconfig/spring/applicationContext.xml"})
 public class MysqlEngine {
 
     private static final Log LOG = LogFactory.getLog(MysqlEngine.class);
@@ -23,7 +23,7 @@ public class MysqlEngine {
     @Autowired
     private DataSource dataSource;
 
-    private final static String SCHEMA = "website";
+    private static final String SCHEMA = "website";
 
     @Test
     public void change() throws SQLException {

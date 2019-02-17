@@ -2,64 +2,48 @@ package org.jfantasy.framework.lucene.dao.hibernate;
 
 import org.hibernate.criterion.Criterion;
 import org.jfantasy.framework.dao.hibernate.HibernateDao;
-import org.jfantasy.framework.dao.hibernate.util.ReflectionUtils;
 import org.jfantasy.framework.lucene.backend.EntityChangedListener;
 import org.jfantasy.framework.lucene.dao.LuceneDao;
 import org.jfantasy.framework.util.common.ClassUtil;
-import org.jfantasy.framework.util.common.JdbcUtil;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 import java.util.List;
 
-public class HibernateLuceneDao implements LuceneDao {//NOSONAR
+public class HibernateLuceneDao implements LuceneDao {
 
     private HibernateDao hibernateDao;
+    private EntityChangedListener changedListener;
 
     public HibernateLuceneDao(HibernateDao hibernateDao) {
         this.hibernateDao = hibernateDao;
-        this.changedListener = new EntityChangedListener((Class)ClassUtil.getValue(hibernateDao,"entityClass"));
+        this.changedListener = new EntityChangedListener(hibernateDao.getEntityClass());
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class, readOnly = true, propagation = Propagation.NOT_SUPPORTED)
     public long count() {
-        return JdbcUtil.transaction(new JdbcUtil.Callback<Long>() {
-            public Long run() {
-                return (long) hibernateDao.count();
-            }
-        });
+        return hibernateDao.count();
     }
 
     @Override
-    public <T>  List<T> find(final int start, final int size) {
-        return JdbcUtil.transaction(new JdbcUtil.Callback<List<T>>() {
-            @Override
-            public List<T> run() {
-                return hibernateDao.find(new Criterion[0], start, size);
-            }
-        });
+    @Transactional(rollbackFor = Exception.class, readOnly = true, propagation = Propagation.NOT_SUPPORTED)
+    public <T> List<T> find(final int start, final int size) {
+        return hibernateDao.find(new Criterion[0], start, size);
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class, readOnly = true, propagation = Propagation.NOT_SUPPORTED)
     public <T> List<T> findByField(final String fieldName, final String fieldValue) {
-        return JdbcUtil.transaction(new JdbcUtil.Callback<List<T>>() {
-            @Override
-            public List<T> run() {
-                return hibernateDao.findBy(fieldName, fieldValue);
-            }
-        });
+        return hibernateDao.findBy(fieldName, fieldValue);
     }
 
     @Override
-    public <T>  T getById(final String id) {
-        return JdbcUtil.transaction(new JdbcUtil.Callback<T>() {
-            @Override
-            public T run() {
-                return (T) hibernateDao.get((Serializable) ClassUtil.newInstance(ReflectionUtils.getSuperClassGenricType(hibernateDao.getClass(), 1) , new Class[]{String.class}, new Object[]{id}));
-            }
-        });
+    @Transactional(rollbackFor = Exception.class, readOnly = true, propagation = Propagation.NOT_SUPPORTED)
+    public <T> T getById(final String id) {
+        return (T) hibernateDao.get((Serializable) ClassUtil.newInstance(hibernateDao.getIdClass(), new Class[]{String.class}, new Object[]{id}));
     }
-
-    private EntityChangedListener changedListener;
 
     @Override
     public EntityChangedListener getLuceneListener() {

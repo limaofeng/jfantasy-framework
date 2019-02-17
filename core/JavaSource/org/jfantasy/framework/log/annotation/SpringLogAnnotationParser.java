@@ -9,7 +9,8 @@ import java.util.Collection;
 @SuppressWarnings("serial")
 public class SpringLogAnnotationParser implements LogAnnotationParser, Serializable {
 
-	public Collection<LogOperation> parseLogAnnotations(AnnotatedElement ae) {
+	@Override
+    public Collection<LogOperation> parseLogAnnotations(AnnotatedElement ae) {
 		Collection<LogOperation> ops = null;
 		Collection<Log> logs = getAnnotations(ae, Log.class);
 		if (logs != null) {

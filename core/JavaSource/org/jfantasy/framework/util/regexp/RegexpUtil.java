@@ -24,7 +24,7 @@ public class RegexpUtil {
 
     private static final Log LOGGER = LogFactory.getLog(RegexpUtil.class);
 
-    private static ConcurrentHashMap<String, Pattern> patternCache = new ConcurrentHashMap<String, Pattern>();
+    private static ConcurrentHashMap<String, Pattern> patternCache = new ConcurrentHashMap<>();
 
     private RegexpUtil() {
     }
@@ -41,7 +41,7 @@ public class RegexpUtil {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("缓存正则表达式:" + patternString);
             }
-            patternCache.putIfAbsent(patternString, Pattern.compile(patternString, Pattern.CASE_INSENSITIVE));
+            patternCache.putIfAbsent(patternString, Pattern.compile(patternString));
         }
         return patternCache.get(patternString);
     }
@@ -54,12 +54,12 @@ public class RegexpUtil {
         return groups[0];
     }
 
-    public static Group[] parseGroups(String input, String regEx) {
+    private static Group[] parseGroups(String input, String regEx) {
         return parseGroups(input, getPattern(regEx));
     }
 
-    public static Group[] parseGroups(String input, Pattern pattern) {
-        List<Group> listGroup = new ArrayList<Group>();
+    private static Group[] parseGroups(String input, Pattern pattern) {
+        List<Group> listGroup = new ArrayList<>();
         Matcher matcher = pattern.matcher(input);
         while (matcher.find()) {
             String[] g = new String[matcher.groupCount() + 1];
@@ -211,7 +211,7 @@ public class RegexpUtil {
         }
         Matcher m = pattern.matcher(string);
         if (m.find()) {
-            StringBuffer sb = new StringBuffer();
+            StringBuffer sb = new StringBuffer();//NOSONAR
             int index = 0;
             while (true) {
                 String st = replacement.replace(m.group(0), index++, m);
@@ -251,7 +251,7 @@ public class RegexpUtil {
             return null;
         }
         Matcher m = pattern.matcher(string);
-        StringBuffer sb = new StringBuffer();
+        StringBuffer sb = new StringBuffer();//NOSONAR
         if (m.find()) {
             m.appendReplacement(sb, replacement.replace(m.group(0), 0, m));
         }
@@ -259,7 +259,7 @@ public class RegexpUtil {
         return sb.toString();
     }
 
-    public static interface ReplaceCallBack {
+    public interface ReplaceCallBack {
 
         String replace(String group, int i, Matcher m);
 
@@ -268,10 +268,11 @@ public class RegexpUtil {
     /**
      * 抽象的字符串替换接口 主要是添加了$(group)方法来替代matcher.group(group)
      */
-    public static abstract class AbstractReplaceCallBack implements ReplaceCallBack {
+    public abstract static class AbstractReplaceCallBack implements ReplaceCallBack {
         protected Matcher matcher;
 
-        final public String replace(String text, int index, Matcher matcher) {
+        @Override
+        public final String replace(String text, int index, Matcher matcher) {
             this.matcher = matcher;
             try {
                 return doReplace(text, index, matcher);
@@ -295,10 +296,9 @@ public class RegexpUtil {
          *
          * @param group 组下标
          * @return string
-         * @功能描述 <br/>
          * 该函数只能在{@link #doReplace(String, int, Matcher)} 中调用
          */
-        protected String $(int group) {
+        protected String $(int group) {//NOSONAR
             String data = matcher.group(group);
             return data == null ? "" : data;
         }
@@ -307,11 +307,11 @@ public class RegexpUtil {
     public static class Group {
         private String[] groups;
 
-        protected Group(String[] groups) {
+        Group(String[] groups) {
             this.groups = groups;
         }
 
-        public String $(int group) {
+        public String $(int group) {//NOSONAR
             return this.groups[group];
         }
 
@@ -323,13 +323,12 @@ public class RegexpUtil {
     }
 
     public static boolean wildMatch(String pattern, String str) {
-        pattern = toJavaPattern(pattern);
-        return java.util.regex.Pattern.matches(pattern, str);
+        return java.util.regex.Pattern.matches(toJavaPattern(pattern), str);
     }
 
     private static String toJavaPattern(String pattern) {
         StringBuilder result = new StringBuilder("^");
-        char metachar[] = {'$', '^', '[', ']', '(', ')', '{', '|', /* '*', */'+', '?', '.', '/'};
+        char[] metachar = {'$', '^', '[', ']', '(', ')', '{', '|', /* '*', */'+', '?', '.', '/'};
         for (int i = 0; i < pattern.length(); i++) {
             char ch = pattern.charAt(i);
             boolean isMeta = false;

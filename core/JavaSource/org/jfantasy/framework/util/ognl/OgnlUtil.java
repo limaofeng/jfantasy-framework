@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class OgnlUtil {
 
-    private final static Log LOGGER = LogFactory.getLog(OgnlUtil.class);
+    private static final Log LOGGER = LogFactory.getLog(OgnlUtil.class);
 
     private static ConcurrentHashMap<String, OgnlUtil> ognlUtilCache = new ConcurrentHashMap<String, OgnlUtil>();
     private ConcurrentHashMap<String, Object> expressions = new ConcurrentHashMap<String, Object>();
@@ -32,13 +32,14 @@ public class OgnlUtil {
 
     private TypeConverter defaultTypeConverter = new DefaultTypeConverter() {
 
+        @Override
         @SuppressWarnings("rawtypes")
         public Object convertValue(Map context, Object root, Member member, String name, Object value, Class toType) {
             if (OgnlUtil.this.typeConverters.containsKey(toType)) {
                 return OgnlUtil.this.typeConverters.get(toType).convertValue(context, root, member, name, value, toType);
             } else if (value != null && OgnlUtil.this.typeConverters.containsKey(ClassUtil.getRealClass(value))) {
                 return OgnlUtil.this.typeConverters.get(ClassUtil.getRealClass(value)).convertValue(context, root, member, name, value, toType);
-            } else if ("EMPTY".equals(value) && !ClassUtil.isPrimitiveOrWrapperOrStringOrDate(toType)) {
+            } else if ("EMPTY".equals(value) && !ClassUtil.isBasicType(toType)) {
                 return ClassUtil.newInstance(toType);
             }
             return super.convertValue(context, root, member, name, value, toType);
@@ -90,7 +91,7 @@ public class OgnlUtil {
             for (int i = 0; i < ns.length - (RegexpUtil.isMatch(name, "\\[\\d+\\]$") ? 0 : 1); i++) {
                 String names = q + ns[i];
                 if (RegexpUtil.isMatch(names, "\\[\\d+\\]$")) {// is array or list
-                    int index = Integer.valueOf(RegexpUtil.parseGroup(names, "\\[(\\d+)\\]$", 1)).intValue();//array length
+                    int index = Integer.parseInt(RegexpUtil.parseGroup(names, "\\[(\\d+)\\]$", 1));//array length
                     String arrayName = RegexpUtil.replace(names, "\\[\\d+\\]$", "");
                     Object array = getValue(arrayName, root);
                     Object parent = arrayName.contains(".") ? getValue(RegexpUtil.replace(arrayName, "\\.[^.]+$", ""), root) : root;

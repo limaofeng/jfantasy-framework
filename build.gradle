@@ -1,0 +1,130 @@
+buildscript {
+    repositories {
+        maven { url "https://oss.homeword.cn/artifactory/libs-release" }
+        mavenCentral()
+        mavenLocal()
+    }
+    dependencies {
+        classpath 'io.spring.gradle:dependency-management-plugin:1.0.0.RELEASE'
+        classpath 'org.springframework.build.gradle:propdeps-plugin:0.0.7'
+        classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.5"
+    }
+}
+
+plugins {
+    id "org.sonarqube" version "2.5"
+}
+
+apply from: "$rootDir/gradle/dependencies.gradle"
+
+configure(allprojects) {
+    apply plugin: 'propdeps'
+    apply plugin: 'propdeps-maven'
+    apply plugin: 'propdeps-idea'
+}
+
+allprojects {
+    apply plugin: 'maven'
+
+    group = 'org.jfantasy'
+    version = System.getenv()['CI_BUILD_TAG'] // Gitlab 集成时, 使用 Tag 作为版本号
+
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'idea'
+    apply plugin: "jacoco"
+    apply plugin: 'io.spring.dependency-management'
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    test {
+        ignoreFailures = true
+
+        jacoco {
+            append = false
+            destinationFile = file("$buildDir/jacoco/jacocoTest.exec")
+            classDumpDir = file("$buildDir/jacoco/classpathdumps")
+        }
+
+    }
+
+    sonarqube {
+        properties {
+            property "sonar.sourceEncoding", "UTF-8"
+            property "sonar.links.ci", "http://git.zbsg.com.cn/ci"
+            property "sonar.links.issue", "http://git.zbsg.com.cn/apis/framework/issues"
+            property "sonar.links.scm", "http://git.zbsg.com.cn/apis/framework.git"
+        }
+    }
+
+    sourceSets {
+        main {
+            java.srcDirs = ['JavaSource']
+            resources.srcDirs = ["resources"]
+        }
+        test {
+            java.srcDirs = ['test/src']
+            resources.srcDirs = ["test/config"]
+        }
+    }
+
+    compileJava.dependsOn(processResources)
+
+    [compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
+
+    task packageSources(type: Jar) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
+    }
+
+    //打包源代码
+    task sourcesJar(type: Jar, dependsOn: classes) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
+    }
+
+    artifacts {
+        archives packageSources
+        archives sourcesJar
+    }
+
+    //如果希望 gradle install，安装到.m2本地仓库，参考下面的内容
+    install {
+        repositories.mavenInstaller {
+            pom.version = "$project.version"
+            pom.artifactId = "$project.name"
+            pom.groupId = "$project.group"
+        }
+    }
+
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                repository(url: "https://oss.homeword.cn/artifactory/libs-release-local/") {
+                    authentication(userName: System.getenv()['MAVEN_USER'], password: System.getenv()['MAVEN_PASSWORD'])
+                }
+                pom.version = "$project.version" + ".RELEASE"
+                pom.artifactId = "$project.name"
+                pom.groupId = "$project.group"
+            }
+        }
+    }
+
+    repositories {
+        maven { url "https://oss.homeword.cn/artifactory/libs-release" }
+    }
+
+    dependencyManagement {
+        imports {
+            mavenBom 'io.spring.platform:platform-bom:Cairo-SR7'
+        }
+    }
+
+    dependencies {
+        optional "org.springframework.boot:spring-boot-configuration-processor"
+    }
+
+}

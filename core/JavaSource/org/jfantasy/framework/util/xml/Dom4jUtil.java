@@ -57,10 +57,12 @@ public final class Dom4jUtil {
     }
 
     public static class MyVistor extends VisitorSupport {
+        @Override
         public void visit(Attribute node) {
             LOGGER.debug("Attibute: " + node.getName() + "=" + node.getValue());
         }
 
+        @Override
         public void visit(Element node) {
             if (node.isTextOnly()) {
                 LOGGER.debug("Element: " + node.getName() + "=" + node.getText());

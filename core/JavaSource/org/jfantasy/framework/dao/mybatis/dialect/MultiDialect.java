@@ -23,6 +23,7 @@ public class MultiDialect implements Dialect, InitializingBean {
 
     private Map<String, String> dataSourceTypes;
 
+    @Override
     public void afterPropertiesSet() throws Exception {
         if (ObjectUtil.isNull(targetDialects)) {
             targetDialects = new HashMap<String, Dialect>();
@@ -34,6 +35,7 @@ public class MultiDialect implements Dialect, InitializingBean {
         targetDialects.put("mysql", new MySQLDialect());
     }
 
+    @Override
     public String getCountString(String sql) {
         return getDialect().getCountString(sql);
     }
@@ -44,6 +46,7 @@ public class MultiDialect implements Dialect, InitializingBean {
         return targetDialects.get(dataSourceTypes.get(dataSource.name()));
     }
 
+    @Override
     public String getLimitString(String sql, int offset, int limit) {
         return getDialect().getLimitString(sql, offset, limit);
     }

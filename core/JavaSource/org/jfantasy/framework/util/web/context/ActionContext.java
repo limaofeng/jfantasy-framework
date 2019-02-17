@@ -11,16 +11,17 @@ import java.util.Map;
 /**
  * 应用的上下文 提供给Action使用
  */
-@SuppressWarnings({"unchecked", "unused", "rawtypes"})
 public class ActionContext implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    private static final String IP_ADDR_UNKNOWN = "unknown";
 
     public static final String CONTAINER = "_CONTAINER";
 
     public static final String RESULT_INFO = "_RESULT_INFO";
 
-    private static ThreadLocal<ActionContext> threadLocal = new ThreadLocal<ActionContext>();
+    private static ThreadLocal<ActionContext> threadLocal = new ThreadLocal<>();
 
     private static final String LOCALE = "fantasy.locale";
 
@@ -40,7 +41,11 @@ public class ActionContext implements Serializable {
 
     private static final String CONVERSION_ERRORS = "fantasy.conversion.errors";
 
-    private Map<String, Object> context;
+    private transient Map<String, Object> context;
+
+    public ActionContext(Map context) {
+        this.context = context;
+    }
 
     public static ActionContext getContext(HttpServletRequest request, HttpServletResponse response) {
         Map<String, Object> contextMap = (Map<String, Object>) request.getAttribute(ActionContext.CONTAINER);
@@ -64,7 +69,7 @@ public class ActionContext implements Serializable {
     }
 
     private static HashMap<String, Object> createContextMap(Map requestMap, Map parameterMap, Map sessionMap, Map applicationMap, HttpServletRequest request, HttpServletResponse response, ServletContext servletContext) {
-        HashMap<String, Object> extraContext = new HashMap<String, Object>();
+        HashMap<String, Object> extraContext = new HashMap<>();
 
         extraContext.put(PARAMETERS, parameterMap);
         extraContext.put(SESSION, sessionMap);
@@ -90,14 +95,6 @@ public class ActionContext implements Serializable {
         return extraContext;
     }
 
-    private static ServletContext getServletContext(HttpServletRequest request) {
-        return request.getSession().getServletContext();
-    }
-
-    public ActionContext(Map context) {
-        this.context = context;
-    }
-
     /**
      * 方法名称: setContext 描述: 设置本次请求的上下文
      *
@@ -114,6 +111,10 @@ public class ActionContext implements Serializable {
      */
     public static ActionContext getContext() {
         return threadLocal.get();
+    }
+
+    public static void clear() {
+        threadLocal.remove();
     }
 
     /**
@@ -176,13 +177,13 @@ public class ActionContext implements Serializable {
     public String getIpAddr() {
         HttpServletRequest request = getHttpRequest();
         String ip = request.getHeader("x-forwarded-for");
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+        if (ip == null || ip.length() == 0 || IP_ADDR_UNKNOWN.equalsIgnoreCase(ip)) {
             ip = request.getHeader("Proxy-Client-IP");
         }
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+        if (ip == null || ip.length() == 0 || IP_ADDR_UNKNOWN.equalsIgnoreCase(ip)) {
             ip = request.getHeader("WL-Proxy-Client-IP");
         }
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+        if (ip == null || ip.length() == 0 || IP_ADDR_UNKNOWN.equalsIgnoreCase(ip)) {
             ip = request.getRemoteAddr();
         }
         return ip;

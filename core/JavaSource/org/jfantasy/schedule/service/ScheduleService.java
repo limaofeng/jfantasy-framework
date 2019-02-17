@@ -22,10 +22,10 @@ import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 @Service
 public class ScheduleService {
 
-    @Autowired
-    private Scheduler scheduler;
+    private static final Log LOGGER = LogFactory.getLog(ScheduleService.class);
 
-    private final static Log LOGGER = LogFactory.getLog(ScheduleService.class);
+    @Autowired(required = false)
+    private Scheduler scheduler;
 
     /**
      * 返回 各时段的表达式
@@ -183,11 +183,11 @@ public class ScheduleService {
     private static final String emptyString = "";
 
     public Trigger addTrigger(JobKey jobKey, TriggerKey triggerKey, String cron) {
-        return addTrigger(jobKey, triggerKey, cron, emptyString, new HashMap<String, String>());
+        return addTrigger(jobKey, triggerKey, cron, emptyString, new HashMap<>());
     }
 
     public Trigger addTrigger(JobKey jobKey, TriggerKey triggerKey, String cron, String triggerDescription) {
-        return addTrigger(jobKey, triggerKey, cron, triggerDescription, new HashMap<String, String>());
+        return addTrigger(jobKey, triggerKey, cron, triggerDescription, new HashMap<>());
     }
 
     public Trigger addTrigger(JobKey jobKey, TriggerKey triggerKey, String cron, Map<String, String> args) {
@@ -474,6 +474,14 @@ public class ScheduleService {
         }
     }
 
+    public void clear(){
+        try {
+            this.scheduler.clear();
+        } catch (SchedulerException e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+    }
+
     public List<JobDetail> jobs() {
         List<JobDetail> jobDetails = new ArrayList<JobDetail>();
         for (JobKey jobKey : this.getJobKeys()) {
@@ -488,4 +496,9 @@ public class ScheduleService {
         }
         return jobDetails;
     }
+
+    public ListenerManager getListenerManager() throws SchedulerException {
+        return this.scheduler.getListenerManager();
+    }
+
 }

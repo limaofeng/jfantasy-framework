@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class HelloJob implements Job {
 
-    private final static Log LOG = LogFactory.getLog(HelloJob.class);
+    private static final Log LOG = LogFactory.getLog(HelloJob.class);
 
     public void execute(JobExecutionContext context) throws JobExecutionException {
         JobDataMap data = context.getMergedJobDataMap();

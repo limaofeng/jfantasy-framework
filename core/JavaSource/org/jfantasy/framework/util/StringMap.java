@@ -1,9 +1,6 @@
 package org.jfantasy.framework.util;
 
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
+import java.io.*;
 import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.HashMap;
@@ -18,12 +15,12 @@ import java.util.Set;
 @Deprecated
 public class StringMap<V> extends AbstractMap<String, V> implements Externalizable {
 	protected int _width = 17;
-	protected Node<V> _root = new Node<V>();
+	protected transient Node<V> _root = new Node<>();
 	protected boolean _ignoreCase = false;
-	protected NullEntry _nullEntry = null;
-	protected V _nullValue = null;
-	protected HashSet<Map.Entry<String, V>> _entrySet = new HashSet<Map.Entry<String, V>>(3);
-	protected Set<Map.Entry<String, V>> _umEntrySet = Collections.unmodifiableSet(this._entrySet);
+	protected transient NullEntry _nullEntry = null;
+	protected transient V _nullValue = null;
+	protected HashSet<Map.Entry<String, V>> _entrySet = new HashSet<>(3);
+	protected transient Set<Map.Entry<String, V>> _umEntrySet = Collections.unmodifiableSet(this._entrySet);
 
 	public StringMap() {
 	}
@@ -58,7 +55,7 @@ public class StringMap<V> extends AbstractMap<String, V> implements Externalizab
 		return this._width;
 	}
 
-	@SuppressWarnings("unchecked")
+	@Override
 	public V put(String key, V value) {
 		if (key == null) {
 			V oldValue = this._nullValue;
@@ -106,7 +103,7 @@ public class StringMap<V> extends AbstractMap<String, V> implements Externalizab
 				break;
 			}
 
-			node = new Node<V>(this._ignoreCase, key, i);
+			node = new Node<>(this._ignoreCase, key, i);
 
 			if (prev != null) {
 				prev._next = node;
@@ -148,7 +145,8 @@ public class StringMap<V> extends AbstractMap<String, V> implements Externalizab
 		return null;
 	}
 
-	public V get(Object key) {
+	@Override
+    public V get(Object key) {
 		if (key == null){
             return this._nullValue;
         }
@@ -368,39 +366,46 @@ public class StringMap<V> extends AbstractMap<String, V> implements Externalizab
 		return old;
 	}
 
-	public Set<Map.Entry<String, V>> entrySet() {
+	@Override
+    public Set<Map.Entry<String, V>> entrySet() {
 		return this._umEntrySet;
 	}
 
-	public int size() {
+	@Override
+    public int size() {
 		return this._entrySet.size();
 	}
 
-	public boolean isEmpty() {
+	@Override
+    public boolean isEmpty() {
 		return this._entrySet.isEmpty();
 	}
 
-	public boolean containsKey(Object key) {
+	@Override
+    public boolean containsKey(Object key) {
 		if (key == null){
             return this._nullEntry != null;
         }
-		return getEntry(key.toString(), 0, key == null ? 0 : key.toString().length()) != null;
+		return getEntry(key.toString(), 0, key.toString().length()) != null;
 	}
 
-	public void clear() {
+	@Override
+    public void clear() {
 		this._root = new Node<V>();
 		this._nullEntry = null;
 		this._nullValue = null;
 		this._entrySet.clear();
 	}
 
-	public void writeExternal(ObjectOutput out) throws IOException {
+	@Override
+    public void writeExternal(ObjectOutput out) throws IOException {
 		HashMap<String, V> map = new HashMap<String, V>(this);
 		out.writeBoolean(this._ignoreCase);
 		out.writeObject(map);
 	}
 
-	@SuppressWarnings("unchecked")
+	@Override
+    @SuppressWarnings("unchecked")
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		boolean ic = in.readBoolean();
 		HashMap<String, V> map = (HashMap<String, V>) in.readObject();
@@ -412,21 +417,25 @@ public class StringMap<V> extends AbstractMap<String, V> implements Externalizab
 		private NullEntry() {
 		}
 
-		public String getKey() {
+		@Override
+        public String getKey() {
 			return null;
 		}
 
-		public V getValue() {
+		@Override
+        public V getValue() {
 			return StringMap.this._nullValue;
 		}
 
-		public V setValue(V o) {
+		@Override
+        public V setValue(V o) {
 			V old = StringMap.this._nullValue;
 			StringMap.this._nullValue = o;
 			return old;
 		}
 
-		public String toString() {
+		@Override
+        public String toString() {
 			return "[:null=" + StringMap.this._nullValue + "]";
 		}
 	}
@@ -497,21 +506,25 @@ public class StringMap<V> extends AbstractMap<String, V> implements Externalizab
 			return split;
 		}
 
-		public String getKey() {
+		@Override
+        public String getKey() {
 			return this._key;
 		}
 
-		public V getValue() {
+		@Override
+        public V getValue() {
 			return this._value;
 		}
 
-		public V setValue(V o) {
+		@Override
+        public V setValue(V o) {
 			V old = this._value;
 			this._value = o;
 			return old;
 		}
 
-		public String toString() {
+		@Override
+        public String toString() {
 			StringBuilder buf = new StringBuilder();
 			toString(buf);
 			return buf.toString();

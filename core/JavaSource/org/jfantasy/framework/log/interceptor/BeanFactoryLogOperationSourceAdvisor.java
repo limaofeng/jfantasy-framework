@@ -6,10 +6,9 @@ import org.springframework.aop.support.AbstractBeanFactoryPointcutAdvisor;
 
 import org.jfantasy.framework.log.annotation.LogOperationSource;
 
-@SuppressWarnings("serial")
 public class BeanFactoryLogOperationSourceAdvisor extends AbstractBeanFactoryPointcutAdvisor {
 
-    private LogOperationSource logOperationSource;
+    private transient LogOperationSource logOperationSource;
 
     private final LogOperationSourcePointcut pointcut = new LogOperationSourcePointcut() {
         @Override
@@ -18,6 +17,7 @@ public class BeanFactoryLogOperationSourceAdvisor extends AbstractBeanFactoryPoi
         }
     };
 
+    @Override
     public Pointcut getPointcut() {
         return pointcut;
     }
@@ -28,6 +28,16 @@ public class BeanFactoryLogOperationSourceAdvisor extends AbstractBeanFactoryPoi
 
     public void setClassFilter(ClassFilter classFilter) {
         this.pointcut.setClassFilter(classFilter);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        return super.equals(other);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
     }
 
 }

@@ -34,13 +34,13 @@ public class Decoder {
         userResult.setCssStyle(CToN(stamp[13]) >> 3);
         char[] pwChars = new char[5];
         for (int i = 0; i < 5; i++) {
-            pwChars[i] = stamp[RandomType.sequence[randomType][i]];
+            pwChars[i] = stamp[RandomType.SEQUENCE[randomType][i]];
         }
         userResult.setPasswordHash(String.valueOf(pwChars));
         int idStop = CToN(stamp[2]) & 0x7;
         int userId = 0;
         for (int i = idStop + 4; i >= 5; i--) {
-            userId = userId * 62 + CToN(stamp[RandomType.sequence[randomType][i]]);
+            userId = userId * 62 + CToN(stamp[RandomType.SEQUENCE[randomType][i]]);
         }
         userResult.setUserId(userId);
         return userResult;

@@ -25,7 +25,9 @@ public class ClusterNode {
             channel = SocketChannel.open();
             channel.configureBlocking(false);
             SocketAddress address = new InetSocketAddress(this.host, this.port);
-            while ((!channel.connect(address)) && (!channel.finishConnect())) ;//NOSONAR
+            while ((!channel.connect(address)) && (!channel.finishConnect())) {
+                ;//NOSONAR
+            }
             channel.write(BufferUtil.toBuffer(message));
         } catch (IOException ex) {
             LOGGER.error("Error when transmit message to host: " + this.host + ", port: " + this.port, ex);

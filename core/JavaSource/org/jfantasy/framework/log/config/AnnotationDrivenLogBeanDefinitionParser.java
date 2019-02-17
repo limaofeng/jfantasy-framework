@@ -19,6 +19,7 @@ public class AnnotationDrivenLogBeanDefinitionParser implements BeanDefinitionPa
     public static final String LOG_ADVISOR_BEAN_NAME = "org.springframework.log.config.internalLogAdvisor";
     public static final String LOG_ASPECT_BEAN_NAME = "org.springframework.log.config.internalLogAspect";
 
+    @Override
     public BeanDefinition parse(Element element, ParserContext parserContext) {
         AopAutoProxyConfigurer.configureAutoProxyCreator(element, parserContext);
         return null;

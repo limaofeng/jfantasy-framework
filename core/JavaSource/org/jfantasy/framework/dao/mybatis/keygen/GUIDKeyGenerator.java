@@ -1,12 +1,12 @@
 package org.jfantasy.framework.dao.mybatis.keygen;
 
-import org.jfantasy.framework.spring.SpringContextUtil;
-import org.jfantasy.framework.util.common.MessageDigestUtil;
 import ognl.Ognl;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.executor.keygen.KeyGenerator;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.log4j.Logger;
+import org.jfantasy.framework.spring.SpringContextUtil;
+import org.springframework.util.DigestUtils;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -28,8 +28,8 @@ public class GUIDKeyGenerator implements KeyGenerator {
 
     private static GUIDKeyGenerator instance;
 
-    public synchronized static GUIDKeyGenerator getInstance() {
-        if (instance == null && SpringContextUtil.getApplicationContext() != null) {
+    public static synchronized GUIDKeyGenerator getInstance() {
+        if (instance == null && SpringContextUtil.containsBean(GUIDKeyGenerator.class)) {
             instance = SpringContextUtil.getBeanByType(GUIDKeyGenerator.class);
         }
         if (instance == null) {
@@ -81,9 +81,10 @@ public class GUIDKeyGenerator implements KeyGenerator {
         sbValueBeforeMD5.append(Long.toString(time));
         sbValueBeforeMD5.append(":");
         sbValueBeforeMD5.append(Long.toString(rand));
-        return pretty(MessageDigestUtil.getInstance().get(sbValueBeforeMD5.toString()));
+        return pretty(DigestUtils.md5DigestAsHex(sbValueBeforeMD5.toString().getBytes()));
     }
 
+    @Override
     public void processBefore(Executor paramExecutor, MappedStatement paramMappedStatement, Statement paramStatement, Object paramObject) {
         String[] keyProperties = paramMappedStatement.getKeyProperties();
         try {
@@ -93,6 +94,7 @@ public class GUIDKeyGenerator implements KeyGenerator {
         }
     }
 
+    @Override
     public void processAfter(Executor paramExecutor, MappedStatement paramMappedStatement, Statement paramStatement, Object paramObject) {
     }
 }

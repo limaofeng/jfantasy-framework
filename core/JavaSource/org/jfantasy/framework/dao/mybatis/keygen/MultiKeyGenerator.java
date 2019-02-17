@@ -29,6 +29,7 @@ public class MultiKeyGenerator implements KeyGenerator {
         this.targetKeyGenerators = targetKeyGenerators;
     }
 
+    @Override
     public void processBefore(Executor paramExecutor, MappedStatement paramMappedStatement, Statement paramStatement, Object paramObject) {
         for (String keyPropertie : paramMappedStatement.getKeyProperties()) {
             try {
@@ -42,6 +43,7 @@ public class MultiKeyGenerator implements KeyGenerator {
         }
     }
 
+    @Override
     public void processAfter(Executor paramExecutor, MappedStatement paramMappedStatement, Statement paramStatement, Object paramObject) {
     }
 }

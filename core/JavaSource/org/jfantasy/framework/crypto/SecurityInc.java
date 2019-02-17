@@ -1,18 +1,18 @@
 package org.jfantasy.framework.crypto;
 
-public abstract interface SecurityInc {
-	public static final String CRYPTO_FORM = "RSA/NONE/PKCS1PADDING";
-	public static final String SIGNATURE_FORM = "MD5WithRSA";
-	public static final String ARITHMETIC_RSA = "RSA";
-	public static final String ARITHMETIC_DES = "DES";
-	public static final String ARITHMETIC_DSA = "DSA";
-	public static final int KEY_SIZE = 1024;
+public interface SecurityInc {
+    String CRYPTO_FORM = "RSA/ECB/OAEPWITHSHA-256ANDMGF1PADDING";
+    String SIGNATURE_FORM = "MD5WithRSA";
+    String ARITHMETIC_RSA = "RSA";
+    String ARITHMETIC_DES = "DES";
+    String ARITHMETIC_DSA = "DSA";
+    int KEY_SIZE = 1024;
 
-	public abstract byte[] encrypt(byte[] paramArrayOfByte) throws Exception;
+    byte[] encrypt(byte[] paramArrayOfByte) throws CryptoException;
 
-	public abstract byte[] decrypt(byte[] paramArrayOfByte) throws Exception;
+    byte[] decrypt(byte[] paramArrayOfByte) throws CryptoException;
 
-	public abstract byte[] signature(byte[] paramArrayOfByte) throws Exception;
+    byte[] signature(byte[] paramArrayOfByte) throws CryptoException;
 
-	public abstract boolean verify(byte[] paramArrayOfByte1, byte[] paramArrayOfByte2) throws Exception;
+    boolean verify(byte[] paramArrayOfByte1, byte[] paramArrayOfByte2) throws CryptoException;
 }

@@ -1,15 +1,5 @@
 package org.jfantasy.framework.dao.hibernate;
 
-import org.jfantasy.framework.dao.Pager;
-import org.jfantasy.framework.dao.hibernate.util.ReflectionUtils;
-import org.jfantasy.framework.dao.hibernate.util.TypeFactory;
-import org.jfantasy.framework.error.IgnoreException;
-import org.jfantasy.framework.util.common.BeanUtil;
-import org.jfantasy.framework.util.common.ClassUtil;
-import org.jfantasy.framework.util.common.ObjectUtil;
-import org.jfantasy.framework.util.common.StringUtil;
-import org.jfantasy.framework.util.ognl.OgnlUtil;
-import org.jfantasy.framework.util.regexp.RegexpUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -22,6 +12,18 @@ import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.transform.ResultTransformer;
 import org.hibernate.transform.Transformers;
 import org.hibernate.type.Type;
+import org.jfantasy.framework.dao.DaoUtil;
+import org.jfantasy.framework.dao.Pager;
+import org.jfantasy.framework.dao.hibernate.util.ReflectionUtils;
+import org.jfantasy.framework.dao.hibernate.util.TypeFactory;
+import org.jfantasy.framework.error.IgnoreException;
+import org.jfantasy.framework.spring.config.DaoConfig;
+import org.jfantasy.framework.util.common.BeanUtil;
+import org.jfantasy.framework.util.common.ClassUtil;
+import org.jfantasy.framework.util.common.ObjectUtil;
+import org.jfantasy.framework.util.common.StringUtil;
+import org.jfantasy.framework.util.ognl.OgnlUtil;
+import org.jfantasy.framework.util.regexp.RegexpUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
@@ -29,7 +31,6 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
-import java.sql.Blob;
 import java.util.*;
 import java.util.regex.Matcher;
 
@@ -43,24 +44,30 @@ import java.util.regex.Matcher;
  * @since 2013-9-11 下午4:17:39
  */
 public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
-    protected final static Log LOGGER = LogFactory.getLog(HibernateDao.class);
-    protected Log LOG = LogFactory.getLog(getClass());
+    protected static final Log LOGGER = LogFactory.getLog(HibernateDao.class);
+    protected Log LOG = LogFactory.getLog(ClassUtil.getRealClass(getClass()));
     protected SessionFactory sessionFactory;
     protected Class<T> entityClass;
+    protected Class<PK> idClass;
 
-    private final static String LOG_MESSAGE_NULL = "entity不能为空";
+    private static final String LOG_MESSAGE_NULL = "entity不能为空";
 
     public HibernateDao() {
-        this.entityClass = ReflectionUtils.getSuperClassGenricType(getClass());
+        this.entityClass = ReflectionUtils.getSuperClassGenricType(ClassUtil.getRealClass(getClass()));
+        this.idClass = ReflectionUtils.getSuperClassGenricType(ClassUtil.getRealClass(getClass()), 1);
     }
 
-    public SessionFactory getSessionFactory() {
-        return this.sessionFactory;
+    public Class<T> getEntityClass() {
+        return this.entityClass;
     }
 
-    @Autowired
-    public void setSessionFactory(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
+    public Class<PK> getIdClass() {
+        return this.idClass;
+    }
+
+    @Autowired(required = false)
+    public void setEntityManagerFactory(EntityManagerFactory entityManagerFactory) {
+        this.sessionFactory = DaoConfig.getSessionFactory(entityManagerFactory);
     }
 
     /**
@@ -72,37 +79,26 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
         return this.sessionFactory.getCurrentSession();
     }
 
+    public T insert(T entity) {
+        this.LOG.debug("insert entity: " + getSession().save(entity));
+        return entity;
+    }
+
+    public T save(T entity) {
+        return save(entity, false);
+    }
+
     /**
      * 保存对象 实际调用的是 saveOrUpdate
      *
      * @param entity 保存的对象
+     * @param merge  合并模式
      */
-    public T save(T entity) {
+    public T save(T entity, boolean merge) {
         Assert.notNull(entity, LOG_MESSAGE_NULL);
-        try {
-            getSession().saveOrUpdate(entity = clean(entity));//NOSONAR
-        } catch (NonUniqueObjectException e) {
-            LOG.error(e.getMessage(), e);
-            getSession().merge(entity);
-        }
+        getSession().saveOrUpdate(merge ? entity = (clean(entity)) : entity);//NOSONAR
         this.LOG.debug("save entity: " + entity);
         return entity;
-    }
-
-    /**
-     * 更新对象
-     *
-     * @param entity 要更新的对象
-     */
-    public void update(T entity) {
-        Assert.notNull(entity, LOG_MESSAGE_NULL);
-        try {
-            getSession().update(entity);
-        } catch (NonUniqueObjectException e) {
-            LOG.error(e.getMessage(), e);
-            getSession().merge(entity);
-        }
-        this.LOG.debug("update entity: " + entity);
     }
 
     /**
@@ -110,23 +106,47 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
      *
      * @param entity 要合并的对象
      */
-    public void merge(T entity) {
+    public T merge(T entity) {
         Assert.notNull(entity, LOG_MESSAGE_NULL);
-        getSession().merge(entity);
-        this.LOG.debug("update entity: " + entity);
+        try {
+            return (T) getSession().merge(entity);
+        } finally {
+            this.LOG.debug("merge entity: " + entity);
+        }
     }
 
     /**
-     * 待测试方法
+     * 更新对象
      *
-     * @param m      xxx
-     * @param entity 要合并的对象
+     * @param entity 要更新的对象
+     * @param patch  是否为补丁模式
+     * @return T
      */
-    @Deprecated
-    public void merge(String m, T entity) {
+    public T update(T entity, boolean patch) {
+        if (patch) {
+            Assert.notNull(entity, LOG_MESSAGE_NULL);
+            getSession().saveOrUpdate(entity = (clean(entity)));//NOSONAR
+            this.LOG.debug("save entity: " + entity);
+            return entity;
+        }
+        return this.update(entity);
+    }
+
+    /**
+     * 更新对象
+     *
+     * @param entity 要更新的对象
+     */
+    public T update(T entity) {
         Assert.notNull(entity, LOG_MESSAGE_NULL);
-        getSession().merge(m, entity);
-        this.LOG.debug("update entity:" + entity);
+        try {
+            getSession().update(entity);
+        } catch (NonUniqueObjectException e) {
+            LOG.info(e);
+            entity = this.merge(entity);
+        }
+        this.LOG.debug("update entity: " + entity);
+        return entity;
     }
 
     /**
@@ -143,6 +163,15 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
         getSession().persist(clean(entity));
     }
 
+    public T mergeEntity(T entity) {
+        PK id = getIdValue(entity);
+        if (id != null) {
+            T oldentity = this.getSession().get(this.entityClass, id);
+            return BeanUtil.copyNotNull(oldentity, entity);
+        }
+        throw new HibernateException(" id 为空,不能使用合并模式");
+    }
+
     /**
      * 自动将游离对象转为持久化对象
      * 需要实现的主要功能 <br/>
@@ -153,6 +182,7 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
      * @param entity 清理对象
      * @return <T>
      */
+    @Deprecated
     @SuppressWarnings({"unchecked", "rawtypes"})
     private T clean(T entity) {
         OgnlUtil ognlUtil = OgnlUtil.getInstance();
@@ -164,39 +194,42 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
         if (entity == oldEntity) {
             return entity;
         }
+        return (T) merge(entity, oldEntity, this.entityClass, ognlUtil);
+    }
+
+    private Object merge(Object entity, Object oldEntity, Class entityClass, OgnlUtil ognlUtil) {
         if (ObjectUtil.isNotNull(oldEntity)) {// 主键对应的数据存在
             // 为普通字段做值转换操作
-            this.cleanColumn(entity, oldEntity, ClassUtil.getDeclaredFields(this.entityClass, Column.class), ognlUtil);
+            this.cleanColumn(entity, oldEntity, ClassUtil.getDeclaredFields(entityClass, Column.class), ognlUtil);
             // 一对一关联关系的表
-            this.cleanOneToOne(entity, oldEntity, ClassUtil.getDeclaredFields(this.entityClass, OneToOne.class), ognlUtil);
+            this.cleanOneToOne(entity, oldEntity, ClassUtil.getDeclaredFields(entityClass, OneToOne.class), ognlUtil);
             // 多对一关联关系的表
-            this.cleanManyToOne(entity, oldEntity, ClassUtil.getDeclaredFields(this.entityClass, ManyToOne.class), ognlUtil);
+            this.cleanManyToOne(entity, oldEntity, ClassUtil.getDeclaredFields(entityClass, ManyToOne.class), ognlUtil);
             // 多对多关联关系的表
-            this.cleanManyToMany(entity, oldEntity, ClassUtil.getDeclaredFields(this.entityClass, ManyToMany.class), ognlUtil);
+            this.cleanManyToMany(entity, oldEntity, ClassUtil.getDeclaredFields(entityClass, ManyToMany.class), ognlUtil);
             // 一对多关联关系的表
-            this.cleanOneToMany(entity, oldEntity, ClassUtil.getDeclaredFields(this.entityClass, OneToMany.class), ognlUtil);
+            this.cleanOneToMany(entity, oldEntity, ClassUtil.getDeclaredFields(entityClass, OneToMany.class), ognlUtil);
             return oldEntity;
         } else {
-            this.cleanManyToOne(entity, null, ClassUtil.getDeclaredFields(this.entityClass, ManyToOne.class), ognlUtil);
+            this.cleanManyToOne(entity, null, ClassUtil.getDeclaredFields(entityClass, ManyToOne.class), ognlUtil);
             // 多对多关联关系的表
-            this.cleanManyToMany(entity, null, ClassUtil.getDeclaredFields(this.entityClass, ManyToMany.class), ognlUtil);
+            this.cleanManyToMany(entity, null, ClassUtil.getDeclaredFields(entityClass, ManyToMany.class), ognlUtil);
             // 一对多关联关系的表
-            this.cleanOneToMany(entity, null, ClassUtil.getDeclaredFields(this.entityClass, OneToMany.class), ognlUtil);
+            this.cleanOneToMany(entity, null, ClassUtil.getDeclaredFields(entityClass, OneToMany.class), ognlUtil);
             return entity;
         }
     }
 
-    private void cleanColumn(T entity, T oldEntity, Field[] fields, OgnlUtil ognlUtil) {
+    private void cleanColumn(Object entity, Object oldEntity, Field[] fields, OgnlUtil ognlUtil) {
         for (Field field : fields) {
-            String getterMethodName = (boolean.class.equals(field.getType()) ? "is" : "get") + StringUtils.capitalize(field.getName()) + "()";
-            Object value = ognlUtil.getValue(getterMethodName, entity);
+            Object value = ognlUtil.getValue(field.getName(), entity);
             if (value != null) {
                 ClassUtil.setValue(oldEntity, field.getName(), value);
             }
         }
     }
 
-    private void cleanOneToOne(T entity, T oldEntity, Field[] fields, OgnlUtil ognlUtil) {
+    private void cleanOneToOne(Object entity, Object oldEntity, Field[] fields, OgnlUtil ognlUtil) {
         for (Field field : fields) {
             OneToOne oneToOne = field.getAnnotation(OneToOne.class);
             if (!(ObjectUtil.indexOf(oneToOne.cascade(), CascadeType.ALL) > -1 || ObjectUtil.indexOf(oneToOne.cascade(), CascadeType.MERGE) > -1)) {
@@ -210,27 +243,16 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
             if (oldValue == null) {
                 ClassUtil.setValue(oldEntity, field.getName(), value);
             } else {
-                for (Field fkField : ClassUtil.getDeclaredFields(field.getType(), Column.class)) {
-                    if (!fkField.isAnnotationPresent(Id.class)) {
-                        Object fkValue = ClassUtil.getValue(value, fkField.getName());
-                        if (fkValue != null) {
-                            if (fkValue instanceof Blob) {
-                                ClassUtil.setValue(oldValue, fkField.getName(), fkValue);
-                            } else {
-                                ognlUtil.setValue(field.getName() + "." + fkField.getName(), oldEntity, fkValue);
-                            }
-                        }
-                    }
-                }
+                merge(value, oldValue, ClassUtil.getRealClass(field.getType()), ognlUtil);
             }
         }
     }
 
-    private void cleanManyToOne(T entity, T oldEntity, Field[] manyToOneFields, OgnlUtil ognlUtil) {
+    private void cleanManyToOne(Object entity, Object oldEntity, Field[] manyToOneFields, OgnlUtil ognlUtil) {
         for (Field field : manyToOneFields) {
             Object fk = ognlUtil.getValue(field.getName(), entity);
             if (fk == null) {
-                ognlUtil.setValue(field.getName(), entity, null);
+                ognlUtil.setValue(field.getName(), entity, ognlUtil.getValue(field.getName(),oldEntity));
                 continue;
             }
             Serializable fkId = getIdValue(field.getType(), fk);
@@ -239,7 +261,7 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
         }
     }
 
-    private void cleanManyToMany(T entity, T oldEntity, Field[] manyToManyFields, OgnlUtil ognlUtil) {
+    private void cleanManyToMany(Object entity, Object oldEntity, Field[] manyToManyFields, OgnlUtil ognlUtil) {
         for (Field field : manyToManyFields) {
             ManyToMany manyToMany = field.getAnnotation(ManyToMany.class);
             Class targetEntityClass = manyToMany.targetEntity();
@@ -263,7 +285,7 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
         }
     }
 
-    private void cleanOneToMany(T entity, T oldEntity, Field[] oneToManyFields, OgnlUtil ognlUtil) {
+    private void cleanOneToMany(Object entity, Object oldEntity, Field[] oneToManyFields, OgnlUtil ognlUtil) {
         for (Field field : oneToManyFields) {
             OneToMany oneToMany = field.getAnnotation(OneToMany.class);
             Class targetEntityClass = oneToMany.targetEntity();
@@ -354,15 +376,17 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
     /**
      * 通过id删除对象
      *
-     * @param id 通过主键删除
+     * @param ids 通过主键删除
      */
-    public void delete(PK id) {
-        Assert.notNull(id, "id不能为空");
-        T t = get(id);
-        if (t != null) {
+    public void delete(PK... ids) {
+        for (PK id : ids) {
+            T t = get(id);
+            if (t == null) {
+                continue;
+            }
             delete(t);
+            this.LOG.debug("delete entity " + this.entityClass.getSimpleName() + ",id is " + id);
         }
-        this.LOG.debug("delete entity " + this.entityClass.getSimpleName() + ",id is " + id);
     }
 
     /**
@@ -384,7 +408,7 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
      * @return <T>对象
      */
     @SuppressWarnings("unchecked")
-    public T load(PK id) {
+    public T findOne(PK id) {
         Assert.notNull(id, "id不能为空");
         return (T) getSession().load(this.entityClass, id);
     }
@@ -394,7 +418,7 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
      *
      * @return List<T>
      */
-    public List<T> getAll() {
+    public List<T> findAll() {
         return find();
     }
 
@@ -419,6 +443,11 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
     public List<T> findBy(String propertyName, Object value) {
         Assert.hasText(propertyName, "propertyName不能为空");
         return find(Restrictions.eq(propertyName, value));
+    }
+
+    public List<T> findBy(String propertyName, Object value,String orderBy,String order) {
+        Assert.hasText(propertyName, "propertyName不能为空");
+        return find(new Criterion[]{Restrictions.eq(propertyName, value)},orderBy,order);
     }
 
     /**
@@ -687,12 +716,12 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
     }
 
     public String getIdName(Class entityClass) {
-        ClassMetadata meta = getSessionFactory().getClassMetadata(entityClass);
+        ClassMetadata meta = this.sessionFactory.getClassMetadata(entityClass);
         return meta.getIdentifierPropertyName();
     }
 
     public String getIdName() {
-        ClassMetadata meta = getSessionFactory().getClassMetadata(this.entityClass);
+        ClassMetadata meta = this.sessionFactory.getClassMetadata(this.entityClass);
         return meta.getIdentifierPropertyName();
     }
 
@@ -702,21 +731,19 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
 
     @SuppressWarnings("unchecked")
     public Pager<T> findPager(Pager<T> pager, String hql, Object... values) {
-        pager = pager == null ? new Pager<T>() : pager;
         Query q = createQuery(hql, values);
-        pager.setTotalCount(countHqlResult(hql, values));
+        pager.reset(countHqlResult(hql, values));
         setPageParameter(q, pager);
-        pager.setPageItems(distinct(q).list());
+        pager.reset(distinct(q).list());
         return pager;
     }
 
     @SuppressWarnings("unchecked")
     public Pager<T> findPager(Pager<T> pager, String hql, Map<String, ?> values) {
-        pager = pager == null ? new Pager<T>() : pager;
         Query q = createQuery(hql, values);
-        pager.setTotalCount(countHqlResult(hql, values));
+        pager.reset(countHqlResult(hql, values));
         setPageParameter(q, pager);
-        pager.setPageItems(distinct(q).list());
+        pager.reset(distinct(q).list());
         return pager;
     }
 
@@ -728,13 +755,12 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
      */
     @SuppressWarnings("unchecked")
     public Pager<T> findPager(Pager<T> pager, Criterion... criterions) {
-        pager = pager == null ? new Pager<T>() : pager;
         Criteria c = distinct(createCriteria(criterions, StringUtil.tokenizeToStringArray(pager.getOrderBy())));
         if (pager.getFirst() == 0) {
-            pager.setTotalCount(countCriteriaResult(c));
+            pager.reset(countCriteriaResult(c));
         }
         setPageParameter(c, pager);
-        pager.setPageItems(c.list());
+        pager.reset(c.list());
         return pager;
     }
 
@@ -749,11 +775,14 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
         c.setMaxResults(pager.getPageSize());
         if (pager.isOrderBySetted()) {
             String[] orderByArray = StringUtil.tokenizeToStringArray(pager.getOrderBy());
-            Assert.isTrue(orderByArray.length == pager.getOrders().length, "分页多重排序参数中,排序字段与排序方向的个数不相等");
-            for (int i = 0; i < orderByArray.length; i++) {
-                if ("asc".equals(pager.getOrders()[i].name())) {
+            String[] orders = StringUtil.tokenizeToStringArray(pager.getOrder());
+
+            Assert.isTrue(orderByArray.length == orders.length, "分页多重排序参数中,排序字段与排序方向的个数不相等");
+
+            for (int i = 0; i < orders.length; i++) {
+                if (Pager.SORT_ASC.equals(orders[i])) {
                     c.addOrder(Order.asc(orderByAlias(orderByArray[i])));
-                } else {
+                } else if (Pager.SORT_DESC.equals(orders[i])) {
                     c.addOrder(Order.desc(orderByAlias(orderByArray[i])));
                 }
             }
@@ -793,11 +822,19 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
         return c;
     }
 
-    protected int countHqlResult(String hql, Object... values) {
+    private String generateCountHql(String hql) {
         String fromHql = hql;
         fromHql = "from " + StringUtils.substringAfter(fromHql, "from");
         fromHql = StringUtils.substringBefore(fromHql, "order by");
-        String countHql = "select count(*) " + fromHql;
+        return "select count(*) " + fromHql;
+    }
+
+    public boolean exists(Criterion... criterions) {
+        return this.count(criterions) > 0;
+    }
+
+    protected int countHqlResult(String hql, Object... values) {
+        String countHql = generateCountHql(hql);
         try {
             Long count = (Long) findUnique(countHql, values);
             return count.intValue();
@@ -807,10 +844,7 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
     }
 
     protected int countHqlResult(String hql, Map<String, ?> values) {
-        String fromHql = hql;
-        fromHql = "from " + StringUtils.substringAfter(fromHql, "from");
-        fromHql = StringUtils.substringBefore(fromHql, "order by");
-        String countHql = "select count(*) " + fromHql;
+        String countHql = generateCountHql(hql);
         try {
             Long count = (Long) findUnique(countHql, values);
             return count.intValue();
@@ -827,7 +861,7 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
         CriteriaImpl impl = CriteriaImpl.class.cast(c);
         Projection projection = impl.getProjection();
         ResultTransformer transformer = impl.getResultTransformer();
-        List<OrderEntry> orderEntries = null;
+        List<OrderEntry> orderEntries;
         try {
             orderEntries = ReflectionUtils.getFieldValue(impl, "orderEntries");
             ReflectionUtils.setFieldValue(impl, "orderEntries", new ArrayList<OrderEntry>());
@@ -922,14 +956,12 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
     }
 
     public Pager<T> findPager(Pager<T> pager, List<PropertyFilter> filters) {
-        pager = pager == null ? new Pager<T>() : pager;
-        filters = filters == null ? new ArrayList<PropertyFilter>() : filters;
         Criterion[] criterions = buildPropertyFilterCriterions(filters);
         return findPager(pager, criterions);
     }
 
     protected Criterion[] buildPropertyFilterCriterions(List<PropertyFilter> filters) {
-        List<Criterion> criterionList = new ArrayList<Criterion>();
+        List<Criterion> criterionList = new ArrayList<>();
         for (PropertyFilter filter : filters) {
             if (StringUtil.isBlank(filter.getPropertyValue())) {
                 continue;
@@ -960,16 +992,24 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
         if (filter.getPropertyType() == null) {
             return null;
         }
-        if (!filter.getPropertyType().isAssignableFrom(Enum.class)) {
-            return filter.getPropertyValue();
-        }
         Class<?> entityClassTemp = this.entityClass;
         String[] propertyNames = filter.getPropertyName().split("\\.");
         for (int i = 0; i < propertyNames.length - 1; i++) {
             entityClassTemp = ClassUtil.getProperty(entityClassTemp, propertyNames[i]).getPropertyType();
         }
         Class propertyType = ClassUtil.getProperty(entityClassTemp, propertyNames[propertyNames.length - 1]).getPropertyType();
-        return filter.getMatchType().isMulti() ? filter.getPropertyValue(ClassUtil.newInstance(propertyType, 0).getClass()) : filter.getPropertyValue(propertyType);
+        if (propertyType.isEnum()){
+            return filter.getMatchType().isMulti() ? filter.getPropertyValue(ClassUtil.newInstance(propertyType, 0).getClass()) : filter.getPropertyValue(propertyType);
+        }
+        if (filter.getPropertyValue().getClass().isAssignableFrom(String[].class)){
+            String[] tempArray = (String[]) filter.getPropertyValue();
+            Object array = ClassUtil.newInstance(propertyType, tempArray.length);
+            for (int i = 0; i < tempArray.length; i++) {
+                Array.set(array, i, ReflectionUtils.convertStringToObject(tempArray[i], propertyType));
+            }
+            return array;
+        }
+        return ReflectionUtils.convertStringToObject((String) filter.getPropertyValue(), propertyType);
     }
 
     public static String getAlias(String property) {
@@ -979,7 +1019,8 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
     private String createAlias(Criteria criteria, Set<String> alias, String property) {
         String[] names = StringUtil.tokenizeToStringArray(property, ".");
         if (names.length > 1) {
-            String aliasName = "", objeactName = "";
+            String aliasName = "";
+            String objeactName = "";
             for (int i = 0; i < names.length - 1; i++) {
                 objeactName = objeactName + (StringUtils.isNotBlank(aliasName) ? "." : "") + names[i];
                 aliasName = "_" + objeactName.replaceAll("\\.", "_");
@@ -1000,6 +1041,7 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
         }
     }
 
+    @SuppressWarnings("unchecked")
     protected Criterion buildPropertyFilterCriterion(String propertyName, Object propertyValue, PropertyFilter.MatchType matchType) {
         Assert.hasText(propertyName, "propertyName不能为空");
         Criterion criterion = null;
@@ -1010,11 +1052,11 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
                 String value = (String) propertyValue;
                 MatchMode matchMode = MatchMode.ANYWHERE;
                 if (value.startsWith("%")) {
-                    matchMode = MatchMode.START;
+                    matchMode = MatchMode.END;
                     value = value.substring(1);
                 } else if (value.endsWith("%")) {
-                    matchMode = MatchMode.END;
-                    value = value.substring(0, value.length() - 2);
+                    matchMode = MatchMode.START;
+                    value = value.substring(0, value.length() - 1);
                 }
                 criterion = Restrictions.like(propertyName, value, matchMode);
             } else if (PropertyFilter.MatchType.LE.equals(matchType)) {
@@ -1072,6 +1114,7 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
         return countCriteriaResult(createCriteria(criterions));
     }
 
+    @SuppressWarnings("unchecked")
     public static Criterion sqlRestriction(Criterion criterion, String propertyNameSql) {
         if (criterion instanceof SimpleExpression) {
             Object value = ClassUtil.getValue(criterion, "value");
@@ -1126,6 +1169,41 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
         }
         c.setProjection(projectionList);
         c.setResultTransformer(new AliasToBeanResultTransformer(resultClass));
+        return c.list();
+    }
+
+    public Map findUnique(Criterion[] criterions, Projection[] projections) {
+        Criteria c = createCriteria(criterions);
+        ProjectionList projectionList = Projections.projectionList();
+        for (Projection projection : projections) {
+            projectionList.add(projection);
+        }
+        c.setProjection(projectionList);
+        c.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+        return (Map) c.uniqueResult();
+    }
+
+    @SuppressWarnings("unchecked")
+    public <C> List<C> find(Criterion[] criterions, Projection[] projections, Class<C> resultClass) {
+        Criteria c = createCriteria(criterions);
+        ProjectionList projectionList = Projections.projectionList();
+        for (Projection projection : projections) {
+            projectionList.add(projection);
+        }
+        c.setProjection(projectionList);
+        c.setResultTransformer(new AliasToBeanResultTransformer(resultClass));
+        return c.list();
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<Map> find(Criterion[] criterions, Projection[] projections) {
+        Criteria c = createCriteria(criterions);
+        ProjectionList projectionList = Projections.projectionList();
+        for (Projection projection : projections) {
+            projectionList.add(projection);
+        }
+        c.setProjection(projectionList);
+        c.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
         return c.list();
     }
 

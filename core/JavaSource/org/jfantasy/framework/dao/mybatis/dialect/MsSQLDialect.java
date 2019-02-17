@@ -30,6 +30,7 @@ public class MsSQLDialect implements Dialect {
         this.version = version;
     }
 
+    @Override
     public String getLimitString(String sql, int offset, int limit) {
         StringBuilder sb = new StringBuilder(sql.length() + 20);
         if ("2000".equals(version)) {
@@ -83,6 +84,7 @@ public class MsSQLDialect implements Dialect {
         return sql;
     }
 
+    @Override
     public String getCountString(String sql) {
         return DialectUtil.pretty("select count(1) from (" + trim(RegexpUtil.replace(sql, "(order|ORDER)[ ]+(by|BY)[ ]+([a-zA-Z0-9_, ]+)([ ]|[\r\n\t]){0,}((desc|DESC|asc|ASC)|[ ]|[\r\n\t]){0,}$", "")) + ") as countSql");
     }

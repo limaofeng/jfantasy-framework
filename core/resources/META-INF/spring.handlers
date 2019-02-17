@@ -1,1 +1,1 @@
-http\://www.fantasy.com.cn/schema/log=com.fantasy.framework.log.config.LogNamespaceHandler
+http\://www.fantasy.com.cn/schema/log=org.jfantasy.framework.log.config.LogNamespaceHandler

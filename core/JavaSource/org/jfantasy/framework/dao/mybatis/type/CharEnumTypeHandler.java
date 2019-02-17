@@ -32,6 +32,7 @@ public class CharEnumTypeHandler<E extends Enum<E>> extends BaseTypeHandler<E> {
         this.enums = (Enum[]) ClassUtil.getMethodProxy(this.enumClass, "values").invoke(null);
         ConvertUtils.register(new Converter() {
 
+            @Override
             public Object convert(Class classes, Object value) {
                 if (value.getClass().isAssignableFrom(enumClass)) {
                     E e = (E) value;
@@ -49,10 +50,12 @@ public class CharEnumTypeHandler<E extends Enum<E>> extends BaseTypeHandler<E> {
         ConvertUtils.register(converter, this.enumClass);
     }
 
+    @Override
     public void setNonNullParameter(PreparedStatement ps, int i, E parameter, JdbcType jdbcType) throws SQLException {
         ps.setString(i, StringUtil.nullValue(ConvertUtils.convert(parameter, enumClass)));
     }
 
+    @Override
     public E getNullableResult(ResultSet rs, String columnName) throws SQLException {
         String columnValue = rs.getString(columnName);
         if (rs.wasNull()) {
@@ -65,6 +68,7 @@ public class CharEnumTypeHandler<E extends Enum<E>> extends BaseTypeHandler<E> {
         }
     }
 
+    @Override
     public E getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
         String columnValue = rs.getString(columnIndex);
         if (rs.wasNull()) {
@@ -77,6 +81,7 @@ public class CharEnumTypeHandler<E extends Enum<E>> extends BaseTypeHandler<E> {
         }
     }
 
+    @Override
     public E getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
         String columnValue = cs.getString(columnIndex);
         if (cs.wasNull()) {

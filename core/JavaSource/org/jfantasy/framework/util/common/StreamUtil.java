@@ -6,10 +6,12 @@ import java.io.*;
 
 public abstract class StreamUtil {
 
-    private StreamUtil(){}
     private static final Logger LOGGER = Logger.getLogger(StreamUtil.class);
 
-    public static final int DEFAULT_BUFFER_SIZE = 2048;
+    private static final int DEFAULT_BUFFER_SIZE = 2048;
+
+    private StreamUtil(){}
+
 
     public static void copy(InputStream input, OutputStream output) throws IOException {
         copy(input, output, DEFAULT_BUFFER_SIZE);
@@ -19,8 +21,8 @@ public abstract class StreamUtil {
         byte[] buf = new byte[bufferSize];
         int loadLength = end - start + 1;
 
-        if (start > 0) {
-            long s = input.skip(start);
+        if (start > 0 && input.skip(start) <= 0) {
+            throw new IOException(" skip failure");
         }
 
         int bytesRead = input.read(buf, 0, loadLength > bufferSize ? bufferSize : loadLength);
@@ -56,6 +58,9 @@ public abstract class StreamUtil {
     }
 
     public static void closeQuietly(InputStream input) {
+        if(input == null){
+            return;
+        }
         try {
             input.close();
         } catch (IOException e) {
@@ -64,6 +69,9 @@ public abstract class StreamUtil {
     }
 
     public static void closeQuietly(OutputStream output) {
+        if(output == null){
+            return;
+        }
         try {
             output.close();
         } catch (IOException e) {
@@ -72,6 +80,9 @@ public abstract class StreamUtil {
     }
 
     public static void closeQuietly(Writer writer) {
+        if(writer == null){
+            return;
+        }
         try {
             writer.close();
         } catch (IOException e) {

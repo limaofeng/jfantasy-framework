@@ -25,11 +25,12 @@ public class SequenceKeyGenerator implements KeyGenerator {
 
     private DataBaseKeyGenerator dataBaseKeyGenerator;
 
+    @Override
     public void processBefore(Executor paramExecutor, MappedStatement paramMappedStatement, Statement paramStatement, Object paramObject) {
         String[] keyProperties = paramMappedStatement.getKeyProperties();
         if (keyProperties.length == 1) {
             try {
-                Ognl.setValue(keyProperties[0], paramObject, Long.valueOf(getKeyGenerator().nextValue(paramObject.getClass().getName())));
+                Ognl.setValue(keyProperties[0], paramObject, getKeyGenerator().nextValue(paramObject.getClass().getName()));
             } catch (OgnlException e) {
                 LOG.error(e.getMessage(), e);
             }
@@ -43,6 +44,7 @@ public class SequenceKeyGenerator implements KeyGenerator {
         return this.dataBaseKeyGenerator;
     }
 
+    @Override
     public void processAfter(Executor paramExecutor, MappedStatement paramMappedStatement, Statement paramStatement, Object paramObject) {
     }
 

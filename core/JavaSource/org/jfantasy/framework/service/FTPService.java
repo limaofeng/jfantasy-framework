@@ -26,7 +26,7 @@ import java.util.StringTokenizer;
 public class FTPService {
 
     private static final String ISO_8859_1 = "ISO-8859-1";
-    private static Log LOG = LogFactory.getLog(FTPService.class);
+    private static final Log LOG = LogFactory.getLog(FTPService.class);
 
     /**
      * 端口
@@ -120,7 +120,7 @@ public class FTPService {
      */
     protected FTPClient login() throws IOException {
         if (LOG.isDebugEnabled()) {
-            StringBuffer debug = new StringBuffer("\r\n准备开始连接FTP服务器:" + this.hostname + ",连接信息如下");
+            StringBuilder debug = new StringBuilder("\r\n准备开始连接FTP服务器:" + this.hostname + ",连接信息如下");
             debug.append("\r\nSystemKey:").append(this.systemKey);
             debug.append("\r\nServerLanguageCode:").append(this.serverLanguageCode);
             debug.append("\r\nHostname:").append(this.hostname);
@@ -253,16 +253,17 @@ public class FTPService {
      * @throws IOException
      */
     public void uploadFile(File localFile, String remoteFolder) throws IOException {
+        String argsRemoteFolder = remoteFolder;
         if (!localFile.exists()) {
             throw new FileNotFoundException("此文件[" + localFile.getName() + "]有误或不存在");
         }
-        if (remoteFolder.endsWith("/")) {
-            remoteFolder += RegexpUtil.parseGroup(localFile.getPath().replace("\\", "/"), "[^\\/]+$", 0);
+        if (argsRemoteFolder.endsWith("/")) {
+            argsRemoteFolder += RegexpUtil.parseGroup(localFile.getPath().replace("\\", "/"), "[^\\/]+$", 0);
         }
         if (localFile.isDirectory()) {
             throw new IOException(localFile.getPath() + "不是一个文件");
         }
-        uploadFile(new FileInputStream(localFile), remoteFolder);
+        uploadFile(new FileInputStream(localFile), argsRemoteFolder);
     }
 
     /**
@@ -274,7 +275,7 @@ public class FTPService {
      * @throws IOException
      */
     protected void uploadFile(InputStream in, String remoteFile, FTPClient ftpClient) throws IOException {
-        if (remoteFile.indexOf(".") < 1) {
+        if (!remoteFile.contains(".")) {
             throw new FileNotFoundException("必须指定上传文件的目录及文件名");
         }
         OutputStream out = getOutputStream(remoteFile, ftpClient);
@@ -338,11 +339,14 @@ public class FTPService {
             // 遍历本地目录上传文件
             File[] sourceFiles = ObjectUtil.defaultValue(localFile.listFiles(), new File[0]);
             for (File file : sourceFiles) {
-                if (file.exists()) {
-                    if (file.isDirectory()) {
-                        uploadFolder(file, remote + file.getName() + "/", ftpClient);
-                    } else {
-                        uploadFile(new FileInputStream(file), remote.concat(file.getName()), ftpClient);
+                if (!file.exists()) {
+                    continue;
+                }
+                if (file.isDirectory()) {
+                    uploadFolder(file, remote + file.getName() + "/", ftpClient);
+                } else {
+                    try(FileInputStream out = new FileInputStream(file)) {
+                        uploadFile(out, remote.concat(file.getName()), ftpClient);
                     }
                 }
             }
@@ -454,12 +458,13 @@ public class FTPService {
             FTPFile[] files = ftpClient.listFiles();
             for (FTPFile file : files) {
                 String remote = (remoteFolder.endsWith("/") ? remoteFolder : new StringBuilder(String.valueOf(remoteFolder)).append("/").toString()) + file.getName();
-                if (!file.getName().endsWith(".")) {
-                    if (file.isDirectory()) {
-                        deleteRemoteFolder(remote + "/", ftpClient);
-                    } else {
-                        deleteRemoteFile(remote, ftpClient);
-                    }
+                if (file.getName().endsWith(".")) {
+                    continue;
+                }
+                if (file.isDirectory()) {
+                    deleteRemoteFolder(remote + "/", ftpClient);
+                } else {
+                    deleteRemoteFile(remote, ftpClient);
                 }
             }
         }
@@ -487,10 +492,10 @@ public class FTPService {
         s.countTokens();
         String pathName = "";
         while (s.hasMoreElements()) {
-            pathName = pathName + "/" + (String) s.nextElement();
+            pathName = pathName + "/" + s.nextElement();
             try {
                 boolean success = ftpClient.makeDirectory(pathName);
-                if ((!success) && (dir.equals(pathName + "/"))) {
+                if ((!success) && ((pathName + "/").equals(dir))) {
                     throw new IOException();
                 }
             } catch (IOException e) {
@@ -577,19 +582,20 @@ public class FTPService {
      * @throws IOException
      */
     public void download(String remote, File localFile) throws IOException {
-        if ((localFile.isDirectory() && !localFile.exists()) || !localFile.getParentFile().exists()) {
-            throw new FileNotFoundException("创建本地目录:" + localFile.getAbsolutePath() + "失败");
+        File argsLocalFile = localFile;
+        if ((argsLocalFile.isDirectory() && !argsLocalFile.exists()) || !argsLocalFile.getParentFile().exists()) {
+            throw new FileNotFoundException("创建本地目录:" + argsLocalFile.getAbsolutePath() + "失败");
         }
         if (remote.endsWith("/")) {
             throw new FileNotFoundException("必须指定下载文件的文件名");
         }
-        if (localFile.isDirectory()) {
-            localFile = FileUtil.createFile(localFile, RegexpUtil.parseGroup(remote, "[^\\/]+$", 0));
+        if (argsLocalFile.isDirectory()) {
+            argsLocalFile = FileUtil.createFile(argsLocalFile, RegexpUtil.parseGroup(remote, "[^\\/]+$", 0));
         }
         if (LOG.isDebugEnabled()) {
-            LOG.debug("开始下载文件:" + remote + " > " + localFile.getAbsolutePath());
+            LOG.debug("开始下载文件:" + remote + " > " + argsLocalFile.getAbsolutePath());
         }
-        download(remote, new FileOutputStream(localFile));
+        download(remote, new FileOutputStream(argsLocalFile));
     }
 
     /**
@@ -758,14 +764,17 @@ public class FTPService {
             Assert.notNull(this.inputStream, "inputStream is null");
         }
 
+        @Override
         public int read() throws IOException {
             return this.inputStream.read();
         }
 
+        @Override
         public int available() throws IOException {
             return this.inputStream.available();
         }
 
+        @Override
         public void close() throws IOException {
             try {
                 this.inputStream.close();
@@ -777,26 +786,32 @@ public class FTPService {
             }
         }
 
+        @Override
         public synchronized void mark(int readlimit) {
             this.inputStream.mark(readlimit);
         }
 
+        @Override
         public boolean markSupported() {
             return this.inputStream.markSupported();
         }
 
+        @Override
         public int read(byte[] b, int off, int len) throws IOException {
             return this.inputStream.read(b, off, len);
         }
 
+        @Override
         public int read(byte[] bs) throws IOException {
             return this.inputStream.read(bs);
         }
 
+        @Override
         public synchronized void reset() throws IOException {
             this.inputStream.reset();
         }
 
+        @Override
         public long skip(long n) throws IOException {
             return this.inputStream.skip(n);
         }

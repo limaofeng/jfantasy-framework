@@ -1,16 +1,16 @@
 package org.jfantasy.framework.util.common;
 
-import org.jfantasy.framework.dao.mybatis.keygen.GUIDKeyGenerator;
-import org.jfantasy.framework.error.IgnoreException;
-import org.jfantasy.framework.util.regexp.RegexpUtil;
 import com.sun.imageio.plugins.bmp.BMPImageReader;
 import com.sun.imageio.plugins.gif.GIFImageReader;
 import com.sun.imageio.plugins.jpeg.JPEGImageReader;
 import com.sun.imageio.plugins.png.PNGImageReader;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jfantasy.framework.dao.mybatis.keygen.GUIDKeyGenerator;
+import org.jfantasy.framework.error.IgnoreException;
+import org.jfantasy.framework.util.regexp.RegexpUtil;
+import org.springframework.util.Base64Utils;
 import sun.awt.image.ToolkitImage;
-import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 
 import javax.imageio.ImageIO;
@@ -42,13 +42,9 @@ public final class ImageUtil {
     private static final String BMP_FORMAT_NAME = "bmp";// BMP文件格式名称
     private static final String PNG_FORMAT_NAME = "png";// PNG文件格式名称
 
-    private static ImageObserver imageObserver = new ImageObserver() {
-
-        public boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height) {
-            LOG.debug("ImageObserver : infoflags:" + infoflags + ",x:" + x + ",y:" + y + ",width:" + width + ",height:" + height);
-            return true;
-        }
-
+    private static ImageObserver imageObserver = (img, infoflags, x, y, width, height) -> {
+        LOG.debug("ImageObserver : infoflags:" + infoflags + ",x:" + x + ",y:" + y + ",width:" + width + ",height:" + height);
+        return true;
     };
 
 
@@ -312,7 +308,7 @@ public final class ImageUtil {
         } else {
             imageOriginal = ImageIO.read(target);
         }
-        if ((ratio == 1.0F) || (ratio == 0.0F)) {
+        if (Float.compare(ratio, 1.0F) == 0 || Float.compare(ratio, 0.0F) == 0) {
             return imageOriginal;
         }
         int realWidth = imageOriginal.getWidth();
@@ -353,14 +349,14 @@ public final class ImageUtil {
         target = new ByteArrayInputStream(os.toByteArray());
         if (BMP_FORMAT_NAME.equalsIgnoreCase(picextendname)) {
             imageOriginal = toBufferedImage((ToolkitImage) bmpReader(target));
-        }else if (GIF_FORMAT_NAME.equalsIgnoreCase(picextendname)) {
-            throw new RuntimeException("暂不支持GIF图片缩放");
+        } else if (GIF_FORMAT_NAME.equalsIgnoreCase(picextendname)) {
+            throw new ImageFormatException("暂不支持GIF图片缩放");
         } else {
             imageOriginal = ImageIO.read(target);
         }
         int realWidth = imageOriginal.getWidth();
         int realHeight = imageOriginal.getHeight();
-        if ((realWidth == width) && (realHeight == heigth)){
+        if ((realWidth == width) && (realHeight == heigth)) {
             return imageOriginal;
         }
         return reduce(imageOriginal, realWidth, realHeight, width, heigth);
@@ -750,7 +746,7 @@ public final class ImageUtil {
      * @return
      */
     public static BufferedImage screenshots(BufferedImage img, int x, int y, int w, int h) {
-        if (LOG.isDebugEnabled()){
+        if (LOG.isDebugEnabled()) {
             LOG.debug("Method:screenshots,param:{x:" + x + ",y:" + y + ",w:" + w + ",h:" + h + "}");
         }
         ImageFilter cropFilter = new CropImageFilter(x, y, w, h);
@@ -768,10 +764,9 @@ public final class ImageUtil {
      * @param in 输入流
      * @return {String}
      */
-    public static String getImage(InputStream in) {// 将图片文件转化为字节数组字符串，并对其进行Base64编码处理
+    public static String base64(InputStream in) {// 将图片文件转化为字节数组字符串，并对其进行Base64编码处理
         try {
-            byte[] data = new byte[in.available()];// 读取图片字节数组
-            in.read(data);
+            byte[] data = StreamUtil.getBytes(in);// 读取图片字节数组
             BASE64Encoder encoder = new BASE64Encoder();// 对字节数组Base64编码
             return encoder.encode(data);// 返回Base64编码过的字节数组字符串
         } catch (IOException e) {
@@ -790,9 +785,7 @@ public final class ImageUtil {
      */
     public static BufferedImage getImage(String base64) {
         try {
-            BASE64Decoder decoder = new BASE64Decoder();
-            ByteArrayInputStream in = new ByteArrayInputStream(decoder.decodeBuffer(base64));
-            return ImageIO.read(in);
+            return ImageIO.read(new ByteArrayInputStream(Base64Utils.decodeFromString(base64)));
         } catch (IOException e) {
             LOG.error(e.getMessage(), e);
             return null;
@@ -831,6 +824,14 @@ public final class ImageUtil {
             }
             return null;
         }
+    }
+
+    static class ImageFormatException extends RuntimeException {
+
+        public ImageFormatException(String message) {
+            super(message);
+        }
+
     }
 
 }

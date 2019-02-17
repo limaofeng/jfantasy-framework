@@ -1,0 +1,9 @@
+description = ''
+
+dependencies {
+    compile project(':jfantasy-core')
+    compile "org.springframework.boot:spring-boot-starter-data-redis"
+    compile "org.hibernate:hibernate-ehcache:5.0.12.Final"
+    provided "org.jboss.logging:jboss-logging-annotations:2.0.1.Final"
+    testCompile "org.springframework.boot:spring-boot-starter-test"
+}

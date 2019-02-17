@@ -16,9 +16,9 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class ConcurrentRequestFilter extends OncePerRequestFilter {
 
-    private final static Log LOG = LogFactory.getLog(ConcurrentRequestFilter.class);
+    private static final Log LOG = LogFactory.getLog(ConcurrentRequestFilter.class);
 
-    private LinkedBlockingQueue<Lock> locks = new LinkedBlockingQueue<Lock>();
+    private LinkedBlockingQueue<Lock> locks = new LinkedBlockingQueue<>();
 
     public ConcurrentRequestFilter(int locksNumber) {
         LOG.debug("初始化[" + locksNumber + "]把锁,用于限制请求并发");
@@ -26,7 +26,7 @@ public class ConcurrentRequestFilter extends OncePerRequestFilter {
             try {
                 locks.put(new ReentrantLock());
             } catch (InterruptedException e) {
-                LOG.error(e.getMessage(), e);
+                Thread.currentThread().interrupt();
             }
         }
     }
@@ -36,14 +36,13 @@ public class ConcurrentRequestFilter extends OncePerRequestFilter {
         try {
             Lock lock = locks.take();
             try {
-                lock.lock();
                 filterChain.doFilter(request, response);
             } finally {
                 lock.unlock();
                 locks.put(lock);
             }
         } catch (InterruptedException e) {
-            LOG.error(e.getMessage(), e);
+            Thread.currentThread().interrupt();
         }
     }
 

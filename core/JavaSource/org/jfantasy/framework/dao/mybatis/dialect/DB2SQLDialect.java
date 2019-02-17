@@ -15,6 +15,7 @@ public class DB2SQLDialect implements Dialect {
 
     protected static final String SQL_END_DELIMITER = ";";
 
+    @Override
     public String getLimitString(String sql, int offset, int limit) {
         sql = trim(sql);
         if (RegexpUtil.isMatch(trim(sql), "WITH(?i)")) {
@@ -70,6 +71,7 @@ public class DB2SQLDialect implements Dialect {
         return sql;
     }
 
+    @Override
     public String getCountString(String sql) {
         if (RegexpUtil.isMatch(trim(sql), "WITH(?i)")) {
             String with = RegexpUtil.parseFirst(sql, "(WITH(?i))[ ]+([a-zA-Z0-9]+)\\([^\\)]+\\)[ ]+(AS(?i))[ ]+");

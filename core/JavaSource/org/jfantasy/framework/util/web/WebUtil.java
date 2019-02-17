@@ -7,6 +7,7 @@ import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.framework.util.ognl.OgnlUtil;
 import org.jfantasy.framework.util.regexp.RegexpUtil;
 import org.jfantasy.framework.util.web.context.ActionContext;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -30,7 +31,9 @@ import java.util.Set;
  * @since 2013-9-10 上午9:16:01
  */
 public class WebUtil {
+
     private WebUtil() {
+        throw new IllegalStateException("Utility class");
     }
 
     private static final Logger LOG = Logger.getLogger(WebUtil.class);
@@ -173,6 +176,7 @@ public class WebUtil {
 
     public static void addCookie(HttpServletResponse response, String name, String value, int expiry) {
         Cookie cookie = new Cookie(name, value);
+        cookie.setSecure(true);
         cookie.setMaxAge(expiry);
         cookie.setPath("/");
         response.addCookie(cookie);
@@ -180,7 +184,7 @@ public class WebUtil {
 
     public static void removeCookie(HttpServletRequest request, HttpServletResponse response, String name) {
         Cookie cookie = getCookie(request, name);
-        if (!ObjectUtil.isNull(cookie)) {
+        if (cookie != null) {
             cookie.setMaxAge(0);
             cookie.setPath("/");
             response.addCookie(cookie);
@@ -264,37 +268,37 @@ public class WebUtil {
     public static String getOsVersion(HttpServletRequest request) {
         String useros = request.getHeader("User-Agent").toLowerCase();
         String osVersion = "unknown";
-        if (useros.indexOf("nt 6.1") > 0) {
+        if (useros.contains("nt 6.1")) {
             osVersion = "Windows 7";
-        } else if (useros.indexOf("nt 6.0") > 0) {
+        } else if (useros.contains("nt 6.0")) {
             osVersion = "Windows Vista/Server 2008";
-        } else if (useros.indexOf("nt 5.2") > 0) {
+        } else if (useros.contains("nt 5.2")) {
             osVersion = "Windows Server 2003";
-        } else if (useros.indexOf("nt 5.1") > 0) {
+        } else if (useros.contains("nt 5.1")) {
             osVersion = "Windows XP";
-        } else if (useros.indexOf("nt 5") > 0) {
+        } else if (useros.contains("nt 5")) {
             osVersion = "Windows 2000";
-        } else if (useros.indexOf("nt 4") > 0) {
+        } else if (useros.contains("nt 4")) {
             osVersion = "Windows nt4";
-        } else if (useros.indexOf("me") > 0) {
+        } else if (useros.contains("me")) {
             osVersion = "Windows Me";
-        } else if (useros.indexOf("98") > 0) {
+        } else if (useros.contains("98")) {
             osVersion = "Windows 98";
-        } else if (useros.indexOf("95") > 0) {
+        } else if (useros.contains("95")) {
             osVersion = "Windows 95";
-        } else if (useros.indexOf("ipad") > 0) {
+        } else if (useros.contains("ipad")) {
             osVersion = "iPad";
-        } else if (useros.indexOf("macintosh") > 0) {
+        } else if (useros.contains("macintosh")) {
             osVersion = "Mac";
-        } else if (useros.indexOf("unix") > 0) {
+        } else if (useros.contains("unix")) {
             osVersion = "UNIX";
-        } else if (useros.indexOf("linux") > 0) {
+        } else if (useros.contains("linux")) {
             osVersion = "Linux";
-        } else if (useros.indexOf("sunos") > 0) {
+        } else if (useros.contains("sunos")) {
             osVersion = "SunOS";
-        } else if (useros.indexOf("iPhone") > 0) {
+        } else if (useros.contains("iPhone")) {
             osVersion = "iPhone";
-        } else if (useros.indexOf("Android") > 0) {
+        } else if (useros.contains("Android")) {
             osVersion = "Android";
         }
         return osVersion;
@@ -399,6 +403,14 @@ public class WebUtil {
             parameter.put(entry.getKey(), entry.getValue()[0]);
         }
         return parameter;
+    }
+
+    public static boolean has(HttpServletRequest request, RequestMethod method) {
+        return hasMethod(request, method.name());
+    }
+
+    public static boolean hasMethod(HttpServletRequest request, String method) {
+        return method.equalsIgnoreCase(request.getMethod());
     }
 
     public static class UserAgent {

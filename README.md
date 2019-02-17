@@ -10,7 +10,7 @@ jfantasy 整合了一些开源常用的java开发框架. 主要为了方便开�
     <repository>
         <id>jfantasy snapshot</id>
         <name>jfantasy snapshot</name>
-        <url>http://maven.jfantasy.org/content/repositories/snapshots/</url>
+        <url>http://maven.zbsg.com.cn/content/repositories/snapshots/</url>
     </repository>
 
     <dependency>
@@ -22,15 +22,18 @@ jfantasy 整合了一些开源常用的java开发框架. 主要为了方便开�
 
 主要功能及使用技术介绍
 -------------
->RESTful
->支付接口
->微信接口
->Hibernate
->Mybatis
+* spring boot
+* 支付接口(已集成 alipay、weixinpay、chinapay、unionpay)
+* weixin-java
+* hibernate
+* mybatis
 
 演示系统 RESTfull API 地址
 -------------
 >http://api-docs.jfantasy.org
+
+### 3.3.17 升级日志
+* Pager 对象 json 格式调整为 ：
 
 ```json
  {
@@ -46,8 +49,6 @@ jfantasy 整合了一些开源常用的java开发框架. 主要为了方便开�
  }
 ```
 
-### 3.3.17 升级日志
-* Pager 对象 json 格式调整为 ：
 * 升级 spring-swagger 到 springfox
 * RESTful 添加 X-Page-Fields 请求头
   ```条件查询返回多条数据时，默认返回list。如果需要分页支持需要在请求头中添加 X-Page-Fields：true。注：后端java实现全部返回Pager对象。```
@@ -65,7 +66,5 @@ Licensed under [MIT](http://jfantasy.org/mit.txt)
 
 [coveralls-img]: http://img.shields.io/coveralls/limaofeng/jfantasy/master.svg?style=flat-square
 [coveralls-url]: https://coveralls.io/r/limaofeng/jfantasy
-[gitter-img]:    http://img.shields.io/badge/asana-join_chat-1dce73.svg?style=flat-square
-[gitter-url]:    https://gitter.im/limaofeng/jfantasy
-[circle-img]:    https://img.shields.io/circleci/project/limaofeng/jfantasy.svg?style=flat-square
-[circle-url]:    https://circleci.com/gh/limaofeng/jfantasy
+[circle-img]:    http://git.zbsg.com.cn/apis/framework/badges/develop/build.svg
+[circle-url]:    http://git.zbsg.com.cn/apis/framework/commits/develop

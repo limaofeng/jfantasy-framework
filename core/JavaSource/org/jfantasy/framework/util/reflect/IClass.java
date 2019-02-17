@@ -20,7 +20,7 @@ public interface IClass<T> {
 
     void setValue(Object paramObject1, String paramString, Object paramObject2);
 
-    Object getValue(Object paramObject, String paramString);
+    <V> V getValue(Object paramObject, String paramString);
 
     T newInstance(Class<?>[] paramArrayOfClass, Object[] paramArrayOfObject);
 
@@ -29,4 +29,6 @@ public interface IClass<T> {
     Field getDeclaredField(String fieldName);
 
     Field[] getDeclaredFields(Class<? extends Annotation> annotClass);
+
+    <V> V getValue(String name);
 }

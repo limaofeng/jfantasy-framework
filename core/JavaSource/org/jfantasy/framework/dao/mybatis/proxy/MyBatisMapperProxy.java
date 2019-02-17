@@ -53,6 +53,7 @@ public class MyBatisMapperProxy implements InvocationHandler {
         this.sqlSession = sqlSession;
     }
 
+    @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         if (isObjectMethod(method)) {
             return null;

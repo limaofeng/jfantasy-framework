@@ -13,29 +13,29 @@ public class CompareChecker {
 
     public boolean isFit(Property p, Compare compare, String value) {
         boolean fit = false;
-        switch (compare.ordinal() + 1) {
-            case 1:
+        switch (compare) {
+            case IS_EQUALS:
                 fit = isEquals(p, value);
                 break;
-            case 2:
+            case NOT_EQUALS:
                 fit = notEquals(p, value);
                 break;
-            case 3:
+            case GREATER_THAN:
                 fit = greaterThan(p, value);
                 break;
-            case 4:
+            case GREATER_THAN_EQUALS:
                 fit = greaterThanEquals(p, value);
                 break;
-            case 5:
+            case LESS_THAN:
                 fit = lessThan(p, value);
                 break;
-            case 6:
+            case LESS_THAN_EQUALS:
                 fit = lessThanEquals(p, value);
                 break;
-            case 7:
+            case IS_NULL:
                 fit = isNull(p.getValue(this.obj));
                 break;
-            case 8:
+            case NOT_NULL:
                 fit = notNull(p.getValue(this.obj));
                 break;
             default:
@@ -50,7 +50,7 @@ public class CompareChecker {
         }
         String objStr = objValue.toString();
         Class<?> type = p.getPropertyType();
-        if (DataType.isString(type)) {
+        if (DataType.isString(type) || DataType.isEnum(type)) {// 字符串 or 枚举
             return value.equals(objStr);
         }
         if ((DataType.isBoolean(type)) || (DataType.isBooleanObject(type))) {
@@ -69,9 +69,12 @@ public class CompareChecker {
             return Short.parseShort(objStr) == Short.parseShort(value);
         }
         if ((DataType.isFloat(type)) || (DataType.isFloatObject(type))) {
-            return Float.parseFloat(objStr) == Float.parseFloat(value);
+            return Float.compare(Float.parseFloat(objStr), Float.parseFloat(value)) == 0;
         }
-        return ((DataType.isDouble(type)) || (DataType.isDoubleObject(type))) && Double.parseDouble(objStr) == Double.parseDouble(value);
+        if (DataType.isDouble(type) || DataType.isDoubleObject(type)) {
+            return Double.compare(Double.parseDouble(objStr), Double.parseDouble(value)) == 0;
+        }
+        return false;
 
     }
 

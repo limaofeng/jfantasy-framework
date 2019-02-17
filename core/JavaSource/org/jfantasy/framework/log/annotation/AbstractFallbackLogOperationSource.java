@@ -15,13 +15,14 @@ import org.springframework.util.ObjectUtils;
 
 public abstract class AbstractFallbackLogOperationSource implements LogOperationSource {
 
-	private final static Collection<LogOperation> NULL_ATTRIBUTE = Collections.emptyList();
+	private static final Collection<LogOperation> NULL_ATTRIBUTE = Collections.emptyList();
 
 	protected final Log LOGGER = LogFactory.getLog(getClass());
 
 	final Map<Object, Collection<LogOperation>> attributeCache = new ConcurrentHashMap<Object, Collection<LogOperation>>();
 
-	public Collection<LogOperation> getOperations(Method method, Class<?> targetClass) {
+	@Override
+    public Collection<LogOperation> getOperations(Method method, Class<?> targetClass) {
 		Object cacheKey = getCacheKey(method, targetClass);
 		Collection<LogOperation> logOperations = this.attributeCache.get(cacheKey);
 		if (logOperations != null) {

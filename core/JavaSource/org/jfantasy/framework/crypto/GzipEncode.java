@@ -1,17 +1,20 @@
 package org.jfantasy.framework.crypto;
 
+import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.jfantasy.framework.util.common.StreamUtil;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
-import org.apache.commons.io.output.ByteArrayOutputStream;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 public class GzipEncode {
-	private static final Log logger = LogFactory.getLog(GzipEncode.class);
+
+	private static final Log LOGGER = LogFactory.getLog(GzipEncode.class);
 
 	public String encode(String sb) {
 		return sb;
@@ -33,42 +36,40 @@ public class GzipEncode {
 		}
 	}
 
-	public static byte[] gzip(String buffer) {
+	public static byte[] gzip(String buffer)throws IOException {
+		ByteArrayOutputStream o = null;
+		GZIPOutputStream gzout = null;
 		try {
-			ByteArrayOutputStream o = new ByteArrayOutputStream();
-
-			GZIPOutputStream gzout = new GZIPOutputStream(o);
+			o = new ByteArrayOutputStream();
+			gzout = new GZIPOutputStream(o);
 			gzout.write(buffer.getBytes());
 			gzout.finish();
-			gzout.close();
-
-			byte[] data_ = o.toByteArray();
-			o.close();
-			return data_;
+			return o.toByteArray();
 		} catch (IOException e) {
-			System.out.println(e);
+			LOGGER.error(e);
+			throw e;
+		} finally {
+			StreamUtil.closeQuietly(gzout);
+			StreamUtil.closeQuietly(o);
 		}
-		return null;
+
 	}
 
-	public static byte[] jUnZip(byte[] buffer) {
+	public static byte[] jUnZip(byte[] buffer)throws IOException {
 		try {
 			byte[] buf = new byte[8192];
-
 			ByteArrayInputStream i = new ByteArrayInputStream(buffer);
-
 			GZIPInputStream gzin = new GZIPInputStream(i);
 			int size = gzin.read(buf);
 			i.close();
 			gzin.close();
 			byte[] b = new byte[size];
 			System.arraycopy(buf, 0, b, 0, size);
-
 			return b;
 		} catch (IOException e) {
-			System.out.println(e);
+			LOGGER.error(e);
+			throw e;
 		}
-		return null;
 	}
 
 	public static String KL(String inStr) {
@@ -89,27 +90,4 @@ public class GzipEncode {
 		return k;
 	}
 
-	public static void main(String[] args) throws Exception {
-		String ins = "测试GZIP编码";
-
-		byte[] b = gzip(ins);
-
-		DESPlus desPlus = new DESPlus();
-
-		DESPlus desPlus2 = new DESPlus("wangchongan");
-		String e2 = desPlus2.encrypt("13588888888");
-		System.out.println(e2);
-		String d2 = desPlus2.decrypt(e2);
-		System.out.println(d2);
-
-		System.out.println(JM(KL(new String(b))));
-
-		System.out.println(new String(jUnZip(b)));
-	}
-
-	public static String StringReader(OutputStream out) {
-		System.out.println(out.toString());
-
-		return null;
-	}
 }

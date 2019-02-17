@@ -27,6 +27,7 @@ public class MultiDataSource extends AbstractRoutingDataSource {
         }
     }
 
+    @Override
     public Connection getConnection() throws SQLException {
         Connection connection = super.getConnection();
         String catalog = getCatalog();
@@ -59,6 +60,7 @@ public class MultiDataSource extends AbstractRoutingDataSource {
         return dataSource.catalog();
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     protected Object determineCurrentLookupKey() {
         org.jfantasy.framework.dao.annotations.DataSource dataSource = getDataSource();
@@ -99,6 +101,7 @@ public class MultiDataSource extends AbstractRoutingDataSource {
 
     public static class SimpleCatalogConverter implements CatalogConverter {
 
+        @Override
         public String convert(String catalog) {
             return catalog;
         }

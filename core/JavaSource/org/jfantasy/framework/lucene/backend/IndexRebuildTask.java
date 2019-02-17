@@ -1,15 +1,16 @@
 package org.jfantasy.framework.lucene.backend;
 
-import org.jfantasy.framework.lucene.cache.DaoCache;
-import org.jfantasy.framework.lucene.cache.IndexWriterCache;
-import org.jfantasy.framework.lucene.dao.LuceneDao;
-import org.jfantasy.framework.lucene.mapper.MapperUtil;
-import org.jfantasy.framework.util.common.JdbcUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexWriter;
+import org.hibernate.Session;
+import org.jfantasy.framework.lucene.cache.DaoCache;
+import org.jfantasy.framework.lucene.cache.IndexWriterCache;
+import org.jfantasy.framework.lucene.dao.LuceneDao;
+import org.jfantasy.framework.lucene.dao.hibernate.OpenSessionUtils;
+import org.jfantasy.framework.lucene.mapper.MapperUtil;
+import org.jfantasy.framework.util.common.JdbcUtil;
 
 import java.io.IOException;
 import java.util.List;
@@ -20,7 +21,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class IndexRebuildTask implements Runnable {
     private static final Log LOG = LogFactory.getLog(IndexRebuildTask.class);
-    private static final ConcurrentMap<Class<?>, ReentrantLock> rebuildLocks = new ConcurrentHashMap<Class<?>, ReentrantLock>();
+    private static final ConcurrentMap<Class<?>, ReentrantLock> rebuildLocks = new ConcurrentHashMap<>();
     private Lock rebuildLock;
     private Class<?> clazz;
     private IndexWriter writer;
@@ -38,6 +39,7 @@ public class IndexRebuildTask implements Runnable {
         rebuildLock = rebuildLocks.get(clazz);
     }
 
+    @Override
     public void run() {
         if (!rebuildLock.tryLock()) {
             if (LOG.isErrorEnabled()) {
@@ -45,6 +47,7 @@ public class IndexRebuildTask implements Runnable {
             }
             return;
         }
+        Session session = OpenSessionUtils.openSession();
         try {
             if (LOG.isInfoEnabled()) {
                 LOG.info("Index(" + this.clazz + ") rebuilding start...");
@@ -62,31 +65,17 @@ public class IndexRebuildTask implements Runnable {
             int remainder = (int) (count % this.batchSize);
             if (pages > 0) {
                 for (int i = 1; i <= pages; i++) {
-                    JdbcUtil.transaction(new ProcessCallback((i - 1) * this.batchSize, this.batchSize) {
-                        @Override
-                        public Void run() {
-                            List<?> list = luceneDao.find(this.start, this.size);
-                            process(list);
-                            return null;
-                        }
-                    });
+                    List<?> list = luceneDao.find((i - 1) * this.batchSize, this.batchSize);
+                    process(list);
                 }
             }
             if (remainder > 0) {
                 pages++;
-                JdbcUtil.transaction(new ProcessCallback((pages - 1) * this.batchSize, this.batchSize) {
-                    @Override
-                    public Void run() {
-                        List<?> list = luceneDao.find(this.start, this.size);
-                        process(list);
-                        return null;
-                    }
-                });
+                List<?> list = luceneDao.find((pages - 1) * this.batchSize, (pages - 1) * this.batchSize);
+                process(list);
             }
             try {
                 this.writer.commit();
-            } catch (CorruptIndexException ex) {
-                LOG.error("Can not commit and close the lucene index", ex);
             } catch (IOException ex) {
                 LOG.error("Can not commit and close the lucene index", ex);
             }
@@ -94,6 +83,7 @@ public class IndexRebuildTask implements Runnable {
                 LOG.info("Index(" + this.clazz + ") rebuilding finish.");
             }
         } finally {
+            OpenSessionUtils.closeSession(session);
             rebuildLock.unlock();
         }
     }
@@ -112,8 +102,6 @@ public class IndexRebuildTask implements Runnable {
             creator.create(doc);
             try {
                 this.writer.addDocument(doc);
-            } catch (CorruptIndexException ex) {
-                LOG.error("IndexWriter can not add a document to the lucene index", ex);
             } catch (IOException ex) {
                 LOG.error("IndexWriter can not add a document to the lucene index", ex);
             }
@@ -129,6 +117,7 @@ public class IndexRebuildTask implements Runnable {
             this.size = size;
         }
 
+        @Override
         public abstract Void run();
 
     }

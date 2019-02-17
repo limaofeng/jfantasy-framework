@@ -1,14 +1,11 @@
 package org.jfantasy.framework.dao.hibernate;
 
+import org.apache.commons.lang.StringUtils;
 import org.jfantasy.framework.dao.hibernate.util.ReflectionUtils;
 import org.jfantasy.framework.error.IgnoreException;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.framework.util.regexp.RegexpUtil;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import org.apache.commons.beanutils.ConvertUtils;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
 import java.lang.reflect.Array;
@@ -17,18 +14,32 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicReference;
 
-@ApiModel("通用过滤器")
+/**
+ * 通用过滤器
+ */
 public class PropertyFilter {
-    public static final String OR_SEPARATOR = "_OR_";
-    @ApiModelProperty("名称")
+
+    private static final String OR_SEPARATOR = "_OR_";
+
+    /**
+     * 名称
+     */
     private String[] propertyNames;
-    @ApiModelProperty("类型")
+    /**
+     * 类型
+     */
     private Class<?> propertyType;
-    @ApiModelProperty("值")
+    /**
+     * 值
+     */
     private Object propertyValue;
-    @ApiModelProperty("过滤类型")
+    /**
+     * 过滤类型
+     */
     private MatchType matchType;
-    @ApiModelProperty("完整表达式")
+    /**
+     * 完整表达式
+     */
     private String filterName;
 
     public PropertyFilter(String filterName) {
@@ -37,7 +48,7 @@ public class PropertyFilter {
         try {
             this.matchType = Enum.valueOf(MatchType.class, matchTypeCode);
         } catch (IgnoreException e) {
-            throw new IllegalArgumentException("filter名称" + filterName + "没有按规则编写,无法得到属性比较类型.", e);
+            throw new IllegalArgumentException(String.format("filter名称 %s 没有按规则编写,无法得到属性比较类型.", filterName), e);
         }
         if (!(MatchType.NULL.equals(this.matchType) || MatchType.NOTNULL.equals(this.matchType) || MatchType.EMPTY.equals(this.matchType) || MatchType.NOTEMPTY.equals(this.matchType))) {
             throw new IgnoreException("没有设置value时,查询条件必须为 is null,not null,empty,not empty");
@@ -49,19 +60,11 @@ public class PropertyFilter {
 
     public PropertyFilter(String filterName, Enum<?> value) {
         this.initialize(filterName);
-        if (this.propertyType != Enum.class) {
-            throw new IgnoreException("查询类型类型必须为枚举类型(E)");
-        }
-        this.propertyType = value.getClass();
         this.propertyValue = value;
     }
 
     public PropertyFilter(String filterName, Enum<?>... value) {
         this.initialize(filterName);
-        if (this.propertyType != Enum.class) {
-            throw new IgnoreException("");
-        }
-        this.propertyType = Array.get(value, 0).getClass();
         if (!(MatchType.IN.equals(this.matchType) || MatchType.NOTIN.equals(this.matchType))) {
             throw new IgnoreException("有多个条件时,查询条件必须为 in 或者 not in ");
         }
@@ -70,9 +73,29 @@ public class PropertyFilter {
 
     public PropertyFilter(String filterName, String value) {
         this.initialize(filterName);
+        this.setPropertyValue(value);
+    }
+
+    public <T> PropertyFilter(String filterName, T... value) {
+        this.initialize(filterName);
+        if (!(MatchType.IN.equals(this.matchType) || MatchType.NOTIN.equals(this.matchType)) && value.length > 1) {
+            throw new IgnoreException("有多个条件时,查询条件必须为 in 或者 not in ");
+        }
+        if (MatchType.IN.equals(this.matchType) || MatchType.NOTIN.equals(this.matchType)) {
+            Object array = this.propertyType.isAssignableFrom(Enum.class) ? new String[value.length] : ClassUtil.newInstance(this.propertyType, Array.getLength(value));
+            for (int i = 0; i < Array.getLength(value); i++) {
+                Array.set(array, i, this.propertyType == Enum.class ? Array.get(value, i).toString() : ReflectionUtils.convertStringToObject(Array.get(value, i).toString(), this.propertyType));
+            }
+            this.propertyValue = array;
+        } else {
+            setPropertyValue(value[0].toString());
+        }
+    }
+
+    private void setPropertyValue(String value) {
         if (PropertyFilter.MatchType.BETWEEN.equals(this.matchType)) {
             Object array = ClassUtil.newInstance(this.propertyType, 2);
-            String[] tempArray = StringUtil.tokenizeToStringArray(value, "-~");
+            String[] tempArray = StringUtil.tokenizeToStringArray(value, "~");
             for (int i = 0; i < tempArray.length; i++) {
                 Array.set(array, i, ReflectionUtils.convertStringToObject(tempArray[i], this.propertyType));
             }
@@ -84,37 +107,16 @@ public class PropertyFilter {
         }
     }
 
-    public PropertyFilter(String filterName, String... value) {
-        this.initialize(filterName);
-        if (!(MatchType.IN.equals(this.matchType) || MatchType.NOTIN.equals(this.matchType))) {
-            throw new IgnoreException("有多个条件时,查询条件必须为 in 或者 not in ");
-        }
-        Object array = this.propertyType.isAssignableFrom(Enum.class) ? new String[value.length] : ClassUtil.newInstance(this.propertyType, Array.getLength(value));
-        for (int i = 0; i < Array.getLength(value); i++) {
-            Array.set(array, i, this.propertyType == Enum.class ? Array.get(value, i).toString() : ReflectionUtils.convertStringToObject(Array.get(value, i).toString(), this.propertyType));
-        }
-        this.propertyValue = array;
-    }
-
     private void initialize(String filterName) {
+        String errorTemplate = "filter名称 %s 没有按规则编写,无法得到属性比较类型.";
         this.filterName = filterName;
         String matchTypeStr = StringUtils.substringBefore(filterName, "_");
-        String matchTypeCode = StringUtils.substring(matchTypeStr, 0, matchTypeStr.length() - 1);
-        String propertyTypeCode = StringUtils.substring(matchTypeStr, matchTypeStr.length() - 1, matchTypeStr.length());
-        try {
-            this.matchType = Enum.valueOf(MatchType.class, matchTypeCode);
-        } catch (IgnoreException e) {
-            throw new IllegalArgumentException("filter名称" + filterName + "没有按规则编写,无法得到属性比较类型.", e);
-        }
-        try {
-            this.propertyType = (Enum.valueOf(PropertyType.class, propertyTypeCode)).getValue();
-        } catch (IgnoreException e) {
-            throw new IllegalArgumentException("filter名称" + filterName + "没有按规则编写,无法得到属性值类型.", e);
-        }
+        this.matchType = MatchType.get(matchTypeStr);
+        Assert.notNull(this.matchType, String.format(errorTemplate, filterName));
+        this.propertyType = PropertyType.S.getValue();
         String propertyNameStr = StringUtils.substringAfter(filterName, "_");
         this.propertyNames = propertyNameStr.split(OR_SEPARATOR);
-
-        Assert.isTrue(this.propertyNames.length > 0, "filter名称" + filterName + "没有按规则编写,无法得到属性名称.");
+        Assert.isTrue(this.propertyNames.length > 0, String.format(errorTemplate, filterName));
     }
 
     public boolean isMultiProperty() {
@@ -136,11 +138,16 @@ public class PropertyFilter {
         return this.propertyValue;
     }
 
+    public <T> T getPropertyValue(T o) {
+        return (T) getPropertyValue(o.getClass());
+    }
+
+    @SuppressWarnings("unchecked")
     public <T> T getPropertyValue(Class<T> clazz) {
-        if (this.getPropertyType().isAssignableFrom(Enum.class)) {
-            AtomicReference<Class> enumClass = new AtomicReference<Class>(clazz.isArray() ? clazz.getComponentType() : clazz);
+        if (clazz.isEnum() || (clazz.isArray() && clazz.getComponentType().isEnum())) {
+            AtomicReference<Class> enumClass = new AtomicReference<>(clazz.isArray() ? clazz.getComponentType() : clazz);
             if (propertyValue instanceof String) {
-                return clazz.cast(Enum.valueOf(enumClass.get(), (String) propertyValue));
+                return (T) Enum.valueOf(enumClass.get(), (String) propertyValue);
             } else if (propertyValue instanceof String[]) {
                 Object array = ClassUtil.newInstance(enumClass.get(), Array.getLength(propertyValue));
                 for (int i = 0; i < Array.getLength(propertyValue); i++) {
@@ -148,10 +155,12 @@ public class PropertyFilter {
                 }
                 return clazz.cast(array);
             }
+            return (T) propertyValue;
         }
-        return clazz.cast(ConvertUtils.convert(this.getPropertyValue(), clazz));
+        return ReflectionUtils.convert(this.getPropertyValue(), clazz);
     }
 
+    @SuppressWarnings("unchecked")
     public <T> Class<T> getPropertyType() {
         return (Class<T>) this.propertyType;
     }

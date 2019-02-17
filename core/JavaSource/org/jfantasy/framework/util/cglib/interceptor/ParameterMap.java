@@ -8,10 +8,12 @@ public class ParameterMap extends HashMap<String, Object> {
 
     private static final long serialVersionUID = 6842517213822127863L;
 
+    @Override
     public boolean containsKey(Object key) {
         return super.containsKey(key);
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public Object put(String key, Object value) {
         if (value instanceof String) {

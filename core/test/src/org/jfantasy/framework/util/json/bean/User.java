@@ -2,16 +2,19 @@ package org.jfantasy.framework.util.json.bean;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.google.common.collect.Sets;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 @JsonFilter("myFilter")
 public class User {
 	private String name;
 	private Date createDate;
-	private Set<Article> articles = Sets.newHashSet();
+	private Set<Article> articles = new HashSet<>();
+	private String username;
+	private boolean enabled;
+	private String nickName;
 
 	public String getName() {
 		return name;
@@ -39,4 +42,28 @@ public class User {
 		this.articles = articles;
 	}
 
+	public void setUsername(String username) {
+
+		this.username = username;
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
+
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setNickName(String nickName) {
+		this.nickName = nickName;
+	}
+
+	public String getNickName() {
+		return nickName;
+	}
 }

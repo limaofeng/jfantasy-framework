@@ -1,27 +1,29 @@
 package org.jfantasy.framework.util.common.file;
 
-import org.jfantasy.framework.dao.mybatis.keygen.GUIDKeyGenerator;
-import org.jfantasy.framework.error.IgnoreException;
-import org.jfantasy.framework.util.common.ObjectUtil;
-import org.jfantasy.framework.util.common.StreamUtil;
-import org.jfantasy.framework.util.regexp.RegexpUtil;
 import eu.medsea.mimeutil.MimeUtil;
 import eu.medsea.mimeutil.MimeUtil2;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jfantasy.framework.dao.mybatis.keygen.GUIDKeyGenerator;
+import org.jfantasy.framework.error.IgnoreException;
+import org.jfantasy.framework.util.common.ObjectUtil;
+import org.jfantasy.framework.util.common.StreamUtil;
+import org.jfantasy.framework.util.regexp.RegexpUtil;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Date;
 import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.zip.*;
 
 public class FileUtil {
 
     private static final Log LOGGER = LogFactory.getLog(FileUtil.class);
+    private static final String REGEXP_START = "[^\\/]+$";
 
     static {
         MimeUtil.registerMimeDetector("eu.medsea.mimeutil.detector.MagicMimeMimeDetector");
@@ -31,20 +33,18 @@ public class FileUtil {
 
     public static String readFile(File file, String charset) {
         String line;
-        try {
-            InputStreamReader read = new InputStreamReader(new FileInputStream(file), charset);
+        try (FileInputStream out = new FileInputStream(file)) {
+            InputStreamReader read = new InputStreamReader(out, charset);
             BufferedReader reader = new BufferedReader(read);
             StringBuilder buf = new StringBuilder();
-
             while ((line = reader.readLine()) != null) {
                 buf.append(line).append("\n");
             }
-            reader.close();
             return buf.toString();
         } catch (FileNotFoundException ex) {
-            throw new IgnoreException("没有找到文件:" + file.getAbsolutePath(),ex);
-        } catch (Exception ex) {
-            throw new IgnoreException(ex.getMessage(),ex);
+            throw new IgnoreException("没有找到文件:" + file.getAbsolutePath(), ex);
+        } catch (IOException ex) {
+            throw new IgnoreException(ex.getMessage(), ex);
         }
 
     }
@@ -69,10 +69,9 @@ public class FileUtil {
         readFile(in, ENCODE, readLineCallback);
     }
 
+
     public static void readFile(InputStream in, String charset, ReadLineCallback readLineCallback) throws IOException {
-        BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(new InputStreamReader(in, charset));
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(in, charset))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 if (!readLineCallback.readLine(line)) {
@@ -81,7 +80,6 @@ public class FileUtil {
             }
         } finally {
             IOUtils.closeQuietly(in);
-            IOUtils.closeQuietly(reader);
         }
     }
 
@@ -93,28 +91,23 @@ public class FileUtil {
 
     public static String readFile(InputStream in, String charset) throws IOException {
         final StringBuilder html = new StringBuilder();
-        readFile(in, charset, new ReadLineCallback() {
-            @Override
-            public boolean readLine(String line) {
-                html.append(line).append(System.getProperty("line.separator"));
-                return true;
-            }
+        readFile(in, charset, line -> {
+            html.append(line).append(System.getProperty("line.separator"));
+            return true;
         });
         return html.toString();
     }
 
     public static void writeFile(String content, String file) {
-        try {
-            File f = new File(file).getParentFile();
-            if (!f.exists() && !f.mkdirs()) {
-                throw new IgnoreException("创建文件" + file + "失败");
-            }
-            FileOutputStream fos = new FileOutputStream(file);
-            Writer out = new OutputStreamWriter(fos, ENCODE);
 
+        File f = new File(file).getParentFile();
+        if (!f.exists() && !f.mkdirs()) {
+            throw new IgnoreException("创建文件" + file + "失败");
+        }
+        try (FileOutputStream fos = new FileOutputStream(file)) {
+            Writer out = new OutputStreamWriter(fos, ENCODE);
             out.flush();
             out.write(content);
-            out.close();
         } catch (IOException ex) {
             LOGGER.error(ex);
             throw new IgnoreException(ex.getMessage());
@@ -122,12 +115,10 @@ public class FileUtil {
     }
 
     public static void writeFile(byte[] content, String file) throws IOException {
-        try {
-            createFolder(new File(file).getParentFile());
-            FileOutputStream fos = new FileOutputStream(file);
+        createFolder(new File(file).getParentFile());
+        try (FileOutputStream fos = new FileOutputStream(file)) {
             fos.write(content, 0, content.length);
             fos.flush();
-            StreamUtil.closeQuietly(fos);
             LOGGER.debug("Write File:" + file);
         } catch (IOException ex) {
             LOGGER.error(ex);
@@ -136,14 +127,14 @@ public class FileUtil {
     }
 
     public static File createFolder(String path) {
-        return createFolder(new File(path(path).replaceFirst("[^\\/]+$", "")));
+        return createFolder(new File(path(path).replaceFirst(REGEXP_START, "")));
     }
 
     public static File createFolder(File file) {
         if (!file.isDirectory()) {
             createFolder(file.getParentFile());
         }
-        if (!file.exists() && !file.mkdirs()){
+        if (!file.exists() && !file.mkdirs()) {
             throw new IgnoreException("创建文件" + file + "失败");
         }
         return file;
@@ -164,11 +155,11 @@ public class FileUtil {
      * @return {File}
      */
     public static File createFile(String pathname) {
-        pathname = path(pathname);
-        String fileName = RegexpUtil.parseGroup(pathname, "[^\\/]+$", 0);
-        String parentDir = RegexpUtil.parseGroup(pathname, "[^\\/]+$", 0);
+        String tpathname = path(pathname);
+        String fileName = RegexpUtil.parseGroup(tpathname, REGEXP_START, 0);
+        String parentDir = RegexpUtil.parseGroup(tpathname, REGEXP_START, 0);
         assert parentDir != null;
-        return fileName == null ? createFolder(pathname) : new File(createFolder(pathname), parentDir);
+        return fileName == null ? createFolder(tpathname) : new File(createFolder(tpathname), parentDir);
     }
 
     public static File createFile(File parent, String fileName) {
@@ -192,11 +183,7 @@ public class FileUtil {
         if (!folder.exists()) {
             throw new IgnoreException("(目录不存在。)folder [" + folder + "]not exist。");
         }
-        return folder.listFiles(new FileFilter() {
-            public boolean accept(File pathname) {
-                return pathname.isDirectory();
-            }
-        });
+        return folder.listFiles(pathname -> pathname.isDirectory());
     }
 
     /**
@@ -211,51 +198,37 @@ public class FileUtil {
         if (!folder.exists()) {
             throw new IgnoreException("(目录不存在。)folder [" + folder + "]not exist。");
         }
-        return folder.listFiles(new FileFilter() {
-            public boolean accept(File pathname) {
-                if (extNames.length == 0) {
-                    return pathname.isFile();
-                }
-                return pathname.isFile() && ObjectUtil.indexOf(extNames, getExtension(pathname)) != -1;
+        return folder.listFiles(pathname -> {
+            if (extNames.length == 0) {
+                return pathname.isFile();
             }
+            return pathname.isFile() && ObjectUtil.indexOf(extNames, getExtension(pathname)) != -1;
         });
     }
 
     public static void compressionGZIP(String oldPath, String newPath) {
-        try {
-            FileInputStream fin = new FileInputStream(oldPath);
-
-            createFolder(RegexpUtil.replace(newPath, "(([a-zA-Z0-9]|([(]|[)]|[ ]))+)[.]([a-zA-Z0-9]+)$", ""));
-            LOGGER.debug("创建文件 ：" + RegexpUtil.replace(newPath, "(([a-zA-Z0-9]|([(]|[)]|[ ]))+)[.]([a-zA-Z0-9]+)$", "") + "|" + newPath);
-            FileOutputStream fout = new FileOutputStream(newPath);
-
+        createFolder(RegexpUtil.replace(newPath, "(([a-zA-Z0-9]|([(]|[)]|[ ]))+)[.]([a-zA-Z0-9]+)$", ""));
+        LOGGER.debug("创建文件 ：" + RegexpUtil.replace(newPath, "(([a-zA-Z0-9]|([(]|[)]|[ ]))+)[.]([a-zA-Z0-9]+)$", "") + "|" + newPath);
+        try (FileInputStream fin = new FileInputStream(oldPath); FileOutputStream fout = new FileOutputStream(newPath)) {
             GZIPOutputStream gzout = new GZIPOutputStream(fout);
             byte[] buf = new byte[1024];
             int num;
             while ((num = fin.read(buf)) != -1) {
                 gzout.write(buf, 0, num);
             }
-            gzout.close();
-            fout.close();
-            fin.close();
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
         }
     }
 
     public static void extractGzip(String fileUrl) {
-        try {
-            FileInputStream fin = new FileInputStream(fileUrl);
+        try (FileInputStream fin = new FileInputStream(fileUrl); FileOutputStream fout = new FileOutputStream(RegexpUtil.replace(fileUrl, ".gz$", ""))) {
             GZIPInputStream gzin = new GZIPInputStream(fin);
-            FileOutputStream fout = new FileOutputStream(RegexpUtil.replace(fileUrl, ".gz$", ""));
             byte[] buf = new byte[1024];
             int num;
             while ((num = gzin.read(buf, 0, buf.length)) != -1) {
                 fout.write(buf, 0, num);
             }
-            gzin.close();
-            fout.close();
-            fin.close();
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
         }
@@ -308,7 +281,7 @@ public class FileUtil {
                 moveFile(file, new File(newName));
             }
         }
-        if (!sourceFile.delete()){
+        if (!sourceFile.delete()) {
             throw new IgnoreException("删除文件" + sourceFile.getAbsolutePath() + "失败");
         }
         return true;
@@ -316,22 +289,21 @@ public class FileUtil {
 
     private static boolean moveOnlyFile(File sourceFile, File targetFile) {
         File parentFile = targetFile.getParentFile();
-        if (!parentFile.exists() && !parentFile.mkdirs()){
+        if (!parentFile.exists() && !parentFile.mkdirs()) {
             throw new IgnoreException("创建文件" + parentFile.getAbsolutePath() + "失败");
         }
-        if (targetFile.exists() && !targetFile.delete()){
+        if (targetFile.exists() && !targetFile.delete()) {
             throw new IgnoreException("删除文件" + targetFile.getAbsolutePath() + "失败");
         }
 
-        boolean flag = sourceFile.renameTo(targetFile);
-        if (!flag) {
+        if (!sourceFile.renameTo(targetFile)) {
             try {
                 copyFile(sourceFile, targetFile);
-                if (sourceFile.exists()){
+                if (sourceFile.exists()) {
                     LOGGER.debug("delete file:" + sourceFile + ":" + sourceFile.delete());
                 }
             } catch (IOException e) {
-                throw new IgnoreException(e.getMessage(),e);
+                throw new IgnoreException(e.getMessage(), e);
             }
         }
         return false;
@@ -342,7 +314,7 @@ public class FileUtil {
             copyOnlyFile(sourceFile, targetFile);
         } else {
             File[] files = sourceFile.listFiles();
-            if (files != null){
+            if (files != null) {
                 for (File file : files) {
                     String newName = targetFile.getAbsolutePath() + "/" + file.getName();
                     copyFile(file, new File(newName));
@@ -355,7 +327,7 @@ public class FileUtil {
         LOGGER.debug("copy from:" + sourceFile);
         LOGGER.debug("copy to:" + targetFile);
         File parentFile = targetFile.getParentFile();
-        if (!parentFile.exists() && !parentFile.mkdirs()){
+        if (!parentFile.exists() && !parentFile.mkdirs()) {
             throw new IgnoreException("创建文件" + parentFile.getAbsolutePath() + "失败");
         }
         FileInputStream fis = new FileInputStream(sourceFile);
@@ -373,10 +345,25 @@ public class FileUtil {
         }
         StreamUtil.closeQuietly(in);
         FileWriter fw = new FileWriter(file);
-        fw.write(buf.toString());
-        fw.flush();
-        StreamUtil.closeQuietly(fw);
+        try {
+            fw.write(buf.toString());
+            fw.flush();
+        } finally {
+            StreamUtil.closeQuietly(fw);
+        }
         return url;
+    }
+
+    private static void delDir(File dir) {
+        File[] files = dir.listFiles();
+        if (files != null) {
+            for (File eFile : files) {
+                delFile(eFile);
+            }
+        }
+        if (!dir.delete()) {
+            LOGGER.error("删除文件" + dir.getAbsolutePath() + "失败");
+        }
     }
 
     public static void delFile(File file) {
@@ -384,21 +371,13 @@ public class FileUtil {
             if (file.isFile()) {
                 delOnlyFile(file);
             } else {
-                File[] files = file.listFiles();
-                if (files != null) {
-                    for (File eFile : files) {
-                        delFile(eFile);
-                    }
-                }
-                if (!file.delete()) {
-                    LOGGER.error("删除文件" + file.getAbsolutePath() + "失败");
-                }
+                delDir(file);
             }
         }
     }
 
     private static void delOnlyFile(File file) {
-        if (file.exists() && !file.delete()){
+        if (file.exists() && !file.delete()) {
             LOGGER.error("删除文件" + file.getAbsolutePath() + "失败");
         }
     }
@@ -416,19 +395,6 @@ public class FileUtil {
         FileOutputStream out = new FileOutputStream(file);
         StreamUtil.copyThenClose(in, out);
         return file;
-    }
-
-    @Deprecated
-    public static String loadResponseByUrl(String urlName) throws IOException {
-        URL url = new URL(urlName);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.addRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 1.0.3705)");
-        connection.addRequestProperty("Cache-Control", "no-cache");
-        connection.addRequestProperty("Accept", "*/*");
-        connection.addRequestProperty("Connection", "Keep-Alive");
-        connection.connect();
-        connection.disconnect();
-        return connection.getURL().toString();
     }
 
     public static void replaceInFolder(File file, String oldStr, String newStr) {
@@ -462,63 +428,50 @@ public class FileUtil {
 
     public static File writeFile(InputStream in, String filePath) throws IOException {
         File file = createFile(filePath);
-        OutputStream out = new FileOutputStream(file);
-        byte[] buffer = new byte[1024];
-        while (in.read(buffer) != -1){
-            out.write(buffer);
-        }
-        out.close();
-        in.close();
+        StreamUtil.copyThenClose(in, new FileOutputStream(file));
         return file;
     }
 
     public void writeFile(OutputStream out, InputStream in) throws IOException {
-        byte[] buffer = new byte[1024];
-        while (in.read(buffer) != -1){
-            out.write(buffer);
-        }
-        out.close();
-        in.close();
-    }
-
-    @Deprecated
-    public static byte[] getBytes(File attach) {
-        return null;
+        StreamUtil.copyThenClose(in,out);
     }
 
     public static ZipOutputStream compress(String unZipFile, OutputStream zipOut) throws IOException {
         File srcFile = new File(unZipFile);
         DataInputStream dis = new DataInputStream(new FileInputStream(srcFile));
-        ZipOutputStream zos = new ZipOutputStream(zipOut);
-        zos.setMethod(ZipOutputStream.DEFLATED);
-        ZipEntry ze = new ZipEntry(srcFile.getName());
-        zos.putNextEntry(ze);
-        DataOutputStream dos = new DataOutputStream(zos);
-
-        byte[] buf = new byte[2048];
-        int len;
-        while ((len = dis.read(buf)) != -1) {
-            dos.write(buf, 0, len);
+        try {
+            ZipOutputStream zos = new ZipOutputStream(zipOut);
+            zos.setMethod(ZipOutputStream.DEFLATED);
+            ZipEntry ze = new ZipEntry(srcFile.getName());
+            zos.putNextEntry(ze);
+            DataOutputStream dos = new DataOutputStream(zos);
+            StreamUtil.copyThenClose(dis, dos);
+            return zos;
+        } finally {
+            StreamUtil.closeQuietly(dis);
         }
-        dos.close();
-        dis.close();
-        return zos;
     }
 
-    @SuppressWarnings("unchecked")
-    public static void decompress(File file, UnZipCallBack callBack) {
-        Hashtable<String, Integer> htSizes = new Hashtable<String, Integer>();
-        try {
-            ZipFile zf = new ZipFile(file);
-            Enumeration<ZipEntry> e = (Enumeration<ZipEntry>) zf.entries();
+    private static Map<String, Integer> zipHtSizes(File file) {
+        Map<String, Integer> htSizes = new HashMap<>();
+        try (ZipFile zf = new ZipFile(file)) {
+            Enumeration<? extends ZipEntry> e = zf.entries();
             while (e.hasMoreElements()) {
                 ZipEntry ze = e.nextElement();
                 htSizes.put(ze.getName(), (int) ze.getSize());
             }
-            zf.close();
-            FileInputStream fis = new FileInputStream(file);
-            BufferedInputStream bis = new BufferedInputStream(fis);
+        } catch (IOException e) {
+            LOGGER.error(e);
+        }
+        return htSizes;
+    }
 
+    @SuppressWarnings("unchecked")
+    public static void decompress(File file, UnZipCallBack callBack) {
+        Map<String, Integer> htSizes = zipHtSizes(file);
+
+        try (FileInputStream fis = new FileInputStream(file)) {
+            BufferedInputStream bis = new BufferedInputStream(fis);
             ZipInputStream zis = new ZipInputStream(bis);
             ZipEntry ze;
             while ((ze = zis.getNextEntry()) != null) {
@@ -542,29 +495,26 @@ public class FileUtil {
                 callBack.execute(ze.getName(), new ByteArrayInputStream(b));
             }
             zis.closeEntry();
-        } catch (NullPointerException e) {
-            LOGGER.error(e.getMessage(), e);
-        } catch (FileNotFoundException e) {
-            LOGGER.error(e.getMessage(), e);
-        } catch (IOException e) {
+        } catch (NullPointerException | IOException e) {
             LOGGER.error(e.getMessage(), e);
         }
     }
 
     public static interface UnZipCallBack {
 
-        public void execute(String fileName, InputStream stream);
+        void execute(String fileName, InputStream stream);
 
     }
 
     public static String fileSize(long length) {
+        float size = length;
         String[] units = {"B", "KB", "MB", "GB", "TB"};
         int i = 0;
-        while (length >= 1024 && i < 4) {
-            length /= 1024;
+        while (size >= 1024 && i < 4) {
+            size /= 1024;
             i++;
         }
-        return Math.round(length) + units[i];
+        return Math.round(size) + units[i];
     }
 
 }

@@ -8,7 +8,7 @@ import org.junit.Test;
 
 public class LinkedBlockingQueueTest {
 
-    private final static Log LOG = LogFactory.getLog(LinkedBlockingQueueTest.class);
+    private static final Log LOG = LogFactory.getLog(LinkedBlockingQueueTest.class);
 
     @Before
     public void setUp() throws Exception {

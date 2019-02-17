@@ -1,7 +1,6 @@
 package org.jfantasy.framework.util.web.filter;
 
 import org.jfantasy.framework.util.web.context.ActionContext;
-import org.jfantasy.system.util.SettingUtil;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -30,11 +29,6 @@ public class ActionContextFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void initFilterBean() throws ServletException {
-        SettingUtil.initialize(this.getServletContext());
-    }
-
-    @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
         if (this.forceEncoding || (request.getCharacterEncoding() == null)) {
             request.setCharacterEncoding(this.encoding);
@@ -43,7 +37,10 @@ public class ActionContextFilter extends OncePerRequestFilter {
             }
         }
         ActionContext.getContext(request, response);
-        chain.doFilter(request, response);
+        try {
+            chain.doFilter(request, response);
+        } finally {
+            ActionContext.clear();
+        }
     }
-
 }

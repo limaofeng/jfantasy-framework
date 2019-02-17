@@ -19,6 +19,7 @@ public class EmbedListFieldHandler extends AbstractFieldHandler {
         super(obj, property, prefix);
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public void handle(Document doc) {
         Object value = this.property.getValue(this.obj);
@@ -31,7 +32,7 @@ public class EmbedListFieldHandler extends AbstractFieldHandler {
         if (type.isArray()) {
             clazz = type.getComponentType();
             int len = Array.getLength(value);
-            list = new ArrayList<Object>();
+            list = new ArrayList<>();
             for (int i = 0; i < len; i++) {
                 list.add(Array.get(value, i));
             }
@@ -44,13 +45,13 @@ public class EmbedListFieldHandler extends AbstractFieldHandler {
                     list = (List<Object>) value;
                 } else if (DataType.isSet(type)) {
                     Set<?> set = (Set<?>) value;
-                    list = new ArrayList<Object>();
+                    list = new ArrayList<>();
                     list.addAll(set);
                 }
             } else if (types.length == 2) {
                 clazz = (Class<?>) types[1];
                 Map<?, ?> map = (Map<?, ?>) value;
-                list = new ArrayList<Object>();
+                list = new ArrayList<>();
                 list.addAll(map.values());
             } else {
                 return;

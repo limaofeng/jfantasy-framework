@@ -5,21 +5,48 @@ import org.apache.commons.logging.LogFactory;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.UUID;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class StringUtilTest {
 
-    private static final Log logger = LogFactory.getLog(StringUtilTest.class);
+    @Test
+    public void encodeURI() throws Exception {
+        // String source = "P7kxnMLbEJ7VVqd5FFdPdwHx8v070UeIVLUHQdeTVUoSEBJwBBMZ1rx9dMuOAmxzuV90mtN7A0J7Dv5LWUUgpuQcL3FCTWNxb2fnX+APObmVnjv0sta7/gycBdRKNw6Od5M3W3eVHXqvAGu/vzk+ TtUbuZZ3j8gISJcJK9wBAvQ=";
+
+        System.out.println(StringUtil.decodeURI("11%", "utf-8"));
+
+        System.out.println(StringUtil.decodeURI("%11", "utf-8"));
+
+        //System.out.println(URLEncoder.encode("+ ", "utf-8"));
+
+
+
+        /*
+        Assert.assertEquals(source,decode);
+
+        String encode = StringUtil.encodeURI(source, "utf-8");
+        LOG.debug(source + "=>" + encode);
+
+        decode = StringUtil.decodeURI(encode,"utf-8");
+        LOG.debug(encode + "=>" + decode);
+
+        Assert.assertEquals(source,decode);
+        */
+    }
+
+    private static final Log LOG = LogFactory.getLog(StringUtilTest.class);
 
     @Test
     public void testEllipsis() throws Exception {
         String str = "iVBORw0KGgoAAAANSUhEUgAAATgAAAEaCAYAAACFG0tXAAAKQWlDQ1BJQ0MgUHJvZmlsZQAASA2d";
 
-        String newStr = StringUtil.ellipsis(str,20,"...");
+        String newStr = StringUtil.ellipsis(str, 20, "...");
 
-        logger.debug(" StringUtil.ellipsis(str,20,\"...\") ==> " + newStr);
+        LOG.debug(" StringUtil.ellipsis(str,20,\"...\") ==> " + newStr);
 
-        Assert.assertEquals(str.substring(0,17) + "...",newStr);
+        Assert.assertEquals(str.substring(0, 17) + "...", newStr);
 
     }
 
@@ -55,7 +82,11 @@ public class StringUtilTest {
 
     @Test
     public void testNullValue() throws Exception {
+        Map<String, Object> data = new HashMap<>();
+        data.put("123", "123");
 
+        String s = (String) data.get("1234");
+        System.out.print(s);
     }
 
     @Test
@@ -264,7 +295,19 @@ public class StringUtilTest {
     }
 
     @Test
-    public void testHexTo64() throws Exception {
-        logger.debug(StringUtil.hexTo64("0" + UUID.randomUUID().toString().replaceAll("-","")));
+    public void shortUrl() throws Exception {
+        LOG.debug(Arrays.toString(StringUtil.shortUrl("/articles/1230")));
     }
+
+    @Test
+    public void testHexTo64() throws Exception {
+    }
+
+    @Test
+    public void uuid() throws Exception {
+        String uuid = StringUtil.uuid();
+        System.out.println(uuid);
+        System.out.println(uuid.length());
+    }
+
 }

@@ -1,16 +1,16 @@
 package org.jfantasy.framework.util.ognl;
 
-import org.jfantasy.security.bean.User;
 import ognl.Ognl;
 import ognl.OgnlContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jfantasy.framework.util.json.bean.User;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class OgnlUtilTest {
 
-    private final static Log LOG = LogFactory.getLog(OgnlUtilTest.class);
+    private static final Log LOG = LogFactory.getLog(OgnlUtilTest.class);
 
     @Test
     public void testSetValue(){

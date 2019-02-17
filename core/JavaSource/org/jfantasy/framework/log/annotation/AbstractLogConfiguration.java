@@ -16,6 +16,7 @@ public abstract class AbstractLogConfiguration implements ImportAware {
 
     private static final Logger LOGGER = Logger.getLogger(AbstractLogConfiguration.class);
 
+    @Override
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
 		this.enableLog = AnnotationAttributes.fromMap(importMetadata.getAnnotationAttributes(EnableLog.class.getName(), false));
 		Assert.notNull(this.enableLog, "@EnableLog is not present on importing class " + importMetadata.getClassName());

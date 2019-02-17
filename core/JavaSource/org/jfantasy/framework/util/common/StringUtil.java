@@ -1,9 +1,10 @@
 package org.jfantasy.framework.util.common;
 
-import org.jfantasy.framework.util.regexp.RegexpUtil;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jfantasy.framework.util.regexp.RegexpUtil;
+import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.UnsupportedEncodingException;
@@ -12,11 +13,33 @@ import java.net.URLEncoder;
 import java.util.*;
 
 public abstract class StringUtil {
-    private StringUtil() {
 
+    private static final String[] EMPTY_ARRAY = new String[0];
+
+    private static final String NONCE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+    private static final char[] LOWERCASES = {'\000', '\001', '\002', '\003', '\004', '\005', '\006', '\007', '\b', '\t', '\n', '\013', '\f', '\r', '\016', '\017', '\020', '\021', '\022', '\023', '\024', '\025', '\026', '\027', '\030', '\031', '\032', '\033', '\034', '\035', '\036', '\037', ' ', '!', '"', '#', '$', '%', '&', '\'', '(', ')', '*', '+', ',', '-', '.', '/', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ':', ';', '<', '=', '>', '?', '@', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '[', '\\', ']', '^', '_', '`', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '{', '|', '}', '~', ''};
+
+    private static final char[] CHAR_MAP = new char[64];
+
+    static {
+        for (int i = 0; i < 10; i++) {
+            CHAR_MAP[i] = (char) ('0' + i);
+        }
+        for (int i = 10; i < 36; i++) {
+            CHAR_MAP[i] = (char) ('a' + i - 10);
+        }
+        for (int i = 36; i < 62; i++) {
+            CHAR_MAP[i] = (char) ('A' + i - 36);
+        }
+        CHAR_MAP[62] = '_';
+        CHAR_MAP[63] = '-';
     }
 
     private static final Log LOG = LogFactory.getLog(StringUtil.class);
+
+    private StringUtil() {
+    }
 
     /**
      * 字符串超出指定长度时截取到指定长度，并在末尾追加指定的字符串。
@@ -30,12 +53,14 @@ public abstract class StringUtil {
         if (length(value) <= len) {
             return value;
         }
-        len -= length(word);
-        if (value.length() > len) {
-            value = value.substring(0, len);
+        String tvalue = value;
+        int tlen = len;
+        tlen -= length(word);
+        if (tvalue.length() > tlen) {
+            tvalue = tvalue.substring(0, tlen);
         }
-        while (length(value) > len) {
-            value = value.substring(0, value.length() - 1);
+        while (length(tvalue) > tlen) {
+            tvalue = tvalue.substring(0, tvalue.length() - 1);
         }
         return value + word;
     }
@@ -81,9 +106,9 @@ public abstract class StringUtil {
      * @return {List<String>}
      */
     public static List<String> split(String s, String delim) {
-        List<String> list = new ArrayList<String>();
-        s = trim(s);
-        String[] rs = s.split(delim);
+        List<String> list = new ArrayList<>();
+        String ts = trim(s);
+        String[] rs = ts.split(delim);
         for (String str : rs) {
             if (str.trim().length() > 0) {
                 list.add(str);
@@ -138,7 +163,7 @@ public abstract class StringUtil {
     }
 
     public static String nullValue(int s) {
-        return s < 0 ? "" : "" + s;
+        return s < 0 ? "" : String.valueOf(s);
     }
 
     /**
@@ -288,11 +313,20 @@ public abstract class StringUtil {
      */
     public static String encodeURI(String s, String enc) {
         try {
-            return isBlank(s) ? s : URLEncoder.encode(s, enc);
+            return isBlank(s) ? s : URLEncoder.encode(s, enc).replace("+", "%20");
         } catch (UnsupportedEncodingException e) {
             LOG.error(e.getMessage(), e);
             return s;
         }
+    }
+
+    public static boolean contains(String s, CharSequence... ses) {
+        for (CharSequence sequence : ses) {
+            if (s.contains(sequence)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -305,8 +339,16 @@ public abstract class StringUtil {
      */
     public static String decodeURI(String s, String enc) {
         try {
-            return isBlank(s) ? s : URLDecoder.decode(s.replaceAll("\\+","%2B"), enc);
-        } catch (UnsupportedEncodingException e) {
+            if (s.contains(" ") && s.contains("+")) {
+                LOG.error("同时存在 ' ' 与 '+' decodeURI 后 可能会出现问题,所以原串返回");
+                return s;
+            }
+            if (contains(s, /*"+",*/ " ", "/", "?",/*"%",*/"#", "&", "=")) {
+                LOG.warn("存在 特殊字符 decodeURI 后 字符串可能已经 decodeURI 过.");
+                return s;
+            }
+            return isBlank(s) ? s : URLDecoder.decode(s, enc);
+        } catch (UnsupportedEncodingException | IllegalArgumentException e) {
             LOG.error(e.getMessage(), e);
             return s;
         }
@@ -325,9 +367,6 @@ public abstract class StringUtil {
         return bb;
     }
 
-
-    private static char[] lowercases = {'\000', '\001', '\002', '\003', '\004', '\005', '\006', '\007', '\b', '\t', '\n', '\013', '\f', '\r', '\016', '\017', '\020', '\021', '\022', '\023', '\024', '\025', '\026', '\027', '\030', '\031', '\032', '\033', '\034', '\035', '\036', '\037', ' ', '!', '"', '#', '$', '%', '&', '\'', '(', ')', '*', '+', ',', '-', '.', '/', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ':', ';', '<', '=', '>', '?', '@', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '[', '\\', ']', '^', '_', '`', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '{', '|', '}', '~', ''};
-
     public static String asciiToLowerCase(String s) {
         char[] c = null;
         int i = s.length();
@@ -335,7 +374,7 @@ public abstract class StringUtil {
         while (i-- > 0) {
             char c1 = s.charAt(i);
             if (c1 <= '') {
-                char c2 = lowercases[c1];
+                char c2 = LOWERCASES[c1];
                 if (c1 != c2) {
                     c = s.toCharArray();
                     c[i] = c2;
@@ -346,68 +385,10 @@ public abstract class StringUtil {
 
         while (i-- > 0) {
             if (c != null && c.length > i && c[i] <= '') {
-                c[i] = lowercases[c[i]];
+                c[i] = LOWERCASES[c[i]];
             }
         }
         return c == null ? s : new String(c);
-    }
-
-    public static boolean startsWithIgnoreCase(String s, String w) {
-        if (w == null) {
-            return true;
-        }
-        if ((s == null) || (s.length() < w.length())) {
-            return false;
-        }
-        for (int i = 0; i < w.length(); i++) {
-            char c1 = s.charAt(i);
-            char c2 = w.charAt(i);
-            if (c1 == c2) {
-                continue;
-            }
-            if (c1 <= '') {
-                c1 = lowercases[c1];
-            }
-            if (c2 <= '') {
-                c2 = lowercases[c2];
-            }
-            if (c1 != c2) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public static boolean endsWithIgnoreCase(String s, String w) {
-        if (w == null) {
-            return true;
-        }
-        if (s == null) {
-            return false;
-        }
-        int sl = s.length();
-        int wl = w.length();
-
-        if (sl < wl) {
-            return false;
-        }
-        for (int i = wl; i-- > 0; ) {
-            sl--;
-            char c1 = s.charAt(sl);
-            char c2 = w.charAt(i);
-            if (c1 != c2) {
-                if (c1 <= '') {
-                    c1 = lowercases[c1];
-                }
-                if (c2 <= '') {
-                    c2 = lowercases[c2];
-                }
-                if (c1 != c2) {
-                    return false;
-                }
-            }
-        }
-        return true;
     }
 
     public static int indexFrom(String s, String chars) {
@@ -438,7 +419,7 @@ public abstract class StringUtil {
         return buf.toString();
     }
 
-    public synchronized static void append(StringBuilder buf, String s, int offset, int length) {
+    public static synchronized void append(StringBuilder buf, String s, int offset, int length) {
         int end = offset + length;
         for (int i = offset; i < end; i++) {
             if (i >= s.length()) {
@@ -462,20 +443,6 @@ public abstract class StringUtil {
         buf.append((char) c);
     }
 
-    public static void append2digits(StringBuffer buf, int i) {
-        if (i < 100) {
-            buf.append((char) (i / 10 + 48));
-            buf.append((char) (i % 10 + 48));
-        }
-    }
-
-    public static void append2digits(StringBuilder buf, int i) {
-        if (i < 100) {
-            buf.append((char) (i / 10 + 48));
-            buf.append((char) (i % 10 + 48));
-        }
-    }
-
     public static String join(String[] array) {
         return join(array, "");
     }
@@ -489,7 +456,7 @@ public abstract class StringUtil {
     }
 
     public static String[] add(String[] array, String... strs) {
-        Set<String> list = new HashSet<String>(Arrays.asList(array));
+        Set<String> list = new HashSet<>(Arrays.asList(array));
         Collections.addAll(list, strs);
         return list.toArray(new String[list.size()]);
     }
@@ -507,7 +474,14 @@ public abstract class StringUtil {
         } catch (UnsupportedEncodingException e) {
             throw new IllegalArgumentException(e);
         }
+    }
 
+    public static String toString(byte[] b, String charset) {
+        try {
+            return new String(b, 0, b.length, charset);
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
     public static String toString(byte[] b, int offset, int length, String charset) {
@@ -516,7 +490,6 @@ public abstract class StringUtil {
         } catch (UnsupportedEncodingException e) {
             throw new IllegalArgumentException(e);
         }
-
     }
 
     public static String printable(String name) {
@@ -551,72 +524,6 @@ public abstract class StringUtil {
         return s.getBytes();
     }
 
-    public static String sidBytesToString(byte[] sidBytes) {
-        StringBuilder sidString = new StringBuilder();
-
-        sidString.append("S-");
-
-        sidString.append(Byte.toString(sidBytes[0])).append('-');
-
-        StringBuilder tmpBuilder = new StringBuilder();
-
-        for (int i = 2; i <= 7; i++) {
-            tmpBuilder.append(Integer.toHexString(sidBytes[i] & 0xFF));
-        }
-
-        sidString.append(Long.parseLong(tmpBuilder.toString(), 16));
-
-        int subAuthorityCount = sidBytes[1];
-
-        for (int i = 0; i < subAuthorityCount; i++) {
-            int offset = i * 4;
-            tmpBuilder.setLength(0);
-
-            tmpBuilder.append(String.format("%02X%02X%02X%02X", new Object[]{sidBytes[11 + offset] & 0xFF, sidBytes[10 + offset] & 0xFF, sidBytes[9 + offset] & 0xFF, sidBytes[8 + offset] & 0xFF}));
-
-            sidString.append('-').append(Long.parseLong(tmpBuilder.toString(), 16));
-        }
-
-        return sidString.toString();
-    }
-
-    public static byte[] sidStringToBytes(String sidString) {
-        String[] sidTokens = sidString.split("-");
-
-        int subAuthorityCount = sidTokens.length - 3;
-
-        int byteCount = 0;
-        byte[] sidBytes = new byte[8 + 4 * subAuthorityCount];
-
-        sidBytes[byteCount++] = (byte) Integer.parseInt(sidTokens[1]);
-
-        sidBytes[byteCount++] = (byte) subAuthorityCount;
-
-        String hexStr = Long.toHexString(Long.parseLong(sidTokens[2]));
-
-        while (hexStr.length() < 12) {
-            hexStr = "0" + hexStr;
-        }
-
-        for (int i = 0; i < hexStr.length(); i += 2) {
-            sidBytes[byteCount++] = (byte) Integer.parseInt(hexStr.substring(i, i + 2), 16);
-        }
-
-        for (int i = 3; i < sidTokens.length; i++) {
-            hexStr = Long.toHexString(Long.parseLong(sidTokens[i]));
-
-            while (hexStr.length() < 8) {
-                hexStr = "0" + hexStr;
-            }
-
-            for (int j = hexStr.length(); j > 0; j -= 2) {
-                sidBytes[byteCount++] = (byte) Integer.parseInt(hexStr.substring(j - 2, j), 16);
-            }
-        }
-
-        return sidBytes;
-    }
-
     public static boolean isEmpty(String s) {
         return (s == null) || (s.trim().length() == 0);
     }
@@ -637,35 +544,24 @@ public abstract class StringUtil {
         return StringEscapeUtils.escapeCsv(result);
     }
 
+    public static String[] tokenizeToStringArray(String[] tokenizes) {
+        List<String> strs = new ArrayList<>(tokenizes.length);
+        for (String tokenize : tokenizes) {
+            strs.addAll(Arrays.asList(tokenizeToStringArray(tokenize)));
+        }
+        return strs.toArray(new String[strs.size()]);
+    }
+
     public static String[] tokenizeToStringArray(String tokenize) {
         return tokenizeToStringArray(tokenize, ",; \t\n");
     }
 
-    private final static String[] emptyArray = new String[0];
-
     public static String[] tokenizeToStringArray(String tokenize, String delimiters) {
-        return ObjectUtil.defaultValue(StringUtils.tokenizeToStringArray(tokenize, delimiters), emptyArray);
+        return ObjectUtil.defaultValue(StringUtils.tokenizeToStringArray(tokenize, delimiters), EMPTY_ARRAY);
     }
 
     public static Date getBirthday(String idCard) {
         return DateUtil.parse(idCard.substring(6, 6 + 8), "yyyyMMdd");
-    }
-
-    public static final char[] charMap;
-
-    static {
-        charMap = new char[64];
-        for (int i = 0; i < 10; i++) {
-            charMap[i] = (char) ('0' + i);
-        }
-        for (int i = 10; i < 36; i++) {
-            charMap[i] = (char) ('a' + i - 10);
-        }
-        for (int i = 36; i < 62; i++) {
-            charMap[i] = (char) ('A' + i - 36);
-        }
-        charMap[62] = '_';
-        charMap[63] = '-';
     }
 
     public static String hexTo64(String hex) {
@@ -675,10 +571,10 @@ public abstract class StringUtil {
         int l = hex.length();
         for (int i = 0; i < l; i++) {
             index = i % 3;
-            buff[index] = Integer.parseInt("" + hex.charAt(i), 16);
+            buff[index] = Integer.parseInt(String.valueOf(hex.charAt(i)), 16);
             if (index == 2) {
-                r.append(charMap[buff[0] << 2 | buff[1] >>> 2]);
-                r.append(charMap[(buff[1] & 3) << 4 | buff[2]]);
+                r.append(CHAR_MAP[buff[0] << 2 | buff[1] >>> 2]);
+                r.append(CHAR_MAP[(buff[1] & 3) << 4 | buff[2]]);
             }
         }
         return r.toString();
@@ -693,7 +589,7 @@ public abstract class StringUtil {
                 "U", "V", "W", "X", "Y", "Z"
         };
         // 对传入网址进行 MD5 加密
-        String hex = MessageDigestUtil.getInstance().get(key + s);
+        String hex = DigestUtils.md5DigestAsHex((key + s).getBytes());
         String[] resUrl = new String[4];
         for (int i = 0; i < 4; i++) {
             // 把加密字符按照 8 位一组 16 进制与 0x3FFFFFFF 进行位与运算
@@ -723,4 +619,18 @@ public abstract class StringUtil {
         return shortUrl(s, "org.jfantasy");
     }
 
+    public static String generateNonceString(int length) {
+        int maxPos = NONCE_CHARS.length();
+        StringBuilder noceStr = new StringBuilder();
+        Random random = new Random();
+        for (int i = 0; i < length; i++) {
+            noceStr.append(NONCE_CHARS.charAt(random.nextInt(maxPos)));
+        }
+        return noceStr.toString();
+    }
+
+    public static String uuid() {
+        UUID uuid = UUID.randomUUID();
+        return uuid.toString().replaceAll("-","");
+    }
 }

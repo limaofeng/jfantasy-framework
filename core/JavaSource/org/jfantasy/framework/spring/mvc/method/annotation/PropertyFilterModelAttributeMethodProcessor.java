@@ -6,21 +6,13 @@ import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.MethodParameter;
-import org.springframework.core.annotation.AnnotationUtils;
-import org.springframework.core.convert.ConversionService;
-import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockMultipartHttpServletRequest;
-import org.springframework.util.StringUtils;
-import org.springframework.validation.BindException;
-import org.springframework.validation.DataBinder;
-import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.ServletWebRequest;
-import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.multipart.MultipartRequest;
 import org.springframework.web.servlet.HandlerMapping;
@@ -29,25 +21,12 @@ import org.springframework.web.util.WebUtils;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.URLDecoder;
 import java.util.*;
 
-public class PropertyFilterModelAttributeMethodProcessor implements HandlerMethodArgumentResolver {
-
-    private String[] modelPrefixNames;
-
-    {
-        List<String> modelPrefixNameList = new ArrayList<String>();
-        for (PropertyFilter.MatchType matchType : PropertyFilter.MatchType.values()) {
-            for (PropertyFilter.PropertyType propertyType : PropertyFilter.PropertyType.values()) {
-                modelPrefixNameList.add(matchType.name() + propertyType.name());
-            }
-        }
-        modelPrefixNames = modelPrefixNameList.toArray(new String[modelPrefixNameList.size()]);
-    }
+public class PropertyFilterModelAttributeMethodProcessor extends MethodArgumentResolver {
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
@@ -63,29 +42,11 @@ public class PropertyFilterModelAttributeMethodProcessor implements HandlerMetho
     }
 
     @Override
-    public final Object resolveArgument(MethodParameter parameter,
-                                        ModelAndViewContainer mavContainer,
-                                        NativeWebRequest request,
-                                        WebDataBinderFactory binderFactory) throws Exception {
-        String name = parameter.getParameterName();
-
-        Object target = (mavContainer.containsAttribute(name)) ? mavContainer.getModel().get(name) : createAttribute(name, parameter, binderFactory, request);
-        WebDataBinder binder = binderFactory.createBinder(request, target, name);
-        target = binder.getTarget();
-        if (target != null) {
-            bindRequestParameters(mavContainer, binderFactory, binder, request, parameter);
-            validateIfApplicable(binder, parameter);
-            if (binder.getBindingResult().hasErrors()) {
-                if (isBindExceptionRequired(binder, parameter)) {
-                    throw new BindException(binder.getBindingResult());
-                }
-            }
-        }
-        target = binder.convertIfNecessary(binder.getTarget(), parameter.getParameterType());
-        mavContainer.addAttribute(name, target);
-        return target;
+    protected String getParameterName(MethodParameter parameter) {
+        return parameter.getParameterName();
     }
 
+    @Override
     protected Object createAttribute(String attributeName, MethodParameter parameter, WebDataBinderFactory binderFactory, NativeWebRequest request) throws Exception {
         String value = getRequestValueForAttribute(attributeName, request);
         if (value != null) {
@@ -101,18 +62,8 @@ public class PropertyFilterModelAttributeMethodProcessor implements HandlerMetho
         return BeanUtils.instantiateClass(parameter.getParameterType());
     }
 
-    protected String getRequestValueForAttribute(String attributeName, NativeWebRequest request) {
-        Map<String, String> variables = getUriTemplateVariables(request);
-        if (StringUtils.hasText(variables.get(attributeName))) {
-            return variables.get(attributeName);
-        } else if (StringUtils.hasText(request.getParameter(attributeName))) {
-            return request.getParameter(attributeName);
-        } else {
-            return null;
-        }
-    }
-
     @SuppressWarnings("unchecked")
+    @Override
     protected final Map<String, String> getUriTemplateVariables(NativeWebRequest request) {
         Map<String, String> variables = (Map<String, String>) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE, RequestAttributes.SCOPE_REQUEST);
         return (variables != null) ? variables : Collections.<String, String>emptyMap();
@@ -120,11 +71,11 @@ public class PropertyFilterModelAttributeMethodProcessor implements HandlerMetho
 
     protected final Map<String, String> getUriQueryVariables(NativeWebRequest request) {
         parseQuery(((ServletWebRequest) request).getRequest().getQueryString());
-        return new HashMap<String, String>();
+        return new HashMap<>();
     }
 
     public static Map<String, String[]> parseQuery(String query) {
-        Map<String, String[]> params = new LinkedHashMap<String, String[]>();
+        Map<String, String[]> params = new LinkedHashMap<>();
         if (StringUtil.isBlank(query)) {
             return params;
         }
@@ -136,7 +87,6 @@ public class PropertyFilterModelAttributeMethodProcessor implements HandlerMetho
                 try {
                     val = URLDecoder.decode(val, "utf-8");
                 } catch (UnsupportedEncodingException e) {
-                    val = pair.split("=")[1];
                     throw new IgnoreException(e.getMessage(), e);
                 }
             }
@@ -149,22 +99,10 @@ public class PropertyFilterModelAttributeMethodProcessor implements HandlerMetho
         return params;
     }
 
-    protected Object createAttributeFromRequestValue(String sourceValue, String attributeName, MethodParameter parameter, WebDataBinderFactory binderFactory, NativeWebRequest request) throws Exception {
-        DataBinder binder = binderFactory.createBinder(request, null, attributeName);
-        ConversionService conversionService = binder.getConversionService();
-        if (conversionService != null) {
-            TypeDescriptor source = TypeDescriptor.valueOf(String.class);
-            TypeDescriptor target = new TypeDescriptor(parameter);
-            if (conversionService.canConvert(source, target)) {
-                return binder.convertIfNecessary(sourceValue, parameter.getParameterType(), parameter);
-            }
-        }
-        return null;
-    }
-
-    @SuppressWarnings("unchecked")
+    @Override
     protected void bindRequestParameters(ModelAndViewContainer mavContainer, WebDataBinderFactory binderFactory, WebDataBinder binder, NativeWebRequest request, MethodParameter parameter) throws Exception {
         ServletRequest servletRequest = prepareServletRequest(binder.getTarget(), request, parameter);
+        @SuppressWarnings("unchecked")
         List<Object> target = (List<Object>) binder.getTarget();
         for (String paramName : servletRequest.getParameterMap().keySet()) {
             String[] values = request.getParameterValues(paramName);
@@ -173,69 +111,55 @@ public class PropertyFilterModelAttributeMethodProcessor implements HandlerMetho
             if (matchType.isNone()) {
                 target.add(new PropertyFilter(paramName));
             } else if (matchType.isMulti()) {
-                target.add(new PropertyFilter(paramName, values));
+                List<String> tValues = new ArrayList<>();
+                for (String val : values) {
+                    tValues.addAll(Arrays.asList(StringUtil.tokenizeToStringArray(val)));
+                }
+                target.add(new PropertyFilter(paramName, tValues.toArray(new String[tValues.size()])));
             } else if (values.length != 0 && StringUtil.isNotBlank(values[0])) {
                 target.add(new PropertyFilter(paramName, values[0]));
             }
         }
     }
 
-    private ServletRequest prepareServletRequest(Object target, NativeWebRequest request, MethodParameter parameter) {
+    @Override
+    protected ServletRequest prepareServletRequest(Object target, NativeWebRequest request, MethodParameter parameter) {
         HttpServletRequest nativeRequest = (HttpServletRequest) request.getNativeRequest();
         MultipartRequest multipartRequest = WebUtils.getNativeRequest(nativeRequest, MultipartRequest.class);
-        MockHttpServletRequest mockRequest = null;
+        MockHttpServletRequest mockRequest;
         if (multipartRequest != null) {
             MockMultipartHttpServletRequest mockMultipartRequest = new MockMultipartHttpServletRequest();
             mockMultipartRequest.getMultiFileMap().putAll(multipartRequest.getMultiFileMap());
+            mockRequest = mockMultipartRequest;
         } else {
             mockRequest = new MockHttpServletRequest();
         }
-        assert mockRequest != null;
         for (Map.Entry<String, String> entry : getUriTemplateVariables(request).entrySet()) {
             String parameterName = entry.getKey();
             String value = entry.getValue();
-            if (isPropertyFilterModelAttribute(parameterName, modelPrefixNames)) {
+            if (isPropertyFilterModelAttribute(parameterName)) {
                 mockRequest.setParameter(parameterName, value);
             }
         }
         for (Map.Entry<String, String[]> entry : nativeRequest.getParameterMap().entrySet()) {
             String parameterName = entry.getKey();
             String[] value = entry.getValue();
-            if (isPropertyFilterModelAttribute(parameterName, modelPrefixNames)) {
+            if (isPropertyFilterModelAttribute(parameterName)) {
                 mockRequest.setParameter(parameterName, value);
             }
         }
-        /*
         for (Map.Entry<String, String> entry : getUriQueryVariables(request).entrySet()) {
             String parameterName = entry.getKey();
             String value = entry.getValue();
-            if (isPropertyFilterModelAttribute(parameterName, modelPrefixNames)) {
+            if (isPropertyFilterModelAttribute(parameterName)) {
                 mockRequest.setParameter(parameterName, value);
             }
-        }*/
+        }
         return mockRequest;
     }
 
-    private boolean isPropertyFilterModelAttribute(String parameterName, String[] modelPrefixNames) {
+    private boolean isPropertyFilterModelAttribute(String parameterName) {
         return PropertyFilter.MatchType.is(parameterName);
-    }
-
-    protected void validateIfApplicable(WebDataBinder binder, MethodParameter parameter) {
-        Annotation[] annotations = parameter.getParameterAnnotations();
-        for (Annotation annot : annotations) {
-            if (annot.annotationType().getSimpleName().startsWith("Valid")) {
-                Object hints = AnnotationUtils.getValue(annot);
-                binder.validate(hints instanceof Object[] ? (Object[]) hints : new Object[]{hints});
-            }
-        }
-    }
-
-    protected boolean isBindExceptionRequired(WebDataBinder binder, MethodParameter parameter) {
-        int i = parameter.getParameterIndex();
-        Class<?>[] paramTypes = parameter.getMethod().getParameterTypes();
-        boolean hasBindingResult = paramTypes.length > (i + 1) && Errors.class.isAssignableFrom(paramTypes[i + 1]);
-
-        return !hasBindingResult;
     }
 
 }

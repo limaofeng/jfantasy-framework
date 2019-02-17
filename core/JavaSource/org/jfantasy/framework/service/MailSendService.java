@@ -1,13 +1,13 @@
 package org.jfantasy.framework.service;
 
-import org.jfantasy.framework.util.HandlebarsTemplateUtils;
-import org.jfantasy.framework.util.common.ObjectUtil;
-import org.jfantasy.framework.util.regexp.RegexpCst;
-import org.jfantasy.framework.util.regexp.RegexpUtil;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.mail.*;
+import org.jfantasy.framework.util.HandlebarsTemplateUtils;
+import org.jfantasy.framework.util.common.ObjectUtil;
+import org.jfantasy.framework.util.regexp.RegexpConstant;
+import org.jfantasy.framework.util.regexp.RegexpUtil;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -31,6 +31,7 @@ import java.util.regex.Pattern;
  */
 public class MailSendService implements InitializingBean {
 
+    private static final Log LOG = LogFactory.getLog(MailSendService.class);
     /**
      * 用于将:李茂峰<limaofeng@msn.com>格式的字符串解开
      */
@@ -42,9 +43,9 @@ public class MailSendService implements InitializingBean {
     private String username;
     private String password;
     private String charset = "utf-8";
+    private Executor executor;
 
-    private final static Log LOG = LogFactory.getLog(MailSendService.class);
-
+    @Override
     public void afterPropertiesSet() throws Exception {
         Assert.notNull(this.hostname, "Property 'hostname' is required");
         Assert.notNull(this.username, "Property 'username' is required");
@@ -53,9 +54,7 @@ public class MailSendService implements InitializingBean {
         Assert.notNull(this.displayName, "Property 'displayName' is required");
     }
 
-    private Executor executor;
-
-    protected Email createEmail(EmailType type, String... tos) throws EmailException {
+    private Email createEmail(EmailType type, String... tos) throws EmailException {
         Email email = EmailType.createEmail(type);
         if (email == null) {
             throw new EmailException("创建" + Email.class.getName() + "失败！[" + type + "]");
@@ -69,7 +68,7 @@ public class MailSendService implements InitializingBean {
         // 设置认证：用户名-密码。分别为发件人在邮件服务器上的注册名称和密码
         email.setAuthentication(this.username, this.password);
         // 解析字符串将中间有[,; \t\n]按多个发件人处理
-        List<String> toEmails = new ArrayList<String>();
+        List<String> toEmails = new ArrayList<>();
         for (String to : tos) {
             ObjectUtil.join(toEmails, Arrays.asList(StringUtils.tokenizeToStringArray(to, ",; \t\n")));
         }
@@ -91,7 +90,7 @@ public class MailSendService implements InitializingBean {
             throw new EmailException("收件人列表为空:" + toEmails);
         }
         if (LOG.isDebugEnabled()) {
-            StringBuffer debug = new StringBuffer("\r\n邮件发送信息如下:");
+            StringBuilder debug = new StringBuilder("\r\n邮件发送信息如下:");
             debug.append("\r\nEmailType:").append(type.toString());
             debug.append("\r\nCharset:").append(this.charset);
             debug.append("\r\nHost:").append(this.hostname);
@@ -105,7 +104,7 @@ public class MailSendService implements InitializingBean {
     }
 
     private boolean validateEmail(String email) {
-        return RegexpUtil.isMatch(email, RegexpCst.VALIDATOR_EMAIL);
+        return RegexpUtil.isMatch(email, RegexpConstant.VALIDATOR_EMAIL);
     }
 
     /**
@@ -138,10 +137,8 @@ public class MailSendService implements InitializingBean {
         try {
             Email email = this.createEmail(EmailType.simple, to);
             email.setSubject(title);
-            email.setMsg(HandlebarsTemplateUtils.processTemplateIntoString(template,model));
+            email.setMsg(HandlebarsTemplateUtils.processTemplateIntoString(template, model));
             send(email);
-        } catch (IOException e) {
-            LOG.error(e.getMessage(), e);
         } catch (EmailException e) {
             LOG.error(e.getMessage(), e);
         }
@@ -177,8 +174,6 @@ public class MailSendService implements InitializingBean {
             email.setSubject(title);
             email.setContent(HandlebarsTemplateUtils.processTemplateIntoString(template, model), EmailConstants.TEXT_HTML);
             send(email);
-        } catch (IOException e) {
-            LOG.error(e.getMessage(), e);
         } catch (EmailException e) {
             LOG.error(e.getMessage(), e);
         }
@@ -205,8 +200,6 @@ public class MailSendService implements InitializingBean {
                 }
             }
             send(email);
-        } catch (IOException e) {
-            LOG.error(e.getMessage(), e);
         } catch (EmailException e) {
             LOG.error(e.getMessage(), e);
         }
@@ -226,21 +219,21 @@ public class MailSendService implements InitializingBean {
             HtmlEmail email = (HtmlEmail) this.createEmail(EmailType.html, to);
             email.setSubject(title);
             email.setContent(HandlebarsTemplateUtils.processTemplateIntoString(template, model), EmailConstants.TEXT_HTML);
-            if (attachs != null && attachs.length > 0) {
-                for (Attachment attachment : attachs) {// 添加流形式的附件
-                    if (attachment.getInputStream() != null) {
-                        email.attach(new ByteArrayDataSource(attachment.getInputStream(), attachment.getContentType()), MimeUtility.encodeText(attachment.getName()), attachment.getDescription());
-                    } else {// freemarker 模板
-                        ByteArrayOutputStream out = new ByteArrayOutputStream();
+            if (attachs == null || attachs.length == 0) {
+                send(email);
+            }
+            for (Attachment attachment : attachs) {// 添加流形式的附件
+                if (attachment.getInputStream() != null) {
+                    email.attach(new ByteArrayDataSource(attachment.getInputStream(), attachment.getContentType()), MimeUtility.encodeText(attachment.getName()), attachment.getDescription());
+                } else {// freemarker 模板
+                    try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
                         HandlebarsTemplateUtils.writer(attachment.getModel(), attachment.getTemplate(), out);
                         email.attach(new ByteArrayDataSource(out.toByteArray(), attachment.getContentType()), MimeUtility.encodeText(attachment.getName()), attachment.getDescription());
                     }
                 }
             }
             send(email);
-        } catch (EmailException e) {
-            LOG.error(e.getMessage(), e);
-        } catch (IOException e) {
+        } catch (EmailException | IOException e) {
             LOG.error(e.getMessage(), e);
         }
     }
@@ -273,7 +266,7 @@ public class MailSendService implements InitializingBean {
         this.charset = charset;
     }
 
-    private static enum EmailType {
+    private enum EmailType {
         simple, html;//NOSONAR
 
         public static Email createEmail(EmailType type) {
@@ -366,26 +359,27 @@ public class MailSendService implements InitializingBean {
         }
 
         @SuppressWarnings("static-access")
+        @Override
         public void run() {
-            try {
-                // 邮件发送失败重试5次
-                boolean success = false;
-                int num = 0;
-                do {
-                    try {
-                        String code = email.send();
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("\r\n邮件<<" + email.getSubject() + ">>成功发送至:" + email.getToAddresses() + "\r\n返回代码:" + code);
-                        }
-                        success = true;
-                    } catch (EmailException e) {
-                        LOG.error("发送次数:" + num + "," + e.getMessage(), e);
-                        Thread.currentThread().sleep(2000);
+            // 邮件发送失败重试5次
+            boolean success = false;
+            int num = 0;
+            do {
+                try {
+                    String code = email.send();
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("\r\n邮件<<" + email.getSubject() + ">>成功发送至:" + email.getToAddresses() + "\r\n返回代码:" + code);
                     }
-                } while (!success && num++ < 5);
-            } catch (InterruptedException e) {
-                LOG.error(e.getMessage(), e);
-            }
+                    success = true;
+                } catch (EmailException e) {
+                    LOG.error("发送次数:" + num + "," + e.getMessage(), e);
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e1) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+            } while (!success && num++ < 5);
         }
     }
 

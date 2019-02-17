@@ -23,16 +23,17 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("unchecked")
 public final class ObjectUtil {
 
-    private ObjectUtil() {
-    }
-
     private static final Log LOGGER = LogFactory.getLog(ObjectUtil.class);
 
-    private static final ConcurrentMap<String, Comparator<?>> comparatorMap = new ConcurrentHashMap<String, Comparator<?>>();
+    private static final ConcurrentMap<String, Comparator<?>> COMPARATOR_MAP = new ConcurrentHashMap<>();
+
+    private ObjectUtil() {
+    }
 
     /**
      * 克隆对象,调用org.apache.commons.beanutils.BeanUtils.cloneBean(object);方法实现克隆
@@ -44,28 +45,30 @@ public final class ObjectUtil {
         if (object == null) {
             return null;
         }
-        try {
-            if (object instanceof Number) {
-                return object;
-            } else if (object instanceof String) {
-                return object;
-            } else if (object instanceof Map) {
-                Map<Object, Object> cloneMap = new HashMap<Object, Object>();
-                Map<Object, Object> map = (Map<Object, Object>) object;
-                for (Map.Entry<Object, Object> entry : map.entrySet()) {
-                    cloneMap.put(clone(entry.getKey()), clone(entry.getValue()));
-                }
-                return (T) cloneMap;
-            } else if (object instanceof List) {
-                List<Object> cloneList = new ArrayList<Object>();
-                List<Object> list = (List<Object>) object;
-                for (Object l : list) {
-                    cloneList.add(clone(l));
-                }
-                return (T) cloneList;
-            } else {
-                return (T) BeanUtils.cloneBean(object);
+        if (object instanceof String) {
+            return object;
+        }
+        if (object instanceof Number) {
+            return object;
+        }
+        if (object instanceof Map) {
+            Map<Object, Object> cloneMap = new HashMap<>();
+            Map<Object, Object> map = (Map<Object, Object>) object;
+            for (Map.Entry<Object, Object> entry : map.entrySet()) {
+                cloneMap.put(clone(entry.getKey()), clone(entry.getValue()));
             }
+            return (T) cloneMap;
+        }
+        if (object instanceof List) {
+            List<Object> cloneList = new ArrayList<Object>();
+            List<Object> list = (List<Object>) object;
+            for (Object l : list) {
+                cloneList.add(clone(l));
+            }
+            return (T) cloneList;
+        }
+        try {
+            return (T) BeanUtils.cloneBean(object);
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
             throw new IgnoreException(e.getMessage());
@@ -97,40 +100,49 @@ public final class ObjectUtil {
         return toString(objs, null, sign);
     }
 
-    public static <T> List<T> filter(List<T> list, String fieldName, Object... values) {
-        List<T> filter = new ArrayList<T>();
-        for (Object v : values) {
-            T t = find(list, fieldName, v);
-            if (t != null) {
-                filter.add(t);
+    public static <T> List<T> filter(List<T> list, BeanFilter<T> filter) {
+        List<T> rlist = new ArrayList<>();
+        if (list == null) {
+            return rlist;
+        }
+        for (T t : list) {
+            if (filter.accept(t)) {
+                rlist.add(t);
             }
         }
-        return filter;
+        return rlist;
     }
 
-    public static <T> T[] filter(T[] objs, String fieldName, Object[] values) {
-        if (values.length == 1 && ClassUtil.isArray(Array.get(values, 0))) {
-            values = (T[]) Array.get(values, 0);
+    public static <T> List<T> filter(List<T> list, String fieldName, Object... values) {
+        List<T> rlist = new ArrayList<>();
+        if (list == null) {
+            return rlist;
         }
-        List<T> filter = new ArrayList<T>();
-        for (Object v : values) {
-            T t = find(objs, fieldName, v);
-            if (t != null) {
+        for (T t : list) {
+            if (ObjectUtil.exists(values, OgnlUtil.getInstance().getValue(fieldName, t))) {
+                rlist.add(t);
+            }
+        }
+        return rlist;
+    }
+
+    public static <T> T[] filter(T[] objs, String fieldName, Object... values) {
+        List<T> filter = new ArrayList<>();
+        for (T t : objs) {
+            if (ObjectUtil.exists(values, OgnlUtil.getInstance().getValue(fieldName, t))) {
                 filter.add(t);
             }
         }
-        return (T[]) filter.toArray(new Object[filter.size()]);
+        return toArray(filter, (Class<T>) objs.getClass().getComponentType());
+    }
+
+    public static <T> T[] toArray(List<T> list, Class<T> type) {
+        return list.toArray((T[]) ClassUtil.newInstance(type, list.size()));
     }
 
     public static <T> List<T> filter(List<T> list, String spel) {
         Expression expression = SpELUtil.getExpression(spel);
-        List<T> filter = new ArrayList<T>();
-        for (T v : list) {
-            if (expression.getValue(SpELUtil.createEvaluationContext(v), Boolean.class)) {
-                filter.add(v);
-            }
-        }
-        return filter;
+        return list.stream().filter(v -> expression.getValue(SpELUtil.createEvaluationContext(v), Boolean.class)).collect(Collectors.toList());
     }
 
     public static <T> String toString(T[] objs, String fieldName, String sign) {
@@ -141,7 +153,7 @@ public final class ObjectUtil {
                 return toString((List<T>) objs[0], fieldName, sign);
             }
         }
-        AtomicReference<StringBuffer> stringBuffer = new AtomicReference<StringBuffer>(new StringBuffer());
+        AtomicReference<StringBuffer> stringBuffer = new AtomicReference<>(new StringBuffer());
         for (T t : objs) {
             String temp = StringUtil.isBlank(fieldName) ? t.toString() : StringUtil.defaultValue(OgnlUtil.getInstance().getValue(fieldName, t), "");
             if (StringUtil.isBlank(temp)) {
@@ -277,11 +289,55 @@ public final class ObjectUtil {
         }
         for (T t : list) {
             Object v = OgnlUtil.getInstance().getValue(field, t);
+            if (v == value || (value != null && value.equals(v))) {
+                return t;
+            }
+        }
+        return null;
+    }
+
+    public static <T> T first(List<T> list, String field, Object value) {
+        return find(list, field, value);
+    }
+
+    public static <T> T last(List<T> list, String field, Object value) {
+        if (list == null) {
+            return null;
+        }
+        for (int i = list.size() - 1; i >= 0; i--) {
+            T t = list.get(i);
+            Object v = OgnlUtil.getInstance().getValue(field, t);
             if (v == value || value.equals(v)) {
                 return t;
             }
         }
         return null;
+    }
+
+    public static <T> T find(T[] array, ItemSelector<T> itemSelector) {
+        for (T t : array) {
+            if (itemSelector.accept(t)) {
+                return t;
+            }
+        }
+        return null;
+    }
+
+    public static <T> T find(List<T> list, ItemSelector<T> itemSelector) {
+        for (T t : list) {
+            if (itemSelector.accept(t)) {
+                return t;
+            }
+        }
+        return null;
+    }
+
+    public static <T> boolean exists(T[] objs, String field, Object value) {
+        return find(objs, field, value) != null;
+    }
+
+    public static <T> boolean exists(List<T> list, String field, Object value) {
+        return find(list, field, value) != null;
     }
 
     public static <T> T find(List<T> list, Expression exper, Object value) {
@@ -319,27 +375,8 @@ public final class ObjectUtil {
 
     public static <T> int indexOf(T[] objs, T o) {
         for (int i = 0; i < objs.length; i++) {
-            if (ClassUtil.isList(o)) {
-                if (!ClassUtil.isList(objs[i]) || ((List<Object>) o).isEmpty()) {
-                    continue;
-                }
-                if (((List<Object>) o).size() != ((List<Object>) objs[i]).size()) {
-                    continue;
-                }
-                int num = 0;
-                for (Object obj : (List<Object>) o) {
-                    if (indexOf((List<Object>) objs[i], obj) > -1) {
-                        num++;
-                    }
-                }
-                if (num == ((List<Object>) o).size()) {
-                    return i;
-                }
-            } else {
-                if (objs[i].equals(o)) {
-                    return i;
-                }
-
+            if (objs[i].equals(o)) {
+                return i;
             }
         }
         return -1;
@@ -411,21 +448,17 @@ public final class ObjectUtil {
      * @return T
      */
     public static <T> Collection<T> sort(Collection<T> collectoin, String orderBy, String order) {
-        List<T> list = new ArrayList<T>();
+        List<T> list = new ArrayList<>();
         if ((collectoin == null) || (collectoin.isEmpty())) {
             return list;
         }
         String key = collectoin.iterator().next().getClass().toString().concat("|").concat(orderBy);
-        if (!comparatorMap.containsKey(key)) {
+        if (!COMPARATOR_MAP.containsKey(key)) {
             final String orderBys = orderBy;
-            comparatorMap.put(key, new Comparator<T>() {
-                public int compare(Object o1, Object o2) {
-                    return compareField(o1, o2, orderBys);
-                }
-            });
+            COMPARATOR_MAP.put(key, (o1, o2) -> compareField(o1, o2, orderBys));
         }
         list.addAll(collectoin);
-        Collections.sort(list, (Comparator<T>) comparatorMap.get(key));
+        Collections.sort(list, (Comparator<T>) COMPARATOR_MAP.get(key));
         if ("desc".equalsIgnoreCase(order)) {
             Collections.reverse(list);
         }
@@ -437,14 +470,7 @@ public final class ObjectUtil {
     }
 
     public static <T> List<T> sort(List<T> collectoin, String[] customSort, String idFieldName) {
-        if (collectoin instanceof PersistentBag) {
-            List<T> dest = new ArrayList<T>(collectoin.size());
-            for (T t : collectoin) {
-                dest.add(t);
-            }
-            collectoin = dest;
-        }
-        Collections.sort(collectoin, new CustomSortOrderComparator(customSort, idFieldName));
+        Collections.sort(collectoin instanceof PersistentBag ? new ArrayList<>(collectoin) : collectoin, new CustomSortOrderComparator(customSort, idFieldName));
         return collectoin;
     }
 
@@ -463,7 +489,7 @@ public final class ObjectUtil {
         Object f1 = OgnlUtil.getInstance().getValue(orderField, o1);
         Object f2 = OgnlUtil.getInstance().getValue(orderField, o2);
         if (f1 == f2) {
-            return -1;
+            return 0;
         }
         if (f1 == null || f2 == null) {
             return -1;
@@ -474,10 +500,7 @@ public final class ObjectUtil {
         } else {
             Arrays.sort(ary);
         }
-        if (ary[0].equals(f1)) {
-            return -1;
-        }
-        return 1;
+        return ary[0].equals(f1) ? -1 : 1;
     }
 
     public static boolean isNull(Object object) {
@@ -506,6 +529,38 @@ public final class ObjectUtil {
         return rootMap;
     }
 
+    /**
+     * 合并数组 并去除重复项
+     *
+     * @param dest  原数组
+     * @param items 要合并的数组
+     * @param <T>   泛型
+     * @return T[]
+     */
+    public static <T> T[] merge(T[] dest, T... items) {
+        if (dest == null) {
+            return items;
+        }
+        if (items.length == 0) {
+            return dest;
+        }
+        List<T> ts = new ArrayList<>();
+        for (T t : items) {
+            if (exists(dest, t) || exists(ts, t)) {
+                continue;
+            }
+            ts.add(t);
+        }
+        Object array = Array.newInstance(dest.getClass().getComponentType(), dest.length + ts.size());
+        for (int i = 0; i < dest.length; i++) {
+            Array.set(array, i, dest[i]);
+        }
+        for (int i = 0; i < ts.size(); i++) {
+            Array.set(array, dest.length + i, ts.get(i));
+        }
+        return (T[]) array;
+    }
+
     public static <T> T[] join(T[] dest, T... items) {
         if (items.length == 0) {
             return dest;
@@ -532,11 +587,9 @@ public final class ObjectUtil {
     }
 
     public static <T> void join(List<T> dest, List<T> orig, String property) {
-        List<T> news = new ArrayList<T>();
+        List<T> news = new ArrayList<>();
         for (T o : orig) {
-            if (StringUtil.isNotBlank(property) && (indexOf(dest, o, property) == -1)) {
-                news.add(o);
-            } else if (dest.indexOf(o) == -1) {
+            if ((StringUtil.isNotBlank(property) && (indexOf(dest, o, property) == -1)) || dest.indexOf(o) == -1) {
                 news.add(o);
             }
         }
@@ -544,11 +597,9 @@ public final class ObjectUtil {
     }
 
     public static <T> void join(List<T> dest, List<T> orig, Expression exper) {
-        List<T> news = new ArrayList<T>();
+        List<T> news = new ArrayList<>();
         for (T o : orig) {
-            if (isNotNull(exper) && (indexOf(dest, exper, o) == -1)) {
-                news.add(o);
-            } else if (dest.indexOf(o) == -1) {
+            if ((isNotNull(exper) && (indexOf(dest, exper, o) == -1)) || dest.indexOf(o) == -1) {
                 news.add(o);
             }
         }
@@ -566,9 +617,7 @@ public final class ObjectUtil {
      */
     public static <T> Boolean exists(List<T> list, T object) {
         for (Object t : list) {
-            if (t.getClass().isEnum() && t.toString().equals(object)) {
-                return true;
-            } else if (t.equals(object)) {
+            if ((t.getClass().isEnum() && t.toString().equals(object)) || t.equals(object)) {
                 return true;
             }
         }
@@ -618,18 +667,11 @@ public final class ObjectUtil {
      * @return T
      */
     public static <T> T[] remove(T[] dest, T orig) {
-        List<T> array = new ArrayList<T>(Arrays.asList(dest));
+        List<T> array = new ArrayList<>(Arrays.asList(dest));
         while (array.indexOf(orig) != -1) {
             array.remove(orig);
         }
         return array.toArray((T[]) Array.newInstance(dest.getClass().getComponentType(), array.size()));
-    }
-
-    public static <T> T[] removeFirst(T[] dest, T orig) {
-        if (indexOf(dest, orig) != -1) {
-            dest = remove(dest, orig);
-        }
-        return dest;
     }
 
     /**
@@ -721,16 +763,23 @@ public final class ObjectUtil {
         return list;
     }
 
-    public static class CustomSortOrderComparator implements Comparator<Object>, Serializable {
+    public interface ItemSelector<T> {
+
+        boolean accept(T item);
+
+    }
+
+    private static class CustomSortOrderComparator implements Comparator<Object>, Serializable {
 
         private String[] customSort;
         private String idFieldName;
 
-        public CustomSortOrderComparator(String[] customSort, String idFieldName) {
+        private CustomSortOrderComparator(String[] customSort, String idFieldName) {
             this.customSort = Arrays.copyOf(customSort, customSort.length);
             this.idFieldName = idFieldName;
         }
 
+        @Override
         public int compare(Object o1, Object o2) {
             int o1IdKey = ObjectUtil.indexOf(customSort, OgnlUtil.getInstance().getValue(idFieldName, o1).toString());
             int o2IdKey = ObjectUtil.indexOf(customSort, OgnlUtil.getInstance().getValue(idFieldName, o2).toString());

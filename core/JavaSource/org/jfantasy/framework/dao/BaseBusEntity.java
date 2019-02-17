@@ -1,40 +1,44 @@
 package org.jfantasy.framework.dao;
 
-import io.swagger.annotations.ApiModelProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.persistence.Column;
-import javax.persistence.MappedSuperclass;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
 @MappedSuperclass
 public abstract class BaseBusEntity implements Serializable {
 
+    private static final long serialVersionUID = -6543503526965322995L;
+
+    public static final String FIELDS_BY_CREATOR = "creator";
+    public static final String FIELDS_BY_CREATE_TIME = "createTime";
+    public static final String FIELDS_BY_MODIFIER = "modifier";
+    public static final String FIELDS_BY_MODIFY_TIME = "modifyTime";
+    public static final String[] BASE_FIELDS = {FIELDS_BY_CREATOR, FIELDS_BY_CREATE_TIME, FIELDS_BY_MODIFIER, FIELDS_BY_MODIFY_TIME};
+    public static final String BASE_JSONFIELDS = FIELDS_BY_CREATOR + ",create_time," + FIELDS_BY_MODIFIER + ",modify_time";
+
     /**
      * 创建人
      */
-    @ApiModelProperty(hidden = true)
     @Column(updatable = false, name = "CREATOR", length = 20)
     private String creator;
     /**
      * 创建时间
      */
-    @ApiModelProperty(hidden = true)
+    @JsonProperty("create_time")
     @Temporal(TemporalType.TIMESTAMP)
     @Column(updatable = false, name = "CREATE_TIME")
     private Date createTime;
     /**
      * 最后修改人
      */
-    @ApiModelProperty(hidden = true)
     @Column(name = "MODIFIER", length = 20)
     private String modifier;
     /**
      * 最后修改时间
      */
-    @ApiModelProperty(hidden = true)
+    @JsonProperty("modify_time")
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "MODIFY_TIME")
     private Date modifyTime;
@@ -68,6 +72,7 @@ public abstract class BaseBusEntity implements Serializable {
             this.modifyTime = (Date) modifyTime.clone();
         }
     }
+
 
     public String getCreator() {
         return this.creator;

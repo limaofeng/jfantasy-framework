@@ -1,76 +1,102 @@
 package org.jfantasy.framework.dao;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.type.Alias;
-import org.jfantasy.framework.util.common.ObjectUtil;
+import org.hibernate.criterion.Order;
+import org.jfantasy.framework.util.common.StringUtil;
+import org.jfantasy.framework.util.web.RedirectAttributesWriter;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.util.Assert;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
-@ApiModel("通用分页对象")
+
+/**
+ * 通用分页对象
+ *
+ * @param <T>
+ */
 @Alias("Pager")
-@JsonIgnoreProperties(value = {"orders","first","orderBySetted"})
+@JsonIgnoreProperties(value = {"orders", "first", "order_by_setted"})
 public class Pager<T> implements Serializable {
 
     private static final long serialVersionUID = -2343309063338998483L;
+
+    /**
+     * 排序 - 升序
+     */
+    public static final String SORT_ASC = "asc";
+    /**
+     * 排序 - 降序
+     */
+    public static final String SORT_DESC = "desc";
     /**
      * 最大数据条数
      */
-    @ApiModelProperty(value = "最大数据条数", name = "count")
     @JsonProperty("count")
     private int totalCount = 0;
     /**
      * 每页显示的数据条数
      */
-    @ApiModelProperty(value = "每页显示的数据条数", name = "per_page")
     @JsonProperty("per_page")
     private int pageSize = 0;
     /**
      * 总页数
      */
-    @ApiModelProperty(value = "总页数", name = "total")
     @JsonProperty("total")
     private int totalPage = 1;
     /**
      * 当前页码
      */
-    @ApiModelProperty(value = "当前页码", name = "page")
     @JsonProperty("page")
     private int currentPage = 1;
     /**
      * 开始数据索引
      */
-    @ApiModelProperty(hidden = true)
     private int first = 0;
     /**
      * 排序字段
      */
-    @ApiModelProperty(value = "排序字段", name = "sort")
     @JsonProperty("sort")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String orderBy;
-    @ApiModelProperty(value = "排序方向", name = "order")
-    @JsonProperty("order")
-    @JsonSerialize(using = OrderSerializer.class)
-    private Order[] orders = new Order[]{Order.asc};
-    @ApiModelProperty(value = "返回的数据集", name = "items")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String order;
     @JsonProperty("items")
-    private List<T> pageItems;
+    private transient List<T> pageItems;
 
     public Pager() {
-        this.pageSize = 15;
+        this.pageSize = 10;
     }
 
     public Pager(int pageSize) {
         this.pageSize = pageSize;
+    }
+
+    public Pager(Pager pager) {
+        this.currentPage = pager.currentPage;
+        this.pageSize = pager.pageSize;
+        this.totalCount = pager.totalCount;
+        this.totalPage = pager.totalPage;
+        this.orderBy = pager.orderBy;
+        this.order = pager.order;
+    }
+
+    public Pager(Pager pager, List<T> items) {
+        this.currentPage = pager.currentPage;
+        this.pageSize = pager.pageSize;
+        this.totalCount = pager.totalCount;
+        this.totalPage = pager.totalPage;
+        this.orderBy = pager.orderBy;
+        this.order = pager.order;
+        this.pageItems = items;
     }
 
     /**
@@ -82,14 +108,6 @@ public class Pager<T> implements Serializable {
         return totalPage;
     }
 
-    /**
-     * 设置总页数
-     *
-     * @param totalPage 总页数
-     */
-    public void setTotalPage(int totalPage) {
-        this.totalPage = totalPage == 0 ? 1 : totalPage;
-    }
 
     /**
      * 获取每页显示的条数
@@ -100,6 +118,21 @@ public class Pager<T> implements Serializable {
         return pageSize;
     }
 
+    public long getOffset() {
+        return this.getFirst();
+    }
+
+    @JsonIgnore
+    public Sort getSort() {
+        List<Sort.Order> orders = new ArrayList<>();
+        String[] _orderBys = StringUtil.tokenizeToStringArray(getOrderBy());
+        String[] _orders = StringUtil.tokenizeToStringArray(getOrder());
+        for (int i = 0; i < _orders.length; i++) {
+            orders.add(new Sort.Order(Pager.SORT_ASC.equals(_orders[i]) ? Sort.Direction.ASC : Sort.Direction.DESC, _orderBys[i]));
+        }
+        return Sort.by(orders);
+    }
+
     /**
      * 设置显示的页码 注意是页码
      *
@@ -107,26 +140,6 @@ public class Pager<T> implements Serializable {
      */
     public void setCurrentPage(int currentPage) {
         this.currentPage = currentPage;
-    }
-
-    /**
-     * 设置总数据条数
-     *
-     * @param totalCount 总数据条数
-     */
-    public void setTotalCount(int totalCount) {
-        this.totalCount = totalCount;
-        int totalPages = totalCount % pageSize == 0 ? totalCount / pageSize : totalCount / pageSize + 1;
-        this.setTotalPage(totalPages);
-        if (currentPage >= totalPages) {
-            setCurrentPage(totalPages);
-            setFirst((totalPages - 1) * pageSize);
-        } else if (currentPage <= 0) {
-            setCurrentPage(1);
-            setFirst(first);
-        } else {
-            setFirst((currentPage - 1) * pageSize);
-        }
     }
 
     /**
@@ -173,10 +186,6 @@ public class Pager<T> implements Serializable {
         return pageItems;
     }
 
-    public void setPageItems(List<T> pageItems) {
-        this.pageItems = pageItems;
-    }
-
     public String getOrderBy() {
         return orderBy;
     }
@@ -185,39 +194,79 @@ public class Pager<T> implements Serializable {
         this.orderBy = orderBy;
     }
 
-    public Order[] getOrders() {
-        return orders;
+    public String getOrder() {
+        if (StringUtil.isNotBlank(this.getOrderBy()) && StringUtil.isBlank(this.order)) {
+            this.setOrder("asc");
+        }
+        return this.order;
     }
 
-    public void setOrders(Order... order) {
-        this.orders = order;
+    public void setOrder(String order) {
+        this.order = order;
     }
 
-    @ApiModelProperty("是否启用排序")
+    /**
+     * 是否启用排序
+     *
+     * @return boolean
+     */
     public boolean isOrderBySetted() {
-        return (StringUtils.isNotBlank(this.orderBy)) && (ObjectUtil.isNotNull(orders));
-    }
-
-    public enum Order {
-        desc, asc
+        return StringUtil.isNotBlank(this.getOrderBy()) && StringUtil.isNotBlank(this.getOrder());
     }
 
     @Override
     public String toString() {
-        return "Pager [totalCount=" + totalCount + ", first=" + first + ", pageSize=" + pageSize + ", totalPage=" + totalPage + ", currentPage=" + currentPage + ", orderBy=" + orderBy + ", order=" + orders + "]";
+        return "Pager [totalCount=" + totalCount + ", first=" + first + ", pageSize=" + pageSize + ", totalPage=" + totalPage + ", currentPage=" + currentPage + ", orderBy=" + orderBy + ", order=" + order + "]";
     }
 
-    public static class OrderSerializer extends JsonSerializer<Order[]> {
-
-        @Override
-        public void serialize(Order[] orders, JsonGenerator jgen, SerializerProvider provider) throws IOException {
-            if (orders.length == 0) {
-                jgen.writeNull();
-            } else {
-                jgen.writeString(ObjectUtil.toString(orders,","));
-            }
+    /**
+     * 设置总数据条数
+     *
+     * @param totalCount 总数据条数
+     */
+    public void reset(int totalCount) {
+        this.totalCount = totalCount;
+        this.totalPage = totalCount % pageSize == 0 ? totalCount / pageSize : totalCount / pageSize + 1;
+        if (currentPage >= totalPage) {
+            setCurrentPage(totalPage);
+            setFirst((totalPage - 1) * pageSize);
+        } else if (currentPage <= 0) {
+            setCurrentPage(1);
+            setFirst(first);
+        } else {
+            setFirst((currentPage - 1) * pageSize);
         }
-
     }
+
+    public void sort(String orderBy, String order) {
+        this.orderBy = orderBy;
+        this.order = order;
+    }
+
+    public void reset(List<T> items) {
+        this.pageItems = items;
+    }
+
+    public void reset(int totalCount, List<T> items) {
+        this.reset(totalCount);
+        this.reset(items);
+    }
+
+    public RedirectAttributesWriter writeTo(RedirectAttributes attrs) {
+        if (this.getFirst() != 0) {
+            attrs.addAttribute("limit", this.getFirst() + "," + this.getPageSize());
+        } else if (this.getPageSize() != 15) {
+            attrs.addAttribute("per_page", this.getPageSize());
+        }
+        if (this.getCurrentPage() != 1) {
+            attrs.addAttribute("page", this.getCurrentPage());
+        }
+        if (this.isOrderBySetted()) {
+            attrs.addAttribute("sort", this.getOrderBy());
+            attrs.addAttribute("order", this.getOrder());
+        }
+        return RedirectAttributesWriter.writer(attrs);
+    }
+
 
 }

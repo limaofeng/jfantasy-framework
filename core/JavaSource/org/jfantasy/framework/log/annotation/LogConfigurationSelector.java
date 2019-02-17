@@ -8,6 +8,7 @@ public class LogConfigurationSelector extends AdviceModeImportSelector<EnableLog
 
     private static final String LOG_ASPECT_CONFIGURATION_CLASS_NAME = "org.springframework.log.aspectj.AspectJCachingConfiguration";
 
+    @Override
     public String[] selectImports(AdviceMode adviceMode) {
         switch (adviceMode) {
             case PROXY:

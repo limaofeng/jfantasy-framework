@@ -11,7 +11,7 @@ import org.springframework.core.io.support.ResourcePatternResolver;
 
 public class ConfigResolverTest {
 
-    private final static Log LOG = LogFactory.getLog(ConfigResolverTest.class);
+    private static final Log LOG = LogFactory.getLog(ConfigResolverTest.class);
 
     private ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
 

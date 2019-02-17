@@ -13,7 +13,9 @@ import java.io.InputStream;
 import java.util.*;
 
 public class XMLReader {
+
     private XMLReader() {
+        throw new IllegalStateException("Utility class");
     }
 
     private static final Log LOGGER = LogFactory.getLog(XMLReader.class);
@@ -21,17 +23,13 @@ public class XMLReader {
     public static XmlElement reader(InputStream input) {
         SAXParserFactory factory = SAXParserFactory.newInstance();
         factory.setValidating(false);
-        SAXParser saxParse = null;
+        SAXParser saxParse;
         try {
             saxParse = factory.newSAXParser();
             SaxXmlHandler handler = new SaxXmlHandler();
             saxParse.parse(input, handler);
             return handler.getElement();
-        } catch (ParserConfigurationException e) {
-            LOGGER.error(e.getMessage(), e);
-        } catch (SAXException e) {
-            LOGGER.error(e.getMessage(), e);
-        } catch (IOException e) {
+        } catch (ParserConfigurationException | SAXException | IOException e) {
             LOGGER.error(e.getMessage(), e);
         }
         return null;
@@ -49,11 +47,7 @@ public class XMLReader {
             saxParse.parse(xmlfile, handler);
             LOGGER.info("XML文件：[" + path + "]解析完成");
             return handler.getElement();
-        } catch (ParserConfigurationException e) {
-            LOGGER.error(e.getMessage(), e);
-        } catch (SAXException e) {
-            LOGGER.error(e.getMessage(), e);
-        } catch (IOException e) {
+        } catch (ParserConfigurationException | SAXException | IOException e) {
             LOGGER.error(e.getMessage(), e);
         }
         return null;
@@ -70,11 +64,7 @@ public class XMLReader {
             saxParse.parse(stream, handler);
             LOGGER.info("XML文件：[" + path + "]解析完成");
             return handler.getElement();
-        } catch (ParserConfigurationException e) {
-            LOGGER.error(e.getMessage(), e);
-        } catch (SAXException e) {
-            LOGGER.error(e.getMessage(), e);
-        } catch (IOException e) {
+        } catch (ParserConfigurationException | SAXException | IOException e) {
             LOGGER.error(e.getMessage(), e);
         }
         return null;

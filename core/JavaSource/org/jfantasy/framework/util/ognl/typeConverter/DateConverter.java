@@ -15,12 +15,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 public class DateConverter extends DefaultTypeConverter {
-    private final static Log LOGGER = LogFactory.getLog(DateConverter.class);
+    private static final Log LOGGER = LogFactory.getLog(DateConverter.class);
 
-    @SuppressWarnings("rawtypes")
+    @Override
     public Object convertValue(Map context, Object target, Member member, String propertyName, Object value, Class toType) {
         if (Date.class.isAssignableFrom(toType)) {
-            String dateFormatString = null;
+            String dateFormatString;
             try {
                 DateFormat dateFormat = (DateFormat) ClassUtil.getParamAnno((Method) member);
                 dateFormatString = dateFormat.pattern();

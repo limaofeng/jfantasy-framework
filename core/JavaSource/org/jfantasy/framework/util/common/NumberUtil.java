@@ -11,16 +11,17 @@ import java.util.Random;
  * 数字处理集合类 主要功能：四舍五入，随机数，数字类型转换等方法
  */
 public class NumberUtil {
-    private NumberUtil() {
-    }
 
-    static String[] numberSimplifiedChinese = new String[]{"", "一", "二", "三", "四", "五", "六", "七", "八", "九"};
-    static String[] unitSimplifiedChinese = new String[]{"", "十", "百", "千", "万", "亿", "", "", ""};
-    static String[] numberTraditionalChinese = new String[]{"零", "壹", "贰", "叁", "肆", "伍", "陆", "柒", "捌", "玖"};
-    static String[] unitTraditionalChinese = new String[]{"元", "拾", "佰", "仟", "万", "亿", "角", "分", "整"};
-    private final static byte[] hex = "0123456789ABCDEF".getBytes();
+    private static final String[] NUMBER_SIMPLIFIED_CHINESE = new String[]{"", "一", "二", "三", "四", "五", "六", "七", "八", "九"};
+    private static final String[] UNIT_SIMPLIFIED_CHINESE = new String[]{"", "十", "百", "千", "万", "亿", "", "", ""};
+    private static final String[] NUMBER_TRADITIONAL_CHINESE = new String[]{"零", "壹", "贰", "叁", "肆", "伍", "陆", "柒", "捌", "玖"};
+    private static final String[] UNIT_TRADITIONAL_CHINESE = new String[]{"元", "拾", "佰", "仟", "万", "亿", "角", "分", "整"};
+    private static final byte[] HEX = "0123456789ABCDEF".getBytes();
     public static final int INTEGER_MAX = 99999;
     private static Random random = new Random();
+
+    private NumberUtil() {
+    }
 
     public static int randomInt() {
         return random.nextInt();
@@ -36,6 +37,10 @@ public class NumberUtil {
 
     public static long randomLong() {
         return random.nextLong();
+    }
+
+    public static Long toLong(String s, int radix) {
+        return Long.parseLong(s, radix);
     }
 
     public static Integer toInteger(String num) {
@@ -63,7 +68,7 @@ public class NumberUtil {
      * @return {double}
      */
     public static double round(double n, int w) {
-        BigDecimal d = new BigDecimal(n);
+        BigDecimal d = BigDecimal.valueOf(n);
         d = d.setScale(w, BigDecimal.ROUND_HALF_UP);
         return d.doubleValue();
     }
@@ -124,7 +129,7 @@ public class NumberUtil {
      * @param b 字节数组
      * @return {int}
      */
-    public static int bytes2int(byte b[]) {
+    public static int bytes2int(byte[] b) {
         int s;
 
         s = ((((b[0] & 0xff) << 8 | (b[1] & 0xff)) << 8) | (b[2] & 0xff)) << 8 | (b[3] & 0xff);
@@ -147,7 +152,7 @@ public class NumberUtil {
      * @param c 字符
      * @return {int}
      */
-    private static int parse(char c) {
+    public static int parse(char c) {
         if (c >= 'a') {
             return (c - 'a' + 10) & 0x0f;
         }
@@ -157,18 +162,25 @@ public class NumberUtil {
         return (c - '0') & 0x0f;
     }
 
+    public static boolean isEquals(BigDecimal left, BigDecimal right) {
+        return left.compareTo(right) == 0;
+    }
+
+    public static String toHex(int num) {
+        return Integer.toHexString(num);
+    }
+
     /**
      * 从字节数组到十六进制字符串转换
      *
      * @param b 字节数组
      * @return {String}
      */
-    @Deprecated
     public static String bytes2HexString(byte[] b) {
         byte[] buff = new byte[2 * b.length];
         for (int i = 0; i < b.length; i++) {
-            buff[2 * i] = hex[(b[i] >> 4) & 0x0f];
-            buff[2 * i + 1] = hex[b[i] & 0x0f];
+            buff[2 * i] = HEX[(b[i] >> 4) & 0x0f];
+            buff[2 * i + 1] = HEX[b[i] & 0x0f];
         }
         return new String(buff);
     }
@@ -179,7 +191,6 @@ public class NumberUtil {
      * @param hexstr 字符串
      * @return {byte[]}
      */
-    @Deprecated
     public static byte[] hexString2Bytes(String hexstr) {
         byte[] b = new byte[hexstr.length() / 2];
         int j = 0;
@@ -222,20 +233,20 @@ public class NumberUtil {
     }
 
     public static String toChinese(int number) {
-        return toChinese(number + "");
+        return toChinese(String.valueOf(number));
     }
 
     public static String toChinese(String number) {
-        return toChinese(number, 0, numberSimplifiedChinese, unitSimplifiedChinese);
+        return toChinese(number, 0, NUMBER_SIMPLIFIED_CHINESE, UNIT_SIMPLIFIED_CHINESE);
     }
 
     public static String toRMB(String number) {
-        return toChinese(number, 0, numberTraditionalChinese, unitTraditionalChinese);
+        return toChinese(number, 0, NUMBER_TRADITIONAL_CHINESE, UNIT_TRADITIONAL_CHINESE);
     }
 
-    private static String toChinese(String number, int unit, String[] numberChinese, String[] unitChinese) {
-        String chinese = number.split("\\.")[0];
-        number = number.split("\\.").length > 1 ? number.split("\\.")[1] : null;
+    private static String toChinese(String pnumber, int unit, String[] numberChinese, String[] unitChinese) {
+        String chinese = pnumber.split("\\.")[0];
+        String number = pnumber.split("\\.").length > 1 ? pnumber.split("\\.")[1] : null;
         int index = unit == 0 ? 0 : unit % 4 == 0 ? unit % 8 == 0 ? 5 : 4 : unit % 4;
         chinese = chinese.length() > 1 ? toChinese(chinese.substring(0, chinese.length() - 1), unit + 1, numberChinese, unitChinese) + (numberChinese[Integer.valueOf(chinese.substring(chinese.length() - 1))] + unitChinese[index]) : (numberChinese[Integer.valueOf(chinese)] + unitChinese[index]);
 

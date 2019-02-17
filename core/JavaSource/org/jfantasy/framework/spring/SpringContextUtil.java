@@ -4,20 +4,56 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.Resource;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SpringContextUtil implements ApplicationContextAware, DisposableBean {
+public class SpringContextUtil implements BeanDefinitionRegistryPostProcessor, ApplicationContextAware {
+
+    private static final Log LOGGER = LogFactory.getLog(SpringContextUtil.class);
+
+    /**
+     * Spring应用上下文环境
+     */
+    private static ApplicationContext applicationContext;
+    private static BeanDefinitionRegistry registry;
+    private static ConfigurableListableBeanFactory beanFactory;//NOSONAR
+
+    @Override
+    public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
+        SpringContextUtil.registry = registry;//NOSONAR
+    }
+
+    @Override
+    public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+        SpringContextUtil.beanFactory = beanFactory;//NOSONAR
+    }
+
+    /**
+     * 实现ApplicationContextAware接口的回调方法，设置上下文环境
+     *
+     * @param applicationContext applicationContext
+     */
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) {
+        LOGGER.debug(applicationContext);
+        if (ObjectUtil.isNull(SpringContextUtil.applicationContext)) {
+            SpringContextUtil.applicationContext = applicationContext;//NOSONAR
+        }
+    }
+
+    public static void setRegistry(BeanDefinitionRegistry registry) {
+        SpringContextUtil.registry = registry;
+    }
 
     public enum AutoType {
 
@@ -35,23 +71,6 @@ public class SpringContextUtil implements ApplicationContextAware, DisposableBea
 
     }
 
-    private static final Log LOGGER = LogFactory.getLog(SpringContextUtil.class);
-
-    private static ApplicationContext applicationContext; // Spring应用上下文环境
-
-    /**
-     * 实现ApplicationContextAware接口的回调方法，设置上下文环境
-     *
-     * @param applicationContext applicationContext
-     * @throws BeansException
-     */
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        LOGGER.debug(applicationContext);
-        if (ObjectUtil.isNull(SpringContextUtil.applicationContext)) {
-            SpringContextUtil.applicationContext = applicationContext;
-        }
-    }
-
     /**
      * @return ApplicationContext
      */
@@ -64,19 +83,18 @@ public class SpringContextUtil implements ApplicationContextAware, DisposableBea
      *
      * @param name beanId
      * @return Object 一个以所给名字注册的bean的实例
-     * @throws BeansException
      */
     public static synchronized <T> T getBean(String name) {
         try {
             return (T) applicationContext.getBean(name);
         } catch (NoSuchBeanDefinitionException e) {
             if (LOGGER.isErrorEnabled()) {
-                LOGGER.error("{Bean:" + name + "}没有找到!", e);
+                LOGGER.error("BeanName:" + name + "没有找到!", e);
             }
             return null;
         } catch (BeansException e) {
             if (LOGGER.isErrorEnabled()) {
-                LOGGER.error("{Bean:" + name + "}没有找到!", e);
+                LOGGER.error("BeanName:" + name + "没有找到!", e);
             }
             throw e;
         }
@@ -88,7 +106,6 @@ public class SpringContextUtil implements ApplicationContextAware, DisposableBea
      * @param name         bean注册名
      * @param requiredType 返回对象类型
      * @return Object 返回requiredType类型对象
-     * @throws BeansException
      */
     public static synchronized <T> T getBean(String name, Class<T> requiredType) {
         try {
@@ -157,18 +174,16 @@ public class SpringContextUtil implements ApplicationContextAware, DisposableBea
      *
      * @param name beanname
      * @return boolean
-     * @throws org.springframework.beans.factory.NoSuchBeanDefinitionException
      */
-    public static synchronized boolean isSingleton(String name) throws NoSuchBeanDefinitionException {
+    public static synchronized boolean isSingleton(String name) {
         return applicationContext.isSingleton(name);
     }
 
     /**
      * @param name beanname
      * @return Class 注册对象的类型
-     * @throws NoSuchBeanDefinitionException
      */
-    public static synchronized <T> Class<T> getType(String name) throws NoSuchBeanDefinitionException {
+    public static synchronized <T> Class<T> getType(String name) {
         return (Class<T>) applicationContext.getType(name);
     }
 
@@ -177,9 +192,8 @@ public class SpringContextUtil implements ApplicationContextAware, DisposableBea
      *
      * @param name beanname
      * @return name aliases
-     * @throws NoSuchBeanDefinitionException
      */
-    public static synchronized String[] getAliases(String name) throws NoSuchBeanDefinitionException {
+    public static synchronized String[] getAliases(String name) {
         return applicationContext.getAliases(name);
     }
 
@@ -191,12 +205,12 @@ public class SpringContextUtil implements ApplicationContextAware, DisposableBea
         return applicationContext.getBeanNamesForType(clazz);
     }
 
+    public static <T> boolean containsBean(Class<T> clazz) {
+        return applicationContext != null && getBeanNamesForType(clazz).length > 0;
+    }
+
     public static <T> T getBeanByType(Class<T> clazz) {
-        String name = ObjectUtil.first(getBeanNamesForType(clazz));
-        if (name == null) {
-            return null;
-        }
-        return getBean(name, clazz);
+        return applicationContext.getBean(clazz);
     }
 
     public static synchronized Resource[] getResources(String pattern) {
@@ -204,7 +218,7 @@ public class SpringContextUtil implements ApplicationContextAware, DisposableBea
             return applicationContext.getResources(pattern);
         } catch (IOException e) {
             LOGGER.error(e);
-            return null;
+            return new Resource[0];
         }
     }
 
@@ -212,7 +226,7 @@ public class SpringContextUtil implements ApplicationContextAware, DisposableBea
         return applicationContext != null;
     }
 
-    public void destroy() throws Exception {
+    public void destroy() {
         cleanApplicationContext();
     }
 
@@ -220,12 +234,11 @@ public class SpringContextUtil implements ApplicationContextAware, DisposableBea
         applicationContext = null;
     }
 
-    public static synchronized void registerBeanDefinition(String beanName, Class<?> clazz) {
-        ConfigurableApplicationContext configurableApplicationContext = (ConfigurableApplicationContext) applicationContext;
-        DefaultListableBeanFactory defaultListableBeanFactory = (DefaultListableBeanFactory) configurableApplicationContext.getBeanFactory();
+    public static synchronized <T> T registerBeanDefinition(String beanName, Class<?> clazz) {
         BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(clazz);
         beanDefinitionBuilder.setAutowireMode(AutoType.AUTOWIRE_BY_TYPE.getValue());
-        defaultListableBeanFactory.registerBeanDefinition(beanName, beanDefinitionBuilder.getBeanDefinition());
+        registry.registerBeanDefinition(beanName, beanDefinitionBuilder.getBeanDefinition());
+        return getBean(beanName);
     }
 
     public static <T> T registerBeanDefinition(String beanName, Class<?> clazz, Object[] argValues) {
@@ -237,14 +250,10 @@ public class SpringContextUtil implements ApplicationContextAware, DisposableBea
     }
 
     public static synchronized void removeBeanDefinition(String beanName) {
-        ConfigurableApplicationContext configurableApplicationContext = (ConfigurableApplicationContext) applicationContext;
-        DefaultListableBeanFactory defaultListableBeanFactory = (DefaultListableBeanFactory) configurableApplicationContext.getBeanFactory();
-        defaultListableBeanFactory.removeBeanDefinition(beanName);
+        registry.removeBeanDefinition(beanName);
     }
 
     public static synchronized <T> T registerBeanDefinition(String beanName, Class<?> clazz, Object[] argValues, Map<String, Object> propertyValues) {
-        ConfigurableApplicationContext configurableApplicationContext = (ConfigurableApplicationContext) applicationContext;
-        DefaultListableBeanFactory defaultListableBeanFactory = (DefaultListableBeanFactory) configurableApplicationContext.getBeanFactory();
         BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(clazz);
         beanDefinitionBuilder.setAutowireMode(AutoType.AUTOWIRE_BY_TYPE.getValue());
 
@@ -256,7 +265,7 @@ public class SpringContextUtil implements ApplicationContextAware, DisposableBea
             beanDefinitionBuilder.addConstructorArgValue(argValue);
         }
 
-        defaultListableBeanFactory.registerBeanDefinition(beanName, beanDefinitionBuilder.getBeanDefinition());
+        registry.registerBeanDefinition(beanName, beanDefinitionBuilder.getBeanDefinition());
 
         return getBean(beanName);
     }

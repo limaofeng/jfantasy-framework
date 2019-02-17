@@ -3,6 +3,7 @@ package org.jfantasy.framework.hibernate.cache.util;
 final class TimeProviderLoader {
 
     private static SlewClock.TimeProvider timeProvider = new SlewClock.TimeProvider() {
+        @Override
         public final long currentTimeMillis() {
             return System.currentTimeMillis();
         }
@@ -11,7 +12,7 @@ final class TimeProviderLoader {
     private TimeProviderLoader() {
     }
 
-    public static synchronized SlewClock.TimeProvider getTimeProvider() {
+    static synchronized SlewClock.TimeProvider getTimeProvider() {
         return timeProvider;
     }
 

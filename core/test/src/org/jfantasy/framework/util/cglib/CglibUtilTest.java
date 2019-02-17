@@ -11,7 +11,7 @@ import java.lang.reflect.Method;
 
 public class CglibUtilTest {
 
-    private final static Log logger = LogFactory.getLog(CglibUtilTest.class);
+    private static final Log logger = LogFactory.getLog(CglibUtilTest.class);
 
     @Test
     public void testNewInstance() throws Exception {

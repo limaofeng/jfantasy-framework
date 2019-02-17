@@ -8,10 +8,12 @@ package org.jfantasy.framework.dao.mybatis.dialect;
  * @since 2013-1-14 下午02:12:16
  */
 public class MySQLDialect implements Dialect {
-    protected static final String SQL_END_DELIMITER = ";";
 
-    public String getLimitString(String sql, int offset, int limit) {
-        sql = trim(sql);
+    private static final String SQL_END_DELIMITER = ";";
+
+    @Override
+    public String getLimitString(String osql, int offset, int limit) {
+        String sql = trim(osql);
         StringBuilder sb = new StringBuilder(sql.length() + 20);
         sb.append(sql);
         if (offset > 0) {
@@ -22,14 +24,15 @@ public class MySQLDialect implements Dialect {
         return sb.toString();
     }
 
-    private String trim(String sql) {
-        sql = sql.trim();
+    private String trim(String osql) {
+        String sql = osql.trim();
         if (sql.endsWith(";")) {
             sql = sql.substring(0, sql.length() - 1 - ";".length());
         }
         return sql;
     }
 
+    @Override
     public String getCountString(String sql) {
         return DialectUtil.pretty("select count(1) from (" + trim(sql) + ") as countSql");
     }

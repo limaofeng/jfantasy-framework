@@ -9,6 +9,7 @@ public class SendMessageTask implements Runnable {
         this.message = message;
     }
 
+    @Override
     public void run() {
         this.node.transmitMessage(this.message);
     }
