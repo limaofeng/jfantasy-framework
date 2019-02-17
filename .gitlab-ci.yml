@@ -16,6 +16,7 @@ build:
     - export GRADLE_USER_HOME=$PWD/.gradle
     # Install JFrog CLI
     - curl -fL https://getcli.jfrog.io | sh
+    - ls
     # Configure Artifactory instance with JFrog CLI
     - ./jfrog rt config --url=$ARTIFACTORY_URL --user=$ARTIFACTORY_USER --password=$ARTIFACTORY_PASS
     - ./jfrog rt c show
