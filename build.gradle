@@ -1,6 +1,6 @@
 buildscript {
     repositories {
-        maven { url "https://oss.homeword.cn/artifactory/libs-release" }
+        maven { url "https://artifactory.zbsg.com.cn/artifactory/libs-release" }
         mavenCentral()
         mavenLocal()
     }
@@ -54,9 +54,9 @@ subprojects {
     sonarqube {
         properties {
             property "sonar.sourceEncoding", "UTF-8"
-            property "sonar.links.ci", "http://git.zbsg.com.cn/ci"
-            property "sonar.links.issue", "http://git.zbsg.com.cn/apis/framework/issues"
-            property "sonar.links.scm", "http://git.zbsg.com.cn/apis/framework.git"
+            property "sonar.links.ci", "http://gitlab.zbsg.com.cn/ci"
+            property "sonar.links.issue", "http://gitlab.zbsg.com.cn/apis/framework/issues"
+            property "sonar.links.scm", "http://gitlab.zbsg.com.cn/apis/framework.git"
         }
     }
 
@@ -103,7 +103,7 @@ subprojects {
     uploadArchives {
         repositories {
             mavenDeployer {
-                repository(url: "https://oss.homeword.cn/artifactory/libs-release-local/") {
+                repository(url: "https://artifactory.zbsg.com.cn/artifactory/libs-release") {
                     authentication(userName: System.getenv()['MAVEN_USER'], password: System.getenv()['MAVEN_PASSWORD'])
                 }
                 pom.version = "$project.version" + ".RELEASE"
@@ -114,7 +114,7 @@ subprojects {
     }
 
     repositories {
-        maven { url "https://oss.homeword.cn/artifactory/libs-release" }
+        maven { url "https://artifactory.zbsg.com.cn/artifactory/libs-release" }
     }
 
     dependencyManagement {

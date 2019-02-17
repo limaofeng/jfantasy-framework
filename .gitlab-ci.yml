@@ -5,7 +5,7 @@ stages:
 
 build:
   stage: build
-  image: docker.oss.homeword.cn/limaofeng/gradle-alpine
+  image: docker.artifactory.zbsg.com.cn/limaofeng/gradle-alpine
   cache:
     paths:
     - $GRADLE_USER_HOME/caches/
@@ -39,7 +39,7 @@ build:
 
 deploy:
   stage: deploy
-  image: docker.oss.homeword.cn/limaofeng/gradle-alpine
+  image: docker.artifactory.zbsg.com.cn/limaofeng/gradle-alpine
   cache:
     paths:
     - $GRADLE_USER_HOME/caches/
