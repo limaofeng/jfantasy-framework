@@ -27,7 +27,7 @@ allprojects {
     apply plugin: 'maven'
 
     group = 'org.jfantasy'
-    version = '1.0' // System.getenv()['CI_BUILD_TAG'] // Gitlab 集成时, 使用 Tag 作为版本号
+    version = '0.0.1.RELEASE' // System.getenv()['CI_BUILD_TAG'] // Gitlab 集成时, 使用 Tag 作为版本号
     status = 'integration'
 }
 
