@@ -14,7 +14,6 @@ build:
     - export GRADLE_USER_HOME=$PWD/.gradle
     # Install JFrog CLI
     - curl -fL https://getcli.jfrog.io | sh
-    - ls
     # Configure Artifactory instance with JFrog CLI
     - ./jfrog rt config --url=$ARTIFACTORY_URL --user=$ARTIFACTORY_USER --password=$ARTIFACTORY_PASS
     - ./jfrog rt c show
@@ -23,7 +22,7 @@ build:
   script:
     # - ./gradlew clean classes -x test
     # Run the Gradle command
-    - ./jfrog rt gradle "clean classes -x test" configuration.yaml --build-name=gitlabci-gradle-artifactory --build-number=$CI_JOB_ID
+    - ./jfrog rt gradle "clean artifactoryPublish -b build.gradle" configuration.yaml --build-name=gitlabci-gradle-artifactory --build-number=$CI_JOB_ID
     # Collect the environment variables
     - ./jfrog rt bce gitlabci-gradle-artifactory $CI_JOB_ID
     # Pass the build information to Artifactory
