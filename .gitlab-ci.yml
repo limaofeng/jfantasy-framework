@@ -11,12 +11,9 @@ build:
       - .gradle/caches/
       - .gradle/wrapper/
   before_script:
-    - sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories
-    - apk update && apk add curl
     - export GRADLE_USER_HOME=$PWD/.gradle
     # Install JFrog CLI
     - curl -fL https://getcli.jfrog.io | sh
-    - chmod +x jfrog
     - ls
     # Configure Artifactory instance with JFrog CLI
     - ./jfrog rt config --url=$ARTIFACTORY_URL --user=$ARTIFACTORY_USER --password=$ARTIFACTORY_PASS
