@@ -64,6 +64,22 @@ subprojects {
 
     [compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
 
+    compileJava.dependsOn(processResources)
+
+    manifest {
+        attributes 'provider': 'gradle'
+    }
+
+    dependencyManagement {
+        imports {
+            mavenBom 'io.spring.platform:platform-bom:Cairo-SR7'
+        }
+    }
+
+    dependencies {
+        optional "org.springframework.boot:spring-boot-configuration-processor"
+    }
+
     test {
         ignoreFailures = true
 
@@ -84,12 +100,6 @@ subprojects {
         }
     }
 
-    compileJava.dependsOn(processResources)
-
-    configurations {
-        published
-    }
-
     configurations {
         published
     }
@@ -105,16 +115,6 @@ subprojects {
 
     artifacts {
         published sourceJar
-    }
-
-    dependencyManagement {
-        imports {
-            mavenBom 'io.spring.platform:platform-bom:Cairo-SR7'
-        }
-    }
-
-    dependencies {
-        optional "org.springframework.boot:spring-boot-configuration-processor"
     }
 
 }
