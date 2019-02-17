@@ -5,7 +5,7 @@ stages:
 
 build:
   stage: build
-  image: docker.artifactory.zbsg.com.cn/java:8
+  image: docker.artifactory.zbsg.com.cn/limaofeng/gradle-alpine
   cache:
     paths:
       - .gradle/caches/
@@ -22,7 +22,7 @@ build:
   script:
     # - ./gradlew clean classes -x test
     # Run the Gradle command
-    - ./jfrog rt ./gradlew "clean classes -x test" configuration.yaml --build-name=gitlabci-gradle-artifactory --build-number=$CI_JOB_ID
+    - ./jfrog rt gradlew "clean classes -x test" configuration.yaml --build-name=gitlabci-gradle-artifactory --build-number=$CI_JOB_ID
     # Collect the environment variables
     - ./jfrog rt bce gitlabci-gradle-artifactory $CI_JOB_ID
     # Pass the build information to Artifactory
