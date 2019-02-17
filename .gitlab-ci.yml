@@ -8,11 +8,10 @@ build:
   image: docker.artifactory.zbsg.com.cn/limaofeng/gradle-alpine
   cache:
     paths:
-    - $GRADLE_USER_HOME/caches/
-    - $GRADLE_USER_HOME/wrapper/
-    - $GRADLE_USER_HOME/build-cache/
-  variables:
-    GRADLE_USER_HOME: /cache/.gradle
+      - .gradle/caches/
+      - .gradle/wrapper/
+  before_script:
+    - export GRADLE_USER_HOME=$PWD/.gradle
   script:
     - ./gradlew clean classes -x test
 
