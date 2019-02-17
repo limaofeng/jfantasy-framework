@@ -90,9 +90,6 @@ subprojects {
         published
     }
 
-    manifest {
-        attributes 'provider': 'gradle'
-    }
     configurations {
         published
     }
