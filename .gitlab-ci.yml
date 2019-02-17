@@ -11,6 +11,8 @@ build:
       - .gradle/caches/
       - .gradle/wrapper/
   before_script:
+    - sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories
+    - apk update && apk add curl
     - export GRADLE_USER_HOME=$PWD/.gradle
     # Install JFrog CLI
     - curl -fL https://getcli.jfrog.io | sh
@@ -21,8 +23,6 @@ build:
     - sed -i 's,GRADLE_REPO_KEY,'"$GRADLE_REPO_KEY"',g' configuration.yaml
   script:
     # - ./gradlew clean classes -x test
-    - sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories
-    - apk update && apk add curl
     # Run the Gradle command
     - ./jfrog rt gradlew "clean classes -x test" configuration.yaml --build-name=gitlabci-gradle-artifactory --build-number=$CI_JOB_ID
     # Collect the environment variables
