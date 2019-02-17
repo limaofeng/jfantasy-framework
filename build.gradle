@@ -136,5 +136,7 @@ artifactory {
             publishIvy = false
         }
     }
+    clientConfig.setIncludeEnvVars(true)
+    clientConfig.setEnvVarsExcludePatterns('*password*,*secret*')
     clientConfig.info.setBuildNumber(System.getenv()['CI_JOB_ID'])
 }
