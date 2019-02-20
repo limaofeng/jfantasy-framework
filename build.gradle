@@ -91,9 +91,8 @@ subprojects {
     sonarqube {
         properties {
             property "sonar.sourceEncoding", "UTF-8"
-            property "sonar.links.ci", "http://gitlab.zbsg.com.cn"
-            property "sonar.links.issue", "http://gitlab.zbsg.com.cn/apis/framework/issues"
-            property "sonar.links.scm", "http://gitlab.zbsg.com.cn/apis/framework.git"
+            property "sonar.sources", "JavaSource"
+            property "sonar.tests", "test/src"
         }
     }
 
