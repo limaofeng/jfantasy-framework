@@ -1,6 +1,7 @@
 package org.jfantasy.framework.log.annotation;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportAware;
 import org.springframework.core.annotation.AnnotationAttributes;
@@ -14,7 +15,7 @@ public abstract class AbstractLogConfiguration implements ImportAware {
 
 	protected AnnotationAttributes enableLog;
 
-    private static final Logger LOGGER = Logger.getLogger(AbstractLogConfiguration.class);
+    private static final Logger LOGGER = LogManager.getLogger(AbstractLogConfiguration.class);
 
     @Override
 	public void setImportMetadata(AnnotationMetadata importMetadata) {

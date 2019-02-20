@@ -1,6 +1,7 @@
 package org.jfantasy.framework.lucene.backend;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
@@ -12,7 +13,7 @@ import org.jfantasy.framework.util.reflect.Property;
 import java.io.IOException;
 
 public class IndexUpdateTask implements Runnable {
-    private static final Logger LOGGER = Logger.getLogger(IndexUpdateTask.class);
+    private static final Logger LOGGER = LogManager.getLogger(IndexUpdateTask.class);
     private Object entity;
 
     public IndexUpdateTask(Object entity) {

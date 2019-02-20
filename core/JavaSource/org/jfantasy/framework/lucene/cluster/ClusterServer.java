@@ -10,12 +10,13 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import org.jfantasy.framework.lucene.BuguIndex;
 
 public class ClusterServer implements Runnable {
-    private static final Logger LOGGER = Logger.getLogger(ClusterServer.class);
+    private static final Logger LOGGER = LogManager.getLogger(ClusterServer.class);
     private Selector selector;
     private ServerSocketChannel serverChannel;
     private ByteBuffer buffer;

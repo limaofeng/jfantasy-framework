@@ -1,10 +1,11 @@
 package org.jfantasy.framework.dao;
 
+import org.apache.logging.log4j.LogManager;
 import org.jfantasy.framework.spring.SpringContextUtil;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
 
@@ -15,7 +16,7 @@ import java.util.Map;
 
 public class MultiDataSource extends AbstractRoutingDataSource {
 
-    private static final Logger LOGGER = Logger.getLogger(MultiDataSource.class);
+    private static final Logger LOGGER = LogManager.getLogger(MultiDataSource.class);
 
     private CatalogConverter catalogConverter;
 

@@ -1,7 +1,8 @@
 package org.jfantasy.framework.util.concurrent;
 
+import org.apache.logging.log4j.LogManager;
 import org.jfantasy.framework.error.IgnoreException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
@@ -15,7 +16,7 @@ public class LinkedQueue<E> extends AbstractQueue<E> implements BlockingQueue<E>
 
     private static final long serialVersionUID = -4457362206741191196L;
 
-    private static final Logger LOGGER = Logger.getLogger(LinkedQueue.class);
+    private static final Logger LOGGER = LogManager.getLogger(LinkedQueue.class);
 
     static class Node<E> {
         volatile E item;

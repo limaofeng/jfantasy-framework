@@ -1,10 +1,11 @@
 package org.jfantasy.framework.lucene.cache;
 
+import org.apache.logging.log4j.LogManager;
 import org.jfantasy.framework.lucene.exception.IdException;
 import org.jfantasy.framework.lucene.exception.PropertyException;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.reflect.Property;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import javax.persistence.Id;
 import java.lang.annotation.Annotation;
@@ -12,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PropertysCache {
-    private static final Logger LOGGER = Logger.getLogger(PropertysCache.class);
+    private static final Logger LOGGER = LogManager.getLogger(PropertysCache.class);
 
     private static PropertysCache instance = new PropertysCache();
 

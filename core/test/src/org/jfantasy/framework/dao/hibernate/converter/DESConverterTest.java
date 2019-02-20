@@ -1,6 +1,7 @@
 package org.jfantasy.framework.dao.hibernate.converter;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 
 
@@ -8,7 +9,7 @@ public class DESConverterTest {
 
     private DESConverter converter = new DESConverter("hooluesoft");
 
-    private static Logger LOGGER = Logger.getLogger(DESConverterTest.class);
+    private static Logger LOGGER = LogManager.getLogger(DESConverterTest.class);
 
     @Test
     public void testConvertToDatabaseColumn() throws Exception {

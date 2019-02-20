@@ -1,7 +1,8 @@
 package org.jfantasy.framework.lucene.backend;
 
+import org.apache.logging.log4j.LogManager;
 import org.jfantasy.framework.lucene.cache.IndexSearcherCache;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.IndexSearcher;
 
@@ -12,7 +13,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class IndexReopenTask implements Runnable {
 
-    private static final Logger LOGGER = Logger.getLogger(IndexReopenTask.class);
+    private static final Logger LOGGER = LogManager.getLogger(IndexReopenTask.class);
     private static final Lock reopenLock = new ReentrantLock();
 
     @Override

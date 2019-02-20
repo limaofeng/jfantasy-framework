@@ -1,6 +1,7 @@
 package org.jfantasy.framework.lucene.cache;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.search.IndexSearcher;
@@ -11,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class IndexSearcherCache {
 
-    private static final Logger LOGGER = Logger.getLogger(IndexSearcherCache.class);
+    private static final Logger LOGGER = LogManager.getLogger(IndexSearcherCache.class);
 
     private static IndexSearcherCache instance = new IndexSearcherCache();
     private Map<String, IndexSearcher> cache;

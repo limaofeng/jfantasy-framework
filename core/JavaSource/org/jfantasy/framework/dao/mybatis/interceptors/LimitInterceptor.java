@@ -15,7 +15,8 @@ import org.apache.ibatis.scripting.xmltags.DynamicSqlSource;
 import org.apache.ibatis.scripting.xmltags.SqlNode;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.mybatis.MyBatisException;
 import org.jfantasy.framework.dao.mybatis.dialect.Dialect;
@@ -45,7 +46,7 @@ import java.util.Properties;
 @Intercepts({@Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class})})
 public class LimitInterceptor implements Interceptor {
 
-    private static final Logger LOGGER = Logger.getLogger(LimitInterceptor.class);
+    private static final Logger LOGGER = LogManager.getLogger(LimitInterceptor.class);
 
     private static final int MAPPED_STATEMENT_INDEX = 0;
     private static final int PARAMETER_INDEX = 1;

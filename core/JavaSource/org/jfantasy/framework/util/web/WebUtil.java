@@ -1,6 +1,7 @@
 package org.jfantasy.framework.util.web;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
@@ -36,7 +37,7 @@ public class WebUtil {
         throw new IllegalStateException("Utility class");
     }
 
-    private static final Logger LOG = Logger.getLogger(WebUtil.class);
+    private static final Logger LOG = LogManager.getLogger(WebUtil.class);
 
     private static HttpServletRequest getRequest() {
         return ActionContext.getContext().getHttpRequest();

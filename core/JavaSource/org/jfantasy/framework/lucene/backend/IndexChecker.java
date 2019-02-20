@@ -1,16 +1,17 @@
 package org.jfantasy.framework.lucene.backend;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jfantasy.framework.lucene.annotations.*;
 import org.jfantasy.framework.lucene.cache.PropertysCache;
 import org.jfantasy.framework.lucene.exception.PropertyException;
 import org.jfantasy.framework.util.reflect.Property;
-import org.apache.log4j.Logger;
 
 public class IndexChecker {
     private IndexChecker() {
     }
 
-    private static final Logger LOGGER = Logger.getLogger(IndexChecker.class);
+    private static final Logger LOGGER = LogManager.getLogger(IndexChecker.class);
 
     /**
      * 判断Class是否标注了 @Indexed 注解

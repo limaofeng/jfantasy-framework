@@ -7,13 +7,14 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class HostAddressUtil {
     private HostAddressUtil() {
     }
 
-    private static final Logger LOGGER = Logger.getLogger(HostAddressUtil.class);
+    private static final Logger LOGGER = LogManager.getLogger(HostAddressUtil.class);
 
     public static List<String> getLocalAddresses() {
         List<String> list = new ArrayList<String>();

@@ -4,7 +4,8 @@ import ognl.Ognl;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.executor.keygen.KeyGenerator;
 import org.apache.ibatis.mapping.MappedStatement;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jfantasy.framework.spring.SpringContextUtil;
 import org.springframework.util.DigestUtils;
 
@@ -22,7 +23,7 @@ import java.util.Random;
  * @since 2013-1-14 下午02:09:32
  */
 public class GUIDKeyGenerator implements KeyGenerator {
-    private static final Logger LOGGER = Logger.getLogger(GUIDKeyGenerator.class);
+    private static final Logger LOGGER = LogManager.getLogger(GUIDKeyGenerator.class);
     private Random random;
     private String s_id;
 

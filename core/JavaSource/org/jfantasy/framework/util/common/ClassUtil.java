@@ -1,12 +1,13 @@
 package org.jfantasy.framework.util.common;
 
+import org.apache.logging.log4j.LogManager;
 import org.jfantasy.framework.error.IgnoreException;
 import org.jfantasy.framework.util.FantasyClassLoader;
 import org.jfantasy.framework.util.reflect.ClassFactory;
 import org.jfantasy.framework.util.reflect.IClassFactory;
 import org.jfantasy.framework.util.reflect.MethodProxy;
 import org.jfantasy.framework.util.reflect.Property;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
@@ -22,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class ClassUtil extends org.springframework.util.ClassUtils {
-    private static final Logger LOGGER = Logger.getLogger(ClassUtil.class);
+    private static final Logger LOGGER = LogManager.getLogger(ClassUtil.class);
 
     public static final IClassFactory classFactory = ClassFactory.getFastClassFactory();
     private static final ConcurrentHashMap<Class<?>, BeanInfo> beanInfoCache = new ConcurrentHashMap<>();

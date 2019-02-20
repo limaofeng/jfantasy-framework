@@ -1,5 +1,6 @@
 package org.jfantasy.framework.dao.mybatis.keygen;
 
+import org.apache.logging.log4j.LogManager;
 import org.jfantasy.framework.dao.mybatis.keygen.util.DataBaseKeyGenerator;
 import org.jfantasy.framework.spring.SpringContextUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
@@ -8,7 +9,7 @@ import ognl.OgnlException;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.executor.keygen.KeyGenerator;
 import org.apache.ibatis.mapping.MappedStatement;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import java.sql.Statement;
 
@@ -21,7 +22,7 @@ import java.sql.Statement;
  */
 public class SequenceKeyGenerator implements KeyGenerator {
 
-    private static final Logger LOG = Logger.getLogger(SequenceKeyGenerator.class);
+    private static final Logger LOG = LogManager.getLogger(SequenceKeyGenerator.class);
 
     private DataBaseKeyGenerator dataBaseKeyGenerator;
 

@@ -1,12 +1,13 @@
 package org.jfantasy.framework.util.common;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 
 public abstract class StreamUtil {
 
-    private static final Logger LOGGER = Logger.getLogger(StreamUtil.class);
+    private static final Logger LOGGER = LogManager.getLogger(StreamUtil.class);
 
     private static final int DEFAULT_BUFFER_SIZE = 2048;
 

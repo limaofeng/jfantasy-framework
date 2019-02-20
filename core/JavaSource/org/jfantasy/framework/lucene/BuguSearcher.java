@@ -1,5 +1,6 @@
 package org.jfantasy.framework.lucene;
 
+import org.apache.logging.log4j.LogManager;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.lucene.cache.DaoCache;
 import org.jfantasy.framework.lucene.cache.IndexSearcherCache;
@@ -11,7 +12,7 @@ import org.jfantasy.framework.lucene.mapper.MapperUtil;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.framework.util.reflect.Property;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.index.IndexReader;
@@ -32,7 +33,7 @@ import java.util.List;
  */
 @SuppressWarnings("unchecked")
 public abstract class BuguSearcher<T> {
-    private static final Logger LOGGER = Logger.getLogger(BuguSearcher.class);
+    private static final Logger LOGGER = LogManager.getLogger(BuguSearcher.class);
     private Class<T> entityClass;
     private String idName;
     private LoadEntityMode loadMode;

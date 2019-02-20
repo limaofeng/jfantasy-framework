@@ -1,6 +1,7 @@
 package org.jfantasy.framework.net.util;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
@@ -19,7 +20,7 @@ public class CoderUtil {
     private CoderUtil() {
     }
 
-    private static final Logger LOG = Logger.getLogger(CoderUtil.class);
+    private static final Logger LOG = LogManager.getLogger(CoderUtil.class);
 
     public static final char BEGIN_CHAR = 0x00;// 开始字符
     public static final char END_CHAR = 0xFF;// 结束字符

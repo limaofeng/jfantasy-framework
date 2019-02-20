@@ -1,6 +1,7 @@
 package org.jfantasy.framework.lucene;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryParser.MultiFieldQueryParser;
 import org.apache.lucene.queryParser.ParseException;
@@ -14,7 +15,7 @@ import java.util.Date;
 
 public final class BuguParser {
 
-    private static final Logger LOGGER = Logger.getLogger(BuguParser.class);
+    private static final Logger LOGGER = LogManager.getLogger(BuguParser.class);
 
     /**
      * 单个字段匹配
