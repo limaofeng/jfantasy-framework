@@ -1,6 +1,6 @@
 buildscript {
     repositories {
-        maven { url "https://artifactory.zbsg.com.cn/artifactory/libs-release" }
+        maven { url System.getenv()['MAVEN_URL'] }
         mavenCentral()
         mavenLocal()
     }
@@ -30,7 +30,7 @@ allprojects {
     status = 'integration'
 
     repositories {
-        maven { url "https://artifactory.zbsg.com.cn/artifactory/libs-release" }
+        maven { url System.getenv()['MAVEN_URL'] }
     }
 
     configurations {

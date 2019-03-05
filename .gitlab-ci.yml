@@ -40,7 +40,7 @@ sonarqube:
 
 deploy:
   stage: deploy
-  image: docker.artifactory.zbsg.com.cn/java:8
+  image: java:8
   cache:
     paths:
     - .gradle/caches/
