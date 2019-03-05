@@ -7,6 +7,9 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import lombok.SneakyThrows;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.jackson.deserializer.DateDeserializer;
@@ -20,9 +23,15 @@ public class JSON {
 
     private static final Log LOG = LogFactory.getLog(JSON.class);
 
-    private static ObjectMapper objectMapper = initialize(new ObjectMapper());
+    private static ObjectMapper objectMapper;
+    private static XmlMapper xmlMapper;
+    private static XmlUtil xmlUtil;
 
-    public static synchronized ObjectMapper initialize(ObjectMapper objectMapper) {
+    static {
+        initialize(new ObjectMapper());
+    }
+
+    private static synchronized void initialize(ObjectMapper objectMapper) {
         if (JSON.objectMapper != null) {
             LOG.warn("重置 JSON 工具类中的 ObjectMapper 对象.");
         }
@@ -36,7 +45,12 @@ public class JSON {
                 .registerModule(new SimpleModule()
                         .addSerializer(Date.class, new DateSerializer("yyyy-MM-dd HH:mm:ss"))
                         .addDeserializer(Date.class, new DateDeserializer()));
-        return objectMapper;
+
+        JacksonXmlModule xmlModule = new JacksonXmlModule();
+        JSON.xmlMapper = new XmlMapper(xmlModule);
+        xmlMapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
+        xmlMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        xmlUtil = new XmlUtil(JSON.xmlMapper);
     }
 
     public static String serialize(Object object, String... ignoreProperties) {
@@ -86,7 +100,11 @@ public class JSON {
     }
 
     public static ObjectMapper getObjectMapper() {
-        return objectMapper != null ? objectMapper : initialize(new ObjectMapper());
+        return objectMapper;
+    }
+
+    public static XmlMapper getXmlMapper() {
+        return xmlMapper;
     }
 
     public static <T> T deserialize(String json, Class<T> classed) {
@@ -124,9 +142,38 @@ public class JSON {
         return type;
     }
 
+
+    public static XmlUtil xml() {
+        return xmlUtil;
+    }
+
     public interface Filter {
 
         BeanPropertyFilter.Builder setup(BeanPropertyFilter.Builder builder);
+    }
+
+    public static class XmlUtil {
+        private XmlMapper xmlMapper;
+
+        public XmlUtil(XmlMapper xmlMapper) {
+            this.xmlMapper = xmlMapper;
+        }
+
+        @SneakyThrows
+        public String serialize(JsonNode root, String rootName) {
+            return this.xmlMapper.writer().withRootName(rootName).writeValueAsString(root);
+        }
+
+        @SneakyThrows
+        public JsonNode deserialize(String xml) {
+            return this.xmlMapper.readTree(xml);
+        }
+
+        @SneakyThrows
+        public <T> T deserialize(String xml, Class<T> classed) {
+            return this.xmlMapper.readValue(xml, classed);
+        }
+
     }
 
 }

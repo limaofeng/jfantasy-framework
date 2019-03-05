@@ -19,7 +19,6 @@ import static org.quartz.DailyTimeIntervalScheduleBuilder.dailyTimeIntervalSched
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 
-@Service
 public class ScheduleService {
 
     private static final Log LOGGER = LogFactory.getLog(ScheduleService.class);
