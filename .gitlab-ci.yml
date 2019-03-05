@@ -1,19 +1,19 @@
 stages:
-- build
-- test
-- deploy
+  - build
+  - test
+  - deploy
 
 build:
   stage: build
   image: java:8
   cache:
     paths:
-    - .gradle/caches/
-    - .gradle/wrapper/
+      - .gradle/caches/
+      - .gradle/wrapper/
   before_script:
-  - export GRADLE_USER_HOME=$PWD/.gradle
+    - export GRADLE_USER_HOME=$PWD/.gradle
   script:
-  - ./gradlew clean classes -x test
+    - ./gradlew clean classes -x test
 
 #sonarqube:
 #  stage: test
@@ -43,11 +43,12 @@ deploy:
   image: java:8
   cache:
     paths:
-    - .gradle/caches/
-    - .gradle/wrapper/
+      - .gradle/caches/
+      - .gradle/wrapper/
   before_script:
-  - export GRADLE_USER_HOME=$PWD/.gradle
+    - export GRADLE_USER_HOME=$PWD/.gradle
   script:
-  - ./gradlew artifactoryPublish
-  only:
-  - tags
+    - env
+    - ./gradlew artifactoryPublish
+#  only:
+#  - tags
