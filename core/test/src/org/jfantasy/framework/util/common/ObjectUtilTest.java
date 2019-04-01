@@ -362,6 +362,10 @@ public class ObjectUtilTest {
         LOG.debug(ObjectUtil.analyze("上海昊略公司，提供应用软件和服务"));
     }
 
+    @Test
+    public void map() {
+    }
+
     public static class ObjectTestBean {
         private String name;
         private Boolean locked;

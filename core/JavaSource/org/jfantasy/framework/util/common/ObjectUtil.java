@@ -23,6 +23,10 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.IntFunction;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("unchecked")
@@ -100,40 +104,12 @@ public final class ObjectUtil {
         return toString(objs, null, sign);
     }
 
-    public static <T> List<T> filter(List<T> list, BeanFilter<T> filter) {
-        List<T> rlist = new ArrayList<>();
-        if (list == null) {
-            return rlist;
-        }
-        for (T t : list) {
-            if (filter.accept(t)) {
-                rlist.add(t);
-            }
-        }
-        return rlist;
-    }
-
     public static <T> List<T> filter(List<T> list, String fieldName, Object... values) {
-        List<T> rlist = new ArrayList<>();
-        if (list == null) {
-            return rlist;
-        }
-        for (T t : list) {
-            if (ObjectUtil.exists(values, OgnlUtil.getInstance().getValue(fieldName, t))) {
-                rlist.add(t);
-            }
-        }
-        return rlist;
+        return filter(list, item -> ObjectUtil.exists(values, OgnlUtil.getInstance().getValue(fieldName, item)));
     }
 
     public static <T> T[] filter(T[] objs, String fieldName, Object... values) {
-        List<T> filter = new ArrayList<>();
-        for (T t : objs) {
-            if (ObjectUtil.exists(values, OgnlUtil.getInstance().getValue(fieldName, t))) {
-                filter.add(t);
-            }
-        }
-        return toArray(filter, (Class<T>) objs.getClass().getComponentType());
+        return filter(objs, item -> ObjectUtil.exists(values, OgnlUtil.getInstance().getValue(fieldName, item)));
     }
 
     public static <T> T[] toArray(List<T> list, Class<T> type) {
@@ -142,7 +118,10 @@ public final class ObjectUtil {
 
     public static <T> List<T> filter(List<T> list, String spel) {
         Expression expression = SpELUtil.getExpression(spel);
-        return list.stream().filter(v -> expression.getValue(SpELUtil.createEvaluationContext(v), Boolean.class)).collect(Collectors.toList());
+        return filter(list, item -> expression.getValue(SpELUtil.createEvaluationContext(item), Boolean.class));
+
+//                list.stream().filter(v -> expression.getValue(SpELUtil.createEvaluationContext(v), Boolean.class)).collect(Collectors.toList());
+
     }
 
     public static <T> String toString(T[] objs, String fieldName, String sign) {
@@ -314,18 +293,18 @@ public final class ObjectUtil {
         return null;
     }
 
-    public static <T> T find(T[] array, ItemSelector<T> itemSelector) {
+    public static <T> T find(T[] array, Predicate<T> itemSelector) {
         for (T t : array) {
-            if (itemSelector.accept(t)) {
+            if (itemSelector.test(t)) {
                 return t;
             }
         }
         return null;
     }
 
-    public static <T> T find(List<T> list, ItemSelector<T> itemSelector) {
+    public static <T> T find(List<T> list, Predicate<T> itemSelector) {
         for (T t : list) {
-            if (itemSelector.accept(t)) {
+            if (itemSelector.test(t)) {
                 return t;
             }
         }
@@ -561,18 +540,33 @@ public final class ObjectUtil {
         return (T[]) array;
     }
 
-    public static <T> T[] join(T[] dest, T... items) {
+    public static <T> T[] join(T[] sources, T... items) {
         if (items.length == 0) {
-            return dest;
+            return sources;
         }
-        Object array = Array.newInstance(dest.getClass().getComponentType(), dest.length + items.length);
-        for (int i = 0; i < dest.length; i++) {
-            Array.set(array, i, dest[i]);
-        }
-        for (int i = 0; i < items.length; i++) {
-            Array.set(array, dest.length + i, items[i]);
-        }
-        return (T[]) array;
+        List<T> all = Arrays.asList(sources);
+        all.addAll(Arrays.asList(items));
+        return all.toArray((T[]) Array.newInstance(sources.getClass().getComponentType(), all.size()));
+    }
+
+    public static <R, T> List<R> map(List<T> sources, Function<? super T, ? extends R> mapper) {
+        return sources.stream().map(mapper).collect(Collectors.toList());
+    }
+
+    public static <R, T> R[] map(T[] sources, Function<? super T, ? extends R> mapper, Class<R> returnClass) {
+        return Arrays.stream(sources).map(mapper).toArray(length -> (R[]) Array.newInstance(returnClass, length));
+    }
+
+    public static <T> List<T> filter(List<T> sources, Predicate<T> selector) {
+        return sources.stream().filter(selector).collect(Collectors.toList());
+    }
+
+    public static <T> T[] filter(T[] sources, Predicate<T> selector) {
+        return Arrays.stream(sources).filter(selector).toArray(length -> (T[]) Array.newInstance(sources.getClass().getComponentType(), length));
+    }
+
+    public static <T> void each(List<T> sources, Consumer<T> consumer) {
+        sources.stream().forEach(consumer);
     }
 
     /**
@@ -761,12 +755,6 @@ public final class ObjectUtil {
             LOGGER.error(e.getMessage(), e);
         }
         return list;
-    }
-
-    public interface ItemSelector<T> {
-
-        boolean accept(T item);
-
     }
 
     private static class CustomSortOrderComparator implements Comparator<Object>, Serializable {

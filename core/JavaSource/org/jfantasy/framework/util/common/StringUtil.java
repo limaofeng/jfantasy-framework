@@ -361,9 +361,9 @@ public abstract class StringUtil {
      * @return {String}
      */
     public static String escapeSpecialSign(String condition) {
-        String bb = org.apache.commons.lang.StringUtils.replace(condition, "/", "//");
-        bb = org.apache.commons.lang.StringUtils.replace(bb, "%", "/%");
-        bb = org.apache.commons.lang.StringUtils.replace(bb, "_", "/_");
+        String bb = StringUtils.replace(condition, "/", "//");
+        bb = StringUtils.replace(bb, "%", "/%");
+        bb = StringUtils.replace(bb, "_", "/_");
         return bb;
     }
 

@@ -1,6 +1,6 @@
 package org.jfantasy.framework.dao.hibernate;
 
-import org.apache.commons.lang.StringUtils;
+import com.github.jknack.handlebars.internal.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.SQLQuery;

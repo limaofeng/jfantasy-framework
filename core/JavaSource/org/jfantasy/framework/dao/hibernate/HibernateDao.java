@@ -1,10 +1,11 @@
 package org.jfantasy.framework.dao.hibernate;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.query.NativeQuery;
+import org.hibernate.query.Query;
 import org.hibernate.*;
-import org.hibernate.Query;
 import org.hibernate.criterion.*;
 import org.hibernate.internal.CriteriaImpl;
 import org.hibernate.internal.CriteriaImpl.OrderEntry;
@@ -12,7 +13,6 @@ import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.transform.ResultTransformer;
 import org.hibernate.transform.Transformers;
 import org.hibernate.type.Type;
-import org.jfantasy.framework.dao.DaoUtil;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.util.ReflectionUtils;
 import org.jfantasy.framework.dao.hibernate.util.TypeFactory;
@@ -579,9 +579,9 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
         return query;
     }
 
-    public SQLQuery createSQLQuery(String queryString, Object... values) {
+    public NativeQuery createSQLQuery(String queryString, Object... values) {
         Assert.hasText(queryString, "queryString不能为空");
-        SQLQuery query = getSession().createSQLQuery(queryString);
+        NativeQuery query = getSession().createNativeQuery(queryString);
         if (values != null) {
             for (int i = 0; i < values.length; i++) {
                 query.setParameter(i, values[i]);
@@ -590,9 +590,9 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
         return query;
     }
 
-    public SQLQuery createSQLQuery(String queryString, Map<String, ?> values) {
+    public NativeQuery createSQLQuery(String queryString, Map<String, ?> values) {
         Assert.hasText(queryString, "queryString不能为空");
-        SQLQuery query = getSession().createSQLQuery(queryString);
+        NativeQuery query = getSession().createNativeQuery(queryString);
         if (values != null) {
             query.setProperties(values);
         }

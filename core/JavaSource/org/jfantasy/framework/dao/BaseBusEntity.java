@@ -1,11 +1,15 @@
 package org.jfantasy.framework.dao;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
+/**
+ * @author limaofeng
+ */
 @MappedSuperclass
 public abstract class BaseBusEntity implements Serializable {
 

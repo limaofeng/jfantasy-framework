@@ -42,6 +42,7 @@ public class QuartzAutoConfiguration {
         schedulerFactoryBean.setOverwriteExistingJobs(false);
         schedulerFactoryBean.setTaskExecutor(taskExecutor);
         Properties properties = new Properties();
+        properties.setProperty("org.quartz.jobStore.txIsolationLevelSerializable", "false");
         properties.setProperty("org.quartz.scheduler.instanceName", "QuartzScheduler");
         properties.setProperty("org.quartz.scheduler.instanceId", "AUTO");
         properties.setProperty("org.quartz.threadPool.class", "org.quartz.simpl.SimpleThreadPool");
