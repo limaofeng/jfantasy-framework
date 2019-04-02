@@ -544,7 +544,7 @@ public final class ObjectUtil {
         if (items.length == 0) {
             return sources;
         }
-        List<T> all = Arrays.asList(sources);
+        List<T> all = new ArrayList<>(Arrays.asList(sources));
         all.addAll(Arrays.asList(items));
         return all.toArray((T[]) Array.newInstance(sources.getClass().getComponentType(), all.size()));
     }
@@ -581,13 +581,7 @@ public final class ObjectUtil {
     }
 
     public static <T> void join(List<T> dest, List<T> orig, String property) {
-        List<T> news = new ArrayList<>();
-        for (T o : orig) {
-            if ((StringUtil.isNotBlank(property) && (indexOf(dest, o, property) == -1)) || dest.indexOf(o) == -1) {
-                news.add(o);
-            }
-        }
-        dest.addAll(news);
+        dest.addAll(orig.stream().filter(item -> StringUtil.isBlank(property) ? !exists(dest, item) : !exists(dest, property, BeanUtil.getValue(item, property))).collect(Collectors.toList()));
     }
 
     public static <T> void join(List<T> dest, List<T> orig, Expression exper) {

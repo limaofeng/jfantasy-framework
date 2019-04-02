@@ -1,7 +1,9 @@
 package org.jfantasy.framework.dao;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.experimental.SuperBuilder;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -10,6 +12,8 @@ import java.util.Date;
 /**
  * @author limaofeng
  */
+@Data
+@SuperBuilder
 @MappedSuperclass
 public abstract class BaseBusEntity implements Serializable {
 
@@ -46,52 +50,5 @@ public abstract class BaseBusEntity implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "MODIFY_TIME")
     private Date modifyTime;
-
-    public Date getCreateTime() {
-        if (this.createTime == null) {
-            return null;
-        }
-        return (Date) this.createTime.clone();
-    }
-
-    public void setCreateTime(Date createTime) {
-        if (createTime == null) {
-            this.createTime = null;
-        } else {
-            this.createTime = (Date) createTime.clone();
-        }
-    }
-
-    public Date getModifyTime() {
-        if (this.modifyTime == null) {
-            return null;
-        }
-        return (Date) this.modifyTime.clone();
-    }
-
-    public void setModifyTime(Date modifyTime) {
-        if (modifyTime == null) {
-            this.modifyTime = null;
-        } else {
-            this.modifyTime = (Date) modifyTime.clone();
-        }
-    }
-
-
-    public String getCreator() {
-        return this.creator;
-    }
-
-    public void setCreator(String creator) {
-        this.creator = creator;
-    }
-
-    public String getModifier() {
-        return this.modifier;
-    }
-
-    public void setModifier(String modifier) {
-        this.modifier = modifier;
-    }
 
 }
