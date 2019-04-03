@@ -10,7 +10,6 @@ import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  * 实体公共属性，自动填充拦截器
@@ -45,7 +44,7 @@ public class BusEntityInterceptor extends EmptyInterceptor {
                 if ("modifier".equals(propertyNames[i])) {
                     currentState[i] = modifier;
                     count++;
-                } else if ("modifyTime".equals(propertyNames[i])) {
+                } else if ("updatedAt".equals(propertyNames[i])) {
                     currentState[i] = DateUtil.now().clone();
                     count++;
                 }
@@ -67,7 +66,7 @@ public class BusEntityInterceptor extends EmptyInterceptor {
                 if ("creator".equals(propertyNames[i]) || "modifier".equals(propertyNames[i])) {
                     state[i] = creator;
                     count++;
-                } else if ("createTime".equals(propertyNames[i]) || "modifyTime".equals(propertyNames[i])) {
+                } else if ("createdAt".equals(propertyNames[i]) || "updatedAt".equals(propertyNames[i])) {
                     state[i] = DateUtil.now().clone();
                     count++;
                 }

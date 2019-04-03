@@ -24,9 +24,9 @@ public abstract class BaseBusEntity implements Serializable {
     private static final long serialVersionUID = -6543503526965322995L;
 
     public static final String FIELDS_BY_CREATOR = "creator";
-    public static final String FIELDS_BY_CREATE_TIME = "createTime";
+    public static final String FIELDS_BY_CREATE_TIME = "createdAt";
     public static final String FIELDS_BY_MODIFIER = "modifier";
-    public static final String FIELDS_BY_MODIFY_TIME = "modifyTime";
+    public static final String FIELDS_BY_MODIFY_TIME = "updatedAt";
     public static final String[] BASE_FIELDS = {FIELDS_BY_CREATOR, FIELDS_BY_CREATE_TIME, FIELDS_BY_MODIFIER, FIELDS_BY_MODIFY_TIME};
     public static final String BASE_JSONFIELDS = FIELDS_BY_CREATOR + ",create_time," + FIELDS_BY_MODIFIER + ",modify_time";
 
@@ -41,7 +41,7 @@ public abstract class BaseBusEntity implements Serializable {
     @JsonProperty("create_time")
     @Temporal(TemporalType.TIMESTAMP)
     @Column(updatable = false, name = "CREATE_TIME")
-    private Date createTime;
+    private Date createdAt;
     /**
      * 最后修改人
      */
@@ -53,6 +53,6 @@ public abstract class BaseBusEntity implements Serializable {
     @JsonProperty("modify_time")
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "MODIFY_TIME")
-    private Date modifyTime;
+    private Date updatedAt;
 
 }
