@@ -1,5 +1,6 @@
 package org.jfantasy.framework.spring.mvc.method.annotation;
 
+import org.jfantasy.framework.dao.OrderBy;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.spring.mvc.error.RestException;
 import org.jfantasy.framework.util.common.ObjectUtil;
@@ -50,7 +51,7 @@ public class PagerModelAttributeMethodProcessor extends MethodArgumentResolver {
     }
 
     @Override
-    protected void bindRequestParameters(ModelAndViewContainer mavContainer, WebDataBinderFactory binderFactory, WebDataBinder binder, NativeWebRequest request, MethodParameter parameter) throws Exception {
+    protected void bindRequestParameters(ModelAndViewContainer mavContainer, WebDataBinderFactory binderFactory, WebDataBinder binder, NativeWebRequest request, MethodParameter parameter) {
         ServletRequest servletRequest = prepareServletRequest(binder.getTarget(), request, parameter);
         Pager target = (Pager) binder.getTarget();
         for (String paramName : servletRequest.getParameterMap().keySet()) {
@@ -75,10 +76,9 @@ public class PagerModelAttributeMethodProcessor extends MethodArgumentResolver {
                 target.setCurrentPage(Integer.valueOf(value));
             } else if ("per_page".equalsIgnoreCase(paramName)) {
                 target.setPageSize(Integer.valueOf(value));
-            } else if ("sort".equalsIgnoreCase(paramName)) {
-                target.setOrderBy(value);
-            } else if ("order".equalsIgnoreCase(paramName)) {
-                target.setOrder(value);
+            } else if ("order_by".equalsIgnoreCase(paramName)) {
+                String[] sort = value.split("_");
+                target.setOrderBy(OrderBy.builder().by(sort[0]).order(sort[1]).build());
             }
         }
     }
@@ -113,7 +113,7 @@ public class PagerModelAttributeMethodProcessor extends MethodArgumentResolver {
     }
 
     private String[] getModelNames() {
-        return new String[]{"page", "size", "per_page", "sort", "order","limit"};
+        return new String[]{"page", "size", "per_page", "sort", "order", "limit"};
     }
 
     private boolean isPagerModelAttribute(String parameterName, String[] modelNames) {

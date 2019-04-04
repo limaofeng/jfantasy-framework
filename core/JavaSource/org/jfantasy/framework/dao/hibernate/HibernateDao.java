@@ -755,7 +755,7 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
      */
     @SuppressWarnings("unchecked")
     public Pager<T> findPager(Pager<T> pager, Criterion... criterions) {
-        Criteria c = distinct(createCriteria(criterions, StringUtil.tokenizeToStringArray(pager.getOrderBy())));
+        Criteria c = distinct(createCriteria(criterions, StringUtil.tokenizeToStringArray(pager.getOrderBy().getBy())));
         if (pager.getFirst() == 0) {
             pager.reset(countCriteriaResult(c));
         }
@@ -774,8 +774,8 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
         c.setFirstResult(pager.getFirst());
         c.setMaxResults(pager.getPageSize());
         if (pager.isOrderBySetted()) {
-            String[] orderByArray = StringUtil.tokenizeToStringArray(pager.getOrderBy());
-            String[] orders = StringUtil.tokenizeToStringArray(pager.getOrder());
+            String[] orderByArray = StringUtil.tokenizeToStringArray(pager.getOrderBy().getBy());
+            String[] orders = StringUtil.tokenizeToStringArray(pager.getOrderBy().getOrder());
 
             Assert.isTrue(orderByArray.length == orders.length, "分页多重排序参数中,排序字段与排序方向的个数不相等");
 

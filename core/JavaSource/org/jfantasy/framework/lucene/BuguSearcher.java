@@ -129,8 +129,8 @@ public abstract class BuguSearcher<T> {
         int between = 0;
         try {
             TopDocs hits;
-            if (pager.isOrderBySetted()) {//多重排序等HIbernateDao优化好之后再实现
-                hits = searcher.search(query, pager.getCurrentPage() * pager.getPageSize(), new Sort(new SortField(pager.getOrderBy(), getFieldType(pager.getOrderBy()), Pager.SORT_DESC.equals(pager.getOrder()))));
+            if (pager.isOrderBySetted()) {
+                hits = searcher.search(query, pager.getCurrentPage() * pager.getPageSize(), new Sort(new SortField(pager.getOrderBy().getBy(), getFieldType(pager.getOrderBy().getBy()), Pager.SORT_DESC.equals(pager.getOrderBy().getOrder()))));
             } else {
                 hits = searcher.search(query, pager.getCurrentPage() * pager.getPageSize());
                 int index = (pager.getCurrentPage() - 1) * pager.getPageSize();

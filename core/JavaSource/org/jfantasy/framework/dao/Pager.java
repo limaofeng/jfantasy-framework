@@ -4,13 +4,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import org.apache.ibatis.type.Alias;
-import org.hibernate.criterion.Order;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.framework.util.web.RedirectAttributesWriter;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.util.Assert;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.Serializable;
@@ -22,8 +21,11 @@ import java.util.List;
  * 通用分页对象
  *
  * @param <T>
+ * @author limaofeng
  */
 @Alias("Pager")
+@Builder(builderMethodName = "newPager")
+@AllArgsConstructor
 @JsonIgnoreProperties(value = {"orders", "first", "order_by_setted"})
 public class Pager<T> implements Serializable {
 
@@ -40,40 +42,42 @@ public class Pager<T> implements Serializable {
     /**
      * 最大数据条数
      */
+    @Builder.Default
     @JsonProperty("count")
     private int totalCount = 0;
     /**
      * 每页显示的数据条数
      */
+    @Builder.Default
     @JsonProperty("per_page")
-    private int pageSize = 0;
+    private int pageSize = 15;
     /**
      * 总页数
      */
     @JsonProperty("total")
+    @Builder.Default
     private int totalPage = 1;
     /**
      * 当前页码
      */
+    @Builder.Default
     @JsonProperty("page")
     private int currentPage = 1;
     /**
      * 开始数据索引
      */
+    @Builder.Default
     private int first = 0;
     /**
      * 排序字段
      */
     @JsonProperty("sort")
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private String orderBy;
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private String order;
+    private OrderBy orderBy;
     @JsonProperty("items")
     private transient List<T> pageItems;
 
     public Pager() {
-        this.pageSize = 10;
     }
 
     public Pager(int pageSize) {
@@ -86,7 +90,6 @@ public class Pager<T> implements Serializable {
         this.totalCount = pager.totalCount;
         this.totalPage = pager.totalPage;
         this.orderBy = pager.orderBy;
-        this.order = pager.order;
     }
 
     public Pager(Pager pager, List<T> items) {
@@ -95,7 +98,6 @@ public class Pager<T> implements Serializable {
         this.totalCount = pager.totalCount;
         this.totalPage = pager.totalPage;
         this.orderBy = pager.orderBy;
-        this.order = pager.order;
         this.pageItems = items;
     }
 
@@ -124,13 +126,13 @@ public class Pager<T> implements Serializable {
 
     @JsonIgnore
     public Sort getSort() {
-        List<Sort.Order> orders = new ArrayList<>();
-        String[] _orderBys = StringUtil.tokenizeToStringArray(getOrderBy());
-        String[] _orders = StringUtil.tokenizeToStringArray(getOrder());
-        for (int i = 0; i < _orders.length; i++) {
-            orders.add(new Sort.Order(Pager.SORT_ASC.equals(_orders[i]) ? Sort.Direction.ASC : Sort.Direction.DESC, _orderBys[i]));
+        List<Sort.Order> sort = new ArrayList<>();
+        String[] bys = StringUtil.tokenizeToStringArray(getOrderBy().getBy());
+        String[] orders = StringUtil.tokenizeToStringArray(getOrderBy().getOrder());
+        for (int i = 0; i < orders.length; i++) {
+            sort.add(new Sort.Order(Pager.SORT_ASC.equals(orders[i]) ? Sort.Direction.ASC : Sort.Direction.DESC, bys[i]));
         }
-        return Sort.by(orders);
+        return Sort.by(sort);
     }
 
     /**
@@ -186,23 +188,12 @@ public class Pager<T> implements Serializable {
         return pageItems;
     }
 
-    public String getOrderBy() {
+    public OrderBy getOrderBy() {
         return orderBy;
     }
 
-    public void setOrderBy(String orderBy) {
+    public void setOrderBy(OrderBy orderBy) {
         this.orderBy = orderBy;
-    }
-
-    public String getOrder() {
-        if (StringUtil.isNotBlank(this.getOrderBy()) && StringUtil.isBlank(this.order)) {
-            this.setOrder("asc");
-        }
-        return this.order;
-    }
-
-    public void setOrder(String order) {
-        this.order = order;
     }
 
     /**
@@ -211,12 +202,12 @@ public class Pager<T> implements Serializable {
      * @return boolean
      */
     public boolean isOrderBySetted() {
-        return StringUtil.isNotBlank(this.getOrderBy()) && StringUtil.isNotBlank(this.getOrder());
+        return this.orderBy != null;
     }
 
     @Override
     public String toString() {
-        return "Pager [totalCount=" + totalCount + ", first=" + first + ", pageSize=" + pageSize + ", totalPage=" + totalPage + ", currentPage=" + currentPage + ", orderBy=" + orderBy + ", order=" + order + "]";
+        return "Pager [totalCount=" + totalCount + ", first=" + first + ", pageSize=" + pageSize + ", totalPage=" + totalPage + ", currentPage=" + currentPage + ", orderBy=" + orderBy + "]";
     }
 
     /**
@@ -239,8 +230,7 @@ public class Pager<T> implements Serializable {
     }
 
     public void sort(String orderBy, String order) {
-        this.orderBy = orderBy;
-        this.order = order;
+        this.orderBy = OrderBy.builder().by(orderBy).order(order).build();
     }
 
     public void reset(List<T> items) {
@@ -262,8 +252,7 @@ public class Pager<T> implements Serializable {
             attrs.addAttribute("page", this.getCurrentPage());
         }
         if (this.isOrderBySetted()) {
-            attrs.addAttribute("sort", this.getOrderBy());
-            attrs.addAttribute("order", this.getOrder());
+            attrs.addAttribute("orderBy", this.getOrderBy());
         }
         return RedirectAttributesWriter.writer(attrs);
     }
