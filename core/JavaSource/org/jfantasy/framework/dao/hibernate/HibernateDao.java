@@ -252,7 +252,7 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
         for (Field field : manyToOneFields) {
             Object fk = ognlUtil.getValue(field.getName(), entity);
             if (fk == null) {
-                ognlUtil.setValue(field.getName(), entity, ognlUtil.getValue(field.getName(),oldEntity));
+                ognlUtil.setValue(field.getName(), entity, ognlUtil.getValue(field.getName(), oldEntity));
                 continue;
             }
             Serializable fkId = getIdValue(field.getType(), fk);
@@ -445,9 +445,9 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
         return find(Restrictions.eq(propertyName, value));
     }
 
-    public List<T> findBy(String propertyName, Object value,String orderBy,String order) {
+    public List<T> findBy(String propertyName, Object value, String orderBy, String order) {
         Assert.hasText(propertyName, "propertyName不能为空");
-        return find(new Criterion[]{Restrictions.eq(propertyName, value)},orderBy,order);
+        return find(new Criterion[]{Restrictions.eq(propertyName, value)}, orderBy, order);
     }
 
     /**
@@ -755,7 +755,7 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
      */
     @SuppressWarnings("unchecked")
     public Pager<T> findPager(Pager<T> pager, Criterion... criterions) {
-        Criteria c = distinct(createCriteria(criterions, StringUtil.tokenizeToStringArray(pager.getOrderBy().getBy())));
+        Criteria c = distinct(createCriteria(criterions, pager.isOrderBySetted() ? StringUtil.tokenizeToStringArray(pager.getOrderBy().getBy()) : new String[0]));
         if (pager.getFirst() == 0) {
             pager.reset(countCriteriaResult(c));
         }
@@ -998,10 +998,10 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
             entityClassTemp = ClassUtil.getProperty(entityClassTemp, propertyNames[i]).getPropertyType();
         }
         Class propertyType = ClassUtil.getProperty(entityClassTemp, propertyNames[propertyNames.length - 1]).getPropertyType();
-        if (propertyType.isEnum()){
+        if (propertyType.isEnum()) {
             return filter.getMatchType().isMulti() ? filter.getPropertyValue(ClassUtil.newInstance(propertyType, 0).getClass()) : filter.getPropertyValue(propertyType);
         }
-        if (filter.getPropertyValue().getClass().isAssignableFrom(String[].class)){
+        if (filter.getPropertyValue().getClass().isAssignableFrom(String[].class)) {
             String[] tempArray = (String[]) filter.getPropertyValue();
             Object array = ClassUtil.newInstance(propertyType, tempArray.length);
             for (int i = 0; i < tempArray.length; i++) {
