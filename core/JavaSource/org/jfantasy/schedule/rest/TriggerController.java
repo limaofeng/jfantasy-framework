@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/triggers")
 public class TriggerController {
 
-    @Autowired
+    @Autowired(required = false)
     private ScheduleService scheduleService;
 
     @RequestMapping(value = "/{key}", method = RequestMethod.DELETE)

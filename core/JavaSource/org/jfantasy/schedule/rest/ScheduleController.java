@@ -14,7 +14,7 @@ import java.util.List;
 @RequestMapping("/schedule")
 public class ScheduleController {
 
-    @Autowired
+    @Autowired(required = false)
     private ScheduleService scheduleService;
 
     @RequestMapping(value = "/jobs", method = RequestMethod.GET)
