@@ -11,8 +11,6 @@ dependencies {
     compile libs['springBoot']
     // orm
     compile libs['orm']
-    // quartz
-    compile libs['quartz']
     // unirest
     compile libs['unirest']
     // lucene
