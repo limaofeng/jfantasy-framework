@@ -127,7 +127,7 @@ public class Pager<T> implements Serializable {
     @JsonIgnore
     public Sort getSort() {
         if(!this.isOrderBySetted()){
-            return null;
+            return Sort.unsorted();
         }
         List<Sort.Order> sort = new ArrayList<>();
         String[] bys = StringUtil.tokenizeToStringArray(getOrderBy().getBy());
