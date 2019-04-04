@@ -36,15 +36,15 @@ public class JSON {
             LOG.warn("重置 JSON 工具类中的 ObjectMapper 对象.");
         }
         JSON.objectMapper = objectMapper.setPropertyNamingStrategy(PropertyNamingStrategy.LOWER_CAMEL_CASE)
-                .setSerializationInclusion(JsonInclude.Include.NON_NULL)
-                .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
-                .enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES)
-                .enable(JsonParser.Feature.ALLOW_SINGLE_QUOTES)
-                .enable(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS)
-                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-                .registerModule(new SimpleModule()
-                        .addSerializer(Date.class, new DateSerializer("yyyy-MM-dd HH:mm:ss"))
-                        .addDeserializer(Date.class, new DateDeserializer()));
+            .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+            .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+            .enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES)
+            .enable(JsonParser.Feature.ALLOW_SINGLE_QUOTES)
+            .enable(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS)
+            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+            .registerModule(new SimpleModule()
+                .addSerializer(Date.class, new DateSerializer("yyyy-MM-dd HH:mm:ss"))
+                .addDeserializer(Date.class, new DateDeserializer()));
 
         JacksonXmlModule xmlModule = new JacksonXmlModule();
         JSON.xmlMapper = new XmlMapper(xmlModule);
@@ -160,7 +160,7 @@ public class JSON {
         }
 
         @SneakyThrows
-        public String serialize(JsonNode root, String rootName) {
+        public String serialize(Object root, String rootName) {
             return this.xmlMapper.writer().withRootName(rootName).writeValueAsString(root);
         }
 
@@ -170,8 +170,8 @@ public class JSON {
         }
 
         @SneakyThrows
-        public <T> T deserialize(String xml, Class<T> classed) {
-            return this.xmlMapper.readValue(xml, classed);
+        public <T> T deserialize(String xml, Class<T> valueType) {
+            return this.xmlMapper.readValue(xml, valueType);
         }
 
     }
