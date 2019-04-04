@@ -59,7 +59,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     private final ApplicationContext applicationContext;
 
-    @Autowired(required = false)
+    @Autowired
     public WebMvcConfig(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
     }
@@ -165,18 +165,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
         filterRegistrationBean.setEnabled(true);
         filterRegistrationBean.setOrder(300);
         filterRegistrationBean.setDispatcherTypes(DispatcherType.REQUEST);
-        filterRegistrationBean.addUrlPatterns("/*");
-        return filterRegistrationBean;
-    }
-
-    @Bean
-    public FilterRegistrationBean openSessionInViewFilter() {
-        FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean();
-        filterRegistrationBean.setFilter(new OpenEntityManagerInViewFilter());
-        filterRegistrationBean.addInitParameter("entityManagerFactoryBeanName", "entityManagerFactory");
-        filterRegistrationBean.setEnabled(true);
-        filterRegistrationBean.setOrder(400);
-        filterRegistrationBean.setDispatcherTypes(DispatcherType.REQUEST, DispatcherType.FORWARD, DispatcherType.INCLUDE);
         filterRegistrationBean.addUrlPatterns("/*");
         return filterRegistrationBean;
     }
