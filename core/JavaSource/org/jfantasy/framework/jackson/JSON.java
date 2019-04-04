@@ -36,7 +36,6 @@ public class JSON {
             LOG.warn("重置 JSON 工具类中的 ObjectMapper 对象.");
         }
         JSON.objectMapper = objectMapper.setPropertyNamingStrategy(PropertyNamingStrategy.LOWER_CAMEL_CASE)
-            .setSerializationInclusion(JsonInclude.Include.NON_NULL)
             .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
             .enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES)
             .enable(JsonParser.Feature.ALLOW_SINGLE_QUOTES)
