@@ -1,4 +1,6 @@
 rootProject.name = 'jfantasy-framework'
-include ':jfantasy-core'
+include ':jfantasy-core', ":jfantasy-storage", ":jfantasy-graphql"
 
 project(':jfantasy-core').projectDir = "$rootDir/core" as File
+project(':jfantasy-storage').projectDir = "$rootDir/storage" as File
+project(':jfantasy-graphql').projectDir = "$rootDir/graphql" as File
