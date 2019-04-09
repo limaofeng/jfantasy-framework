@@ -152,7 +152,7 @@ public class AsmUtil implements Opcodes {
         try {
             FileUtil.writeFile(bytes, PathUtil.classes() + "/" + className.replace(".", File.separator) + ".class");
             return FantasyClassLoader.getClassLoader().loadClass(PathUtil.classes(), className);
-        } catch (IOException e) {
+        } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             try {
                 return FantasyClassLoader.getClassLoader().loadClass(bytes, className);
@@ -160,9 +160,6 @@ public class AsmUtil implements Opcodes {
                 LOG.error(e.getMessage(), ex);
                 throw new IgnoreException(e.getMessage(), ex);
             }
-        } catch (ClassNotFoundException e) {
-            LOG.error(e.getMessage(), e);
-            throw new IgnoreException(e.getMessage());
         }
     }
 
