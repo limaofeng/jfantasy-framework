@@ -66,7 +66,7 @@ public class JSON {
         Class type = ClassUtil.getRealType(object.getClass());
         if (type.isArray()) {
             type = type.getComponentType();
-        } else if (List.class.isAssignableFrom(String.class)) {
+        } else if (List.class.isAssignableFrom(type)) {
             if (((List) object).size() == 0) {
                 type = null;
             } else {
