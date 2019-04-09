@@ -135,7 +135,7 @@ public class FileUtil {
             createFolder(file.getParentFile());
         }
         if (!file.exists() && !file.mkdirs()) {
-            throw new IgnoreException("创建文件" + file + "失败");
+            LOGGER.error("文件: " + file + " > " + file.exists());
         }
         return file;
     }
@@ -433,7 +433,7 @@ public class FileUtil {
     }
 
     public void writeFile(OutputStream out, InputStream in) throws IOException {
-        StreamUtil.copyThenClose(in,out);
+        StreamUtil.copyThenClose(in, out);
     }
 
     public static ZipOutputStream compress(String unZipFile, OutputStream zipOut) throws IOException {
