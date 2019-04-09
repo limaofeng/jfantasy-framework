@@ -1,6 +1,5 @@
 package org.jfantasy.framework.jackson;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
@@ -18,6 +17,7 @@ import org.jfantasy.framework.util.common.ClassUtil;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 public class JSON {
 
@@ -64,8 +64,17 @@ public class JSON {
             return null;
         }
         Class type = ClassUtil.getRealType(object.getClass());
+        if (type.isArray()) {
+            type = type.getComponentType();
+        } else if (List.class.isAssignableFrom(String.class)) {
+            if (((List) object).size() == 0) {
+                type = null;
+            } else {
+                type = ClassUtil.getRealType(((List) object).get(0).getClass());
+            }
+        }
         try {
-            if (!type.isArray()) {
+            if (type != null) {
                 SimpleFilterProvider provider = new SimpleFilterProvider().setFailOnUnknownId(false);
                 provider.setDefaultFilter(filter.setup(BeanPropertyFilter.newBuilder(type)).build());
                 return objectMapper.writer(provider).writeValueAsString(object);
