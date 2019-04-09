@@ -1,0 +1,12 @@
+description = "文件对象相关"
+
+configurations {
+    compile.exclude module: "tomcat-jdbc"
+}
+
+dependencies {
+    compile project(":jfantasy-core")
+    compileOnly 'org.projectlombok:lombok:1.18.6'
+    annotationProcessor 'org.projectlombok:lombok:1.18.6'
+    testCompile libs['test']
+}
