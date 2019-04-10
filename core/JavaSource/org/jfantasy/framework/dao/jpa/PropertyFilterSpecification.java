@@ -1,17 +1,11 @@
 package org.jfantasy.framework.dao.jpa;
 
-import org.hibernate.criterion.Criterion;
-import org.hibernate.criterion.MatchMode;
-import org.hibernate.criterion.Restrictions;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
-import org.jfantasy.framework.util.reflect.Property;
+import org.jfantasy.framework.util.common.StringUtil;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.Assert;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,42 +35,48 @@ public class PropertyFilterSpecification implements Specification {
 
     protected Predicate buildPropertyFilterPredicate(Root root,CriteriaBuilder builder, String propertyName, Object propertyValue, PropertyFilter.MatchType matchType) {
         Assert.hasText(propertyName, "propertyName不能为空");
+
+        Path path = root;
+        for(String name : StringUtil.tokenizeToStringArray(propertyName, ".")){
+            path = path.get(name);
+        }
+
         if (PropertyFilter.MatchType.EQ.equals(matchType)) {
-            return builder.equal(root.get(propertyName),propertyValue);
+            return builder.equal(path,propertyValue);
         } else if (PropertyFilter.MatchType.LIKE.equals(matchType)) {
-            return builder.like(root.get(propertyName), (String) propertyValue);
+            return builder.like(path, (String) propertyValue);
         } else if (PropertyFilter.MatchType.LE.equals(matchType)) {
-            return builder.le(root.get(propertyName), (Number) propertyValue);
+            return builder.le(path, (Number) propertyValue);
         } else if (PropertyFilter.MatchType.LT.equals(matchType)) {
-            return builder.lt(root.get(propertyName), (Number) propertyValue);
+            return builder.lt(path, (Number) propertyValue);
         } else if (PropertyFilter.MatchType.GE.equals(matchType)) {
-            return builder.ge(root.get(propertyName), (Number) propertyValue);
+            return builder.ge(path, (Number) propertyValue);
         } else if (PropertyFilter.MatchType.GT.equals(matchType)) {
-            return builder.gt(root.get(propertyName), (Number) propertyValue);
+            return builder.gt(path, (Number) propertyValue);
         } else if (PropertyFilter.MatchType.IN.equals(matchType)) {
             if (Array.getLength(propertyValue) == 0) {
                 return null;
             }
-            return builder.in(root.get(propertyName).in((Object[])propertyValue));
+            return builder.in(path.in((Object[])propertyValue));
         } else if (PropertyFilter.MatchType.NOTIN.equals(matchType)) {
             if (Array.getLength(propertyValue) == 0) {
                 return null;
             }
-            return builder.not(root.get(propertyName).in((Object[])propertyValue));
+            return builder.not(path.in((Object[])propertyValue));
         } else if (PropertyFilter.MatchType.NE.equals(matchType)) {
-            return builder.notEqual(root.get(propertyName),propertyValue);
+            return builder.notEqual(path,propertyValue);
         } else if (PropertyFilter.MatchType.NULL.equals(matchType)) {
-            return builder.isNull(root.get(propertyName));
+            return builder.isNull(path);
         } else if (PropertyFilter.MatchType.NOTNULL.equals(matchType)) {
-            return builder.isNotNull(root.get(propertyName));
+            return builder.isNotNull(path);
         } else if (PropertyFilter.MatchType.EMPTY.equals(matchType)) {
-            return builder.isEmpty(root.get(propertyName));
+            return builder.isEmpty(path);
         } else if (PropertyFilter.MatchType.NOTEMPTY.equals(matchType)) {
-            return builder.isNotEmpty(root.get(propertyName));
+            return builder.isNotEmpty(path);
         } else if (PropertyFilter.MatchType.BETWEEN.equals(matchType)) {
             Comparable x = (Comparable) Array.get(propertyValue, 0);
             Comparable y = (Comparable) Array.get(propertyValue, 1);
-            return builder.between(root.get(propertyName),x,y);
+            return builder.between(path,x,y);
         }
         throw new RuntimeException("不支持的查询");
     }
