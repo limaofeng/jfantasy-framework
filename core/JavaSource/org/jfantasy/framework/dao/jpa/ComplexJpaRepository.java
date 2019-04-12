@@ -8,6 +8,7 @@ import org.jfantasy.framework.util.common.ObjectUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
@@ -31,6 +32,16 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
     @Autowired(required = false)
     public ComplexJpaRepository(JpaEntityInformation<T, ?> entityInformation, EntityManager entityManager) {
         super(entityInformation, entityManager);
+    }
+
+    @Override
+    public List<T> findAll(List<PropertyFilter> filters) {
+        return this.findAll(new PropertyFilterSpecification(filters));
+    }
+
+    @Override
+    public List<T> findAll(List<PropertyFilter> filters, Sort sort) {
+        return this.findAll(new PropertyFilterSpecification(filters), sort);
     }
 
     @Override
