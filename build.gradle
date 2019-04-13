@@ -80,7 +80,10 @@ subprojects {
 
     dependencyManagement {
         imports {
-            mavenBom 'io.spring.platform:platform-bom:Cairo-SR7'
+            mavenBom "org.springframework.boot:spring-boot-dependencies:${springBootVersion}"
+        }
+        dependencies {
+            dependency "org.jetbrains.kotlin:kotlin-stdlib:${kotlinVersion}"
         }
     }
 
