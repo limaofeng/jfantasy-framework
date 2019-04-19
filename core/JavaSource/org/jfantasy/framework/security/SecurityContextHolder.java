@@ -15,7 +15,7 @@ public class SecurityContextHolder {
     public static SecurityContext getContext() {
         SecurityContext securityContextHolder = holder.get();
         if (securityContextHolder == null) {
-            throw new SecurityException("未初始化 SecurityContext ");
+            return null;
         }
         return holder.get();
     }
