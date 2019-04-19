@@ -14,7 +14,7 @@ import java.util.ArrayList;
 public class DefaultSecurityContext implements SecurityContext {
     private User user;
 
-    private DefaultSecurityContext(User user) {
+    public DefaultSecurityContext(User user) {
         this.user = user;
     }
 
