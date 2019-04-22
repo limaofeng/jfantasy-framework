@@ -2,6 +2,7 @@ package org.jfantasy.framework.dao.hibernate;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jfantasy.framework.dao.hibernate.util.ReflectionUtils;
+import org.jfantasy.framework.dao.jpa.PropertyFilterBuilder;
 import org.jfantasy.framework.error.IgnoreException;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.StringUtil;
@@ -16,6 +17,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * 通用过滤器
+ *
+ * @author limaofeng
  */
 public class PropertyFilter {
 
@@ -50,12 +53,8 @@ public class PropertyFilter {
         } catch (IgnoreException e) {
             throw new IllegalArgumentException(String.format("filter名称 %s 没有按规则编写,无法得到属性比较类型.", filterName), e);
         }
-        if (!(MatchType.NULL.equals(this.matchType) || MatchType.NOTNULL.equals(this.matchType) || MatchType.EMPTY.equals(this.matchType) || MatchType.NOTEMPTY.equals(this.matchType))) {
-            throw new IgnoreException("没有设置value时,查询条件必须为 is null,not null,empty,not empty");
-        }
         String propertyNameStr = StringUtils.substringAfter(filterName, "_");
         this.propertyNames = propertyNameStr.split(OR_SEPARATOR);
-        this.propertyValue = new Object();
     }
 
     public PropertyFilter(String filterName, Enum<?> value) {
@@ -78,22 +77,36 @@ public class PropertyFilter {
 
     public <T> PropertyFilter(String filterName, T... value) {
         this.initialize(filterName);
-        if (!(MatchType.IN.equals(this.matchType) || MatchType.NOTIN.equals(this.matchType)) && value.length > 1) {
+        boolean multiple = Arrays.stream(new MatchType[]{MatchType.IN, MatchType.NOTIN}).anyMatch(type -> type == this.matchType);
+        if (!multiple && value.length > 1) {
             throw new IgnoreException("有多个条件时,查询条件必须为 in 或者 not in ");
         }
-        if (MatchType.IN.equals(this.matchType) || MatchType.NOTIN.equals(this.matchType)) {
+        if (MatchType.BETWEEN == this.matchType) {
+            Object array = ClassUtil.newInstance(this.propertyType, 2);
+            Array.set(array, 0, Array.get(value, 0));
+            Array.set(array, 1, Array.get(value, 1));
+            this.propertyValue = array;
+        } else if (multiple) {
             Object array = this.propertyType.isAssignableFrom(Enum.class) ? new String[value.length] : ClassUtil.newInstance(this.propertyType, Array.getLength(value));
             for (int i = 0; i < Array.getLength(value); i++) {
-                Array.set(array, i, this.propertyType == Enum.class ? Array.get(value, i).toString() : ReflectionUtils.convertStringToObject(Array.get(value, i).toString(), this.propertyType));
+                Array.set(array, i, this.propertyType == Enum.class ? Array.get(value, i) : ReflectionUtils.convertStringToObject(Array.get(value, i).toString(), this.propertyType));
             }
             this.propertyValue = array;
         } else {
-            setPropertyValue(value[0].toString());
+            setPropertyValue(value[0]);
         }
     }
 
+    public static PropertyFilterBuilder builder() {
+        return new PropertyFilterBuilder();
+    }
+
+    public static PropertyFilterBuilder builder(Class<?> entityClass) {
+        return new PropertyFilterBuilder(entityClass);
+    }
+
     private void setPropertyValue(String value) {
-        if (PropertyFilter.MatchType.BETWEEN.equals(this.matchType)) {
+        if (MatchType.BETWEEN.equals(this.matchType)) {
             Object array = ClassUtil.newInstance(this.propertyType, 2);
             String[] tempArray = StringUtil.tokenizeToStringArray(value, "~");
             for (int i = 0; i < tempArray.length; i++) {
@@ -138,24 +151,29 @@ public class PropertyFilter {
         return this.propertyValue;
     }
 
-    public <T> T getPropertyValue(T o) {
-        return (T) getPropertyValue(o.getClass());
-    }
-
     @SuppressWarnings("unchecked")
     public <T> T getPropertyValue(Class<T> clazz) {
-        if (clazz.isEnum() || (clazz.isArray() && clazz.getComponentType().isEnum())) {
-            AtomicReference<Class> enumClass = new AtomicReference<>(clazz.isArray() ? clazz.getComponentType() : clazz);
-            if (propertyValue instanceof String) {
-                return (T) Enum.valueOf(enumClass.get(), (String) propertyValue);
-            } else if (propertyValue instanceof String[]) {
-                Object array = ClassUtil.newInstance(enumClass.get(), Array.getLength(propertyValue));
-                for (int i = 0; i < Array.getLength(propertyValue); i++) {
-                    Array.set(array, i, Enum.valueOf(enumClass.get(), (String) Array.get(propertyValue, i)));
+        if (clazz.isInstance(this.getPropertyValue())) {
+            return clazz.cast(this.propertyValue);
+        }
+        boolean multiple = Arrays.stream(new MatchType[]{MatchType.IN, MatchType.NOTIN, MatchType.BETWEEN}).anyMatch(type -> type == this.matchType);
+        if (multiple) {
+            clazz = clazz.isArray() ? clazz : (Class<T>) ClassUtil.newInstance(clazz, 0).getClass();
+            Class componentType = clazz.getComponentType();
+            Object array = ClassUtil.newInstance(clazz.isArray() ? clazz.getComponentType() : clazz, Array.getLength(propertyValue));
+            for (int i = 0; i < Array.getLength(propertyValue); i++) {
+                Object value = Array.get(propertyValue, i);
+                if (!componentType.isInstance(value)) {
+                    if (clazz.getComponentType().isEnum()) {
+                        AtomicReference<Class> enumClass = new AtomicReference<>(componentType);
+                        value = Enum.valueOf(enumClass.get(), (String) value);
+                    } else {
+                        value = ReflectionUtils.convert(Array.get(propertyValue, i), componentType);
+                    }
                 }
-                return clazz.cast(array);
+                Array.set(array, i, value);
             }
-            return (T) propertyValue;
+            return clazz.cast(array);
         }
         return ReflectionUtils.convert(this.getPropertyValue(), clazz);
     }
@@ -169,20 +187,12 @@ public class PropertyFilter {
         return this.matchType;
     }
 
-    public void setPropertyNames(String[] propertyNames) {
-        this.propertyNames = propertyNames;
-    }
-
-    public void setPropertyType(Class<?> propertyType) {
-        this.propertyType = propertyType;
-    }
-
     public void setPropertyValue(Object propertyValue) {
         this.propertyValue = propertyValue;
     }
 
-    public void setMatchType(MatchType matchType) {
-        this.matchType = matchType;
+    public void setPropertyType(Class<?> propertyType) {
+        this.propertyType = propertyType;
     }
 
     public enum MatchType {

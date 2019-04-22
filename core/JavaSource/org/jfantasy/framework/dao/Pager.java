@@ -78,6 +78,7 @@ public class Pager<T> implements Serializable {
     private transient List<T> pageItems;
 
     public Pager() {
+        this(15);
     }
 
     public Pager(int pageSize) {
@@ -126,7 +127,7 @@ public class Pager<T> implements Serializable {
 
     @JsonIgnore
     public Sort getSort() {
-        if(!this.isOrderBySetted()){
+        if (!this.isOrderBySetted()) {
             return Sort.unsorted();
         }
         List<Sort.Order> sort = new ArrayList<>();

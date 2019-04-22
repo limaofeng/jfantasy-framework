@@ -46,6 +46,14 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
     }
 
     @Override
+    public <S extends T> S save(S entity) {
+        if (BaseBusBusinessEntity.class.isAssignableFrom(this.getDomainClass())) {
+            ((BaseBusBusinessEntity) entity).setDeleted(false);
+        }
+        return super.save(entity);
+    }
+
+    @Override
     public List<T> findAll(List<PropertyFilter> filters) {
         return this.findAll(new PropertyFilterSpecification(this.getDomainClass(), filters));
     }
