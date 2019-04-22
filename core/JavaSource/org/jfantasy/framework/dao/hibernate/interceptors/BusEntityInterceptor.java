@@ -2,6 +2,7 @@ package org.jfantasy.framework.dao.hibernate.interceptors;
 
 import org.hibernate.EmptyInterceptor;
 import org.hibernate.type.Type;
+import org.jfantasy.framework.dao.BaseBusBusinessEntity;
 import org.jfantasy.framework.dao.BaseBusEntity;
 import org.jfantasy.framework.security.SpringSecurityUtils;
 import org.jfantasy.framework.security.User;
@@ -62,6 +63,10 @@ public class BusEntityInterceptor extends EmptyInterceptor {
             User user = SpringSecurityUtils.getCurrentUser();
             String creator = ObjectUtil.isNotNull(user) ? user.getUid() : StringUtil.defaultValue(((BaseBusEntity) entity).getCreator(), DEFAULT_CREATOR);
             int count = 0;
+            int maxCount = 4;
+            if (entity instanceof BaseBusBusinessEntity) {
+                maxCount++;
+            }
             for (int i = 0; i < propertyNames.length; i++) {
                 if ("creator".equals(propertyNames[i]) || "modifier".equals(propertyNames[i])) {
                     state[i] = creator;
@@ -69,8 +74,10 @@ public class BusEntityInterceptor extends EmptyInterceptor {
                 } else if ("createdAt".equals(propertyNames[i]) || "updatedAt".equals(propertyNames[i])) {
                     state[i] = DateUtil.now().clone();
                     count++;
+                } else if ("deleted".equals(propertyNames[i])) {
+                    state[i] = false;
                 }
-                if (count >= 4) {
+                if (count >= maxCount) {
                     return true;
                 }
             }
