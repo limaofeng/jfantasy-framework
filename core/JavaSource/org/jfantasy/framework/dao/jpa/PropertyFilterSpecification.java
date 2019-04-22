@@ -1,6 +1,8 @@
 package org.jfantasy.framework.dao.jpa;
 
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
+import org.jfantasy.framework.dao.hibernate.util.ReflectionUtils;
+import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.Assert;
@@ -20,8 +22,10 @@ import java.util.List;
 public class PropertyFilterSpecification implements Specification {
 
     private List<PropertyFilter> filters;
+    private Class<?> entityClass;
 
-    public PropertyFilterSpecification(List<PropertyFilter> filters) {
+    public PropertyFilterSpecification(Class<?> entityClass, List<PropertyFilter> filters) {
+        this.entityClass = entityClass;
         this.filters = filters;
     }
 
@@ -29,9 +33,33 @@ public class PropertyFilterSpecification implements Specification {
     public Predicate toPredicate(Root root, CriteriaQuery query, CriteriaBuilder builder) {
         List<Predicate> restrictions = new ArrayList<>();
         for (PropertyFilter filter : filters) {
-            restrictions.add(buildPropertyFilterPredicate(root, builder, filter.getPropertyName(), filter.getPropertyValue(), filter.getMatchType()));
+            restrictions.add(buildPropertyFilterPredicate(root, builder, filter.getPropertyName(), getPropertyValue(filter), filter.getMatchType()));
         }
         return builder.and(restrictions.toArray(new Predicate[restrictions.size()]));
+    }
+
+    private Object getPropertyValue(PropertyFilter filter) {
+        if (filter.getPropertyType() == null) {
+            return null;
+        }
+        Class<?> entityClassTemp = this.entityClass;
+        String[] propertyNames = filter.getPropertyName().split("\\.");
+        for (int i = 0; i < propertyNames.length - 1; i++) {
+            entityClassTemp = ClassUtil.getProperty(entityClassTemp, propertyNames[i]).getPropertyType();
+        }
+        Class propertyType = ClassUtil.getProperty(entityClassTemp, propertyNames[propertyNames.length - 1]).getPropertyType();
+        if (propertyType.isEnum()) {
+            return filter.getMatchType().isMulti() ? filter.getPropertyValue(ClassUtil.newInstance(propertyType, 0).getClass()) : filter.getPropertyValue(propertyType);
+        }
+        if (filter.getPropertyValue().getClass().isAssignableFrom(String[].class)) {
+            String[] tempArray = (String[]) filter.getPropertyValue();
+            Object array = ClassUtil.newInstance(propertyType, tempArray.length);
+            for (int i = 0; i < tempArray.length; i++) {
+                Array.set(array, i, ReflectionUtils.convertStringToObject(tempArray[i], propertyType));
+            }
+            return array;
+        }
+        return ReflectionUtils.convertStringToObject((String) filter.getPropertyValue(), propertyType);
     }
 
     protected Predicate buildPropertyFilterPredicate(Root root, CriteriaBuilder builder, String propertyName, Object propertyValue, PropertyFilter.MatchType matchType) {
@@ -50,13 +78,13 @@ public class PropertyFilterSpecification implements Specification {
         } else if (PropertyFilter.MatchType.LIKE.equals(matchType)) {
             return builder.like(path, (String) propertyValue);
         } else if (PropertyFilter.MatchType.LE.equals(matchType)) {
-            return builder.le(path, (Number) propertyValue);
+            return builder.lessThanOrEqualTo(path, (Comparable) propertyValue);
         } else if (PropertyFilter.MatchType.LT.equals(matchType)) {
-            return builder.lt(path, (Number) propertyValue);
+            return builder.lessThan(path, (Comparable) propertyValue);
         } else if (PropertyFilter.MatchType.GE.equals(matchType)) {
-            return builder.ge(path, (Number) propertyValue);
+            return builder.greaterThanOrEqualTo(path, (Comparable) propertyValue);
         } else if (PropertyFilter.MatchType.GT.equals(matchType)) {
-            return builder.gt(path, (Number) propertyValue);
+            return builder.greaterThan(path, (Comparable) propertyValue);
         } else if (PropertyFilter.MatchType.IN.equals(matchType)) {
             if (Array.getLength(propertyValue) == 0) {
                 return null;
