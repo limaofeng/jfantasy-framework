@@ -139,7 +139,11 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
     public static Class<?> getPropertyType(Class<?> clazz, String name) {
         String[] propertyNames = name.split("\\.");
         for (int i = 0; i < propertyNames.length - 1; i++) {
-            clazz = ClassUtil.getProperty(clazz, propertyNames[i]).getPropertyType();
+            Property property = ClassUtil.getProperty(clazz, propertyNames[i]);
+            clazz = property.getPropertyType();
+            if (List.class.isAssignableFrom(clazz)) {
+                clazz = ClassUtil.forName(property.getGenericType().getActualTypeArguments()[0].getTypeName());
+            }
         }
         return ClassUtil.getProperty(clazz, propertyNames[propertyNames.length - 1]).getPropertyType();
     }
