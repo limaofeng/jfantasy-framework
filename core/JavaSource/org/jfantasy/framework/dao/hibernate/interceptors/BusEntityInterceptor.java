@@ -76,6 +76,8 @@ public class BusEntityInterceptor extends EmptyInterceptor {
                     count++;
                 } else if ("deleted".equals(propertyNames[i])) {
                     state[i] = false;
+                    // TODO: 2019/4/24  遗留问题待解决
+                    ((BaseBusBusinessEntity) entity).setDeleted(false);
                 }
                 if (count >= maxCount) {
                     return true;
