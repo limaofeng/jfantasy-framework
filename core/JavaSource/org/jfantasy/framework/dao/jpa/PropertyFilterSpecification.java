@@ -48,7 +48,7 @@ public class PropertyFilterSpecification implements Specification {
         for (String name : StringUtil.tokenizeToStringArray(propertyName, ".")) {
             Path tmp = path.get(name);
             if (Collection.class.isAssignableFrom(tmp.getJavaType())) {
-                tmp = ((Root) path).join(name);
+                tmp = ((Root) path).join(name, JoinType.LEFT);
             }
             path = tmp;
         }
