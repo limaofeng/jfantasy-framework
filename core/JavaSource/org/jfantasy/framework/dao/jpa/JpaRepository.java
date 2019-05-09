@@ -34,4 +34,6 @@ public interface JpaRepository<T, PK extends Serializable> extends org.springfra
 
     Pager<T> findPager(Pager<T> pager, Specification<T> spec);
 
+    <S extends T> S update(S entity, boolean merge);
+
 }

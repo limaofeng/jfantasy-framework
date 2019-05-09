@@ -2,6 +2,7 @@ package org.jfantasy.framework.dao.hibernate.util;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jfantasy.framework.util.common.DateUtil;
 import org.junit.Test;
 import java.util.Date;
 
@@ -11,7 +12,8 @@ public class ReflectionUtilsTest {
 
     @Test
     public void convertStringToObject() throws Exception {
-        LOG.debug(ReflectionUtils.convertStringToObject("2016-06-01",Date.class));
+        LOG.debug(DateUtil.now());
+        LOG.debug(ReflectionUtils.convertStringToObject("2019-04-08T08:26:00.853Z",Date.class));
     }
 
 }

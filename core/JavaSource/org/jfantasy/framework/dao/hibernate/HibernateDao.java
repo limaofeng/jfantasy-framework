@@ -325,7 +325,7 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    private static Serializable getIdValue(Class entityClass, Object entity) {
+    public static <ID> ID getIdValue(Class entityClass, Object entity) {
         OgnlUtil ognlUtil = OgnlUtil.getInstance();
         Field[] idFields = ClassUtil.getDeclaredFields(entityClass, Id.class);
         if (idFields.length == 0) {
@@ -337,9 +337,9 @@ public abstract class HibernateDao<T, PK extends Serializable> {//NOSONAR
             for (Field idField : idFields) {
                 ognlUtil.setValue(idField.getName(), id, ognlUtil.getValue(idField.getName(), entity));
             }
-            return id;
+            return (ID)id;
         } else {
-            return (Serializable) ClassUtil.getValue(entity, idFields[0].getName());
+            return (ID) ClassUtil.getValue(entity, idFields[0].getName());
         }
     }
 

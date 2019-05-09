@@ -276,7 +276,9 @@ public class StringUtilTest {
 
     @Test
     public void testTokenizeToStringArray() throws Exception {
-
+        String name = "user.job.id";
+        String[] names = StringUtil.tokenizeToStringArray(name, ".");
+        LOG.debug(names);
     }
 
     @Test
