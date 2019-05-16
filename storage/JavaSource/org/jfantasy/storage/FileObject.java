@@ -2,6 +2,7 @@ package org.jfantasy.storage;
 
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -11,7 +12,7 @@ import java.util.Date;
  * @date 2019-04-09 18:15
  */
 @Data
-public class FileObject {
+public class FileObject implements Serializable {
     private String id;
     private String md5;
     private String name;

@@ -1,10 +1,12 @@
 package org.jfantasy.storage.converter;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.jfantasy.framework.jackson.JSON;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.storage.FileObject;
 
 import javax.persistence.AttributeConverter;
+import java.util.List;
 
 /**
  * @author limaofeng
@@ -12,10 +14,10 @@ import javax.persistence.AttributeConverter;
  * @Description: TODO
  * @date 2019-04-09 18:17
  */
-public class FileObjectsConverter implements AttributeConverter<FileObject[], String> {
+public class FileObjectsConverter implements AttributeConverter<List<FileObject>, String> {
 
     @Override
-    public String convertToDatabaseColumn(FileObject[] attribute) {
+    public String convertToDatabaseColumn(List<FileObject> attribute) {
         if (attribute == null) {
             return null;
         }
@@ -23,10 +25,11 @@ public class FileObjectsConverter implements AttributeConverter<FileObject[], St
     }
 
     @Override
-    public FileObject[] convertToEntityAttribute(String dbData) {
+    public List<FileObject> convertToEntityAttribute(String dbData) {
         if (StringUtil.isBlank(dbData)) {
             return null;
         }
-        return JSON.deserialize(dbData, FileObject[].class);
+        return JSON.deserialize(dbData, new TypeReference<List<FileObject>>() {
+        });
     }
 }
