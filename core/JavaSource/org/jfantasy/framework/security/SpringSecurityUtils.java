@@ -13,19 +13,19 @@ public class SpringSecurityUtils {
     private SpringSecurityUtils() {
     }
 
-    public static <T extends User> T getCurrentUser(Class<T> clazz) {
+    public static <T extends LoginUser> T getCurrentUser(Class<T> clazz) {
         SecurityContext context = SecurityContextHolder.getContext();
         if (context != null) {
             Object principal = context.getPrincipal();
-            if (principal instanceof User) {
+            if (principal instanceof LoginUser) {
                 return clazz.cast(principal);
             }
         }
         return null;
     }
 
-    public static User getCurrentUser() {
-        return getCurrentUser(User.class);
+    public static LoginUser getCurrentUser() {
+        return getCurrentUser(LoginUser.class);
     }
 
     public static boolean isUserInRole(String name) {

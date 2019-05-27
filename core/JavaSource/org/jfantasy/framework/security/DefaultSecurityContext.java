@@ -12,9 +12,9 @@ import java.util.ArrayList;
  * @date 2019-04-19 14:32
  */
 public class DefaultSecurityContext implements SecurityContext {
-    private User user;
+    private LoginUser user;
 
-    public DefaultSecurityContext(User user) {
+    public DefaultSecurityContext(LoginUser user) {
         this.user = user;
     }
 
