@@ -18,6 +18,7 @@ import org.jfantasy.framework.util.regexp.RegexpUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
@@ -254,6 +255,12 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
     @Override
     protected <S extends T> TypedQuery<S> getQuery(@Nullable Specification<S> spec, Class<S> domainClass, Sort sort) {
         return super.getQuery(defaultSpecification(spec), domainClass, sort);
+    }
+
+
+    @Override
+    protected TypedQuery<T> getQuery(@Nullable Specification<T> spec, Pageable pageable) {
+        return super.getQuery(defaultSpecification(spec), pageable);
     }
 
     protected <S extends T> Specification<S> defaultSpecification(Specification<S> spec) {

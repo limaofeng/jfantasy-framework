@@ -68,7 +68,7 @@ public class PropertyFilterSpecification implements Specification {
             if (Array.getLength(propertyValue) == 0) {
                 return null;
             }
-            return builder.in(path.in((Object[]) propertyValue));
+            return path.in((Object[]) propertyValue);
         } else if (PropertyFilter.MatchType.NOTIN.equals(matchType)) {
             if (Array.getLength(propertyValue) == 0) {
                 return null;
