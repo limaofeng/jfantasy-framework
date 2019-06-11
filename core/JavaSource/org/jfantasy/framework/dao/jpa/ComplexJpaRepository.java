@@ -259,8 +259,8 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
 
 
     @Override
-    protected TypedQuery<T> getQuery(@Nullable Specification<T> spec, Pageable pageable) {
-        return super.getQuery(defaultSpecification(spec), pageable);
+    protected <S extends T> TypedQuery<Long> getCountQuery(@Nullable Specification<S> spec, Class<S> domainClass) {
+        return super.getCountQuery(defaultSpecification(spec), domainClass);
     }
 
     protected <S extends T> Specification<S> defaultSpecification(Specification<S> spec) {
