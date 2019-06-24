@@ -28,6 +28,10 @@ public class LoginUser implements Principal {
      */
     private String uid;
     /**
+     * 用户类型
+     */
+    private String type;
+    /**
      * 名称
      */
     private String name;
