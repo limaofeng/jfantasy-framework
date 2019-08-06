@@ -30,6 +30,7 @@ public class PropertyFilterSpecification implements Specification {
 
     @Override
     public Predicate toPredicate(Root root, CriteriaQuery query, CriteriaBuilder builder) {
+        query.distinct(true);
         List<Predicate> restrictions = new ArrayList<>();
         for (PropertyFilter filter : filters) {
             restrictions.add(buildPropertyFilterPredicate(root, builder, filter.getPropertyName(), getPropertyValue(filter), filter.getMatchType()));
