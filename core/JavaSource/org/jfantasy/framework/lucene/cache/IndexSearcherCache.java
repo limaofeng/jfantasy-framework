@@ -30,21 +30,21 @@ public class IndexSearcherCache {
         if (this.cache.containsKey(name)) {
             searcher = this.cache.get(name);
         } else {
-            synchronized (this) {
-                if (this.cache.containsKey(name)) {
-                    searcher = this.cache.get(name);
-                } else {
-                    IndexWriter writer = IndexWriterCache.getInstance().get(name);
-                    IndexReader reader = null;
-                    try {
-                        reader = IndexReader.open(writer, true);
-                    } catch (IOException ex) {
-                        LOGGER.error("Something is wrong when open lucene IndexWriter", ex);
-                    }
-                    searcher = new IndexSearcher(reader);
-                    this.cache.put(name, searcher);
-                }
-            }
+//            synchronized (this) {
+//                if (this.cache.containsKey(name)) {
+//                    searcher = this.cache.get(name);
+//                } else {
+//                    IndexWriter writer = IndexWriterCache.getInstance().get(name);
+//                    IndexReader reader = null;
+//                    try {
+//                        reader = IndexReader.open(writer, true);
+//                    } catch (IOException ex) {
+//                        LOGGER.error("Something is wrong when open lucene IndexWriter", ex);
+//                    }
+//                    searcher = new IndexSearcher(reader);
+//                    this.cache.put(name, searcher);
+//                }
+//            }
         }
         return searcher;
     }

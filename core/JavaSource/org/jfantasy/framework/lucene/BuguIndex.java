@@ -1,17 +1,12 @@
 package org.jfantasy.framework.lucene;
 
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.store.Directory;
-import org.apache.lucene.util.Version;
-import org.jfantasy.framework.dao.hibernate.HibernateDao;
+import org.jfantasy.framework.dao.jpa.JpaRepository;
 import org.jfantasy.framework.error.IgnoreException;
 import org.jfantasy.framework.lucene.annotations.Indexed;
 import org.jfantasy.framework.lucene.backend.IndexChecker;
 import org.jfantasy.framework.lucene.backend.IndexReopenTask;
 import org.jfantasy.framework.lucene.cache.DaoCache;
-import org.jfantasy.framework.lucene.cache.IndexWriterCache;
 import org.jfantasy.framework.lucene.cluster.ClusterConfig;
 import org.jfantasy.framework.lucene.dao.LuceneDao;
 import org.jfantasy.framework.lucene.dao.hibernate.HibernateLuceneDao;
@@ -19,9 +14,7 @@ import org.jfantasy.framework.spring.ClassPathScanner;
 import org.jfantasy.framework.spring.SpringContextUtil;
 import org.jfantasy.framework.spring.mvc.error.NotFoundException;
 import org.jfantasy.framework.util.common.ClassUtil;
-import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.file.FileUtil;
-import org.quartz.Scheduler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
@@ -32,7 +25,6 @@ import org.springframework.util.StopWatch;
 import org.springframework.util.StringUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -51,11 +43,11 @@ public class BuguIndex implements ApplicationListener<ContextRefreshedEvent> {
     /**
      * Lucene 版本
      */
-    private Version version = Version.LUCENE_36;
+//    private Version version = Version.LUCENE_36;
     /**
      * 分词器
      */
-    private Analyzer analyzer = new StandardAnalyzer(this.version);
+//    private Analyzer analyzer = new StandardAnalyzer(this.version);
     /**
      * 索引文件的存放目录
      */
@@ -98,12 +90,12 @@ public class BuguIndex implements ApplicationListener<ContextRefreshedEvent> {
         if (!SpringContextUtil.startup()) {
             return;
         }
-        for (Class<?> clazz : ClassPathScanner.getInstance().findInterfaceClasses(basePackage, HibernateDao.class)) {
+        for (Class<?> clazz : ClassPathScanner.getInstance().findInterfaceClasses(basePackage, JpaRepository.class)) {
             Class entityClass = ClassUtil.getSuperClassGenricType(clazz);
             if (entityClass.getAnnotation(Indexed.class) == null) {
                 continue;
             }
-            LuceneDao dao = createHibernateLuceneDao(entityClass.getSimpleName(), (HibernateDao) SpringContextUtil.getBeanByType(clazz));
+            LuceneDao dao = createHibernateLuceneDao(entityClass.getSimpleName(), (JpaRepository) SpringContextUtil.getBeanByType(clazz));
             indexedClasses.add(entityClass);
             DaoCache.getInstance().put(entityClass, dao);
         }
@@ -135,8 +127,8 @@ public class BuguIndex implements ApplicationListener<ContextRefreshedEvent> {
         LOG.debug("Started Lucene in {} ms", watch.getTotalTimeMillis());
     }
 
-    private static LuceneDao createHibernateLuceneDao(String name, HibernateDao hibernateDao) {
-        return SpringContextUtil.registerBeanDefinition(name + "HibernateLuceneDao", HibernateLuceneDao.class, new Object[]{hibernateDao});
+    private static LuceneDao createHibernateLuceneDao(String name, JpaRepository jpaRepository) {
+        return SpringContextUtil.registerBeanDefinition(name + "HibernateLuceneDao", HibernateLuceneDao.class, new Object[]{jpaRepository});
     }
 
     private void rebuild() {
@@ -167,33 +159,33 @@ public class BuguIndex implements ApplicationListener<ContextRefreshedEvent> {
     }
 
     private void closeIndexWriter(IndexWriter writer) {
-        Directory dir = writer.getDirectory();
-        try {
-            writer.commit();
-            writer.close();
-        } catch (IOException ex) {
-            LOG.error("Can not commit and close the lucene index", ex);
-        } finally {
-            try {
-                if ((dir != null) && (IndexWriter.isLocked(dir))) {
-                    IndexWriter.unlock(dir);
-                }
-            } catch (IOException ex) {
-                LOG.error("Can not unlock the lucene index", ex);
-            }
-        }
+//        Directory dir = writer.getDirectory();
+//        try {
+//            writer.commit();
+//            writer.close();
+//        } catch (IOException ex) {
+//            LOG.error("Can not commit and close the lucene index", ex);
+//        } finally {
+//            try {
+//                if ((dir != null) && (IndexWriter.isLocked(dir))) {
+//                    IndexWriter.unlock(dir);
+//                }
+//            } catch (IOException ex) {
+//                LOG.error("Can not unlock the lucene index", ex);
+//            }
+//        }
     }
 
     /**
      * 关闭方法
      */
     public void close() {
-        Map<String, IndexWriter> map = IndexWriterCache.getInstance().getAll();
-        for (IndexWriter writer : map.values()) {
-            if (writer != null) {
-                this.closeIndexWriter(writer);
-            }
-        }
+//        Map<String, IndexWriter> map = IndexWriterCache.getInstance().getAll();
+//        for (IndexWriter writer : map.values()) {
+//            if (writer != null) {
+//                this.closeIndexWriter(writer);
+//            }
+//        }
     }
 
     public Executor getExecutor() {
@@ -210,22 +202,6 @@ public class BuguIndex implements ApplicationListener<ContextRefreshedEvent> {
 
     public void setIndexReopenPeriod(long period) {
         this.period = period;
-    }
-
-    public Version getVersion() {
-        return this.version;
-    }
-
-    public void setVersion(Version version) {
-        this.version = version;
-    }
-
-    public Analyzer getAnalyzer() {
-        return this.analyzer;
-    }
-
-    public void setAnalyzer(Analyzer analyzer) {
-        this.analyzer = ObjectUtil.defaultValue(analyzer, this.analyzer);
     }
 
     public void setDirectoryPath(String directoryPath) {

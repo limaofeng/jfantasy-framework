@@ -25,16 +25,16 @@ public class IndexUpdateTask implements Runnable {
         Class<?> clazz = this.entity.getClass();
         String name = MapperUtil.getEntityName(clazz);
         IndexWriterCache cache = IndexWriterCache.getInstance();
-        IndexWriter writer = cache.get(name);
-        Document doc = new Document();
-        IndexCreator creator = new IndexCreator(this.entity, "");
-        creator.create(doc);
-        Property property = PropertysCache.getInstance().getIdProperty(clazz);
-        Term term = new Term(property.getName(),property.getValue(this.entity).toString());
-        try {
-            writer.updateDocument(term, doc);
-        } catch (IOException ex) {
-            LOGGER.error("IndexWriter can not update the document", ex);
-        }
+//        IndexWriter writer = cache.get(name);
+//        Document doc = new Document();
+//        IndexCreator creator = new IndexCreator(this.entity, "");
+//        creator.create(doc);
+//        Property property = PropertysCache.getInstance().getIdProperty(clazz);
+//        Term term = new Term(property.getName(),property.getValue(this.entity).toString());
+//        try {
+//            writer.updateDocument(term, doc);
+//        } catch (IOException ex) {
+//            LOGGER.error("IndexWriter can not update the document", ex);
+//        }
     }
 }

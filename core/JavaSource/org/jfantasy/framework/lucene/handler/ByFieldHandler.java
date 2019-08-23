@@ -30,8 +30,8 @@ public abstract class ByFieldHandler extends PropertyFieldHandler {
                 }
             }
         }
-        Field f = new org.apache.lucene.document.Field(this.prefix + this.property.getName(), sb.toString(), store ? Field.Store.YES : Field.Store.NO, analyze ? Field.Index.ANALYZED : Field.Index.NOT_ANALYZED);
-        f.setBoost(boost);
-        doc.add(f);
+//        Field f = new org.apache.lucene.document.Field(this.prefix + this.property.getName(), sb.toString(), store ? Field.Store.YES : Field.Store.NO, analyze ? Field.Index.ANALYZED : Field.Index.NOT_ANALYZED);
+//        f.setBoost(boost);
+//        doc.add(f);
     }
 }

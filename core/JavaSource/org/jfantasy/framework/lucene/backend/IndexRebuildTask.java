@@ -32,7 +32,7 @@ public class IndexRebuildTask implements Runnable {
         this.batchSize = batchSize;
         String name = MapperUtil.getEntityName(clazz);
         IndexWriterCache cache = IndexWriterCache.getInstance();
-        this.writer = cache.get(name);
+//        this.writer = cache.get(name);
         if (!rebuildLocks.containsKey(clazz)) {
             rebuildLocks.put(clazz, new ReentrantLock());
         }

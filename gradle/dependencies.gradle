@@ -44,6 +44,11 @@ ext {
                     "commons-fileupload:commons-fileupload:1.2.2",
                     'org.apache.commons:commons-lang3:3.7'
             ],
+            elasticsearch   : [
+                    'org.elasticsearch.client:transport',
+                    'org.elasticsearch.plugin:transport-netty4-client',
+                    'org.elasticsearch:elasticsearch:6.5.4'
+            ],
             'third-party': [
                     "org.projectlombok:lombok:1.18.2",
                     "asm:asm-util:3.3.1",

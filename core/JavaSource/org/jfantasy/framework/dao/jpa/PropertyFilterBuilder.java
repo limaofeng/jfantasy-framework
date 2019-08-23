@@ -1,7 +1,8 @@
 package org.jfantasy.framework.dao.jpa;
 
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
-import org.jfantasy.framework.util.common.ClassUtil;
+import org.jfantasy.framework.dao.hibernate.PropertyFilter.MatchType;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,24 +15,13 @@ import java.util.List;
  */
 public class PropertyFilterBuilder {
 
-    private Class<?> entityClass;
     private List<PropertyFilter> filters = new ArrayList<>();
 
     public PropertyFilterBuilder() {
     }
 
-    public PropertyFilterBuilder(Class<?> entityClass) {
-        this.entityClass = entityClass;
-    }
-
     public List<PropertyFilter> build() {
         return this.filters;
-    }
-
-    private void setPropertyFilterType(PropertyFilter filter, String name) {
-        if (this.entityClass != null) {
-            filter.setPropertyType(ClassUtil.getPropertyType(this.entityClass, name));
-        }
     }
 
     /**
@@ -43,10 +33,7 @@ public class PropertyFilterBuilder {
      * @return
      */
     public <T> PropertyFilterBuilder equal(String name, T value) {
-        PropertyFilter filter = new PropertyFilter("EQ_" + name);
-        setPropertyFilterType(filter, name);
-        filter.setPropertyValue(value);
-        this.filters.add(filter);
+        this.filters.add(new PropertyFilter(MatchType.EQ, name, value));
         return this;
     }
 
@@ -54,10 +41,7 @@ public class PropertyFilterBuilder {
      * 模糊查询
      */
     public PropertyFilterBuilder contains(String name, String value) {
-        PropertyFilter filter = new PropertyFilter("LIKE_" + name);
-        setPropertyFilterType(filter, name);
-        filter.setPropertyValue('%' + value + "%");
-        this.filters.add(filter);
+        this.filters.add(new PropertyFilter(MatchType.LIKE, name, value));
         return this;
     }
 
@@ -65,10 +49,7 @@ public class PropertyFilterBuilder {
      * 小于
      */
     public <T> PropertyFilterBuilder lessThan(String name, T value) {
-        PropertyFilter filter = new PropertyFilter("LT_" + name);
-        setPropertyFilterType(filter, name);
-        filter.setPropertyValue(value);
-        this.filters.add(filter);
+        this.filters.add(new PropertyFilter(MatchType.LT, name, value));
         return this;
     }
 
@@ -76,10 +57,7 @@ public class PropertyFilterBuilder {
      * 大于
      */
     public PropertyFilterBuilder greaterThan(String name, Object value) {
-        PropertyFilter filter = new PropertyFilter("GT_" + name);
-        setPropertyFilterType(filter, name);
-        filter.setPropertyValue(value);
-        this.filters.add(filter);
+        this.filters.add(new PropertyFilter(MatchType.GT, name, value));
         return this;
     }
 
@@ -87,10 +65,7 @@ public class PropertyFilterBuilder {
      * 小于等于
      */
     public PropertyFilterBuilder lessThanOrEqual(String name, Object value) {
-        PropertyFilter filter = new PropertyFilter("LE_" + name);
-        setPropertyFilterType(filter, name);
-        filter.setPropertyValue(value);
-        this.filters.add(filter);
+        this.filters.add(new PropertyFilter(MatchType.LE, name, value));
         return this;
     }
 
@@ -98,10 +73,7 @@ public class PropertyFilterBuilder {
      * 大于等于
      */
     public PropertyFilterBuilder greaterThanOrEqual(String name, Object value) {
-        PropertyFilter filter = new PropertyFilter("GE_" + name);
-        setPropertyFilterType(filter, name);
-        filter.setPropertyValue(value);
-        this.filters.add(filter);
+        this.filters.add(new PropertyFilter(MatchType.GE, name, value));
         return this;
     }
 
@@ -109,10 +81,7 @@ public class PropertyFilterBuilder {
      * in
      */
     public <T> PropertyFilterBuilder in(String name, T... value) {
-        PropertyFilter filter = new PropertyFilter("IN_" + name);
-        setPropertyFilterType(filter, name);
-        filter.setPropertyValue(value);
-        this.filters.add(filter);
+        this.filters.add(new PropertyFilter(MatchType.IN, name, value));
         return this;
     }
 
@@ -120,23 +89,15 @@ public class PropertyFilterBuilder {
      * not in
      */
     public <T> PropertyFilterBuilder notIn(String name, T... value) {
-        PropertyFilter filter = new PropertyFilter("NOTIN_" + name);
-        setPropertyFilterType(filter, name);
-        filter.setPropertyValue(value);
-        this.filters.add(filter);
+        this.filters.add(new PropertyFilter(MatchType.NOTIN, name, value));
         return this;
     }
 
     /**
      * 不等于
      */
-    public PropertyFilterBuilder notEqual(String name, Object... value) {
-        PropertyFilter filter = new PropertyFilter("NE_" + name);
-        if (this.entityClass != null) {
-            filter.setPropertyType(ClassUtil.getPropertyType(this.entityClass, name));
-        }
-        filter.setPropertyValue(value);
-        this.filters.add(filter);
+    public <T> PropertyFilterBuilder notEqual(String name, T value) {
+        this.filters.add(new PropertyFilter(MatchType.NE, name, value));
         return this;
     }
 
@@ -144,7 +105,7 @@ public class PropertyFilterBuilder {
      * is null
      */
     public PropertyFilterBuilder isNull(String name) {
-        this.filters.add(new PropertyFilter("NULL_" + name));
+        this.filters.add(new PropertyFilter(MatchType.NULL, name));
         return this;
     }
 
@@ -152,7 +113,7 @@ public class PropertyFilterBuilder {
      * not null
      */
     public PropertyFilterBuilder isNotNull(String name) {
-        this.filters.add(new PropertyFilter("NOTNULL_" + name));
+        this.filters.add(new PropertyFilter(MatchType.NOTNULL, name));
         return this;
     }
 
@@ -160,7 +121,7 @@ public class PropertyFilterBuilder {
      *
      */
     public PropertyFilterBuilder isEmpty(String name) {
-        this.filters.add(new PropertyFilter("EMPTY_" + name));
+        this.filters.add(new PropertyFilter(MatchType.EMPTY, name));
         return this;
     }
 
@@ -168,21 +129,33 @@ public class PropertyFilterBuilder {
      *
      */
     public PropertyFilterBuilder isNotEmpty(String name) {
-        this.filters.add(new PropertyFilter("NOTEMPTY_" + name));
+        this.filters.add(new PropertyFilter(MatchType.NOTEMPTY, name));
         return this;
     }
 
     public <Y extends Comparable<? super Y>> PropertyFilterBuilder between(String name, Y x, Y y) {
-        PropertyFilter filter = new PropertyFilter("BETWEEN_" + name);
-        if (this.entityClass != null) {
-            filter.setPropertyType(ClassUtil.getPropertyType(this.entityClass, name));
-        }
-        filter.setPropertyValue(new Object[]{x, y});
-        this.filters.add(filter);
+        this.filters.add(new PropertyFilter(MatchType.BETWEEN, name, x, y));
         return this;
     }
 
-    public PropertyFilterBuilder sql(String name) {
+    public PropertyFilterBuilder and(List<PropertyFilter> filters) {
+        this.filters.add(new PropertyFilter(MatchType.AND, filters));
         return this;
     }
+
+    public PropertyFilterBuilder and(Specification specification) {
+        this.filters.add(new PropertyFilter(MatchType.AND, specification));
+        return this;
+    }
+
+    public PropertyFilterBuilder or(List<PropertyFilter> filters) {
+        this.filters.add(new PropertyFilter(MatchType.OR, filters));
+        return this;
+    }
+
+    public PropertyFilterBuilder or(Specification specification) {
+        this.filters.add(new PropertyFilter(MatchType.OR, specification));
+        return this;
+    }
+
 }

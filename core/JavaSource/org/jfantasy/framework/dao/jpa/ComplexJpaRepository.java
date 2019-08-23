@@ -4,11 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.metadata.ClassMetadata;
 import org.jfantasy.framework.dao.BaseBusBusinessEntity;
 import org.jfantasy.framework.dao.Pager;
-import org.jfantasy.framework.dao.hibernate.HibernateDao;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
+import org.jfantasy.framework.dao.hibernate.util.HibernateUtils;
 import org.jfantasy.framework.spring.SpringContextUtil;
 import org.jfantasy.framework.util.common.BeanUtil;
 import org.jfantasy.framework.util.common.ClassUtil;
@@ -18,7 +17,6 @@ import org.jfantasy.framework.util.regexp.RegexpUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
@@ -80,7 +78,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
         if (merge) {
             Class entityClass = this.getDomainClass();
             OgnlUtil ognlUtil = OgnlUtil.getInstance();
-            ID id = HibernateDao.getIdValue(entityClass, entity);
+            ID id = HibernateUtils.getIdValue(entityClass, entity);
             T oldEntity = super.getOne(id);
             if (entity == oldEntity) {
                 return this.save(entity);
@@ -141,7 +139,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
                 ognlUtil.setValue(field.getName(), entity, ognlUtil.getValue(field.getName(), oldEntity));
                 continue;
             }
-            Serializable fkId = HibernateDao.getIdValue(field.getType(), fk);
+            Serializable fkId = HibernateUtils.getIdValue(field.getType(), fk);
             Object fkObj = fkId != null ? getJpaRepository(field.getType()).getOne(fkId) : null;
             ognlUtil.setValue(field.getName(), oldEntity == null ? entity : oldEntity, fkObj);
         }
@@ -161,7 +159,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
             List<Object> objects = (List<Object>) fks;
             List<Object> addObjects = new ArrayList<>();
             for (Object fk : objects) {
-                Serializable fkId = HibernateDao.getIdValue(targetEntityClass, fk);
+                Serializable fkId = HibernateUtils.getIdValue(targetEntityClass, fk);
                 Object fkObj = fkId != null ? getJpaRepository(targetEntityClass).getOne(fkId) : null;
                 if (fkObj != null) {
                     addObjects.add(fkObj);
@@ -186,7 +184,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
                 List<Object> objects = (List<Object>) fks;
                 List<Object> addObjects = new ArrayList<>();
                 for (Object fk : objects) {
-                    Serializable fkId = HibernateDao.getIdValue(targetEntityClass, fk);
+                    Serializable fkId = HibernateUtils.getIdValue(targetEntityClass, fk);
                     Object fkObj = fkId != null ?getJpaRepository(targetEntityClass).getOne(fkId) : null;
                     if (fkObj != null) {
                         addObjects.add(BeanUtil.copyProperties(fkObj, fk));
@@ -201,9 +199,9 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
                 List<Object> oldFks = ognlUtil.getValue(field.getName(), oldEntity);
                 //删除原有数据
                 for (Object odl : oldFks) {
-                    if (ObjectUtil.find(addObjects, this.getIdName(targetEntityClass), HibernateDao.getIdValue(targetEntityClass, odl)) == null) {
+                    if (ObjectUtil.find(addObjects, this.getIdName(targetEntityClass), HibernateUtils.getIdValue(targetEntityClass, odl)) == null) {
                         getJpaRepository(targetEntityClass).delete(odl);
-                        log.debug("删除数据" + HibernateDao.getIdValue(targetEntityClass, odl));
+                        log.debug("删除数据" + HibernateUtils.getIdValue(targetEntityClass, odl));
                     }
                 }
             }

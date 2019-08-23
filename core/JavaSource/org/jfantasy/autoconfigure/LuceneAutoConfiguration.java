@@ -17,9 +17,9 @@ public class LuceneAutoConfiguration {
         PropertiesHelper helper = PropertiesHelper.load("props/lucene.properties");
 
         BuguIndex buguIndex = new BuguIndex();
-        if (StringUtil.isNotBlank(helper.getProperty("indexes.analyzer"))) {
-            buguIndex.setAnalyzer(ClassUtil.newInstance(helper.getProperty("indexes.analyzer")));
-        }
+//        if (StringUtil.isNotBlank(helper.getProperty("indexes.analyzer"))) {
+//            buguIndex.setAnalyzer(ClassUtil.newInstance(helper.getProperty("indexes.analyzer")));
+//        }
         buguIndex.setBasePackage(StringUtil.join(helper.getMergeProperty("indexes.scan.package"), ";"));
         buguIndex.setDirectoryPath(helper.getProperty("indexes.storage.path"));
         buguIndex.setIndexReopenPeriod(helper.getLong("indexes.reopen.reriod", 30000L));

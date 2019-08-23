@@ -30,16 +30,16 @@ public class IndexRemoveTask implements Runnable {
 
     @Override
     public void run() {
-        String name = MapperUtil.getEntityName(this.clazz);
-        IndexWriterCache cache = IndexWriterCache.getInstance();
-        IndexWriter writer = cache.get(name);
-        Term term = new Term(PropertysCache.getInstance().getIdPropertyName(this.clazz), this.id);
-        try {
-            writer.deleteDocuments(term);
-        } catch (CorruptIndexException ex) {
-            LOGGER.error("IndexWriter can not delete a document from the lucene index", ex);
-        } catch (IOException ex) {
-            LOGGER.error("IndexWriter can not delete a document from the lucene index", ex);
-        }
+//        String name = MapperUtil.getEntityName(this.clazz);
+//        IndexWriterCache cache = IndexWriterCache.getInstance();
+//        IndexWriter writer = cache.get(name);
+//        Term term = new Term(PropertysCache.getInstance().getIdPropertyName(this.clazz), this.id);
+//        try {
+//            writer.deleteDocuments(term);
+//        } catch (CorruptIndexException ex) {
+//            LOGGER.error("IndexWriter can not delete a document from the lucene index", ex);
+//        } catch (IOException ex) {
+//            LOGGER.error("IndexWriter can not delete a document from the lucene index", ex);
+//        }
     }
 }

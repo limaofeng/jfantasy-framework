@@ -359,7 +359,6 @@ public class ObjectUtilTest {
 
     @Test
     public void testAnalyze() throws Exception {
-        LOG.debug(ObjectUtil.analyze("上海昊略公司，提供应用软件和服务"));
     }
 
     @Test

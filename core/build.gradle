@@ -3,7 +3,18 @@ description = "主框架 - 框架主体,包含基础的集成框架"
 configurations {
     compile.exclude module: "tomcat-jdbc"
 }
-
+dependencyManagement {
+    dependencies {
+        dependency('org.elasticsearch.client:transport:6.5.4') {
+            exclude 'org.elasticsearch:elasticsearch'
+            exclude 'org.apache.logging.log4j:log4j-core'
+        }
+        dependency('org.elasticsearch.plugin:transport-netty4-client:6.5.4') {
+            exclude 'org.elasticsearch:elasticsearch'
+            exclude 'org.apache.logging.log4j:log4j-core'
+        }
+    }
+}
 dependencies {
     // spring
     compile libs['spring']
@@ -13,8 +24,8 @@ dependencies {
     compile libs['orm']
     // unirest
     compile libs['unirest']
-    // lucene
-    compile libs['lucene']
+    // elasticsearch
+    compile libs['elasticsearch']
     // commons
     compile libs['commons']
     // asm and cglib

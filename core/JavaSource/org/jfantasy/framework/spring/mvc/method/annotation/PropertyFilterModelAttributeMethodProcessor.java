@@ -108,17 +108,17 @@ public class PropertyFilterModelAttributeMethodProcessor extends MethodArgumentR
             String[] values = request.getParameterValues(paramName);
             PropertyFilter.MatchType matchType = PropertyFilter.MatchType.get(paramName);
             assert matchType != null;
-            if (matchType.isNone()) {
-                target.add(new PropertyFilter(paramName));
-            } else if (matchType.isMulti()) {
-                List<String> tValues = new ArrayList<>();
-                for (String val : values) {
-                    tValues.addAll(Arrays.asList(StringUtil.tokenizeToStringArray(val)));
-                }
-                target.add(new PropertyFilter(paramName, tValues.toArray(new String[tValues.size()])));
-            } else if (values.length != 0 && StringUtil.isNotBlank(values[0])) {
-                target.add(new PropertyFilter(paramName, values[0]));
-            }
+//            if (matchType.isNone()) {
+//                target.add(new PropertyFilter(paramName));
+//            } else if (matchType.isMulti()) {
+//                List<String> tValues = new ArrayList<>();
+//                for (String val : values) {
+//                    tValues.addAll(Arrays.asList(StringUtil.tokenizeToStringArray(val)));
+//                }
+//                target.add(new PropertyFilter(paramName, tValues.toArray(new String[tValues.size()])));
+//            } else if (values.length != 0 && StringUtil.isNotBlank(values[0])) {
+//                target.add(new PropertyFilter(paramName, values[0]));
+//            }
         }
     }
 

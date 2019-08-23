@@ -1,6 +1,8 @@
 package org.jfantasy.framework.dao.jpa;
 
+import org.aspectj.weaver.ast.And;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
+import org.jfantasy.framework.dao.hibernate.PropertyFilter.MatchType;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.springframework.data.jpa.domain.Specification;
@@ -11,6 +13,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author limaofeng
@@ -31,11 +34,30 @@ public class PropertyFilterSpecification implements Specification {
     @Override
     public Predicate toPredicate(Root root, CriteriaQuery query, CriteriaBuilder builder) {
         query.distinct(true);
-        List<Predicate> restrictions = new ArrayList<>();
+        Predicate predicate = null;
+        List<Specification> andExpressions = filters.stream().filter(item -> item.getMatchType() == MatchType.AND).map(item -> (Specification) item.getPropertyValue()).collect(Collectors.toList());
+        List<Specification> orExpressions = filters.stream().filter(item -> item.getMatchType() == MatchType.OR).map(item -> (Specification) item.getPropertyValue()).collect(Collectors.toList());
         for (PropertyFilter filter : filters) {
-            restrictions.add(buildPropertyFilterPredicate(root, builder, filter.getPropertyName(), getPropertyValue(filter), filter.getMatchType()));
+            if (filter.getMatchType() == MatchType.AND || filter.getMatchType() == MatchType.OR) {
+                continue;
+            }
+            Predicate condition = buildPropertyFilterPredicate(root, builder, filter.getPropertyName(), getPropertyValue(filter), filter.getMatchType());
+            if (predicate == null) {
+                predicate = condition;
+            } else {
+                predicate = builder.and(predicate, condition);
+            }
         }
-        return builder.and(restrictions.toArray(new Predicate[restrictions.size()]));
+        if (predicate == null) {
+            predicate = builder.and();
+        }
+        for (Specification specification : andExpressions) {
+            predicate = builder.and(predicate, specification.toPredicate(root, query, builder));
+        }
+        for (Specification specification : orExpressions) {
+            predicate = builder.or(predicate, specification.toPredicate(root, query, builder));
+        }
+        return predicate;
     }
 
     public Object getPropertyValue(PropertyFilter filter) {
@@ -48,7 +70,7 @@ public class PropertyFilterSpecification implements Specification {
         Path path = root;
         for (String name : StringUtil.tokenizeToStringArray(propertyName, ".")) {
             Path tmp = path.get(name);
-            if (Collection.class.isAssignableFrom(tmp.getJavaType())) {
+            if (Collection.class.isAssignableFrom(tmp.getJavaType()) && !propertyName.endsWith(name)) {
                 tmp = ((Root) path).join(name, JoinType.LEFT);
             }
             path = tmp;

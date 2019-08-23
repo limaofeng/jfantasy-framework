@@ -1,22 +1,17 @@
 package org.jfantasy.framework.util.common;
 
-import org.jfantasy.framework.dao.mybatis.keygen.GUIDKeyGenerator;
-import org.jfantasy.framework.error.IgnoreException;
-import org.jfantasy.framework.lucene.BuguIndex;
-import org.jfantasy.framework.spring.SpELUtil;
-import org.jfantasy.framework.util.ognl.OgnlUtil;
-import org.jfantasy.framework.util.reflect.Property;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.hibernate.collection.internal.PersistentBag;
+import org.jfantasy.framework.dao.mybatis.keygen.GUIDKeyGenerator;
+import org.jfantasy.framework.error.IgnoreException;
+import org.jfantasy.framework.spring.SpELUtil;
+import org.jfantasy.framework.util.ognl.OgnlUtil;
+import org.jfantasy.framework.util.reflect.Property;
 import org.springframework.expression.Expression;
 
-import java.io.IOException;
 import java.io.Serializable;
-import java.io.StringReader;
 import java.lang.reflect.Array;
 import java.text.Collator;
 import java.util.*;
@@ -25,7 +20,6 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.IntFunction;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -737,19 +731,19 @@ public final class ObjectUtil {
         return array;
     }
 
-    public static List<String> analyze(String text) {
-        List<String> list = new ArrayList<String>();
-        TokenStream tokenStream = BuguIndex.getInstance().getAnalyzer().tokenStream("*", new StringReader(text));
-        CharTermAttribute termAtt = tokenStream.getAttribute(CharTermAttribute.class);
-        try {
-            while (tokenStream.incrementToken()) {
-                list.add(termAtt.toString());
-            }
-        } catch (IOException e) {
-            LOGGER.error(e.getMessage(), e);
-        }
-        return list;
-    }
+//    public static List<String> analyze(String text) {
+//        List<String> list = new ArrayList<String>();
+//        TokenStream tokenStream = BuguIndex.getInstance().getAnalyzer().tokenStream("*", new StringReader(text));
+//        CharTermAttribute termAtt = tokenStream.getAttribute(CharTermAttribute.class);
+//        try {
+//            while (tokenStream.incrementToken()) {
+//                list.add(termAtt.toString());
+//            }
+//        } catch (IOException e) {
+//            LOGGER.error(e.getMessage(), e);
+//        }
+//        return list;
+//    }
 
     private static class CustomSortOrderComparator implements Comparator<Object>, Serializable {
 
