@@ -17,26 +17,20 @@ build:
 
 sonarqube:
   stage: test
-  image: limaofeng/gradle-alpine:mysql
-  services:
-  - mysql:latest
+  image: ciricihq/gitlab-sonar-scanner
   variables:
-    MYSQL_ROOT_PASSWORD: 123456
-    DATABASE_HOST: mysql
-    DATABASE_USERNAME: root
-    DATABASE_PASSWORD: 123456
-  before_script:
-  - export GRADLE_USER_HOME=$PWD/.gradle
+    SONAR_ANALYSIS_MODE: publish
+    SONAR_PROJECT_KEY: $CI_PROJECT_NAMESPACE:$CI_PROJECT_NAME
   script:
-  - mysql -h mysql -u root -p123456 < "core/database/tables.sql"
-  - ./gradlew sonarqube -Dsonar.host.url=$SONAR_HOST \
-    -Dsonar.login=$SONAR_TOKEN -Dsonar.scm.provider=git \
-    -Dsonar.analysis.mode=publish -Dsonar.issuesReport.console.enable=true \
-    -Dsonar.verbose=true
+    - gitlab-sonar-scanner
   cache:
     paths:
-    - .gradle/caches/
-    - .gradle/wrapper/
+      - node_modules/
+      - yarn.lock
+  only:
+    - master
+    - develop
+  allow_failure: true
 
 deploy:
   stage: deploy
