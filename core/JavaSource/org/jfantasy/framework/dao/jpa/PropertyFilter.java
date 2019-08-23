@@ -45,6 +45,25 @@ public class PropertyFilter {
         this.propertyValue = value;
     }
 
+    @Deprecated
+    public <T> PropertyFilter(String filterName) {
+        String errorTemplate = "filter名称 %s 没有按规则编写,无法得到属性比较类型.";
+        String matchTypeStr = StringUtils.substringBefore(filterName, "_");
+        this.matchType = MatchType.get(matchTypeStr);
+        Assert.notNull(this.matchType, String.format(errorTemplate, filterName));
+        this.propertyName = StringUtils.substringAfter(filterName, "_");
+    }
+
+    @Deprecated
+    public <T> PropertyFilter(String filterName, T... value) {
+        String errorTemplate = "filter名称 %s 没有按规则编写,无法得到属性比较类型.";
+        String matchTypeStr = StringUtils.substringBefore(filterName, "_");
+        this.matchType = MatchType.get(matchTypeStr);
+        Assert.notNull(this.matchType, String.format(errorTemplate, filterName));
+        this.propertyName = StringUtils.substringAfter(filterName, "_");
+        this.propertyValue = value;
+    }
+
     protected <T> PropertyFilter(MatchType matchType, String propertyName) {
         this.initialize(matchType, propertyName);
     }
