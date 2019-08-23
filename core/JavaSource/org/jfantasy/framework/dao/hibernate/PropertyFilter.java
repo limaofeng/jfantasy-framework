@@ -14,7 +14,6 @@ import java.util.Arrays;
  *
  * @author limaofeng
  */
-@Data
 public class PropertyFilter {
 
     /**
@@ -45,24 +44,16 @@ public class PropertyFilter {
 
     public <T> PropertyFilter(MatchType matchType, String propertyName, T value) {
         this.initialize(matchType, propertyName);
-        this.setPropertyValue(value);
+        this.propertyValue = value;
     }
 
     public <T> PropertyFilter(MatchType matchType, String propertyName, T... value) {
         this.initialize(matchType, propertyName);
-        this.setPropertyValue(value);
+        this.propertyValue = value;
     }
 
     public static PropertyFilterBuilder builder() {
         return new PropertyFilterBuilder();
-    }
-
-    private <T> void setPropertyValue(T... value) {
-        boolean multiple = Arrays.stream(new MatchType[]{MatchType.IN, MatchType.NOTIN}).anyMatch(type -> type == this.matchType);
-        if (!multiple && value.length > 1) {
-            throw new IgnoreException("有多个条件时,查询条件必须为 in 或者 not in ");
-        }
-        this.propertyValue = value;
     }
 
     private void initialize(MatchType matchType, String propertyName) {
@@ -102,6 +93,10 @@ public class PropertyFilter {
 
     public boolean isExpression() {
         return isPropertyFilter() || isSpecification();
+    }
+
+    public MatchType getMatchType() {
+        return this.matchType;
     }
 
     public enum MatchType {

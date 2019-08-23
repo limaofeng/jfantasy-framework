@@ -1,6 +1,5 @@
 package org.jfantasy.framework.dao.jpa;
 
-import org.aspectj.weaver.ast.And;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.dao.hibernate.PropertyFilter.MatchType;
 import org.jfantasy.framework.util.common.ClassUtil;
@@ -10,7 +9,6 @@ import org.springframework.util.Assert;
 
 import javax.persistence.criteria.*;
 import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,12 +29,13 @@ public class PropertyFilterSpecification implements Specification {
         this.filters = filters;
     }
 
+
     @Override
     public Predicate toPredicate(Root root, CriteriaQuery query, CriteriaBuilder builder) {
         query.distinct(true);
         Predicate predicate = null;
-        List<Specification> andExpressions = filters.stream().filter(item -> item.getMatchType() == MatchType.AND).map(item -> (Specification) item.getPropertyValue()).collect(Collectors.toList());
-        List<Specification> orExpressions = filters.stream().filter(item -> item.getMatchType() == MatchType.OR).map(item -> (Specification) item.getPropertyValue()).collect(Collectors.toList());
+        List<Specification> andExpressions = conjunction(MatchType.AND);
+        List<Specification> orExpressions = conjunction(MatchType.OR);
         for (PropertyFilter filter : filters) {
             if (filter.getMatchType() == MatchType.AND || filter.getMatchType() == MatchType.OR) {
                 continue;
@@ -58,6 +57,15 @@ public class PropertyFilterSpecification implements Specification {
             predicate = builder.or(predicate, specification.toPredicate(root, query, builder));
         }
         return predicate;
+    }
+
+    private List<Specification> conjunction(MatchType matchType) {
+        return filters.stream().filter(item -> item.getMatchType() == matchType).map(item -> {
+            if (item.isSpecification()) {
+                return (Specification) item.getPropertyValue();
+            }
+            return new PropertyFilterSpecification(this.entityClass, item.getPropertyValue());
+        }).collect(Collectors.toList());
     }
 
     public Object getPropertyValue(PropertyFilter filter) {
