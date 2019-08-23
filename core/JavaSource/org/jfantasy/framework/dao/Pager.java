@@ -15,6 +15,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 /**
@@ -136,13 +137,10 @@ public class Pager<T> implements Serializable {
         if (!this.isOrderBySetted()) {
             return Sort.unsorted();
         }
-        List<Sort.Order> sort = new ArrayList<>();
-        String[] bys = StringUtil.tokenizeToStringArray(getOrderBy().getBy());
-        String[] orders = StringUtil.tokenizeToStringArray(getOrderBy().getOrder());
-        for (int i = 0; i < orders.length; i++) {
-            sort.add(new Sort.Order(Pager.SORT_ASC.equals(orders[i]) ? Sort.Direction.ASC : Sort.Direction.DESC, bys[i]));
+        if (getOrderBy().isMulti()) {
+            return Sort.by(getOrderBy().getOrders().stream().map(item -> new Sort.Order(Sort.Direction.valueOf(item.getDirection().name()), item.getProperty())).collect(Collectors.toList()));
         }
-        return Sort.by(sort);
+        return Sort.by(new Sort.Order(Sort.Direction.valueOf(getOrderBy().getDirection().name()), getOrderBy().getProperty()));
     }
 
     /**
@@ -239,8 +237,8 @@ public class Pager<T> implements Serializable {
         }
     }
 
-    public void sort(String orderBy, String order) {
-        this.orderBy = OrderBy.builder().by(orderBy).order(order).build();
+    public void sort(String property, OrderBy.Direction direction) {
+        this.orderBy = OrderBy.newOrderBy(property, direction);
     }
 
     public void reset(List<T> items) {

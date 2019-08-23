@@ -28,43 +28,47 @@ public class PropertyFilterSpecification implements Specification {
         this.filters = filters;
     }
 
-
     @Override
     public Predicate toPredicate(Root root, CriteriaQuery query, CriteriaBuilder builder) {
         query.distinct(true);
-        Predicate predicate = null;
-        List<Specification> andExpressions = conjunction(MatchType.AND);
-        List<Specification> orExpressions = conjunction(MatchType.OR);
+        List<Predicate> andPredicates = this.getPredicates(MatchType.AND, root, query, builder);
+        List<Predicate> orPredicates = this.getPredicates(MatchType.OR, root, query, builder);
+
+        Predicate rootPredicate = null;
         for (PropertyFilter filter : filters) {
             if (filter.getMatchType() == MatchType.AND || filter.getMatchType() == MatchType.OR) {
                 continue;
             }
             Predicate condition = buildPropertyFilterPredicate(root, builder, filter.getPropertyName(), getPropertyValue(filter), filter.getMatchType());
-            if (predicate == null) {
-                predicate = condition;
-            } else {
-                predicate = builder.and(predicate, condition);
-            }
+            rootPredicate = this.conjunction(MatchType.AND, builder, rootPredicate, condition);
         }
-        if (predicate == null) {
-            predicate = builder.and();
-        }
-        for (Specification specification : andExpressions) {
-            predicate = builder.and(predicate, specification.toPredicate(root, query, builder));
-        }
-        for (Specification specification : orExpressions) {
-            predicate = builder.or(predicate, specification.toPredicate(root, query, builder));
-        }
-        return predicate;
+
+        rootPredicate = this.conjunction(MatchType.AND, builder, rootPredicate, andPredicates);
+        rootPredicate = this.conjunction(MatchType.OR, builder, rootPredicate, orPredicates);
+        return rootPredicate;
     }
 
-    private List<Specification> conjunction(MatchType matchType) {
+    private List<Predicate> getPredicates(MatchType matchType, Root root, CriteriaQuery query, CriteriaBuilder builder) {
         return filters.stream().filter(item -> item.getMatchType() == matchType).map(item -> {
             if (item.isSpecification()) {
                 return (Specification) item.getPropertyValue();
             }
             return new PropertyFilterSpecification(this.entityClass, item.getPropertyValue());
-        }).collect(Collectors.toList());
+        }).map(item -> item.toPredicate(root, query, builder)).collect(Collectors.toList());
+    }
+
+    private Predicate conjunction(MatchType matchType, CriteriaBuilder builder, Predicate x, Predicate y) {
+        if (x == null) {
+            return y;
+        }
+        return matchType == MatchType.AND ? builder.and(x, y) : builder.or(x, y);
+    }
+
+    private Predicate conjunction(MatchType matchType, CriteriaBuilder builder, Predicate x, List<Predicate> predicates) {
+        for (Predicate y : predicates) {
+            x = this.conjunction(matchType, builder, x, y);
+        }
+        return x;
     }
 
     public Object getPropertyValue(PropertyFilter filter) {

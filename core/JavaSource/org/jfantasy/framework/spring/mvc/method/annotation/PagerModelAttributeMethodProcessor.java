@@ -78,7 +78,7 @@ public class PagerModelAttributeMethodProcessor extends MethodArgumentResolver {
                 target.setPageSize(Integer.valueOf(value));
             } else if ("order_by".equalsIgnoreCase(paramName)) {
                 String[] sort = value.split("_");
-                target.setOrderBy(OrderBy.builder().by(sort[0]).order(sort[1]).build());
+                target.setOrderBy(OrderBy.newOrderBy(sort[0], OrderBy.Direction.valueOf(sort[1])));
             }
         }
     }
