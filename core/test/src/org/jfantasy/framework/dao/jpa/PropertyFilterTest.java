@@ -1,8 +1,7 @@
-package org.jfantasy.framework.dao.hibernate;
+package org.jfantasy.framework.dao.jpa;
 
+import org.jfantasy.framework.dao.jpa.PropertyFilter;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 public class PropertyFilterTest {
 

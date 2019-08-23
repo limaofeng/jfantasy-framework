@@ -1,13 +1,10 @@
-package org.jfantasy.framework.dao.hibernate;
+package org.jfantasy.framework.dao.jpa;
 
-import lombok.Data;
-import org.jfantasy.framework.dao.jpa.PropertyFilterBuilder;
-import org.jfantasy.framework.error.IgnoreException;
+import org.apache.commons.lang3.StringUtils;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.regexp.RegexpUtil;
 import org.springframework.data.jpa.domain.Specification;
-
-import java.util.Arrays;
+import org.springframework.util.Assert;
 
 /**
  * 通用过滤器
@@ -33,21 +30,31 @@ public class PropertyFilter {
      */
     private MatchType matchType;
 
-    public <T> PropertyFilter(MatchType matchType, T value) {
+    protected <T> PropertyFilter(MatchType matchType, T value) {
         this.matchType = matchType;
         this.propertyValue = value;
     }
 
-    public <T> PropertyFilter(MatchType matchType, String propertyName) {
+    @Deprecated
+    public <T> PropertyFilter(String filterName, T value) {
+        String errorTemplate = "filter名称 %s 没有按规则编写,无法得到属性比较类型.";
+        String matchTypeStr = StringUtils.substringBefore(filterName, "_");
+        this.matchType = MatchType.get(matchTypeStr);
+        Assert.notNull(this.matchType, String.format(errorTemplate, filterName));
+        this.propertyName = StringUtils.substringAfter(filterName, "_");
+        this.propertyValue = value;
+    }
+
+    protected <T> PropertyFilter(MatchType matchType, String propertyName) {
         this.initialize(matchType, propertyName);
     }
 
-    public <T> PropertyFilter(MatchType matchType, String propertyName, T value) {
+    protected <T> PropertyFilter(MatchType matchType, String propertyName, T value) {
         this.initialize(matchType, propertyName);
         this.propertyValue = value;
     }
 
-    public <T> PropertyFilter(MatchType matchType, String propertyName, T... value) {
+    protected <T> PropertyFilter(MatchType matchType, String propertyName, T... value) {
         this.initialize(matchType, propertyName);
         this.propertyValue = value;
     }

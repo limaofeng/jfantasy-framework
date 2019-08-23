@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.dao.BaseBusBusinessEntity;
 import org.jfantasy.framework.dao.Pager;
-import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.jfantasy.framework.dao.hibernate.util.HibernateUtils;
 import org.jfantasy.framework.spring.SpringContextUtil;
 import org.jfantasy.framework.util.common.BeanUtil;

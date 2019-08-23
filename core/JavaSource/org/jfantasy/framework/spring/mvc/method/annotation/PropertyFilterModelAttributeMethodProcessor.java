@@ -1,6 +1,6 @@
 package org.jfantasy.framework.spring.mvc.method.annotation;
 
-import org.jfantasy.framework.dao.hibernate.PropertyFilter;
+import org.jfantasy.framework.dao.jpa.PropertyFilter;
 import org.jfantasy.framework.error.IgnoreException;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;

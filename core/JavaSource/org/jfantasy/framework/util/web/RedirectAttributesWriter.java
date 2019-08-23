@@ -1,6 +1,6 @@
 package org.jfantasy.framework.util.web;
 
-import org.jfantasy.framework.dao.hibernate.PropertyFilter;
+import org.jfantasy.framework.dao.jpa.PropertyFilter;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;

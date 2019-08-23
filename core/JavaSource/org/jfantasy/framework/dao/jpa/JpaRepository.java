@@ -1,7 +1,6 @@
 package org.jfantasy.framework.dao.jpa;
 
 import org.jfantasy.framework.dao.Pager;
-import org.jfantasy.framework.dao.hibernate.PropertyFilter;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;

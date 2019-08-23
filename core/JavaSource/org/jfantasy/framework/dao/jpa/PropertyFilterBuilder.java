@@ -1,7 +1,6 @@
 package org.jfantasy.framework.dao.jpa;
 
-import org.jfantasy.framework.dao.hibernate.PropertyFilter;
-import org.jfantasy.framework.dao.hibernate.PropertyFilter.MatchType;
+import org.jfantasy.framework.dao.jpa.PropertyFilter.MatchType;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.ArrayList;
