@@ -102,6 +102,12 @@ public class Pager<T> implements Serializable {
         this.pageItems = items;
     }
 
+    public Pager(int currentPage, int pageSize, OrderBy orderBy) {
+        this.currentPage = currentPage;
+        this.pageSize = pageSize;
+        this.orderBy = orderBy;
+    }
+
     /**
      * 获取总页码
      *
