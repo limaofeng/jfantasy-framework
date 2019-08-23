@@ -6,6 +6,7 @@ configurations {
 
 dependencies {
     compile project(":jfantasy-core")
+    compile project(":jfantasy-storage")
     compile 'com.graphql-java:graphql-java-extended-scalars:1.0'
     compile 'com.graphql-java-kickstart:graphql-spring-boot-starter:5.7.3'
     compileOnly 'org.projectlombok:lombok:1.18.6'

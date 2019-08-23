@@ -25,8 +25,6 @@ import java.util.stream.Collectors;
  * @author limaofeng
  */
 @Alias("Pager")
-@Builder(builderMethodName = "newPager")
-@AllArgsConstructor
 @JsonIgnoreProperties(value = {"orders", "first", "order_by_setted"})
 public class Pager<T> implements Serializable {
 
