@@ -8,9 +8,9 @@ import org.springframework.util.Assert;
 
 import javax.persistence.criteria.*;
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author limaofeng
@@ -20,10 +20,18 @@ import java.util.stream.Collectors;
  */
 public class PropertyFilterSpecification implements Specification {
 
+    private final MatchType matchType;
     private List<PropertyFilter> filters;
     private Class<?> entityClass;
 
     public PropertyFilterSpecification(Class<?> entityClass, List<PropertyFilter> filters) {
+        this.matchType = MatchType.AND;
+        this.entityClass = entityClass;
+        this.filters = filters;
+    }
+
+    private PropertyFilterSpecification(MatchType matchType, Class<?> entityClass, List<PropertyFilter> filters) {
+        this.matchType = matchType;
         this.entityClass = entityClass;
         this.filters = filters;
     }
@@ -31,30 +39,20 @@ public class PropertyFilterSpecification implements Specification {
     @Override
     public Predicate toPredicate(Root root, CriteriaQuery query, CriteriaBuilder builder) {
         query.distinct(true);
-        List<Predicate> andPredicates = this.getPredicates(MatchType.AND, root, query, builder);
-        List<Predicate> orPredicates = this.getPredicates(MatchType.OR, root, query, builder);
 
-        Predicate rootPredicate = null;
+        List<Predicate> predicates = new ArrayList<>();
         for (PropertyFilter filter : filters) {
             if (filter.getMatchType() == MatchType.AND || filter.getMatchType() == MatchType.OR) {
-                continue;
+                join(predicates, buildPropertyFilterPredicate(filter, root, query, builder));
+            } else {
+                join(predicates, buildPropertyFilterPredicate(root, builder, filter.getPropertyName(), getPropertyValue(filter), filter.getMatchType()));
             }
-            Predicate condition = buildPropertyFilterPredicate(root, builder, filter.getPropertyName(), getPropertyValue(filter), filter.getMatchType());
-            rootPredicate = this.conjunction(MatchType.AND, builder, rootPredicate, condition);
         }
 
-        rootPredicate = this.conjunction(MatchType.AND, builder, rootPredicate, andPredicates);
-        rootPredicate = this.conjunction(MatchType.OR, builder, rootPredicate, orPredicates);
-        return rootPredicate;
-    }
-
-    private List<Predicate> getPredicates(MatchType matchType, Root root, CriteriaQuery query, CriteriaBuilder builder) {
-        return filters.stream().filter(item -> item.getMatchType() == matchType).map(item -> {
-            if (item.isSpecification()) {
-                return (Specification) item.getPropertyValue();
-            }
-            return new PropertyFilterSpecification(this.entityClass, item.getPropertyValue());
-        }).map(item -> item.toPredicate(root, query, builder)).collect(Collectors.toList());
+        if (this.matchType == MatchType.AND) {
+            return builder.and(predicates.stream().toArray(size -> new Predicate[size]));
+        }
+        return builder.or(predicates.stream().toArray(size -> new Predicate[size]));
     }
 
     private Predicate conjunction(MatchType matchType, CriteriaBuilder builder, Predicate x, Predicate y) {
@@ -64,11 +62,22 @@ public class PropertyFilterSpecification implements Specification {
         return matchType == MatchType.AND ? builder.and(x, y) : builder.or(x, y);
     }
 
-    private Predicate conjunction(MatchType matchType, CriteriaBuilder builder, Predicate x, List<Predicate> predicates) {
-        for (Predicate y : predicates) {
-            x = this.conjunction(matchType, builder, x, y);
+    private Predicate buildPropertyFilterPredicate(PropertyFilter filter, Root root, CriteriaQuery query, CriteriaBuilder builder) {
+        Specification specification;
+        if (filter.isSpecification()) {
+            specification = filter.getPropertyValue();
+        } else {
+            specification = new PropertyFilterSpecification(filter.getMatchType(), this.entityClass, filter.getPropertyValue());
         }
-        return x;
+        return specification.toPredicate(root, query, builder);
+    }
+
+    private List<Predicate> join(List<Predicate> predicates, Predicate y) {
+        if (y == null) {
+            return predicates;
+        }
+        predicates.add(y);
+        return predicates;
     }
 
     public Object getPropertyValue(PropertyFilter filter) {
@@ -99,15 +108,21 @@ public class PropertyFilterSpecification implements Specification {
         } else if (PropertyFilter.MatchType.GT.equals(matchType)) {
             return builder.greaterThan(path, (Comparable) propertyValue);
         } else if (PropertyFilter.MatchType.IN.equals(matchType)) {
-            if (Array.getLength(propertyValue) == 0) {
-                return null;
+            if (ClassUtil.isArray(propertyValue)) {
+                return path.in((Object[]) propertyValue);
             }
-            return path.in((Object[]) propertyValue);
+            if (ClassUtil.isList(propertyValue)) {
+                return path.in((Collection<?>) propertyValue);
+            }
+            return path.in(propertyValue);
         } else if (PropertyFilter.MatchType.NOTIN.equals(matchType)) {
-            if (Array.getLength(propertyValue) == 0) {
-                return null;
+            if (ClassUtil.isArray(propertyValue)) {
+                return builder.not(path.in((Object[]) propertyValue));
             }
-            return builder.not(path.in((Object[]) propertyValue));
+            if (ClassUtil.isList(propertyValue)) {
+                return builder.not(path.in((Collection<?>) propertyValue));
+            }
+            return builder.not(path.in(propertyValue));
         } else if (PropertyFilter.MatchType.NE.equals(matchType)) {
             return builder.notEqual(path, propertyValue);
         } else if (PropertyFilter.MatchType.NULL.equals(matchType)) {

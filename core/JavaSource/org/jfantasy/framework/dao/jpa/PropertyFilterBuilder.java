@@ -40,23 +40,7 @@ public class PropertyFilterBuilder {
      * 模糊查询
      */
     public PropertyFilterBuilder contains(String name, String value) {
-        this.filters.add(new PropertyFilter(MatchType.LIKE, name, "%" + value + "%"));
-        return this;
-    }
-
-    /**
-     * 模糊查询 - 匹配开始
-     */
-    public PropertyFilterBuilder startsWith(String name, String value) {
-        this.filters.add(new PropertyFilter(MatchType.LIKE, name, value + "%"));
-        return this;
-    }
-
-    /**
-     * 模糊查询 - 匹配结尾
-     */
-    public PropertyFilterBuilder endsWith(String name, String value) {
-        this.filters.add(new PropertyFilter(MatchType.LIKE, name, "%" + value));
+        this.filters.add(new PropertyFilter(MatchType.LIKE, name, value));
         return this;
     }
 
@@ -96,6 +80,18 @@ public class PropertyFilterBuilder {
      * in
      */
     public <T> PropertyFilterBuilder in(String name, T... value) {
+        this.filters.add(new PropertyFilter(MatchType.IN, name, value));
+        return this;
+    }
+
+    /**
+     *
+     * @param name
+     * @param value
+     * @param <T>
+     * @return
+     */
+    public <T> PropertyFilterBuilder in(String name, List<T> value) {
         this.filters.add(new PropertyFilter(MatchType.IN, name, value));
         return this;
     }
@@ -153,6 +149,11 @@ public class PropertyFilterBuilder {
         return this;
     }
 
+    public PropertyFilterBuilder and(PropertyFilterBuilder builder) {
+        this.filters.add(new PropertyFilter(MatchType.AND, builder.build()));
+        return this;
+    }
+
     public PropertyFilterBuilder and(List<PropertyFilter> filters) {
         this.filters.add(new PropertyFilter(MatchType.AND, filters));
         return this;
@@ -165,6 +166,11 @@ public class PropertyFilterBuilder {
 
     public PropertyFilterBuilder or(List<PropertyFilter> filters) {
         this.filters.add(new PropertyFilter(MatchType.OR, filters));
+        return this;
+    }
+
+    public PropertyFilterBuilder or(PropertyFilterBuilder builder) {
+        this.filters.add(new PropertyFilter(MatchType.OR, builder.build()));
         return this;
     }
 
