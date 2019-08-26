@@ -10,11 +10,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.dao.OrderBy;
 import org.jfantasy.framework.dao.hibernate.util.ReflectionUtils;
 import org.jfantasy.framework.util.common.DateUtil;
+import org.jfantasy.storage.FileObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
-import javax.tools.FileObject;
 import java.util.Date;
 
 import static org.jfantasy.graphql.util.Kit.typeName;
