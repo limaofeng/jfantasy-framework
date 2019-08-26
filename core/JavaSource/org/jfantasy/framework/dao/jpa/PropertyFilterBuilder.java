@@ -40,7 +40,23 @@ public class PropertyFilterBuilder {
      * 模糊查询
      */
     public PropertyFilterBuilder contains(String name, String value) {
-        this.filters.add(new PropertyFilter(MatchType.LIKE, name, value));
+        this.filters.add(new PropertyFilter(MatchType.LIKE, name, "%" + value + "%"));
+        return this;
+    }
+
+    /**
+     * 模糊查询 - 匹配开始
+     */
+    public PropertyFilterBuilder startsWith(String name, String value) {
+        this.filters.add(new PropertyFilter(MatchType.LIKE, name, value + "%"));
+        return this;
+    }
+
+    /**
+     * 模糊查询 - 匹配结尾
+     */
+    public PropertyFilterBuilder endsWith(String name, String value) {
+        this.filters.add(new PropertyFilter(MatchType.LIKE, name, "%" + value));
         return this;
     }
 
