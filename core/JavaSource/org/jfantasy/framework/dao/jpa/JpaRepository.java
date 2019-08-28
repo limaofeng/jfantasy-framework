@@ -8,6 +8,7 @@ import org.springframework.data.repository.NoRepositoryBean;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author limaofeng
@@ -21,6 +22,8 @@ public interface JpaRepository<T, PK extends Serializable> extends org.springfra
     List<T> findAll(List<PropertyFilter> filters);
 
     List<T> findAll(List<PropertyFilter> filters, Sort sort);
+
+    Optional<T> findOne(List<PropertyFilter> filters);
 
     /**
      * 分页查询

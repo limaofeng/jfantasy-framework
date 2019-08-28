@@ -54,6 +54,11 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
     }
 
     @Override
+    public Optional<T> findOne(List<PropertyFilter> filters) {
+        return this.findOne(new PropertyFilterSpecification(this.getDomainClass(), filters));
+    }
+
+    @Override
     public List<T> findAll(List<PropertyFilter> filters, Sort sort) {
         return this.findAll(new PropertyFilterSpecification(this.getDomainClass(), filters), sort);
     }
