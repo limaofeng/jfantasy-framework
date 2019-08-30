@@ -59,6 +59,12 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
     }
 
     @Override
+    public long count(List<PropertyFilter> filters) {
+        return this.count(new PropertyFilterSpecification(this.getDomainClass(), filters));
+    }
+
+
+    @Override
     public List<T> findAll(List<PropertyFilter> filters, Sort sort) {
         return this.findAll(new PropertyFilterSpecification(this.getDomainClass(), filters), sort);
     }
@@ -104,7 +110,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
         this.cleanManyToMany(entity, oldEntity, ClassUtil.getDeclaredFields(entityClass, ManyToMany.class), ognlUtil);
         // 一对多关联关系的表
         this.cleanOneToMany(entity, oldEntity, ClassUtil.getDeclaredFields(entityClass, OneToMany.class), ognlUtil);
-        return (O)oldEntity;
+        return (O) oldEntity;
     }
 
 
@@ -189,7 +195,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
                 List<Object> addObjects = new ArrayList<>();
                 for (Object fk : objects) {
                     Serializable fkId = HibernateUtils.getIdValue(targetEntityClass, fk);
-                    Object fkObj = fkId != null ?getJpaRepository(targetEntityClass).getOne(fkId) : null;
+                    Object fkObj = fkId != null ? getJpaRepository(targetEntityClass).getOne(fkId) : null;
                     if (fkObj != null) {
                         addObjects.add(BeanUtil.copyProperties(fkObj, fk));
                     } else {
@@ -211,6 +217,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
             }
         }
     }
+
     public String getIdName(Class entityClass) {
         JpaRepository repository = getJpaRepository(entityClass);
         JpaEntityInformation<T, ?> entityInformation = ClassUtil.getFieldValue(repository, repository.getClass(), "entityInformation");

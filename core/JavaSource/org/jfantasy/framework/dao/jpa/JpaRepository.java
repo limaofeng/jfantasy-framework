@@ -25,6 +25,8 @@ public interface JpaRepository<T, PK extends Serializable> extends org.springfra
 
     Optional<T> findOne(List<PropertyFilter> filters);
 
+    long count(List<PropertyFilter> filters);
+
     /**
      * 分页查询
      *
