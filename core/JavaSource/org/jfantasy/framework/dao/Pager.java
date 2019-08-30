@@ -135,10 +135,7 @@ public class Pager<T> implements Serializable {
         if (!this.isOrderBySetted()) {
             return Sort.unsorted();
         }
-        if (getOrderBy().isMulti()) {
-            return Sort.by(getOrderBy().getOrders().stream().map(item -> new Sort.Order(Sort.Direction.valueOf(item.getDirection().name()), item.getProperty())).collect(Collectors.toList()));
-        }
-        return Sort.by(new Sort.Order(Sort.Direction.valueOf(getOrderBy().getDirection().name()), getOrderBy().getProperty()));
+        return this.orderBy.toSort();
     }
 
     /**

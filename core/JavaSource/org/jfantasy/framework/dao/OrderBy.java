@@ -1,6 +1,7 @@
 package org.jfantasy.framework.dao;
 
 import lombok.Data;
+import org.springframework.data.domain.Sort;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -52,6 +53,13 @@ public class OrderBy {
 
     public static OrderBy by(List<OrderBy> orders) {
         return orders.isEmpty() ? OrderBy.unsorted() : new OrderBy(orders);
+    }
+
+    public Sort toSort() {
+        if (this.isMulti()) {
+            return Sort.by(this.getOrders().stream().map(item -> new Sort.Order(Sort.Direction.valueOf(item.getDirection().name()), item.getProperty())).collect(Collectors.toList()));
+        }
+        return Sort.by(new Sort.Order(Sort.Direction.valueOf(this.getDirection().name()), this.getProperty()));
     }
 
     @Override
