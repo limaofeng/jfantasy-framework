@@ -40,9 +40,20 @@ public class PropertyFilterBuilder {
      * 模糊查询
      */
     public PropertyFilterBuilder contains(String name, String value) {
-        this.filters.add(new PropertyFilter(MatchType.LIKE, name, value));
+        this.filters.add(new PropertyFilter(MatchType.LIKE, name, "%" + value + "%"));
         return this;
     }
+
+    public PropertyFilterBuilder startsWith(String name, String value) {
+        this.filters.add(new PropertyFilter(MatchType.LIKE, name, value + "%"));
+        return this;
+    }
+
+    public PropertyFilterBuilder endsWith(String name, String value) {
+        this.filters.add(new PropertyFilter(MatchType.LIKE, name, "%" + value));
+        return this;
+    }
+
 
     /**
      * 小于
@@ -85,7 +96,6 @@ public class PropertyFilterBuilder {
     }
 
     /**
-     *
      * @param name
      * @param value
      * @param <T>
