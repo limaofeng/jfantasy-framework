@@ -16,6 +16,7 @@ import org.springframework.context.annotation.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
@@ -72,6 +73,12 @@ public class DaoConfig {
     private static <T> T createListenerInstance(T bean) {
         SpringContextUtil.getApplicationContext().getAutowireCapableBeanFactory().autowireBean(bean);
         return bean;
+    }
+
+    @Primary
+    @Bean(name = "transactionManager")
+    public PlatformTransactionManager jpaTransactionManager() {
+        return new JpaTransactionManager(entityManagerFactory);
     }
 
     @Bean(name = "dataSourceTransactionManager")
