@@ -8,9 +8,7 @@ import org.springframework.util.Assert;
 
 import javax.persistence.criteria.*;
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author limaofeng
@@ -88,13 +86,15 @@ public class PropertyFilterSpecification implements Specification {
         Assert.hasText(propertyName, "propertyName不能为空");
 
         Path path = root;
-        for (String name : StringUtil.tokenizeToStringArray(propertyName, ".")) {
+        String[] propertyNames = StringUtil.tokenizeToStringArray(propertyName, ".");
+        for (String name : propertyNames) {
             Path tmp = path.get(name);
-            if (Collection.class.isAssignableFrom(tmp.getJavaType()) && !propertyName.endsWith(name)) {
-                tmp = ((Root) path).join(name, JoinType.LEFT);
+            if (!ClassUtil.isBasicType(tmp.getJavaType())) {
+                tmp = ((From) path).join(name, JoinType.LEFT);
             }
             path = tmp;
         }
+
         if (PropertyFilter.MatchType.EQ.equals(matchType)) {
             return builder.equal(path, propertyValue);
         } else if (PropertyFilter.MatchType.LIKE.equals(matchType)) {
