@@ -1,22 +1,25 @@
-package org.jfantasy.graphql.scalarTypes;
+//
+// Source code recreated from a .class file by IntelliJ IDEA
+// (powered by Fernflower decompiler)
+//
+
+package org.jfantasy.graphql.scalars;
 
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import graphql.language.IntValue;
 import graphql.language.StringValue;
 import graphql.scalars.object.JsonScalar;
 import graphql.schema.*;
 import lombok.extern.slf4j.Slf4j;
-import org.jfantasy.framework.dao.OrderBy;
 import org.jfantasy.framework.dao.hibernate.util.ReflectionUtils;
-import org.jfantasy.framework.util.common.DateUtil;
+import org.jfantasy.graphql.util.Kit;
 import org.jfantasy.storage.FileObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 
 import java.util.Date;
-
-import static org.jfantasy.graphql.util.Kit.typeName;
 
 /**
  * @author limaofeng
@@ -40,10 +43,7 @@ public class GraphQLScalarTypeConfiguration {
         return GraphQLScalarType.newScalar().name("FileObject").description("文件对象").coercing(new Coercing<FileObject, Object>() {
             @Override
             public Object serialize(Object input) throws CoercingSerializeException {
-                if (input instanceof FileObject) {
-                    return input;
-                }
-                return input;
+                return input instanceof FileObject ? input : input;
             }
 
             @Override
@@ -52,9 +52,11 @@ public class GraphQLScalarTypeConfiguration {
                 if (input instanceof String) {
                     fileId = input.toString();
                 }
+
                 if (input instanceof StringValue) {
                     fileId = ((StringValue) input).getValue();
                 }
+
                 if (fileId == null) {
                     return null;
                 }
@@ -77,44 +79,19 @@ public class GraphQLScalarTypeConfiguration {
 
     @Bean
     public GraphQLScalarType orderByScalar() {
-        return GraphQLScalarType.newScalar().name("OrderBy").description("排序对象, 格式如：createdAt_ASC ").coercing(new Coercing<OrderBy, String>() {
-            @Override
-            public String serialize(Object input) throws CoercingSerializeException {
-                return input.toString();
-            }
-
-            @Override
-            public OrderBy parseValue(Object input) throws CoercingParseValueException {
-                String[] sort = input.toString().split("_");
-                return new OrderBy(sort[0], OrderBy.Direction.valueOf(sort[1].toUpperCase()));
-            }
-
-            @Override
-            public OrderBy parseLiteral(Object input) throws CoercingParseLiteralException {
-                if (!(input instanceof StringValue)) {
-                    throw new CoercingParseLiteralException(
-                        "Expected AST type 'StringValue' but was '" + typeName(input) + "'."
-                    );
-                }
-                return this.parseValue(((StringValue) input).getValue());
-            }
-
-        }).build();
+        return GraphQLScalarType.newScalar().name("OrderBy").description("排序对象, 格式如：createdAt_ASC ").coercing(new OrderCoercing()).build();
     }
 
     @Bean
     public GraphQLScalarType dateScalar() {
-        return GraphQLScalarType.newScalar().name("Date").description(" Date 转换类").coercing(new Coercing<Date, String>() {
+        return GraphQLScalarType.newScalar().name("Date").description(" Date 转换类").coercing(new Coercing<Date, Object>() {
             @Override
-            public String serialize(Object input) throws CoercingSerializeException {
+            public Object serialize(Object input) throws CoercingSerializeException {
                 if (input instanceof Date) {
-                    return DateUtil.format((Date) input, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-                } else if (input instanceof String) {
-                    return (String) input;
+                    return ((Date) input).getTime();
+                } else {
+                    return input;
                 }
-                throw new CoercingSerializeException(
-                    "Expected a 'String' or 'java.util.Date' but was '" + typeName(input) + "'."
-                );
             }
 
             @Override
@@ -122,27 +99,27 @@ public class GraphQLScalarTypeConfiguration {
                 Date date = null;
                 if (input instanceof Date) {
                     date = (Date) input;
-                } else if (input instanceof String) {
-                    ReflectionUtils.convert(input, Date.class);
                 } else {
-                    throw new CoercingParseValueException(
-                        "Expected a 'String' or 'java.time.temporal.TemporalAccessor' but was '" + typeName(input) + "'."
-                    );
+                    if (!(input instanceof String)) {
+                        throw new CoercingParseValueException("Expected a 'String' or 'java.time.temporal.TemporalAccessor' but was '" + Kit.typeName(input) + "'.");
+                    }
+
+                    ReflectionUtils.convert(input, Date.class);
                 }
+
                 return date;
             }
 
             @Override
             public Date parseLiteral(Object input) throws CoercingParseLiteralException {
-                if (!(input instanceof StringValue)) {
-                    throw new CoercingParseLiteralException(
-                        "Expected AST type 'StringValue' but was '" + typeName(input) + "'."
-                    );
+                if (input instanceof StringValue) {
+                    return ReflectionUtils.convert(((StringValue) input).getValue(), Date.class);
                 }
-                return ReflectionUtils.convert(input, Date.class);
+                if (input instanceof IntValue) {
+                    return new Date(((IntValue) input).getValue().longValue());
+                }
+                return null;
             }
-
         }).build();
     }
-
 }

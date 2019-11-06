@@ -7,6 +7,7 @@ import graphql.schema.GraphQLArgument;
 import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.idl.SchemaDirectiveWiring;
 import graphql.schema.idl.SchemaDirectiveWiringEnvironment;
+import org.jfantasy.framework.util.common.StringUtil;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -25,7 +26,17 @@ public class DateFormatDirective implements SchemaDirectiveWiring {
     public GraphQLFieldDefinition onField(SchemaDirectiveWiringEnvironment<GraphQLFieldDefinition> environment) {
         GraphQLFieldDefinition field = environment.getElement();
         DataFetcher dataFetcher = DataFetcherFactories.wrapDataFetcher(field.getDataFetcher(), ((dataFetchingEnvironment, value) -> {
-            DateTimeFormatter dateTimeFormatter = buildFormatter(dataFetchingEnvironment.getArgument("format"));
+            String format = dataFetchingEnvironment.getArgument("format");
+            if (StringUtil.isBlank(format)) {
+                if (value instanceof LocalDateTime) {
+                    return Date.from(((LocalDateTime) value).atZone(ZoneId.systemDefault()).toInstant()).getTime();
+                } else if (value instanceof Date) {
+                    return value;
+                } else {
+                    return value;
+                }
+            }
+            DateTimeFormatter dateTimeFormatter = buildFormatter(format);
             if (value instanceof LocalDateTime) {
                 return dateTimeFormatter.format((LocalDateTime) value);
             } else if (value instanceof Date) {
@@ -38,7 +49,6 @@ public class DateFormatDirective implements SchemaDirectiveWiring {
                 .newArgument()
                 .name("format")
                 .type(Scalars.GraphQLString)
-                .defaultValue("YYYY-MM-dd'T'HH:mm:ss.SSS'Z'")
             )
             .dataFetcher(dataFetcher)
         );
