@@ -5,6 +5,7 @@
 
 package org.jfantasy.graphql.scalars;
 
+import com.ctc.wstx.util.DataUtil;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
@@ -13,13 +14,23 @@ import graphql.language.StringValue;
 import graphql.scalars.object.JsonScalar;
 import graphql.schema.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tools.ant.util.DateUtils;
+import org.jfantasy.framework.dao.OrderBy;
 import org.jfantasy.framework.dao.hibernate.util.ReflectionUtils;
+import org.jfantasy.framework.util.common.DateUtil;
+import org.jfantasy.framework.util.common.StringUtil;
+import org.jfantasy.graphql.DateBetween;
 import org.jfantasy.graphql.util.Kit;
 import org.jfantasy.storage.FileObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 
+import java.text.ParseException;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
+
+import static org.jfantasy.graphql.util.Kit.typeName;
 
 /**
  * @author limaofeng
@@ -119,6 +130,36 @@ public class GraphQLScalarTypeConfiguration {
                     return new Date(((IntValue) input).getValue().longValue());
                 }
                 return null;
+            }
+        }).build();
+    }
+
+
+    @Bean
+    public GraphQLScalarType dataBetweenScalar(){
+        return GraphQLScalarType.newScalar().name("DateBetween").description("时间区间参数").coercing(new Coercing<DateBetween, String>(){
+            @Override
+            public String serialize(Object input) throws CoercingSerializeException {
+                return input.toString();
+            }
+
+            @Override
+            public DateBetween parseValue(Object input) throws CoercingParseValueException {
+                if (!input.toString().contains(",")) {
+                    return null;
+                }
+                String[] inputs = input.toString().split(",");
+                return DateBetween.newDateBetween(DateUtil.parse(inputs[0]),DateUtil.parse(inputs[1]));
+            }
+
+            @Override
+            public DateBetween parseLiteral(Object input) throws CoercingParseLiteralException {
+                if (!(input instanceof StringValue)) {
+                    throw new CoercingParseLiteralException(
+                            "Expected AST type 'StringValue' but was '" + typeName(input) + "'."
+                    );
+                }
+                return this.parseValue(((StringValue) input).getValue());
             }
         }).build();
     }
