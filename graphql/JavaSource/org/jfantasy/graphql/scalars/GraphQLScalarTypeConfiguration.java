@@ -136,7 +136,7 @@ public class GraphQLScalarTypeConfiguration {
 
 
     @Bean
-    public GraphQLScalarType dataBetweenScalar(){
+    public GraphQLScalarType dateBetweenScalar(){
         return GraphQLScalarType.newScalar().name("DateBetween").description("时间区间参数").coercing(new Coercing<DateBetween, String>(){
             @Override
             public String serialize(Object input) throws CoercingSerializeException {
