@@ -4,6 +4,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.error.IgnoreException;
+import org.jfantasy.framework.util.regexp.RegexpConstant;
 import org.jfantasy.framework.util.regexp.RegexpUtil;
 
 import java.text.ParseException;
@@ -178,6 +179,27 @@ public class DateUtil extends DateUtils {
         }
         return parse(s, "yyyy-MM-dd HH:mm:ss");
     }
+
+    /**
+     * 将字符串转换为日期
+     * @param s
+     * @return
+     */
+    public static Date parseFormat(String s){
+        if (s == null) {
+            return null;
+        }
+        Boolean ymd = RegexpUtil.isMatch(s, RegexpConstant.VALIDATOR_DATE_YMD);
+        Boolean ymdhms = RegexpUtil.isMatch(s, RegexpConstant.VALIDATOR_DATE_YMDHMS);
+        if(!ymd && !ymdhms){
+            return null;
+        }
+        if(ymd){
+            return parse(s, "yyyy-MM-dd");
+        }
+        return parse(s, "yyyy-MM-dd HH:mm:ss");
+    }
+
 
     /**
      * 相隔的天数

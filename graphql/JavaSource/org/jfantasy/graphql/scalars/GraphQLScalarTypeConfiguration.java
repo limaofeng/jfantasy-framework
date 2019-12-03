@@ -149,7 +149,7 @@ public class GraphQLScalarTypeConfiguration {
                     return null;
                 }
                 String[] inputs = input.toString().split(",");
-                return DateBetween.newDateBetween(DateUtil.parse(inputs[0]),DateUtil.parse(inputs[1]));
+                return DateBetween.newDateBetween(DateUtil.parseFormat(inputs[0]),DateUtil.parseFormat(inputs[1]));
             }
 
             @Override
