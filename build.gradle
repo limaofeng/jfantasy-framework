@@ -1,6 +1,6 @@
 buildscript {
     repositories {
-        maven { url "https://artifactory.homeword.cn/artifactory/libs-release" }
+        maven { url "https://artifactory.thuni-h.com/artifactory/libs-release" }
         mavenCentral()
         mavenLocal()
     }
@@ -30,7 +30,7 @@ allprojects {
     status = 'integration'
 
     repositories {
-        maven { url "https://artifactory.homeword.cn/artifactory/libs-release" }
+        maven { url "https://artifactory.thuni-h.com/artifactory/libs-release" }
     }
 
     configurations {
