@@ -19,6 +19,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class DaoUtil {
@@ -33,6 +34,17 @@ public class DaoUtil {
         }
         throw new SQLException("名为:" + dataSourceName + ",的数据源没有找到!");
     }
+
+
+    public static <T> Pager<T> returnPager(int page, int pageSize, OrderBy orderBy,List<T> reset){
+        Pager<T> pager = new Pager<>();
+        pager.setPageSize(pageSize);
+        pager.setOrderBy(orderBy);
+        pager.setCurrentPage(page);
+        pager.reset(reset);
+        return pager;
+    }
+
 
     /**
      * 多数据分页
