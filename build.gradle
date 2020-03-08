@@ -96,25 +96,21 @@ subprojects {
         }
     }
 
-    configure(subprojects.findAll {!it.name.contains('example')}) {
+    configurations {
+        published
+    }
 
-        configurations {
-            published
-        }
+    task sourceJar(type: Jar) {
+        from sourceSets.main.allSource
+        archiveClassifier = 'sources'
+    }
 
-        task sourceJar(type: Jar) {
-            from sourceSets.main.allSource
-            archiveClassifier = 'sources'
-        }
+    artifactoryPublish {
+        dependsOn sourceJar
+    }
 
-        artifactoryPublish {
-            dependsOn sourceJar
-        }
-
-        artifacts {
-            published sourceJar
-        }
-
+    artifacts {
+        published sourceJar
     }
 
 }

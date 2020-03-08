@@ -15,6 +15,8 @@ jar {
     }
 }
 
+artifactoryPublish.skip = true
+
 dependencies {
     compile project(":jfantasy-core")
     compile project(":jfantasy-graphql")
