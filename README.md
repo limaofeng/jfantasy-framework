@@ -8,9 +8,9 @@ jfantasy 整合了一些开源常用的java开发框架. 主要为了方便开�
 
 ```xml
     <repository>
-        <id>jfantasy snapshot</id>
-        <name>jfantasy snapshot</name>
-        <url>http://maven.zbsg.com.cn/content/repositories/snapshots/</url>
+        <id>thuni-h release</id>
+        <name>thuni-h release</name>
+        <url>https://artifactory.thuni-h.com/artifactory/libs-release</url>
     </repository>
 
     <dependency>
@@ -66,5 +66,3 @@ Licensed under [MIT](http://jfantasy.org/mit.txt)
 
 [coveralls-img]: http://img.shields.io/coveralls/limaofeng/jfantasy/master.svg?style=flat-square
 [coveralls-url]: https://coveralls.io/r/limaofeng/jfantasy
-[circle-img]:    http://git.zbsg.com.cn/apis/framework/badges/develop/build.svg
-[circle-url]:    http://git.zbsg.com.cn/apis/framework/commits/develop
