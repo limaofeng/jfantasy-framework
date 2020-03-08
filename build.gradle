@@ -49,8 +49,6 @@ allprojects {
         }
     }
 
-    buildDir = 'build'
-    
 }
 
 subprojects {
@@ -58,17 +56,6 @@ subprojects {
 
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
-
-    sourceSets {
-        main {
-            java.srcDirs = ['JavaSource']
-            resources.srcDirs = ["resources"]
-        }
-        test {
-            java.srcDirs = ['test/src']
-            resources.srcDirs = ["test/config"]
-        }
-    }
 
     [compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
 
@@ -80,7 +67,7 @@ subprojects {
 
     dependencyManagement {
         imports {
-            mavenBom "org.springframework.boot:spring-boot-dependencies:${springBootVersion}"
+            mavenBom "org.springframework.boot:spring-boot-dependencies:${LIB_SPRING_BOOT_VER}"
         }
         dependencies {
             dependency "org.jetbrains.kotlin:kotlin-stdlib:${kotlinVersion}"
@@ -95,7 +82,6 @@ subprojects {
         ignoreFailures = true
 
         jacoco {
-            append = false
             destinationFile = file("$buildDir/jacoco/jacocoTest.exec")
             classDumpDir = file("$buildDir/jacoco/classpathdumps")
         }
@@ -116,7 +102,7 @@ subprojects {
 
     task sourceJar(type: Jar) {
         from sourceSets.main.allSource
-        classifier = 'sources'
+        archiveClassifier = 'sources'
     }
 
     artifactoryPublish {

@@ -12,6 +12,8 @@ backup
 *.war
 *.ear
 *.iml
+*.ipr
+*.iws
 target
 build
 classes
