@@ -5,19 +5,17 @@ configurations {
 }
 dependencyManagement {
     dependencies {
-        dependency('org.elasticsearch.client:transport:6.5.4') {
+        dependency("org.elasticsearch.client:transport:${LIB_ELASTICSEARCH_VER}") {
             exclude 'org.elasticsearch:elasticsearch'
             exclude 'org.apache.logging.log4j:log4j-core'
         }
-        dependency('org.elasticsearch.plugin:transport-netty4-client:6.5.4') {
+        dependency("org.elasticsearch.plugin:transport-netty4-client:${LIB_ELASTICSEARCH_VER}") {
             exclude 'org.elasticsearch:elasticsearch'
             exclude 'org.apache.logging.log4j:log4j-core'
         }
     }
 }
 dependencies {
-    // spring
-    compile libs['spring']
     // spring boot
     compile libs['springBoot']
     // orm
@@ -28,10 +26,10 @@ dependencies {
     compile libs['elasticsearch']
     // commons
     compile libs['commons']
-    // asm and cglib
+    // ognl and cglib
     compile libs['third-party']
-    compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.9.8'
-    compileOnly 'org.projectlombok:lombok:1.18.6'
-    annotationProcessor 'org.projectlombok:lombok:1.18.6'
+    compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
+    compileOnly "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
+    annotationProcessor "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
     testCompile libs['test']
 }

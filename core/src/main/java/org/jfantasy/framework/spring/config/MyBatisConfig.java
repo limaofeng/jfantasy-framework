@@ -40,9 +40,8 @@ public class MyBatisConfig {
     }
 
     @Bean
-    public DataBaseKeyGenerator dataBaseKeyGenerator(@Value("${dataBaseKey.poolSize:10}") String dataBaseKeyPoolSize) {
-        DataBaseKeyGenerator dataBaseKeyGenerator = new DataBaseKeyGenerator();
-        dataBaseKeyGenerator.setPoolSize(Integer.valueOf(dataBaseKeyPoolSize));
+    public DataBaseKeyGenerator dataBaseKeyGenerator(@Value("${spring.jfantasy.sequence.pool-size:10}") Integer poolSize) {
+        DataBaseKeyGenerator dataBaseKeyGenerator = new DataBaseKeyGenerator(poolSize);
         return dataBaseKeyGenerator;
     }
 

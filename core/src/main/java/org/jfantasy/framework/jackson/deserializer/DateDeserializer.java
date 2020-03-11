@@ -20,7 +20,9 @@ public class DateDeserializer extends JsonDeserializer<Date> {
     @Override
     public Date deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
         JsonToken t = jp.getCurrentToken();
-        if (t == JsonToken.VALUE_STRING) {
+        if (t == JsonToken.VALUE_NUMBER_INT) {
+            return new Date(jp.getNumberValue().longValue());
+        } else if (t == JsonToken.VALUE_STRING) {
             String value = jp.getText().trim();
             if (StringUtil.isBlank(value)) {
                 return null;

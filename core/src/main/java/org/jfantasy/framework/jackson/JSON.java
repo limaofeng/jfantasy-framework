@@ -31,7 +31,7 @@ public class JSON {
         initialize(new ObjectMapper());
     }
 
-    private static synchronized void initialize(ObjectMapper objectMapper) {
+    public static synchronized void initialize(ObjectMapper objectMapper) {
         if (JSON.objectMapper != null) {
             LOG.warn("重置 JSON 工具类中的 ObjectMapper 对象.");
         }
@@ -39,7 +39,6 @@ public class JSON {
             .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
             .enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES)
             .enable(JsonParser.Feature.ALLOW_SINGLE_QUOTES)
-            .enable(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS)
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             .registerModule(new SimpleModule()
                 .addSerializer(Date.class, new DateSerializer("yyyy-MM-dd HH:mm:ss"))

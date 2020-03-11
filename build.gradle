@@ -12,6 +12,10 @@ buildscript {
     }
 }
 
+plugins {
+
+}
+
 apply from: "$rootDir/gradle/dependencies.gradle"
 apply plugin: "org.sonarqube"
 
@@ -36,7 +40,6 @@ allprojects {
     configurations {
         apply plugin: 'java'
         apply plugin: 'idea'
-        apply plugin: "jacoco"
         apply plugin: 'io.spring.dependency-management'
 
     }
@@ -69,9 +72,6 @@ subprojects {
         imports {
             mavenBom "org.springframework.boot:spring-boot-dependencies:${LIB_SPRING_BOOT_VER}"
         }
-        dependencies {
-            dependency "org.jetbrains.kotlin:kotlin-stdlib:${kotlinVersion}"
-        }
     }
 
     dependencies {
@@ -80,12 +80,6 @@ subprojects {
 
     test {
         ignoreFailures = true
-
-        jacoco {
-            destinationFile = file("$buildDir/jacoco/jacocoTest.exec")
-            classDumpDir = file("$buildDir/jacoco/classpathdumps")
-        }
-
     }
 
     sonarqube {

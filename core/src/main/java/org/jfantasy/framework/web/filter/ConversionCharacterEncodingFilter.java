@@ -11,6 +11,7 @@ import java.io.IOException;
 
 /**
  * 终极乱码解决方法
+ * @author limaofeng
  */
 public class ConversionCharacterEncodingFilter extends OncePerRequestFilter {
 

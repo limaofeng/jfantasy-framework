@@ -113,8 +113,6 @@ public class JSONTest {
         Class newInterface = AsmUtil.makeInterface("org.jfantasy.framework.jackson.mixin.TestMixIn", AnnotationDescriptor.builder(JsonFilter.class).setValue("value", "x").build(), FilterMixIn.class);
         Assert.assertTrue(newInterface.isInterface());
 
-        LOG.debug(AsmUtil.trace(newInterface));
-
         Assert.assertNotNull(newInterface.getAnnotation(JsonFilter.class));
 
         // 测试接口

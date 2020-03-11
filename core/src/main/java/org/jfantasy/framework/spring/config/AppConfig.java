@@ -32,13 +32,6 @@ public class AppConfig {
         return new PropertySourcesPlaceholderConfigurer();
     }
 
-//    @Bean
-//    public DataBaseKeyGenerator dataBaseKeyGenerator(@Value("${dataBaseKey.poolSize:10}") String dataBaseKeyPoolSize) {
-//        DataBaseKeyGenerator dataBaseKeyGenerator = new DataBaseKeyGenerator();
-//        dataBaseKeyGenerator.setPoolSize(Integer.valueOf(dataBaseKeyPoolSize));
-//        return dataBaseKeyGenerator;
-//    }
-
     @Bean(name = "taskExecutor")
     public SchedulingTaskExecutor taskExecutor() {
         ThreadPoolTaskExecutor pool = new ThreadPoolTaskExecutor();

@@ -39,6 +39,7 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.*;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.DispatcherType;
 import javax.servlet.MultipartConfigElement;
 import java.lang.reflect.Method;
@@ -62,6 +63,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
     public static final int ORDER = Ordered.HIGHEST_PRECEDENCE + 32;
 
     private final ApplicationContext applicationContext;
+
+    @Autowired(required = false)
+    private ObjectMapper objectMapper;
 
     @Autowired
     public WebMvcConfig(ApplicationContext applicationContext) {
@@ -91,34 +95,17 @@ public class WebMvcConfig implements WebMvcConfigurer {
         return factory.createMultipartConfig();
     }
 
-    @Bean
-    public ObjectMapper objectMapper() {
-        ObjectMapper objectMapper = JSON.getObjectMapper();
+    @PostConstruct
+    public void initObjectMapper() {
+        JSON.initialize(objectMapper);
         Unirest.setObjectMapper(new UnirestObjectMapper(objectMapper));
-        return objectMapper;
     }
-
-    public static Set<Class> scanJsonResultFilter() {
-        Set<Class> classes = new HashSet<>();
-        for (Class restClass : ClassPathScanner.getInstance().findAnnotationedClasses("*.**.rest", RestController.class)) {
-            for (Method method : ClassUtil.getDeclaredMethods(restClass)) {
-                JsonResultFilter jsonResultFilter = ClassUtil.getMethodAnno(method, JsonResultFilter.class);
-                if (jsonResultFilter != null) {
-                    for (BeanFilter filter : jsonResultFilter.value()) {
-                        classes.add(filter.type());
-                    }
-                }
-            }
-        }
-        return classes;
-    }
-
 
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
         Class[] removeClazz = new Class[]{StringHttpMessageConverter.class, MappingJackson2HttpMessageConverter.class};
         converters.removeIf(converter -> ObjectUtil.exists(removeClazz, converter.getClass()));
-        converters.add(0, new MappingJackson2HttpMessageConverter(objectMapper()));
+        converters.add(0, new MappingJackson2HttpMessageConverter(this.objectMapper));
         converters.add(0, new StringHttpMessageConverter(Charset.forName("utf-8")));
     }
 

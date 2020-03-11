@@ -6,17 +6,13 @@ import org.jfantasy.framework.error.IgnoreException;
 import org.jfantasy.framework.util.FantasyClassLoader;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.PathUtil;
-import org.jfantasy.framework.util.common.StreamUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.framework.util.common.file.FileUtil;
 import org.jfantasy.framework.util.regexp.RegexpUtil;
 import org.objectweb.asm.*;
-import org.objectweb.asm.util.TraceClassVisitor;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.List;
@@ -300,14 +296,14 @@ public class AsmUtil implements Opcodes {
                 if (paramNames.length > 0) {
                     final Class<?> clazz = m.getDeclaringClass();
                     ClassReader cr = new ClassReader(clazz.getResourceAsStream(clazz.getSimpleName() + ".class"));
-                    cr.accept(new ClassVisitor() {
+                    cr.accept(new ClassVisitor(Opcodes.V1_8) {
                         @Override
                         public MethodVisitor visitMethod(final int access, final String name, final String desc, final String signature, final String[] exceptions) {
                             final Type[] args = Type.getArgumentTypes(desc);
                             if (!name.equals(m.getName()) || !sameType(args, m.getParameterTypes())) {// 方法名相同并且参数个数相同
                                 return null;
                             }
-                            return new MethodVisitor() {
+                            return new MethodVisitor(Opcodes.V1_8) {
                                 @Override
                                 public void visitLocalVariable(String name, String desc, String signature, Label start, Label end, int index) {
                                     int i = index - 1;
@@ -464,20 +460,6 @@ public class AsmUtil implements Opcodes {
         }
         return methodParamNameCache.get(m);
 
-    }
-
-    public static String trace(Class<?> clazz) {
-        StringWriter stringWriter = new StringWriter();
-        PrintWriter writer = new PrintWriter(stringWriter);
-        try {
-            ClassReader reader = new ClassReader(clazz.getName());
-            reader.accept(new TraceClassVisitor(writer), 0);
-        } catch (IOException e) {
-            LOG.error(e.getMessage(), e);
-        } finally {
-            StreamUtil.closeQuietly(writer);
-        }
-        return stringWriter.toString();
     }
 
 }
