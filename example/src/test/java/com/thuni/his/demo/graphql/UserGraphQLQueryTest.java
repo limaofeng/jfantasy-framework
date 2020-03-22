@@ -25,7 +25,7 @@ public class UserGraphQLQueryTest {
         GraphQLResponse response = graphQLTestTemplate.postForResource("graphql/users.graphql");
         assertNotNull(response);
         assertThat(response.isOk()).isTrue();
-        assertThat(response.get("$.data.users.pageSize")).isEqualTo(15);
+        assertThat(response.get("$.data.users.pageSize", Integer.class)).isEqualTo(15);
     }
 
 }
