@@ -1,5 +1,7 @@
 package org.jfantasy.framework.spring.mvc.http;
 
+import org.jfantasy.framework.error.ErrorResponse;
+
 public class ErrorSource {
 
     private ErrorResponse error;

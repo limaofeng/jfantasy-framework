@@ -9,6 +9,9 @@ dependencyManagement {
             exclude 'org.elasticsearch:elasticsearch'
             exclude 'org.apache.logging.log4j:log4j-core'
         }
+        dependency("com.mashape.unirest:unirest-java:${LIB_UNIREST_VER}") {
+            exclude 'org.json:json'
+        }
         dependency("org.elasticsearch.plugin:transport-netty4-client:${LIB_ELASTICSEARCH_VER}") {
             exclude 'org.elasticsearch:elasticsearch'
             exclude 'org.apache.logging.log4j:log4j-core'

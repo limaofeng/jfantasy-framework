@@ -35,7 +35,7 @@ public class MyBatisConfig {
 
     @Autowired
     public MyBatisConfig(MybatisProperties properties) {
-        PropertiesHelper helper = PropertiesHelper.load("application.properties");
+        PropertiesHelper helper = PropertiesHelper.load("plugin.properties");
         properties.setMapperLocations(ObjectUtil.merge(properties.getMapperLocations(), helper.getMergeProperty("mybatis.mapper-locations")));
     }
 

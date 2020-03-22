@@ -7,6 +7,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.jfantasy.framework.dao.BaseBusEntity;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 
 /**
  * @author limaofeng
@@ -28,8 +29,10 @@ public class User extends BaseBusEntity {
     @GeneratedValue(generator = "fantasy-sequence")
     @GenericGenerator(name = "fantasy-sequence", strategy = "fantasy-sequence")
     private Long id;
+    @NotBlank(message = "用户名不能为空")
     @Column(name = "USERNAME", length = 18)
     private String username;
+    @NotBlank(message = "密码不能为空")
     @Column(name = "password", length = 21)
     private String password;
 }

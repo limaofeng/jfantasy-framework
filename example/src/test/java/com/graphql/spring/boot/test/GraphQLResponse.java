@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.ReadContext;
+import org.jfantasy.framework.jackson.JSON;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -16,6 +17,10 @@ public class GraphQLResponse {
     private final ResponseEntity<String> responseEntity;
     private final ObjectMapper mapper;
     private final ReadContext context;
+
+    public GraphQLResponse(ResponseEntity<String> responseEntity){
+        this(responseEntity, JSON.getObjectMapper());
+    }
 
     public GraphQLResponse(ResponseEntity<String> responseEntity, ObjectMapper objectMapper) {
         this.responseEntity = Objects.requireNonNull(responseEntity);

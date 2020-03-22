@@ -9,6 +9,7 @@ import org.jfantasy.framework.util.reflect.IClassFactory;
 import org.jfantasy.framework.util.reflect.MethodProxy;
 import org.jfantasy.framework.util.reflect.Property;
 import org.apache.logging.log4j.Logger;
+import org.springframework.core.MethodParameter;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
@@ -16,10 +17,7 @@ import java.beans.Introspector;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @SuppressWarnings({"unchecked", "rawtypes"})
@@ -385,6 +383,18 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
         return getParamNames(clazz.getName(), methodname, parameterTypes);
     }
 
+    public static String getParameterName(Parameter param) {
+        MethodParameter parameter = MethodParameter.forParameter(param);
+        Method method = parameter.getMethod();
+        Class clazz = method.getDeclaringClass();
+        try {
+            return JavassistUtil.getParameterName(clazz, method, parameter.getParameterIndex());
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+        return null;
+    }
+
     public static String[] getParamNames(String classname, String methodname, Class<?>[] parameterTypes) {
         try {
             return JavassistUtil.getParamNames(classname, methodname, parameterTypes);
@@ -518,5 +528,9 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
     public static <T> T call(String methodName, Object obj) {
         MethodProxy method = ClassUtil.getMethodProxy(getRealClass(obj), methodName);
         return (T) method.invoke(obj);
+    }
+
+    public static boolean hasInterface(Class<?> clazz, Class[] interfaces) {
+        return Arrays.stream(interfaces).anyMatch(item -> item.isAssignableFrom(clazz));
     }
 }

@@ -6,6 +6,7 @@ import javassist.bytecode.LocalVariableAttribute;
 import javassist.bytecode.MethodInfo;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class JavassistUtil {
@@ -84,6 +85,11 @@ public class JavassistUtil {
             paramNames[i] = attr.variableName(i + pos);
         }
         return paramNames;
+    }
+
+    public static String getParameterName(Class<?> clazz, Method method, int index) throws NotFoundException, MissingLVException {
+        String[] names = getParamNames(clazz.getName(), method.getName(), method.getParameterTypes());
+        return names[index];
     }
 
     /**

@@ -18,6 +18,14 @@ jar {
 
 artifactoryPublish.skip = true
 
+dependencyManagement {
+    dependencies {
+        dependency("com.mashape.unirest:unirest-java:${LIB_UNIREST_VER}") {
+            exclude 'org.json:json'
+        }
+    }
+}
+
 dependencies {
     compile project(":jfantasy-core")
     compile project(":jfantasy-graphql")

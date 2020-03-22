@@ -22,7 +22,7 @@ public class UserService {
 
     private final UserDao userDao;
 
-    @Autowired
+    @Autowired(required = false)
     public UserService(UserDao userDao) {
         this.userDao = userDao;
     }

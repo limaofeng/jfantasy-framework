@@ -30,7 +30,7 @@ public class ServletUtils {
 
     static {
         try {
-            poweredBy = PropertiesHelper.load("application.properties").getProperty("system.PoweredBy", "fantasy.com");
+            poweredBy = PropertiesHelper.load("plugin.properties").getProperty("system.PoweredBy", "fantasy.com");
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
         }

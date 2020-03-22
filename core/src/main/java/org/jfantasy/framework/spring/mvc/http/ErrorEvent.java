@@ -1,5 +1,6 @@
 package org.jfantasy.framework.spring.mvc.http;
 
+import org.jfantasy.framework.error.ErrorResponse;
 import org.springframework.context.ApplicationEvent;
 
 public class ErrorEvent extends ApplicationEvent {
