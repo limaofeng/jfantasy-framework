@@ -23,10 +23,6 @@ sonarqube:
     SONAR_PROJECT_KEY: $CI_PROJECT_NAMESPACE:$CI_PROJECT_NAME
   script:
     - gitlab-sonar-scanner
-  cache:
-    paths:
-      - node_modules/
-      - yarn.lock
   only:
     - master
     - develop

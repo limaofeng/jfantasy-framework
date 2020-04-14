@@ -31,6 +31,10 @@ public class Kit {
         connection.setPageInfo(PageInfo.builder()
             .hasPreviousPage(pager.getCurrentPage() > 1)
             .hasNextPage(pager.getCurrentPage() < pager.getTotalPage()).build());
+        if (mapper instanceof EdgeConverter && ((EdgeConverter) mapper).edgeClass == null) {
+            Class edgeClass = ClassUtil.forName(RegexpUtil.parseGroup(connectionClass.getGenericSuperclass().getTypeName(), "<([^>]+)>", 1));
+            ((EdgeConverter<? super T, ? extends R>) mapper).setEdgeClass(edgeClass);
+        }
         connection.setEdges(pager.getPageItems().stream().map(mapper).collect(Collectors.toList()));
         if (connection instanceof Pagination) {
             Pagination pagination = (Pagination) connection;
@@ -44,11 +48,36 @@ public class Kit {
 
     public static <C extends Connection, T> C connection(Pager<T> pager, Class<C> connectionClass) {
         Class edgeClass = ClassUtil.forName(RegexpUtil.parseGroup(connectionClass.getGenericSuperclass().getTypeName(), "<([^>]+)>", 1));
-        return (C) connection(pager, connectionClass, value -> {
+        return (C) connection(pager, connectionClass, new EdgeConverter(edgeClass));
+    }
+
+    public static class EdgeConverter<T, R> implements Function<T, R> {
+        private Class edgeClass;
+        private Function mapper;
+
+        public EdgeConverter(Class edgeClass) {
+            this.edgeClass = edgeClass;
+        }
+
+        public EdgeConverter(Function<? super T, ? extends T> mapper) {
+            this.mapper = mapper;
+        }
+
+        public void setEdgeClass(Class edgeClass) {
+            this.edgeClass = edgeClass;
+        }
+
+        @Override
+        public R apply(T value) {
             Edge edge = (Edge) ClassUtil.newInstance(edgeClass);
-            edge.setNode(value);
-            return edge;
-        });
+            if (mapper != null) {
+                edge.setNode(mapper.apply(value));
+            } else {
+                edge.setNode(value);
+            }
+            return (R) edge;
+        }
+
     }
 
 }
