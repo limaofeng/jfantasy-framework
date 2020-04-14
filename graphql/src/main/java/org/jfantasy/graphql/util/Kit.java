@@ -26,12 +26,14 @@ public class Kit {
         return input.getClass().getSimpleName();
     }
 
-    public static <C extends Connection, T, R extends Edge> C connection(Pager<T> pager, Class<C> connectionClass, Function<? super T, ? extends R> mapper){
+    public static <C extends Connection, T, R extends Edge> C connection(Pager<T> pager, Class<C> connectionClass, Function<? super T, ? extends R> mapper) {
         Connection connection = ClassUtil.newInstance(connectionClass);
-        connection.setPageInfo(PageInfo.builder().hasNextPage(pager.getCurrentPage() < pager.getTotalPage()).build());
+        connection.setPageInfo(PageInfo.builder()
+            .hasPreviousPage(pager.getCurrentPage() > 1)
+            .hasNextPage(pager.getCurrentPage() < pager.getTotalPage()).build());
         connection.setEdges(pager.getPageItems().stream().map(mapper).collect(Collectors.toList()));
-        if(connection instanceof Pagination){
-            Pagination pagination = (Pagination)connection;
+        if (connection instanceof Pagination) {
+            Pagination pagination = (Pagination) connection;
             pagination.setCurrentPage(pager.getCurrentPage());
             pagination.setPageSize(pager.getPageSize());
             pagination.setTotalCount(pager.getTotalCount());
@@ -40,8 +42,8 @@ public class Kit {
         return (C) connection;
     }
 
-    public static <C extends Connection, T> C connection(Pager<T> pager, Class<C> connectionClass){
-        Class edgeClass = ClassUtil.forName(RegexpUtil.parseGroup(connectionClass.getGenericInterfaces()[0].getTypeName(), "<([^>]+)>", 1));
+    public static <C extends Connection, T> C connection(Pager<T> pager, Class<C> connectionClass) {
+        Class edgeClass = ClassUtil.forName(RegexpUtil.parseGroup(connectionClass.getGenericSuperclass().getTypeName(), "<([^>]+)>", 1));
         return (C) connection(pager, connectionClass, value -> {
             Edge edge = (Edge) ClassUtil.newInstance(edgeClass);
             edge.setNode(value);

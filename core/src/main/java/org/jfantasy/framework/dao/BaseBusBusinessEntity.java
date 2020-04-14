@@ -13,6 +13,8 @@ import javax.persistence.MappedSuperclass;
 @MappedSuperclass
 public class BaseBusBusinessEntity extends BaseBusEntity {
 
+    public static final String FIELD_DELETED = "deleted";
+
     @JsonIgnore
     @Column(name = "DELETED")
     private Boolean deleted;

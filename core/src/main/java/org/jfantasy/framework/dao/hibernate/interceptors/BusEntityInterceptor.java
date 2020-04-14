@@ -42,10 +42,10 @@ public class BusEntityInterceptor extends EmptyInterceptor {
             }
             int count = 0;
             for (int i = 0; i < propertyNames.length; i++) {
-                if ("modifier".equals(propertyNames[i])) {
+                if (BaseBusEntity.FIELD_UPDATOR.equals(propertyNames[i])) {
                     currentState[i] = modifier;
                     count++;
-                } else if ("updatedAt".equals(propertyNames[i])) {
+                } else if (BaseBusEntity.FIELD_UPDATED_AT.equals(propertyNames[i])) {
                     currentState[i] = DateUtil.now().clone();
                     count++;
                 }
@@ -68,15 +68,14 @@ public class BusEntityInterceptor extends EmptyInterceptor {
                 maxCount++;
             }
             for (int i = 0; i < propertyNames.length; i++) {
-                if ("creator".equals(propertyNames[i]) || "modifier".equals(propertyNames[i])) {
+                if (BaseBusEntity.FIELD_UPDATOR.equals(propertyNames[i]) || BaseBusEntity.FIELD_UPDATOR.equals(propertyNames[i])) {
                     state[i] = creator;
                     count++;
-                } else if ("createdAt".equals(propertyNames[i]) || "updatedAt".equals(propertyNames[i])) {
+                } else if (BaseBusEntity.FIELD_CREATED_AT.equals(propertyNames[i]) || BaseBusEntity.FIELD_UPDATED_AT.equals(propertyNames[i])) {
                     state[i] = DateUtil.now().clone();
                     count++;
-                } else if ("deleted".equals(propertyNames[i])) {
+                } else if (BaseBusBusinessEntity.FIELD_DELETED.equals(propertyNames[i])) {
                     state[i] = false;
-                    // TODO: 2019/4/24  遗留问题待解决
                     ((BaseBusBusinessEntity) entity).setDeleted(false);
                 }
                 if (count >= maxCount) {

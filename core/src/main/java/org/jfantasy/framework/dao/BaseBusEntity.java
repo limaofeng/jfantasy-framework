@@ -3,13 +3,17 @@ package org.jfantasy.framework.dao;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.MappedSuperclass;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.stream.Collectors;
 
 /**
  * @author limaofeng
@@ -23,12 +27,12 @@ public abstract class BaseBusEntity implements Serializable {
 
     private static final long serialVersionUID = -6543503526965322995L;
 
-    public static final String FIELDS_BY_CREATOR = "creator";
-    public static final String FIELDS_BY_CREATE_TIME = "createdAt";
-    public static final String FIELDS_BY_MODIFIER = "modifier";
-    public static final String FIELDS_BY_MODIFY_TIME = "updatedAt";
-    public static final String[] BASE_FIELDS = {FIELDS_BY_CREATOR, FIELDS_BY_CREATE_TIME, FIELDS_BY_MODIFIER, FIELDS_BY_MODIFY_TIME};
-    public static final String BASE_JSONFIELDS = FIELDS_BY_CREATOR + ",createdAt," + FIELDS_BY_MODIFIER + ",updatedAt";
+    public static final String FIELD_CREATOR = "creator";
+    public static final String FIELD_CREATED_AT = "createdAt";
+    public static final String FIELD_UPDATOR = "updator";
+    public static final String FIELD_UPDATED_AT = "updatedAt";
+    public static final String[] ALL_FIELD = {FIELD_CREATOR, FIELD_CREATED_AT, FIELD_UPDATOR, FIELD_UPDATED_AT};
+    public static final String ALL_FIELD_STR = Arrays.stream(ALL_FIELD).collect(Collectors.joining(","));
 
     /**
      * 创建人
@@ -40,19 +44,19 @@ public abstract class BaseBusEntity implements Serializable {
      */
     @JsonProperty("createdAt")
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(updatable = false, name = "CREATE_TIME")
+    @Column(updatable = false, name = "CREATED_AT")
     private Date createdAt;
     /**
      * 最后修改人
      */
-    @Column(name = "MODIFIER", length = 20)
-    private String modifier;
+    @Column(name = "UPDATOR", length = 20)
+    private String updator;
     /**
      * 最后修改时间
      */
     @JsonProperty("updatedAt")
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "MODIFY_TIME")
+    @Column(name = "UPDATED_AT")
     private Date updatedAt;
 
 }

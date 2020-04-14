@@ -1,25 +1,19 @@
 package com.thuni.his.demo.graphql.types;
 
 import com.thuni.his.demo.bean.User;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.jfantasy.graphql.Connection;
+import lombok.*;
 import org.jfantasy.graphql.Edge;
-import org.jfantasy.graphql.PageInfo;
-import org.jfantasy.graphql.Pagination;
+import org.jfantasy.graphql.types.BaseConnection;
 
 import java.util.List;
 
+/**
+ * @author limaofeng
+ */
 @Data
-public class UserConnection implements Connection<UserConnection.UserEdge>, Pagination {
+@EqualsAndHashCode(callSuper = true)
+public class UserConnection extends BaseConnection<UserConnection.UserEdge> {
 
-    private Integer totalCount;
-    private Integer pageSize;
-    private Integer totalPage;
-    private Integer currentPage;
-    private PageInfo pageInfo;
     private List<UserEdge> edges;
 
     @Data
