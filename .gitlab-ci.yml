@@ -28,8 +28,6 @@ build:
 
 sonarqube:
   stage: analysis
-  dependencies:
-    - build
   image: core.harbor.thuni-h.com/limaofeng/gitlab-sonar-scanner
   variables:
     SONAR_ANALYSIS_MODE: publish
