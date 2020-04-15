@@ -4,6 +4,9 @@ stages:
   - analysis
   - deploy
 
+variables:
+  GIT_DEPTH: 0
+
 build:
   stage: build
   image: java:8
@@ -35,8 +38,8 @@ sonarqube:
   script:
     - gitlab-sonar-scanner
   only:
+    - merge_requests
     - master
-    - develop
   allow_failure: true
 
 deploy:
