@@ -3,6 +3,9 @@ stages:
   - analysis
   - deploy
 
+variables:
+  GIT_DEPTH: 0
+
 build:
   stage: build
   image: java:8
@@ -29,14 +32,17 @@ build:
 sonarqube:
   stage: analysis
   image: core.harbor.thuni-h.com/limaofeng/gitlab-sonar-scanner
-  dependencies:
-    - build
+  cache:
+    paths:
+      - .gradle/caches/
+      - .gradle/wrapper/
   variables:
     GIT_DEPTH: 0
     SONAR_ANALYSIS_MODE: publish
     SONAR_BRANCH: $CI_COMMIT_REF_NAME
     SONAR_PROJECT_KEY: $CI_PROJECT_NAMESPACE:$CI_PROJECT_NAME
   script:
+    - ./gradlew clean classes -x test
     - gitlab-sonar-scanner -Dsonar.qualitygate.wait=true
   only:
     - merge_requests
