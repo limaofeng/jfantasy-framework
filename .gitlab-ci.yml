@@ -36,7 +36,7 @@ sonarqube:
     SONAR_BRANCH: $CI_COMMIT_REF_NAME
     SONAR_PROJECT_KEY: $CI_PROJECT_NAMESPACE:$CI_PROJECT_NAME
   script:
-    - gitlab-sonar-scanner
+    - gitlab-sonar-scanner -X
   only:
     - merge_requests
     - master
