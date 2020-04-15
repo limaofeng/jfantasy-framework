@@ -4,9 +4,14 @@ import org.jfantasy.framework.dao.annotations.DataSource;
 import org.jfantasy.framework.util.Stack;
 import org.jfantasy.framework.util.common.ObjectUtil;
 
+/**
+ * 多数据源管理类
+ *
+ * @author limaofeng
+ */
 public class MultiDataSourceManager {
 
-    private final static ThreadLocal<MultiDataSourceManager> DELEGATE = new ThreadLocal<>();
+    private static final ThreadLocal<MultiDataSourceManager> DELEGATE = new ThreadLocal<>();
 
     private Stack<DataSource> stack = new Stack<>();
 
