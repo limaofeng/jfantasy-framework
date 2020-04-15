@@ -6,16 +6,16 @@ import org.jfantasy.framework.util.common.ObjectUtil;
 
 public class MultiDataSourceManager {
 
-    private static ThreadLocal<MultiDataSourceManager> threadLocal = new ThreadLocal<>();
+    private final static ThreadLocal<MultiDataSourceManager> DELEGATE = new ThreadLocal<>();
 
-    private Stack<DataSource> stack = new Stack<DataSource>();
+    private Stack<DataSource> stack = new Stack<>();
 
     public static MultiDataSourceManager getManager() {
-        MultiDataSourceManager localMessage = threadLocal.get();
+        MultiDataSourceManager localMessage = DELEGATE.get();
         if (ObjectUtil.isNull(localMessage)) {
-            threadLocal.set(new MultiDataSourceManager());
+            DELEGATE.set(new MultiDataSourceManager());
         }
-        return threadLocal.get();
+        return DELEGATE.get();
     }
 
     public void push(DataSource dataSource) {
@@ -30,4 +30,7 @@ public class MultiDataSourceManager {
         return this.stack.pop();
     }
 
+    public void destroy() {
+        DELEGATE.remove();
+    }
 }
