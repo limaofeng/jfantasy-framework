@@ -4,9 +4,6 @@ stages:
   - analysis
   - deploy
 
-variables:
-  GIT_DEPTH: 0
-
 build:
   stage: build
   image: java:8
@@ -34,6 +31,7 @@ sonarqube:
       - .gradle/caches/
       - .gradle/wrapper/
   variables:
+    GIT_DEPTH: 0
     SONAR_ANALYSIS_MODE: publish
     SONAR_BRANCH: $CI_COMMIT_REF_NAME
     SONAR_PROJECT_KEY: $CI_PROJECT_NAMESPACE:$CI_PROJECT_NAME
