@@ -31,11 +31,16 @@ sonarqube:
   dependencies:
     - build
   image: core.harbor.thuni-h.com/limaofeng/gitlab-sonar-scanner
+  cache:
+    paths:
+      - .gradle/caches/
+      - .gradle/wrapper/
   variables:
     SONAR_ANALYSIS_MODE: publish
     SONAR_BRANCH: $CI_COMMIT_REF_NAME
     SONAR_PROJECT_KEY: $CI_PROJECT_NAMESPACE:$CI_PROJECT_NAME
   script:
+    - ./gradlew clean classes -x test
     - gitlab-sonar-scanner -X
   only:
     - merge_requests
