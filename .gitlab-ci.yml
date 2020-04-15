@@ -27,13 +27,13 @@ sonarqube:
   stage: analysis
   dependencies:
     - build
-  image: ciricihq/gitlab-sonar-scanner
+  image: core.harbor.thuni-h.com/limaofeng/gitlab-sonar-scanner
   variables:
     SONAR_ANALYSIS_MODE: publish
     SONAR_BRANCH: $CI_COMMIT_REF_NAME
     SONAR_PROJECT_KEY: $CI_PROJECT_NAMESPACE:$CI_PROJECT_NAME
   script:
-    - gitlab-sonar-scanner -X
+    - gitlab-sonar-scanner
   only:
     - master
     - develop
