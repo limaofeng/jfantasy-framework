@@ -29,7 +29,8 @@ sonarqube:
     - build
   image: ciricihq/gitlab-sonar-scanner
   variables:
-    SONAR_ANALYSIS_MODE: publish
+    SONAR_BRANCH: $CI_COMMIT_REF_NAME
+    SONAR_GITLAB_PROJECT_ID: $CI_PROJECT_ID
     SONAR_PROJECT_KEY: $CI_PROJECT_NAMESPACE:$CI_PROJECT_NAME
   script:
     - gitlab-sonar-scanner
