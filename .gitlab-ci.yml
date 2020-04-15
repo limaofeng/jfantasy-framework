@@ -1,6 +1,7 @@
 stages:
   - build
   - test
+  - analysis
   - deploy
 
 build:
@@ -14,9 +15,18 @@ build:
     - export GRADLE_USER_HOME=$PWD/.gradle
   script:
     - ./gradlew clean classes -x test
+  artifacts:
+    paths:
+      - build
+      - core/build
+      - graphql/build
+      - storage/build
+    expire_in: 7 days
 
 sonarqube:
-  stage: test
+  stage: analysis
+  dependencies:
+    - build
   image: ciricihq/gitlab-sonar-scanner
   variables:
     SONAR_ANALYSIS_MODE: publish
