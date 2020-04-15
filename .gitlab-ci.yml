@@ -17,6 +17,9 @@ build:
   artifacts:
     paths:
       - build
+      - core/build
+      - graphql/build
+      - storage/build
     expire_in: 7 days
   only:
     - merge_requests
@@ -28,10 +31,6 @@ sonarqube:
   image: core.harbor.thuni-h.com/limaofeng/gitlab-sonar-scanner
   dependencies:
     - build
-  cache:
-    paths:
-      - .gradle/caches/
-      - .gradle/wrapper/
   variables:
     GIT_DEPTH: 0
     SONAR_ANALYSIS_MODE: publish
