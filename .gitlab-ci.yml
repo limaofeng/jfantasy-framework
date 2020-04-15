@@ -1,6 +1,5 @@
 stages:
   - build
-  - test
   - analysis
   - deploy
 
@@ -25,6 +24,10 @@ build:
       - graphql/build
       - storage/build
     expire_in: 7 days
+  only:
+    - merge_requests
+    - branches
+    - tags
 
 sonarqube:
   stage: analysis
@@ -34,6 +37,7 @@ sonarqube:
       - .gradle/caches/
       - .gradle/wrapper/
   variables:
+    GIT_DEPTH: 0
     SONAR_ANALYSIS_MODE: publish
     SONAR_BRANCH: $CI_COMMIT_REF_NAME
     SONAR_PROJECT_KEY: $CI_PROJECT_NAMESPACE:$CI_PROJECT_NAME
