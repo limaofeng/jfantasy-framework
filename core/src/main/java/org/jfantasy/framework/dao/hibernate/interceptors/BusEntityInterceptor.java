@@ -68,7 +68,7 @@ public class BusEntityInterceptor extends EmptyInterceptor {
                 maxCount++;
             }
             for (int i = 0; i < propertyNames.length; i++) {
-                if (BaseBusEntity.FIELD_UPDATOR.equals(propertyNames[i]) || BaseBusEntity.FIELD_UPDATOR.equals(propertyNames[i])) {
+                if (BaseBusEntity.FIELD_CREATOR.equals(propertyNames[i]) || BaseBusEntity.FIELD_UPDATOR.equals(propertyNames[i])) {
                     state[i] = creator;
                     count++;
                 } else if (BaseBusEntity.FIELD_CREATED_AT.equals(propertyNames[i]) || BaseBusEntity.FIELD_UPDATED_AT.equals(propertyNames[i])) {
