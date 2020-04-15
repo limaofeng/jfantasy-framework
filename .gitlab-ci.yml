@@ -32,7 +32,8 @@ sonarqube:
     SONAR_ANALYSIS_MODE: publish
     SONAR_PROJECT_KEY: $CI_PROJECT_NAMESPACE:$CI_PROJECT_NAME
   script:
-    - gitlab-sonar-scanner
+    - env
+    - gitlab-sonar-scanner -Dsonar.gitlab.ref_name=$CI_COMMIT_REF_NAME -Dsonar.branch.name=$CI_COMMIT_REF_NAME
   only:
     - master
     - develop
