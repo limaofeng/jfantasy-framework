@@ -42,7 +42,6 @@ sonarqube:
     SONAR_BRANCH: $CI_COMMIT_REF_NAME
     SONAR_PROJECT_KEY: $CI_PROJECT_NAMESPACE:$CI_PROJECT_NAME
   script:
-    - ./gradlew clean classes -x test
     - gitlab-sonar-scanner -Dsonar.qualitygate.wait=true
   only:
     - merge_requests
