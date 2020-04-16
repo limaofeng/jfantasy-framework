@@ -19,8 +19,6 @@ build:
 sonarqube:
   stage: analysis
   image: core.harbor.thuni-h.com/limaofeng/gitlab-sonar-scanner
-  dependencies:
-    - test
   cache:
     paths:
       - .gradle/caches/
