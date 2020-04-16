@@ -1,10 +1,8 @@
 stages:
   - build
+  - test
   - analysis
   - deploy
-
-variables:
-  GIT_DEPTH: 0
 
 build:
   stage: build
@@ -16,27 +14,21 @@ build:
   before_script:
     - export GRADLE_USER_HOME=$PWD/.gradle
   script:
-    - ./gradlew build jacocoTestReport copyDependencies
-  artifacts:
-    paths:
-      - build
-      - core/build
-      - graphql/build
-      - storage/build
-    expire_in: 7 days
-  only:
-    - merge_requests
-    - branches
-    - tags
+    - ./gradlew clean classes -x test
 
 sonarqube:
   stage: analysis
   image: core.harbor.thuni-h.com/limaofeng/gitlab-sonar-scanner
+  dependencies:
+    - test
   cache:
     paths:
       - .gradle/caches/
       - .gradle/wrapper/
+  before_script:
+    - export GRADLE_USER_HOME=$PWD/.gradle
   script:
+    - ./gradlew build jacocoTestReport copyDependencies
     - gitlab-sonar-scanner \
       -Dsonar.coverage.jacoco.xmlReportPaths=**/build/reports/Coverage.xml \
       -Dsonar.qualitygate.wait=true
