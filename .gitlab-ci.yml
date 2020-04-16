@@ -28,7 +28,7 @@ sonarqube:
   script:
     - ./gradlew build jacocoTestReport copyDependencies
     - gitlab-sonar-scanner \
-      -Dsonar.coverage.jacoco.xmlReportPaths=**/build/reports/Coverage.xml \
+      -Dsonar.coverage.jacoco.xmlReportPaths=$(find "$(pwd)" -path '*Coverage.xml' | sed 's/.*/&/' | tr '\n' ',') \
       -Dsonar.qualitygate.wait=true
   only:
     - merge_requests
