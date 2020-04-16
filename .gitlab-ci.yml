@@ -8,7 +8,7 @@ variables:
 
 build:
   stage: build
-  image: java:8
+  image: core.harbor.thuni-h.com/library/java:8
   cache:
     paths:
       - .gradle/caches/
@@ -50,7 +50,7 @@ sonarqube:
 
 deploy:
   stage: deploy
-  image: java:8
+  image: core.harbor.thuni-h.com/library/java:8
   cache:
     paths:
       - .gradle/caches/
