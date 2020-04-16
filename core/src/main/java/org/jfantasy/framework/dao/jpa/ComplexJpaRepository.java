@@ -77,10 +77,10 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
 
     @Override
     public Pager<T> findPager(Pager<T> pager, Specification<T> spec) {
-        pager.reset(Long.valueOf(this.count(spec)).intValue());
+        pager.reset((int) this.count(spec));
         PageRequest pageRequest = PageRequest.of(pager.getCurrentPage() - 1, pager.getPageSize(), pager.getSort());
         Page<T> page = this.findAll(spec, pageRequest);
-        pager.reset(Long.valueOf(page.getTotalElements()).intValue(), page.getContent());
+        pager.reset((int) page.getTotalElements(), page.getContent());
         return pager;
     }
 

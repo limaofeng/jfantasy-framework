@@ -31,7 +31,7 @@ public class PropertyFilterBuilder {
      * @param <T>
      * @return
      */
-    public <T> PropertyFilterBuilder equal(String name, T value) {
+    public <T> PropertyFilterBuilder equal(String name, T value) {//NOSONAR
         this.filters.add(new PropertyFilter(MatchType.EQ, name, value));
         return this;
     }
