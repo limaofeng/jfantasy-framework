@@ -7,13 +7,11 @@ buildscript {
 }
 
 plugins {
-    id "org.sonarqube" version "2.8"
     id "io.spring.dependency-management" version "1.0.8.RELEASE"
     id "com.jfrog.artifactory" version "4.14.1"
 }
 
 apply from: "$rootDir/gradle/dependencies.gradle"
-apply plugin: "org.sonarqube"
 
 allprojects {
     apply plugin: 'com.jfrog.artifactory'
@@ -46,6 +44,7 @@ allprojects {
 
 subprojects {
     apply plugin: 'maven'
+    apply plugin: "jacoco"
 
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
@@ -68,15 +67,22 @@ subprojects {
 
     }
 
-    test {
-        ignoreFailures = true
+    jacocoTestReport {
+        reports {
+            xml.enabled true
+            html.enabled false
+            xml.destination file("${buildDir}/reports/Coverage.xml")
+        }
     }
 
-    sonarqube {
-        properties {
-            property "sonar.sourceEncoding", "UTF-8"
-            property "sonar.sources", "JavaSource"
-            property "sonar.tests", "test/src"
+    test {
+        useJUnitPlatform()
+
+        ignoreFailures = true
+
+        jacoco {
+            destinationFile = file("$buildDir/jacoco/jacocoTest.exec")
+            classDumpDir = file("$buildDir/jacoco/classpathdumps")
         }
     }
 
@@ -87,6 +93,12 @@ subprojects {
     task sourceJar(type: Jar) {
         from sourceSets.main.allSource
         archiveClassifier = 'sources'
+    }
+
+    task copyDependencies(type: Sync) {
+        from configurations.compileClasspath
+        from configurations.compileOnly
+        into 'build/dependencies'
     }
 
     artifactoryPublish {
