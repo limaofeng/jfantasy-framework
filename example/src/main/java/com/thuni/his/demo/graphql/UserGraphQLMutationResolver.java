@@ -1,8 +1,8 @@
 package com.thuni.his.demo.graphql;
 
-import com.coxautodev.graphql.tools.GraphQLMutationResolver;
 import com.thuni.his.demo.bean.User;
 import com.thuni.his.demo.service.UserService;
+import graphql.kickstart.tools.GraphQLMutationResolver;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 

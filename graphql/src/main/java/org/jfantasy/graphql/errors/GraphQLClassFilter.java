@@ -1,6 +1,5 @@
 package org.jfantasy.graphql.errors;
 
-import com.coxautodev.graphql.tools.GraphQLMutationResolver;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.springframework.aop.ClassFilter;
 

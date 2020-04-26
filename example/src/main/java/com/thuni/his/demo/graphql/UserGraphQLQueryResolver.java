@@ -1,10 +1,10 @@
 package com.thuni.his.demo.graphql;
 
-import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import com.thuni.his.demo.bean.User;
 import com.thuni.his.demo.graphql.inputs.UserFilter;
 import com.thuni.his.demo.graphql.types.UserConnection;
 import com.thuni.his.demo.service.UserService;
+import graphql.kickstart.tools.GraphQLQueryResolver;
 import org.jfantasy.framework.dao.OrderBy;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.util.common.ObjectUtil;

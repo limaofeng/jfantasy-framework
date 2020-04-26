@@ -64,6 +64,8 @@ spring:
 
 graphql:
   servlet:
+    websocket:
+      enabled: false
     exception-handlers-enabled: true
 
 logging:
