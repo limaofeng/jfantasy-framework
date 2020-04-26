@@ -6,6 +6,7 @@ import org.jfantasy.framework.log.annotation.LogOperation;
 import org.jfantasy.framework.log.annotation.LogOperationSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jfantasy.framework.util.common.ObjectUtil;
 import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.cache.interceptor.SimpleKeyGenerator;
@@ -78,10 +79,7 @@ public class LogAspectSupport implements InitializingBean {
         if (!this.initialized) {
             return invoker.invoke();
         }
-        Class<?> targetClass = AopProxyUtils.ultimateTargetClass(target);
-        if (targetClass == null) {
-            targetClass = target.getClass();
-        }
+        Class<?> targetClass = ObjectUtil.defaultValue(AopProxyUtils.ultimateTargetClass(target), target.getClass());
         final Collection<LogOperation> logOp = getLogOperationSource().getOperations(method, targetClass);
         if (!CollectionUtils.isEmpty(logOp)) {
             Collection<LogOperationContext> ops = createOperationContext(logOp, method, args, target, targetClass);

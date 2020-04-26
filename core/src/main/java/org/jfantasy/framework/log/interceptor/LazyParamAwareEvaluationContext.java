@@ -3,6 +3,7 @@ package org.jfantasy.framework.log.interceptor;
 import java.lang.reflect.Method;
 import java.util.Map;
 
+import org.jfantasy.framework.util.common.ObjectUtil;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
@@ -57,11 +58,9 @@ class LazyParamAwareEvaluationContext extends StandardEvaluationContext {
 
         String mKey = toString(this.method);
         Method targetMethod = this.methodCache.get(mKey);
-        if (targetMethod == null) {
-            targetMethod = AopUtils.getMostSpecificMethod(this.method, this.targetClass);
-            if (targetMethod == null) {
-                targetMethod = this.method;
-            }
+        final boolean nullTargetMethod = targetMethod == null;
+        if (nullTargetMethod) {
+            targetMethod = ObjectUtil.defaultValue(AopUtils.getMostSpecificMethod(this.method, this.targetClass), this.method);
             this.methodCache.put(mKey, targetMethod);
         }
 
