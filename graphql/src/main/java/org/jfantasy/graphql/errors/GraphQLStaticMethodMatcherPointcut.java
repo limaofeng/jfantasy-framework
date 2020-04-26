@@ -1,7 +1,6 @@
 package org.jfantasy.graphql.errors;
 
-import com.coxautodev.graphql.tools.GraphQLMutationResolver;
-import org.jfantasy.framework.util.common.ClassUtil;
+import graphql.kickstart.tools.GraphQLMutationResolver;
 import org.springframework.aop.ClassFilter;
 import org.springframework.aop.support.StaticMethodMatcherPointcut;
 import org.springframework.validation.annotation.Validated;
