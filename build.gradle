@@ -61,10 +61,14 @@ subprojects {
         imports {
             mavenBom "org.springframework.boot:spring-boot-dependencies:${LIB_SPRING_BOOT_VER}"
         }
-        dependencies {
-            dependency "org.jetbrains.kotlin:kotlin-stdlib:${kotlin_version}"
-        }
+    }
 
+    jacocoTestReport {
+        reports {
+            xml.enabled true
+            html.enabled false
+            xml.destination file("${buildDir}/reports/Coverage.xml")
+        }
     }
 
     jacocoTestReport {

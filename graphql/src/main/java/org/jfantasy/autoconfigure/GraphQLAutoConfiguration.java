@@ -1,23 +1,16 @@
 package org.jfantasy.autoconfigure;
 
-import com.coxautodev.graphql.tools.GraphQLMutationResolver;
-import com.coxautodev.graphql.tools.SchemaParserDictionary;
-import org.jfantasy.framework.util.common.ClassUtil;
+import graphql.kickstart.execution.context.GraphQLContextBuilder;
+import graphql.kickstart.tools.SchemaParserDictionary;
+import org.jfantasy.graphql.context.SecurityGraphQLContextBuilder;
 import org.jfantasy.graphql.errors.GraphQLResolverAdvice;
 import org.jfantasy.graphql.errors.GraphQLStaticMethodMatcherPointcut;
-import org.springframework.aop.ClassFilter;
 import org.springframework.aop.support.DefaultBeanFactoryPointcutAdvisor;
-import org.springframework.aop.support.StaticMethodMatcherPointcut;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.orm.jpa.support.OpenEntityManagerInViewFilter;
-import org.springframework.validation.annotation.Validated;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.util.Arrays;
 
 /**
  * @author limaofeng
@@ -26,7 +19,7 @@ import java.util.Arrays;
  * @date 2019/8/23 6:18 下午
  */
 @Configuration
-@ComponentScan({"org.jfantasy.graphql.errors"})
+@ComponentScan({"org.jfantasy.graphql.context", "org.jfantasy.graphql.errors"})
 public class GraphQLAutoConfiguration {
 
     @Bean
