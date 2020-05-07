@@ -277,6 +277,10 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
         return List.class.isAssignableFrom(clazz);
     }
 
+    public static boolean isMap(Class<?> clazz) {
+        return Map.class.isAssignableFrom(clazz);
+    }
+
     public static boolean isMap(Object obj) {
         return obj instanceof Map;
     }

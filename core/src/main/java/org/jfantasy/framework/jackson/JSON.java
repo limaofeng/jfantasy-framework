@@ -65,20 +65,21 @@ public class JSON {
         Class type = ClassUtil.getRealType(object.getClass());
         if (type.isArray()) {
             type = type.getComponentType();
-        } else if (List.class.isAssignableFrom(type)) {
-            if (((List) object).size() == 0) {
+        }
+        if (List.class.isAssignableFrom(type)) {
+            if (((List) object).isEmpty()) {
                 type = null;
             } else {
                 type = ClassUtil.getRealType(((List) object).get(0).getClass());
             }
         }
         try {
-            if (type != null) {
-                SimpleFilterProvider provider = new SimpleFilterProvider().setFailOnUnknownId(false);
-                provider.setDefaultFilter(filter.setup(BeanPropertyFilter.newBuilder(type)).build());
-                return objectMapper.writer(provider).writeValueAsString(object);
+            if (type == null || ClassUtil.isPrimitiveOrWrapper(type) || ClassUtil.isMap(type)) {
+                return objectMapper.writeValueAsString(object);
             }
-            return objectMapper.writeValueAsString(object);
+            SimpleFilterProvider provider = new SimpleFilterProvider().setFailOnUnknownId(false);
+            provider.setDefaultFilter(filter.setup(BeanPropertyFilter.newBuilder(type)).build());
+            return objectMapper.writer(provider).writeValueAsString(object);
         } catch (IOException e) {
             LOG.error(e.getMessage(), e);
         }
