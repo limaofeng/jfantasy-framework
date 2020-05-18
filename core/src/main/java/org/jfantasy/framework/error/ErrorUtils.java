@@ -3,6 +3,8 @@ package org.jfantasy.framework.error;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
+import java.util.Collections;
+
 /**
  * @author limaofeng
  * @version V1.0
@@ -18,6 +20,7 @@ public class ErrorUtils {
 
     public static void fill(ErrorResponse error, Exception exception) {
         error.setCode("42200");
+        error.setFields(Collections.emptyList());
         error.setMessage(exception.getMessage());
     }
 
