@@ -2,6 +2,10 @@ directive @dateFormat on FIELD_DEFINITION
 directive @dict on FIELD_DEFINITION
 directive @fileObjectFormat on FIELD_DEFINITION
 
+type Query {
+    vesion: String
+}
+
 # 页信息
 type PageInfo {
     # 是否存在下一页

@@ -1,8 +1,7 @@
 package org.jfantasy.autoconfigure;
 
-import graphql.kickstart.execution.context.GraphQLContextBuilder;
 import graphql.kickstart.tools.SchemaParserDictionary;
-import org.jfantasy.graphql.context.SecurityGraphQLContextBuilder;
+import org.jfantasy.graphql.VersionGraphQLQueryResolver;
 import org.jfantasy.graphql.errors.GraphQLResolverAdvice;
 import org.jfantasy.graphql.errors.GraphQLStaticMethodMatcherPointcut;
 import org.springframework.aop.support.DefaultBeanFactoryPointcutAdvisor;
@@ -38,5 +37,10 @@ public class GraphQLAutoConfiguration {
         beanFactory.setPointcut(new GraphQLStaticMethodMatcherPointcut());
         beanFactory.setAdvice(advice);
         return beanFactory;
+    }
+
+    @Bean
+    public VersionGraphQLQueryResolver versionGraphQLQueryResolver() {
+        return new VersionGraphQLQueryResolver();
     }
 }

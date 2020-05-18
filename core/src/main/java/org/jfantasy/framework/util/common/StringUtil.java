@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.util.regexp.RegexpUtil;
+import org.springframework.data.util.ParsingUtils;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
 
@@ -582,11 +583,11 @@ public abstract class StringUtil {
 
     public static String[] shortUrl(String s, String key) {
         String[] chars = new String[]{"a", "b", "c", "d", "e", "f", "g", "h",
-                "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t",
-                "u", "v", "w", "x", "y", "z", "0", "1", "2", "3", "4", "5",
-                "6", "7", "8", "9", "A", "B", "C", "D", "E", "F", "G", "H",
-                "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T",
-                "U", "V", "W", "X", "Y", "Z"
+            "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t",
+            "u", "v", "w", "x", "y", "z", "0", "1", "2", "3", "4", "5",
+            "6", "7", "8", "9", "A", "B", "C", "D", "E", "F", "G", "H",
+            "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T",
+            "U", "V", "W", "X", "Y", "Z"
         };
         // 对传入网址进行 MD5 加密
         String hex = DigestUtils.md5DigestAsHex((key + s).getBytes());
@@ -631,6 +632,27 @@ public abstract class StringUtil {
 
     public static String uuid() {
         UUID uuid = UUID.randomUUID();
-        return uuid.toString().replaceAll("-","");
+        return uuid.toString().replaceAll("-", "");
     }
+
+    /**
+     * 下划线转驼峰命名
+     *
+     * @param source
+     * @return
+     */
+    public static String camelCase(String source) {
+        return Arrays.stream(StringUtil.tokenizeToStringArray(source, "_")).reduce((l, r) -> l + StringUtil.upperCaseFirst(r)).orElse("");
+    }
+
+    /**
+     * 驼峰转下划线命名
+     *
+     * @param source
+     * @return
+     */
+    public static String snakeCase(String source) {
+        return ParsingUtils.reconcatenateCamelCase(source, "_");
+    }
+
 }
