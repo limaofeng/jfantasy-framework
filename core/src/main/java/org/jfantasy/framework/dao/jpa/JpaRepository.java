@@ -4,6 +4,7 @@ import org.jfantasy.framework.dao.Pager;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.repository.NoRepositoryBean;
 
 import java.io.Serializable;
@@ -18,6 +19,8 @@ import java.util.Optional;
  */
 @NoRepositoryBean
 public interface JpaRepository<T, PK extends Serializable> extends org.springframework.data.jpa.repository.JpaRepository<T, PK>, JpaSpecificationExecutor<T> {
+
+    JpaEntityInformation getJpaEntityInformation();
 
     List<T> findAll(List<PropertyFilter> filters);
 

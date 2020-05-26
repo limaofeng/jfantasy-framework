@@ -19,6 +19,11 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * JSON 工具类
+ *
+ * @author limaofeng
+ */
 public class JSON {
 
     private static final Log LOG = LogFactory.getLog(JSON.class);
@@ -42,7 +47,8 @@ public class JSON {
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             .registerModule(new SimpleModule()
                 .addSerializer(Date.class, new DateSerializer("yyyy-MM-dd HH:mm:ss"))
-                .addDeserializer(Date.class, new DateDeserializer()));
+                .addDeserializer(Date.class, new DateDeserializer()))
+            .setFilterProvider(MixInHolder.getDefaultFilterProvider());
 
         JacksonXmlModule xmlModule = new JacksonXmlModule();
         JSON.xmlMapper = new XmlMapper(xmlModule);
@@ -51,13 +57,18 @@ public class JSON {
         xmlUtil = new XmlUtil(JSON.xmlMapper);
     }
 
+    @SneakyThrows
     public static String serialize(Object object, String... ignoreProperties) {
         if (object == null) {
             return null;
         }
-        return serialize(object, (builder) -> builder.excludes(ignoreProperties));
+        if (ignoreProperties.length > 0) {
+            return serialize(object, (builder) -> builder.excludes(ignoreProperties));
+        }
+        return objectMapper.writeValueAsString(object);
     }
 
+    @SneakyThrows
     public static String serialize(Object object, Filter filter) {
         if (object == null) {
             return null;
@@ -73,29 +84,20 @@ public class JSON {
                 type = ClassUtil.getRealType(((List) object).get(0).getClass());
             }
         }
-        try {
-            if (type == null || ClassUtil.isPrimitiveOrWrapper(type) || ClassUtil.isMap(type)) {
-                return objectMapper.writeValueAsString(object);
-            }
-            SimpleFilterProvider provider = new SimpleFilterProvider().setFailOnUnknownId(false);
-            provider.setDefaultFilter(filter.setup(BeanPropertyFilter.newBuilder(type)).build());
-            return objectMapper.writer(provider).writeValueAsString(object);
-        } catch (IOException e) {
-            LOG.error(e.getMessage(), e);
+        if (type == null || ClassUtil.isPrimitiveOrWrapper(type) || ClassUtil.isMap(type)) {
+            return objectMapper.writeValueAsString(object);
         }
-        return "";
+        SimpleFilterProvider provider = new SimpleFilterProvider().setFailOnUnknownId(false);
+        provider.setDefaultFilter(filter.setup(BeanPropertyFilter.newBuilder(type)).build());
+        return objectMapper.writer(provider).writeValueAsString(object);
     }
 
+    @SneakyThrows
     public static String serialize(Object object, FilterProvider provider) {
         if (object == null) {
             return null;
         }
-        try {
-            return objectMapper.writer(provider).writeValueAsString(object);
-        } catch (IOException e) {
-            LOG.error(e.getMessage(), e);
-        }
-        return "";
+        return objectMapper.writer(provider).writeValueAsString(object);
     }
 
     public static JsonNode deserialize(String json) {

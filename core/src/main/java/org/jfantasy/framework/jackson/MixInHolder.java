@@ -1,6 +1,8 @@
 package org.jfantasy.framework.jackson;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.databind.ser.FilterProvider;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import org.jfantasy.framework.util.asm.AnnotationDescriptor;
 import org.jfantasy.framework.util.asm.AsmUtil;
 
@@ -16,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @date 07/11/2017 8:38 PM
  */
 public class MixInHolder {
-
+    private static final SimpleFilterProvider defaultFilterProvider = new SimpleFilterProvider();
     private static final Map<Class<?>, MixInSource> mixInSourceMap = new ConcurrentHashMap<>();
 
     public static MixInSource createMixInSource(Class<?> type) {
@@ -25,9 +27,14 @@ public class MixInHolder {
             Class mixIn = AsmUtil.makeInterface("org.jfantasy.framework.jackson.mixin." + type.getSimpleName() + "_" + uuid, AnnotationDescriptor.builder(JsonFilter.class).setValue("value", uuid).build());
             MixInSource mixInSource = new MixInSource(uuid, type, mixIn);
             mixInSourceMap.putIfAbsent(type, mixInSource);
+            defaultFilterProvider.addFilter(mixInSource.getId(), BeanPropertyFilter.newBuilder(type).build());
             return mixInSource;
         }
         return mixInSourceMap.get(type);
+    }
+
+    public static FilterProvider getDefaultFilterProvider() {
+        return defaultFilterProvider;
     }
 
     public static Map<Class<?>, Class<?>> getSourceMixins() {

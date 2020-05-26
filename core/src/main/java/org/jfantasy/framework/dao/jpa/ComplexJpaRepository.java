@@ -49,6 +49,11 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
     }
 
     @Override
+    public JpaEntityInformation getJpaEntityInformation() {
+        return ClassUtil.getFieldValue(this, this.getClass(), "entityInformation");
+    }
+
+    @Override
     public List<T> findAll(List<PropertyFilter> filters) {
         return this.findAll(new PropertyFilterSpecification(this.getDomainClass(), filters));
     }
@@ -221,7 +226,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
 
     public String getIdName(Class entityClass) {
         JpaRepository repository = getJpaRepository(entityClass);
-        JpaEntityInformation<T, ?> entityInformation = ClassUtil.getFieldValue(repository, repository.getClass(), "entityInformation");
+        JpaEntityInformation<T, ?> entityInformation = repository.getJpaEntityInformation();
         return entityInformation.getIdAttribute().getName();
     }
 
