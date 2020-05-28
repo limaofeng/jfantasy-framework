@@ -20,6 +20,7 @@ public class OrderBy {
     private Direction direction;
     private static final OrderBy UNSORTED = OrderBy.by(new OrderBy[0]);
     private final List<OrderBy> orders;
+    private Sort.NullHandling nullHandling = Sort.NullHandling.NATIVE;
 
     public OrderBy(List<OrderBy> orders) {
         this.orders = Collections.unmodifiableList(orders);
@@ -29,6 +30,13 @@ public class OrderBy {
         this.property = property;
         this.direction = direction;
         this.orders = Collections.emptyList();
+    }
+
+    public OrderBy(String property, Direction direction, Sort.NullHandling nullHandling) {
+        this.property = property;
+        this.direction = direction;
+        this.orders = Collections.emptyList();
+        this.nullHandling = nullHandling;
     }
 
     public static OrderBy asc(String property) {
@@ -43,6 +51,10 @@ public class OrderBy {
         return new OrderBy(property, direction);
     }
 
+    public static OrderBy newOrderBy(String property, Direction direction, Sort.NullHandling nullHandling) {
+        return new OrderBy(property, direction, nullHandling);
+    }
+
     public static OrderBy unsorted() {
         return UNSORTED;
     }
@@ -55,11 +67,12 @@ public class OrderBy {
         return orders.isEmpty() ? OrderBy.unsorted() : new OrderBy(orders);
     }
 
+
     public Sort toSort() {
         if (this.isMulti()) {
-            return Sort.by(this.getOrders().stream().map(item -> new Sort.Order(Sort.Direction.valueOf(item.getDirection().name()), item.getProperty())).collect(Collectors.toList()));
+            return Sort.by(this.getOrders().stream().map(item -> new Sort.Order(Sort.Direction.valueOf(item.getDirection().name()), item.getProperty(), item.getNullHandling())).collect(Collectors.toList()));
         }
-        return Sort.by(new Sort.Order(Sort.Direction.valueOf(this.getDirection().name()), this.getProperty()));
+        return Sort.by(new Sort.Order(Sort.Direction.valueOf(this.getDirection().name()), this.getProperty(), this.getNullHandling()));
     }
 
     @Override
