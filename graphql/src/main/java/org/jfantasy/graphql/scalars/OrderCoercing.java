@@ -7,6 +7,7 @@ import graphql.schema.CoercingParseValueException;
 import graphql.schema.CoercingSerializeException;
 import org.jfantasy.framework.dao.OrderBy;
 import org.jfantasy.framework.util.common.StringUtil;
+import org.springframework.data.domain.Sort;
 
 import java.util.Arrays;
 
@@ -27,11 +28,18 @@ public class OrderCoercing implements Coercing<OrderBy, String> {
 
     @Override
     public OrderBy parseValue(Object input) throws CoercingParseValueException {
-        if (input.toString().contains(",")) {
-            return OrderBy.by(Arrays.stream(input.toString().split(",")).filter(item -> StringUtil.isNotBlank(item)).map(item -> this.parseValue(item)).toArray(size -> new OrderBy[size]));
+        String inputString = input.toString();
+        if (inputString.contains(",")) {
+            return OrderBy.by(Arrays.stream(inputString.split(",")).filter(item -> StringUtil.isNotBlank(item)).map(item -> this.parseValue(item)).toArray(size -> new OrderBy[size]));
         }
-        String[] sort = input.toString().split("_");
-        return OrderBy.newOrderBy(sort[0], OrderBy.Direction.valueOf(sort[1].toUpperCase()));
+        if (inputString.contains("(")){
+            String[] split = inputString.split("\\(");
+            String[] sort = split[0].split("_");
+            return OrderBy.newOrderBy(sort[0], OrderBy.Direction.valueOf(sort[1].toUpperCase()), Sort.NullHandling.valueOf(split[1].substring(0, split[1].length() - 1).toUpperCase()));
+        }else {
+            String[] sort = inputString.split("_");
+            return OrderBy.newOrderBy(sort[0], OrderBy.Direction.valueOf(sort[1].toUpperCase()));
+        }
     }
 
     @Override
