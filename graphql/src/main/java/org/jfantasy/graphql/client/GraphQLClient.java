@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import graphql.language.SchemaExtensionDefinition;
 import graphql.schema.idl.SchemaParser;
 import graphql.schema.idl.TypeDefinitionRegistry;
+import org.jfantasy.framework.jackson.JSON;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -17,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.client.RestTemplate;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -91,6 +93,11 @@ public class GraphQLClient {
     public GraphQLResponse postMultipart(String query, String variables) {
         return postRequest(RequestFactory.forMultipart(query, variables, headers));
     }
+
+    public GraphQLResponse postMultipart(String query, Map<String, Object> paramMap) {
+        return postMultipart(query, JSON.serialize(paramMap));
+    }
+
 
     private GraphQLResponse post(String payload) {
         return postRequest(RequestFactory.forJson(payload, headers));
