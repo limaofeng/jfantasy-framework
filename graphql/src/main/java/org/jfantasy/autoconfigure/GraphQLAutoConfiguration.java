@@ -24,7 +24,8 @@ import java.util.List;
  */
 @Configuration
 @AutoConfigureBefore(GraphQLJavaToolsAutoConfiguration.class)
-@ComponentScan({"org.jfantasy.graphql.context", "org.jfantasy.graphql.errors"})
+@ComponentScan({"org.jfantasy.graphql.context", "org.jfantasy.graphql.errors",
+        "org.jfantasy.graphql.client"})
 public class GraphQLAutoConfiguration {
 
     @Bean
