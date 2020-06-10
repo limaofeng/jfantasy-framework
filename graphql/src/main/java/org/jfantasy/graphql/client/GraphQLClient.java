@@ -62,9 +62,8 @@ public class GraphQLClient {
         return post(payload);
     }
 
-    public GraphQLResponse perform(String graphqlResource, Map<String, Object> paramMap)
+    public GraphQLResponse perform(String graphql, Map<String, Object> paramMap)
             throws IOException {
-        String graphql = loadQuery(graphqlResource);
         String payload = createJsonQuery(graphql, paramMap);
         return post(payload);
     }
