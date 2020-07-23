@@ -4,10 +4,7 @@ import lombok.Data;
 import org.jfantasy.framework.spring.mvc.http.Error;
 import org.jfantasy.framework.util.common.DateUtil;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author limaofeng
@@ -41,17 +38,23 @@ public class ErrorResponse {
     /**
      * 当验证错误时，各项具体的错误信息
      */
-    private List<Error> fields;
+    private List<Error> fields = new ArrayList<>();
+
+    /**
+     * 定义的返回数据
+     */
+    private Map<String, Object> data = new HashMap<>();
 
     public ErrorResponse() {
         this.timestamp = DateUtil.now();
     }
 
     public void addFieldError(String name, String message) {
-        if (this.fields == null) {
-            this.fields = new ArrayList<>();
-        }
         this.fields.add(new Error(name, message));
+    }
+
+    public void addData(String key, Object value) {
+        this.data.put(key, value);
     }
 
 }
