@@ -47,6 +47,9 @@ public class DefaultGraphQLError extends ErrorResponse implements GraphQLError {
         if (!this.getFields().isEmpty()) {
             result.put("fields", this.getFields());
         }
+        if (!this.getData().isEmpty()) {
+            result.put("data", this.getData());
+        }
         return result;
     }
 
