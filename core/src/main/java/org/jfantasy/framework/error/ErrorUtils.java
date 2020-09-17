@@ -14,7 +14,7 @@ public class ErrorUtils {
     public static void fill(ErrorResponse error, ValidationException exception) {
         error.setCode(exception.getCode());
         error.setMessage(exception.getMessage());
-        if (!exception.getData().isEmpty()) {
+        if (exception.getData() != null && !exception.getData().isEmpty()) {
             exception.getData().forEach((k, v) -> error.addData(k, v));
         }
     }
