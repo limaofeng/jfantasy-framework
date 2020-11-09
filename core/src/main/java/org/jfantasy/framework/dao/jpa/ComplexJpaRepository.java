@@ -82,7 +82,10 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
 
     @Override
     public Pager<T> findPager(Pager<T> pager, Specification<T> spec) {
-        pager.reset((int) this.count(spec));
+        if(page.getOffset() == 0){
+            pager.reset((int) this.count(spec));
+        }
+        // TODO 需要实现 offset -> limit (PageSize) 的结果
         PageRequest pageRequest = PageRequest.of(pager.getCurrentPage() - 1, pager.getPageSize(), pager.getSort());
         Page<T> page = this.findAll(spec, pageRequest);
         pager.reset((int) page.getTotalElements(), page.getContent());
