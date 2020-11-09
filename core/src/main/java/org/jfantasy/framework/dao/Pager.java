@@ -4,18 +4,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import org.apache.ibatis.type.Alias;
-import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.framework.util.web.RedirectAttributesWriter;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 /**
@@ -108,6 +104,18 @@ public class Pager<T> implements Serializable {
     }
 
     /**
+     * 根据下标查询时使用
+     * @param orderBy
+     * @param first
+     * @param size
+     */
+    public Pager(OrderBy orderBy,int first, int size){
+        this.first = first;
+        this.pageSize = size;
+        this.orderBy = orderBy;
+    }
+
+    /**
      * 获取总页码
      *
      * @return 总页数
@@ -185,6 +193,10 @@ public class Pager<T> implements Serializable {
      */
     public int getTotalCount() {
         return totalCount;
+    }
+
+    public void setTotalCount(int totalCount){
+        this.totalCount = totalCount;
     }
 
     public List<T> getPageItems() {
