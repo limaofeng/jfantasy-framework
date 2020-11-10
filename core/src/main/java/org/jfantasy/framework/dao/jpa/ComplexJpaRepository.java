@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.dao.BaseBusBusinessEntity;
+import org.jfantasy.framework.dao.LimitPageRequest;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.util.HibernateUtils;
 import org.jfantasy.framework.spring.SpringContextUtil;
@@ -16,6 +17,7 @@ import org.jfantasy.framework.util.regexp.RegexpUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
@@ -82,11 +84,14 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
 
     @Override
     public Pager<T> findPager(Pager<T> pager, Specification<T> spec) {
-        if(page.getOffset() == 0){
+        Pageable pageRequest = null;
+        if(pager.getFirst() == 0){
             pager.reset((int) this.count(spec));
+            pageRequest = PageRequest.of(pager.getCurrentPage() - 1, pager.getPageSize(), pager.getSort());
+        }else {
+            pager.setTotalCount((int)this.count(spec));
+            pageRequest = LimitPageRequest.of(pager.getFirst(),pager.getPageSize(), pager.getSort());
         }
-        // TODO 需要实现 offset -> limit (PageSize) 的结果
-        PageRequest pageRequest = PageRequest.of(pager.getCurrentPage() - 1, pager.getPageSize(), pager.getSort());
         Page<T> page = this.findAll(spec, pageRequest);
         pager.reset((int) page.getTotalElements(), page.getContent());
         return pager;
