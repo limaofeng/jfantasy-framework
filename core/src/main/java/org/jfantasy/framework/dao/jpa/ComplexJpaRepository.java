@@ -92,7 +92,6 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
             pager.setTotalCount((int)this.count(spec));
             pageRequest = LimitPageRequest.of(pager.getFirst(),pager.getPageSize(), pager.getSort());
         }
-        // TODO
         Page<T> page = this.findAll(spec, pageRequest);
         pager.reset((int) page.getTotalElements(), page.getContent());
         return pager;
