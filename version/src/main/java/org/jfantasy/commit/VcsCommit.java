@@ -32,7 +32,7 @@ public class VcsCommit {
      * @param jsonData 历史数据json串
      */
     public static void removeVersion(String versionLibrary,Object dataId,String jsonData){
-        commit(versionLibrary,defaultLibraryType, dataId, jsonData,false);
+        commit(versionLibrary,defaultLibraryType, dataId, jsonData,true);
     }
 
     /**
