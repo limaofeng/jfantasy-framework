@@ -40,7 +40,7 @@ public class SecurityGraphQLContextBuilder implements GraphQLServletContextBuild
         context.setDataLoaderRegistry(buildDataLoaderRegistry());
 
         String authorization = req.getHeader("Authorization");
-        if(StringUtil.isNotBlank(authorization) && authorization.startsWith("Authorization ")){
+        if(StringUtil.isNotBlank(authorization) && authorization.startsWith("token ")){
             String value = redisTemplate.boundValueOps(authorization.replaceAll("^token ","")).get();
             Map<String,String> map = JSON.deserialize(value, HashMap.class);
             LoginUser user = JSON.deserialize(JSON.serialize(map.get("user")), LoginUser.class);
