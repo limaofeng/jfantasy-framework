@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Base64Utils;
+import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -42,9 +43,11 @@ public class SecurityGraphQLContextBuilder implements GraphQLServletContextBuild
         String authorization = req.getHeader("Authorization");
         if(StringUtil.isNotBlank(authorization) && authorization.startsWith("token ")){
             String value = redisTemplate.boundValueOps(authorization.replaceAll("^token ","")).get();
-            Map<String,String> map = JSON.deserialize(value, HashMap.class);
-            LoginUser user = JSON.deserialize(JSON.serialize(map.get("user")), LoginUser.class);
-            SecurityContextHolder.setContext(new DefaultSecurityContext(user));
+            if (!StringUtils.isEmpty(value)) {
+                Map<String, String> map = JSON.deserialize(value, HashMap.class);
+                LoginUser user = JSON.deserialize(JSON.serialize(map.get("user")), LoginUser.class);
+                SecurityContextHolder.setContext(new DefaultSecurityContext(user));
+            }
         }
         return context;
     }
