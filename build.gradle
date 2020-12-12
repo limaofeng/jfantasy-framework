@@ -1,6 +1,6 @@
 buildscript {
     repositories {
-        maven { url "https://artifactory.thuni-h.com/artifactory/libs-release" }
+        maven { url "https://maven.thuni-h.com/repository/maven-public" }
         mavenCentral()
         mavenLocal()
     }
@@ -8,13 +8,12 @@ buildscript {
 
 plugins {
     id "io.spring.dependency-management" version "1.0.8.RELEASE"
-    id "com.jfrog.artifactory" version "4.14.1"
 }
 
 apply from: "$rootDir/gradle/dependencies.gradle"
 
 allprojects {
-    apply plugin: 'com.jfrog.artifactory'
+    apply plugin: 'maven-publish'
     apply plugin: 'idea'
 
     group = 'org.jfantasy'
@@ -22,7 +21,7 @@ allprojects {
     status = 'integration'
 
     repositories {
-        maven { url "https://artifactory.thuni-h.com/artifactory/libs-release" }
+        maven { url "https://maven.thuni-h.com/repository/maven-public" }
     }
 
     configurations {
@@ -37,6 +36,27 @@ allprojects {
             outputDir file("$buildDir/classes/java/main")
             testOutputDir file("$buildDir/classes/java/test")
             inheritOutputDirs = false
+        }
+    }
+
+    publishing {
+        repositories {
+            maven {
+                credentials {
+                    username System.getenv()['MAVEN_USER']
+                    password System.getenv()['MAVEN_PASS']
+                }
+                url "https://maven.thuni-h.com/repository/" + System.getenv()['MAVEN_REPO_KEY']
+            }
+        }
+    
+        publications {
+            maven(MavenPublication) {
+                from components.java
+                groupId project.group
+                artifactId project.name
+                version project.version
+            }
         }
     }
 
@@ -97,31 +117,12 @@ subprojects {
         into 'build/dependencies'
     }
 
-    artifactoryPublish {
-        dependsOn sourceJar
-    }
-
-    artifacts {
-        published sourceJar
-    }
-
-}
-
-artifactory {
-    contextUrl = System.getenv()['ARTIFACTORY_URL']
-    publish {
-        repository {
-            repoKey = System.getenv()['MAVEN_REPO_KEY']
-            username = System.getenv()['ARTIFACTORY_USER']
-            password = System.getenv()['ARTIFACTORY_PASS']
-        }
-        defaults {
-            publishConfigs('archives', 'published')
-            publishPom = true
-            publishIvy = false
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                artifact sourceJar
+            }
         }
     }
-    clientConfig.setIncludeEnvVars(true)
-    clientConfig.setEnvVarsExcludePatterns('*password*,*secret*')
-    clientConfig.info.setBuildNumber(System.getenv()['CI_JOB_ID'])
+
 }

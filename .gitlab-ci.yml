@@ -45,6 +45,6 @@ deploy:
   before_script:
     - export GRADLE_USER_HOME=$PWD/.gradle
   script:
-    - ./gradlew artifactoryPublish
+    - ./gradlew publish
   only:
     - tags

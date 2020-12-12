@@ -10,7 +10,7 @@ jfantasy 整合了一些开源常用的java开发框架. 主要为了方便开�
     <repository>
         <id>thuni-h release</id>
         <name>thuni-h release</name>
-        <url>https://artifactory.thuni-h.com/artifactory/libs-release</url>
+        <url>https://maven.thuni-h.com/repository/maven-public/</url>
     </repository>
 
     <dependency>

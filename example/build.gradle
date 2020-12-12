@@ -1,6 +1,6 @@
 buildscript {
     repositories {
-        maven { url "https://artifactory.thuni-h.com/artifactory/libs-release" }
+        maven { url "https://maven.thuni-h.com/repository/maven-public" }
     }
 }
 
@@ -16,7 +16,15 @@ jar {
     }
 }
 
-artifactoryPublish.skip = true
+model {
+    tasks.generatePomFileForMavenPublication {
+        enabled = false
+    }
+    tasks.publishMavenPublicationToMavenRepository {
+        enabled = false
+    }
+}
+tasks.publish.enabled = false
 
 dependencyManagement {
     dependencies {
