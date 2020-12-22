@@ -43,8 +43,8 @@ allprojects {
         repositories {
             maven {
                 credentials {
-                    username 'gitlab-ci'
-                    password '12345678'
+                    username System.getenv()['MAVEN_USER']
+                    password System.getenv()['MAVEN_PASS']
                 }
                 url "https://maven.thuni-h.com/repository/" + System.getenv()['MAVEN_REPO_KEY']
             }
