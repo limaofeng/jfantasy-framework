@@ -4,5 +4,5 @@ include ":jfantasy-core", ":jfantasy-storage", ":jfantasy-graphql", ":jfantasy-e
 project(':jfantasy-core').projectDir = "$rootDir/core" as File
 project(':jfantasy-storage').projectDir = "$rootDir/storage" as File
 project(':jfantasy-graphql').projectDir = "$rootDir/graphql" as File
-project(':jfantasy-version').projectDir = "$rootDir/version" as File
-project(':jfantasy-example').projectDir = "$rootDir/example" as File
+//project(':jfantasy-version').projectDir = "$rootDir/version" as File
+//project(':jfantasy-example').projectDir = "$rootDir/example" as File
