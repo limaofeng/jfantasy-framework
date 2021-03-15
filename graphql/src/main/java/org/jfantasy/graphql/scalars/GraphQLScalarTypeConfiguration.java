@@ -7,7 +7,7 @@ package org.jfantasy.graphql.scalars;
 
 import graphql.language.IntValue;
 import graphql.language.StringValue;
-import graphql.scalars.object.JsonScalar;
+import graphql.scalars.ExtendedScalars;
 import graphql.schema.*;
 import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.dao.hibernate.util.ReflectionUtils;
@@ -31,7 +31,7 @@ public class GraphQLScalarTypeConfiguration {
 
     @Bean
     public GraphQLScalarType jsonScalar() {
-        return new JsonScalar();
+        return ExtendedScalars.Json;
     }
 
     @Bean

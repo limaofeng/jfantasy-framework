@@ -9,7 +9,7 @@ dependencies {
     compile "com.graphql-java:graphql-java-extended-scalars:${LIB_GRAPHQL_SCALARS_VER}"
     compile "com.graphql-java-kickstart:graphql-spring-boot-starter:${LIB_GRAPHQL_VER}"
     compile "com.graphql-java-kickstart:graphql-java-tools:$LIB_GRAPHQL_JAVA_TOOLS_VER"
-    compile "org.springframework.boot:spring-boot-starter-data-redis"
+    compileOnly "org.springframework.boot:spring-boot-starter-data-redis"
     implementation("com.jayway.jsonpath:json-path")
     compileOnly "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
     annotationProcessor "org.projectlombok:lombok:${LIB_LOMBOK_VER}"

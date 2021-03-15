@@ -10,6 +10,9 @@ import org.jfantasy.framework.security.LoginUser;
 import org.jfantasy.framework.security.SecurityContextHolder;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Base64Utils;
@@ -31,8 +34,9 @@ import java.util.concurrent.CompletableFuture;
  * @date 2019-04-14 14:13
  */
 @Component
+@ConditionalOnClass(StringRedisTemplate.class)
 public class SecurityGraphQLContextBuilder implements GraphQLServletContextBuilder {
-    @Autowired
+    @Autowired(required = false)
     private StringRedisTemplate redisTemplate;
 
     @Override
@@ -41,19 +45,19 @@ public class SecurityGraphQLContextBuilder implements GraphQLServletContextBuild
         context.setDataLoaderRegistry(buildDataLoaderRegistry());
         String authorization = req.getHeader("Authorization");
         String value = checkAuthorization(authorization);
-        if(!StringUtil.isEmpty(value)){
+        if (!StringUtil.isEmpty(value)) {
             Map<String, String> map = JSON.deserialize(value, HashMap.class);
             LoginUser user = JSON.deserialize(JSON.serialize(map.get("user")), LoginUser.class);
             SecurityContextHolder.setContext(new DefaultSecurityContext(user));
-        }else {
+        } else {
             SecurityContextHolder.setContext(null);
         }
         return context;
     }
 
-    private String checkAuthorization(String authorization){
-        if(StringUtil.isNotBlank(authorization) && authorization.startsWith("token ")){
-            String value = redisTemplate.boundValueOps(authorization.replaceAll("^token ","")).get();
+    private String checkAuthorization(String authorization) {
+        if (StringUtil.isNotBlank(authorization) && authorization.startsWith("token ")) {
+            String value = redisTemplate.boundValueOps(authorization.replaceAll("^token ", "")).get();
             if (!StringUtils.isEmpty(value)) {
                 return value;
             }

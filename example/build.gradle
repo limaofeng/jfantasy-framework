@@ -37,6 +37,7 @@ dependencyManagement {
 dependencies {
     compile project(":jfantasy-core")
     compile project(":jfantasy-graphql")
+    compile "org.springframework.boot:spring-boot-starter-data-redis"
     compile "org.mapstruct:mapstruct:${LIB_MAPSTRUCT_VER}"
     compileOnly "org.projectlombok:lombok:$LIB_LOMBOK_VER"
     annotationProcessor "org.projectlombok:lombok:$LIB_LOMBOK_VER"

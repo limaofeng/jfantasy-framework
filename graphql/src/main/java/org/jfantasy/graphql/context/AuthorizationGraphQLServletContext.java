@@ -43,8 +43,8 @@ public class AuthorizationGraphQLServletContext implements GraphQLContext {
     }
 
     @Override
-    public Optional<DataLoaderRegistry> getDataLoaderRegistry() {
-        return dataLoaderRegistry != null ? Optional.of(dataLoaderRegistry) : Optional.empty();
+    public DataLoaderRegistry getDataLoaderRegistry() {
+        return dataLoaderRegistry != null ? dataLoaderRegistry : null;
     }
 
     public void setDataLoaderRegistry(DataLoaderRegistry dataLoaderRegistry) {

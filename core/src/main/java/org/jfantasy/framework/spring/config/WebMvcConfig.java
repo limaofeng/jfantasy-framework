@@ -36,6 +36,9 @@ import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.support.XmlWebApplicationContext;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.*;
 
@@ -55,7 +58,7 @@ import java.util.Set;
 @EnableWebMvc
 @Configuration
 @ComponentScan(basePackages = {"org.jfantasy.*.rest"}, useDefaultFilters = false, includeFilters = {
-        @ComponentScan.Filter(type = FilterType.ANNOTATION, value = {RestController.class, Controller.class})
+    @ComponentScan.Filter(type = FilterType.ANNOTATION, value = {RestController.class, Controller.class})
 })
 @Order(value = WebMvcConfig.ORDER)
 public class WebMvcConfig implements WebMvcConfigurer {
@@ -132,10 +135,10 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("*")
-                .allowedMethods("GET", "POST", "HEAD", "PATCH", "PUT", "DELETE", "OPTIONS")
-                .allowedHeaders("Accept", "Origin", "Authorization", "Content-Type", "Last-Modified")
-                .allowCredentials(true).maxAge(3600);
+            .allowedOrigins("*")
+            .allowedMethods("GET", "POST", "HEAD", "PATCH", "PUT", "DELETE", "OPTIONS")
+            .allowedHeaders("Accept", "Origin", "Authorization", "Content-Type", "Last-Modified")
+            .allowCredentials(true).maxAge(3600);
     }
 
     @Bean
