@@ -98,6 +98,11 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
     }
 
     @Override
+    public <S extends T> S update(S entity) {
+        return super.save(entity);
+    }
+
+    @Override
     public <S extends T> S update(S entity, boolean merge) {
         if (merge) {
             Class entityClass = this.getDomainClass();
@@ -109,7 +114,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
             }
             return (S) super.save(merge(entity, oldEntity, entityClass, ognlUtil));
         } else {
-            return super.save(entity);
+            return this.update(entity);
         }
     }
 
