@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("unchecked")
@@ -486,6 +487,10 @@ public final class ObjectUtil {
 
     public static <T> T defaultValue(T source, T def) {
         return isNull(source) ? def : source;
+    }
+
+    public static <T> T defaultValue(T source, Supplier<? extends T> def) {
+        return isNull(source) ? def.get() : source;
     }
 
     public static Map<String, Object> toMap(Object data) {
