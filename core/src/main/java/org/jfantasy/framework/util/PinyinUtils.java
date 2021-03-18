@@ -1,9 +1,9 @@
 package org.jfantasy.framework.util;
 
 import com.github.stuxuhai.jpinyin.DoubleArrayTrie;
-import com.github.stuxuhai.jpinyin.PinyinException;
 import com.github.stuxuhai.jpinyin.PinyinFormat;
 import com.github.stuxuhai.jpinyin.PinyinHelper;
+import lombok.SneakyThrows;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.reflect.MethodProxy;
 
@@ -17,15 +17,18 @@ public class PinyinUtils {
     private PinyinUtils() {
     }
 
-    public static String getShort(String pinyin) throws PinyinException {
+    @SneakyThrows
+    public static String getShort(String pinyin) {
         return PinyinHelper.getShortPinyin(pinyin);
     }
 
-    public static String getAll(String pinyin) throws PinyinException {
+    @SneakyThrows
+    public static String getAll(String pinyin) {
         return getAll(pinyin, "");
     }
 
-    public static String getAll(String pinyin,String separator) throws PinyinException {
+    @SneakyThrows
+    public static String getAll(String pinyin, String separator)  {
         return PinyinHelper.convertToPinyinString(pinyin, separator, PinyinFormat.WITHOUT_TONE);
     }
 
