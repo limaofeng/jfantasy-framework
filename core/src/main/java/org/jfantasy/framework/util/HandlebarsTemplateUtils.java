@@ -21,13 +21,13 @@ public class HandlebarsTemplateUtils {
     private static final Log LOG = LogFactory.getLog(HandlebarsTemplateUtils.class);
 
     static {
-        handlebars.registerHelper("format", new Helper<Date>() {
+        registerHelper("format", new Helper<Date>() {
             @Override
             public CharSequence apply(Date context, Options options) throws IOException {
                 return DateUtil.format(context, (String) options.params[0]);
             }
         });
-        handlebars.registerHelper("URLEncode", new Helper<String>() {
+        registerHelper("URLEncode", new Helper<String>() {
             @Override
             public CharSequence apply(String context, Options options) throws IOException {
                 return URLEncoder.encode(context, (String) options.params[0]);
@@ -35,8 +35,12 @@ public class HandlebarsTemplateUtils {
         });
     }
 
+    public static <H> Handlebars registerHelper(String name, Helper<H> helper) {
+        return handlebars.registerHelper(name, helper);
+    }
+
     public static String processTemplateIntoString(String inputTemplate, Object model) {
-        if(StringUtil.isBlank(inputTemplate)){
+        if (StringUtil.isBlank(inputTemplate)) {
             return null;
         }
         try {
