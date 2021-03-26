@@ -33,17 +33,18 @@ public class SequenceGenerator implements IdentifierGenerator, Configurable {
     public static final String KEY_NAME = "keyName";
 
     private String keyName;
+    private String entityName;
 
 
     @Override
     public void configure(Type type, Properties params, ServiceRegistry serviceRegistry) throws MappingException {
+        this.entityName = params.getProperty("entity_name");
         this.keyName = StringUtil.defaultValue(params.getProperty(KEY_NAME), params.getProperty("target_table") + ":" + params.getProperty("target_column")).toLowerCase();
     }
 
     @Override
     public Serializable generate(SharedSessionContractImplementor session, Object object) throws HibernateException {
-        Class entityClass = ClassUtil.getRealClass(object);
-        final EntityPersister persister = session.getFactory().getMetamodel().entityPersister(entityClass);
+        final EntityPersister persister = session.getFactory().getMetamodel().entityPersister(entityName);
         Serializable id = persister.getIdentifier(object, session);
         if (id != null) {
             return id;
