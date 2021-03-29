@@ -110,10 +110,10 @@ public class AsmUtil implements Opcodes {
         cw.visitSource(RegexpUtil.parseGroup(className, "\\.([A-Za-z0-9_$]+)$", 1) + ".java", null);
 
         // 构造方法
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", Type.getMethodDescriptor(Type.getReturnType("V"), new Type[0]), null, null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", Type.getMethodDescriptor(Type.getReturnType("()V"), new Type[0]), null, null);
         mv.visitLabel(l0);
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESPECIAL, superClassInternalName, "<init>", Type.getMethodDescriptor(Type.getReturnType("V"), new Type[0]));
+        mv.visitMethodInsn(INVOKESPECIAL, superClassInternalName, "<init>", Type.getMethodDescriptor(Type.getReturnType("()V"), new Type[0]));
         mv.visitInsn(RETURN);
         mv.visitLabel(l1);
         mv.visitLocalVariable("this", getTypeDescriptor(className), null, l0, l1, 0);
@@ -182,7 +182,7 @@ public class AsmUtil implements Opcodes {
 
         // set方法
         if (property.isWrite()) {
-            makeMethod(classWriter, "set" + StringUtil.upperCaseFirst(fieldName), Type.getMethodDescriptor(Type.getReturnType("V"), new Type[]{Type.getType(property.getType())}), property.getGenericTypes().length != 0 ? "(" + getSignature(property.getType(), property.getGenericTypes()) + ")V" : null, property.getSetMethodCreator());
+            makeMethod(classWriter, "set" + StringUtil.upperCaseFirst(fieldName), Type.getMethodDescriptor(Type.getReturnType("()V"), new Type[]{Type.getType(property.getType())}), property.getGenericTypes().length != 0 ? "(" + getSignature(property.getType(), property.getGenericTypes()) + ")V" : null, property.getSetMethodCreator());
         }
 
         // get方法
@@ -452,7 +452,7 @@ public class AsmUtil implements Opcodes {
                 }
                 methodParamNameCache.put(m, paramNames);
             } catch (IOException e) {
-                LOG.error(e.getMessage(),e);
+                LOG.error(e.getMessage(), e);
                 throw new AsmException(e);
             } finally {
                 methodParamNameLock.unlock();

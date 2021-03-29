@@ -1,5 +1,7 @@
 package org.jfantasy.framework.util.asm;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -13,6 +15,8 @@ import org.objectweb.asm.Type;
  * @功能描述 用于生成动态类时，属性的描述信息
  * @since 2013-5-31 上午09:56:39
  */
+@Builder
+@AllArgsConstructor
 public class Property {
     /**
      * 属性名称
@@ -25,16 +29,20 @@ public class Property {
     /**
      * 泛型
      */
+    @Builder.Default
     private Class<?>[] genericTypes = new Class<?>[0];
     /**
      * 是否可以写入(set操作)
      */
+    @Builder.Default
     private boolean write = true;
     /**
      * 是否可以读取(get操作)
      */
+    @Builder.Default
     private boolean read = true;
 
+    @Builder.Default
     private MethodCreator getMethodCreator = new MethodCreator() {
 
         @Override
@@ -63,6 +71,7 @@ public class Property {
 
     };
 
+    @Builder.Default
     private MethodCreator setMethodCreator = new MethodCreator() {
 
         @Override
