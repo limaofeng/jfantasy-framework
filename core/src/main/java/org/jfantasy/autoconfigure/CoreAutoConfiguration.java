@@ -6,6 +6,9 @@ import org.jfantasy.framework.dao.hibernate.interceptors.BusEntityInterceptor;
 import org.jfantasy.framework.spring.SpringContextUtil;
 import org.jfantasy.framework.spring.config.AppConfig;
 import org.jfantasy.framework.spring.config.DaoConfig;
+import org.mybatis.spring.boot.autoconfigure.MybatisLanguageDriverAutoConfiguration;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -15,6 +18,7 @@ import org.springframework.context.annotation.Import;
  * @author limaofeng
  */
 @Configuration
+@AutoConfigureAfter({ DataSourceAutoConfiguration.class, MybatisLanguageDriverAutoConfiguration.class })
 @Import({AppConfig.class, DaoConfig.class})
 public class CoreAutoConfiguration {
 

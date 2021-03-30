@@ -1,5 +1,6 @@
 package org.jfantasy.framework.spring.config;
 
+import com.alibaba.druid.pool.DruidDataSource;
 import org.hibernate.SessionFactory;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.event.service.spi.EventListenerRegistry;
@@ -14,6 +15,7 @@ import org.jfantasy.framework.dao.hibernate.interceptors.BusEntityInterceptor;
 import org.jfantasy.framework.dao.jpa.ComplexJpaRepository;
 import org.jfantasy.framework.spring.SpringContextUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -61,6 +63,11 @@ public class DaoConfig {
         registry.prependListeners(EventType.PERSIST, createListenerInstance(new PropertyGeneratorPersistEventListener(identifierGeneratorFactory)));
     }
 
+//    @Bean
+//    public DataSource myBatisDataSource(DataSource dataSource) {
+//        return ((DruidDataSource) dataSource).cloneDruidDataSource();
+//    }
+
     /**
      * 返回 EventListenerRegistry 对象
      *
@@ -81,13 +88,6 @@ public class DaoConfig {
     @Bean(name = "transactionManager")
     public PlatformTransactionManager jpaTransactionManager() {
         return new JpaTransactionManager(entityManagerFactory);
-    }
-
-    @Bean(name = "dataSourceTransactionManager")
-    public PlatformTransactionManager dataSourceTransactionManager(DataSource dataSource) {
-        DataSourceTransactionManager dataSourceTransactionManager = new DataSourceTransactionManager();
-        dataSourceTransactionManager.setDataSource(dataSource);
-        return dataSourceTransactionManager;
     }
 
 }
