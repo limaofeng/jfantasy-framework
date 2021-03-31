@@ -4,7 +4,10 @@ import org.jfantasy.framework.dao.jpa.PropertyFilter.MatchType;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author limaofeng
@@ -159,33 +162,33 @@ public class PropertyFilterBuilder {
         return this;
     }
 
-    public PropertyFilterBuilder and(PropertyFilterBuilder builder) {
-        this.filters.add(new PropertyFilter(MatchType.AND, builder.build()));
+    public PropertyFilterBuilder and(PropertyFilterBuilder... builders) {
+        this.filters.add(new PropertyFilter(MatchType.AND, Arrays.stream(builders).map(item -> item.build()).collect(Collectors.toList())));
         return this;
     }
 
-    public PropertyFilterBuilder and(List<PropertyFilter> filters) {
+    public PropertyFilterBuilder and(List<PropertyFilter>... filters) {
         this.filters.add(new PropertyFilter(MatchType.AND, filters));
         return this;
     }
 
-    public PropertyFilterBuilder and(Specification specification) {
-        this.filters.add(new PropertyFilter(MatchType.AND, specification));
+    public PropertyFilterBuilder and(Specification... specifications) {
+        this.filters.add(new PropertyFilter(MatchType.AND, specifications));
         return this;
     }
 
-    public PropertyFilterBuilder or(List<PropertyFilter> filters) {
+    public PropertyFilterBuilder or(List<PropertyFilter>... filters) {
         this.filters.add(new PropertyFilter(MatchType.OR, filters));
         return this;
     }
 
-    public PropertyFilterBuilder or(PropertyFilterBuilder builder) {
-        this.filters.add(new PropertyFilter(MatchType.OR, builder.build()));
+    public PropertyFilterBuilder or(PropertyFilterBuilder... builders) {
+        this.filters.add(new PropertyFilter(MatchType.OR, Arrays.stream(builders).map(item -> item.build()).collect(Collectors.toList())));
         return this;
     }
 
-    public PropertyFilterBuilder or(Specification specification) {
-        this.filters.add(new PropertyFilter(MatchType.OR, specification));
+    public PropertyFilterBuilder or(Specification... specifications) {
+        this.filters.add(new PropertyFilter(MatchType.OR, specifications));
         return this;
     }
 
