@@ -64,16 +64,16 @@ public class PropertyFilter {
         this.propertyValue = value;
     }
 
-    protected <T> PropertyFilter(MatchType matchType, String propertyName) {
+    public <T> PropertyFilter(MatchType matchType, String propertyName) {
         this.initialize(matchType, propertyName);
     }
 
-    protected <T> PropertyFilter(MatchType matchType, String propertyName, T value) {
+    public <T> PropertyFilter(MatchType matchType, String propertyName, T value) {
         this.initialize(matchType, propertyName);
         this.propertyValue = value;
     }
 
-    protected <T> PropertyFilter(MatchType matchType, String propertyName, T... value) {
+    public <T> PropertyFilter(MatchType matchType, String propertyName, T... value) {
         this.initialize(matchType, propertyName);
         this.propertyValue = value;
     }
