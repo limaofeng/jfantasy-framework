@@ -30,7 +30,7 @@ public class PropertyFilter {
      */
     private MatchType matchType;
 
-    protected <T> PropertyFilter(MatchType matchType, T value) {
+    public <T> PropertyFilter(MatchType matchType, T value) {
         this.matchType = matchType;
         this.propertyValue = value;
     }
