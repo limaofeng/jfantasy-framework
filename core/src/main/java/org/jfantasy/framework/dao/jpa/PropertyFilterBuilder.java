@@ -22,6 +22,10 @@ public class PropertyFilterBuilder {
     public PropertyFilterBuilder() {
     }
 
+    public PropertyFilterBuilder(List<PropertyFilter> filters) {
+        this.filters = filters;
+    }
+
     public List<PropertyFilter> build() {
         return this.filters;
     }
@@ -43,17 +47,32 @@ public class PropertyFilterBuilder {
      * 模糊查询
      */
     public PropertyFilterBuilder contains(String name, String value) {
-        this.filters.add(new PropertyFilter(MatchType.LIKE, name, "%" + value + "%"));
+        this.filters.add(new PropertyFilter(MatchType.CONTAINS, name, value));
+        return this;
+    }
+
+    public PropertyFilterBuilder notContains(String name, String value) {
+        this.filters.add(new PropertyFilter(MatchType.NOT_CONTAINS, name, value));
         return this;
     }
 
     public PropertyFilterBuilder startsWith(String name, String value) {
-        this.filters.add(new PropertyFilter(MatchType.LIKE, name, value + "%"));
+        this.filters.add(new PropertyFilter(MatchType.STARTS_WITH, name, value + "%"));
+        return this;
+    }
+
+    public PropertyFilterBuilder notStartsWith(String name, String value) {
+        this.filters.add(new PropertyFilter(MatchType.NOT_STARTS_WITH, name, value + "%"));
         return this;
     }
 
     public PropertyFilterBuilder endsWith(String name, String value) {
-        this.filters.add(new PropertyFilter(MatchType.LIKE, name, "%" + value));
+        this.filters.add(new PropertyFilter(MatchType.ENDS_WITH, name, "%" + value));
+        return this;
+    }
+
+    public PropertyFilterBuilder notEndsWith(String name, String value) {
+        this.filters.add(new PropertyFilter(MatchType.NOT_ENDS_WITH, name, "%" + value));
         return this;
     }
 
@@ -78,7 +97,7 @@ public class PropertyFilterBuilder {
      * 小于等于
      */
     public PropertyFilterBuilder lessThanOrEqual(String name, Object value) {
-        this.filters.add(new PropertyFilter(MatchType.LE, name, value));
+        this.filters.add(new PropertyFilter(MatchType.LTE, name, value));
         return this;
     }
 
@@ -86,7 +105,7 @@ public class PropertyFilterBuilder {
      * 大于等于
      */
     public PropertyFilterBuilder greaterThanOrEqual(String name, Object value) {
-        this.filters.add(new PropertyFilter(MatchType.GE, name, value));
+        this.filters.add(new PropertyFilter(MatchType.GTE, name, value));
         return this;
     }
 
@@ -113,7 +132,7 @@ public class PropertyFilterBuilder {
      * not in
      */
     public <T> PropertyFilterBuilder notIn(String name, T... value) {
-        this.filters.add(new PropertyFilter(MatchType.NOTIN, name, value));
+        this.filters.add(new PropertyFilter(MatchType.NOT_IN, name, value));
         return this;
     }
 
@@ -121,7 +140,7 @@ public class PropertyFilterBuilder {
      * 不等于
      */
     public <T> PropertyFilterBuilder notEqual(String name, T value) {
-        this.filters.add(new PropertyFilter(MatchType.NE, name, value));
+        this.filters.add(new PropertyFilter(MatchType.NOT_EQUAL, name, value));
         return this;
     }
 
@@ -137,7 +156,7 @@ public class PropertyFilterBuilder {
      * not null
      */
     public PropertyFilterBuilder isNotNull(String name) {
-        this.filters.add(new PropertyFilter(MatchType.NOTNULL, name));
+        this.filters.add(new PropertyFilter(MatchType.NOT_NULL, name));
         return this;
     }
 
@@ -153,7 +172,7 @@ public class PropertyFilterBuilder {
      *
      */
     public PropertyFilterBuilder isNotEmpty(String name) {
-        this.filters.add(new PropertyFilter(MatchType.NOTEMPTY, name));
+        this.filters.add(new PropertyFilter(MatchType.NOT_EMPTY, name));
         return this;
     }
 
@@ -189,6 +208,21 @@ public class PropertyFilterBuilder {
 
     public PropertyFilterBuilder or(Specification... specifications) {
         this.filters.add(new PropertyFilter(MatchType.OR, specifications));
+        return this;
+    }
+
+    public PropertyFilterBuilder not(List<PropertyFilter>... filters) {
+        this.filters.add(new PropertyFilter(MatchType.NOT, filters));
+        return this;
+    }
+
+    public PropertyFilterBuilder not(PropertyFilterBuilder... builders) {
+        this.filters.add(new PropertyFilter(MatchType.NOT, Arrays.stream(builders).map(item -> item.build()).collect(Collectors.toList())));
+        return this;
+    }
+
+    public PropertyFilterBuilder not(Specification... specifications) {
+        this.filters.add(new PropertyFilter(MatchType.NOT, specifications));
         return this;
     }
 

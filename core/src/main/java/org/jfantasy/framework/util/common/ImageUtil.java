@@ -31,6 +31,7 @@ import java.util.Iterator;
  * @version 1.0
  * @since 2013-3-15 上午10:17:58
  */
+@Deprecated
 public final class ImageUtil {
 
     private static final Log LOG = LogFactory.getLog(ImageUtil.class);

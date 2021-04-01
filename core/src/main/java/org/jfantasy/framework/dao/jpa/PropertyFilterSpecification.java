@@ -30,12 +30,11 @@ public class PropertyFilterSpecification implements Specification {
 
     @Override
     public Predicate toPredicate(Root root, CriteriaQuery query, CriteriaBuilder builder) {
-//        query.distinct(true);
         List<Predicate> predicates = new ArrayList<>();
         for (PropertyFilter filter : filters) {
             if (filter.isSpecification()) {
                 join(predicates, filter.getPropertyValue(Specification.class).toPredicate(root, query, builder));
-            } else if (filter.getMatchType() == MatchType.AND || filter.getMatchType() == MatchType.OR) {
+            } else if (filter.getMatchType() == MatchType.AND || filter.getMatchType() == MatchType.OR || filter.getMatchType() == MatchType.NOT) {
                 Predicate[] predicateChildren = buildPropertyFilterPredicate(filter.getPropertyValue(List.class), root, query, builder);
                 if (predicateChildren.length == 0) {
                     continue;
@@ -49,10 +48,16 @@ public class PropertyFilterSpecification implements Specification {
     }
 
     private Predicate conjunction(MatchType matchType, CriteriaBuilder builder, Predicate[] predicates) {
+        if (matchType == MatchType.NOT) {
+            return builder.not(conjunction(MatchType.AND, builder, predicates));
+        }
         if (predicates.length == 1) {
             return predicates[0];
         }
-        return matchType == MatchType.AND ? builder.and(predicates) : builder.or(predicates);
+        if (matchType == MatchType.OR) {
+            return builder.or(predicates);
+        }
+        return builder.and(predicates);
     }
 
     private Predicate[] buildPropertyFilterPredicate(List<List<PropertyFilter>> filters, Root root, CriteriaQuery query, CriteriaBuilder builder) {
@@ -76,7 +81,7 @@ public class PropertyFilterSpecification implements Specification {
         return filter.getPropertyValue(ClassUtil.getPropertyType(this.entityClass, filter.getPropertyName()));
     }
 
-    protected Predicate buildPropertyFilterPredicate(Root root, CriteriaBuilder builder, String propertyName, Object propertyValue, PropertyFilter.MatchType matchType) {
+    protected Predicate buildPropertyFilterPredicate(Root root, CriteriaBuilder builder, String propertyName, Object propertyValue, MatchType matchType) {
         Assert.hasText(propertyName, "propertyName不能为空");
 
         Path path = root;
@@ -89,50 +94,60 @@ public class PropertyFilterSpecification implements Specification {
             path = tmp;
         }
 
-        if (PropertyFilter.MatchType.EQ.equals(matchType)) {
+        if (MatchType.EQ == matchType) {
             return builder.equal(path, propertyValue);
-        } else if (PropertyFilter.MatchType.LIKE.equals(matchType)) {
-            return builder.like(path, (String) propertyValue);
-        } else if (PropertyFilter.MatchType.LE.equals(matchType)) {
+        } else if (MatchType.CONTAINS == matchType) {
+            return builder.like(path, '%' + (String) propertyValue + '%');
+        } else if (MatchType.NOT_CONTAINS == matchType) {
+            return builder.notLike(path, '%' + (String) propertyValue + '%');
+        } else if (MatchType.STARTS_WITH == matchType) {
+            return builder.like(path, (String) propertyValue + '%');
+        } else if (MatchType.NOT_STARTS_WITH == matchType) {
+            return builder.notLike(path, (String) propertyValue + '%');
+        } else if (MatchType.ENDS_WITH == matchType) {
+            return builder.like(path, '%' + (String) propertyValue);
+        } else if (MatchType.NOT_ENDS_WITH == matchType) {
+            return builder.notLike(path, '%' + (String) propertyValue);
+        } else if (MatchType.LTE == matchType || MatchType.LE == matchType) {
             return builder.lessThanOrEqualTo(path, (Comparable) propertyValue);
-        } else if (PropertyFilter.MatchType.LT.equals(matchType)) {
+        } else if (MatchType.LT == matchType) {
             return builder.lessThan(path, (Comparable) propertyValue);
-        } else if (PropertyFilter.MatchType.GE.equals(matchType)) {
+        } else if (MatchType.GTE == matchType || MatchType.GE == matchType) {
             return builder.greaterThanOrEqualTo(path, (Comparable) propertyValue);
-        } else if (PropertyFilter.MatchType.GT.equals(matchType)) {
+        } else if (MatchType.GT == matchType) {
             return builder.greaterThan(path, (Comparable) propertyValue);
-        } else if (PropertyFilter.MatchType.IN.equals(matchType)) {
-            if (ClassUtil.isArray(propertyValue)) {
-                return path.in((Object[]) propertyValue);
-            }
-            if (ClassUtil.isList(propertyValue)) {
-                return path.in((Collection<?>) propertyValue);
-            }
-            return path.in(propertyValue);
-        } else if (PropertyFilter.MatchType.NOTIN.equals(matchType)) {
-            if (ClassUtil.isArray(propertyValue)) {
-                return builder.not(path.in((Object[]) propertyValue));
-            }
-            if (ClassUtil.isList(propertyValue)) {
-                return builder.not(path.in((Collection<?>) propertyValue));
-            }
-            return builder.not(path.in(propertyValue));
-        } else if (PropertyFilter.MatchType.NE.equals(matchType)) {
+        } else if (MatchType.IN == matchType) {
+            return path.in(multipleValuesObjectsObjects(propertyValue));
+        } else if (MatchType.NOT_IN == matchType || MatchType.NOTIN == matchType) {
+            return builder.not(path.in(multipleValuesObjectsObjects(propertyValue)));
+        } else if (MatchType.NOT_EQUAL == matchType || MatchType.NE == matchType) {
             return builder.notEqual(path, propertyValue);
-        } else if (PropertyFilter.MatchType.NULL.equals(matchType)) {
+        } else if (MatchType.NULL == matchType) {
             return builder.isNull(path);
-        } else if (PropertyFilter.MatchType.NOTNULL.equals(matchType)) {
+        } else if (MatchType.NOT_NULL == matchType || MatchType.NOTNULL == matchType) {
             return builder.isNotNull(path);
-        } else if (PropertyFilter.MatchType.EMPTY.equals(matchType)) {
+        } else if (MatchType.EMPTY == matchType) {
             return builder.isEmpty(path);
-        } else if (PropertyFilter.MatchType.NOTEMPTY.equals(matchType)) {
+        } else if (MatchType.NOT_EMPTY == matchType || MatchType.NOTEMPTY == matchType) {
             return builder.isNotEmpty(path);
-        } else if (PropertyFilter.MatchType.BETWEEN.equals(matchType)) {
+        } else if (MatchType.BETWEEN == matchType) {
             Comparable x = (Comparable) Array.get(propertyValue, 0);
             Comparable y = (Comparable) Array.get(propertyValue, 1);
             return builder.between(path, x, y);
+        } else if (MatchType.LIKE == matchType) {
+            return builder.like(path, (String) propertyValue);
         }
         throw new RuntimeException("不支持的查询");
+    }
+
+    private static Object[] multipleValuesObjectsObjects(Object value) {
+        if (ClassUtil.isArray(value)) {
+            return (Object[]) value;
+        }
+        if (ClassUtil.isList(value)) {
+            return ((Collection<?>) value).stream().toArray(Object[]::new);
+        }
+        return new Object[]{value};
     }
 
 }

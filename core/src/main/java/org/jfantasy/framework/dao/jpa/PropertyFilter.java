@@ -129,84 +129,102 @@ public class PropertyFilter {
         /**
          * 添加 and 链接符
          */
-        AND(false),
+        AND("and"),
         /**
          * 添加 or 链接符
          */
-        OR(false),
+        OR("or"),
         /**
          * 等于
          */
-        EQ(false),
-        /**
-         * 模糊查询
-         */
-        LIKE(false),
-        /**
-         * 小于
-         */
-        LT(false),
-        /**
-         * 大于
-         */
-        GT(false),
-        /**
-         * 小于等于
-         */
-        LE(false),
-        /**
-         * 大于等于
-         */
-        GE(false),
-        /**
-         * in
-         */
-        IN(true),
-        /**
-         * not in
-         */
-        NOTIN(true),
+        EQ("equal"),
         /**
          * 不等于
          */
-        NE(false),
+        NOT("not"),
+
+        CONTAINS("contains"),
+
+        NOT_CONTAINS("notContains"),
+
+        STARTS_WITH("startsWith"),
+
+        NOT_STARTS_WITH("notStartsWith"),
+
+        ENDS_WITH("endsWith"),
+
+        NOT_ENDS_WITH("notEndsWith"),
+        /**
+         * 小于
+         */
+        LT("lt"),
+        /**
+         * 大于
+         */
+        GT("gt"),
+        /**
+         * 小于等于
+         */
+        LTE("lte"),
+        /**
+         * 大于等于
+         */
+        GTE("gte"),
+        /**
+         * in
+         */
+        IN("in"),
+        /**
+         * not in
+         */
+        NOT_IN("notIn"),
+        /**
+         * 不等于
+         */
+        NOT_EQUAL("notEqual"),
         /**
          * is null
          */
-        NULL,
+        NULL("null"),
         /**
          * not null
          */
-        NOTNULL,
+        NOT_NULL("notNull"),
         /**
          *
          */
-        EMPTY,
+        EMPTY("empty"),
         /**
          *
          */
-        NOTEMPTY, BETWEEN(false), SQL(false);
+        NOT_EMPTY("notEmpty"),
 
+        BETWEEN("between"),
         /**
-         * 是否存在参数
+         * 模糊查询
          */
-        private boolean none;
+        @Deprecated
+        LIKE("like"),
         /**
-         * 是否有多个参数
+         * 不存在
          */
-        private boolean multi;
+        @Deprecated
+        NOTEMPTY("notEmpty"),
+        @Deprecated
+        NOTNULL("notNull"),
+        @Deprecated
+        NE("NE"),
+        @Deprecated
+        NOTIN("notIn"),
+        @Deprecated
+        LE("lte"),
+        @Deprecated
+        GE("gte");
 
-        MatchType() {
-            this(true, false);
-        }
+        private String name;
 
-        MatchType(boolean multi) {
-            this(false, multi);
-        }
-
-        MatchType(boolean none, boolean multi) {
-            this.none = none;
-            this.multi = multi;
+        MatchType(String name) {
+            this.name = name;
         }
 
         public static MatchType get(String str) {
@@ -222,13 +240,6 @@ public class PropertyFilter {
             return get(str) != null;
         }
 
-        public boolean isMulti() {
-            return multi;
-        }
-
-        public boolean isNone() {
-            return none;
-        }
     }
 
     @Override
