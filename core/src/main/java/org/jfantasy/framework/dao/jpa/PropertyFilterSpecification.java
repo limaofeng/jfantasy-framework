@@ -8,65 +8,59 @@ import org.springframework.util.Assert;
 
 import javax.persistence.criteria.*;
 import java.lang.reflect.Array;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * @author limaofeng
  * @version V1.0
- * @Description: TODO
+ * @Description: PropertyFilter 的 JPA 实现
  * @date 14/11/2017 10:01 AM
  */
 public class PropertyFilterSpecification implements Specification {
 
-    private final MatchType matchType;
     private List<PropertyFilter> filters;
     private Class<?> entityClass;
 
     public PropertyFilterSpecification(Class<?> entityClass, List<PropertyFilter> filters) {
-        this.matchType = MatchType.AND;
-        this.entityClass = entityClass;
-        this.filters = filters;
-    }
-
-    private PropertyFilterSpecification(MatchType matchType, Class<?> entityClass, List<PropertyFilter> filters) {
-        this.matchType = matchType;
         this.entityClass = entityClass;
         this.filters = filters;
     }
 
     @Override
     public Predicate toPredicate(Root root, CriteriaQuery query, CriteriaBuilder builder) {
-        query.distinct(true);
-
+//        query.distinct(true);
         List<Predicate> predicates = new ArrayList<>();
         for (PropertyFilter filter : filters) {
-            if (filter.getMatchType() == MatchType.AND || filter.getMatchType() == MatchType.OR) {
-                join(predicates, buildPropertyFilterPredicate(filter, root, query, builder));
+            if (filter.isSpecification()) {
+                join(predicates, filter.getPropertyValue(Specification.class).toPredicate(root, query, builder));
+            } else if (filter.getMatchType() == MatchType.AND || filter.getMatchType() == MatchType.OR) {
+                Predicate[] predicateChildren = buildPropertyFilterPredicate(filter.getPropertyValue(List.class), root, query, builder);
+                if (predicateChildren.length == 0) {
+                    continue;
+                }
+                join(predicates, conjunction(filter.getMatchType(), builder, predicateChildren));
             } else {
                 join(predicates, buildPropertyFilterPredicate(root, builder, filter.getPropertyName(), getPropertyValue(filter), filter.getMatchType()));
             }
         }
-
-        if (this.matchType == MatchType.AND) {
-            return builder.and(predicates.stream().toArray(size -> new Predicate[size]));
-        }
-        return builder.or(predicates.stream().toArray(size -> new Predicate[size]));
+        return conjunction(MatchType.AND, builder, predicates.stream().toArray(Predicate[]::new));
     }
 
-    private Predicate conjunction(MatchType matchType, CriteriaBuilder builder, Predicate x, Predicate y) {
-        if (x == null) {
-            return y;
+    private Predicate conjunction(MatchType matchType, CriteriaBuilder builder, Predicate[] predicates) {
+        if (predicates.length == 1) {
+            return predicates[0];
         }
-        return matchType == MatchType.AND ? builder.and(x, y) : builder.or(x, y);
+        return matchType == MatchType.AND ? builder.and(predicates) : builder.or(predicates);
     }
 
-    private Predicate buildPropertyFilterPredicate(PropertyFilter filter, Root root, CriteriaQuery query, CriteriaBuilder builder) {
-        Specification specification;
-        if (filter.isSpecification()) {
-            specification = filter.getPropertyValue();
-        } else {
-            specification = new PropertyFilterSpecification(filter.getMatchType(), this.entityClass, filter.getPropertyValue());
-        }
+    private Predicate[] buildPropertyFilterPredicate(List<List<PropertyFilter>> filters, Root root, CriteriaQuery query, CriteriaBuilder builder) {
+        return filters.stream().map(item -> buildMultiplePropertyFilterPredicate(item, root, query, builder)).toArray(Predicate[]::new);
+    }
+
+    private Predicate buildMultiplePropertyFilterPredicate(List<PropertyFilter> filters, Root root, CriteriaQuery query, CriteriaBuilder builder) {
+        Specification specification = new PropertyFilterSpecification(this.entityClass, filters);
         return specification.toPredicate(root, query, builder);
     }
 

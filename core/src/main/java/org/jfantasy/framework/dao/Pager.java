@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import org.apache.ibatis.type.Alias;
 import org.jfantasy.framework.util.web.RedirectAttributesWriter;
@@ -20,6 +21,8 @@ import java.util.List;
  * @param <T>
  * @author limaofeng
  */
+@Builder
+@AllArgsConstructor
 @Alias("Pager")
 @JsonIgnoreProperties(value = {"orders", "first", "order_by_setted"})
 public class Pager<T> implements Serializable {

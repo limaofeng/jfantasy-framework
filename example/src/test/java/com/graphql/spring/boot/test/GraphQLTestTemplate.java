@@ -32,6 +32,10 @@ public class GraphQLTestTemplate {
 
     private HttpHeaders headers = new HttpHeaders();
 
+    public GraphQLTestTemplate(ResourceLoader resourceLoader, TestRestTemplate restTemplate, String graphqlMapping, ObjectMapper objectMapper) {
+
+    }
+
     private String createJsonQuery(String graphql, ObjectNode variables)
         throws JsonProcessingException {
 
