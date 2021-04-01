@@ -5,12 +5,16 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.util.LinkedMultiValueMap;
 
+/**
+ * @author limaofeng
+ */
 public class RequestFactory {
+
     private RequestFactory() {
     }
 
     static HttpEntity<Object> forJson(String json, HttpHeaders headers) {
-        headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+        headers.setContentType(MediaType.APPLICATION_JSON);
         return new HttpEntity<>(json, headers);
     }
 

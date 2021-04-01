@@ -12,7 +12,7 @@ query users{
                 username
                 password
                 creator
-                modifier
+                updator
                 createdAt
                 updatedAt
             }

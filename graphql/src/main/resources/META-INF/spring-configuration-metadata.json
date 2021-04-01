@@ -1,0 +1,9 @@
+{
+  "properties": [
+    {
+      "name": "graphql.client.GLOBAL.address",
+      "type": "java.lang.String",
+      "description": "GraphQL Client 地址"
+    }
+  ]
+}

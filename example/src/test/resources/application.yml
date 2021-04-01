@@ -70,6 +70,10 @@ graphql:
   tools:
     schema-location-pattern: "**/*.graphqls"
     introspection-enabled: true
+  client:
+    GLOBAL:
+      address: http://dj.dev.thuni-h.com/graphql
+
 logging:
   path: ~/logs
   config: classpath:logback.xml

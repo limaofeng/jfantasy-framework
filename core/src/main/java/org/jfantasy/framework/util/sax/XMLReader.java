@@ -1,18 +1,17 @@
 package org.jfantasy.framework.util.sax;
 
+import lombok.SneakyThrows;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.File;
-import java.io.IOException;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.*;
 
-public class XMLReader {
+public abstract class XMLReader {
 
     private XMLReader() {
         throw new IllegalStateException("Utility class");
@@ -20,54 +19,27 @@ public class XMLReader {
 
     private static final Log LOGGER = LogFactory.getLog(XMLReader.class);
 
+    @SneakyThrows
     public static XmlElement reader(InputStream input) {
         SAXParserFactory factory = SAXParserFactory.newInstance();
         factory.setValidating(false);
-        SAXParser saxParse;
-        try {
-            saxParse = factory.newSAXParser();
-            SaxXmlHandler handler = new SaxXmlHandler();
-            saxParse.parse(input, handler);
-            return handler.getElement();
-        } catch (ParserConfigurationException | SAXException | IOException e) {
-            LOGGER.error(e.getMessage(), e);
-        }
-        return null;
+        SAXParser saxParse = factory.newSAXParser();
+        SaxXmlHandler handler = new SaxXmlHandler();
+        saxParse.parse(input, handler);
+        return handler.getElement();
     }
 
+    @SneakyThrows
     public static XmlElement reader(String path) {
-        File xmlfile = new File(path);
+        File xmlFile = new File(path);
         LOGGER.info("开始解析XML文件：[" + path + "]");
-        SAXParserFactory factory = SAXParserFactory.newInstance();
-        factory.setValidating(false);
-        SAXParser saxParse = null;
+        InputStream input = new FileInputStream(xmlFile);
         try {
-            saxParse = factory.newSAXParser();
-            SaxXmlHandler handler = new SaxXmlHandler();
-            saxParse.parse(xmlfile, handler);
+            return reader(input);
+        } finally {
             LOGGER.info("XML文件：[" + path + "]解析完成");
-            return handler.getElement();
-        } catch (ParserConfigurationException | SAXException | IOException e) {
-            LOGGER.error(e.getMessage(), e);
+            input.close();
         }
-        return null;
-    }
-
-    public static XmlElement reader(String path, InputStream stream) {
-        LOGGER.info("开始解析XML文件：[" + path + "]");
-        SAXParserFactory factory = SAXParserFactory.newInstance();
-        factory.setValidating(false);
-        SAXParser saxParse = null;
-        try {
-            saxParse = factory.newSAXParser();
-            SaxXmlHandler handler = new SaxXmlHandler();
-            saxParse.parse(stream, handler);
-            LOGGER.info("XML文件：[" + path + "]解析完成");
-            return handler.getElement();
-        } catch (ParserConfigurationException | SAXException | IOException e) {
-            LOGGER.error(e.getMessage(), e);
-        }
-        return null;
     }
 
     public static String toJSON(XmlElement element) {
@@ -104,10 +76,10 @@ public class XMLReader {
         StringBuilder buffer = new StringBuilder();
         List<XmlElement> list = element.getChildNodes();
         if (list != null) {
-            Map<String, List<XmlElement>> map = new HashMap<String, List<XmlElement>>();
+            Map<String, List<XmlElement>> map = new HashMap<>();
             for (XmlElement ele : list) {
                 if (!map.containsKey(ele.getTagName())) {
-                    map.put(ele.getTagName(), new ArrayList<XmlElement>());
+                    map.put(ele.getTagName(), new ArrayList<>());
                 }
                 List<XmlElement> nList = map.get(ele.getTagName());
                 nList.add(ele);

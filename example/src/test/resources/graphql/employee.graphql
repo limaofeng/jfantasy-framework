@@ -1,0 +1,11 @@
+query users{
+    users: employees(organization: "fkdzz"){
+        pageSize
+        edges{
+            node{
+                id
+                name
+            }
+        }
+    }
+}
