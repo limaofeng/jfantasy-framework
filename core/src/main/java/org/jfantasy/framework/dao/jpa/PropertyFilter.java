@@ -221,10 +221,14 @@ public class PropertyFilter {
         @Deprecated
         GE("gte");
 
-        private String name;
+        private final String slug;
 
-        MatchType(String name) {
-            this.name = name;
+        MatchType(String slug) {
+            this.slug = slug;
+        }
+
+        public String getSlug() {
+            return slug;
         }
 
         public static MatchType get(String str) {
