@@ -2,9 +2,15 @@ package org.jfantasy.framework.dao.jpa;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jfantasy.framework.util.common.ClassUtil;
+import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.regexp.RegexpUtil;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.Assert;
+
+import java.lang.reflect.Array;
+import java.util.Collection;
+
+import static org.jfantasy.framework.util.common.ObjectUtil.multipleValuesObjectsObjects;
 
 /**
  * 通用过滤器
@@ -129,102 +135,108 @@ public class PropertyFilter {
         /**
          * 添加 and 链接符
          */
-        AND("and"),
+        AND("and", (builder, name, value) -> builder.and((PropertyFilterBuilder[]) multipleValuesObjectsObjects(value))),
         /**
          * 添加 or 链接符
          */
-        OR("or"),
+        OR("or", (builder, name, value) -> builder.or((PropertyFilterBuilder[]) multipleValuesObjectsObjects(value))),
+        /**
+         * 不等于
+         */
+        NOT("not", (builder, name, value) -> builder.not((PropertyFilterBuilder[]) multipleValuesObjectsObjects(value))),
         /**
          * 等于
          */
-        EQ("equal"),
+        EQ("equal", (builder, name, value) -> builder.equal(name, value)),
         /**
          * 不等于
          */
-        NOT("not"),
+        NOT_EQUAL("notEqual", (builder, name, value) -> builder.notEqual(name, value)),
 
-        CONTAINS("contains"),
+        CONTAINS("contains", (builder, name, value) -> builder.contains(name, (String) value)),
 
-        NOT_CONTAINS("notContains"),
+        NOT_CONTAINS("notContains", (builder, name, value) -> builder.notContains(name, (String) value)),
 
-        STARTS_WITH("startsWith"),
+        STARTS_WITH("startsWith", (builder, name, value) -> builder.startsWith(name, (String) value)),
 
-        NOT_STARTS_WITH("notStartsWith"),
+        NOT_STARTS_WITH("notStartsWith", (builder, name, value) -> builder.notStartsWith(name, (String) value)),
 
-        ENDS_WITH("endsWith"),
+        ENDS_WITH("endsWith", (builder, name, value) -> builder.endsWith(name, (String) value)),
 
-        NOT_ENDS_WITH("notEndsWith"),
+        NOT_ENDS_WITH("notEndsWith", (builder, name, value) -> builder.notEndsWith(name, (String) value)),
         /**
          * 小于
          */
-        LT("lt"),
+        LT("lt", (builder, name, value) -> builder.lessThan(name, value)),
         /**
          * 大于
          */
-        GT("gt"),
+        GT("gt", (builder, name, value) -> builder.greaterThan(name, value)),
         /**
          * 小于等于
          */
-        LTE("lte"),
+        LTE("lte", (builder, name, value) -> builder.lessThanOrEqual(name, value)),
         /**
          * 大于等于
          */
-        GTE("gte"),
+        GTE("gte", (builder, name, value) -> builder.lessThanOrEqual(name, value)),
         /**
          * in
          */
-        IN("in"),
+        IN("in", (builder, name, value) -> builder.in(name, multipleValuesObjectsObjects(value))),
         /**
          * not in
          */
-        NOT_IN("notIn"),
-        /**
-         * 不等于
-         */
-        NOT_EQUAL("notEqual"),
+        NOT_IN("notIn", (builder, name, value) -> builder.notIn(name, value)),
         /**
          * is null
          */
-        NULL("null"),
+        NULL("null", (builder, name, value) -> builder.isNull(name)),
         /**
          * not null
          */
-        NOT_NULL("notNull"),
+        NOT_NULL("notNull", (builder, name, value) -> builder.isNotNull(name)),
         /**
          *
          */
-        EMPTY("empty"),
+        EMPTY("empty", (builder, name, value) -> builder.isEmpty(name)),
         /**
          *
          */
-        NOT_EMPTY("notEmpty"),
+        NOT_EMPTY("notEmpty", (builder, name, value) -> builder.isNotEmpty(name)),
 
-        BETWEEN("between"),
+        BETWEEN("between", (builder, name, value) -> {
+            Comparable x = (Comparable) Array.get(value, 0);
+            Comparable y = (Comparable) Array.get(value, 1);
+            return builder.between(name, x, y);
+        }),
         /**
          * 模糊查询
          */
         @Deprecated
-        LIKE("like"),
+        LIKE("like", (builder, name, value) -> builder.contains(name, (String) value)),
         /**
          * 不存在
          */
         @Deprecated
-        NOTEMPTY("notEmpty"),
+        NOTEMPTY("notEmpty", (builder, name, value) -> builder.isNotEmpty(name)),
         @Deprecated
-        NOTNULL("notNull"),
+        NOTNULL("notNull", (builder, name, value) -> builder.isNotNull(name)),
         @Deprecated
-        NE("NE"),
+        NE("NE", (builder, name, value) -> builder.notEqual(name, value)),
         @Deprecated
-        NOTIN("notIn"),
+        NOTIN("notIn", (builder, name, value) -> builder.notIn(name, (Object[]) value)),
         @Deprecated
-        LE("lte"),
+        LE("lte", (builder, name, value) -> builder.lessThanOrEqual(name, value)),
         @Deprecated
-        GE("gte");
+        GE("gte", (builder, name, value) -> builder.greaterThanOrEqual(name, value));
 
         private final String slug;
+        private final MatchBuilder builder;
 
-        MatchType(String slug) {
+        MatchType(String slug, MatchBuilder builder) {
             this.slug = slug;
+            this.builder = builder;
         }
 
         public String getSlug() {
@@ -232,8 +244,9 @@ public class PropertyFilter {
         }
 
         public static MatchType get(String str) {
+            str = ObjectUtil.exists(new String[]{"AND", "OR", "NOT"}, str) ? str.toLowerCase() : str;
             for (MatchType matchType : MatchType.values()) {
-                if (RegexpUtil.find(str, "^" + matchType.toString())) {
+                if (RegexpUtil.find(str, "^" + matchType.slug)) {
                     return matchType;
                 }
             }
@@ -244,11 +257,18 @@ public class PropertyFilter {
             return get(str) != null;
         }
 
+        public <T> void build(PropertyFilterBuilder builder, String name, Object value) {
+            this.builder.exec(builder, name, value);
+        }
     }
 
     @Override
     public String toString() {
         return "PropertyFilter [matchType=" + matchType + ", propertyName=" + propertyName + ", propertyValue=" + propertyValue + "]";
+    }
+
+    static interface MatchBuilder {
+        PropertyFilterBuilder exec(PropertyFilterBuilder builder, String name, Object value);
     }
 
 }

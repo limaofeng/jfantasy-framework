@@ -771,4 +771,14 @@ public final class ObjectUtil {
         }
     }
 
+    public static <T> T[] multipleValuesObjectsObjects(Object value) {
+        if (ClassUtil.isArray(value)) {
+            return (T[]) value;
+        }
+        if (ClassUtil.isList(value)) {
+            return (T[]) ((Collection<?>) value).stream().toArray((Object[]::new));
+        }
+        return (T[]) new Object[]{value};
+    }
+
 }

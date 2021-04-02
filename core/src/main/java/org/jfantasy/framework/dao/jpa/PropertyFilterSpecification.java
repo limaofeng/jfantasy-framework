@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static org.jfantasy.framework.util.common.ObjectUtil.multipleValuesObjectsObjects;
+
 /**
  * @author limaofeng
  * @version V1.0
@@ -138,16 +140,6 @@ public class PropertyFilterSpecification implements Specification {
             return builder.like(path, (String) propertyValue);
         }
         throw new RuntimeException("不支持的查询");
-    }
-
-    private static Object[] multipleValuesObjectsObjects(Object value) {
-        if (ClassUtil.isArray(value)) {
-            return (Object[]) value;
-        }
-        if (ClassUtil.isList(value)) {
-            return ((Collection<?>) value).stream().toArray(Object[]::new);
-        }
-        return new Object[]{value};
     }
 
 }
