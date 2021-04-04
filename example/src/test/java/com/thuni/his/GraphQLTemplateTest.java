@@ -1,5 +1,11 @@
 package com.thuni.his;
 
+import graphql.ExecutionResult;
+import graphql.ExecutionResultImpl;
+import graphql.introspection.IntrospectionQuery;
+import graphql.introspection.IntrospectionResultToSchema;
+import graphql.language.Document;
+import graphql.schema.idl.SchemaPrinter;
 import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.graphql.client.GraphQLClient;
 import org.jfantasy.graphql.client.GraphQLResponse;
@@ -11,9 +17,12 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static graphql.schema.idl.SchemaPrinter.Options.defaultOptions;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = TestApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -30,6 +39,24 @@ public class GraphQLTemplateTest {
         assertNotNull(response);
         assertThat(response.isOk()).isTrue();
         assertThat(response.get("$.data.users.pageSize", Integer.class)).isEqualTo(15);
+
+    }
+
+    @Test
+    public void introspection() throws IOException {
+        GraphQLResponse response = client.post(IntrospectionQuery.INTROSPECTION_QUERY, "IntrospectionQuery");
+        assertNotNull(response);
+        assertThat(response.isOk()).isTrue();
+
+        ExecutionResult executionResult = new ExecutionResultImpl(response.get("$.data", HashMap.class),new ArrayList<>());
+
+        Document schemaDefinition = new IntrospectionResultToSchema().createSchemaDefinition(executionResult);
+
+        SchemaPrinter.Options noDirectivesOption = defaultOptions().includeDirectives(false);
+
+        String result = new SchemaPrinter(noDirectivesOption).print(schemaDefinition);
+
+        System.out.println(result);
     }
 
 }

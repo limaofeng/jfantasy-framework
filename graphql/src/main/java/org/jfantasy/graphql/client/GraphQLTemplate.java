@@ -26,6 +26,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static java.util.Objects.nonNull;
 
@@ -247,6 +248,17 @@ public class GraphQLTemplate {
         String payload = createJsonQuery(graphql, operationName, variables);
         return post(payload);
     }
+
+    public GraphQLResponse post(String graphql, String operationName) throws IOException {
+        String payload = createJsonQuery(graphql, operationName, null);
+        return postRequest(RequestFactory.forJson(payload, headers));
+    }
+
+    public GraphQLResponse post(String graphql, String operationName, Map<String, String> variables) throws IOException {
+        String payload = createJsonQuery(graphql, operationName, this.objectMapper.valueToTree(variables));
+        return postRequest(RequestFactory.forJson(payload, headers));
+    }
+
 
     /**
      * Loads a GraphQL query or mutation from the given classpath resource and sends it to the GraphQL
