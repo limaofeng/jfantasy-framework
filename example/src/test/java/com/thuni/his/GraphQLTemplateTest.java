@@ -48,9 +48,7 @@ public class GraphQLTemplateTest {
         assertNotNull(response);
         assertThat(response.isOk()).isTrue();
 
-        ExecutionResult executionResult = new ExecutionResultImpl(response.get("$.data", HashMap.class),new ArrayList<>());
-
-        Document schemaDefinition = new IntrospectionResultToSchema().createSchemaDefinition(executionResult);
+        Document schemaDefinition = new IntrospectionResultToSchema().createSchemaDefinition(response.get("$.data", HashMap.class));
 
         SchemaPrinter.Options noDirectivesOption = defaultOptions().includeDirectives(false);
 
