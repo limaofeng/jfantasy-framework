@@ -1,32 +1,25 @@
 package org.jfantasy.framework.spring.config;
 
-import com.alibaba.druid.pool.DruidDataSource;
-import org.hibernate.SessionFactory;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.EventType;
 import org.hibernate.id.factory.spi.MutableIdentifierGeneratorFactory;
-import org.jfantasy.framework.dao.hibernate.InterceptorRegistration;
 import org.jfantasy.framework.dao.hibernate.event.PropertyGeneratorPersistEventListener;
 import org.jfantasy.framework.dao.hibernate.event.PropertyGeneratorSaveOrUpdatEventListener;
 import org.jfantasy.framework.dao.hibernate.generator.SequenceGenerator;
 import org.jfantasy.framework.dao.hibernate.generator.SerialNumberGenerator;
-import org.jfantasy.framework.dao.hibernate.interceptors.BusEntityInterceptor;
 import org.jfantasy.framework.dao.jpa.ComplexJpaRepository;
 import org.jfantasy.framework.spring.SpringContextUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManagerFactory;
-import javax.sql.DataSource;
 
 /**
  * Description: <数据源相关bean的注册>. <br>
@@ -47,12 +40,12 @@ import javax.sql.DataSource;
 @Import({MyBatisConfig.class})
 public class DaoConfig {
 
-    @Autowired(required = false)
+    @Autowired
     private EntityManagerFactory entityManagerFactory;
 
     @PostConstruct
     private void init() {
-        EventListenerRegistry registry = this.eventListenerRegistry(entityManagerFactory);
+        EventListenerRegistry registry = this.eventListenerRegistry();
         SessionFactoryImplementor sessionFactory = entityManagerFactory.unwrap(SessionFactoryImplementor.class);
         MutableIdentifierGeneratorFactory identifierGeneratorFactory = sessionFactory.getServiceRegistry().getService(MutableIdentifierGeneratorFactory.class);
         // 自定义序列生成器
@@ -63,19 +56,14 @@ public class DaoConfig {
         registry.prependListeners(EventType.PERSIST, createListenerInstance(new PropertyGeneratorPersistEventListener(identifierGeneratorFactory)));
     }
 
-//    @Bean
-//    public DataSource myBatisDataSource(DataSource dataSource) {
-//        return ((DruidDataSource) dataSource).cloneDruidDataSource();
-//    }
-
     /**
      * 返回 EventListenerRegistry 对象
      *
      * @return EventListenerRegistry
      */
     @Bean
-    public EventListenerRegistry eventListenerRegistry(EntityManagerFactory entityManagerFactory) {
-        SessionFactoryImplementor sessionFactory = entityManagerFactory.unwrap(SessionFactoryImplementor.class);
+    public EventListenerRegistry eventListenerRegistry() {
+        SessionFactoryImplementor sessionFactory = this.entityManagerFactory.unwrap(SessionFactoryImplementor.class);
         return sessionFactory.getServiceRegistry().getService(EventListenerRegistry.class);
     }
 
