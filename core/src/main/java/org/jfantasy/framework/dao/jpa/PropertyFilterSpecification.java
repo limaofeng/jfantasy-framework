@@ -8,9 +8,7 @@ import org.springframework.util.Assert;
 
 import javax.persistence.criteria.*;
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 import static org.jfantasy.framework.util.common.ObjectUtil.multipleValuesObjectsObjects;
 
@@ -24,14 +22,26 @@ public class PropertyFilterSpecification implements Specification {
 
     private List<PropertyFilter> filters;
     private Class<?> entityClass;
+    private PropertyFilterSpecificationContext context;
 
     public PropertyFilterSpecification(Class<?> entityClass, List<PropertyFilter> filters) {
         this.entityClass = entityClass;
         this.filters = filters;
+        this.context = new PropertyFilterSpecificationContext();
+    }
+
+    private PropertyFilterSpecification(Class<?> entityClass, List<PropertyFilter> filters, PropertyFilterSpecificationContext context) {
+        this.entityClass = entityClass;
+        this.filters = filters;
+        this.context = context;
     }
 
     @Override
     public Predicate toPredicate(Root root, CriteriaQuery query, CriteriaBuilder builder) {
+        if (!query.isDistinct()) {
+            query.distinct(true);
+        }
+
         List<Predicate> predicates = new ArrayList<>();
         for (PropertyFilter filter : filters) {
             if (filter.isSpecification()) {
@@ -67,7 +77,7 @@ public class PropertyFilterSpecification implements Specification {
     }
 
     private Predicate buildMultiplePropertyFilterPredicate(List<PropertyFilter> filters, Root root, CriteriaQuery query, CriteriaBuilder builder) {
-        Specification specification = new PropertyFilterSpecification(this.entityClass, filters);
+        Specification specification = new PropertyFilterSpecification(this.entityClass, filters, this.context);
         return specification.toPredicate(root, query, builder);
     }
 
@@ -86,15 +96,7 @@ public class PropertyFilterSpecification implements Specification {
     protected Predicate buildPropertyFilterPredicate(Root root, CriteriaBuilder builder, String propertyName, Object propertyValue, MatchType matchType) {
         Assert.hasText(propertyName, "propertyName不能为空");
 
-        Path path = root;
-        String[] propertyNames = StringUtil.tokenizeToStringArray(propertyName, ".");
-        for (String name : propertyNames) {
-            Path tmp = path.get(name);
-            if (!ClassUtil.isBasicType(tmp.getJavaType())) {
-                tmp = ((From) path).join(name, JoinType.LEFT);
-            }
-            path = tmp;
-        }
+        Path path = this.context.path(root, propertyName);
 
         if (MatchType.EQ == matchType) {
             return builder.equal(path, propertyValue);
@@ -119,9 +121,9 @@ public class PropertyFilterSpecification implements Specification {
         } else if (MatchType.GT == matchType) {
             return builder.greaterThan(path, (Comparable) propertyValue);
         } else if (MatchType.IN == matchType) {
-            return path.in(multipleValuesObjectsObjects(propertyValue));
+            return path.in(Arrays.stream(multipleValuesObjectsObjects(propertyValue)).toArray());
         } else if (MatchType.NOT_IN == matchType || MatchType.NOTIN == matchType) {
-            return builder.not(path.in(multipleValuesObjectsObjects(propertyValue)));
+            return builder.not(path.in(Arrays.stream(multipleValuesObjectsObjects(propertyValue)).toArray()));
         } else if (MatchType.NOT_EQUAL == matchType || MatchType.NE == matchType) {
             return builder.notEqual(path, propertyValue);
         } else if (MatchType.NULL == matchType) {
@@ -140,6 +142,40 @@ public class PropertyFilterSpecification implements Specification {
             return builder.like(path, (String) propertyValue);
         }
         throw new RuntimeException("不支持的查询");
+    }
+
+    class PropertyFilterSpecificationContext {
+
+        private Map<String, Path> paths = new HashMap<>();
+        private int rootHashCode = 0;
+
+        public Path path(Root root, String propertyName) {
+            if (root.hashCode() != rootHashCode) {
+                paths.clear();
+                rootHashCode = root.hashCode();
+            }
+
+            Path path = root;
+            String[] propertyNames = StringUtil.tokenizeToStringArray(propertyName, ".");
+            for (int i = 0; i < propertyNames.length; i++) {
+                String name = propertyNames[i];
+                String key = StringUtil.join(Arrays.copyOfRange(propertyNames, 0, i + 1), ".");
+
+                if (paths.containsKey(key)) {
+                    path = paths.get(key);
+                    continue;
+                }
+
+                Path tmp = path.get(name);
+                if (!ClassUtil.isBasicType(tmp.getJavaType())) {
+                    tmp = ((From) path).join(name, JoinType.LEFT);
+                    paths.put(key, tmp);
+                }
+                path = tmp;
+            }
+            return path;
+        }
+
     }
 
 }

@@ -59,4 +59,18 @@ public abstract class BaseBusEntity implements Serializable {
     @Column(name = "UPDATED_AT")
     private Date updatedAt;
 
+    @Deprecated
+    @Column(name = "UPDATOR", length = 20)
+    private String modifier;
+
+    @Deprecated
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(updatable = false, name = "CREATE_TIME")
+    private Date createTime;
+
+    @Deprecated
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "MODIFY_TIME")
+    private Date modifyTime;
+
 }
