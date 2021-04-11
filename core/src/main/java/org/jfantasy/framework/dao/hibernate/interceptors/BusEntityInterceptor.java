@@ -42,7 +42,7 @@ public class BusEntityInterceptor extends EmptyInterceptor {
             }
             int count = 0;
             for (int i = 0; i < propertyNames.length; i++) {
-                if (BaseBusEntity.FIELD_UPDATOR.equals(propertyNames[i])) {
+                if (BaseBusEntity.FIELD_UPDATED_BY.equals(propertyNames[i])) {
                     currentState[i] = modifier;
                     count++;
                 } else if (BaseBusEntity.FIELD_UPDATED_AT.equals(propertyNames[i])) {
@@ -61,14 +61,14 @@ public class BusEntityInterceptor extends EmptyInterceptor {
     public boolean onSave(Object entity, Serializable id, Object[] state, String[] propertyNames, Type[] types) {
         if (entity instanceof BaseBusEntity) {
             LoginUser user = SpringSecurityUtils.getCurrentUser();
-            String creator = ObjectUtil.isNotNull(user) ? user.getUid() : StringUtil.defaultValue(((BaseBusEntity) entity).getCreator(), DEFAULT_CREATOR);
+            String creator = ObjectUtil.isNotNull(user) ? user.getUid() : StringUtil.defaultValue(((BaseBusEntity) entity).getCreatedBy(), DEFAULT_CREATOR);
             int count = 0;
             int maxCount = 4;
             if (entity instanceof BaseBusBusinessEntity) {
                 maxCount++;
             }
             for (int i = 0; i < propertyNames.length; i++) {
-                if (BaseBusEntity.FIELD_CREATOR.equals(propertyNames[i]) || BaseBusEntity.FIELD_UPDATOR.equals(propertyNames[i])) {
+                if (BaseBusEntity.FIELD_CREATED_BY.equals(propertyNames[i]) || BaseBusEntity.FIELD_UPDATED_BY.equals(propertyNames[i])) {
                     state[i] = creator;
                     count++;
                 } else if (BaseBusEntity.FIELD_CREATED_AT.equals(propertyNames[i]) || BaseBusEntity.FIELD_UPDATED_AT.equals(propertyNames[i])) {
@@ -76,6 +76,7 @@ public class BusEntityInterceptor extends EmptyInterceptor {
                     count++;
                 } else if (BaseBusBusinessEntity.FIELD_DELETED.equals(propertyNames[i])) {
                     state[i] = false;
+                    assert entity instanceof BaseBusBusinessEntity;
                     ((BaseBusBusinessEntity) entity).setDeleted(false);
                 }
                 if (count >= maxCount) {
