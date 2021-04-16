@@ -2,6 +2,7 @@ package org.jfantasy.framework.util.reflect;
 
 import org.jfantasy.framework.util.common.ClassUtil;
 
+import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -9,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Property {
+    private PropertyDescriptor descriptor;
     private String name;
     private MethodProxy readMethodProxy;
     private MethodProxy writeMethodProxy;
@@ -17,13 +19,19 @@ public class Property {
     private boolean read;
     private Map<Class, Annotation> annotationCache = new HashMap<>();
 
-    Property(String name, MethodProxy readMethodProxy, MethodProxy writeMethodProxy, Class<?> propertyType) {
-        this.read = readMethodProxy != null;
-        this.write = writeMethodProxy != null;
-        this.name = name;
-        this.readMethodProxy = readMethodProxy;
-        this.writeMethodProxy = writeMethodProxy;
-        this.propertyType = propertyType;
+    public Property(PropertyDescriptor descriptor) {
+        this.name = descriptor.getName();
+        this.readMethodProxy = descriptor.getReadMethod() == null ? null : new MethodProxy(descriptor.getReadMethod());
+        this.writeMethodProxy = descriptor.getWriteMethod() == null ? null : new MethodProxy(descriptor.getWriteMethod(), descriptor.getPropertyType());
+        this.read = this.readMethodProxy != null;
+        this.write = this.writeMethodProxy != null;
+        this.propertyType = descriptor.getPropertyType();
+        this.descriptor = descriptor;
+    }
+
+    public boolean isTransient() {
+        Object value = this.descriptor.getValue("transient");
+        return (value instanceof Boolean) ? (Boolean) value : false;
     }
 
     public boolean isWrite() {
@@ -58,7 +66,7 @@ public class Property {
 
     public <T extends Annotation> T getAnnotation(Class<T> tClass) {
         if (annotationCache.containsKey(tClass)) {
-            return (T)annotationCache.get(tClass);
+            return (T) annotationCache.get(tClass);
         }
         Annotation annotation = null;
         Class<?> declaringClass = null;
@@ -81,7 +89,7 @@ public class Property {
             }
         }
         annotationCache.put(tClass, annotation);
-        return (T)annotation;
+        return (T) annotation;
     }
 
     public MethodProxy getReadMethod() {

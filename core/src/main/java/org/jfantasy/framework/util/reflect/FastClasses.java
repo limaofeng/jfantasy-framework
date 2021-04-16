@@ -38,9 +38,7 @@ public class FastClasses<T> implements IClass<T> {
             this.beanInfo = ClassUtil.getBeanInfo(clazz);
             PropertyDescriptor[] propertyDescriptors = this.beanInfo.getPropertyDescriptors();
             for (PropertyDescriptor descriptor : propertyDescriptors) {
-                MethodProxy readMethodProxy = descriptor.getReadMethod() == null ? null : new MethodProxy(descriptor.getReadMethod());
-                MethodProxy writeMethodProxy = descriptor.getWriteMethod() == null ? null : new MethodProxy(descriptor.getWriteMethod(), descriptor.getPropertyType());
-                this.propertys.put(descriptor.getName(), new Property(descriptor.getName(), readMethodProxy, writeMethodProxy, descriptor.getPropertyType()));
+                this.propertys.put(descriptor.getName(), new Property(descriptor));
             }
             for (Method method : this.clazz.getDeclaredMethods()) {
                 Class<?>[] parameters = method.getParameterTypes();

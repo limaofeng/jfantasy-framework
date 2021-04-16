@@ -63,7 +63,7 @@ public abstract class StringUtil {
         while (length(tvalue) > tlen) {
             tvalue = tvalue.substring(0, tvalue.length() - 1);
         }
-        return value + word;
+        return tvalue + word;
     }
 
     /**
