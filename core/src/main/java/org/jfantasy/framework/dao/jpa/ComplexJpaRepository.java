@@ -20,7 +20,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.support.CrudMethodMetadataUtils;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
+import org.springframework.data.jpa.repository.support.JpaEntityInformationSupport;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.lang.Nullable;
 
@@ -44,6 +46,11 @@ import java.util.stream.Collectors;
 public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaRepository<T, ID> implements JpaRepository<T, ID> {
 
     private static Map<Class, JpaRepository> REPOSITORIES = new HashMap<>();
+
+    public ComplexJpaRepository(Class domainClass, EntityManager entityManager) {
+        super(JpaEntityInformationSupport.getEntityInformation(domainClass, entityManager), entityManager);
+        setRepositoryMethodMetadata(CrudMethodMetadataUtils.getCrudMethodMetadata());
+    }
 
     @Autowired(required = false)
     public ComplexJpaRepository(JpaEntityInformation<T, ?> entityInformation, EntityManager entityManager) {
@@ -84,13 +91,13 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
 
     @Override
     public Pager<T> findPager(Pager<T> pager, Specification<T> spec) {
-        Pageable pageRequest = null;
-        if(pager.getFirst() == 0){
+        Pageable pageRequest;
+        if (pager.getFirst() == 0) {
             pager.reset((int) this.count(spec));
             pageRequest = PageRequest.of(pager.getCurrentPage() - 1, pager.getPageSize(), pager.getSort());
-        }else {
-            pager.setTotalCount((int)this.count(spec));
-            pageRequest = LimitPageRequest.of(pager.getFirst(),pager.getPageSize(), pager.getSort());
+        } else {
+            pager.setTotalCount((int) this.count(spec));
+            pageRequest = LimitPageRequest.of(pager.getFirst(), pager.getPageSize(), pager.getSort());
         }
         Page<T> page = this.findAll(spec, pageRequest);
         pager.reset((int) page.getTotalElements(), page.getContent());
