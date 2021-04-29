@@ -50,7 +50,7 @@ public class SecurityGraphQLContextBuilder implements GraphQLServletContextBuild
             LoginUser user = JSON.deserialize(JSON.serialize(map.get("user")), LoginUser.class);
             SecurityContextHolder.setContext(new DefaultSecurityContext(user));
         } else {
-            SecurityContextHolder.setContext(null);
+            SecurityContextHolder.clear();
         }
         return context;
     }

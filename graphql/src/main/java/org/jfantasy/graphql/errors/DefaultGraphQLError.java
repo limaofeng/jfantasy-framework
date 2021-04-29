@@ -42,13 +42,14 @@ public class DefaultGraphQLError extends ErrorResponse implements GraphQLError {
     @Override
     public Map<String, Object> toSpecification() {
         Map<String, Object> result = GraphqlErrorHelper.toSpecification(this);
-        result.put("code", this.getCode());
-        result.put("timestamp", this.getTimestamp());
+        Map<String, Object> extensions = (Map<String, Object>) result.get("extensions");
+        extensions.put("code", this.getCode());
+        extensions.put("timestamp", this.getTimestamp());
         if (!this.getFields().isEmpty()) {
-            result.put("fields", this.getFields());
+            extensions.put("fields", this.getFields());
         }
         if (!this.getData().isEmpty()) {
-            result.put("data", this.getData());
+            extensions.put("data", this.getData());
         }
         return result;
     }

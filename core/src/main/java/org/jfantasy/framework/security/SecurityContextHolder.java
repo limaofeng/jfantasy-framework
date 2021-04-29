@@ -28,4 +28,11 @@ public class SecurityContextHolder {
         holder.set(context);
     }
 
+    public static void clear() {
+        SecurityContext securityContextHolder = holder.get();
+        if (securityContextHolder != null) {
+            holder.remove();
+        }
+    }
+
 }
