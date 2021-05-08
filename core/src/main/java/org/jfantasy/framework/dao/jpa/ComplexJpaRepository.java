@@ -3,7 +3,9 @@ package org.jfantasy.framework.dao.jpa;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.jfantasy.framework.dao.BaseBusBusinessEntity;
 import org.jfantasy.framework.dao.LimitPageRequest;
 import org.jfantasy.framework.dao.Pager;
@@ -25,6 +27,7 @@ import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.JpaEntityInformationSupport;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.lang.Nullable;
+import org.springframework.util.Assert;
 
 import javax.persistence.*;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -39,22 +42,26 @@ import java.util.stream.Collectors;
 /**
  * @author limaofeng
  * @version V1.0
- * @Description: 自己封装的 JpaRepository
+ * @Description 自己封装的 JpaRepository
  * @date 14/11/2017 11:23 AM
  */
 @Slf4j
 public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaRepository<T, ID> implements JpaRepository<T, ID> {
 
-    private static Map<Class, JpaRepository> REPOSITORIES = new HashMap<>();
+    protected EntityManager em;
+    protected JpaEntityInformation<T, ?> entityInformation;
+    private static final Map<Class, JpaRepository> REPOSITORIES = new HashMap<>();
 
     public ComplexJpaRepository(Class domainClass, EntityManager entityManager) {
-        super(JpaEntityInformationSupport.getEntityInformation(domainClass, entityManager), entityManager);
+        this(JpaEntityInformationSupport.getEntityInformation(domainClass, entityManager), entityManager);
         setRepositoryMethodMetadata(CrudMethodMetadataUtils.getCrudMethodMetadata());
     }
 
     @Autowired(required = false)
     public ComplexJpaRepository(JpaEntityInformation<T, ?> entityInformation, EntityManager entityManager) {
         super(entityInformation, entityManager);
+        this.em = entityManager;
+        this.entityInformation = entityInformation;
     }
 
     @Override
@@ -339,6 +346,131 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
         public Predicate toPredicate(Root root, CriteriaQuery query, CriteriaBuilder builder) {
             return builder.notEqual(root.get("deleted"), true);
         }
+    }
+
+    public Pager<T> findPager(Pager<T> pager, String hql, Object... values) {
+        Query q = createQuery(hql, values);
+        pager.setTotalCount(countHqlResult(hql, values));
+        setPageParameter(q, pager);
+        pager.reset(q.getResultList());
+        return pager;
+    }
+
+    public Pager<T> findPager(Pager<T> pager, String hql, Map<String, ?> values) {
+        Query q = createQuery(hql, values);
+        pager.setTotalCount(countHqlResult(hql, values));
+        setPageParameter(q, pager);
+        pager.reset(q.getResultList());
+        return pager;
+    }
+
+    protected <C> Query setPageParameter(Query q, Pager<C> pagination) {
+        q.setFirstResult(pagination.getFirst());
+        q.setMaxResults(pagination.getPageSize());
+        return q;
+    }
+
+    protected String createCountHQL(String hql) {
+        String fromHql = hql;
+        fromHql = "from " + StringUtils.substringAfter(fromHql, "from");
+        fromHql = StringUtils.substringBefore(fromHql, "order by");
+        return "select count(*) " + fromHql;
+    }
+
+    @SneakyThrows
+    protected int countHqlResult(String hql, Object... values) {
+        Long count = (Long) findUnique(createCountHQL(hql), values);
+        return count.intValue();
+    }
+
+    @SneakyThrows
+    protected int countHqlResult(String hql, Map<String, ?> values) {
+        Long count = (Long) findUnique(createCountHQL(hql), values);
+        return count.intValue();
+    }
+
+    /**
+     * 使用hql查询对象,推荐使用 {@link @HibernateDao.find(String,Map<String, ?>)}
+     *
+     * @param hql    hql语句
+     * @param values 参数
+     * @return 返回集合
+     */
+    public List<T> find(String hql, Object... values) {
+        return createQuery(hql, values).getResultList();
+    }
+
+    /**
+     * 使用hql查询对象
+     *
+     * @param hql    hql语句
+     * @param values 参数
+     * @return 返回集合
+     */
+    public List<T> find(String hql, Map<String, ?> values) {
+        return createQuery(hql, values).getResultList();
+    }
+
+    @SuppressWarnings("unchecked")
+    public T findUnique(String hql, Object... values) {
+        return (T) createQuery(hql, values).getSingleResult();
+    }
+
+    @SuppressWarnings("unchecked")
+    public T findUnique(String hql, Map<String, ?> values) {
+        return (T) createQuery(hql, values).getSingleResult();
+    }
+
+    public int batchExecute(String hql, Object... values) {
+        return createQuery(hql, values).executeUpdate();
+    }
+
+    public int batchExecute(String hql, Map<String, ?> values) {
+        return createQuery(hql, values).executeUpdate();
+    }
+
+    public int batchSQLExecute(String sql, Object... values) {
+        return createSQLQuery(sql, values).executeUpdate();
+    }
+
+    public int batchSQLExecute(String sql, Map<String, ?> values) {
+        return createSQLQuery(sql, values).executeUpdate();
+    }
+
+    protected Query createQuery(String hql, Object... values) {
+        Assert.hasText("hql 不能为空", hql);
+        Query query = em.createQuery(hql, entityInformation.getJavaType());
+        for (int i = 0; i < values.length; i++) {
+            query.setParameter(i, values[i]);
+        }
+        return query;
+    }
+
+    protected Query createQuery(String hql, Map<String, ?> values) {
+        Assert.hasText(hql, "hql 不能为空");
+        Query query = em.createQuery(hql, entityInformation.getJavaType());
+        for (Map.Entry<String, ?> entry : values.entrySet()) {
+            query.setParameter(entry.getKey(), entry.getValue());
+        }
+        return query;
+    }
+
+    protected Query createSQLQuery(String sql, Object... values) {
+        Assert.hasText(sql, "sql 不能为空");
+        Query query = em.createNativeQuery(sql, entityInformation.getJavaType());
+        for (int i = 0; i < values.length; i++) {
+            query.setParameter(i, values[i]);
+        }
+        return query;
+    }
+
+    protected Query createSQLQuery(String sql, Map<String, ?> values) {
+        Assert.hasText(sql, "sql 不能为空");
+        Query query = em.createNativeQuery(sql, entityInformation.getJavaType());
+        for (Map.Entry<String, ?> entry : values.entrySet()) {
+            query.setParameter(entry.getKey(), entry.getValue());
+        }
+        return query;
     }
 
 }
