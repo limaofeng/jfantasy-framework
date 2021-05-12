@@ -5,28 +5,19 @@ import org.jfantasy.framework.security.authentication.BadCredentialsException;
 import org.jfantasy.framework.security.authentication.InternalAuthenticationServiceException;
 import org.jfantasy.framework.security.authentication.SimpleAuthenticationToken;
 import org.jfantasy.framework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.jfantasy.framework.security.core.userdetails.UsernameNotFoundException;
 import org.jfantasy.framework.security.core.userdetails.UserDetails;
 import org.jfantasy.framework.security.core.userdetails.UserDetailsService;
+import org.jfantasy.framework.security.core.userdetails.UsernameNotFoundException;
 import org.jfantasy.framework.security.crypto.password.PasswordEncoder;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.stereotype.Component;
 
 /**
  * @author limaofeng
  */
-@Component
-@ConditionalOnBean({UserDetailsService.class, PasswordEncoder.class})
 public class DaoAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
 
     private UserDetailsService userDetailsService;
 
     private PasswordEncoder passwordEncoder;
-
-    @Override
-    public boolean supports(Class authentication) {
-        return (SimpleAuthenticationToken.class.isAssignableFrom(authentication));
-    }
 
     @Override
     public UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken token) {

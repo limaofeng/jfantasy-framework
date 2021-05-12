@@ -52,14 +52,8 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements Authe
             }
             throw new BadCredentialsException("Bad credentials");
         }
-        try {
-            this.preAuthenticationChecks.check(user);
-            additionalAuthenticationChecks(user, (UsernamePasswordAuthenticationToken) authentication);
-        } catch (AuthenticationException ex) {
-            user = retrieveUser(username, (UsernamePasswordAuthenticationToken) authentication);
-            this.preAuthenticationChecks.check(user);
-            additionalAuthenticationChecks(user, (UsernamePasswordAuthenticationToken) authentication);
-        }
+        this.preAuthenticationChecks.check(user);
+        additionalAuthenticationChecks(user, (UsernamePasswordAuthenticationToken) authentication);
         this.postAuthenticationChecks.check(user);
         Object principalToReturn = user;
         if (this.forcePrincipalAsString) {
@@ -85,7 +79,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements Authe
         this.postAuthenticationChecks = postAuthenticationChecks;
     }
 
-    private class DefaultPreAuthenticationChecks implements UserDetailsChecker {
+    public static class DefaultPreAuthenticationChecks implements UserDetailsChecker {
 
         @Override
         public void check(UserDetails user) {
@@ -102,7 +96,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements Authe
 
     }
 
-    private class DefaultPostAuthenticationChecks implements UserDetailsChecker {
+    public static class DefaultPostAuthenticationChecks implements UserDetailsChecker {
 
         @Override
         public void check(UserDetails user) {
