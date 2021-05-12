@@ -1,3 +1,4 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 org.jfantasy.autoconfigure.CoreAutoConfiguration,\
-org.jfantasy.autoconfigure.WebStarterAutoConfiguration
+org.jfantasy.autoconfigure.WebStarterAutoConfiguration,\
+org.jfantasy.autoconfigure.SecurityAutoConfiguration

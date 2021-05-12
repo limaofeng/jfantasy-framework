@@ -6,8 +6,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.jfantasy.framework.security.core.GrantedAuthority;
+import org.jfantasy.framework.security.core.userdetails.UserDetails;
 
 import java.security.Principal;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +25,15 @@ import java.util.Map;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class LoginUser implements Principal {
+public class LoginUser implements UserDetails, Principal {
+    /**
+     * 用户名
+     */
+    private String username;
+    /**
+     * 密码
+     */
+    private String password;
     /**
      * 用户ID
      */
@@ -68,6 +79,28 @@ public class LoginUser implements Principal {
      *
      */
     private Map<String, Object> data;
+    /**
+     * 启用状态
+     */
+    @Builder.Default
+    private boolean enabled = true;
+    /**
+     * 账户过期状态
+     */
+    @Builder.Default
+    private boolean accountNonExpired = true;
+    /**
+     * 账户锁定状态
+     */
+    @Builder.Default
+    private boolean accountNonLocked = true;
+    /**
+     * 凭证过期状态
+     */
+    @Builder.Default
+    private boolean credentialsNonExpired = true;
+
+    private Collection<? extends GrantedAuthority> authorities;
 
     @JsonAnySetter
     public void set(String key, Object value) {

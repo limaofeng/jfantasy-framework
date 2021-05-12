@@ -10,4 +10,5 @@ public interface LoginService {
 
     LoginUser login(String username, String password);
 
+    LoginUser loadUserByUsername(String username);
 }

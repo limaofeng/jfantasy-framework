@@ -2,20 +2,27 @@ package org.jfantasy.autoconfigure;
 
 import graphql.kickstart.tools.SchemaParserDictionary;
 import graphql.kickstart.tools.boot.GraphQLJavaToolsAutoConfiguration;
+import org.jfantasy.framework.security.authentication.dao.SimpleAuthenticationProvider;
 import org.jfantasy.graphql.SchemaParserDictionaryBuilder;
 import org.jfantasy.graphql.VersionGraphQLQueryResolver;
 import org.jfantasy.graphql.client.GraphQLClientBeanPostProcessor;
+import org.jfantasy.graphql.context.RedisUserDetailsService;
+import org.jfantasy.graphql.context.SharedAuthenticationToken;
+import org.jfantasy.graphql.context.SharedUserDetailsService;
 import org.jfantasy.graphql.errors.GraphQLResolverAdvice;
 import org.jfantasy.graphql.errors.GraphQLStaticMethodMatcherPointcut;
 import org.springframework.aop.support.DefaultBeanFactoryPointcutAdvisor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.orm.jpa.support.OpenEntityManagerInViewFilter;
 import org.springframework.web.client.RestTemplate;
 
@@ -33,7 +40,7 @@ import java.util.List;
 public class GraphQLAutoConfiguration {
 
     @Bean
-    static GraphQLClientBeanPostProcessor grpcClientBeanPostProcessor(final ApplicationContext applicationContext, final ResourceLoader resourceLoader ) {
+    static GraphQLClientBeanPostProcessor grpcClientBeanPostProcessor(final ApplicationContext applicationContext, final ResourceLoader resourceLoader) {
         return new GraphQLClientBeanPostProcessor(applicationContext, resourceLoader);
     }
 
@@ -67,4 +74,19 @@ public class GraphQLAutoConfiguration {
         RestTemplateBuilder builder = new RestTemplateBuilder();
         return builder.build();
     }
+
+    @Bean
+    @ConditionalOnClass(StringRedisTemplate.class)
+    public RedisUserDetailsService redisUserDetailsService() {
+        return new RedisUserDetailsService();
+    }
+
+    @Bean(name = "shared.AuthenticationProvider")
+    @ConditionalOnBean(SharedUserDetailsService.class)
+    public SimpleAuthenticationProvider simpleAuthenticationProvider(SharedUserDetailsService sharedUserDetailsService) {
+        SimpleAuthenticationProvider provider = new SimpleAuthenticationProvider(SharedAuthenticationToken.class);
+        provider.setUserDetailsService(sharedUserDetailsService);
+        return provider;
+    }
+
 }
