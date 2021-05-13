@@ -19,6 +19,11 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 
     private PasswordEncoder passwordEncoder;
 
+    public DaoAuthenticationProvider(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+        this.userDetailsService = userDetailsService;
+        this.passwordEncoder = passwordEncoder;
+    }
+
     @Override
     public UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken token) {
         UserDetails loadedUser = this.userDetailsService.loadUserByUsername(username);
