@@ -3,6 +3,7 @@ package org.jfantasy.graphql.error;
 import graphql.ErrorClassification;
 import graphql.GraphQLError;
 import graphql.GraphqlErrorHelper;
+import graphql.kickstart.spring.error.ErrorContext;
 import graphql.language.SourceLocation;
 import org.jfantasy.framework.error.ErrorResponse;
 
@@ -21,17 +22,26 @@ import static graphql.ErrorType.ValidationError;
 public class DefaultGraphQLError extends ErrorResponse implements GraphQLError {
 
     private List<Object> path = new ArrayList<>();
+    private List<SourceLocation> locations;
+    private ErrorClassification errorType = ValidationError;
 
     public DefaultGraphQLError() {
     }
 
-    @Override
-    public List<SourceLocation> getLocations() {
-        return null;
+    public DefaultGraphQLError(ErrorContext errorContext) {
+        this.path = errorContext.getPath();
+        this.errorType = errorContext.getErrorType();
+        this.setData(errorContext.getExtensions());
+        this.locations = errorContext.getLocations();
     }
 
-    public void addPath(String path) {
-        this.path.add(path);
+    @Override
+    public List<SourceLocation> getLocations() {
+        return this.locations;
+    }
+
+    public void setPath(List<Object> path) {
+        this.path = path;
     }
 
     @Override
@@ -56,7 +66,7 @@ public class DefaultGraphQLError extends ErrorResponse implements GraphQLError {
 
     @Override
     public ErrorClassification getErrorType() {
-        return ValidationError;
+        return errorType;
     }
 
 }

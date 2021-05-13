@@ -1,6 +1,7 @@
 package org.jfantasy.graphql.error;
 
 import graphql.GraphQLError;
+import graphql.kickstart.spring.error.ErrorContext;
 import org.jfantasy.graphql.util.GraphQLErrorUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -15,11 +16,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class GraphQLErrorHandler {
 
     @ExceptionHandler(value = Exception.class)
-    public GraphQLError transform(Exception e) {
+    public GraphQLError transform(Exception e, ErrorContext errorContext) {
         if (e instanceof GraphQLError) {
             return (GraphQLError) e;
         }
-        return GraphQLErrorUtils.buildGraphQLError(e);
+        return GraphQLErrorUtils.buildGraphQLError(errorContext, e);
     }
 
 }
