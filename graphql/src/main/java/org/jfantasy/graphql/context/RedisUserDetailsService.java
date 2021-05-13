@@ -5,7 +5,9 @@ import org.jfantasy.framework.security.LoginUser;
 import org.jfantasy.framework.security.core.userdetails.UserDetails;
 import org.jfantasy.framework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
@@ -14,9 +16,11 @@ import java.util.Map;
 /**
  * @author limaofeng
  */
+@Component
+@ConditionalOnClass(StringRedisTemplate.class)
 public class RedisUserDetailsService implements SharedUserDetailsService {
 
-    @Autowired(required = false)
+    @Autowired
     private StringRedisTemplate redisTemplate;
 
     @Override

@@ -75,12 +75,6 @@ public class GraphQLAutoConfiguration {
         return builder.build();
     }
 
-    @Bean
-    @ConditionalOnClass(StringRedisTemplate.class)
-    public RedisUserDetailsService redisUserDetailsService() {
-        return new RedisUserDetailsService();
-    }
-
     @Bean(name = "shared.AuthenticationProvider")
     @ConditionalOnBean(SharedUserDetailsService.class)
     public SimpleAuthenticationProvider simpleAuthenticationProvider(SharedUserDetailsService sharedUserDetailsService) {

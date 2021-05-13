@@ -19,6 +19,9 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 
     private PasswordEncoder passwordEncoder;
 
+    public DaoAuthenticationProvider() {
+    }
+
     public DaoAuthenticationProvider(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
         this.userDetailsService = userDetailsService;
         this.passwordEncoder = passwordEncoder;
