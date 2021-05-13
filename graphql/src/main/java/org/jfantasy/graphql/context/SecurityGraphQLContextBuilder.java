@@ -5,11 +5,10 @@ import graphql.kickstart.execution.context.GraphQLContext;
 import graphql.kickstart.servlet.context.GraphQLServletContextBuilder;
 import org.dataloader.DataLoader;
 import org.dataloader.DataLoaderRegistry;
-import org.jfantasy.framework.security.AuthenticationManager;
 import org.jfantasy.framework.security.DefaultSecurityContext;
 import org.jfantasy.framework.security.LoginUser;
 import org.jfantasy.framework.security.SecurityContextHolder;
-import org.jfantasy.framework.security.authentication.Authentication;
+import org.jfantasy.framework.security.core.userdetails.UsernameNotFoundException;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -23,9 +22,10 @@ import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 
 /**
+ * 从请求头中获取 Token 并转化未用户
+ *
  * @author limaofeng
  * @version V1.0
- * @Description: TODO
  * @date 2019-04-14 14:13
  */
 @Component
@@ -33,7 +33,7 @@ import java.util.concurrent.CompletableFuture;
 public class SecurityGraphQLContextBuilder extends DefaultGraphQLContextBuilder implements GraphQLServletContextBuilder {
 
     @Autowired
-    private AuthenticationManager authenticationManager;
+    private GraphQLUserDetailsService userDetailsService;
 
     @Override
     public GraphQLContext build(HttpServletRequest req, HttpServletResponse response) {
@@ -41,6 +41,8 @@ public class SecurityGraphQLContextBuilder extends DefaultGraphQLContextBuilder 
 
         AuthorizationGraphQLServletContext context = new AuthorizationGraphQLServletContext(req, response);
         context.setDataLoaderRegistry(buildDataLoaderRegistry());
+
+        GraphQLContextHolder.setContext(context);
 
         String authorization = req.getHeader("Authorization");
 
@@ -60,11 +62,11 @@ public class SecurityGraphQLContextBuilder extends DefaultGraphQLContextBuilder 
     }
 
     private LoginUser retrieveUser(String token) {
-        Authentication authentication = authenticationManager.authenticate(new SharedAuthenticationToken(token));
-        if (authentication == null) {
+        try {
+            return (LoginUser) userDetailsService.loadUserByToken(token);
+        } catch (UsernameNotFoundException e) {
             return null;
         }
-        return (LoginUser) authentication.getDetails();
     }
 
     @Override

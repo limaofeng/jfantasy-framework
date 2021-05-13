@@ -1,7 +1,6 @@
 package org.jfantasy.graphql.context;
 
 import graphql.kickstart.execution.context.GraphQLContext;
-import org.dataloader.DataLoader;
 import org.dataloader.DataLoaderRegistry;
 
 import javax.security.auth.Subject;
@@ -9,14 +8,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.websocket.Session;
 import javax.websocket.server.HandshakeRequest;
-import java.util.ArrayList;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 /**
+ * 认证上下文对象
+ *
  * @author limaofeng
  * @version V1.0
- * @Description: TODO
  * @date 2020/4/26 11:33 上午
  */
 public class AuthorizationGraphQLServletContext implements GraphQLContext {
