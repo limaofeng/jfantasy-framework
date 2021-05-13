@@ -6,7 +6,6 @@ import org.jfantasy.framework.security.authentication.dao.SimpleAuthenticationPr
 import org.jfantasy.graphql.SchemaParserDictionaryBuilder;
 import org.jfantasy.graphql.VersionGraphQLQueryResolver;
 import org.jfantasy.graphql.client.GraphQLClientBeanPostProcessor;
-import org.jfantasy.graphql.context.RedisUserDetailsService;
 import org.jfantasy.graphql.context.SharedAuthenticationToken;
 import org.jfantasy.graphql.context.SharedUserDetailsService;
 import org.jfantasy.graphql.errors.GraphQLResolverAdvice;
@@ -15,14 +14,12 @@ import org.springframework.aop.support.DefaultBeanFactoryPointcutAdvisor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.orm.jpa.support.OpenEntityManagerInViewFilter;
 import org.springframework.web.client.RestTemplate;
 

@@ -22,10 +22,6 @@ public class DESPasswordEncoder implements PasswordEncoder {
 
     @Override
     public boolean matches(CharSequence rawPassword, String encodedPassword) {
-        try {
-            return rawPassword.equals(desPlus.decrypt(encodedPassword));
-        } catch (CryptoException e) {
-            return false;
-        }
+        return encodedPassword.equals(encode(rawPassword));
     }
 }

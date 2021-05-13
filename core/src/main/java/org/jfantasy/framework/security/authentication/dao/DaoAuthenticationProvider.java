@@ -3,7 +3,6 @@ package org.jfantasy.framework.security.authentication.dao;
 import org.jfantasy.framework.security.AuthenticationException;
 import org.jfantasy.framework.security.authentication.BadCredentialsException;
 import org.jfantasy.framework.security.authentication.InternalAuthenticationServiceException;
-import org.jfantasy.framework.security.authentication.SimpleAuthenticationToken;
 import org.jfantasy.framework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.jfantasy.framework.security.core.userdetails.UserDetails;
 import org.jfantasy.framework.security.core.userdetails.UserDetailsService;

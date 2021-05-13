@@ -17,6 +17,6 @@ public class MD5PasswordEncoder implements PasswordEncoder {
 
     @Override
     public boolean matches(CharSequence rawPassword, String encodedPassword) {
-        return DigestUtils.md5DigestAsHex(rawPassword.toString().getBytes()).toUpperCase().equals(encodedPassword);
+        return encodedPassword.equals(encode(rawPassword));
     }
 }
