@@ -5,8 +5,8 @@ import graphql.kickstart.tools.boot.GraphQLJavaToolsAutoConfiguration;
 import org.jfantasy.graphql.SchemaParserDictionaryBuilder;
 import org.jfantasy.graphql.VersionGraphQLQueryResolver;
 import org.jfantasy.graphql.client.GraphQLClientBeanPostProcessor;
-import org.jfantasy.graphql.errors.GraphQLResolverAdvice;
-import org.jfantasy.graphql.errors.GraphQLStaticMethodMatcherPointcut;
+import org.jfantasy.graphql.error.GraphQLResolverAdvice;
+import org.jfantasy.graphql.error.GraphQLStaticMethodMatcherPointcut;
 import org.springframework.aop.support.DefaultBeanFactoryPointcutAdvisor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -29,7 +29,7 @@ import java.util.List;
  */
 @Configuration
 @AutoConfigureBefore(GraphQLJavaToolsAutoConfiguration.class)
-@ComponentScan({"org.jfantasy.graphql.context", "org.jfantasy.graphql.errors"})
+@ComponentScan({"org.jfantasy.graphql.context", "org.jfantasy.graphql.error"})
 public class GraphQLAutoConfiguration {
 
     @Bean

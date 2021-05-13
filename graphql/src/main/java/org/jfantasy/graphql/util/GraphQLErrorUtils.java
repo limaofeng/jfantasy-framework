@@ -1,27 +1,35 @@
-package org.jfantasy.graphql.errors;
+package org.jfantasy.graphql.util;
 
-import graphql.GraphQLError;
 import org.jfantasy.framework.error.ErrorUtils;
-import org.springframework.stereotype.Component;
+import org.jfantasy.graphql.error.DefaultGraphQLError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.lang.reflect.UndeclaredThrowableException;
+import java.util.Map;
 
 /**
+ * GraphQL 异常工具类
+ *
  * @author limaofeng
- * @version V1.0
- * @Description: TODO
- * @date 2020/3/22 4:15 下午
  */
-@Component
-public class GraphQLErrorHandler {
+public class GraphQLErrorUtils {
 
-    @ExceptionHandler(value = Exception.class)
-    public GraphQLError transform(Exception e) {
-        if (e instanceof GraphQLError) {
-            return (GraphQLError) e;
-        }
+    public static DefaultGraphQLError buildGraphQLError(String errorCode, Exception e) {
+        DefaultGraphQLError error = new DefaultGraphQLError();
+        ErrorUtils.fill(error, e);
+        error.setCode(errorCode);
+        return error;
+    }
+
+    public static DefaultGraphQLError buildGraphQLError(String errorCode, Exception e, Map<String, Object> extensions) {
+        DefaultGraphQLError error = new DefaultGraphQLError();
+        ErrorUtils.fill(error, e);
+        error.setCode(errorCode);
+        error.setData(extensions);
+        return error;
+    }
+
+    public static DefaultGraphQLError buildGraphQLError(Exception e) {
         DefaultGraphQLError error = new DefaultGraphQLError();
         if (e instanceof UndeclaredThrowableException) {
             e = (Exception) ((UndeclaredThrowableException) e).getUndeclaredThrowable();

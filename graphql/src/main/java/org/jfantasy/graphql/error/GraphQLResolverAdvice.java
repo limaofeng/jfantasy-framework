@@ -1,4 +1,4 @@
-package org.jfantasy.graphql.errors;
+package org.jfantasy.graphql.error;
 
 import org.aspectj.lang.annotation.Aspect;
 import org.jfantasy.framework.util.common.ClassUtil;

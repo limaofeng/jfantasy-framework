@@ -1,4 +1,4 @@
-package org.jfantasy.graphql.errors;
+package org.jfantasy.graphql.error;
 
 import graphql.ErrorClassification;
 import graphql.GraphQLError;
