@@ -6,18 +6,18 @@ import java.util.Collection;
 /**
  * @author limaofeng
  */
-public class SimpleAuthenticationToken extends AbstractAuthenticationToken {
+public class SimpleAuthenticationToken<T extends Object> extends AbstractAuthenticationToken {
 
-    private Object credentials;
+    private T credentials;
 
-    public SimpleAuthenticationToken(Object credentials) {
+    public SimpleAuthenticationToken(T credentials) {
         super(null);
         this.credentials = credentials;
         setAuthenticated(false);
     }
 
     @Override
-    public Object getCredentials() {
+    public T getCredentials() {
         return this.credentials;
     }
 
