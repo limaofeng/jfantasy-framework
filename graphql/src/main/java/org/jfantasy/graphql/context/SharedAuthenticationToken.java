@@ -2,9 +2,13 @@ package org.jfantasy.graphql.context;
 
 import org.jfantasy.framework.security.authentication.SimpleAuthenticationToken;
 
-public class SharedAuthenticationToken extends SimpleAuthenticationToken {
+/**
+ * 用于 GraphQL Token
+ * @author limaofeng
+ */
+public class SharedAuthenticationToken extends SimpleAuthenticationToken<String> {
 
-    public SharedAuthenticationToken(Object credentials) {
+    public SharedAuthenticationToken(String credentials) {
         super(credentials);
     }
 

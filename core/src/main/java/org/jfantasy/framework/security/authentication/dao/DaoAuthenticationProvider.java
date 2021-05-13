@@ -28,8 +28,8 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 
     @Override
     public UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken token) {
-        UserDetails loadedUser = this.userDetailsService.loadUserByUsername(username);
         try {
+            UserDetails loadedUser = this.userDetailsService.loadUserByUsername(username);
             if (loadedUser == null) {
                 throw new InternalAuthenticationServiceException("UserDetailsService returned null, which is an interface contract violation");
             }
