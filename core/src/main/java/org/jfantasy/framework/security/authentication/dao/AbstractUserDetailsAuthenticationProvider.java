@@ -15,13 +15,12 @@ import org.jfantasy.framework.security.core.userdetails.UserDetails;
 public abstract class AbstractUserDetailsAuthenticationProvider implements AuthenticationProvider<UsernamePasswordAuthenticationToken> {
 
     private boolean hideUserNotFoundExceptions;
-    private boolean forcePrincipalAsString = false;
 
     private UserDetailsChecker preAuthenticationChecks = new DefaultAuthenticationChecks(new DefaultPreAuthenticationChecks());
     private UserDetailsChecker postAuthenticationChecks = new DefaultAuthenticationChecks(new DefaultPostAuthenticationChecks());
 
     @Override
-    public boolean supports(Class authentication) {
+    public boolean supports(Class<?> authentication) {
         return (UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication));
     }
 
@@ -53,13 +52,9 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements Authe
             throw new BadCredentialsException("Bad credentials");
         }
         this.preAuthenticationChecks.check(user);
-        additionalAuthenticationChecks(user, (UsernamePasswordAuthenticationToken) authentication);
+        additionalAuthenticationChecks(user, authentication);
         this.postAuthenticationChecks.check(user);
-        Object principalToReturn = user;
-        if (this.forcePrincipalAsString) {
-            principalToReturn = user.getUsername();
-        }
-        return createSuccessAuthentication(principalToReturn, authentication, user);
+        return createSuccessAuthentication(user, authentication, user);
     }
 
     protected Authentication createSuccessAuthentication(Object principal, Authentication authentication, UserDetails user) {
@@ -105,10 +100,6 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements Authe
             }
         }
 
-    }
-
-    public void setForcePrincipalAsString(boolean forcePrincipalAsString) {
-        this.forcePrincipalAsString = forcePrincipalAsString;
     }
 
     public void setHideUserNotFoundExceptions(boolean hideUserNotFoundExceptions) {
