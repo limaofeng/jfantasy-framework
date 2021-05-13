@@ -1,24 +1,20 @@
 package org.jfantasy.framework.security.authentication.dao;
 
-import org.jfantasy.framework.security.authentication.*;
+import org.jfantasy.framework.security.authentication.Authentication;
+import org.jfantasy.framework.security.authentication.InternalAuthenticationServiceException;
+import org.jfantasy.framework.security.authentication.SimpleAuthenticationToken;
 import org.jfantasy.framework.security.core.userdetails.SimpleUserDetailsService;
 import org.jfantasy.framework.security.core.userdetails.UserDetails;
-import org.jfantasy.framework.security.core.userdetails.UserDetailsService;
 import org.jfantasy.framework.security.core.userdetails.UsernameNotFoundException;
-import org.jfantasy.framework.security.crypto.password.PasswordEncoder;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.stereotype.Component;
 
 /**
  * @author limaofeng
  */
-@Component
-@ConditionalOnBean({UserDetailsService.class, PasswordEncoder.class})
 public class SimpleAuthenticationProvider extends AbstractSimpleUserDetailsAuthenticationProvider {
 
     private SimpleUserDetailsService userDetailsService;
 
-    private Class authenticationClass;
+    private Class<?> authenticationClass;
 
     public SimpleAuthenticationProvider(Class authentication) {
         this.authenticationClass = authentication;
@@ -31,9 +27,9 @@ public class SimpleAuthenticationProvider extends AbstractSimpleUserDetailsAuthe
 
     @Override
     public UserDetails retrieveUser(SimpleAuthenticationToken authentication) {
-        String token = determineToken(authentication);
-        UserDetails loadedUser = this.userDetailsService.loadUserByToken(token);
+        Object token = determineToken(authentication);
         try {
+            UserDetails loadedUser = this.userDetailsService.loadUserByToken(token);
             if (loadedUser == null) {
                 throw new InternalAuthenticationServiceException("UserDetailsService returned null, which is an interface contract violation");
             }
@@ -45,8 +41,8 @@ public class SimpleAuthenticationProvider extends AbstractSimpleUserDetailsAuthe
         }
     }
 
-    private String determineToken(Authentication authentication) {
-        return authentication.getCredentials().toString();
+    private Object determineToken(Authentication authentication) {
+        return authentication.getCredentials();
     }
 
     public void setUserDetailsService(SimpleUserDetailsService userDetailsService) {
