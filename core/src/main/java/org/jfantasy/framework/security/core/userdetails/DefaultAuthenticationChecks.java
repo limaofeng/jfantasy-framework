@@ -1,6 +1,7 @@
 package org.jfantasy.framework.security.core.userdetails;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -22,6 +23,10 @@ public class DefaultAuthenticationChecks implements UserDetailsChecker {
         for (UserDetailsChecker checker : checkers) {
             checker.check(user);
         }
+    }
+
+    public void addCheckers(UserDetailsChecker... checkers) {
+        this.checkers.addAll(Arrays.asList(checkers));
     }
 
 }

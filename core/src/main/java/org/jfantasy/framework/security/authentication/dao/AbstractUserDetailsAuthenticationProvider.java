@@ -106,4 +106,11 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements Authe
         this.hideUserNotFoundExceptions = hideUserNotFoundExceptions;
     }
 
+    public UserDetailsChecker getPreAuthenticationChecks() {
+        return preAuthenticationChecks;
+    }
+
+    public UserDetailsChecker getPostAuthenticationChecks() {
+        return postAuthenticationChecks;
+    }
 }
