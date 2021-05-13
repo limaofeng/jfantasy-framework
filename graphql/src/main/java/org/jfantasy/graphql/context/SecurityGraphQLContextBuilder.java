@@ -29,10 +29,9 @@ import java.util.concurrent.CompletableFuture;
  * @date 2019-04-14 14:13
  */
 @Component
-@ConditionalOnBean(name = "shared.AuthenticationProvider")
 public class SecurityGraphQLContextBuilder extends DefaultGraphQLContextBuilder implements GraphQLServletContextBuilder {
 
-    @Autowired
+    @Autowired(required = false)
     private GraphQLUserDetailsService userDetailsService;
 
     @Override
