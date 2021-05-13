@@ -45,7 +45,7 @@ public class SecurityGraphQLContextBuilder extends DefaultGraphQLContextBuilder 
 
         String authorization = req.getHeader("Authorization");
 
-        if (StringUtil.isNotBlank(authorization) || !authorization.startsWith("token ")) {
+        if (StringUtil.isBlank(authorization) || !authorization.startsWith("token ")) {
             return context;
         }
 
