@@ -30,7 +30,7 @@ public class DefaultGraphQLError extends ErrorResponse implements GraphQLError {
     public DefaultGraphQLError(ErrorContext errorContext) {
         this.path = errorContext.getPath();
         this.locations = errorContext.getLocations();
-        this.errorType = ObjectUtil.defaultValue(errorContext.getErrorType(), ValidationError);
+        this.errorType = ValidationError;
         this.setData(ObjectUtil.defaultValue(errorContext.getExtensions(), new HashMap<>()));
     }
 

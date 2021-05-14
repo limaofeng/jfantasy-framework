@@ -1,5 +1,6 @@
 package org.jfantasy.framework.security.authentication.dao;
 
+import org.jfantasy.framework.error.ValidationException;
 import org.jfantasy.framework.security.AuthenticationException;
 import org.jfantasy.framework.security.authentication.BadCredentialsException;
 import org.jfantasy.framework.security.authentication.InternalAuthenticationServiceException;
@@ -34,7 +35,7 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
                 throw new InternalAuthenticationServiceException("UserDetailsService returned null, which is an interface contract violation");
             }
             return loadedUser;
-        } catch (InternalAuthenticationServiceException | UsernameNotFoundException ex) {
+        } catch (InternalAuthenticationServiceException | UsernameNotFoundException | ValidationException ex) {
             throw ex;
         } catch (Exception ex) {
             throw new InternalAuthenticationServiceException(ex.getMessage(), ex);
