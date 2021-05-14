@@ -1,5 +1,6 @@
 package org.jfantasy.framework.error;
 
+import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.PropertiesHelper;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -38,7 +39,7 @@ public class ErrorUtils {
     }
 
     public static void fill(ErrorResponse error, ValidationException exception) {
-        error.setCode(exception.getCode());
+        error.setCode(ObjectUtil.defaultValue(exception.getCode(), errorCode(exception)));
         error.setMessage(exception.getMessage());
         if (exception.getData() != null && !exception.getData().isEmpty()) {
             exception.getData().forEach(error::addData);

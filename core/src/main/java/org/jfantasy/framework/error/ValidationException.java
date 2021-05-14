@@ -7,13 +7,18 @@ import java.util.Map;
  */
 public class ValidationException extends RuntimeException {
 
-    private String code = "420000";
+    private String code;
 
     private transient Map<String, Object> data;
 
     public ValidationException(String code, String message) {
         super(message);
         this.code = code;
+    }
+
+    public ValidationException(String message, Map<String, Object> data) {
+        super(message);
+        this.data = data;
     }
 
     public ValidationException(String code, String message, Map<String, Object> data) {

@@ -8,7 +8,6 @@ import graphql.language.SourceLocation;
 import org.jfantasy.framework.error.ErrorResponse;
 import org.jfantasy.framework.util.common.ObjectUtil;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +16,7 @@ import static graphql.ErrorType.ValidationError;
 
 /**
  * 默认的 GraphQLError
+ *
  * @author limaofeng
  * @version V1.0
  * @date 2020/3/22 4:36 下午
