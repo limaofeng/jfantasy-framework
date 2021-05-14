@@ -6,33 +6,32 @@ import graphql.GraphqlErrorHelper;
 import graphql.kickstart.spring.error.ErrorContext;
 import graphql.language.SourceLocation;
 import org.jfantasy.framework.error.ErrorResponse;
+import org.jfantasy.framework.util.common.ObjectUtil;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static graphql.ErrorType.ValidationError;
 
 /**
+ * 默认的 GraphQLError
  * @author limaofeng
  * @version V1.0
- * @Description: TODO
  * @date 2020/3/22 4:36 下午
  */
 public class DefaultGraphQLError extends ErrorResponse implements GraphQLError {
 
-    private List<Object> path = new ArrayList<>();
+    private List<Object> path;
     private List<SourceLocation> locations;
-    private ErrorClassification errorType = ValidationError;
-
-    public DefaultGraphQLError() {
-    }
+    private ErrorClassification errorType;
 
     public DefaultGraphQLError(ErrorContext errorContext) {
         this.path = errorContext.getPath();
-        this.errorType = errorContext.getErrorType();
-        this.setData(errorContext.getExtensions());
         this.locations = errorContext.getLocations();
+        this.errorType = ObjectUtil.defaultValue(errorContext.getErrorType(), ValidationError);
+        this.setData(ObjectUtil.defaultValue(errorContext.getExtensions(), new HashMap<>()));
     }
 
     @Override
