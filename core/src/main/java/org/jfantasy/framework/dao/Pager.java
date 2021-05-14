@@ -25,7 +25,7 @@ import java.util.List;
 @AllArgsConstructor
 @Alias("Pager")
 @JsonIgnoreProperties(value = {"orders", "first", "order_by_setted"})
-public class Pager<T> implements Serializable {
+public class Pager<T> implements Pagination, Serializable {
 
     private static final long serialVersionUID = -2343309063338998483L;
 
@@ -108,11 +108,12 @@ public class Pager<T> implements Serializable {
 
     /**
      * 根据下标查询时使用
+     *
      * @param orderBy
      * @param first
      * @param size
      */
-    public Pager(OrderBy orderBy,int first, int size){
+    public Pager(OrderBy orderBy, int first, int size) {
         this.first = first;
         this.pageSize = size;
         this.orderBy = orderBy;
@@ -123,6 +124,7 @@ public class Pager<T> implements Serializable {
      *
      * @return 总页数
      */
+    @Override
     public int getTotalPage() {
         return totalPage;
     }
@@ -133,6 +135,7 @@ public class Pager<T> implements Serializable {
      *
      * @return 每页显示条数
      */
+    @Override
     public int getPageSize() {
         return pageSize;
     }
@@ -154,6 +157,7 @@ public class Pager<T> implements Serializable {
      *
      * @param currentPage 当前页码
      */
+    @Override
     public void setCurrentPage(int currentPage) {
         this.currentPage = currentPage;
     }
@@ -176,8 +180,14 @@ public class Pager<T> implements Serializable {
      *
      * @param pageSize 每页显示数据条数
      */
+    @Override
     public void setPageSize(int pageSize) {
         this.pageSize = pageSize;
+    }
+
+    @Override
+    public void setTotalPage(int totalPage) {
+        this.totalPage = totalPage;
     }
 
     /**
@@ -185,6 +195,7 @@ public class Pager<T> implements Serializable {
      *
      * @return currentPage
      */
+    @Override
     public int getCurrentPage() {
         return currentPage <= 0 ? 1 : currentPage;
     }
@@ -194,11 +205,13 @@ public class Pager<T> implements Serializable {
      *
      * @return totalCount
      */
+    @Override
     public int getTotalCount() {
         return totalCount;
     }
 
-    public void setTotalCount(int totalCount){
+    @Override
+    public void setTotalCount(int totalCount) {
         this.totalCount = totalCount;
     }
 

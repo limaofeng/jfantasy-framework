@@ -29,9 +29,10 @@ import java.util.concurrent.CompletableFuture;
  * @date 2019-04-14 14:13
  */
 @Component
+@ConditionalOnBean(GraphQLUserDetailsService.class)
 public class SecurityGraphQLContextBuilder extends DefaultGraphQLContextBuilder implements GraphQLServletContextBuilder {
 
-    @Autowired(required = false)
+    @Autowired
     private GraphQLUserDetailsService userDetailsService;
 
     @Override

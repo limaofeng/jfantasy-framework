@@ -9,9 +9,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ * 排序对象
+ *
  * @author limaofeng
  * @version V1.0
- * @Description: TODO
  * @date 2019-04-03 14:01
  */
 @Data

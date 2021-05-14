@@ -4,9 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.jfantasy.framework.dao.Pagination;
 import org.jfantasy.graphql.Connection;
 import org.jfantasy.graphql.PageInfo;
-import org.jfantasy.graphql.Pagination;
 
 import javax.persistence.MappedSuperclass;
 
@@ -22,9 +22,9 @@ import javax.persistence.MappedSuperclass;
 @AllArgsConstructor
 @MappedSuperclass
 public abstract class BaseConnection<T> implements Connection<T>, Pagination {
-    private Integer totalCount;
-    private Integer pageSize;
-    private Integer totalPage;
-    private Integer currentPage;
+    private int totalCount;
+    private int pageSize;
+    private int totalPage;
+    private int currentPage;
     private PageInfo pageInfo;
 }

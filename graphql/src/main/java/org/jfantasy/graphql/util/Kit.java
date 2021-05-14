@@ -1,12 +1,12 @@
 package org.jfantasy.graphql.util;
 
 import org.jfantasy.framework.dao.Pager;
+import org.jfantasy.framework.dao.Pagination;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.regexp.RegexpUtil;
 import org.jfantasy.graphql.Connection;
 import org.jfantasy.graphql.Edge;
 import org.jfantasy.graphql.PageInfo;
-import org.jfantasy.graphql.Pagination;
 
 import java.util.function.Function;
 import java.util.stream.Collectors;
