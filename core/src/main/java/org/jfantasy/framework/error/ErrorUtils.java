@@ -31,7 +31,7 @@ public class ErrorUtils {
             return errorCode;
         }
 
-        if (exception.getCause() instanceof Exception) {
+        if (exception.getCause() instanceof Exception && exception.getCause() != exception) {
             return errorCode((Exception) exception.getCause());
         }
 
