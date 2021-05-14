@@ -26,6 +26,9 @@ public class DatabaseMessageSource extends AbstractMessageSource {
         if (message == null) {
             message = languageRepository.findByKeyAndLocale(key, DEFAULT_LOCALE_CODE);
         }
+        if (message == null) {
+            return null;
+        }
         return new MessageFormat(message.getContent(), locale);
     }
 }

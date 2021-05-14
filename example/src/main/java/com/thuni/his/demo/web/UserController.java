@@ -28,7 +28,7 @@ public class UserController {
     @GetMapping("/users")
     public String users() {
         MessageSourceAccessor accessor = SecurityMessageSource.getAccessor();
-        return accessor.getMessage("a", "12313");
+        return accessor.getMessage("ax", "12313");
     }
 
 
