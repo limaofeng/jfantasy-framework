@@ -16,10 +16,6 @@ public class ErrorResponse {
      */
     private Date timestamp;
     /**
-     * 对应浏览器状态
-     */
-    private int status;
-    /**
      * 状态码错误说明
      */
     private String error;

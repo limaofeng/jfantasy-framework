@@ -45,6 +45,13 @@ public class ErrorUtils {
     public static void fill(ErrorResponse error, ValidationException exception) {
         error.setCode(ObjectUtil.defaultValue(exception.getCode(), errorCode(exception)));
         error.setMessage(exception.getMessage());
+
+        if (exception.hasFieldErrors()) {
+            for (FieldError fieldError : exception.getBindingResult().getFieldErrors()) {
+                error.addFieldError(fieldError.getField(), fieldError.getDefaultMessage());
+            }
+        }
+
         if (exception.getData() != null && !exception.getData().isEmpty()) {
             exception.getData().forEach(error::addData);
         }
@@ -60,11 +67,7 @@ public class ErrorUtils {
     }
 
     public static void fill(ErrorResponse error, MethodArgumentNotValidException exception) {
-        error.setCode(ErrorUtils.errorCode(exception));
-        error.setMessage("输入的数据不合法,详情见 fields 字段");
-        for (FieldError fieldError : exception.getBindingResult().getFieldErrors()) {
-            error.addFieldError(fieldError.getField(), fieldError.getDefaultMessage());
-        }
+        fill(error, new ValidationException(exception.getBindingResult()));
     }
 
     private static final DataBinder createBinder(Object target) {
@@ -74,9 +77,12 @@ public class ErrorUtils {
         return binder;
     }
 
-    public static void validate(Object object) {
+    public static void validate(Object object) throws ValidationException {
         DataBinder binder = createBinder(object);
         binder.validate(object);
+        if (binder.getBindingResult().hasErrors()) {
+            throw new ValidationException(binder.getBindingResult());
+        }
     }
 
 }

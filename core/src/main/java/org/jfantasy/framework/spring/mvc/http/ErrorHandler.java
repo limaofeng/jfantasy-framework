@@ -29,27 +29,22 @@ public class ErrorHandler {
     public WebError errorAttributes(Exception exception, HttpServletRequest request, HttpServletResponse response) {
         WebError error = new WebError(request);
         Object state = exception instanceof RestException ? ((RestException) exception).getState() : null;
+        ErrorUtils.fill(error, exception);
         if (exception instanceof SecurityException) {
             SecurityException securityException = (SecurityException) exception;
             error.setCode(securityException.getCode());
-            error.setMessage(securityException.getMessage());
             response.setStatus(securityException.getStatusCode());
         } else if (exception instanceof ValidationException) {
-            ValidationException validationException = (ValidationException) exception;
-            error.setCode(validationException.getCode());
-            error.setMessage(validationException.getMessage());
+            ErrorUtils.fill(error, (ValidationException) exception);
             response.setStatus(HttpStatus.UNPROCESSABLE_ENTITY.value());
         } else if (exception instanceof RestException) {
             RestException restException = (RestException) exception;
-            error.setMessage(restException.getMessage());
             response.setStatus(restException.getStatusCode());
         } else if (exception instanceof MethodArgumentNotValidException) {
-            response.setStatus(HttpStatus.UNPROCESSABLE_ENTITY.value());
             ErrorUtils.fill(error, ((MethodArgumentNotValidException) exception));
             response.setStatus(HttpStatus.UNPROCESSABLE_ENTITY.value());
         } else {
             LOG.error(exception.getMessage(), exception);
-            error.setMessage(exception.getMessage());
             response.setStatus(HttpStatus.BAD_REQUEST.value());
         }
         applicationContext.publishEvent(new ErrorEvent(error, state));

@@ -1,11 +1,13 @@
 package com.thuni.his.demo.web;
 
 import com.thuni.his.demo.bean.User;
+import org.jfantasy.framework.error.ErrorUtils;
 import org.jfantasy.framework.security.core.SecurityMessageSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,6 +29,10 @@ public class UserController {
 
     @GetMapping("/users")
     public String users() {
+        User user = User.builder().build();
+
+        ErrorUtils.validate(user);
+
         MessageSourceAccessor accessor = SecurityMessageSource.getAccessor();
         return accessor.getMessage("ax", "12313");
     }
