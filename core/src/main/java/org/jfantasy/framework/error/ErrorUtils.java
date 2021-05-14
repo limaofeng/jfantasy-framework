@@ -1,8 +1,12 @@
 package org.jfantasy.framework.error;
 
+import org.jfantasy.framework.spring.SpringContextUtil;
+import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.PropertiesHelper;
+import org.springframework.validation.DataBinder;
 import org.springframework.validation.FieldError;
+import org.springframework.validation.SmartValidator;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
 /**
@@ -61,6 +65,18 @@ public class ErrorUtils {
         for (FieldError fieldError : exception.getBindingResult().getFieldErrors()) {
             error.addFieldError(fieldError.getField(), fieldError.getDefaultMessage());
         }
+    }
+
+    private static final DataBinder createBinder(Object target) {
+        SmartValidator validator = SpringContextUtil.getBeanByType(SmartValidator.class);
+        DataBinder binder = new DataBinder(target);
+        binder.setValidator(validator);
+        return binder;
+    }
+
+    public static void validate(Object object) {
+        DataBinder binder = createBinder(object);
+        binder.validate(object);
     }
 
 }

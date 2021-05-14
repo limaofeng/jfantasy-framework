@@ -17,9 +17,10 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
 /**
+ * GraphQLResolver 支持 Validated 注解验证
+ *
  * @author limaofeng
  * @version V1.0
- * @Description: TODO
  * @date 2020/3/21 11:31 下午
  */
 @Aspect
