@@ -9,18 +9,17 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
  *
  * @author limaofeng
  * @version V1.0
- * @Description: TODO
  * @date 2020/3/22 4:47 下午
  */
 public class ErrorUtils {
 
-    private static PropertiesHelper helper = PropertiesHelper.load("error_codes.properties");
+    private static final PropertiesHelper HELPER = PropertiesHelper.load("error_codes.properties");
 
     public static String errorCode(Exception exception) {
-        Class errorClass = exception.getClass();
+        Class<?> errorClass = exception.getClass();
         String errorCode;
         do {
-            errorCode = helper.getProperty(errorClass.getName());
+            errorCode = HELPER.getProperty(errorClass.getName());
             errorClass = errorClass.getSuperclass();
             if (errorClass == Exception.class) {
                 break;
@@ -31,18 +30,18 @@ public class ErrorUtils {
             return errorCode;
         }
 
-        if (exception.getCause() == null) {
-            return errorCode(exception);
+        if (exception.getCause() instanceof Exception) {
+            return errorCode((Exception) exception.getCause());
         }
 
-        return helper.getProperty(Exception.class.getName());
+        return HELPER.getProperty(Exception.class.getName());
     }
 
     public static void fill(ErrorResponse error, ValidationException exception) {
         error.setCode(exception.getCode());
         error.setMessage(exception.getMessage());
         if (exception.getData() != null && !exception.getData().isEmpty()) {
-            exception.getData().forEach((k, v) -> error.addData(k, v));
+            exception.getData().forEach(error::addData);
         }
     }
 
