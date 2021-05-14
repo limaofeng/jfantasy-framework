@@ -1,15 +1,42 @@
 package org.jfantasy.framework.error;
 
+import org.jfantasy.framework.util.common.PropertiesHelper;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
 /**
+ * 异常工具类
+ *
  * @author limaofeng
  * @version V1.0
  * @Description: TODO
  * @date 2020/3/22 4:47 下午
  */
 public class ErrorUtils {
+
+    private static PropertiesHelper helper = PropertiesHelper.load("error_codes.properties");
+
+    public static String errorCode(Exception exception) {
+        Class errorClass = exception.getClass();
+        String errorCode;
+        do {
+            errorCode = helper.getProperty(errorClass.getName());
+            errorClass = errorClass.getSuperclass();
+            if (errorClass == Exception.class) {
+                break;
+            }
+        } while (errorCode == null);
+
+        if (errorCode != null) {
+            return errorCode;
+        }
+
+        if (exception.getCause() == null) {
+            return errorCode(exception);
+        }
+
+        return helper.getProperty(Exception.class.getName());
+    }
 
     public static void fill(ErrorResponse error, ValidationException exception) {
         error.setCode(exception.getCode());
@@ -24,12 +51,12 @@ public class ErrorUtils {
             fill(error, (ValidationException) exception);
             return;
         }
-        error.setCode("42200");
+        error.setCode(ErrorUtils.errorCode(exception));
         error.setMessage(exception.getMessage());
     }
 
     public static void fill(ErrorResponse error, MethodArgumentNotValidException exception) {
-        error.setCode("42200");
+        error.setCode(ErrorUtils.errorCode(exception));
         error.setMessage("输入的数据不合法,详情见 fields 字段");
         for (FieldError fieldError : exception.getBindingResult().getFieldErrors()) {
             error.addFieldError(fieldError.getField(), fieldError.getDefaultMessage());

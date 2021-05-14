@@ -3,10 +3,10 @@ package org.jfantasy.framework.security.authentication.dao;
 import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.security.AuthenticationException;
 import org.jfantasy.framework.security.authentication.*;
-import org.jfantasy.framework.security.core.userdetails.DefaultAuthenticationChecks;
+import org.jfantasy.framework.security.core.userdetails.UserDetails;
 import org.jfantasy.framework.security.core.userdetails.UserDetailsChecker;
 import org.jfantasy.framework.security.core.userdetails.UsernameNotFoundException;
-import org.jfantasy.framework.security.core.userdetails.UserDetails;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /**
  * @author limaofeng
@@ -14,10 +14,12 @@ import org.jfantasy.framework.security.core.userdetails.UserDetails;
 @Slf4j
 public abstract class AbstractUserDetailsAuthenticationProvider implements AuthenticationProvider<UsernamePasswordAuthenticationToken> {
 
+    protected MessageSourceAccessor messages;
+
     private boolean hideUserNotFoundExceptions;
 
-    private UserDetailsChecker preAuthenticationChecks = new DefaultAuthenticationChecks(new DefaultPreAuthenticationChecks());
-    private UserDetailsChecker postAuthenticationChecks = new DefaultAuthenticationChecks(new DefaultPostAuthenticationChecks());
+    private UserDetailsChecker preAuthenticationChecks;
+    private UserDetailsChecker postAuthenticationChecks;
 
     @Override
     public boolean supports(Class<?> authentication) {
@@ -49,7 +51,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements Authe
             if (!this.hideUserNotFoundExceptions) {
                 throw ex;
             }
-            throw new BadCredentialsException("Bad credentials");
+            throw new BadCredentialsException(this.messages.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
         }
         this.preAuthenticationChecks.check(user);
         additionalAuthenticationChecks(user, authentication);
@@ -64,6 +66,13 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements Authe
         return result;
     }
 
+    /**
+     * 验证密码
+     *
+     * @param userDetails
+     * @param authentication
+     * @throws AuthenticationException
+     */
     protected abstract void additionalAuthenticationChecks(UserDetails userDetails, UsernamePasswordAuthenticationToken authentication) throws AuthenticationException;
 
     public void setPreAuthenticationChecks(UserDetailsChecker preAuthenticationChecks) {
@@ -76,16 +85,22 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements Authe
 
     public static class DefaultPreAuthenticationChecks implements UserDetailsChecker {
 
+        private final MessageSourceAccessor messages;
+
+        public DefaultPreAuthenticationChecks(MessageSourceAccessor messages) {
+            this.messages = messages;
+        }
+
         @Override
         public void check(UserDetails user) {
             if (!user.isAccountNonLocked()) {
-                throw new LockedException("User account is locked");
+                throw new LockedException(this.messages.getMessage("AbstractUserDetailsAuthenticationProvider.locked", "User account is locked"));
             }
             if (!user.isEnabled()) {
-                throw new DisabledException("User is disabled");
+                throw new DisabledException(this.messages.getMessage("AbstractUserDetailsAuthenticationProvider.disabled", "User is disabled"));
             }
             if (!user.isAccountNonExpired()) {
-                throw new AccountExpiredException("User account has expired");
+                throw new AccountExpiredException(this.messages.getMessage("AbstractUserDetailsAuthenticationProvider.expired", "User account has expired"));
             }
         }
 
@@ -93,13 +108,23 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements Authe
 
     public static class DefaultPostAuthenticationChecks implements UserDetailsChecker {
 
+        private final MessageSourceAccessor messages;
+
+        public DefaultPostAuthenticationChecks(MessageSourceAccessor messages) {
+            this.messages = messages;
+        }
+
         @Override
         public void check(UserDetails user) {
             if (!user.isCredentialsNonExpired()) {
-                throw new CredentialsExpiredException("User credentials have expired");
+                throw new CredentialsExpiredException(this.messages.getMessage("AbstractUserDetailsAuthenticationProvider.credentialsExpired", "User credentials have expired"));
             }
         }
 
+    }
+
+    public void setMessages(MessageSourceAccessor messages) {
+        this.messages = messages;
     }
 
     public void setHideUserNotFoundExceptions(boolean hideUserNotFoundExceptions) {

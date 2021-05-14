@@ -1,5 +1,6 @@
 package org.jfantasy.autoconfigure;
 
+import org.jfantasy.framework.context.DatabaseMessageSource;
 import org.jfantasy.framework.security.AuthenticationManager;
 import org.jfantasy.framework.security.authentication.AuthenticationEventPublisher;
 import org.jfantasy.framework.security.authentication.AuthenticationProvider;
@@ -8,6 +9,7 @@ import org.jfantasy.framework.security.authentication.dao.AbstractUserDetailsAut
 import org.jfantasy.framework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider.DefaultPreAuthenticationChecks;
 import org.jfantasy.framework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider.DefaultPostAuthenticationChecks;
 import org.jfantasy.framework.security.authentication.dao.DaoAuthenticationProvider;
+import org.jfantasy.framework.security.core.SecurityMessageSource;
 import org.jfantasy.framework.security.core.userdetails.*;
 import org.jfantasy.framework.security.crypto.password.PasswordEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.support.MessageSourceAccessor;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -45,16 +48,28 @@ public class SecurityAutoConfiguration {
         return authenticationManager;
     }
 
+    @Bean
+    public DatabaseMessageSource messageSource() {
+        return new DatabaseMessageSource();
+    }
+
+    @Bean("securityMessageSource")
+    public MessageSourceAccessor securityMessageSource() {
+        MessageSourceAccessor messages = new MessageSourceAccessor(messageSource());
+        SecurityMessageSource.setAccessor(messages);
+        return messages;
+    }
+
     @Bean("pre.preUserDetailsCheckers")
     public UserDetailsChecker preUserDetailsCheckers(PreUserDetailsChecker[] checkers) {
-        DefaultAuthenticationChecks checker = new DefaultAuthenticationChecks(new DefaultPreAuthenticationChecks());
+        DefaultAuthenticationChecks checker = new DefaultAuthenticationChecks(new DefaultPreAuthenticationChecks(securityMessageSource()));
         checker.addCheckers(checkers);
         return checker;
     }
 
     @Bean("post.preUserDetailsCheckers")
     public UserDetailsChecker postUserDetailsCheckers(PostUserDetailsChecker[] checkers) {
-        DefaultAuthenticationChecks checker = new DefaultAuthenticationChecks(new DefaultPostAuthenticationChecks());
+        DefaultAuthenticationChecks checker = new DefaultAuthenticationChecks(new DefaultPostAuthenticationChecks(securityMessageSource()));
         checker.addCheckers(checkers);
         return checker;
     }
@@ -69,6 +84,7 @@ public class SecurityAutoConfiguration {
         @Qualifier("post.preUserDetailsCheckers") UserDetailsChecker postUserDetailsCheckers
     ) {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService, passwordEncoder);
+        provider.setMessages(securityMessageSource());
         provider.setPreAuthenticationChecks(preUserDetailsCheckers);
         provider.setPostAuthenticationChecks(postUserDetailsCheckers);
         return provider;

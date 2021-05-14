@@ -44,11 +44,11 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
     @Override
     public void additionalAuthenticationChecks(UserDetails user, UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
         if (authentication.getCredentials() == null) {
-            throw new BadCredentialsException("Bad credentials");
+            throw new BadCredentialsException(this.messages.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
         }
         String presentedPassword = authentication.getCredentials().toString();
         if (!this.passwordEncoder.matches(presentedPassword, user.getPassword())) {
-            throw new BadCredentialsException("Bad credentials");
+            throw new BadCredentialsException(this.messages.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
         }
     }
 

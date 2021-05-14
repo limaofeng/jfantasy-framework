@@ -1,7 +1,12 @@
 package com.thuni.his.demo.web;
 
 import com.thuni.his.demo.bean.User;
+import org.jfantasy.framework.security.core.SecurityMessageSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,6 +21,16 @@ import javax.validation.Valid;
  */
 @RestController
 public class UserController {
+
+    @Autowired
+    private MessageSource messageSource;
+
+    @GetMapping("/users")
+    public String users() {
+        MessageSourceAccessor accessor = SecurityMessageSource.getAccessor();
+        return accessor.getMessage("a", "12313");
+    }
+
 
     @PostMapping("/users")
     public ResponseEntity<String> addUser(@Valid @RequestBody User user) {

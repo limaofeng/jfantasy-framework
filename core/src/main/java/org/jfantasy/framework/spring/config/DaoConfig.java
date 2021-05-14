@@ -11,6 +11,7 @@ import org.jfantasy.framework.dao.hibernate.generator.SerialNumberGenerator;
 import org.jfantasy.framework.dao.jpa.ComplexJpaRepository;
 import org.jfantasy.framework.spring.SpringContextUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -22,10 +23,13 @@ import javax.annotation.PostConstruct;
 import javax.persistence.EntityManagerFactory;
 
 /**
- * Description: <数据源相关bean的注册>. <br>
+ * 数据源相关bean的注册
+ *
+ * @author limaofeng
  */
 @Configuration
 @EnableTransactionManagement(proxyTargetClass = true)
+@EntityScan("org.jfantasy.framework.context.bean")
 @EnableJpaRepositories(
     transactionManagerRef = "transactionManager",
     includeFilters = {
@@ -34,7 +38,7 @@ import javax.persistence.EntityManagerFactory;
             value = {JpaRepository.class}
         )
     },
-    basePackages = "org.jfantasy.*.dao",
+    basePackages = {"org.jfantasy.framework.context.dao"},
     repositoryBaseClass = ComplexJpaRepository.class
 )
 @Import({MyBatisConfig.class})
