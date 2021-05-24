@@ -1,28 +1,25 @@
 buildscript {
     repositories {
-        maven { url "https://artifactory.thuni-h.com/artifactory/libs-release" }
+        maven { url "https://maven.thuni-h.com/repository/maven-public" }
+        maven { url "https://repo.spring.io/plugins-release/" }
         mavenCentral()
         mavenLocal()
     }
     dependencies {
         classpath 'io.spring.gradle:dependency-management-plugin:1.0.7.RELEASE'
-        classpath 'io.spring.gradle:propdeps-plugin:0.0.9.RELEASE'
         classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.7'
         classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:4.+'
     }
 }
 
-apply from: "$rootDir/gradle/dependencies.gradle"
-apply plugin: "org.sonarqube"
-
-configure(allprojects) {
-    apply plugin: 'propdeps'
-    apply plugin: 'propdeps-maven'
-    apply plugin: 'propdeps-idea'
+plugins {
+    id "io.spring.dependency-management" version "1.0.8.RELEASE"
 }
 
+apply from: "$rootDir/gradle/dependencies.gradle"
+
 allprojects {
-    apply plugin: 'com.jfrog.artifactory'
+    apply plugin: 'maven-publish'
     apply plugin: 'idea'
 
     group = 'org.jfantasy'
@@ -30,15 +27,14 @@ allprojects {
     status = 'integration'
 
     repositories {
-        maven { url "https://artifactory.thuni-h.com/artifactory/libs-release" }
+        maven { url "https://maven.thuni-h.com/repository/maven-public" }
+        maven { url "https://jcenter.bintray.com" }
     }
 
     configurations {
         apply plugin: 'java'
         apply plugin: 'idea'
-        apply plugin: "jacoco"
         apply plugin: 'io.spring.dependency-management'
-
     }
 
     idea {
@@ -50,11 +46,32 @@ allprojects {
     }
 
     buildDir = 'build'
-    
+
+    publishing {
+        repositories {
+            maven {
+                credentials {
+                    username System.getenv()['MAVEN_USER']
+                    password System.getenv()['MAVEN_PASS']
+                }
+                url "https://maven.thuni-h.com/repository/" + System.getenv()['MAVEN_REPO_KEY']
+            }
+        }
+
+        publications {
+            maven(MavenPublication) {
+                from components.java
+                groupId project.group
+                artifactId project.name
+                version project.version
+            }
+        }
+    }
 }
 
 subprojects {
-    apply plugin: 'maven'
+//    apply plugin: 'maven'
+    apply plugin: "jacoco"
 
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
@@ -87,27 +104,14 @@ subprojects {
         }
     }
 
-    dependencies {
-        optional "org.springframework.boot:spring-boot-configuration-processor"
-    }
-
     test {
         ignoreFailures = true
 
         jacoco {
-            append = false
             destinationFile = file("$buildDir/jacoco/jacocoTest.exec")
             classDumpDir = file("$buildDir/jacoco/classpathdumps")
         }
 
-    }
-
-    sonarqube {
-        properties {
-            property "sonar.sourceEncoding", "UTF-8"
-            property "sonar.sources", "JavaSource"
-            property "sonar.tests", "test/src"
-        }
     }
 
     configurations {
@@ -119,31 +123,22 @@ subprojects {
         classifier = 'sources'
     }
 
-    artifactoryPublish {
-        dependsOn sourceJar
-    }
-
     artifacts {
         published sourceJar
     }
 
-}
+    task copyDependencies(type: Sync) {
+        from configurations.compileClasspath
+        from configurations.compileOnly
+        into 'build/dependencies'
+    }
 
-artifactory {
-    contextUrl = System.getenv()['ARTIFACTORY_URL']
-    publish {
-        repository {
-            repoKey = System.getenv()['MAVEN_REPO_KEY']
-            username = System.getenv()['ARTIFACTORY_USER']
-            password = System.getenv()['ARTIFACTORY_PASS']
-        }
-        defaults {
-            publishConfigs('archives', 'published')
-            publishPom = true
-            publishIvy = false
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                artifact sourceJar
+            }
         }
     }
-    clientConfig.setIncludeEnvVars(true)
-    clientConfig.setEnvVarsExcludePatterns('*password*,*secret*')
-    clientConfig.info.setBuildNumber(System.getenv()['CI_JOB_ID'])
+
 }
