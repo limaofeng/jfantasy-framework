@@ -1,0 +1,69 @@
+package org.jfantasy.framework.security.oauth2.core;
+
+import org.springframework.util.Assert;
+
+import java.io.Serializable;
+import java.time.Instant;
+
+public class AbstractOAuth2Token implements OAuth2Token, Serializable {
+
+    private final String tokenValue;
+
+    private final Instant issuedAt;
+
+    private final Instant expiresAt;
+
+    protected AbstractOAuth2Token(String tokenValue) {
+        this(tokenValue, null, null);
+    }
+
+    protected AbstractOAuth2Token(String tokenValue, Instant issuedAt, Instant expiresAt) {
+        Assert.hasText(tokenValue, "tokenValue cannot be empty");
+        if (issuedAt != null && expiresAt != null) {
+            Assert.isTrue(expiresAt.isAfter(issuedAt), "expiresAt must be after issuedAt");
+        }
+        this.tokenValue = tokenValue;
+        this.issuedAt = issuedAt;
+        this.expiresAt = expiresAt;
+    }
+
+    public String getTokenValue() {
+        return this.tokenValue;
+    }
+
+    public Instant getIssuedAt() {
+        return this.issuedAt;
+    }
+
+    public Instant getExpiresAt() {
+        return this.expiresAt;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || this.getClass() != obj.getClass()) {
+            return false;
+        }
+        AbstractOAuth2Token other = (AbstractOAuth2Token) obj;
+        if (!this.getTokenValue().equals(other.getTokenValue())) {
+            return false;
+        }
+        if ((this.getIssuedAt() != null) ? !this.getIssuedAt().equals(other.getIssuedAt())
+            : other.getIssuedAt() != null) {
+            return false;
+        }
+        return (this.getExpiresAt() != null) ? this.getExpiresAt().equals(other.getExpiresAt())
+            : other.getExpiresAt() == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = this.getTokenValue().hashCode();
+        result = 31 * result + ((this.getIssuedAt() != null) ? this.getIssuedAt().hashCode() : 0);
+        result = 31 * result + ((this.getExpiresAt() != null) ? this.getExpiresAt().hashCode() : 0);
+        return result;
+    }
+}
