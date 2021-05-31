@@ -13,6 +13,11 @@ public class DefaultTokenServices implements AuthorizationServerTokenServices, R
     private TokenStore tokenStore;
 
     @Override
+    public void afterPropertiesSet() throws Exception {
+
+    }
+
+    @Override
     public OAuth2AccessToken createAccessToken(OAuth2Authentication authentication) {
         return null;
     }
@@ -42,8 +47,4 @@ public class DefaultTokenServices implements AuthorizationServerTokenServices, R
         return null;
     }
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
-
-    }
 }
