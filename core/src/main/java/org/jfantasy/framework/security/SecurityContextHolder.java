@@ -1,7 +1,5 @@
 package org.jfantasy.framework.security;
 
-import org.springframework.boot.actuate.endpoint.SecurityContext;
-
 /**
  * @author limaofeng
  * @version V1.0

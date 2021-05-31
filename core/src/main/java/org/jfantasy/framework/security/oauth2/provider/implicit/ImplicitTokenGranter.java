@@ -11,6 +11,7 @@ import org.jfantasy.framework.security.oauth2.provider.OAuth2RequestFactory;
 import org.jfantasy.framework.security.oauth2.provider.TokenRequest;
 import org.jfantasy.framework.security.oauth2.provider.token.AbstractTokenGranter;
 import org.jfantasy.framework.security.oauth2.provider.token.AuthorizationServerTokenServices;
+import org.springframework.util.Assert;
 
 public class ImplicitTokenGranter extends AbstractTokenGranter {
 
@@ -28,13 +29,13 @@ public class ImplicitTokenGranter extends AbstractTokenGranter {
     @Override
     protected OAuth2Authentication getOAuth2Authentication(ClientDetails client, TokenRequest clientToken) {
 
-        Authentication userAuth;// = SecurityContextHolder.getContext();
+        Authentication userAuth = SecurityContextHolder.getContext().getAuthentication();
         if (userAuth == null || !userAuth.isAuthenticated()) {
             throw new InsufficientAuthenticationException("There is no currently logged in user");
         }
-//        Assert.state(clientToken instanceof ImplicitTokenRequest, "An ImplicitTokenRequest is required here. Caller needs to wrap the TokenRequest.");
+        Assert.state(clientToken instanceof ImplicitTokenRequest, "An ImplicitTokenRequest is required here. Caller needs to wrap the TokenRequest.");
 
-        OAuth2Request requestForStorage = null; //((ImplicitTokenRequest)clientToken).getOAuth2Request();
+        OAuth2Request requestForStorage = ((ImplicitTokenRequest) clientToken).getOAuth2Request();
 
         return new OAuth2Authentication(requestForStorage, userAuth);
 
