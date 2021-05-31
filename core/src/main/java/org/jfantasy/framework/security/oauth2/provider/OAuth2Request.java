@@ -9,9 +9,9 @@ import java.util.*;
 @Data
 public class OAuth2Request extends BaseRequest {
 
-    private Set<String> resourceIds = new HashSet<String>();
+    private Set<String> resourceIds = new HashSet<>();
 
-    private Collection<? extends GrantedAuthority> authorities = new HashSet<GrantedAuthority>();
+    private Collection<? extends GrantedAuthority> authorities = new HashSet<>();
 
     private boolean approved = false;
 
@@ -19,10 +19,9 @@ public class OAuth2Request extends BaseRequest {
 
     private String redirectUri;
 
-    private Set<String> responseTypes = new HashSet<String>();
+    private Set<String> responseTypes = new HashSet<>();
 
-    private Map<String, Serializable> extensions = new HashMap<String, Serializable>();
-
+    private Map<String, Serializable> extensions = new HashMap<>();
 
     public OAuth2Request createOAuth2Request(Map<String, String> combinedParameters) {
         return null;

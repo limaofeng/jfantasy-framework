@@ -19,6 +19,7 @@ public class DefaultTokenServices implements AuthorizationServerTokenServices, R
 
     @Override
     public OAuth2AccessToken createAccessToken(OAuth2Authentication authentication) {
+        authentication.getOAuth2Request();
         return null;
     }
 
