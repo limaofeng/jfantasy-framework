@@ -9,12 +9,10 @@ import lombok.NoArgsConstructor;
 import org.jfantasy.framework.security.core.GrantedAuthority;
 import org.jfantasy.framework.security.core.user.OAuth2User;
 import org.jfantasy.framework.security.core.userdetails.UserDetails;
+import org.jfantasy.framework.util.common.ObjectUtil;
 
 import java.security.Principal;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 登录用户对象
@@ -123,7 +121,7 @@ public class LoginUser implements UserDetails, Principal, OAuth2User {
     @Override
     @JsonAnyGetter
     public Map<String, Object> getAttributes() {
-        return this.data;
+        return ObjectUtil.defaultValue(this.data, Collections.emptyMap());
     }
 
 }
