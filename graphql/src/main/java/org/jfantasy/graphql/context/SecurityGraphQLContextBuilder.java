@@ -13,6 +13,7 @@ import org.jfantasy.framework.security.authentication.Authentication;
 import org.jfantasy.framework.security.authentication.AuthenticationDetailsSource;
 import org.jfantasy.framework.security.authentication.AuthenticationManagerResolver;
 import org.jfantasy.framework.security.oauth2.server.BearerTokenAuthenticationToken;
+import org.jfantasy.framework.security.oauth2.server.authentication.BearerTokenAuthenticationProvider;
 import org.jfantasy.framework.security.oauth2.server.web.BearerTokenResolver;
 import org.jfantasy.framework.security.oauth2.server.web.DefaultBearerTokenResolver;
 import org.jfantasy.framework.security.web.WebAuthenticationDetailsSource;
@@ -38,7 +39,7 @@ import java.util.concurrent.CompletableFuture;
  */
 @Slf4j
 @Component
-@ConditionalOnBean(GraphQLUserDetailsService.class)
+@ConditionalOnBean(BearerTokenAuthenticationProvider.class)
 public class SecurityGraphQLContextBuilder extends DefaultGraphQLContextBuilder implements GraphQLServletContextBuilder {
 
     private BearerTokenResolver bearerTokenResolver = new DefaultBearerTokenResolver();
@@ -66,7 +67,7 @@ public class SecurityGraphQLContextBuilder extends DefaultGraphQLContextBuilder 
 
         String authorization = req.getHeader("Authorization");
 
-        if (StringUtil.isBlank(authorization) || !authorization.startsWith("token ")) {
+        if (StringUtil.isBlank(authorization) || !authorization.startsWith("bearer ")) {
             return context;
         }
 
@@ -86,14 +87,6 @@ public class SecurityGraphQLContextBuilder extends DefaultGraphQLContextBuilder 
         }
         return context;
     }
-
-//    private LoginUser retrieveUser(String token) {
-//        try {
-//            return (LoginUser) userDetailsService.loadUserByToken(token);
-//        } catch (UsernameNotFoundException e) {
-//            return null;
-//        }
-//    }
 
     @Override
     public GraphQLContext build(Session session, HandshakeRequest request) {

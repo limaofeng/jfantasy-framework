@@ -9,6 +9,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.util.StringUtils;
@@ -35,11 +36,13 @@ public class RedisTokenStore implements TokenStore, InitializingBean {
     @Autowired
     private StringRedisTemplate redisTemplate;
 
-    private ValueOperations operations;
+    private ValueOperations valueOperations;
+    private ListOperations listOperations;
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        operations = redisTemplate.opsForValue();
+        valueOperations = redisTemplate.opsForValue();
+        listOperations = redisTemplate.opsForList();
     }
 
     @Override
@@ -58,8 +61,8 @@ public class RedisTokenStore implements TokenStore, InitializingBean {
 
         String key = token.getTokenValue();
 
-        operations.set(ASSESS_TOKEN_PREFIX + key, token);
-        operations.set(ASSESS_TOKEN_PRINCIPAL_PREFIX + key, principal);
+        valueOperations.set(ASSESS_TOKEN_PREFIX + key, token);
+        valueOperations.set(ASSESS_TOKEN_PRINCIPAL_PREFIX + key, principal);
 
         long expire = Duration.between(token.getExpiresAt(), token.getIssuedAt()).toMinutes();
         redisTemplate.expire(ASSESS_TOKEN_PREFIX + key, expire, TimeUnit.MINUTES);
@@ -81,7 +84,9 @@ public class RedisTokenStore implements TokenStore, InitializingBean {
 
         String key = refreshToken.getTokenValue();
 
-        operations.set(REFRESH_TOKEN_PREFIX + key, principal);
+        valueOperations.set(REFRESH_TOKEN_PREFIX + key, principal);
+
+        listOperations.leftPush(REFRESH_TOKEN_PREFIX + key, principal);
 
         long expire = Duration.between(refreshToken.getExpiresAt(), refreshToken.getIssuedAt()).toMinutes();
         redisTemplate.expire(REFRESH_TOKEN_PREFIX + key, expire, TimeUnit.MINUTES);
