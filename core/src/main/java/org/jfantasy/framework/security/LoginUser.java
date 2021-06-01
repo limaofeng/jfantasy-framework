@@ -10,7 +10,6 @@ import org.jfantasy.framework.security.core.GrantedAuthority;
 import org.jfantasy.framework.security.core.user.OAuth2User;
 import org.jfantasy.framework.security.core.userdetails.UserDetails;
 
-import javax.security.auth.Subject;
 import java.security.Principal;
 import java.util.Collection;
 import java.util.HashMap;

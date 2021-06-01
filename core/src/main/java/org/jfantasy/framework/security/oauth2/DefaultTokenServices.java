@@ -34,8 +34,6 @@ public class DefaultTokenServices implements AuthorizationServerTokenServices, R
 
     @Override
     public OAuth2AccessToken createAccessToken(Authentication authentication) {
-//        authentication.getOAuth2Request();
-
         OAuth2AuthenticationDetails details = (OAuth2AuthenticationDetails) authentication.getDetails();
         this.clientDetailsService.loadClientByClientId(details.getClientId());
         String tokenValue = "";

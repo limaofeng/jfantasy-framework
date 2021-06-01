@@ -1,20 +1,15 @@
 package org.jfantasy.framework.security.oauth2;
 
-import org.jfantasy.framework.security.web.authentication.WebAuthenticationDetails;
-
-import javax.servlet.http.HttpServletRequest;
-
 /**
  * OAuth2 认证详情
  *
  * @author limaofeng
  */
-public class OAuth2AuthenticationDetails extends WebAuthenticationDetails {
+public class OAuth2AuthenticationDetails {
 
     private String clientId;
 
-    public OAuth2AuthenticationDetails(HttpServletRequest request, String clientId) {
-        super(request);
+    public OAuth2AuthenticationDetails(String clientId) {
         this.clientId = clientId;
     }
 
