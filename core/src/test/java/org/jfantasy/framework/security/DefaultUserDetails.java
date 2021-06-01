@@ -1,7 +1,9 @@
 package org.jfantasy.framework.security;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.jfantasy.framework.security.core.GrantedAuthority;
 import org.jfantasy.framework.security.core.userdetails.UserDetails;
 
@@ -21,5 +23,4 @@ public class DefaultUserDetails implements UserDetails {
     private boolean accountNonLocked = true;
     @Builder.Default
     private boolean credentialsNonExpired = true;
-
 }

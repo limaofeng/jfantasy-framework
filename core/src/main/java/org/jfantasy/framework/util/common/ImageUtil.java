@@ -11,7 +11,6 @@ import org.jfantasy.framework.error.IgnoreException;
 import org.jfantasy.framework.util.regexp.RegexpUtil;
 import org.springframework.util.Base64Utils;
 import sun.awt.image.ToolkitImage;
-import sun.misc.BASE64Encoder;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
@@ -768,8 +767,7 @@ public final class ImageUtil {
     public static String base64(InputStream in) {// 将图片文件转化为字节数组字符串，并对其进行Base64编码处理
         try {
             byte[] data = StreamUtil.getBytes(in);// 读取图片字节数组
-            BASE64Encoder encoder = new BASE64Encoder();// 对字节数组Base64编码
-            return encoder.encode(data);// 返回Base64编码过的字节数组字符串
+            return new String(Base64Util.decode(data));// 返回Base64编码过的字节数组字符串
         } catch (IOException e) {
             LOG.error(e.getMessage(), e);
             return null;

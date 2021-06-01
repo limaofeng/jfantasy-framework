@@ -2,10 +2,9 @@ package org.jfantasy.framework.security.oauth2.core;
 
 import org.springframework.util.Assert;
 
-import java.io.Serializable;
 import java.time.Instant;
 
-public class AbstractOAuth2Token implements OAuth2Token, Serializable {
+public class AbstractOAuth2Token implements OAuth2Token {
 
     private final String tokenValue;
 
@@ -13,6 +12,11 @@ public class AbstractOAuth2Token implements OAuth2Token, Serializable {
 
     private final Instant expiresAt;
 
+    /**
+     * Sub-class constructor.
+     *
+     * @param tokenValue the token value
+     */
     protected AbstractOAuth2Token(String tokenValue) {
         this(tokenValue, null, null);
     }
@@ -27,14 +31,18 @@ public class AbstractOAuth2Token implements OAuth2Token, Serializable {
         this.expiresAt = expiresAt;
     }
 
+    @Override
     public String getTokenValue() {
         return this.tokenValue;
     }
 
+
+    @Override
     public Instant getIssuedAt() {
         return this.issuedAt;
     }
 
+    @Override
     public Instant getExpiresAt() {
         return this.expiresAt;
     }

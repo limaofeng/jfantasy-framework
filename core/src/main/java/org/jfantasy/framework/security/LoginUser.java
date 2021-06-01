@@ -7,8 +7,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.jfantasy.framework.security.core.GrantedAuthority;
+import org.jfantasy.framework.security.core.user.OAuth2User;
 import org.jfantasy.framework.security.core.userdetails.UserDetails;
 
+import javax.security.auth.Subject;
 import java.security.Principal;
 import java.util.Collection;
 import java.util.HashMap;
@@ -16,16 +18,17 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * 登录用户对象
+ *
  * @author limaofeng
  * @version V1.0
- * @Description: TODO
  * @date 2019-04-08 17:06
  */
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class LoginUser implements UserDetails, Principal {
+public class LoginUser implements UserDetails, Principal, OAuth2User {
     /**
      * 用户名
      */
@@ -103,23 +106,25 @@ public class LoginUser implements UserDetails, Principal {
     private Collection<? extends GrantedAuthority> authorities;
 
     @JsonAnySetter
-    public void set(String key, Object value) {
+    public void setAttribute(String key, Object value) {
         if (this.data == null) {
             this.data = new HashMap<>();
         }
         this.data.put(key, value);
     }
 
-    public <T> T get(String key) {
+    @Override
+    public <A> A getAttribute(String name) {
         if (this.data == null) {
             this.data = new HashMap<>();
         }
-        return (T) this.data.get(key);
+        return (A) this.data.get(name);
     }
 
+    @Override
     @JsonAnyGetter
-    public Map<String, Object> getData() {
-        return data;
+    public Map<String, Object> getAttributes() {
+        return this.data;
     }
 
 }

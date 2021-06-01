@@ -1,9 +1,10 @@
 package org.jfantasy.framework.security;
 
 /**
+ * 安全上下文持有人
+ *
  * @author limaofeng
  * @version V1.0
- * @Description: TODO
  * @date 2019-04-02 13:27
  */
 public class SecurityContextHolder {
@@ -33,4 +34,11 @@ public class SecurityContextHolder {
         }
     }
 
+    public static SecurityContext createEmptyContext() {
+        return new SecurityContext();
+    }
+
+    public static void clearContext() {
+        clear();
+    }
 }

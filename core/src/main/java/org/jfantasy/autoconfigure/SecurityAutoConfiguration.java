@@ -2,7 +2,9 @@ package org.jfantasy.autoconfigure;
 
 import org.jfantasy.framework.context.DatabaseMessageSource;
 import org.jfantasy.framework.security.AuthenticationManager;
+import org.jfantasy.framework.security.DefaultAuthenticationManagerResolver;
 import org.jfantasy.framework.security.authentication.AuthenticationEventPublisher;
+import org.jfantasy.framework.security.authentication.AuthenticationManagerResolver;
 import org.jfantasy.framework.security.authentication.AuthenticationProvider;
 import org.jfantasy.framework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.jfantasy.framework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
@@ -46,6 +48,11 @@ public class SecurityAutoConfiguration {
             authenticationManager.setAuthenticationEventPublisher(publisher);
         }
         return authenticationManager;
+    }
+
+    @Bean
+    public AuthenticationManagerResolver authenticationManagerResolver(AuthenticationManager authenticationManager) {
+        return new DefaultAuthenticationManagerResolver(authenticationManager);
     }
 
     @Bean
