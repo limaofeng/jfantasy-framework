@@ -65,12 +65,6 @@ public class SecurityGraphQLContextBuilder extends DefaultGraphQLContextBuilder 
             return context;
         }
 
-        String authorization = req.getHeader("Authorization");
-
-        if (StringUtil.isBlank(authorization) || !authorization.startsWith("bearer ")) {
-            return context;
-        }
-
         BearerTokenAuthenticationToken authenticationRequest = new BearerTokenAuthenticationToken(token);
         authenticationRequest.setDetails(this.authenticationDetailsSource.buildDetails(req));
 

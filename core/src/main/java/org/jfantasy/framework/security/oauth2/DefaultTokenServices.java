@@ -59,8 +59,7 @@ public class DefaultTokenServices implements AuthorizationServerTokenServices, R
 
     @Override
     public BearerTokenAuthentication loadAuthentication(String accessToken) {
-        this.tokenStore.readAuthentication(accessToken);
-        return null;
+        return this.tokenStore.readAuthentication(accessToken);
     }
 
     @Override
