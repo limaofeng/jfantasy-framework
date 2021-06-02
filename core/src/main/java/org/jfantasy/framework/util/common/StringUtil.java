@@ -581,6 +581,10 @@ public abstract class StringUtil {
         return r.toString();
     }
 
+    public static String md5(String body) {
+        return DigestUtils.md5DigestAsHex(body.getBytes());
+    }
+
     public static String[] shortUrl(String s, String key) {
         String[] chars = new String[]{"a", "b", "c", "d", "e", "f", "g", "h",
             "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t",
