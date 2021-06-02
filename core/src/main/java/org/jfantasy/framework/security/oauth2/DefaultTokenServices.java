@@ -1,9 +1,6 @@
 package org.jfantasy.framework.security.oauth2;
 
-import org.jfantasy.framework.security.oauth2.core.ClientDetailsService;
-import org.jfantasy.framework.security.oauth2.core.OAuth2AccessToken;
-import org.jfantasy.framework.security.oauth2.core.OAuth2Authentication;
-import org.jfantasy.framework.security.oauth2.core.TokenStore;
+import org.jfantasy.framework.security.oauth2.core.*;
 import org.jfantasy.framework.security.oauth2.core.token.AuthorizationServerTokenServices;
 import org.jfantasy.framework.security.oauth2.core.token.ConsumerTokenServices;
 import org.jfantasy.framework.security.oauth2.core.token.ResourceServerTokenServices;
