@@ -1,11 +1,15 @@
 package org.jfantasy.framework.security.oauth2.core;
 
-import org.jfantasy.framework.security.authentication.Authentication;
 import org.jfantasy.framework.security.oauth2.server.BearerTokenAuthenticationToken;
 import org.jfantasy.framework.security.oauth2.server.authentication.BearerTokenAuthentication;
 
 import java.util.Collection;
 
+/**
+ * ToKen 存储器
+ *
+ * @author limaofeng
+ */
 public interface TokenStore {
 
     /**
@@ -30,7 +34,7 @@ public interface TokenStore {
      * @param token
      * @return
      */
-    void storeAccessToken(OAuth2AccessToken token, Authentication authentication);
+    void storeAccessToken(OAuth2AccessToken token, OAuth2Authentication authentication);
 
     /**
      * 获取 AccessToken 信息
@@ -53,7 +57,7 @@ public interface TokenStore {
      * @param refreshToken
      * @param authentication
      */
-    void storeRefreshToken(OAuth2RefreshToken refreshToken, BearerTokenAuthentication authentication);
+    void storeRefreshToken(OAuth2RefreshToken refreshToken, OAuth2Authentication authentication);
 
     /**
      * 获取 readRefreshToken 信息

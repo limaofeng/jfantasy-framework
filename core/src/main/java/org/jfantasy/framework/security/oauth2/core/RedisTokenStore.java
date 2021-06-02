@@ -56,7 +56,7 @@ public class RedisTokenStore implements TokenStore, InitializingBean {
     }
 
     @Override
-    public void storeAccessToken(OAuth2AccessToken token, Authentication authentication) {
+    public void storeAccessToken(OAuth2AccessToken token, OAuth2Authentication authentication) {
         String principal = principalToString(authentication);
 
         String key = token.getTokenValue();
@@ -79,7 +79,7 @@ public class RedisTokenStore implements TokenStore, InitializingBean {
     }
 
     @Override
-    public void storeRefreshToken(OAuth2RefreshToken refreshToken, BearerTokenAuthentication authentication) {
+    public void storeRefreshToken(OAuth2RefreshToken refreshToken, OAuth2Authentication authentication) {
         String principal = principalToString(authentication);
 
         String key = refreshToken.getTokenValue();

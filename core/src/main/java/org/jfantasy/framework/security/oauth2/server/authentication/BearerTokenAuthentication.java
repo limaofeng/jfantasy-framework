@@ -10,6 +10,9 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * @author limaofeng
+ */
 public class BearerTokenAuthentication extends AbstractOAuth2TokenAuthenticationToken<OAuth2AccessToken> {
 
     private final Map<String, Object> attributes;

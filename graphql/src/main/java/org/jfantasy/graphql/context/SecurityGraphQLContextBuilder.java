@@ -51,12 +51,11 @@ public class SecurityGraphQLContextBuilder extends DefaultGraphQLContextBuilder 
 
     @Override
     public GraphQLContext build(HttpServletRequest req, HttpServletResponse response) {
-        SecurityContextHolder.clear();
-
         AuthorizationGraphQLServletContext context = new AuthorizationGraphQLServletContext(req, response);
         context.setDataLoaderRegistry(buildDataLoaderRegistry());
 
         GraphQLContextHolder.setContext(context);
+        SecurityContextHolder.clear();
 
         String token = bearerTokenResolver.resolve(req);
 

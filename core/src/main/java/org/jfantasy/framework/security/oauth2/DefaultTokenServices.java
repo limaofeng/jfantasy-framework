@@ -1,8 +1,8 @@
 package org.jfantasy.framework.security.oauth2;
 
-import org.jfantasy.framework.security.authentication.Authentication;
 import org.jfantasy.framework.security.oauth2.core.ClientDetailsService;
 import org.jfantasy.framework.security.oauth2.core.OAuth2AccessToken;
+import org.jfantasy.framework.security.oauth2.core.OAuth2Authentication;
 import org.jfantasy.framework.security.oauth2.core.TokenStore;
 import org.jfantasy.framework.security.oauth2.core.token.AuthorizationServerTokenServices;
 import org.jfantasy.framework.security.oauth2.core.token.ConsumerTokenServices;
@@ -33,7 +33,7 @@ public class DefaultTokenServices implements AuthorizationServerTokenServices, R
     }
 
     @Override
-    public OAuth2AccessToken createAccessToken(Authentication authentication) {
+    public OAuth2AccessToken createAccessToken(OAuth2Authentication authentication) {
         OAuth2AuthenticationDetails details = (OAuth2AuthenticationDetails) authentication.getDetails();
         this.clientDetailsService.loadClientByClientId(details.getClientId());
         String tokenValue = "";
@@ -43,7 +43,7 @@ public class DefaultTokenServices implements AuthorizationServerTokenServices, R
     }
 
     @Override
-    public OAuth2AccessToken getAccessToken(Authentication authentication) {
+    public OAuth2AccessToken getAccessToken(OAuth2Authentication authentication) {
         return null;
     }
 

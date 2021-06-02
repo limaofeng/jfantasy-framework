@@ -1,8 +1,8 @@
 package org.jfantasy.framework.security;
 
 import org.apache.commons.collections.map.HashedMap;
-import org.jfantasy.framework.security.authentication.Authentication;
 import org.jfantasy.framework.security.oauth2.core.OAuth2AccessToken;
+import org.jfantasy.framework.security.oauth2.core.OAuth2Authentication;
 import org.jfantasy.framework.security.oauth2.core.OAuth2RefreshToken;
 import org.jfantasy.framework.security.oauth2.core.TokenStore;
 import org.jfantasy.framework.security.oauth2.server.BearerTokenAuthenticationToken;
@@ -26,7 +26,7 @@ public class InMemoryTokenStore implements TokenStore {
     }
 
     @Override
-    public void storeAccessToken(OAuth2AccessToken token, Authentication authentication) {
+    public void storeAccessToken(OAuth2AccessToken token, OAuth2Authentication authentication) {
 
     }
 
@@ -41,7 +41,7 @@ public class InMemoryTokenStore implements TokenStore {
     }
 
     @Override
-    public void storeRefreshToken(OAuth2RefreshToken refreshToken, BearerTokenAuthentication authentication) {
+    public void storeRefreshToken(OAuth2RefreshToken refreshToken, OAuth2Authentication authentication) {
 
     }
 
