@@ -28,6 +28,8 @@ public interface JpaRepository<T, PK extends Serializable> extends org.springfra
 
     Optional<T> findOne(List<PropertyFilter> filters);
 
+    Optional<T> findBy(String name, Object value);
+
     long count(List<PropertyFilter> filters);
 
     /**
