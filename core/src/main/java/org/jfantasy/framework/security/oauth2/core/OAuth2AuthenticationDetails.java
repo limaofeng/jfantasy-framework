@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Set;
 
 /**
@@ -56,5 +57,13 @@ public class OAuth2AuthenticationDetails {
      */
     @JsonProperty("refresh_token")
     private String refreshToken;
+
+    public OAuth2AuthenticationDetails(){
+
+    }
+
+    public OAuth2AuthenticationDetails(HttpServletRequest context){
+
+    }
 
 }
