@@ -13,13 +13,11 @@ import org.jfantasy.framework.security.authentication.Authentication;
 import org.jfantasy.framework.security.authentication.AuthenticationDetailsSource;
 import org.jfantasy.framework.security.authentication.AuthenticationManagerResolver;
 import org.jfantasy.framework.security.oauth2.server.BearerTokenAuthenticationToken;
-import org.jfantasy.framework.security.oauth2.server.authentication.BearerTokenAuthenticationProvider;
 import org.jfantasy.framework.security.oauth2.server.web.BearerTokenResolver;
 import org.jfantasy.framework.security.oauth2.server.web.DefaultBearerTokenResolver;
 import org.jfantasy.framework.security.web.WebAuthenticationDetailsSource;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.core.log.LogMessage;
 import org.springframework.stereotype.Component;
 
@@ -39,7 +37,6 @@ import java.util.concurrent.CompletableFuture;
  */
 @Slf4j
 @Component
-@ConditionalOnBean(BearerTokenAuthenticationProvider.class)
 public class SecurityGraphQLContextBuilder extends DefaultGraphQLContextBuilder implements GraphQLServletContextBuilder {
 
     private BearerTokenResolver bearerTokenResolver = new DefaultBearerTokenResolver();
@@ -51,16 +48,23 @@ public class SecurityGraphQLContextBuilder extends DefaultGraphQLContextBuilder 
 
     @Override
     public GraphQLContext build(HttpServletRequest req, HttpServletResponse response) {
+        SecurityContextHolder.clear();
+
         AuthorizationGraphQLServletContext context = new AuthorizationGraphQLServletContext(req, response);
         context.setDataLoaderRegistry(buildDataLoaderRegistry());
 
         GraphQLContextHolder.setContext(context);
-        SecurityContextHolder.clear();
 
         String token = bearerTokenResolver.resolve(req);
 
         if (token == null) {
             log.trace("Did not process request since did not find bearer token");
+            return context;
+        }
+
+        String authorization = req.getHeader("Authorization");
+
+        if (StringUtil.isBlank(authorization) || !authorization.startsWith("bearer ")) {
             return context;
         }
 
@@ -77,6 +81,7 @@ public class SecurityGraphQLContextBuilder extends DefaultGraphQLContextBuilder 
         } catch (AuthenticationException failed) {
             SecurityContextHolder.clearContext();
             log.trace("Failed to process authentication request", failed);
+            throw failed;
         }
         return context;
     }

@@ -34,6 +34,7 @@ dependencies {
     compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
     compileOnly "org.springframework.boot:spring-boot-starter-data-redis"
     compileOnly "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
+    implementation("com.jayway.jsonpath:json-path")
     annotationProcessor "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
     testAnnotationProcessor "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
     testCompileOnly "org.projectlombok:lombok:${LIB_LOMBOK_VER}"

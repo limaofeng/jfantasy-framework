@@ -56,4 +56,11 @@ public interface ClientDetails {
      * @return
      */
     Set<String> getScope();
+
+    /**
+     * Token 失效时间（分钟）
+     *
+     * @return
+     */
+    int getTokenExpires();
 }

@@ -6,6 +6,8 @@ public interface OAuth2Token {
 
     String getTokenValue();
 
+    String getRefreshTokenValue();
+
     default Instant getIssuedAt() {
         return null;
     }
@@ -13,4 +15,5 @@ public interface OAuth2Token {
     default Instant getExpiresAt() {
         return null;
     }
+
 }

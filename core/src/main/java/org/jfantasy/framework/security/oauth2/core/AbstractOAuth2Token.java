@@ -7,16 +7,10 @@ import java.time.Instant;
 public class AbstractOAuth2Token implements OAuth2Token {
 
     private final String tokenValue;
-
     private final Instant issuedAt;
+    private Instant expiresAt;
+    private String refreshTokenValue;
 
-    private final Instant expiresAt;
-
-    /**
-     * Sub-class constructor.
-     *
-     * @param tokenValue the token value
-     */
     protected AbstractOAuth2Token(String tokenValue) {
         this(tokenValue, null, null);
     }
@@ -26,6 +20,21 @@ public class AbstractOAuth2Token implements OAuth2Token {
         if (issuedAt != null && expiresAt != null) {
             Assert.isTrue(expiresAt.isAfter(issuedAt), "expiresAt must be after issuedAt");
         }
+        this.tokenValue = tokenValue;
+        this.issuedAt = issuedAt;
+        this.expiresAt = expiresAt;
+    }
+
+    protected AbstractOAuth2Token(String tokenValue, String refreshTokenValue) {
+        this(tokenValue, refreshTokenValue, null, null);
+    }
+
+    protected AbstractOAuth2Token(String tokenValue, String refreshTokenValue, Instant issuedAt, Instant expiresAt) {
+        Assert.hasText(tokenValue, "tokenValue cannot be empty");
+        if (issuedAt != null && expiresAt != null) {
+            Assert.isTrue(expiresAt.isAfter(issuedAt), "expiresAt must be after issuedAt");
+        }
+        this.refreshTokenValue = refreshTokenValue;
         this.tokenValue = tokenValue;
         this.issuedAt = issuedAt;
         this.expiresAt = expiresAt;
@@ -45,6 +54,19 @@ public class AbstractOAuth2Token implements OAuth2Token {
     @Override
     public Instant getExpiresAt() {
         return this.expiresAt;
+    }
+
+    public void setExpiresAt(Instant expiresAt) {
+        this.expiresAt = expiresAt;
+    }
+
+    @Override
+    public String getRefreshTokenValue() {
+        return refreshTokenValue;
+    }
+
+    public void setRefreshTokenValue(String refreshTokenValue) {
+        this.refreshTokenValue = refreshTokenValue;
     }
 
     @Override

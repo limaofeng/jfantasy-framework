@@ -1,11 +1,9 @@
 package org.jfantasy.framework.security.oauth2.core;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
+import lombok.*;
 
+import java.time.Instant;
 import java.util.Set;
 
 /**
@@ -15,11 +13,13 @@ import java.util.Set;
  */
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 public class OAuth2AuthenticationDetails {
 
     @Builder.Default
-    private final OAuth2AccessToken.TokenType tokenType = OAuth2AccessToken.TokenType.BEARER;
+    private TokenType tokenType = TokenType.TOKEN;
     /**
      * 客户端的ID<br/>
      * 分配的 apiKey
@@ -56,5 +56,10 @@ public class OAuth2AuthenticationDetails {
      */
     @JsonProperty("refresh_token")
     private String refreshToken;
+    /**
+     * 过期时间
+     */
+    @JsonProperty("expires_at")
+    private Instant expiresAt;
 
 }

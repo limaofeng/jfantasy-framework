@@ -17,6 +17,7 @@ ext {
                     "mysql:mysql-connector-java"
             ],
             commons      : [
+                    "com.nimbusds:nimbus-jose-jwt:8.16",
                     "org.apache.commons:commons-text:${LIB_APACHE_COMMONS_TEXT_VER}",
                     "commons-net:commons-net:${LIB_APACHE_COMMONS_NET_VER}",
                     "commons-beanutils:commons-beanutils:${LIB_COMMONS_BEANUTILS_VER}",

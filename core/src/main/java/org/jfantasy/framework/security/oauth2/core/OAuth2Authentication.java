@@ -2,10 +2,6 @@ package org.jfantasy.framework.security.oauth2.core;
 
 import org.jfantasy.framework.security.authentication.AbstractAuthenticationToken;
 import org.jfantasy.framework.security.authentication.Authentication;
-import org.jfantasy.framework.security.core.GrantedAuthority;
-import org.springframework.util.Assert;
-
-import java.util.Collection;
 
 /**
  * OAuth 身份验证
@@ -19,11 +15,14 @@ public class OAuth2Authentication extends AbstractAuthenticationToken {
 
     public OAuth2Authentication(Authentication authentication, OAuth2AuthenticationDetails details) {
         super(authentication.getAuthorities());
-        Assert.isTrue(details.getTokenType() == OAuth2AccessToken.TokenType.BEARER, "credentials must be a bearer token");
         this.credentials = authentication.getCredentials();
         this.principal = (OAuth2AuthenticatedPrincipal) authentication.getPrincipal();
         setDetails(details);
         setAuthenticated(authentication.isAuthenticated());
+    }
+
+    public void setCredentials(Object credentials) {
+        this.credentials = credentials;
     }
 
     @Override

@@ -23,47 +23,19 @@ public class OAuth2AccessToken extends AbstractOAuth2Token {
         this.scopes = Collections.unmodifiableSet((scopes != null) ? scopes : Collections.emptySet());
     }
 
+    public OAuth2AccessToken(TokenType tokenType, String tokenValue, String refreshTokenValue, Instant issuedAt, Instant expiresAt, Set<String> scopes) {
+        super(tokenValue, refreshTokenValue, issuedAt, expiresAt);
+        Assert.notNull(tokenType, "tokenType cannot be null");
+        this.tokenType = tokenType;
+        this.scopes = Collections.unmodifiableSet((scopes != null) ? scopes : Collections.emptySet());
+    }
+
     public TokenType getTokenType() {
         return this.tokenType;
     }
 
     public Set<String> getScopes() {
         return this.scopes;
-    }
-
-
-    public static final class TokenType {
-
-        public static final TokenType BEARER = new TokenType("Bearer");
-
-        private final String value;
-
-        private TokenType(String value) {
-            Assert.hasText(value, "value cannot be empty");
-            this.value = value;
-        }
-
-        public String getValue() {
-            return this.value;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (obj == null || this.getClass() != obj.getClass()) {
-                return false;
-            }
-            TokenType that = (TokenType) obj;
-            return this.getValue().equalsIgnoreCase(that.getValue());
-        }
-
-        @Override
-        public int hashCode() {
-            return this.getValue().hashCode();
-        }
-
     }
 
 }
