@@ -80,6 +80,11 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
     }
 
     @Override
+    public Optional<T> findBy(String name, Object value) {
+        return this.findOne(PropertyFilter.builder().equal(name, value).build());
+    }
+
+    @Override
     public long count(List<PropertyFilter> filters) {
         return this.count(new PropertyFilterSpecification(this.getDomainClass(), filters));
     }

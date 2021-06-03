@@ -4,9 +4,9 @@ import graphql.kickstart.execution.context.GraphQLContext;
 
 public class GraphQLContextHolder {
 
-    private static ThreadLocal<GraphQLContext> holder = new ThreadLocal<>();
+    private static ThreadLocal<AuthorizationGraphQLServletContext> holder = new ThreadLocal<>();
 
-    public static GraphQLContext getContext() {
+    public static AuthorizationGraphQLServletContext getContext() {
         GraphQLContext context = holder.get();
         if (context == null) {
             return null;
@@ -14,7 +14,7 @@ public class GraphQLContextHolder {
         return holder.get();
     }
 
-    public static void setContext(GraphQLContext context) {
+    public static void setContext(AuthorizationGraphQLServletContext context) {
         GraphQLContext contextHolder = holder.get();
         if (contextHolder != null) {
             holder.remove();
