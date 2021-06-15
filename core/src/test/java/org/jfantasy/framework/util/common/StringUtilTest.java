@@ -1,14 +1,17 @@
 package org.jfantasy.framework.util.common;
 
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.springframework.util.Assert;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 public class StringUtilTest {
 
     @Test
@@ -46,7 +49,7 @@ public class StringUtilTest {
 
         LOG.debug(" StringUtil.ellipsis(str,20,\"...\") ==> " + newStr);
 
-        Assert.assertEquals(str.substring(0, 17) + "...", newStr);
+        Assert.isTrue(str.substring(0, 17) + "..." == newStr);
 
     }
 
@@ -301,8 +304,45 @@ public class StringUtilTest {
         LOG.debug(Arrays.toString(StringUtil.shortUrl("/articles/1230")));
     }
 
+    public static byte[] hexStr2bytes(String hexStr) {
+        if (StringUtils.isBlank(hexStr)) {
+            return null;
+        }
+        if (hexStr.length() % 2 != 0) {//长度为单数
+            hexStr = "0" + hexStr;//前面补0
+        }
+        char[] chars = hexStr.toCharArray();
+        int len = chars.length / 2;
+        byte[] bytes = new byte[len];
+        for (int i = 0; i < len; i++) {
+            int x = i * 2;
+            bytes[i] = (byte) Integer.parseInt(String.valueOf(new char[]{chars[x], chars[x + 1]}), 16);
+        }
+        return bytes;
+    }
+
     @Test
     public void testHexTo64() throws Exception {
+        String who = "我是谁";
+
+        byte[] bytes = who.getBytes();
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < bytes.length; i++) {
+            String hex = Integer.toHexString(bytes[i] & 0xFF);
+            if (hex.length() < 2) {
+                sb.append(0);
+            }
+            sb.append(hex);
+        }
+
+        log.debug("hex = " + sb.toString());
+
+        String name = new String(hexStr2bytes(sb.toString()));
+
+        log.debug("recovery = " + name);
+//        StringUtil.hexTo64(who);
+
+        log.debug("64 = " + StringUtil.hexTo64(sb.toString()));
     }
 
     @Test

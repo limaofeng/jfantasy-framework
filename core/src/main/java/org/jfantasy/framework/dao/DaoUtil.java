@@ -1,19 +1,8 @@
 package org.jfantasy.framework.dao;
 
-import org.apache.commons.collections.map.HashedMap;
-import org.hibernate.SessionFactory;
-import org.hibernate.engine.spi.SessionFactoryImplementor;
-import org.hibernate.event.service.spi.EventListenerRegistry;
-import org.hibernate.event.spi.EventType;
-import org.hibernate.id.factory.spi.MutableIdentifierGeneratorFactory;
-import org.jfantasy.framework.dao.hibernate.event.PropertyGeneratorPersistEventListener;
-import org.jfantasy.framework.dao.hibernate.event.PropertyGeneratorSaveOrUpdatEventListener;
-import org.jfantasy.framework.dao.hibernate.generator.SequenceGenerator;
-import org.jfantasy.framework.dao.hibernate.generator.SerialNumberGenerator;
 import org.jfantasy.framework.spring.SpringContextUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
 
-import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;

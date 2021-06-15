@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.dao.BaseBusEntity;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
@@ -16,12 +16,12 @@ public class ClassPathScannerTest {
 
     private ClassPathScanner pathScanner;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         pathScanner = new ClassPathScanner();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
 
     }

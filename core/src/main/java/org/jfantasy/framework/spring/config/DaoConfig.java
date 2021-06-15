@@ -5,7 +5,7 @@ import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.EventType;
 import org.hibernate.id.factory.spi.MutableIdentifierGeneratorFactory;
 import org.jfantasy.framework.dao.hibernate.event.PropertyGeneratorPersistEventListener;
-import org.jfantasy.framework.dao.hibernate.event.PropertyGeneratorSaveOrUpdatEventListener;
+import org.jfantasy.framework.dao.hibernate.event.PropertyGeneratorSaveOrUpdateEventListener;
 import org.jfantasy.framework.dao.hibernate.generator.SequenceGenerator;
 import org.jfantasy.framework.dao.hibernate.generator.SerialNumberGenerator;
 import org.jfantasy.framework.dao.jpa.ComplexJpaRepository;
@@ -56,7 +56,7 @@ public class DaoConfig {
         identifierGeneratorFactory.register("fantasy-sequence", SequenceGenerator.class);
         identifierGeneratorFactory.register("serialnumber", SerialNumberGenerator.class);
         // 默认监听器
-        registry.prependListeners(EventType.SAVE_UPDATE, createListenerInstance(new PropertyGeneratorSaveOrUpdatEventListener(identifierGeneratorFactory)));
+        registry.prependListeners(EventType.SAVE_UPDATE, createListenerInstance(new PropertyGeneratorSaveOrUpdateEventListener(identifierGeneratorFactory)));
         registry.prependListeners(EventType.PERSIST, createListenerInstance(new PropertyGeneratorPersistEventListener(identifierGeneratorFactory)));
     }
 

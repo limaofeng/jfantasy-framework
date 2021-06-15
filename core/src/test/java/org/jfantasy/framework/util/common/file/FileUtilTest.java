@@ -1,10 +1,8 @@
 package org.jfantasy.framework.util.common.file;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
-
-import static org.junit.Assert.*;
 
 /**
  * @author limaofeng

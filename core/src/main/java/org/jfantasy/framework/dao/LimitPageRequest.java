@@ -1,12 +1,12 @@
 package org.jfantasy.framework.dao;
 
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 import java.io.Serializable;
+import java.util.Optional;
 
 /**
  * @Description
@@ -73,6 +73,16 @@ public class LimitPageRequest implements Pageable, Serializable {
     }
 
     @Override
+    public boolean isPaged() {
+        return false;
+    }
+
+    @Override
+    public boolean isUnpaged() {
+        return false;
+    }
+
+    @Override
     public int getPageNumber() {
         return page;
     }
@@ -88,6 +98,11 @@ public class LimitPageRequest implements Pageable, Serializable {
     }
 
     @Override
+    public Optional<Pageable> toOptional() {
+        return Optional.empty();
+    }
+
+    @Override
     public Pageable previousOrFirst() {
         return hasPrevious() ? previous() : first();
     }
@@ -95,6 +110,11 @@ public class LimitPageRequest implements Pageable, Serializable {
     @Override
     public Sort getSort() {
         return sort;
+    }
+
+    @Override
+    public Sort getSortOr(Sort sort) {
+        return this.sort.and(sort);
     }
 
     @Override
@@ -109,6 +129,11 @@ public class LimitPageRequest implements Pageable, Serializable {
     @Override
     public Pageable first() {
         return new LimitPageRequest(0, getPageSize(), getSort());
+    }
+
+    @Override
+    public Pageable withPage(int pageNumber) {
+        return this;
     }
 
     @Override

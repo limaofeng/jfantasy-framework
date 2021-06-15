@@ -8,8 +8,6 @@ import org.jfantasy.framework.dao.Pagination;
 import org.jfantasy.graphql.Connection;
 import org.jfantasy.graphql.PageInfo;
 
-import javax.persistence.MappedSuperclass;
-
 /**
  * @author limaofeng
  * @version V1.0
@@ -20,7 +18,6 @@ import javax.persistence.MappedSuperclass;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@MappedSuperclass
 public abstract class BaseConnection<T> implements Connection<T>, Pagination {
     private int totalCount;
     private int pageSize;

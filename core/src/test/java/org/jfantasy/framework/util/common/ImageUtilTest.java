@@ -2,21 +2,21 @@ package org.jfantasy.framework.util.common;
 
 import org.jfantasy.framework.httpclient.HttpClientUtil;
 import org.jfantasy.framework.httpclient.Response;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.awt.image.BufferedImage;
 
 public class ImageUtilTest {
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         System.setProperty("jmagick.systemclassloader", "no");
         //new Magick();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
 
     }

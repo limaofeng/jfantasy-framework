@@ -1,10 +1,10 @@
 package org.jfantasy.framework.util.concurrent;
 
-import junit.framework.Assert;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.util.json.bean.User;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.springframework.util.Assert;
 
 public class LinkedQueueTest {
 
@@ -17,9 +17,9 @@ public class LinkedQueueTest {
         //添加数据
         queue.put(user);
 
-        Assert.assertTrue(queue.remove(user));
+        Assert.isTrue(queue.remove(user));
 
-        Assert.assertEquals(queue.size(), 0);
+        Assert.isTrue(queue.size() == 0);
     }
 
     @Test
@@ -52,7 +52,7 @@ public class LinkedQueueTest {
 
         for (User user : queue) {
             logger.error(user.getNickName());
-            Assert.assertEquals(user.getNickName(), "test-2");
+            Assert.isTrue(user.getNickName() == "test-2");
         }
     }
 }

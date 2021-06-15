@@ -1,6 +1,6 @@
 package org.jfantasy.framework.crypto;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import sun.misc.BASE64Encoder;
 
 

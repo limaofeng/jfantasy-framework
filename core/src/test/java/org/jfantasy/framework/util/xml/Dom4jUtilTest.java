@@ -1,12 +1,12 @@
 package org.jfantasy.framework.util.xml;
 
 import org.dom4j.Document;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class Dom4jUtilTest {
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         Document document = Dom4jUtil.reader(Dom4jUtil.class.getResourceAsStream("test.xml"));
         document.accept(new Dom4jUtil.MyVistor()) ;

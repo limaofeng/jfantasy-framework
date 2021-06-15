@@ -6,7 +6,7 @@ import org.htmlcleaner.TagNode;
 import org.jfantasy.framework.httpclient.HttpClientUtil;
 import org.jfantasy.framework.httpclient.Request;
 import org.jfantasy.framework.httpclient.Response;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class HtmlCleanerUtilTest {
 

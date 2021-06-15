@@ -3,6 +3,7 @@ package org.jfantasy.framework.dao.hibernate.event;
 import org.hibernate.engine.spi.EntityEntry;
 import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.event.internal.DefaultPersistEventListener;
+import org.hibernate.event.internal.EntityState;
 import org.hibernate.event.spi.PersistEvent;
 import org.hibernate.id.factory.IdentifierGeneratorFactory;
 import org.jfantasy.framework.dao.hibernate.spi.IdentifierGeneratorUtil;
@@ -10,8 +11,6 @@ import org.jfantasy.framework.dao.hibernate.spi.IdentifierGeneratorUtil;
 import java.util.Map;
 
 public class PropertyGeneratorPersistEventListener extends DefaultPersistEventListener {
-
-    private static final long serialVersionUID = 6221651283085589379L;
 
     private transient IdentifierGeneratorFactory identifierGeneratorFactory;
 
@@ -26,7 +25,7 @@ public class PropertyGeneratorPersistEventListener extends DefaultPersistEventLi
         if (!IdentifierGeneratorUtil.reassociateIfUninitializedProxy(object, source)) {
             final Object entity = source.getPersistenceContext().unproxyAndReassociate(object);
             EntityEntry entityEntry = source.getPersistenceContext().getEntry(entity);
-            EntityState entityState = getEntityState(entity, entity.getClass().getName(), entityEntry, event.getSession());
+            EntityState entityState = EntityState.getEntityState(entity, entity.getClass().getName(), entityEntry, event.getSession(), true);
             IdentifierGeneratorUtil.initialize(entityState,event.getSession(),object,identifierGeneratorFactory);
         }
         super.onPersist(event, createCache);

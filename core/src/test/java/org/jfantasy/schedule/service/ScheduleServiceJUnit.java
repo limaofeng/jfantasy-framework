@@ -1,11 +1,9 @@
 package org.jfantasy.schedule.service;
 
 import org.jfantasy.framework.util.common.DateUtil;
-import junit.framework.Assert;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.quartz.CronExpression;
 import org.quartz.JobKey;
 import org.quartz.TriggerKey;
@@ -13,20 +11,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.util.Assert;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
-@ContextConfiguration(locations = {"classpath:backup/testconfig/spring/applicationContext.xml"})
+@ContextConfiguration(locations = {"classpath:spring/applicationContext.xml"})
 public class ScheduleServiceJUnit {
 
     @Autowired
     private ScheduleService scheduleService;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         Map<String, String> data = new HashMap<String, String>();
         data.put("name", "limaofeng");
@@ -50,7 +48,7 @@ public class ScheduleServiceJUnit {
         */
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         // 删除 触发器
         scheduleService.removeTrigdger(TriggerKey.triggerKey("test"));
@@ -61,7 +59,7 @@ public class ScheduleServiceJUnit {
     @Test
     public void testCron() {
         String expression = DateUtil.format("ss mm HH dd MM ? yyyy");
-        Assert.assertTrue(CronExpression.isValidExpression(expression));
+        Assert.isTrue(CronExpression.isValidExpression(expression));
     }
 
     @Test

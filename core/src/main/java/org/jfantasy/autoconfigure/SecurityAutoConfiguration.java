@@ -2,12 +2,13 @@ package org.jfantasy.autoconfigure;
 
 import org.jfantasy.framework.context.DatabaseMessageSource;
 import org.jfantasy.framework.security.AuthenticationManager;
+import org.jfantasy.framework.security.DefaultAuthenticationManagerResolver;
 import org.jfantasy.framework.security.authentication.AuthenticationEventPublisher;
+import org.jfantasy.framework.security.authentication.AuthenticationManagerResolver;
 import org.jfantasy.framework.security.authentication.AuthenticationProvider;
 import org.jfantasy.framework.security.authentication.DefaultAuthenticationEventPublisher;
-import org.jfantasy.framework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
-import org.jfantasy.framework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider.DefaultPreAuthenticationChecks;
 import org.jfantasy.framework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider.DefaultPostAuthenticationChecks;
+import org.jfantasy.framework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider.DefaultPreAuthenticationChecks;
 import org.jfantasy.framework.security.authentication.dao.DaoAuthenticationProvider;
 import org.jfantasy.framework.security.core.SecurityMessageSource;
 import org.jfantasy.framework.security.core.userdetails.*;
@@ -21,7 +22,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.MessageSourceAccessor;
 
-import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -38,14 +38,16 @@ public class SecurityAutoConfiguration {
 
     @Bean
     public AuthenticationManager authenticationManager(List<AuthenticationProvider> providers, @Autowired(required = false) AuthenticationEventPublisher publisher) {
-        AuthenticationManager authenticationManager = new AuthenticationManager();
-        for (AuthenticationProvider provider : providers) {
-            authenticationManager.addProvider(provider);
-        }
+        AuthenticationManager authenticationManager = new AuthenticationManager(providers);
         if (publisher != null) {
             authenticationManager.setAuthenticationEventPublisher(publisher);
         }
         return authenticationManager;
+    }
+
+    @Bean
+    public AuthenticationManagerResolver authenticationManagerResolver(AuthenticationManager authenticationManager) {
+        return new DefaultAuthenticationManagerResolver(authenticationManager);
     }
 
     @Bean

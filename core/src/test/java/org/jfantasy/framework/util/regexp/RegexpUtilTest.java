@@ -1,10 +1,10 @@
 package org.jfantasy.framework.util.regexp;
 
-import junit.framework.Assert;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.util.json.bean.User;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.springframework.util.Assert;
 
 import java.lang.reflect.Array;
 
@@ -33,11 +33,11 @@ public class RegexpUtilTest {
 
         String className = Array.newInstance(User.class, 0).getClass().getName();
 
-        Assert.assertTrue(RegexpUtil.isMatch(className, "^\\[L|;$"));
+        Assert.isTrue(RegexpUtil.isMatch(className, "^\\[L|;$"));
 
-        Assert.assertTrue(RegexpUtil.isMatch(className, "^\\[L[a-zA-Z._]+;$"));
+        Assert.isTrue(RegexpUtil.isMatch(className, "^\\[L[a-zA-Z._]+;$"));
 
-        Assert.assertTrue(RegexpUtil.isMatch("[Lorg.jfantasy.security.bean.User$Test;", "^\\[L[a-zA-Z._$]+;$"));
+        Assert.isTrue(RegexpUtil.isMatch("[Lorg.jfantasy.security.bean.User$Test;", "^\\[L[a-zA-Z._$]+;$"));
 
     }
 
@@ -84,7 +84,7 @@ public class RegexpUtilTest {
     public void testReplace() throws Exception {
         String newName = RegexpUtil.replace("nameSpaceWat", "[A-Z]", (text,index,matcher) -> "_" + text.toLowerCase());
         LOG.debug(newName);
-        Assert.assertEquals(newName, "name_space_wat");
+        Assert.isTrue(newName =="name_space_wat");
 
 
     }

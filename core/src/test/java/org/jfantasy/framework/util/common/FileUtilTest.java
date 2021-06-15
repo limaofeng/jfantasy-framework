@@ -6,7 +6,7 @@ import org.jfantasy.framework.jackson.JSON;
 import org.jfantasy.framework.service.FTPService;
 import org.jfantasy.framework.util.common.file.FileUtil;
 import org.jfantasy.framework.util.ognl.OgnlUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.util.Base64Utils;
 
 import java.io.File;

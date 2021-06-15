@@ -1,13 +1,13 @@
 package org.jfantasy.framework.util;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.jackson.JSON;
 import org.jfantasy.framework.util.userstamp.Decoder;
 import org.jfantasy.framework.util.userstamp.Encoder;
 import org.jfantasy.framework.util.userstamp.UserResult;
 import org.jfantasy.framework.util.userstamp.UserStamp;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class UserStampTest {
 

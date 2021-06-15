@@ -1,7 +1,7 @@
 package org.jfantasy.framework.util.reflect;
 
 import org.jfantasy.framework.dao.mybatis.interceptors.MultiDataSourceInterceptor;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class FastClassesTest {
 

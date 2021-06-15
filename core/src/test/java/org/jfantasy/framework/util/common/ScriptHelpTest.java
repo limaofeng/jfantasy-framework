@@ -2,23 +2,11 @@ package org.jfantasy.framework.util.common;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ScriptHelpTest {
 
     private static final Log LOG = LogFactory.getLog(ScriptHelpTest.class);
-
-    @Before
-    public void setUp() throws Exception {
-
-    }
-
-    @After
-    public void tearDown() throws Exception {
-
-    }
 
     @Test
     public void mainTest() {

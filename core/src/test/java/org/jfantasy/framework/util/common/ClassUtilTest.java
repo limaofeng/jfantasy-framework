@@ -1,12 +1,12 @@
 package org.jfantasy.framework.util.common;
 
-import junit.framework.Assert;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.util.json.bean.Article;
 import org.jfantasy.framework.util.json.bean.User;
 import org.jfantasy.framework.util.reflect.Property;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.springframework.util.Assert;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.ParameterizedType;
@@ -65,7 +65,7 @@ public class ClassUtilTest {
 
         LOG.debug(clazz);
 
-        Assert.assertEquals(clazz,Array.newInstance(User.class,0).getClass());
+        Assert.isTrue(clazz == Array.newInstance(User.class,0).getClass());
 
     }
 

@@ -1,7 +1,7 @@
 package org.jfantasy.framework.spring.mvc.error;
 
 import org.jfantasy.framework.error.ValidationException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 
 public class ValidationExceptionTest {
