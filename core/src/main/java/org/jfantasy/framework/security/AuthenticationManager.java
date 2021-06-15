@@ -8,16 +8,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * 身份验证管理器
+ *
  * @author limaofeng
  */
 @Slf4j
 public class AuthenticationManager {
 
     private List<AuthenticationProvider> providers = new ArrayList<>();
-
     private AuthenticationEventPublisher eventPublisher = new NullEventPublisher();
 
+    public AuthenticationManager() {
+    }
+
+    public AuthenticationManager(List<AuthenticationProvider> providers) {
+        this.providers = providers;
+    }
+
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+        SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
         Class<? extends Authentication> toTest = authentication.getClass();
         AuthenticationException lastException = null;
         AuthenticationException parentException = null;
@@ -25,6 +34,9 @@ public class AuthenticationManager {
         Authentication parentResult = null;
         int currentPosition = 0;
         int size = this.providers.size();
+
+        SecurityContextHolder.clearContext();
+
         for (AuthenticationProvider provider : this.providers) {
             if (!provider.supports(toTest)) {
                 continue;
@@ -45,19 +57,18 @@ public class AuthenticationManager {
                 lastException = ex;
             }
         }
+
         if (result != null) {
-            if (parentResult == null) {
-                this.eventPublisher.publishAuthenticationSuccess(result);
-            }
+            this.eventPublisher.publishAuthenticationSuccess(result);
+            securityContext.setAuthentication(result);
+            SecurityContextHolder.setContext(securityContext);
             return result;
         }
 
         if (lastException == null) {
             lastException = new ProviderNotFoundException("ProviderManager.providerNotFound No AuthenticationProvider found for " + toTest.getName());
         }
-        if (parentException == null) {
-            prepareException(lastException, authentication);
-        }
+        prepareException(lastException, authentication);
         throw lastException;
     }
 

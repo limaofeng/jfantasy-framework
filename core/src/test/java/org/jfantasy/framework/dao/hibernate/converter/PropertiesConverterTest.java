@@ -1,7 +1,7 @@
 package org.jfantasy.framework.dao.hibernate.converter;
 
 import org.jfantasy.framework.jackson.JSON;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 

@@ -48,4 +48,16 @@ public class AuthorizationGraphQLServletContext implements GraphQLContext {
     public void setDataLoaderRegistry(DataLoaderRegistry dataLoaderRegistry) {
         this.dataLoaderRegistry = dataLoaderRegistry;
     }
+
+    public HttpServletRequest getRequest() {
+        return request;
+    }
+
+    public Session getSession() {
+        return session;
+    }
+
+    public HttpServletResponse getResponse() {
+        return response;
+    }
 }

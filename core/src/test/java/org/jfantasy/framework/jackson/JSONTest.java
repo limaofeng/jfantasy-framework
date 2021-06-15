@@ -10,14 +10,14 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import org.jfantasy.framework.jackson.models.DefaultOutput;
 import org.jfantasy.framework.jackson.models.ListOutput;
 import org.jfantasy.framework.jackson.models.Output;
-import org.junit.Assert;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.util.asm.AnnotationDescriptor;
 import org.jfantasy.framework.util.asm.AsmUtil;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.util.Assert;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -30,7 +30,7 @@ public class JSONTest {
     private Article article;
     private ArticleCategory category;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         article = TestDataBuilder.build(Article.class, "JSONTest");
         assert article != null;
@@ -41,7 +41,7 @@ public class JSONTest {
 //        objectMapper.setMixIns(ThreadJacksonMixInHolder.getSourceMixins());
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
 
     }
@@ -50,11 +50,11 @@ public class JSONTest {
     public void serialize() throws Exception {
 //        ThreadJacksonMixInHolder holder = ThreadJacksonMixInHolder.getMixInHolder();
 //        holder.addIgnorePropertyNames(Article.class, "articles");
-        LOG.debug(JSON.serialize(category,builder -> builder.excludes("articles")));
+        LOG.debug(JSON.serialize(category, builder -> builder.excludes("articles")));
 
 //        holder = ThreadJacksonMixInHolder.getMixInHolder();
 //        holder.addIgnorePropertyNames(ArticleCategory.class, "articles");
-        LOG.debug(JSON.serialize(article,builder -> builder.excludes("category","content")));
+        LOG.debug(JSON.serialize(article, builder -> builder.excludes("category", "content")));
     }
 
     @Test
@@ -101,8 +101,8 @@ public class JSONTest {
     @Test
     public void newFilter() throws JsonProcessingException {
         ColorsSerializer colorsSerializer = new ColorsSerializer();
-        colorsSerializer.filter(ArticleCategory.class,"","articles");
-        colorsSerializer.filter(Article.class, "title,category","");
+        colorsSerializer.filter(ArticleCategory.class, "", "articles");
+        colorsSerializer.filter(Article.class, "title,category", "");
         System.out.println(colorsSerializer.toJson(this.article));
 
     }
@@ -111,9 +111,9 @@ public class JSONTest {
     public void addDynamicMixIn() throws IOException {
         // 动态生成 MixIn 接口
         Class newInterface = AsmUtil.makeInterface("org.jfantasy.framework.jackson.mixin.TestMixIn", AnnotationDescriptor.builder(JsonFilter.class).setValue("value", "x").build(), FilterMixIn.class);
-        Assert.assertTrue(newInterface.isInterface());
+        Assert.isTrue(newInterface.isInterface());
 
-        Assert.assertNotNull(newInterface.getAnnotation(JsonFilter.class));
+        Assert.notNull(newInterface.getAnnotation(JsonFilter.class));
 
         // 测试接口
         ObjectMapper objectMapper = JSON.getObjectMapper();
@@ -147,11 +147,11 @@ public class JSONTest {
 
         Output out = JSON.xml().deserialize(xml, ListOutput.class);
 
-        Assert.assertNotNull(out);
+        Assert.notNull(out);
 
         out = JSON.xml().deserialize(xml, DefaultOutput.class);
 
-        Assert.assertNotNull(out);
+        Assert.notNull(out);
     }
 
     @Test
@@ -165,12 +165,12 @@ public class JSONTest {
         String json = JSON.serialize(department);
         LOG.debug(json);
 
-        Assert.assertEquals("{\"name\":\"技术部\",\"user_name\":\"limaofeng\",\"project_manager\":\"test\",\"id\":\"1\",\"age\":1}", json);
+        Assert.isTrue("{\"name\":\"技术部\",\"user_name\":\"limaofeng\",\"project_manager\":\"test\",\"id\":\"1\",\"age\":1}" == json);
 
         department = JSON.deserialize(json, Department.class);
 
         assert department != null;
-        Assert.assertEquals(department.get("id"), "1");
+        Assert.isTrue(department.get("id") == "1");
 
     }
 
@@ -329,14 +329,14 @@ public class JSONTest {
         @Override
         public String toString() {
             return "Article{" +
-                    "id=" + id +
-                    ", title='" + title + '\'' +
-                    ", summary='" + summary + '\'' +
-                    ", keywords='" + keywords + '\'' +
-                    ", author='" + author + '\'' +
-                    ", releaseDate='" + releaseDate + '\'' +
-                    ", issue=" + issue +
-                    '}';
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", summary='" + summary + '\'' +
+                ", keywords='" + keywords + '\'' +
+                ", author='" + author + '\'' +
+                ", releaseDate='" + releaseDate + '\'' +
+                ", issue=" + issue +
+                '}';
         }
     }
 
@@ -461,7 +461,7 @@ public class JSONTest {
         private String name;
         private String pm;
         private String userName;
-        private Map<String,Object> otherProperties = new HashMap<>(); //otherProperties用来存放Department中未定义的json字段
+        private Map<String, Object> otherProperties = new HashMap<>(); //otherProperties用来存放Department中未定义的json字段
 
         //指定json反序列化创建Department对象时调用此构造函数
         @JsonCreator
@@ -489,7 +489,7 @@ public class JSONTest {
 
         //得到所有Department中未定义的json字段的
         @JsonAnyGetter
-        public Map<String,Object> any() {
+        public Map<String, Object> any() {
             return otherProperties;
         }
 

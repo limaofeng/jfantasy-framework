@@ -2,20 +2,21 @@ package org.jfantasy.framework.util.asm;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.NoArgsConstructor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 /**
- * 类属性信息
+ * 类属性信息 - 用于生成动态类时，属性的描述信息
  *
  * @author 李茂峰
  * @version 1.0
- * @功能描述 用于生成动态类时，属性的描述信息
  * @since 2013-5-31 上午09:56:39
  */
 @Builder
+@NoArgsConstructor
 @AllArgsConstructor
 public class Property {
     /**
@@ -25,12 +26,12 @@ public class Property {
     /**
      * 属性类型
      */
-    private Class<?> type;
+    private Class type;
     /**
      * 泛型
      */
     @Builder.Default
-    private Class<?>[] genericTypes = new Class<?>[0];
+    private Class[] genericTypes = new Class[0];
     /**
      * 是否可以写入(set操作)
      */
@@ -106,13 +107,13 @@ public class Property {
 
     };
 
-    public Property(String name, Class<?> type) {
+    public Property(String name, Class type) {
         super();
         this.name = name;
         this.type = type;
     }
 
-    public Property(String name, Class<?> type, boolean read, boolean write) {
+    public Property(String name, Class type, boolean read, boolean write) {
         super();
         this.name = name;
         this.type = type;
@@ -120,14 +121,14 @@ public class Property {
         this.write = write;
     }
 
-    public Property(String name, Class<?> type, Class<?>[] genericTypes) {
+    public Property(String name, Class type, Class[] genericTypes) {
         super();
         this.name = name;
         this.type = type;
         this.genericTypes = genericTypes;
     }
 
-    public Property(String name, Class<?> type, Class<?>[] genericTypes, boolean read, boolean write) {
+    public Property(String name, Class type, Class[] genericTypes, boolean read, boolean write) {
         super();
         this.name = name;
         this.type = type;

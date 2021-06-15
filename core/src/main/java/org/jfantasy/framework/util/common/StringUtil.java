@@ -581,6 +581,10 @@ public abstract class StringUtil {
         return r.toString();
     }
 
+    public static String md5(String body) {
+        return DigestUtils.md5DigestAsHex(body.getBytes());
+    }
+
     public static String[] shortUrl(String s, String key) {
         String[] chars = new String[]{"a", "b", "c", "d", "e", "f", "g", "h",
             "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t",
@@ -621,13 +625,17 @@ public abstract class StringUtil {
     }
 
     public static String generateNonceString(int length) {
-        int maxPos = NONCE_CHARS.length();
-        StringBuilder noceStr = new StringBuilder();
+        return generateNonceString(NONCE_CHARS, length);
+    }
+
+    public static String generateNonceString(String nonceChars, int length) {
+        int maxPos = nonceChars.length();
+        StringBuilder nonceStr = new StringBuilder();
         Random random = new Random();
         for (int i = 0; i < length; i++) {
-            noceStr.append(NONCE_CHARS.charAt(random.nextInt(maxPos)));
+            nonceStr.append(nonceChars.charAt(random.nextInt(maxPos)));
         }
-        return noceStr.toString();
+        return nonceStr.toString();
     }
 
     public static String uuid() {

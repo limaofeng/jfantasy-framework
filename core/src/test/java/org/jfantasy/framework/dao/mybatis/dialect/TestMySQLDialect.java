@@ -1,7 +1,7 @@
 package org.jfantasy.framework.dao.mybatis.dialect;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class TestMySQLDialect {
 

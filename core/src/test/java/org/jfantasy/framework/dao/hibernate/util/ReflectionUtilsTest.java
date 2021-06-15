@@ -3,7 +3,8 @@ package org.jfantasy.framework.dao.hibernate.util;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.util.common.DateUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import java.util.Date;
 
 public class ReflectionUtilsTest {

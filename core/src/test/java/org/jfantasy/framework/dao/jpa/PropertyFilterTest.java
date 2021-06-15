@@ -1,7 +1,6 @@
 package org.jfantasy.framework.dao.jpa;
 
-import org.jfantasy.framework.dao.jpa.PropertyFilter;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class PropertyFilterTest {
 

@@ -1,11 +1,11 @@
 package org.jfantasy.framework.util;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class PinyinUtilsTest {
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         PinyinUtils.addMutilDict("白术","bái,zhú");
     }

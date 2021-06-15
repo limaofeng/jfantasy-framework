@@ -64,7 +64,6 @@ allprojects {
 }
 
 subprojects {
-    apply plugin: 'maven'
     apply plugin: "jacoco"
 
     sourceCompatibility = 1.8
@@ -114,7 +113,7 @@ subprojects {
 
     task copyDependencies(type: Sync) {
         from configurations.compileClasspath
-        from configurations.compileOnly
+        from configurations.testCompileClasspath
         into 'build/dependencies'
     }
 

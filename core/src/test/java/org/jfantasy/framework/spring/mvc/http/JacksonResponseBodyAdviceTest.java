@@ -1,16 +1,14 @@
 package org.jfantasy.framework.spring.mvc.http;
 
 import com.fasterxml.jackson.databind.ser.FilterProvider;
-import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jfantasy.framework.jackson.BeanPropertyFilter;
 import org.jfantasy.framework.jackson.JSON;
 import org.jfantasy.framework.jackson.JSONTest;
 import org.jfantasy.framework.jackson.annotation.BeanFilter;
 import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
 import org.jfantasy.framework.util.common.ClassUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 

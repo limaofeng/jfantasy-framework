@@ -5,9 +5,9 @@ configurations {
 }
 
 dependencies {
-    compile project(":jfantasy-core")
-    compile project(":jfantasy-graphql")
+    compileOnly project(":jfantasy-core")
+    compileOnly project(":jfantasy-graphql")
     compileOnly "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
     annotationProcessor "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
-    testCompile libs['test']
+    testImplementation libs['test']
 }

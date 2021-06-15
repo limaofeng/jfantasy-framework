@@ -2,10 +2,10 @@ package org.jfantasy.framework.util.common;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -287,12 +287,12 @@ public class ObjectUtilTest {
 
     private static final Log LOG = LogFactory.getLog(ObjectUtilTest.class);
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
 
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
 
     }
@@ -316,15 +316,15 @@ public class ObjectUtilTest {
 
         List<ObjectTestBean> listf = ObjectUtil.filter(list, "locked", Boolean.TRUE);
 
-        Assert.assertEquals(listf.size(), 2);
+        Assert.isTrue(listf.size() == 2);
 
         ObjectTestBean[] arrs = ObjectUtil.filter(list.toArray(new ObjectTestBean[list.size()]), "locked", Boolean.TRUE, Boolean.FALSE);
 
-        Assert.assertEquals(3, arrs.length);
+        Assert.isTrue(3 == arrs.length);
 
         arrs = ObjectUtil.filter(list.toArray(new ObjectTestBean[list.size()]), "locked", new Boolean[]{Boolean.TRUE, Boolean.FALSE});
 
-        Assert.assertEquals(3, arrs.length);
+        Assert.isTrue(3 == arrs.length);
     }
 
     @Test
@@ -354,7 +354,7 @@ public class ObjectUtilTest {
 
         String[] array = ObjectUtil.merge(dest, items);
 
-        Assert.assertArrayEquals(array, new String[]{"中国", "美国", "英国"});
+        Assert.isTrue(array == new String[]{"中国", "美国", "英国"});
     }
 
     @Test

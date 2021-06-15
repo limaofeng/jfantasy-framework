@@ -4,6 +4,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.event.internal.AbstractSaveEventListener;
+import org.hibernate.event.internal.EntityState;
 import org.hibernate.event.spi.EventSource;
 import org.hibernate.id.IdentifierGenerator;
 import org.hibernate.id.factory.IdentifierGeneratorFactory;
@@ -39,8 +40,8 @@ public class IdentifierGeneratorUtil {
         return generatorCache.get(entityClass).entrySet();
     }
 
-    public static void initialize(AbstractSaveEventListener.EntityState entityState, EventSource eventSource,  Object object,IdentifierGeneratorFactory identifierGeneratorFactory) {
-        if (entityState == AbstractSaveEventListener.EntityState.TRANSIENT) {
+    public static void initialize(EntityState entityState, EventSource eventSource, Object object, IdentifierGeneratorFactory identifierGeneratorFactory) {
+        if (entityState == EntityState.TRANSIENT) {
             Class<?> entityClass = object.getClass();
             // 获取实体中,需要自动生成的字段
             loadEntityClass(identifierGeneratorFactory, entityClass);

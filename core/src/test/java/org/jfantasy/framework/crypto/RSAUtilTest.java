@@ -2,8 +2,8 @@ package org.jfantasy.framework.crypto;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.util.DigestUtils;
 
 import java.security.KeyPair;
@@ -53,7 +53,7 @@ public class RSAUtilTest {
 
     private String priKey;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         pubKey = "RSA Public Key\n" +
                 "            modulus: c3bdfbc49c74cf42af50b2b265c1ea88db13e20e5c5dbb22126aede5ec23fe4aa9eee378082437e69debbba775865925c54a7f660395aa31d64aa2549e365b0b7e46c0a09109900d00b1e298b245d9f0df25e59d0ab83731b837ac5916a4907cc730532d106dce1bcc951fd98694395a94e935af0fa11d9c992d90372b79d0c5\n" +

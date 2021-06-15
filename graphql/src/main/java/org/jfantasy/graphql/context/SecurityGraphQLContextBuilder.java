@@ -3,15 +3,22 @@ package org.jfantasy.graphql.context;
 import graphql.kickstart.execution.context.DefaultGraphQLContextBuilder;
 import graphql.kickstart.execution.context.GraphQLContext;
 import graphql.kickstart.servlet.context.GraphQLServletContextBuilder;
+import lombok.extern.slf4j.Slf4j;
 import org.dataloader.DataLoader;
 import org.dataloader.DataLoaderRegistry;
-import org.jfantasy.framework.security.DefaultSecurityContext;
-import org.jfantasy.framework.security.LoginUser;
+import org.jfantasy.framework.security.AuthenticationException;
+import org.jfantasy.framework.security.AuthenticationManager;
 import org.jfantasy.framework.security.SecurityContextHolder;
-import org.jfantasy.framework.security.core.userdetails.UsernameNotFoundException;
+import org.jfantasy.framework.security.authentication.Authentication;
+import org.jfantasy.framework.security.authentication.AuthenticationDetailsSource;
+import org.jfantasy.framework.security.authentication.AuthenticationManagerResolver;
+import org.jfantasy.framework.security.oauth2.server.BearerTokenAuthenticationToken;
+import org.jfantasy.framework.security.oauth2.server.web.BearerTokenResolver;
+import org.jfantasy.framework.security.oauth2.server.web.DefaultBearerTokenResolver;
+import org.jfantasy.framework.security.web.WebAuthenticationDetailsSource;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.core.log.LogMessage;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
@@ -28,12 +35,16 @@ import java.util.concurrent.CompletableFuture;
  * @version V1.0
  * @date 2019-04-14 14:13
  */
+@Slf4j
 @Component
-@ConditionalOnBean(GraphQLUserDetailsService.class)
 public class SecurityGraphQLContextBuilder extends DefaultGraphQLContextBuilder implements GraphQLServletContextBuilder {
 
+    private BearerTokenResolver bearerTokenResolver = new DefaultBearerTokenResolver();
+
+    private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
+
     @Autowired
-    private GraphQLUserDetailsService userDetailsService;
+    private AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver;
 
     @Override
     public GraphQLContext build(HttpServletRequest req, HttpServletResponse response) {
@@ -44,29 +55,29 @@ public class SecurityGraphQLContextBuilder extends DefaultGraphQLContextBuilder 
 
         GraphQLContextHolder.setContext(context);
 
-        String authorization = req.getHeader("Authorization");
+        String token = bearerTokenResolver.resolve(req);
 
-        if (StringUtil.isBlank(authorization) || !authorization.startsWith("token ")) {
+        if (token == null) {
+            log.trace("Did not process request since did not find bearer token");
             return context;
         }
 
-        String token = authorization.replaceAll("^token ", "");
+        BearerTokenAuthenticationToken authenticationRequest = new BearerTokenAuthenticationToken(token);
+        authenticationRequest.setDetails(this.authenticationDetailsSource.buildDetails(req));
 
-        LoginUser loadedUser = retrieveUser(token);
-
-        if (loadedUser != null) {
-            SecurityContextHolder.setContext(new DefaultSecurityContext(loadedUser));
-        }
-
-        return context;
-    }
-
-    private LoginUser retrieveUser(String token) {
         try {
-            return (LoginUser) userDetailsService.loadUserByToken(token);
-        } catch (UsernameNotFoundException e) {
-            return null;
+            AuthenticationManager authenticationManager = this.authenticationManagerResolver.resolve(req);
+            Authentication authenticationResult = authenticationManager.authenticate(authenticationRequest);
+
+            if (log.isDebugEnabled()) {
+                log.debug(LogMessage.format("Set SecurityContextHolder to %s", authenticationResult).toString());
+            }
+        } catch (AuthenticationException failed) {
+            SecurityContextHolder.clearContext();
+            log.trace("Failed to process authentication request", failed);
+            throw failed;
         }
+        return context;
     }
 
     @Override

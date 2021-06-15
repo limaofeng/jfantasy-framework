@@ -6,12 +6,8 @@ import com.mashape.unirest.http.Unirest;
 import org.hibernate.validator.HibernateValidator;
 import org.jfantasy.framework.jackson.JSON;
 import org.jfantasy.framework.jackson.UnirestObjectMapper;
-import org.jfantasy.framework.jackson.annotation.BeanFilter;
-import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
-import org.jfantasy.framework.spring.ClassPathScanner;
 import org.jfantasy.framework.spring.mvc.method.annotation.PagerModelAttributeMethodProcessor;
 import org.jfantasy.framework.spring.mvc.method.annotation.PropertyFilterModelAttributeMethodProcessor;
-import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.web.filter.ActionContextFilter;
 import org.jfantasy.framework.web.filter.ConversionCharacterEncodingFilter;
@@ -22,23 +18,21 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.MultipartConfigFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.orm.hibernate5.support.OpenSessionInViewFilter;
-import org.springframework.orm.jpa.support.OpenEntityManagerInViewFilter;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.unit.DataSize;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.support.XmlWebApplicationContext;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.*;
@@ -48,11 +42,8 @@ import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 import javax.annotation.PostConstruct;
 import javax.servlet.DispatcherType;
 import javax.servlet.MultipartConfigElement;
-import java.lang.reflect.Method;
 import java.nio.charset.Charset;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 
 /**
@@ -70,22 +61,12 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     private final ApplicationContext applicationContext;
 
-    @Autowired(required = false)
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
 
     @Autowired
-    public WebMvcConfig(ApplicationContext applicationContext) {
+    public WebMvcConfig(ApplicationContext applicationContext, ObjectMapper objectMapper) {
         this.applicationContext = applicationContext;
-    }
-
-    @Override
-    public void configureContentNegotiation(final ContentNegotiationConfigurer configurer) {
-        configurer.favorPathExtension(false);
-    }
-
-    @Override
-    public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
-        configurer.enable();
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -149,7 +130,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-            .allowedOrigins("*")
+            .allowedOriginPatterns("*")
             .allowedMethods("GET", "POST", "HEAD", "PATCH", "PUT", "DELETE", "OPTIONS")
             .allowedHeaders("Accept", "Origin", "Authorization", "Content-Type", "Last-Modified")
             .allowCredentials(true).maxAge(3600);

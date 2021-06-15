@@ -2,9 +2,9 @@ package org.jfantasy.framework.util.common;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.util.Assert;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -16,7 +16,7 @@ public class DateUtilTest {
 
     private static final Log LOGGER = LogFactory.getLog(DateUtilTest.class);
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         LOGGER.debug("TimeZone : " + TimeZone.getDefault().getID());
     }
@@ -72,14 +72,14 @@ public class DateUtilTest {
         Date date = DateUtil.parse(str, "yyyy-MM-dd HH:mm:ss");
         String strNew = DateUtil.format(date, "yyyy-MM-dd HH:mm:ss");
         LOGGER.debug(strNew);
-        Assert.assertEquals(str,strNew);
+        Assert.isTrue(str == strNew);
     }
 
     @Test
     public void dayInterval() throws Exception {
         Date day = DateUtil.now();
         long num = DateUtil.dayInterval(day, day);
-        Assert.assertEquals(num, 0);
+        Assert.isTrue(num == 0);
         LOGGER.debug(num);
     }
 

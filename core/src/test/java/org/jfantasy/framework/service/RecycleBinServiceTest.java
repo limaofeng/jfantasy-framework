@@ -1,6 +1,6 @@
 package org.jfantasy.framework.service;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Created by limaofeng on 16/4/21.
