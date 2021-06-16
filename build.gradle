@@ -58,10 +58,33 @@ allprojects {
                 version project.version
 
                 from components.java
+
+                pom {
+                    name = 'JFantasy'
+                    description = 'SpringBoot + JPA + GraphQL'
+                    url = 'https://www.asany.cn/jfantasy'
+                    licenses {
+                        license {
+                            name = 'The MIT License'
+                            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        }
+                    }
+                    developers {
+                        developer {
+                            id = 'limaofeng'
+                            name = '李茂峰'
+                            email = 'limaofeng@msn.com'
+                        }
+                    }
+                    scm {
+                        connection = 'scm:git:git://git@github.com:limaofeng/jfantasy.git'
+                        developerConnection = 'scm:git:ssh://git@github.com:limaofeng/jfantasy.git'
+                        url = 'https://github.com/limaofeng/jfantasy'
+                    }
+                }
             }
         }
     }
-
 }
 
 subprojects {
