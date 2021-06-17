@@ -278,7 +278,7 @@ public final class ObjectUtil {
      * @return 返回第一次匹配的对象
      */
     public static <T> T find(List<T> list, String field, Object value) {
-        if (list == null) {
+        if (list == null || value == null) {
             return null;
         }
         for (T t : list) {
