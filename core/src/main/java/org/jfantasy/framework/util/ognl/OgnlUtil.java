@@ -80,7 +80,7 @@ public class OgnlUtil {
             Map<String, Object> context = createDefaultContext(root);
             setValue(name, context, root, value);
         } catch (OgnlException e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.debug(e.getMessage(), e);
         }
     }
 
@@ -155,7 +155,7 @@ public class OgnlUtil {
             }
             return Ognl.getValue(compile(name), context, root);
         } catch (OgnlException e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.debug(e.getMessage(), e);
             return null;
         }
     }
@@ -169,7 +169,7 @@ public class OgnlUtil {
         try {
             return (T) Ognl.getValue(compile(name), context, root, resultType);
         } catch (OgnlException e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.debug(e.getMessage(), e);
             return null;
         }
     }
@@ -300,7 +300,7 @@ public class OgnlUtil {
             fromPds = getPropertyDescriptors(from);
             toPds = getPropertyDescriptors(to);
         } catch (IntrospectionException e) {
-            LOGGER.error("An error occured", e);
+            LOGGER.debug("An error occured", e);
             return;
         }
         Map<String, PropertyDescriptor> toPdHash = new HashMap<String, PropertyDescriptor>();
@@ -325,7 +325,7 @@ public class OgnlUtil {
                         Object value = Ognl.getValue(expr, contextFrom, from);
                         Ognl.setValue(expr, contextTo, to, value);
                     } catch (OgnlException e) {
-                        LOGGER.error(e.getMessage(), e);
+                        LOGGER.debug(e.getMessage(), e);
                     }
                 }
             }
