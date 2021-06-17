@@ -74,6 +74,29 @@ public final class ObjectUtil {
         }
     }
 
+    public static <T> T getValue(String key, Object root) {
+        return OgnlUtil.getInstance().getValue(key, root);
+    }
+
+    public static void setValue(String key, Object root, Object value) {
+        OgnlUtil.getInstance().setValue(key, root, value);
+    }
+
+    public static <T> List<T> tree(List<T> original, String idKey, String pidKey, String childrenKey) {
+        return original.stream().map(item -> {
+            setValue(childrenKey, item, new ArrayList<T>());
+            return item;
+        }).filter(item -> {
+            T obj = find(original, idKey, getValue(pidKey, item));
+            if (obj == null) {
+                return true;
+            }
+            List<T> children = getValue(childrenKey, obj);
+            children.add(item);
+            return false;
+        }).collect(Collectors.toList());
+    }
+
     /**
      * 将集合对象中的 @{fieldName} 对于的值转换为字符串以 @{sign} 连接
      *
@@ -114,9 +137,6 @@ public final class ObjectUtil {
     public static <T> List<T> filter(List<T> list, String spel) {
         Expression expression = SpELUtil.getExpression(spel);
         return filter(list, item -> expression.getValue(SpELUtil.createEvaluationContext(item), Boolean.class));
-
-//                list.stream().filter(v -> expression.getValue(SpELUtil.createEvaluationContext(v), Boolean.class)).collect(Collectors.toList());
-
     }
 
     public static <T> String toString(T[] objs, String fieldName, String sign) {
@@ -263,7 +283,7 @@ public final class ObjectUtil {
         }
         for (T t : list) {
             Object v = OgnlUtil.getInstance().getValue(field, t);
-            if (v == value || (value != null && value.equals(v))) {
+            if (Objects.equals(value, v)) {
                 return t;
             }
         }
@@ -735,20 +755,6 @@ public final class ObjectUtil {
         Collections.reverse(array);
         return array;
     }
-
-//    public static List<String> analyze(String text) {
-//        List<String> list = new ArrayList<String>();
-//        TokenStream tokenStream = BuguIndex.getInstance().getAnalyzer().tokenStream("*", new StringReader(text));
-//        CharTermAttribute termAtt = tokenStream.getAttribute(CharTermAttribute.class);
-//        try {
-//            while (tokenStream.incrementToken()) {
-//                list.add(termAtt.toString());
-//            }
-//        } catch (IOException e) {
-//            LOGGER.error(e.getMessage(), e);
-//        }
-//        return list;
-//    }
 
     private static class CustomSortOrderComparator implements Comparator<Object>, Serializable {
 

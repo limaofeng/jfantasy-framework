@@ -2,6 +2,7 @@ package org.jfantasy.framework.util.common;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jfantasy.framework.util.common.dto.TreeNode;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -146,17 +147,17 @@ public class ObjectUtilTest {
     @Test
     public void sort() throws Exception {
 
-        List<HashMap<String,String>> list = new ArrayList<>();
+        List<HashMap<String, String>> list = new ArrayList<>();
 
-        HashMap<String,String> d1 = new HashMap<>();
-        d1.put("properties","{\"name\":\"2\"}");
+        HashMap<String, String> d1 = new HashMap<>();
+        d1.put("properties", "{\"name\":\"2\"}");
         list.add(d1);
 
-        HashMap<String,String> d2 = new HashMap<>();
-        d1.put("properties","{\"name\":\"1\"}");
+        HashMap<String, String> d2 = new HashMap<>();
+        d1.put("properties", "{\"name\":\"1\"}");
         list.add(d2);
 
-        ObjectUtil.sort(list,"x.x.x1","");
+        ObjectUtil.sort(list, "x.x.x1", "");
 
     }
 
@@ -236,47 +237,12 @@ public class ObjectUtilTest {
     }
 
     @Test
-    public void remove1() throws Exception {
-
-    }
-
-    @Test
-    public void remove2() throws Exception {
-
-    }
-
-    @Test
-    public void first1() throws Exception {
-
-    }
-
-    @Test
-    public void first2() throws Exception {
-
-    }
-
-    @Test
-    public void last1() throws Exception {
-
-    }
-
-    @Test
-    public void last2() throws Exception {
-
-    }
-
-    @Test
     public void guid() throws Exception {
 
     }
 
     @Test
     public void reverse() throws Exception {
-
-    }
-
-    @Test
-    public void reverse1() throws Exception {
 
     }
 
@@ -364,6 +330,22 @@ public class ObjectUtilTest {
     @Test
     public void map() {
     }
+
+    @Test
+    public void tree() {
+        List<TreeNode> nodes = new ArrayList<>();
+
+        nodes.add(TreeNode.builder().id("1").name("第一级").build());
+        nodes.add(TreeNode.builder().id("1.1").name("第二级(1)").parent(TreeNode.builder().id("1").build()).build());
+        nodes.add(TreeNode.builder().id("1.2").name("第二级(2)").parent(TreeNode.builder().id("1").build()).build());
+        nodes.add(TreeNode.builder().id("1.1.1").name("第三级").parent(TreeNode.builder().id("1.1").build()).build());
+        nodes.add(TreeNode.builder().id("1.1.1.1").name("第四级").parent(TreeNode.builder().id("1.1.1").build()).build());
+
+        List<TreeNode> treeData = ObjectUtil.tree(nodes, "id", "parent.id", "children");
+
+        Assert.isTrue(treeData.size() == 1, "转换失败！");
+    }
+
 
     public static class ObjectTestBean {
         private String name;
