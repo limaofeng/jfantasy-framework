@@ -83,9 +83,21 @@ public final class ObjectUtil {
     }
 
     public static <T> List<T> tree(List<T> original, String idKey, String pidKey, String childrenKey) {
+        return tree(original, idKey, pidKey, childrenKey, null, null);
+    }
+
+    public static <T> List<T> tree(List<T> original, String idKey, String pidKey, String childrenKey, Function<T, T> converter) {
+        return tree(original, idKey, pidKey, childrenKey, converter, null);
+    }
+
+    public static <T> List<T> tree(List<T> original, String idKey, String pidKey, String childrenKey, Comparator<? super T> comparator) {
+        return tree(original, idKey, pidKey, childrenKey, null, comparator);
+    }
+
+    public static <T> List<T> tree(List<T> original, String idKey, String pidKey, String childrenKey, Function<T, T> converter, Comparator<? super T> comparator) {
         return original.stream().map(item -> {
             setValue(childrenKey, item, new ArrayList<T>());
-            return item;
+            return converter == null ? item : converter.apply(item);
         }).filter(item -> {
             T obj = find(original, idKey, getValue(pidKey, item));
             if (obj == null) {
@@ -93,6 +105,9 @@ public final class ObjectUtil {
             }
             List<T> children = getValue(childrenKey, obj);
             children.add(item);
+            if (comparator != null) {
+                Collections.sort(children, comparator);
+            }
             return false;
         }).collect(Collectors.toList());
     }

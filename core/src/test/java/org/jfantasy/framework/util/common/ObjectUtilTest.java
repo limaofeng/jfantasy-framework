@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
@@ -336,14 +337,19 @@ public class ObjectUtilTest {
         List<TreeNode> nodes = new ArrayList<>();
 
         nodes.add(TreeNode.builder().id("1").name("第一级").build());
-        nodes.add(TreeNode.builder().id("1.1").name("第二级(1)").parent(TreeNode.builder().id("1").build()).build());
-        nodes.add(TreeNode.builder().id("1.2").name("第二级(2)").parent(TreeNode.builder().id("1").build()).build());
+        nodes.add(TreeNode.builder().id("1.1").name("第二级(1)").index(2).parent(TreeNode.builder().id("1").build()).build());
+        nodes.add(TreeNode.builder().id("1.2").name("第二级(2)").index(1).parent(TreeNode.builder().id("1").build()).build());
         nodes.add(TreeNode.builder().id("1.1.1").name("第三级").parent(TreeNode.builder().id("1.1").build()).build());
         nodes.add(TreeNode.builder().id("1.1.1.1").name("第四级").parent(TreeNode.builder().id("1.1.1").build()).build());
 
         List<TreeNode> treeData = ObjectUtil.tree(nodes, "id", "parent.id", "children");
 
         Assert.isTrue(treeData.size() == 1, "转换失败！");
+
+        treeData = ObjectUtil.tree(nodes, "id", "parent.id", "children", Comparator.comparingInt(TreeNode::getIndex));
+
+        Assert.isTrue(treeData.get(0).getChildren().get(0).getName().equals("第二级(2)"), "排序失败！");
+
     }
 
 
