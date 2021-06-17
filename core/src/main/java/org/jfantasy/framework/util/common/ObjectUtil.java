@@ -97,11 +97,13 @@ public final class ObjectUtil {
     }
 
     public static <T> List<T> tree(List<T> original, String idKey, String pidKey, String childrenKey, Function<T, T> converter, Comparator<? super T> comparator) {
-        return original.stream().map(item -> {
-            setValue(childrenKey, item, new ArrayList<T>());
-            return converter == null ? item : converter.apply(item);
-        }).filter(item -> {
-            T obj = find(original, idKey, getValue(pidKey, item));
+        List<T> items = original.stream().map(item -> {
+            T target = converter == null ? item : converter.apply(item);
+            setValue(childrenKey, target, new ArrayList<T>());
+            return target;
+        }).collect(Collectors.toList());
+        return items.stream().filter(item -> {
+            T obj = find(items, idKey, getValue(pidKey, item));
             if (obj == null) {
                 return true;
             }
