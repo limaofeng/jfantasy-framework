@@ -116,6 +116,15 @@ public final class ObjectUtil {
         }).collect(Collectors.toList());
     }
 
+    public static <T> List<T> flat(List<T> treeData, String childrenKey) {
+        List<T> nodes = new ArrayList<>();
+        for (T node : treeData) {
+            nodes.add(node);
+            nodes.addAll(flat(getValue(childrenKey, node), childrenKey));
+        }
+        return nodes;
+    }
+
     /**
      * 将集合对象中的 @{fieldName} 对于的值转换为字符串以 @{sign} 连接
      *

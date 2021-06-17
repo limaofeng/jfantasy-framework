@@ -350,6 +350,10 @@ public class ObjectUtilTest {
 
         Assert.isTrue(treeData.get(0).getChildren().get(0).getName().equals("第二级(2)"), "排序失败！");
 
+        List<TreeNode> flat = ObjectUtil.flat(treeData, "children");
+
+        Assert.isTrue(flat.size() == 5, "平铺失败");
+
     }
 
 
