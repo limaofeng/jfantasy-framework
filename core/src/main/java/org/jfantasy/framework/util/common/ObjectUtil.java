@@ -1,6 +1,5 @@
 package org.jfantasy.framework.util.common;
 
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.collection.internal.PersistentBag;
@@ -10,6 +9,7 @@ import org.jfantasy.framework.spring.SpELUtil;
 import org.jfantasy.framework.util.ognl.OgnlUtil;
 import org.jfantasy.framework.util.reflect.Property;
 import org.springframework.expression.Expression;
+import org.springframework.beans.BeanUtils;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
@@ -35,12 +35,12 @@ public final class ObjectUtil {
     }
 
     /**
-     * 克隆对象,调用org.apache.commons.beanutils.BeanUtils.cloneBean(object);方法实现克隆
+     * 克隆对象
      *
      * @param object 将要克隆的对象
      * @return 返回的对象
      */
-    public static <T> T clone(T object) {
+    public static <T> T clone(T object, String... ignoreProperties) {
         if (object == null) {
             return null;
         }
@@ -54,20 +54,22 @@ public final class ObjectUtil {
             Map<Object, Object> cloneMap = new HashMap<>();
             Map<Object, Object> map = (Map<Object, Object>) object;
             for (Map.Entry<Object, Object> entry : map.entrySet()) {
-                cloneMap.put(clone(entry.getKey()), clone(entry.getValue()));
+                cloneMap.put(clone(entry.getKey()), clone(entry.getValue(), ignoreProperties));
             }
             return (T) cloneMap;
         }
         if (object instanceof List) {
-            List<Object> cloneList = new ArrayList<Object>();
+            List<Object> cloneList = new ArrayList<>();
             List<Object> list = (List<Object>) object;
             for (Object l : list) {
-                cloneList.add(clone(l));
+                cloneList.add(clone(l, ignoreProperties));
             }
             return (T) cloneList;
         }
         try {
-            return (T) BeanUtils.cloneBean(object);
+            T target = (T) ClassUtil.newInstance(ClassUtil.getRealClass(object.getClass()));
+            BeanUtils.copyProperties(object, target, ignoreProperties);
+            return target;
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
             throw new IgnoreException(e.getMessage());
