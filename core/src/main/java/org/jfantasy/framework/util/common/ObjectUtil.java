@@ -77,7 +77,12 @@ public final class ObjectUtil {
     }
 
     public static <T> T getValue(String key, Object root) {
-        return OgnlUtil.getInstance().getValue(key, root);
+        return (T) Arrays.stream((Object[]) key.split("\\.")).reduce(root, (result, next) -> {
+            if (result == null) {
+                return null;
+            }
+            return OgnlUtil.getInstance().getValue((String) next, result);
+        });
     }
 
     public static void setValue(String key, Object root, Object value) {
@@ -117,16 +122,7 @@ public final class ObjectUtil {
     }
 
     public static <T> List<T> flat(List<T> treeData, String childrenKey) {
-        List<T> nodes = new ArrayList<>();
-        for (T node : treeData) {
-            nodes.add(node);
-            List<T> children = getValue(childrenKey, node);
-            if (children == null) {
-                continue;
-            }
-            nodes.addAll(flat(children, childrenKey));
-        }
-        return nodes;
+        return flat(treeData, childrenKey, null, null);
     }
 
     public static <T> List<T> flat(List<T> treeData, String childrenKey, String parentName) {
@@ -136,7 +132,9 @@ public final class ObjectUtil {
     public static <T> List<T> flat(List<T> treeData, String childrenKey, String parentName, T parent) {
         List<T> nodes = new ArrayList<>();
         for (T node : treeData) {
-            setValue(parentName, node, parent);
+            if (parentName != null) {
+                setValue(parentName, node, parent);
+            }
             nodes.add(node);
             List<T> children = getValue(childrenKey, node);
             if (children == null) {
