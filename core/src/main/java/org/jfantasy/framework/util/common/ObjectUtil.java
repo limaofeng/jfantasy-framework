@@ -35,6 +35,21 @@ public final class ObjectUtil {
     }
 
     /**
+     * COPY 对象
+     *
+     * @param source           原对象
+     * @param target           目标对象
+     * @param ignoreProperties 忽略字段
+     * @param <T>
+     * @return
+     */
+    public static <T> T copy(T source, T target, String... ignoreProperties) {
+        BeanUtils.copyProperties(source, target, ignoreProperties);
+        return target;
+    }
+
+
+    /**
      * 克隆对象
      *
      * @param object 将要克隆的对象
