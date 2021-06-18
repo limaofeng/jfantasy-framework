@@ -354,6 +354,12 @@ public class ObjectUtilTest {
 
         Assert.isTrue(flat.size() == 5, "平铺失败");
 
+        nodes.stream().forEach(item -> item.setParent(null));
+
+        flat = ObjectUtil.flat(treeData, "children", "parent");
+
+        Assert.isTrue(flat.get(1).getParent() != null, "平铺设置 parent 失败");
+
     }
 
 

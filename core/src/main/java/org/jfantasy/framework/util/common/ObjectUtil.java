@@ -120,7 +120,29 @@ public final class ObjectUtil {
         List<T> nodes = new ArrayList<>();
         for (T node : treeData) {
             nodes.add(node);
-            nodes.addAll(flat(getValue(childrenKey, node), childrenKey));
+            List<T> children = getValue(childrenKey, node);
+            if (children == null) {
+                continue;
+            }
+            nodes.addAll(flat(children, childrenKey));
+        }
+        return nodes;
+    }
+
+    public static <T> List<T> flat(List<T> treeData, String childrenKey, String parentName) {
+        return flat(treeData, childrenKey, parentName, null);
+    }
+
+    public static <T> List<T> flat(List<T> treeData, String childrenKey, String parentName, T parent) {
+        List<T> nodes = new ArrayList<>();
+        for (T node : treeData) {
+            setValue(parentName, node, parent);
+            nodes.add(node);
+            List<T> children = getValue(childrenKey, node);
+            if (children == null) {
+                continue;
+            }
+            nodes.addAll(flat(children, childrenKey, parentName, node));
         }
         return nodes;
     }
