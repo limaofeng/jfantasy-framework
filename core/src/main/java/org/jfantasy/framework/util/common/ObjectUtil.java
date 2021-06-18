@@ -223,7 +223,7 @@ public final class ObjectUtil {
 
     public static <T, R> List<R> toFieldList(List<T> list, String fieldName, List<R> returnList) {
         for (Object t : list) {
-            returnList.add((R) OgnlUtil.getInstance().getValue(fieldName, t));
+            returnList.add(OgnlUtil.getInstance().getValue(fieldName, t));
         }
         return returnList;
     }
@@ -234,7 +234,7 @@ public final class ObjectUtil {
             if (objs.get(i) == null) {
                 continue;
             }
-            returnObjs[i] = (R) OgnlUtil.getInstance().getValue(fieldName, objs.get(i));
+            returnObjs[i] = OgnlUtil.getInstance().getValue(fieldName, objs.get(i));
         }
         return returnObjs;
     }
@@ -248,7 +248,7 @@ public final class ObjectUtil {
             returnObjs = (R[]) ClassUtil.newInstance(returnObjs.getClass().getComponentType(), objs.length);
         }
         for (int i = objs.length - 1; i > -1; i--) {
-            returnObjs[i] = (R) ClassUtil.getValue(objs[i], fieldName);
+            returnObjs[i] = ClassUtil.getValue(objs[i], fieldName);
         }
         return returnObjs;
     }
@@ -320,11 +320,11 @@ public final class ObjectUtil {
         return -1;
     }
 
-    public static <T> int indexOf(List<T> objs, Expression exper, Object value) {
+    public static <T> int indexOf(List<T> objs, Expression expression, Object value) {
         for (int i = 0; i < objs.size(); i++) {
-            Map<String, Object> data = new HashMap<String, Object>();
+            Map<String, Object> data = new HashMap();
             data.put("value", value);
-            if (exper.getValue(SpELUtil.createEvaluationContext(objs.get(i), data), Boolean.class)) {
+            if (expression.getValue(SpELUtil.createEvaluationContext(objs.get(i), data), Boolean.class)) {
                 return i;
             }
         }
@@ -580,7 +580,7 @@ public final class ObjectUtil {
         if (ClassUtil.isMap(data)) {
             return (Map<String, Object>) data;
         }
-        Map<String, Object> rootMap = new HashMap<String, Object>();
+        Map<String, Object> rootMap = new HashMap();
         Property[] properties = ClassUtil.getPropertys(data);
         for (Property property : properties) {
             if (property.isRead()) {
@@ -738,7 +738,7 @@ public final class ObjectUtil {
      */
     public static <T> T[] remove(T[] dest, T orig) {
         List<T> array = new ArrayList<>(Arrays.asList(dest));
-        while (array.indexOf(orig) != -1) {
+        while (array.contains(orig)) {
             array.remove(orig);
         }
         return array.toArray((T[]) Array.newInstance(dest.getClass().getComponentType(), array.size()));
