@@ -1,5 +1,8 @@
 package org.jfantasy.autoconfigure;
 
+import graphql.execution.AsyncSerialExecutionStrategy;
+import graphql.execution.ExecutionStrategy;
+import graphql.kickstart.spring.web.boot.GraphQLWebAutoConfiguration;
 import graphql.kickstart.tools.SchemaParserDictionary;
 import graphql.kickstart.tools.boot.GraphQLJavaToolsAutoConfiguration;
 import org.jfantasy.graphql.SchemaParserDictionaryBuilder;
@@ -7,6 +10,7 @@ import org.jfantasy.graphql.VersionGraphQLQueryResolver;
 import org.jfantasy.graphql.client.GraphQLClientBeanPostProcessor;
 import org.jfantasy.graphql.error.GraphQLResolverAdvice;
 import org.jfantasy.graphql.error.GraphQLStaticMethodMatcherPointcut;
+import org.jfantasy.graphql.execution.AsyncTransactionalExecutionStrategy;
 import org.springframework.aop.support.DefaultBeanFactoryPointcutAdvisor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -16,15 +20,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.orm.jpa.support.OpenEntityManagerInViewFilter;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
 /**
+ * GraphQL 自动配置
+ *
  * @author limaofeng
  * @version V1.0
- * @Description: TODO
  * @date 2019/8/23 6:18 下午
  */
 @Configuration
@@ -37,9 +41,14 @@ public class GraphQLAutoConfiguration {
         return new GraphQLClientBeanPostProcessor(applicationContext, resourceLoader);
     }
 
-    @Bean
-    public OpenEntityManagerInViewFilter openEntityManagerInViewFilter() {
-        return new OpenEntityManagerInViewFilter();
+    @Bean(GraphQLWebAutoConfiguration.QUERY_EXECUTION_STRATEGY)
+    public ExecutionStrategy queryExecutionStrategy() {
+        return new AsyncTransactionalExecutionStrategy();
+    }
+
+    @Bean(GraphQLWebAutoConfiguration.MUTATION_EXECUTION_STRATEGY)
+    public ExecutionStrategy mutationExecutionStrategy() {
+        return new AsyncTransactionalExecutionStrategy();
     }
 
     @Bean
