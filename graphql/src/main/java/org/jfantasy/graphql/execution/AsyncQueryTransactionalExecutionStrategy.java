@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.concurrent.CompletableFuture;
 
-public class AsyncTransactionalExecutionStrategy extends AsyncExecutionStrategy {
+public class AsyncQueryTransactionalExecutionStrategy extends AsyncExecutionStrategy {
 
     @Override
     @Transactional(readOnly = true)

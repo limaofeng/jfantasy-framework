@@ -80,6 +80,11 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
     }
 
     @Override
+    public boolean exists(List<PropertyFilter> filters) {
+        return count(filters) > 0;
+    }
+
+    @Override
     public Optional<T> findBy(String name, Object value) {
         return this.findOne(PropertyFilter.builder().equal(name, value).build());
     }
