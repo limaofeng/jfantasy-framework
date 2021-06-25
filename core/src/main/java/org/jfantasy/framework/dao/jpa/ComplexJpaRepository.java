@@ -166,7 +166,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
     }
 
     @Override
-    public <S extends T> Iterable<S> batchUpdate(Iterable<S> entities) {
+    public <S extends T> Iterable<S> updateAllInBatch(Iterable<S> entities) {
         Iterator<S> iterator = entities.iterator();
         int index = 0;
         while (iterator.hasNext()) {

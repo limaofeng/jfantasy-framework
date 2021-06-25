@@ -51,5 +51,5 @@ public interface JpaRepository<T, PK extends Serializable> extends org.springfra
 
     <S extends T> Iterable<S> saveAllInBatch(Iterable<S> entities);
 
-    <S extends T> Iterable<S> batchUpdate(Iterable<S> entities);
+    <S extends T> Iterable<S> updateAllInBatch(Iterable<S> entities);
 }
