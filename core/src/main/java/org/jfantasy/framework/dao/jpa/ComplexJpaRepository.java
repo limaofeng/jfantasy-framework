@@ -40,13 +40,16 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
+ * 自己封装的 JpaRepository
+ *
  * @author limaofeng
  * @version V1.0
- * @Description 自己封装的 JpaRepository
  * @date 14/11/2017 11:23 AM
  */
 @Slf4j
 public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaRepository<T, ID> implements JpaRepository<T, ID> {
+
+    private static final int BATCH_SIZE = 100;
 
     protected EntityManager em;
     protected JpaEntityInformation<T, ?> entityInformation;
@@ -132,14 +135,53 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
             Class entityClass = this.getDomainClass();
             OgnlUtil ognlUtil = OgnlUtil.getInstance();
             ID id = HibernateUtils.getIdValue(entityClass, entity);
-            T oldEntity = super.getOne(id);
+            assert id != null;
+            T oldEntity = super.getById(id);
             if (entity == oldEntity) {
                 return this.save(entity);
             }
-            return (S) super.save(merge(entity, oldEntity, entityClass, ognlUtil));
+            return super.save(merge(entity, oldEntity, entityClass, ognlUtil));
         } else {
             return this.update(entity);
         }
+    }
+
+    @Override
+    public <S extends T> Iterable<S> saveAllInBatch(Iterable<S> entities) {
+        Iterator<S> iterator = entities.iterator();
+        int index = 0;
+        while (iterator.hasNext()) {
+            em.persist(iterator.next());
+            index++;
+            if (index % BATCH_SIZE == 0) {
+                em.flush();
+                em.clear();
+            }
+        }
+        if (index % BATCH_SIZE != 0) {
+            em.flush();
+            em.clear();
+        }
+        return entities;
+    }
+
+    @Override
+    public <S extends T> Iterable<S> batchUpdate(Iterable<S> entities) {
+        Iterator<S> iterator = entities.iterator();
+        int index = 0;
+        while (iterator.hasNext()) {
+            em.merge(iterator.next());
+            index++;
+            if (index % BATCH_SIZE == 0) {
+                em.flush();
+                em.clear();
+            }
+        }
+        if (index % BATCH_SIZE != 0) {
+            em.flush();
+            em.clear();
+        }
+        return entities;
     }
 
     private <O> O merge(Object entity, Object oldEntity, Class entityClass, OgnlUtil ognlUtil) {
@@ -193,7 +235,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
                 continue;
             }
             Serializable fkId = HibernateUtils.getIdValue(field.getType(), fk);
-            Object fkObj = fkId != null ? getJpaRepository(field.getType()).getOne(fkId) : null;
+            Object fkObj = fkId != null ? getJpaRepository(field.getType()).getById(fkId) : null;
             ognlUtil.setValue(field.getName(), oldEntity == null ? entity : oldEntity, fkObj);
         }
     }
@@ -213,7 +255,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
             List<Object> addObjects = new ArrayList<>();
             for (Object fk : objects) {
                 Serializable fkId = HibernateUtils.getIdValue(targetEntityClass, fk);
-                Object fkObj = fkId != null ? getJpaRepository(targetEntityClass).getOne(fkId) : null;
+                Object fkObj = fkId != null ? getJpaRepository(targetEntityClass).getById(fkId) : null;
                 if (fkObj != null) {
                     addObjects.add(fkObj);
                 }
@@ -238,7 +280,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
                 List<Object> addObjects = new ArrayList<>();
                 for (Object fk : objects) {
                     Serializable fkId = HibernateUtils.getIdValue(targetEntityClass, fk);
-                    Object fkObj = fkId != null ? getJpaRepository(targetEntityClass).getOne(fkId) : null;
+                    Object fkObj = fkId != null ? getJpaRepository(targetEntityClass).getById(fkId) : null;
                     if (fkObj != null) {
                         addObjects.add(BeanUtil.copyProperties(fkObj, fk));
                     } else {
@@ -421,12 +463,10 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
         return createQuery(hql, values).getResultList();
     }
 
-    @SuppressWarnings("unchecked")
     public T findUnique(String hql, Object... values) {
         return (T) createQuery(hql, values).getSingleResult();
     }
 
-    @SuppressWarnings("unchecked")
     public T findUnique(String hql, Map<String, ?> values) {
         return (T) createQuery(hql, values).getSingleResult();
     }
