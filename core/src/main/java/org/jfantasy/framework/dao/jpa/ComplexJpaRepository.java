@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaRepository<T, ID> implements JpaRepository<T, ID> {
 
-    private static final int BATCH_SIZE = 100;
+    public static int BATCH_SIZE = 500;
 
     protected EntityManager em;
     protected JpaEntityInformation<T, ?> entityInformation;
