@@ -10,9 +10,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ * 属性过滤器 构造器
+ *
  * @author limaofeng
  * @version V1.0
- * @Description: TODO
  * @date 2019-04-22 17:55
  */
 public class PropertyFilterBuilder {
@@ -187,7 +188,7 @@ public class PropertyFilterBuilder {
     }
 
     public PropertyFilterBuilder and(List<PropertyFilter>... filters) {
-        this.filters.add(new PropertyFilter(MatchType.AND, filters));
+        this.filters.add(new PropertyFilter(MatchType.AND, Arrays.asList(filters)));
         return this;
     }
 
@@ -197,7 +198,7 @@ public class PropertyFilterBuilder {
     }
 
     public PropertyFilterBuilder or(List<PropertyFilter>... filters) {
-        this.filters.add(new PropertyFilter(MatchType.OR, filters));
+        this.filters.add(new PropertyFilter(MatchType.OR, Arrays.asList(filters)));
         return this;
     }
 
@@ -212,7 +213,7 @@ public class PropertyFilterBuilder {
     }
 
     public PropertyFilterBuilder not(List<PropertyFilter>... filters) {
-        this.filters.add(new PropertyFilter(MatchType.NOT, filters));
+        this.filters.add(new PropertyFilter(MatchType.NOT, Arrays.asList(filters)));
         return this;
     }
 
