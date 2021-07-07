@@ -458,7 +458,7 @@ public final class ObjectUtil {
         return -1;
     }
 
-    public static <T> int indexOf(List<T> objs, T o) {
+    public static <T, C extends Collection<T>> int indexOf(C objs, T o) {
         return indexOf(objs.toArray(new Object[objs.size()]), o);
     }
 
@@ -499,10 +499,6 @@ public final class ObjectUtil {
         }
     }
 
-    public static <T> List<T> sort(List<T> list, String orderField) {
-        return sort(list, orderField, "asc");
-    }
-
     /**
      * 对集合进行排序
      *
@@ -541,10 +537,6 @@ public final class ObjectUtil {
             Collections.reverse(list);
         }
         return packageResult(list.stream(), collectoin.getClass());
-    }
-
-    public static <T> List<T> sort(List<T> collectoin, String orderBy, String order) {
-        return (List<T>) sort((Collection<T>) collectoin, orderBy, order);
     }
 
     public static <T> List<T> sort(List<T> collectoin, String[] customSort, String idFieldName) {
@@ -687,10 +679,10 @@ public final class ObjectUtil {
         dest.addAll(orig.stream().filter(item -> StringUtil.isBlank(property) ? !exists(dest, item) : !exists(dest, property, BeanUtil.getValue(item, property))).collect(Collectors.toList()));
     }
 
-    public static <T> void join(List<T> dest, List<T> orig, Expression exper) {
+    public static <T, C extends Collection<T>> void join(C dest, C orig, Expression exper) {
         List<T> news = new ArrayList<>();
         for (T o : orig) {
-            if ((isNotNull(exper) && (indexOf(dest, exper, o) == -1)) || dest.indexOf(o) == -1) {
+            if ((isNotNull(exper) && (indexOf(dest, exper, o) == -1)) || indexOf(dest, o) == -1) {
                 news.add(o);
             }
         }
@@ -733,20 +725,24 @@ public final class ObjectUtil {
      * @param value    字段对应的值
      * @return 被移除的对象
      */
-    public static <T> T remove(List<T> orig, String property, Object value) {
+    public static <T, C extends Collection<T>> T remove(C orig, String property, Object value) {
         if (orig == null || value == null) {
             return null;
         }
+        List<T> array = packageResult(orig.stream(), List.class);
         int i = indexOf(orig, property, value);
-        return i == -1 ? null : orig.remove(i);
+        orig.remove(array.get(i));
+        return i == -1 ? null : array.get(i);
     }
 
-    public static <T> T remove(List<T> orig, Expression exper, Object value) {
+    public static <T, C extends Collection<T>> T remove(C orig, Expression exper, Object value) {
         if (orig == null || value == null) {
             return null;
         }
+        List<T> array = packageResult(orig.stream(), List.class);
         int i = indexOf(orig, exper, value);
-        return i == -1 ? null : orig.remove(i);
+        orig.remove(array.get(i));
+        return i == -1 ? null : array.get(i);
     }
 
     /**
@@ -772,7 +768,7 @@ public final class ObjectUtil {
      * @param list 集合
      * @return T
      */
-    public static <T, C extends Collection<T>>  T first(C list) {
+    public static <T, C extends Collection<T>> T first(C list) {
         List<T> array = packageResult(list.stream(), List.class);
         if (array == null || array.isEmpty()) {
             return null;
@@ -801,7 +797,7 @@ public final class ObjectUtil {
      * @param list 集合
      * @return T
      */
-    public static <T, C extends Collection<T>>  T last(C collection) {
+    public static <T, C extends Collection<T>> T last(C collection) {
         List<T> list = packageResult(collection.stream(), List.class);
         if (list == null || list.isEmpty()) {
             return null;
