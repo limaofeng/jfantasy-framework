@@ -280,6 +280,10 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
         return List.class.isAssignableFrom(clazz);
     }
 
+    public static boolean isSet(Class<?> clazz) {
+        return Set.class.isAssignableFrom(clazz);
+    }
+
     public static boolean isMap(Class<?> clazz) {
         return Map.class.isAssignableFrom(clazz);
     }

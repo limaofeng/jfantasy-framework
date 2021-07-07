@@ -5,6 +5,7 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.collection.internal.PersistentBag;
 import org.jfantasy.framework.dao.mybatis.keygen.GUIDKeyGenerator;
 import org.jfantasy.framework.error.IgnoreException;
+import org.jfantasy.framework.error.ValidationException;
 import org.jfantasy.framework.spring.SpELUtil;
 import org.jfantasy.framework.util.ognl.OgnlUtil;
 import org.jfantasy.framework.util.reflect.Property;
@@ -23,6 +24,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @SuppressWarnings("unchecked")
 public final class ObjectUtil {
@@ -104,25 +106,25 @@ public final class ObjectUtil {
         OgnlUtil.getInstance().setValue(key, root, value);
     }
 
-    public static <T> List<T> tree(List<T> original, String idKey, String pidKey, String childrenKey) {
-        return tree(original, idKey, pidKey, childrenKey, null, null);
+    public static <T, C extends Collection<T>> C tree(C original, String idKey, String pidKey, String childrenKey) {
+        return (C) tree(original, idKey, pidKey, childrenKey, null, null);
     }
 
-    public static <T> List<T> tree(List<T> original, String idKey, String pidKey, String childrenKey, Function<T, T> converter) {
+    public static <T, C extends Collection<T>> C tree(C original, String idKey, String pidKey, String childrenKey, Function<T, T> converter) {
         return tree(original, idKey, pidKey, childrenKey, converter, null);
     }
 
-    public static <T> List<T> tree(List<T> original, String idKey, String pidKey, String childrenKey, Comparator<? super T> comparator) {
+    public static <T, C extends Collection<T>> C tree(C original, String idKey, String pidKey, String childrenKey, Comparator<? super T> comparator) {
         return tree(original, idKey, pidKey, childrenKey, null, comparator);
     }
 
-    public static <T> List<T> tree(List<T> original, String idKey, String pidKey, String childrenKey, Function<T, T> converter, Comparator<? super T> comparator) {
+    public static <T, C extends Collection<T>> C tree(C original, String idKey, String pidKey, String childrenKey, Function<T, T> converter, Comparator<? super T> comparator) {
         List<T> items = original.stream().map(item -> {
             T target = converter == null ? item : converter.apply(item);
             setValue(childrenKey, target, new ArrayList<T>());
             return target;
         }).collect(Collectors.toList());
-        return items.stream().filter(item -> {
+        Stream<T> stream = items.stream().filter(item -> {
             T obj = find(items, idKey, getValue(pidKey, item));
             if (obj == null) {
                 return true;
@@ -133,18 +135,29 @@ public final class ObjectUtil {
                 Collections.sort(children, comparator);
             }
             return false;
-        }).collect(Collectors.toList());
+        });
+        return packageResult(stream, original.getClass());
     }
 
-    public static <T> List<T> flat(List<T> treeData, String childrenKey) {
+    private static <T, C extends Collection<T>> C packageResult(Stream<T> stream, Class resultClass) {
+        if (ClassUtil.isList(resultClass)) {
+            return (C) stream.collect(Collectors.toList());
+        }
+        if (ClassUtil.isSet(resultClass)) {
+            return (C) stream.collect(Collectors.toSet());
+        }
+        throw new ValidationException("不支持转换到 " + resultClass.getName());
+    }
+
+    public static <T, C extends Collection<T>> C flat(C treeData, String childrenKey) {
         return flat(treeData, childrenKey, null, null);
     }
 
-    public static <T> List<T> flat(List<T> treeData, String childrenKey, String parentName) {
+    public static <T, C extends Collection<T>> C flat(C treeData, String childrenKey, String parentName) {
         return flat(treeData, childrenKey, parentName, null);
     }
 
-    public static <T> List<T> flat(List<T> treeData, String childrenKey, String parentName, T parent) {
+    public static <T, C extends Collection<T>> C flat(C treeData, String childrenKey, String parentName, T parent) {
         List<T> nodes = new ArrayList<>();
         for (T node : treeData) {
             if (parentName != null) {
@@ -157,7 +170,7 @@ public final class ObjectUtil {
             }
             nodes.addAll(flat(children, childrenKey, parentName, node));
         }
-        return nodes;
+        return packageResult(nodes.stream(), treeData.getClass());
     }
 
     /**
@@ -169,7 +182,7 @@ public final class ObjectUtil {
      * @param sign      连接符
      * @return T
      */
-    public static <T> String toString(List<T> objs, String fieldName, String sign) {
+    public static <T, C extends Collection<T>> String toString(C objs, String fieldName, String sign) {
         AtomicReference<StringBuffer> stringBuffer = new AtomicReference<>(new StringBuffer());
         for (T t : objs) {
             String temp = StringUtil.defaultValue(OgnlUtil.getInstance().getValue(fieldName, t), "");
@@ -185,7 +198,7 @@ public final class ObjectUtil {
         return toString(objs, null, sign);
     }
 
-    public static <T> List<T> filter(List<T> list, String fieldName, Object... values) {
+    public static <T, C extends Collection<T>> C filter(C list, String fieldName, Object... values) {
         return filter(list, item -> ObjectUtil.exists(values, OgnlUtil.getInstance().getValue(fieldName, item)));
     }
 
@@ -193,11 +206,11 @@ public final class ObjectUtil {
         return filter(objs, item -> ObjectUtil.exists(values, OgnlUtil.getInstance().getValue(fieldName, item)));
     }
 
-    public static <T> T[] toArray(List<T> list, Class<T> type) {
+    public static <T, C extends Collection<T>> T[] toArray(C list, Class<T> type) {
         return list.toArray((T[]) ClassUtil.newInstance(type, list.size()));
     }
 
-    public static <T> List<T> filter(List<T> list, String spel) {
+    public static <T, C extends Collection<T>> C filter(C list, String spel) {
         Expression expression = SpELUtil.getExpression(spel);
         return filter(list, item -> expression.getValue(SpELUtil.createEvaluationContext(item), Boolean.class));
     }
@@ -221,7 +234,7 @@ public final class ObjectUtil {
         return stringBuffer.get().toString().replaceFirst(sign, "");
     }
 
-    public static <T, R> List<R> toFieldList(List<T> list, String fieldName, List<R> returnList) {
+    public static <T, R, C extends Collection<T>> List<R> toFieldList(C list, String fieldName, List<R> returnList) {
         for (Object t : list) {
             returnList.add(OgnlUtil.getInstance().getValue(fieldName, t));
         }
@@ -261,7 +274,7 @@ public final class ObjectUtil {
      * @param fieldName 支持ognl表达式
      * @return T
      */
-    public static <T> T getMaxObject(Collection<T> c, String fieldName) {
+    public static <T, C extends Collection<T>> T getMaxObject(C c, String fieldName) {
         T maxObject = null;
         for (T element : c) {
             if (maxObject == null) {
@@ -283,7 +296,7 @@ public final class ObjectUtil {
      * @param fieldName 支持ognl表达式
      * @return T
      */
-    public static <T> T getMinObject(Collection<T> c, String fieldName) {
+    public static <T, C extends Collection<T>> T getMinObject(C c, String fieldName) {
         T minObject = null;
         for (T element : c) {
             if (minObject == null) {
@@ -307,26 +320,30 @@ public final class ObjectUtil {
      * @return T
      * 如果有多个只返回第一匹配的对象,比较调用对象的 equals 方法
      */
-    public static <T> int indexOf(List<T> objs, String field, Object value) {
-        for (int i = 0; i < objs.size(); i++) {
-            Object prop = OgnlUtil.getInstance().getValue(field, objs.get(i));
+    public static <T, C extends Collection<T>> int indexOf(C objs, String field, Object value) {
+        int i = 0;
+        for (T obj : objs) {
+            Object prop = OgnlUtil.getInstance().getValue(field, obj);
             if (prop == null) {
                 continue;
             }
             if (prop.equals(value)) {
                 return i;
             }
+            i++;
         }
         return -1;
     }
 
-    public static <T> int indexOf(List<T> objs, Expression expression, Object value) {
-        for (int i = 0; i < objs.size(); i++) {
+    public static <T, C extends Collection<T>> int indexOf(C objs, Expression expression, Object value) {
+        int i = 0;
+        for (T obj : objs) {
             Map<String, Object> data = new HashMap();
             data.put("value", value);
-            if (expression.getValue(SpELUtil.createEvaluationContext(objs.get(i), data), Boolean.class)) {
+            if (expression.getValue(SpELUtil.createEvaluationContext(obj, data), Boolean.class)) {
                 return i;
             }
+            i++;
         }
         return -1;
     }
@@ -340,7 +357,7 @@ public final class ObjectUtil {
      * @param value 比较值
      * @return 返回第一次匹配的对象
      */
-    public static <T> T find(List<T> list, String field, Object value) {
+    public static <T, C extends Collection<T>> T find(C list, String field, Object value) {
         if (list == null || value == null) {
             return null;
         }
@@ -353,16 +370,17 @@ public final class ObjectUtil {
         return null;
     }
 
-    public static <T> T first(List<T> list, String field, Object value) {
+    public static <T, C extends Collection<T>> T first(C list, String field, Object value) {
         return find(list, field, value);
     }
 
-    public static <T> T last(List<T> list, String field, Object value) {
+    public static <T, C extends Collection<T>> T last(C list, String field, Object value) {
         if (list == null) {
             return null;
         }
+        List<T> array = packageResult(list.stream(), List.class);
         for (int i = list.size() - 1; i >= 0; i--) {
-            T t = list.get(i);
+            T t = array.get(i);
             Object v = OgnlUtil.getInstance().getValue(field, t);
             if (v == value || value.equals(v)) {
                 return t;
@@ -380,7 +398,7 @@ public final class ObjectUtil {
         return null;
     }
 
-    public static <T> T find(List<T> list, Predicate<T> itemSelector) {
+    public static <T, C extends Collection<T>> T find(C list, Predicate<T> itemSelector) {
         for (T t : list) {
             if (itemSelector.test(t)) {
                 return t;
@@ -393,16 +411,17 @@ public final class ObjectUtil {
         return find(objs, field, value) != null;
     }
 
-    public static <T> boolean exists(List<T> list, String field, Object value) {
+    public static <T, C extends Collection<T>> boolean exists(C list, String field, Object value) {
         return find(list, field, value) != null;
     }
 
-    public static <T> T find(List<T> list, Expression exper, Object value) {
+    public static <T, C extends Collection<T>> T find(C list, Expression exper, Object value) {
         if (list == null) {
             return null;
         }
+        List<T> array = packageResult(list.stream(), List.class);
         int i = indexOf(list, exper, value);
-        return i >= 0 ? list.get(i) : null;
+        return i >= 0 ? array.get(i) : null;
     }
 
     public static <T> T find(T[] list, String field, Object value) {
@@ -443,7 +462,8 @@ public final class ObjectUtil {
         return indexOf(objs.toArray(new Object[objs.size()]), o);
     }
 
-    public static <T> int indexOf(List<T> objs, T obj, String property) {
+    public static <T, C extends Collection<T>> int indexOf(C collection, T obj, String property) {
+        List<T> objs = packageResult(collection.stream(), List.class);
         for (int i = 0; i < objs.size(); i++) {
             Object value = ClassUtil.getValue(objs.get(i), property);
             if (isNull(value)) {
@@ -456,9 +476,9 @@ public final class ObjectUtil {
         return -1;
     }
 
-    public static <T> int indexOf(List<T> list, String field, String value, boolean ignoreCase) {
-        for (int i = 0; i < list.size(); i++) {
-            Object obj = list.get(i);
+    public static <T, C extends Collection<T>> int indexOf(C list, String field, String value, boolean ignoreCase) {
+        int i = 0;
+        for (T obj : list) {
             Object prop = ClassUtil.getValue(obj, field);
             if (prop == null) {
                 continue;
@@ -466,6 +486,7 @@ public final class ObjectUtil {
             if (ignoreCase ? value.equalsIgnoreCase(StringUtil.nullValue(prop)) : value.equals(prop)) {
                 return i;
             }
+            i++;
         }
         return -1;
     }
@@ -491,7 +512,7 @@ public final class ObjectUtil {
      * @return T
      * 默认排序方向为 asc
      */
-    public static <T> Collection<T> sort(Collection<T> collectoin, String orderField) {
+    public static <T, C extends Collection<T>> C sort(C collectoin, String orderField) {
         return sort(collectoin, orderField, "asc");
     }
 
@@ -504,10 +525,10 @@ public final class ObjectUtil {
      * @param order      排序方向 只能是 asc 与 desc
      * @return T
      */
-    public static <T> Collection<T> sort(Collection<T> collectoin, String orderBy, String order) {
+    public static <T, C extends Collection<T>> C sort(C collectoin, String orderBy, String order) {
         List<T> list = new ArrayList<>();
         if ((collectoin == null) || (collectoin.isEmpty())) {
-            return list;
+            return packageResult(list.stream(), collectoin.getClass());
         }
         String key = collectoin.iterator().next().getClass().toString().concat("|").concat(orderBy);
         if (!COMPARATOR_MAP.containsKey(key)) {
@@ -519,7 +540,7 @@ public final class ObjectUtil {
         if ("desc".equalsIgnoreCase(order)) {
             Collections.reverse(list);
         }
-        return list;
+        return packageResult(list.stream(), collectoin.getClass());
     }
 
     public static <T> List<T> sort(List<T> collectoin, String orderBy, String order) {
@@ -631,23 +652,23 @@ public final class ObjectUtil {
         return all.toArray((T[]) Array.newInstance(sources.getClass().getComponentType(), all.size()));
     }
 
-    public static <R, T> List<R> map(List<T> sources, Function<? super T, ? extends R> mapper) {
-        return sources.stream().map(mapper).collect(Collectors.toList());
+    public static <T, R, C extends Collection<T>, CR extends Collection<R>> CR map(C sources, Function<? super T, ? extends R> mapper) {
+        return packageResult(sources.stream().map(mapper), sources.getClass());
     }
 
     public static <R, T> R[] map(T[] sources, Function<? super T, ? extends R> mapper, Class<R> returnClass) {
         return Arrays.stream(sources).map(mapper).toArray(length -> (R[]) Array.newInstance(returnClass, length));
     }
 
-    public static <T> List<T> filter(List<T> sources, Predicate<T> selector) {
-        return sources.stream().filter(selector).collect(Collectors.toList());
+    public static <T, C extends Collection<T>> C filter(C sources, Predicate<T> selector) {
+        return packageResult(sources.stream().filter(selector), sources.getClass());
     }
 
     public static <T> T[] filter(T[] sources, Predicate<T> selector) {
         return Arrays.stream(sources).filter(selector).toArray(length -> (T[]) Array.newInstance(sources.getClass().getComponentType(), length));
     }
 
-    public static <T> void each(List<T> sources, Consumer<T> consumer) {
+    public static <T, C extends Collection<T>> void each(C sources, Consumer<T> consumer) {
         sources.stream().forEach(consumer);
     }
 
@@ -658,11 +679,11 @@ public final class ObjectUtil {
      * @param dest 源集合
      * @param orig 要合并的集合
      */
-    public static <T> void join(List<T> dest, List<T> orig) {
+    public static <T, C extends Collection<T>> void join(C dest, Collection<T> orig) {
         join(dest, orig, "");
     }
 
-    public static <T> void join(List<T> dest, List<T> orig, String property) {
+    public static <T, C extends Collection<T>> void join(C dest, Collection<T> orig, String property) {
         dest.addAll(orig.stream().filter(item -> StringUtil.isBlank(property) ? !exists(dest, item) : !exists(dest, property, BeanUtil.getValue(item, property))).collect(Collectors.toList()));
     }
 
@@ -685,7 +706,7 @@ public final class ObjectUtil {
      * @param object 要判断的对象
      * @return boolean
      */
-    public static <T> Boolean exists(List<T> list, T object) {
+    public static <T, C extends Collection<T>> Boolean exists(C list, T object) {
         for (Object t : list) {
             if ((t.getClass().isEnum() && t.toString().equals(object)) || t.equals(object)) {
                 return true;
@@ -751,11 +772,12 @@ public final class ObjectUtil {
      * @param list 集合
      * @return T
      */
-    public static <T> T first(List<T> list) {
-        if (list == null || list.isEmpty()) {
+    public static <T, C extends Collection<T>>  T first(C list) {
+        List<T> array = packageResult(list.stream(), List.class);
+        if (array == null || array.isEmpty()) {
             return null;
         }
-        return list.get(0);
+        return array.get(0);
     }
 
     /**
@@ -779,7 +801,8 @@ public final class ObjectUtil {
      * @param list 集合
      * @return T
      */
-    public static <T> T last(List<T> list) {
+    public static <T, C extends Collection<T>>  T last(C collection) {
+        List<T> list = packageResult(collection.stream(), List.class);
         if (list == null || list.isEmpty()) {
             return null;
         }

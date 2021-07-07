@@ -8,6 +8,9 @@ import org.jfantasy.framework.util.json.bean.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.Assert;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class OgnlUtilTest {
 
     private static final Log LOG = LogFactory.getLog(OgnlUtilTest.class);
@@ -72,6 +75,15 @@ public class OgnlUtilTest {
         OgnlUtil.getInstance().setValue("array[1].number", ognlTest, "200");
         OgnlUtil.getInstance().setValue("array[1].name", ognlTest, "test1");
         LOG.debug(ognlTest);
+    }
+
+    @Test
+    public void getListItem() throws Exception {
+        List<OgnlBean> list = new ArrayList<>();
+        list.add(OgnlBean.builder().name("limaofeng").build());
+        list.add(OgnlBean.builder().name("huangli").build());
+        OgnlBean bean = OgnlUtil.getInstance().getValue("[0]", list);
+        LOG.debug(bean.getName());
     }
 
 }
