@@ -1,5 +1,6 @@
 package org.jfantasy.framework.util.common;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.util.common.dto.TreeNode;
@@ -13,6 +14,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
+@Slf4j
 public class ObjectUtilTest {
 
     @Test
@@ -160,26 +162,14 @@ public class ObjectUtilTest {
 
         ObjectUtil.sort(list, "x.x.x1", "");
 
-    }
+        List<ObjectTestBean> beans = new ArrayList<>();
+        beans.add(new ObjectTestBean("limaofeng", Boolean.TRUE, 32));
+        beans.add(new ObjectTestBean("wangmingliang", Boolean.TRUE, 27));
+        beans.add(new ObjectTestBean("duanxiangbing", Boolean.FALSE, 25));
 
-    @Test
-    public void sort1() throws Exception {
+        beans = ObjectUtil.sort(beans, (l, r) -> r.age - l.age);
 
-    }
-
-    @Test
-    public void sort2() throws Exception {
-
-    }
-
-    @Test
-    public void sort3() throws Exception {
-
-    }
-
-    @Test
-    public void sort4() throws Exception {
-
+        log.debug(beans.toString());
     }
 
     @Test

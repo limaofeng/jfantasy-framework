@@ -539,6 +539,17 @@ public final class ObjectUtil {
         return packageResult(list.stream(), collectoin.getClass());
     }
 
+    public static <T, C extends Collection<T>> C sort(C collectoin, Comparator<T> comparator) {
+        List<T> list = new ArrayList<>();
+        if ((collectoin == null) || (collectoin.isEmpty())) {
+            return packageResult(list.stream(), collectoin.getClass());
+        }
+        list.addAll(collectoin);
+        Collections.sort(list, comparator);
+        return packageResult(list.stream(), collectoin.getClass());
+    }
+
+
     public static <T> List<T> sort(List<T> collectoin, String[] customSort, String idFieldName) {
         Collections.sort(collectoin instanceof PersistentBag ? new ArrayList<>(collectoin) : collectoin, new CustomSortOrderComparator(customSort, idFieldName));
         return collectoin;
