@@ -2,6 +2,7 @@ package org.jfantasy.framework.security.oauth2;
 
 import com.nimbusds.jose.JOSEException;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.jackson.JSON;
 import org.jfantasy.framework.security.LoginUser;
 import org.jfantasy.framework.security.oauth2.core.*;
@@ -24,6 +25,7 @@ import java.util.Set;
  *
  * @author limaofeng
  */
+@Slf4j
 public class DefaultTokenServices implements AuthorizationServerTokenServices, ResourceServerTokenServices, ConsumerTokenServices {
 
     private TokenStore tokenStore;
@@ -108,39 +110,45 @@ public class DefaultTokenServices implements AuthorizationServerTokenServices, R
     }
 
     @Override
-    @SneakyThrows
     public BearerTokenAuthentication loadAuthentication(String accessToken) {
         OAuth2AccessToken token = this.readAccessToken(accessToken);
+        if (token == null) {
+            return null;
+        }
         return this.tokenStore.readAuthentication(token.getTokenValue());
     }
 
     @Override
-    @SneakyThrows
     public OAuth2AccessToken readAccessToken(String accessToken) {
-        // 解析内容
-        JwtTokenPayload payload = JwtUtils.payload(accessToken);
+        try {
+            // 解析内容
+            JwtTokenPayload payload = JwtUtils.payload(accessToken);
 
-        // 获取客户端配置
-        ClientDetails clientDetails = clientDetailsService.loadClientByClientId(payload.getClientId());
-        Set<String> secrets = clientDetails.getClientSecrets();
-        int expires = clientDetails.getTokenExpires();
+            // 获取客户端配置
+            ClientDetails clientDetails = clientDetailsService.loadClientByClientId(payload.getClientId());
+            Set<String> secrets = clientDetails.getClientSecrets();
+            int expires = clientDetails.getTokenExpires();
 
-        // 验证 Token
-        verifyToken(accessToken, secrets);
+            // 验证 Token
+            verifyToken(accessToken, secrets);
 
-        // 获取令牌
-        OAuth2AccessToken oAuth2AccessToken = this.tokenStore.readAccessToken(accessToken);
+            // 获取令牌
+            OAuth2AccessToken oAuth2AccessToken = this.tokenStore.readAccessToken(accessToken);
 
-        if (oAuth2AccessToken == null) {
-            throw new InvalidTokenException("无效的 Token");
+            if (oAuth2AccessToken == null) {
+                throw new InvalidTokenException("无效的 Token");
+            }
+
+            // 如果续期方式为 Session 执行续期操作
+            if (payload.getTokenType() == TokenType.SESSION) {
+                this.refreshAccessToken(oAuth2AccessToken, expires);
+            }
+
+            return oAuth2AccessToken;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return null;
         }
-
-        // 如果续期方式为 Session 执行续期操作
-        if (payload.getTokenType() == TokenType.SESSION) {
-            this.refreshAccessToken(oAuth2AccessToken, expires);
-        }
-
-        return oAuth2AccessToken;
     }
 
     private void verifyToken(String accessToken, Set<String> secrets) throws Exception {
