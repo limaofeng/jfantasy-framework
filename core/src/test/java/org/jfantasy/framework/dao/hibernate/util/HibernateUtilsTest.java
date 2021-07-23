@@ -20,6 +20,16 @@ class HibernateUtilsTest {
     }
 
     @Test
+    void getIdName() {
+        String name = HibernateUtils.getIdName(Sequence.class);
+        log.debug(name);
+    }
+
+    @Test
     void getIdValue() {
+        Sequence sequence = new Sequence();
+        sequence.setKey("1123");
+        String value = HibernateUtils.getIdValue(Sequence.class, sequence);
+        log.debug(value);
     }
 }

@@ -2,6 +2,7 @@ package org.jfantasy.framework.dao.hibernate.util;
 
 import org.jfantasy.framework.error.ValidationException;
 import org.jfantasy.framework.util.common.ClassUtil;
+import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.framework.util.ognl.OgnlUtil;
 
@@ -36,6 +37,25 @@ public class HibernateUtils {
             return (ID) id;
         } else {
             return (ID) ClassUtil.getValue(entity, idFields[0].getName());
+        }
+    }
+
+    public static <T> String getIdName(Class<T> entityClass) {
+        Class clazz = ClassUtil.getRealClass(entityClass);
+        Field[] idFields = ClassUtil.getDeclaredFields(clazz, Id.class);
+        if (idFields.length == 0) {
+            throw new ValidationException("未发现主键配置:" + clazz.getName());
+        }
+        if (idFields.length > 1) {
+            IdClass idClass = ClassUtil.getClassGenricType(entityClass, IdClass.class);
+            Serializable id = ClassUtil.newInstance((Class<Serializable>) idClass.value());
+            String idNames = "";
+            for (Field idField : idFields) {
+                idNames += idField.getName();
+            }
+            return idNames;
+        } else {
+            return idFields[0].getName();
         }
     }
 
