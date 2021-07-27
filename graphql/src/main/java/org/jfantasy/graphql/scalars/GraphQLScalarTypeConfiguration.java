@@ -1,8 +1,3 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by Fernflower decompiler)
-//
-
 package org.jfantasy.graphql.scalars;
 
 import graphql.language.IntValue;
@@ -21,9 +16,10 @@ import java.util.Date;
 import static org.jfantasy.graphql.util.Kit.typeName;
 
 /**
+ * GraphQL ScalarType Configuration
+ *
  * @author limaofeng
  * @version V1.0
- * @Description: TODO
  * @date 2019/8/23 6:06 下午
  */
 @Slf4j
@@ -46,25 +42,19 @@ public class GraphQLScalarTypeConfiguration {
             public Object serialize(Object input) throws CoercingSerializeException {
                 if (input instanceof Date) {
                     return ((Date) input).getTime();
-                } else {
-                    return input;
                 }
+                return input;
             }
 
             @Override
             public Date parseValue(Object input) throws CoercingParseValueException {
-                Date date = null;
                 if (input instanceof Date) {
-                    date = (Date) input;
-                } else {
-                    if (!(input instanceof String)) {
-                        throw new CoercingParseValueException("Expected a 'String' or 'java.time.temporal.TemporalAccessor' but was '" + Kit.typeName(input) + "'.");
-                    }
-
-                    ReflectionUtils.convert(input, Date.class);
+                    return (Date) input;
                 }
-
-                return date;
+                if (!(input instanceof String)) {
+                    throw new CoercingParseValueException("Expected a 'String' or 'java.time.temporal.TemporalAccessor' but was '" + Kit.typeName(input) + "'.");
+                }
+                return ReflectionUtils.convert(input, Date.class);
             }
 
             @Override
@@ -82,8 +72,8 @@ public class GraphQLScalarTypeConfiguration {
 
 
     @Bean
-    public GraphQLScalarType dateBetweenScalar(){
-        return GraphQLScalarType.newScalar().name("DateBetween").description("时间区间参数").coercing(new Coercing<DateBetween, String>(){
+    public GraphQLScalarType dateBetweenScalar() {
+        return GraphQLScalarType.newScalar().name("DateBetween").description("时间区间参数").coercing(new Coercing<DateBetween, String>() {
             @Override
             public String serialize(Object input) throws CoercingSerializeException {
                 return input.toString();
@@ -95,14 +85,14 @@ public class GraphQLScalarTypeConfiguration {
                     return null;
                 }
                 String[] inputs = input.toString().split(",");
-                return DateBetween.newDateBetween(DateUtil.parseFormat(inputs[0]),DateUtil.parseFormat(inputs[1]));
+                return DateBetween.newDateBetween(DateUtil.parseFormat(inputs[0]), DateUtil.parseFormat(inputs[1]));
             }
 
             @Override
             public DateBetween parseLiteral(Object input) throws CoercingParseLiteralException {
                 if (!(input instanceof StringValue)) {
                     throw new CoercingParseLiteralException(
-                            "Expected AST type 'StringValue' but was '" + typeName(input) + "'."
+                        "Expected AST type 'StringValue' but was '" + typeName(input) + "'."
                     );
                 }
                 return this.parseValue(((StringValue) input).getValue());

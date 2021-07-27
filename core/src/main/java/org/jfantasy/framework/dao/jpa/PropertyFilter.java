@@ -8,7 +8,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.Assert;
 
 import java.lang.reflect.Array;
-import java.util.Collection;
 
 import static org.jfantasy.framework.util.common.ObjectUtil.multipleValuesObjectsObjects;
 

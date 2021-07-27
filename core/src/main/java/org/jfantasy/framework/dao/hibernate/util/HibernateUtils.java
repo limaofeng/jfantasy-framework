@@ -2,7 +2,6 @@ package org.jfantasy.framework.dao.hibernate.util;
 
 import org.jfantasy.framework.error.ValidationException;
 import org.jfantasy.framework.util.common.ClassUtil;
-import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.framework.util.ognl.OgnlUtil;
 

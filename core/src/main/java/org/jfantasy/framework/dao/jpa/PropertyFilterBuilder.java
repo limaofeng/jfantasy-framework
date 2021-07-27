@@ -183,7 +183,7 @@ public class PropertyFilterBuilder {
     }
 
     public PropertyFilterBuilder and(PropertyFilterBuilder... builders) {
-        this.filters.add(new PropertyFilter(MatchType.AND, Arrays.stream(builders).map(item -> item.build()).collect(Collectors.toList())));
+        this.filters.add(new PropertyFilter(MatchType.AND, Arrays.stream(builders).map(PropertyFilterBuilder::build).collect(Collectors.toList())));
         return this;
     }
 
@@ -193,7 +193,7 @@ public class PropertyFilterBuilder {
     }
 
     public PropertyFilterBuilder and(Specification... specifications) {
-        this.filters.add(new PropertyFilter(MatchType.AND, specifications));
+        this.filters.add(new PropertyFilter(MatchType.AND, Arrays.asList(specifications)));
         return this;
     }
 
@@ -203,7 +203,7 @@ public class PropertyFilterBuilder {
     }
 
     public PropertyFilterBuilder or(PropertyFilterBuilder... builders) {
-        this.filters.add(new PropertyFilter(MatchType.OR, Arrays.stream(builders).map(item -> item.build()).collect(Collectors.toList())));
+        this.filters.add(new PropertyFilter(MatchType.OR, Arrays.stream(builders).map(PropertyFilterBuilder::build).collect(Collectors.toList())));
         return this;
     }
 
@@ -218,7 +218,7 @@ public class PropertyFilterBuilder {
     }
 
     public PropertyFilterBuilder not(PropertyFilterBuilder... builders) {
-        this.filters.add(new PropertyFilter(MatchType.NOT, Arrays.stream(builders).map(item -> item.build()).collect(Collectors.toList())));
+        this.filters.add(new PropertyFilter(MatchType.NOT, Arrays.stream(builders).map(PropertyFilterBuilder::build).collect(Collectors.toList())));
         return this;
     }
 
