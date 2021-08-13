@@ -18,6 +18,8 @@ model {
 }
 tasks.publish.enabled = false
 
+tasks.withType(Test) { enabled = false }
+
 dependencyManagement {
     dependencies {
         dependency("com.mashape.unirest:unirest-java:${LIB_UNIREST_VER}") {

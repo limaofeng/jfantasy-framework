@@ -5,6 +5,7 @@ configurations {
 }
 
 apply plugin: 'java-library'
+apply plugin: 'jacoco'
 
 dependencies {
     compileOnly project(":jfantasy-core")

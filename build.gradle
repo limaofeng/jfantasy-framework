@@ -6,7 +6,10 @@ buildscript {
 }
 
 plugins {
+    id 'java'
+    id 'jacoco'
     id "io.spring.dependency-management" version "1.0.8.RELEASE"
+    id 'com.github.kt3k.coveralls' version '2.12.0'
 }
 
 apply from: "$rootDir/gradle/dependencies.gradle"
@@ -16,7 +19,7 @@ allprojects {
     apply plugin: 'idea'
 
     group = 'org.jfantasy'
-    version = System.getenv()['RELEASE_VERSION'].replaceAll(/^v/, "")
+    version = System.getenv().getOrDefault('RELEASE_VERSION', 'v0.0.0').replaceAll(/^v/, "")
     status = 'integration'
 
     repositories {
@@ -87,8 +90,6 @@ allprojects {
 }
 
 subprojects {
-    apply plugin: "jacoco"
-
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
 
@@ -106,23 +107,10 @@ subprojects {
         }
     }
 
-    jacocoTestReport {
-        reports {
-            xml.enabled true
-            html.enabled false
-            xml.destination file("${buildDir}/reports/Coverage.xml")
-        }
-    }
-
-    test {
+    tasks.withType(Test).configureEach {
         useJUnitPlatform()
 
         ignoreFailures = true
-
-        jacoco {
-            destinationFile = file("$buildDir/jacoco/jacocoTest.exec")
-            classDumpDir = file("$buildDir/jacoco/classpathdumps")
-        }
     }
 
     configurations {
@@ -148,4 +136,29 @@ subprojects {
         }
     }
 
+}
+
+tasks.register("codeCoverageReport", JacocoReport) {
+    subprojects { subproject ->
+        subproject.plugins.withType(JacocoPlugin).configureEach {
+            subproject.tasks.matching({ t -> t.extensions.findByType(JacocoTaskExtension) }).configureEach { testTask ->
+                sourceSets subproject.sourceSets.main
+                executionData(testTask)
+            }
+            subproject.tasks.matching({ t -> t.extensions.findByType(JacocoTaskExtension) }).forEach {
+                rootProject.tasks.codeCoverageReport.dependsOn(it)
+            }
+        }
+    }
+
+    reports {
+        xml.enabled true
+        html.enabled false
+        xml.destination file("${buildDir}/reports/Coverage.xml")
+    }
+}
+
+coveralls {
+    sourceDirs = subprojects.sourceSets.main.allSource.srcDirs.flatten()
+    jacocoReportPath 'build/reports/Coverage.xml'
 }
