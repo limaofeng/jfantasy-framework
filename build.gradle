@@ -16,7 +16,7 @@ allprojects {
     apply plugin: 'idea'
 
     group = 'org.jfantasy'
-    version = (System.getenv()['CI_BUILD_TAG'] ? System.getenv()['CI_BUILD_TAG'] : "").replaceAll(/^v/, "")
+    version = System.getenv()['RELEASE_VERSION'].replaceAll(/^v/, "")
     status = 'integration'
 
     repositories {
