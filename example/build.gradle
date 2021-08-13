@@ -15,7 +15,11 @@ model {
     tasks.generatePomFileForMavenPublication {
         enabled = false
     }
+    tasks.publishMavenPublicationToGitHubPackagesRepository {
+        enabled = false
+    }
 }
+
 tasks.publish.enabled = false
 
 tasks.withType(Test) { enabled = false }
