@@ -19,7 +19,7 @@ allprojects {
     apply plugin: 'idea'
 
     group = 'org.jfantasy'
-    version = System.getenv().getOrDefault('RELEASE_VERSION', 'v0.0.0').replaceAll(/^v/, "")
+    version = 'v2.7.2'
     status = 'integration'
 
     repositories {
