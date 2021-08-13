@@ -1,6 +1,5 @@
 buildscript {
     repositories {
-        maven { url "https://maven.thuni-h.com/repository/maven-public" }
         mavenCentral()
         mavenLocal()
     }
@@ -21,7 +20,6 @@ allprojects {
     status = 'integration'
 
     repositories {
-        maven { url "https://maven.thuni-h.com/repository/maven-public" }
         maven { url "https://jcenter.bintray.com" }
     }
 
@@ -43,14 +41,15 @@ allprojects {
     publishing {
         repositories {
             maven {
+                name = "GitHubPackages"
+                url = uri("https://maven.pkg.github.com/limaofeng/jfantasy-framework")
                 credentials {
-                    username System.getenv()['MAVEN_USER']
-                    password System.getenv()['MAVEN_PASS']
+                    username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+                    password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
                 }
-                url "https://maven.thuni-h.com/repository/" + System.getenv()['MAVEN_REPO_KEY']
             }
         }
-    
+
         publications {
             maven(MavenPublication) {
                 groupId project.group

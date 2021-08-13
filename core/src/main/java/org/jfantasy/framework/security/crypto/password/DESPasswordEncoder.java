@@ -12,7 +12,7 @@ import org.jfantasy.framework.crypto.DESPlus;
  */
 public class DESPasswordEncoder implements PasswordEncoder {
 
-    private static DESPlus desPlus = new DESPlus("www.thuni-h.com");
+    private static DESPlus desPlus = new DESPlus("jfantasy.asany.cn");
 
     @Override
     @SneakyThrows

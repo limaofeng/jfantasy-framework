@@ -37,7 +37,7 @@ import java.util.List;
 public class GraphQLAutoConfiguration {
 
     @Bean
-    static GraphQLClientBeanPostProcessor grpcClientBeanPostProcessor(final ApplicationContext applicationContext, final ResourceLoader resourceLoader) {
+    static GraphQLClientBeanPostProcessor clientBeanPostProcessor(final ApplicationContext applicationContext, final ResourceLoader resourceLoader) {
         return new GraphQLClientBeanPostProcessor(applicationContext, resourceLoader);
     }
 

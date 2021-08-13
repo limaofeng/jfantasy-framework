@@ -3,7 +3,7 @@ spring:
     name: server
   datasource:
     name: datasource
-    url: jdbc:mysql://api.thuni-h.com:30306/demo?autoReconnect=true&useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull
+    url: jdbc:mysql://dc3.docker.asany.cn:30306/demo?autoReconnect=true&useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull
     username: admin
     password: CU:4icgD4MF6Q!u^
     druid:
@@ -13,28 +13,16 @@ spring:
       minIdle: 1
   redis:
     database: 0
-    host: api.thuni-h.com
+    host: dc3.docker.asany.cn
     port: 30379
     password: Y0HfNA{PdjSINZyy
-grpc:
-  server:
-    port: 6565
-    address: 0.0.0.0
-  client:
-    GLOBAL:
-      address: static://localhost:6565
-      enableKeepAlive: true
-      keepAliveWithoutCalls: true
-      negotiationType: plaintext
 
-storage:
-  url: http://demo.homeword.cn/files
-oa:
-  host: http://192.168.3.145:7002
-  file:
-    url: http://192.168.3.145:7002/defaultroot/UploadServlet
-  link: http://192.168.3.145:7002
-
+graphql:
+  servlet:
+    mapping: /graphql
+    enabled: true
+    websocket:
+      enabled: true
 
 es:
   clustername:

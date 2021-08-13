@@ -44,8 +44,6 @@ public class HtmlCleanerUtilTest {
 
     @Test
     public void testGetAsString() throws Exception {
-
-        // http://whir.f3322.net:7008/defaultroot/action="Logon!logon.action"
         Request request = new Request();
         request.addRequestHeader("Cookie","JSESSIONID=698C806A296F510824E5C26218BAC733; OASESSIONID=3EE2AC922CBF05273D24EE57F68CF565; LocLan=zh_CN; ezofficeDomainAccount=whir; ezofficeUserPortal=; ezofficePortal3=1; ezofficePortal59=1; ezofficePortal47=1; empLivingPhoto=; ezofficeUserName=sys; JSESSIONID=3EE2AC922CBF05273D24EE57F68CF565; OASESSIONID=3EE2AC922CBF05273D24EE57F68CF565");
         Response response = HttpClientUtil.doGet("http://whir.f3322.net:7008/defaultroot/Information!view.action?informationId=375&informationType=1&userChannelName=信息管理&channelId=316&userDefine=0&channelType=0&gdType=infomation&checkdepart=&index=0&recordCount=42", request);

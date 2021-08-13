@@ -72,7 +72,7 @@ graphql:
     introspection-enabled: true
   client:
     GLOBAL:
-      address: http://dj.dev.thuni-h.com/graphql
+      address: http://api.asany.cn/graphql
 
 logging:
   path: ~/logs
