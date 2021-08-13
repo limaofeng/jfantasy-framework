@@ -26,9 +26,7 @@ jobs:
         run: ./gradlew clean build -x test
 
       - name: Coverage
-        run: ./gradlew codeCoverageReport 
+        run: ./gradlew codeCoverageReport
 
       - name: Coveralls
         uses: ./gradlew coveralls
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
