@@ -1,4 +1,4 @@
-name: Java CI with Gradle
+name: Java CI
 
 on:
   push:
@@ -22,13 +22,13 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build with Gradle
+      - name: Build
         run: ./gradlew clean build -x test
 
-      - name: Test Coverage
-        run: ./gradlew codeCoverageReport coveralls
+      - name: Coverage
+        run: ./gradlew codeCoverageReport 
 
       - name: Coveralls
-        uses: coverallsapp/github-action@master
+        uses: ./gradlew coveralls
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
