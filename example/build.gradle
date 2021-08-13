@@ -15,9 +15,6 @@ model {
     tasks.generatePomFileForMavenPublication {
         enabled = false
     }
-    tasks.publishMavenPublicationToMavenRepository {
-        enabled = false
-    }
 }
 tasks.publish.enabled = false
 
