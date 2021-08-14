@@ -6,7 +6,7 @@ import org.springframework.aop.ClassFilter;
 /**
  * @author limaofeng
  * @version V1.0
- * @Description: TODO
+ * 
  * @date 2020/3/22 8:17 下午
  */
 public class GraphQLClassFilter implements ClassFilter {

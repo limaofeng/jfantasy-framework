@@ -16,7 +16,7 @@ import org.hibernate.type.Type;
  *
  * @author 李茂峰
  * @version 1.0
- * @功能描述 默认的hibernate拦截器只能配置一个
+ *  默认的hibernate拦截器只能配置一个
  * @since 2013-9-12 下午5:01:53
  */
 public class MultiEntityInterceptor implements Interceptor {

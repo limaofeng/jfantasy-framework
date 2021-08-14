@@ -12,7 +12,7 @@ import org.apache.lucene.document.Document;
  *
  * @author 李茂峰
  * @version 1.0
- * @功能描述
+ * 
  * @since 2013-1-27 上午09:46:11
  */
 public class IndexCreator {

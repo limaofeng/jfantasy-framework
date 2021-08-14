@@ -18,7 +18,7 @@ import java.util.Date;
 /**
  * @author limaofeng
  * @version V1.0
- * @Description: TODO
+ * 
  * @date 2019-04-14 12:40
  */
 public class DateFormatDirective implements SchemaDirectiveWiring {

@@ -11,7 +11,7 @@ import org.apache.ibatis.session.SqlSession;
  *
  * @author 李茂峰
  * @version 1.0
- * @功能描述
+ * 
  * @since 2012-10-28 下午08:30:16
  */
 public class MyBatisMapperRegistry extends MapperRegistry {

@@ -20,7 +20,7 @@ import java.util.Set;
  *
  * @author 李茂峰
  * @version 1.0
- * @功能描述
+ * 
  * @since 2012-10-28 下午08:33:14
  */
 public class MyBatisMapperProxy implements InvocationHandler {

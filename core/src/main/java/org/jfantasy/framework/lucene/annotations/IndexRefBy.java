@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
  *
  * @author 李茂峰
  * @version 1.0
- * @功能描述
+ * 
  * @since 2013-1-23 下午03:07:36
  */
 @Target({java.lang.annotation.ElementType.FIELD})
@@ -19,7 +19,7 @@ public @interface IndexRefBy {
      * value——Class类型，表示被引用的类
      *
      * @return
-     * @功能描述
+     * 
      */
     public abstract Class<?>[] value();
 
@@ -27,7 +27,7 @@ public @interface IndexRefBy {
      * analyze——boolean型，表示是否需要分词
      *
      * @return
-     * @功能描述
+     * 
      */
     public abstract boolean[] analyze() default false;
 
@@ -35,7 +35,7 @@ public @interface IndexRefBy {
      * store——boolean型，表示是否需要存储
      *
      * @return
-     * @功能描述
+     * 
      */
     public abstract boolean[] store() default true;
 
@@ -43,7 +43,7 @@ public @interface IndexRefBy {
      * boost——float型，表示该Field的权重
      *
      * @return
-     * @功能描述
+     * 
      */
     public abstract float[] boost() default 1.0f;
 }

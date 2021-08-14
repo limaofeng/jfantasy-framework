@@ -9,14 +9,14 @@
 ```xml
 <repository>
     <id>github</id>
-    <name>jfantasy snapshot</name>
+    <name>jfantasy-framework snapshot</name>
     <url>https://maven.pkg.github.com/limaofeng/jfantasy-framework</url>
 </repository>
 
 <dependency>
-  <groupId>org.jfantasy</groupId>
+  <groupId>cn.asany.chaos</groupId>
   <artifactId>jfantasy-core</artifactId>
-  <version>0.8.3</version>
+  <version>0.8.4</version>
 </dependency>
 ```
 

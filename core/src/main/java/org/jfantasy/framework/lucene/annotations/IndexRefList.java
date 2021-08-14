@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 /**
  * 表示需要嵌入对该RefList对象的索引。结合@IndexRefBy使用。索引域的名称形如“father.name”。
  * 
- * @功能描述
+ * 
  * @author 李茂峰
  * @since 2013-1-23 下午03:07:20
  * @version 1.0

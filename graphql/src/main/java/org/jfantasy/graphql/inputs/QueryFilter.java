@@ -23,7 +23,7 @@ import static org.jfantasy.framework.util.common.ObjectUtil.multipleValuesObject
  *
  * @author limaofeng
  * @version V1.0
- * @Description: TODO
+ * 
  * @date 2020/4/14 10:07 上午
  */
 public abstract class QueryFilter<F extends QueryFilter, T> {

@@ -7,7 +7,7 @@ import org.jfantasy.framework.crypto.DESPlus;
 /**
  * @author limaofeng
  * @version V1.0
- * @Description: TODO
+ * 
  * @date 2019-03-28 17:18
  */
 public class DESPasswordEncoder implements PasswordEncoder {

@@ -14,7 +14,7 @@ import java.util.Map;
  *
  * @author 李茂峰
  * @version 1.0
- * @功能描述 当使用@DataSource区分数据库时，用于匹配不同的数据源
+ *  当使用@DataSource区分数据库时，用于匹配不同的数据源
  * @since 2012-10-28 下午08:16:54
  */
 public class MultiDialect implements Dialect, InitializingBean {

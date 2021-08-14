@@ -10,7 +10,7 @@ import java.util.regex.Matcher;
  *
  * @author 李茂峰
  * @version 1.0
- * @功能描述
+ * 
  * @since 2013-1-14 下午02:12:27
  */
 public class OraSQLDialect implements Dialect {

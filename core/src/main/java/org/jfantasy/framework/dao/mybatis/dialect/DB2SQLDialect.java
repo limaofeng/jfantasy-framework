@@ -8,7 +8,7 @@ import org.jfantasy.framework.util.regexp.RegexpUtil;
  *
  * @author 李茂峰
  * @version 1.0
- * @功能描述
+ * 
  * @since 2013-1-14 下午02:11:23
  */
 public class DB2SQLDialect implements Dialect {

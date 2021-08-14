@@ -132,7 +132,7 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E> implements Blocking
     /**
      * 同时获取输入及输出锁
      *
-     * @功能描述
+     * 
      */
     public void fullyLock() {
         this.putLock.lock();

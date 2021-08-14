@@ -15,7 +15,7 @@ import java.net.URLConnection;
  *
  * @author 李茂峰
  * @version 1.0
- * @功能描述
+ * 
  * @since 2012-11-30 下午05:12:44
  */
 public class DynamicClassLoader extends ClassLoader {

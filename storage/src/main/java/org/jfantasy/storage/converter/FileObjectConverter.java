@@ -9,7 +9,7 @@ import javax.persistence.AttributeConverter;
 /**
  * @author limaofeng
  * @version V1.0
- * @Description: TODO
+ * 
  * @date 2019-04-09 18:17
  */
 public class FileObjectConverter implements AttributeConverter<FileObject, String> {

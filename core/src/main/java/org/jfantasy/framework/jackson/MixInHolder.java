@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * @author limaofeng
  * @version V1.0
- * @Description: TODO
+ * 
  * @date 07/11/2017 8:38 PM
  */
 public class MixInHolder {

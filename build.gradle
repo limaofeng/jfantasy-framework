@@ -99,6 +99,7 @@ allprojects {
             }
         }
     }
+
 }
 
 subprojects {
@@ -128,6 +129,11 @@ subprojects {
     configurations {
         published
     }
+
+    // task javadocJar(type: Jar) {
+    //     classifier = 'javadoc'
+    //     from javadoc
+    // }
 
     task sourceJar(type: Jar) {
         from sourceSets.main.allSource

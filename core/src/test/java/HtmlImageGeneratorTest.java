@@ -7,7 +7,7 @@
 //public class HtmlImageGeneratorTest {
 //
 //	/**
-//	 * @功能描述 
+//	 *  
 //	 * @param args
 //	 */
 //	public static void main(String[] args) {

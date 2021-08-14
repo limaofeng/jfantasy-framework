@@ -292,7 +292,7 @@ public final class ObjectUtil {
      * 返回 集合中 @{fieldName} 值最小的对象
      *
      * @param <T>       泛型
-     * @param c         集合
+     * @param <C> c     集合
      * @param fieldName 支持ognl表达式
      * @return T
      */

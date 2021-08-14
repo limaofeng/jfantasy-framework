@@ -18,7 +18,7 @@ public @interface Log {
      * 简要描述信息
      *
      * @return
-     * @功能描述
+     * 
      */
     public abstract String text() default "";
 
@@ -26,7 +26,7 @@ public @interface Log {
      * 判断是否记录日志
      *
      * @return
-     * @功能描述
+     * 
      */
     public abstract String condition() default "";
 
@@ -34,7 +34,7 @@ public @interface Log {
      * 日志连接器类型
      *
      * @return
-     * @功能描述
+     * 
      */
     public abstract String type() default "simple";
 
@@ -42,7 +42,7 @@ public @interface Log {
      * 日志拦截器
      *
      * @return
-     * @功能描述
+     * 
      */
     public abstract Class<?> using() default DefaultLogFilter.class;
 }

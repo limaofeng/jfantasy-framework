@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
  *
  * @author 李茂峰
  * @version 1.0
- * @功能描述
+ * 
  * @since 2013-1-23 下午03:22:48
  */
 @Target({java.lang.annotation.ElementType.TYPE})
@@ -20,7 +20,7 @@ public @interface Entity {
      * String型，表示其在MongoDB中的collection的名称。name属性可以省略，默认使用类名的全小写。
      *
      * @return
-     * @功能描述
+     * 
      */
     public String name();
 
@@ -28,7 +28,7 @@ public @interface Entity {
      * boolean型，表示该Entity类对应的是Capped Collection，缺省值为false。
      *
      * @return
-     * @功能描述
+     * 
      */
     public boolean capped();
 
@@ -36,7 +36,7 @@ public @interface Entity {
      * long型，设置Capped Collection的空间大小，以字节为单位，默认值为-1，表示未设置。
      *
      * @return
-     * @功能描述
+     * 
      */
     public long capSize();
 
@@ -44,7 +44,7 @@ public @interface Entity {
      * long型，设置Capped Collection的最多能存储多少个document，默认值为-1，表示未设置。
      *
      * @return
-     * @功能描述
+     * 
      */
     public long capMax();
 }

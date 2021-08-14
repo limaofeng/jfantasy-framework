@@ -18,7 +18,7 @@ import java.sql.SQLException;
  * @param <E>
  * @author 李茂峰
  * @version 1.0
- * @功能描述
+ * 
  * @since 2012-10-29 下午09:04:53
  */
 @SuppressWarnings({"unchecked", "rawtypes"})

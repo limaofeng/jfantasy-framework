@@ -12,7 +12,7 @@ import java.util.Arrays;
 /**
  * @author limaofeng
  * @version V1.0
- * @Description: TODO
+ * 
  * @date 2020/3/22 8:16 下午
  */
 public class GraphQLStaticMethodMatcherPointcut extends StaticMethodMatcherPointcut {

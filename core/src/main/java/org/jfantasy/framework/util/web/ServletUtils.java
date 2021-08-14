@@ -41,7 +41,7 @@ public class ServletUtils {
      *
      * @param response
      * @param expiresSeconds
-     * @功能描述
+     * 
      */
     public static void setExpiresHeader(HttpServletResponse response, long expiresSeconds) {
         response.setDateHeader("Expires", System.currentTimeMillis() + expiresSeconds * 1000L);
@@ -52,7 +52,7 @@ public class ServletUtils {
      * 设置 页面不缓存
      *
      * @param response
-     * @功能描述
+     * 
      */
     public static void setNoCacheHeader(HttpServletResponse response) {
         response.setDateHeader("Expires", 0);
@@ -63,7 +63,7 @@ public class ServletUtils {
 
     /**
      * @param response
-     * @功能描述
+     * 
      */
     public static void setNoStoreHeader(HttpServletResponse response) {
         response.setDateHeader("Expires", 0);
@@ -77,7 +77,7 @@ public class ServletUtils {
      *
      * @param response
      * @param lastModifiedDate
-     * @功能描述
+     * 
      */
     public static void setLastModifiedHeader(HttpServletResponse response, long lastModifiedDate) {
         response.setDateHeader("Last-Modified", lastModifiedDate);
@@ -92,7 +92,7 @@ public class ServletUtils {
      * @param response
      * @param lastModified
      * @return
-     * @功能描述
+     * 
      */
     public static boolean checkIfModifiedSince(HttpServletRequest request, HttpServletResponse response, long lastModified) {
         long ifModifiedSince = request.getDateHeader("If-Modified-Since");
@@ -135,7 +135,7 @@ public class ServletUtils {
      *
      * @param response
      * @param fileName
-     * @功能描述
+     * 
      */
     @Deprecated
     public static void setFileDownloadHeader(HttpServletResponse response, String fileName) {

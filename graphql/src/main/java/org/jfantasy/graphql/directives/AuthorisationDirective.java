@@ -8,7 +8,7 @@ import org.jfantasy.framework.util.common.ClassUtil;
 /**
  * @author limaofeng
  * @version V1.0
- * @Description: TODO
+ * 
  * @date 2019-04-13 22:01
  */
 public class AuthorisationDirective implements SchemaDirectiveWiring {

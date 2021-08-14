@@ -16,7 +16,7 @@ import static org.jfantasy.graphql.util.Kit.typeName;
 /**
  * @author limaofeng
  * @version V1.0
- * @Description: TODO
+ * 
  * @date 2019/10/8 1:53 下午
  */
 public class OrderCoercing implements Coercing<OrderBy, String> {
