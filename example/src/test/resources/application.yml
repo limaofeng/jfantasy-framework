@@ -75,7 +75,7 @@ graphql:
       address: http://api.asany.cn/graphql
 
 logging:
-  path: ~/logs
+  path: ./log
   config: classpath:logback.xml
 
 

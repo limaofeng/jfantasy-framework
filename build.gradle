@@ -30,7 +30,7 @@ allprojects {
     apply plugin: 'maven-publish'
     apply plugin: 'idea'
 
-    group = 'org.jfantasy'
+    group = 'cn.asany.chaos'
     version = System.getenv().getOrDefault('RELEASE_VERSION', 'v0.0.0').replaceAll(/^v/, "")
     status = 'integration'
 
@@ -74,13 +74,13 @@ allprojects {
                 from components.java
 
                 pom {
-                    name = 'JFantasy'
+                    name = 'jFantasy-Framework'
                     description = 'SpringBoot + JPA + GraphQL'
-                    url = 'https://www.asany.cn/jfantasy'
+                    url = 'https://chaos.asany.cn/jfantasy-framework'
                     licenses {
                         license {
                             name = 'The MIT License'
-                            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                            url = 'https://github.com/limaofeng/jfantasy-framework/blob/master/LICENSE'
                         }
                     }
                     developers {
@@ -91,9 +91,9 @@ allprojects {
                         }
                     }
                     scm {
-                        connection = 'scm:git:git://git@github.com:limaofeng/jfantasy.git'
-                        developerConnection = 'scm:git:ssh://git@github.com:limaofeng/jfantasy.git'
-                        url = 'https://github.com/limaofeng/jfantasy'
+                        connection = 'scm:git:git://git@github.com:limaofeng/jfantasy-framework.git'
+                        developerConnection = 'scm:git:ssh://git@github.com:limaofeng/jfantasy-framework.git'
+                        url = 'https://github.com/limaofeng/jfantasy-framework'
                     }
                 }
             }
