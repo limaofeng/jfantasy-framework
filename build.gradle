@@ -29,6 +29,7 @@ apply from: "$rootDir/gradle/dependencies.gradle"
 allprojects {
     apply plugin: 'maven-publish'
     apply plugin: 'idea'
+    apply plugin: 'signing'
 
     group = 'cn.asany.chaos'
     version = System.getenv().getOrDefault('RELEASE_VERSION', 'v0.0.0').replaceAll(/^v/, "")
@@ -56,22 +57,27 @@ allprojects {
     publishing {
         repositories {
             maven {
+                url = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+                credentials {
+                    username = System.getenv("MAVEN_USERNAME")
+                    password = System.getenv("MAVEN_PASSWORD")
+                }
+            }
+/*             maven {
                 name = "GitHubPackages"
                 url = uri("https://maven.pkg.github.com/limaofeng/jfantasy-framework")
                 credentials {
                     username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
                     password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
                 }
-            }
+            } */
         }
 
         publications {
-            maven(MavenPublication) {
-                groupId project.group
-                artifactId project.name
-                version project.version
-
+            mavenJava(MavenPublication) {
                 from components.java
+                // artifact sourcesJar
+                // artifact javadocJar
 
                 pom {
                     name = 'jFantasy-Framework'
@@ -97,7 +103,19 @@ allprojects {
                     }
                 }
             }
+
+            maven(MavenPublication) {
+                groupId project.group
+                artifactId project.name
+                version project.version
+
+                from components.java
+            }
         }
+    }
+
+    signing {
+        sign publishing.publications.mavenJava
     }
 
 }
@@ -148,7 +166,7 @@ subprojects {
 
     publishing {
         publications {
-            maven(MavenPublication) {
+            mavenJava(MavenPublication) {
                 artifact sourceJar
             }
         }
