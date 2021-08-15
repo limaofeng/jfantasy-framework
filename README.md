@@ -7,16 +7,10 @@
 ### 快速开始
 
 ```xml
-<repository>
-    <id>github</id>
-    <name>jfantasy-framework snapshot</name>
-    <url>https://maven.pkg.github.com/limaofeng/jfantasy-framework</url>
-</repository>
-
 <dependency>
   <groupId>cn.asany.chaos</groupId>
   <artifactId>jfantasy-core</artifactId>
-  <version>0.8.4</version>
+  <version>0.8.7</version>
 </dependency>
 ```
 
