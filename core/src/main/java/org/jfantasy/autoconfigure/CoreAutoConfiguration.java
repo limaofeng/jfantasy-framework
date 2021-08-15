@@ -19,7 +19,10 @@ import org.springframework.context.annotation.Import;
  * @author limaofeng
  */
 @Configuration
-@AutoConfigureAfter({ DataSourceAutoConfiguration.class, MybatisLanguageDriverAutoConfiguration.class })
+@AutoConfigureAfter({
+  DataSourceAutoConfiguration.class,
+  MybatisLanguageDriverAutoConfiguration.class
+})
 @Import({AppConfig.class, DaoConfig.class})
 public class CoreAutoConfiguration {
 

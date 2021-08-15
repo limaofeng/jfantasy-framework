@@ -16,7 +16,7 @@ githook {
             task = "commitlint -Dmsgfile=\$1"
         }
         "pre-commit" {
-            shell = "./gradlew spotlessApply"
+            shell = "./gradlew spotlessApply && git add -A ."
         }
     }
 }
