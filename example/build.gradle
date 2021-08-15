@@ -11,18 +11,11 @@ jar {
     }
 }
 
-model {
-    tasks.generatePomFileForMavenPublication {
-        enabled = false
-    }
-    tasks.publishMavenPublicationToMavenRepository {
-        enabled = false
-    }
-}
-
 tasks.publish.enabled = false
 
 tasks.withType(Test) { enabled = false }
+
+tasks.withType(PublishToMavenRepository).configureEach { it.enabled = false }
 
 dependencyManagement {
     dependencies {
