@@ -89,7 +89,7 @@ public class FileObjectFormatDirective implements SchemaDirectiveWiring {
      * @param imgURL 图片线上路径
      * @return
      * @author ZHANGJL
-     * @dateTime 2018-02-23 14:43:18
+     * @date 2018-02-23 14:43:18
      */
     public static String ImageToBase64ByOnline(String imgURL) throws IOException {
         ByteArrayOutputStream data = new ByteArrayOutputStream();
