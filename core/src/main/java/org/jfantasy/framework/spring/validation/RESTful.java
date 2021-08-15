@@ -2,19 +2,13 @@ package org.jfantasy.framework.spring.validation;
 
 public interface RESTful {
 
-    interface POST {
-    }
+  interface POST {}
 
-    interface PUT {
-    }
+  interface PUT {}
 
-    interface DELETE {
-    }
+  interface DELETE {}
 
-    interface GET {
-    }
+  interface GET {}
 
-    interface PATCH {
-    }
-
+  interface PATCH {}
 }

@@ -4,6 +4,7 @@ import graphql.execution.ExecutionStrategy;
 import graphql.kickstart.spring.web.boot.GraphQLWebAutoConfiguration;
 import graphql.kickstart.tools.SchemaParserDictionary;
 import graphql.kickstart.tools.boot.GraphQLJavaToolsAutoConfiguration;
+import java.util.List;
 import org.jfantasy.graphql.SchemaParserDictionaryBuilder;
 import org.jfantasy.graphql.VersionGraphQLQueryResolver;
 import org.jfantasy.graphql.client.GraphQLClientBeanPostProcessor;
@@ -22,8 +23,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.List;
-
 /**
  * GraphQL 自动配置
  *
@@ -36,45 +35,47 @@ import java.util.List;
 @ComponentScan({"org.jfantasy.graphql.context", "org.jfantasy.graphql.error"})
 public class GraphQLAutoConfiguration {
 
-    @Bean
-    static GraphQLClientBeanPostProcessor clientBeanPostProcessor(final ApplicationContext applicationContext, final ResourceLoader resourceLoader) {
-        return new GraphQLClientBeanPostProcessor(applicationContext, resourceLoader);
-    }
+  @Bean
+  static GraphQLClientBeanPostProcessor clientBeanPostProcessor(
+      final ApplicationContext applicationContext, final ResourceLoader resourceLoader) {
+    return new GraphQLClientBeanPostProcessor(applicationContext, resourceLoader);
+  }
 
-    @Bean(GraphQLWebAutoConfiguration.QUERY_EXECUTION_STRATEGY)
-    public ExecutionStrategy queryExecutionStrategy() {
-        return new AsyncQueryTransactionalExecutionStrategy();
-    }
+  @Bean(GraphQLWebAutoConfiguration.QUERY_EXECUTION_STRATEGY)
+  public ExecutionStrategy queryExecutionStrategy() {
+    return new AsyncQueryTransactionalExecutionStrategy();
+  }
 
-    @Bean(GraphQLWebAutoConfiguration.MUTATION_EXECUTION_STRATEGY)
-    public ExecutionStrategy mutationExecutionStrategy() {
-        return new AsyncMutationTransactionalExecutionStrategy();
-    }
+  @Bean(GraphQLWebAutoConfiguration.MUTATION_EXECUTION_STRATEGY)
+  public ExecutionStrategy mutationExecutionStrategy() {
+    return new AsyncMutationTransactionalExecutionStrategy();
+  }
 
-    @Bean
-    public SchemaParserDictionary schemaParserDictionary(List<SchemaParserDictionaryBuilder> builders) {
-        SchemaParserDictionary dictionary = new SchemaParserDictionary();
-        builders.stream().forEach(item -> item.build(dictionary));
-        return dictionary;
-    }
+  @Bean
+  public SchemaParserDictionary schemaParserDictionary(
+      List<SchemaParserDictionaryBuilder> builders) {
+    SchemaParserDictionary dictionary = new SchemaParserDictionary();
+    builders.stream().forEach(item -> item.build(dictionary));
+    return dictionary;
+  }
 
-    @Bean
-    public DefaultBeanFactoryPointcutAdvisor graphQLErrorPointcutAdvisor(@Autowired GraphQLResolverAdvice advice) {
-        DefaultBeanFactoryPointcutAdvisor beanFactory = new DefaultBeanFactoryPointcutAdvisor();
-        beanFactory.setPointcut(new GraphQLStaticMethodMatcherPointcut());
-        beanFactory.setAdvice(advice);
-        return beanFactory;
-    }
+  @Bean
+  public DefaultBeanFactoryPointcutAdvisor graphQLErrorPointcutAdvisor(
+      @Autowired GraphQLResolverAdvice advice) {
+    DefaultBeanFactoryPointcutAdvisor beanFactory = new DefaultBeanFactoryPointcutAdvisor();
+    beanFactory.setPointcut(new GraphQLStaticMethodMatcherPointcut());
+    beanFactory.setAdvice(advice);
+    return beanFactory;
+  }
 
-    @Bean
-    public VersionGraphQLQueryResolver versionGraphQLQueryResolver() {
-        return new VersionGraphQLQueryResolver();
-    }
+  @Bean
+  public VersionGraphQLQueryResolver versionGraphQLQueryResolver() {
+    return new VersionGraphQLQueryResolver();
+  }
 
-    @Bean
-    public RestTemplate restTemplate() {
-        RestTemplateBuilder builder = new RestTemplateBuilder();
-        return builder.build();
-    }
-
+  @Bean
+  public RestTemplate restTemplate() {
+    RestTemplateBuilder builder = new RestTemplateBuilder();
+    return builder.build();
+  }
 }

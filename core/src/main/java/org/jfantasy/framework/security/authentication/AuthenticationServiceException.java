@@ -4,12 +4,11 @@ import org.jfantasy.framework.security.AuthenticationException;
 
 public class AuthenticationServiceException extends AuthenticationException {
 
-    public AuthenticationServiceException(String msg) {
-        super(msg);
-    }
+  public AuthenticationServiceException(String msg) {
+    super(msg);
+  }
 
-    public AuthenticationServiceException(String msg, Throwable cause) {
-        super(msg, cause);
-    }
-
+  public AuthenticationServiceException(String msg, Throwable cause) {
+    super(msg, cause);
+  }
 }

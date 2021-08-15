@@ -1,29 +1,25 @@
 package org.jfantasy.framework.crypto;
 
-
 import org.junit.jupiter.api.Test;
 
 public class SymmetricCryptoTest {
-    @Test
-    public void encrypt() throws Exception {
-        SymmetricCrypto cryptor = new SymmetricCrypto();
+  @Test
+  public void encrypt() throws Exception {
+    SymmetricCrypto cryptor = new SymmetricCrypto();
 
-        byte[] bytes = "abc".getBytes();
+    byte[] bytes = "abc".getBytes();
 
-        byte[] encBytes = cryptor.encrypt(bytes);
+    byte[] encBytes = cryptor.encrypt(bytes);
 
-        byte[] sin = cryptor.signature(encBytes);
+    byte[] sin = cryptor.signature(encBytes);
 
-        System.out.println(cryptor.verify(encBytes, sin));
+    System.out.println(cryptor.verify(encBytes, sin));
 
-        byte[] denc = cryptor.decrypt(encBytes);
+    byte[] denc = cryptor.decrypt(encBytes);
 
-        System.out.println(new String(denc));
-    }
+    System.out.println(new String(denc));
+  }
 
-    @Test
-    public void decrypt() throws Exception {
-
-    }
-
+  @Test
+  public void decrypt() throws Exception {}
 }

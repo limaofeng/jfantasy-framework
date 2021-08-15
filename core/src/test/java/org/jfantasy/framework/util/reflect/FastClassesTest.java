@@ -5,9 +5,8 @@ import org.junit.jupiter.api.Test;
 
 public class FastClassesTest {
 
-    @Test
-    public void newInstance() throws Exception {
-        FastClasses fastClasses = new FastClasses(MultiDataSourceInterceptor.class);
-    }
-
+  @Test
+  public void newInstance() throws Exception {
+    FastClasses fastClasses = new FastClasses(MultiDataSourceInterceptor.class);
+  }
 }

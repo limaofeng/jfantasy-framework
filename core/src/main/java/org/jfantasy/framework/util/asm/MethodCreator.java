@@ -4,6 +4,5 @@ import org.objectweb.asm.MethodVisitor;
 
 public interface MethodCreator {
 
-    void execute(MethodVisitor mv);
-
+  void execute(MethodVisitor mv);
 }

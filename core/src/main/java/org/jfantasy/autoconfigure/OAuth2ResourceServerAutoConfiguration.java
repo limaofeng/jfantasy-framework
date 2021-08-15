@@ -17,16 +17,17 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class OAuth2ResourceServerAutoConfiguration {
 
-    @Bean
-    @ConditionalOnBean({ClientDetailsService.class, TokenStore.class})
-    public DefaultTokenServices tokenServices(TokenStore tokenStore, ClientDetailsService clientDetailsService) {
-        return new DefaultTokenServices(tokenStore, clientDetailsService);
-    }
+  @Bean
+  @ConditionalOnBean({ClientDetailsService.class, TokenStore.class})
+  public DefaultTokenServices tokenServices(
+      TokenStore tokenStore, ClientDetailsService clientDetailsService) {
+    return new DefaultTokenServices(tokenStore, clientDetailsService);
+  }
 
-    @Bean
-    @ConditionalOnBean({ResourceServerTokenServices.class})
-    public BearerTokenAuthenticationProvider bearerTokenAuthenticationProvider(ResourceServerTokenServices tokenServices) {
-        return new BearerTokenAuthenticationProvider(tokenServices);
-    }
-
+  @Bean
+  @ConditionalOnBean({ResourceServerTokenServices.class})
+  public BearerTokenAuthenticationProvider bearerTokenAuthenticationProvider(
+      ResourceServerTokenServices tokenServices) {
+    return new BearerTokenAuthenticationProvider(tokenServices);
+  }
 }

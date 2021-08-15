@@ -5,6 +5,5 @@ import java.util.Collection;
 
 public interface LogOperationSource {
 
-    Collection<LogOperation> getOperations(Method method, Class<?> targetClass);
-
+  Collection<LogOperation> getOperations(Method method, Class<?> targetClass);
 }

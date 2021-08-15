@@ -9,25 +9,23 @@ import org.junit.jupiter.api.Test;
 @Slf4j
 class JwtTokenServiceTest {
 
-    private JwtTokenService jwtTokenService;
+  private JwtTokenService jwtTokenService;
 
-    @BeforeEach
-    void setUp() {
-        jwtTokenService = new JwtTokenServiceImpl();
-    }
+  @BeforeEach
+  void setUp() {
+    jwtTokenService = new JwtTokenServiceImpl();
+  }
 
-    @Test
-    void generateToken() throws JOSEException {
-        String client = StringUtil.generateNonceString("abcdef0123456789", 20);
-        log.debug(" client = " + client);
-        String secret = StringUtil.generateNonceString("abcdef0123456789", 40);
-        log.debug(" secret = " + secret);
-        String token = jwtTokenService.generateToken("我是 ASANY", secret);
-        log.debug(" token = " + token);
-    }
+  @Test
+  void generateToken() throws JOSEException {
+    String client = StringUtil.generateNonceString("abcdef0123456789", 20);
+    log.debug(" client = " + client);
+    String secret = StringUtil.generateNonceString("abcdef0123456789", 40);
+    log.debug(" secret = " + secret);
+    String token = jwtTokenService.generateToken("我是 ASANY", secret);
+    log.debug(" token = " + token);
+  }
 
-    @Test
-    void verifyToken() {
-
-    }
+  @Test
+  void verifyToken() {}
 }

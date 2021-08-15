@@ -5,8 +5,8 @@ import org.jfantasy.framework.security.authentication.Authentication;
 
 public class AuthenticationFailureServiceExceptionEvent extends AbstractAuthenticationFailureEvent {
 
-    public AuthenticationFailureServiceExceptionEvent(Authentication authentication, AuthenticationException exception) {
-        super(authentication, exception);
-    }
-
+  public AuthenticationFailureServiceExceptionEvent(
+      Authentication authentication, AuthenticationException exception) {
+    super(authentication, exception);
+  }
 }

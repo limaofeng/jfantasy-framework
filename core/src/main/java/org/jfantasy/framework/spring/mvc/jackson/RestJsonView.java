@@ -2,11 +2,7 @@ package org.jfantasy.framework.spring.mvc.jackson;
 
 public class RestJsonView {
 
-    public interface InsertView {
-    }
+  public interface InsertView {}
 
-    public interface UpdateView {
-    }
-
+  public interface UpdateView {}
 }
-

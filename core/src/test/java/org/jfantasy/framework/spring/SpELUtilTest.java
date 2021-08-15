@@ -10,69 +10,71 @@ import org.springframework.util.Assert;
 
 public class SpELUtilTest {
 
-    private static final Log LOG = LogFactory.getLog(SpELUtilTest.class);
+  private static final Log LOG = LogFactory.getLog(SpELUtilTest.class);
 
-    @Test
-    public void testCreateEvaluationContext() throws Exception {
-        User user = new User();
-        user.setUsername("limaofeng");
+  @Test
+  public void testCreateEvaluationContext() throws Exception {
+    User user = new User();
+    user.setUsername("limaofeng");
 
-        EvaluationContext context = SpELUtil.createEvaluationContext(user);
-        Expression expression = SpELUtil.getExpression(" username == 'limaofeng' ");
+    EvaluationContext context = SpELUtil.createEvaluationContext(user);
+    Expression expression = SpELUtil.getExpression(" username == 'limaofeng' ");
 
-        Boolean retVal = expression.getValue(context,Boolean.class);
+    Boolean retVal = expression.getValue(context, Boolean.class);
 
-        LOG.debug("value = " + retVal);
+    LOG.debug("value = " + retVal);
 
-        Assert.isTrue(retVal);
+    Assert.isTrue(retVal);
 
-        user.setUsername("hebo");
-        context = SpELUtil.createEvaluationContext(user);
+    user.setUsername("hebo");
+    context = SpELUtil.createEvaluationContext(user);
 
-        retVal = expression.getValue(context,Boolean.class);
+    retVal = expression.getValue(context, Boolean.class);
 
-        LOG.debug("value = " + retVal);
+    LOG.debug("value = " + retVal);
 
-        Assert.isTrue(!retVal);
+    Assert.isTrue(!retVal);
 
-        expression = SpELUtil.getExpression(" true ");
+    expression = SpELUtil.getExpression(" true ");
 
-        retVal = expression.getValue(context,Boolean.class);
+    retVal = expression.getValue(context, Boolean.class);
 
-        LOG.debug("value = " + retVal);
+    LOG.debug("value = " + retVal);
 
-        Assert.isTrue(retVal);
-    }
+    Assert.isTrue(retVal);
+  }
 
-    @Test
-    public void testGetExpression() throws Exception {
-        User user = new User();
-        user.setUsername("aaa");
+  @Test
+  public void testGetExpression() throws Exception {
+    User user = new User();
+    user.setUsername("aaa");
 
-        user.setEnabled(true);
-        EvaluationContext context = SpELUtil.createEvaluationContext(user);
-        Expression expression = SpELUtil.getExpression(" username=='aaa'");
+    user.setEnabled(true);
+    EvaluationContext context = SpELUtil.createEvaluationContext(user);
+    Expression expression = SpELUtil.getExpression(" username=='aaa'");
 
-        Boolean retVal = expression.getValue(context,Boolean.class);
+    Boolean retVal = expression.getValue(context, Boolean.class);
 
-        LOG.debug("value = " + retVal);
+    LOG.debug("value = " + retVal);
 
-        Assert.isTrue(retVal);
-    }
+    Assert.isTrue(retVal);
+  }
 
-    @Test
-    public void testGetSystem() throws Exception {
-        EvaluationContext context = SpELUtil.createEvaluationContext();
-        Expression expression = SpELUtil.getExpression(" (#systemProperties['spring.profiles.active'] == 'prod' ? '' : 'DEV') ");//['spring.profiles.active']
+  @Test
+  public void testGetSystem() throws Exception {
+    EvaluationContext context = SpELUtil.createEvaluationContext();
+    Expression expression =
+        SpELUtil.getExpression(
+            " (#systemProperties['spring.profiles.active'] == 'prod' ? '' : 'DEV') "); // ['spring.profiles.active']
 
-        String retVal = expression.getValue(context,String.class);
+    String retVal = expression.getValue(context, String.class);
 
-        LOG.debug("value = " + retVal);
+    LOG.debug("value = " + retVal);
 
-        expression = SpELUtil.getExpression("'P' + (#systemProperties['spring.profiles.active'] == 'prod' ? '' : 'DEV')");
+    expression =
+        SpELUtil.getExpression(
+            "'P' + (#systemProperties['spring.profiles.active'] == 'prod' ? '' : 'DEV')");
 
-        LOG.debug("value = " + expression.getValue(context,String.class));
-
-    }
-
+    LOG.debug("value = " + expression.getValue(context, String.class));
+  }
 }

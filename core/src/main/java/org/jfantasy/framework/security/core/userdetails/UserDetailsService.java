@@ -7,13 +7,12 @@ package org.jfantasy.framework.security.core.userdetails;
  */
 public interface UserDetailsService {
 
-    /**
-     * 通过用户名查询用户
-     *
-     * @param username 用户名
-     * @return 用户
-     * @throws UsernameNotFoundException 未查询到用户
-     */
-    UserDetails loadUserByUsername(String username) throws UsernameNotFoundException;
-
+  /**
+   * 通过用户名查询用户
+   *
+   * @param username 用户名
+   * @return 用户
+   * @throws UsernameNotFoundException 未查询到用户
+   */
+  UserDetails loadUserByUsername(String username) throws UsernameNotFoundException;
 }

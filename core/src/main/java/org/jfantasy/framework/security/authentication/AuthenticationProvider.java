@@ -10,21 +10,20 @@ import org.jfantasy.framework.security.AuthenticationException;
  */
 public interface AuthenticationProvider<T extends Authentication> {
 
-    /**
-     * 判断是否支持此身份认证逻辑
-     *
-     * @param authentication
-     * @return
-     */
-    boolean supports(Class<?> authentication);
+  /**
+   * 判断是否支持此身份认证逻辑
+   *
+   * @param authentication
+   * @return
+   */
+  boolean supports(Class<?> authentication);
 
-    /**
-     * 进行身份验证
-     *
-     * @param authentication
-     * @return
-     * @throws AuthenticationException
-     */
-    Authentication authenticate(T authentication) throws AuthenticationException;
-
+  /**
+   * 进行身份验证
+   *
+   * @param authentication
+   * @return
+   * @throws AuthenticationException
+   */
+  Authentication authenticate(T authentication) throws AuthenticationException;
 }

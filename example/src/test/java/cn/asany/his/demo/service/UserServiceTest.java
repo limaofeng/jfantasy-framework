@@ -13,24 +13,25 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = TestApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(
+    classes = TestApplication.class,
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @Slf4j
 class UserServiceTest {
 
-    @Autowired
-    private UserService userService;
+  @Autowired private UserService userService;
 
-    @Test
-    void findPager() {
-        Pager pager = Pager.builder().build();
-        PropertyFilterBuilder builder = PropertyFilter.builder()
+  @Test
+  void findPager() {
+    Pager pager = Pager.builder().build();
+    PropertyFilterBuilder builder =
+        PropertyFilter.builder()
             .equal("username", "3")
             .or(
                 PropertyFilter.builder().equal("username", "1").equal("password", "1"),
-                PropertyFilter.builder().equal("username", "2").equal("password", "2")
-            );
-        pager = this.userService.findPager(pager, builder.build());
-        log.debug("TotalCount:" + pager.getTotalCount());
-    }
+                PropertyFilter.builder().equal("username", "2").equal("password", "2"));
+    pager = this.userService.findPager(pager, builder.build());
+    log.debug("TotalCount:" + pager.getTotalCount());
+  }
 }

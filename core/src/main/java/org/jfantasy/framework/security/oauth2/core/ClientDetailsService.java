@@ -6,12 +6,12 @@ package org.jfantasy.framework.security.oauth2.core;
  * @author limaofeng
  */
 public interface ClientDetailsService {
-    /**
-     * 查询客户端信息
-     *
-     * @param clientId
-     * @return
-     * @throws ClientRegistrationException
-     */
-    ClientDetails loadClientByClientId(String clientId) throws ClientRegistrationException;
+  /**
+   * 查询客户端信息
+   *
+   * @param clientId
+   * @return
+   * @throws ClientRegistrationException
+   */
+  ClientDetails loadClientByClientId(String clientId) throws ClientRegistrationException;
 }

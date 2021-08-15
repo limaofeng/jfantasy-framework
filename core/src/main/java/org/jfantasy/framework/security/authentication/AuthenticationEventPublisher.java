@@ -9,18 +9,19 @@ import org.jfantasy.framework.security.AuthenticationException;
  */
 public interface AuthenticationEventPublisher {
 
-    /**
-     * 认证成功
-     *
-     * @param authentication
-     */
-    void publishAuthenticationSuccess(Authentication authentication);
+  /**
+   * 认证成功
+   *
+   * @param authentication
+   */
+  void publishAuthenticationSuccess(Authentication authentication);
 
-    /**
-     * 认证失败
-     *
-     * @param exception
-     * @param authentication
-     */
-    void publishAuthenticationFailure(AuthenticationException exception, Authentication authentication);
+  /**
+   * 认证失败
+   *
+   * @param exception
+   * @param authentication
+   */
+  void publishAuthenticationFailure(
+      AuthenticationException exception, Authentication authentication);
 }

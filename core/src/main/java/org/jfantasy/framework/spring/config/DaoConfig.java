@@ -1,5 +1,7 @@
 package org.jfantasy.framework.spring.config;
 
+import javax.annotation.PostConstruct;
+import javax.persistence.EntityManagerFactory;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.EventType;
@@ -19,9 +21,6 @@ import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import javax.annotation.PostConstruct;
-import javax.persistence.EntityManagerFactory;
-
 /**
  * 数据源相关bean的注册
  *
@@ -33,53 +32,58 @@ import javax.persistence.EntityManagerFactory;
 @EnableJpaRepositories(
     transactionManagerRef = "transactionManager",
     includeFilters = {
-        @ComponentScan.Filter(
-            type = FilterType.ASSIGNABLE_TYPE,
-            value = {JpaRepository.class}
-        )
+      @ComponentScan.Filter(
+          type = FilterType.ASSIGNABLE_TYPE,
+          value = {JpaRepository.class})
     },
     basePackages = {"org.jfantasy.framework.context.dao"},
-    repositoryBaseClass = ComplexJpaRepository.class
-)
+    repositoryBaseClass = ComplexJpaRepository.class)
 @Import({MyBatisConfig.class})
 public class DaoConfig {
 
-    @Autowired
-    private EntityManagerFactory entityManagerFactory;
+  @Autowired private EntityManagerFactory entityManagerFactory;
 
-    @PostConstruct
-    private void init() {
-        EventListenerRegistry registry = this.eventListenerRegistry();
-        SessionFactoryImplementor sessionFactory = entityManagerFactory.unwrap(SessionFactoryImplementor.class);
-        MutableIdentifierGeneratorFactory identifierGeneratorFactory = sessionFactory.getServiceRegistry().getService(MutableIdentifierGeneratorFactory.class);
-        // 自定义序列生成器
-        identifierGeneratorFactory.register("fantasy-sequence", SequenceGenerator.class);
-        identifierGeneratorFactory.register("serialnumber", SerialNumberGenerator.class);
-        // 默认监听器
-        registry.prependListeners(EventType.SAVE_UPDATE, createListenerInstance(new PropertyGeneratorSaveOrUpdateEventListener(identifierGeneratorFactory)));
-        registry.prependListeners(EventType.PERSIST, createListenerInstance(new PropertyGeneratorPersistEventListener(identifierGeneratorFactory)));
-    }
+  @PostConstruct
+  private void init() {
+    EventListenerRegistry registry = this.eventListenerRegistry();
+    SessionFactoryImplementor sessionFactory =
+        entityManagerFactory.unwrap(SessionFactoryImplementor.class);
+    MutableIdentifierGeneratorFactory identifierGeneratorFactory =
+        sessionFactory.getServiceRegistry().getService(MutableIdentifierGeneratorFactory.class);
+    // 自定义序列生成器
+    identifierGeneratorFactory.register("fantasy-sequence", SequenceGenerator.class);
+    identifierGeneratorFactory.register("serialnumber", SerialNumberGenerator.class);
+    // 默认监听器
+    registry.prependListeners(
+        EventType.SAVE_UPDATE,
+        createListenerInstance(
+            new PropertyGeneratorSaveOrUpdateEventListener(identifierGeneratorFactory)));
+    registry.prependListeners(
+        EventType.PERSIST,
+        createListenerInstance(
+            new PropertyGeneratorPersistEventListener(identifierGeneratorFactory)));
+  }
 
-    /**
-     * 返回 EventListenerRegistry 对象
-     *
-     * @return EventListenerRegistry
-     */
-    @Bean
-    public EventListenerRegistry eventListenerRegistry() {
-        SessionFactoryImplementor sessionFactory = this.entityManagerFactory.unwrap(SessionFactoryImplementor.class);
-        return sessionFactory.getServiceRegistry().getService(EventListenerRegistry.class);
-    }
+  /**
+   * 返回 EventListenerRegistry 对象
+   *
+   * @return EventListenerRegistry
+   */
+  @Bean
+  public EventListenerRegistry eventListenerRegistry() {
+    SessionFactoryImplementor sessionFactory =
+        this.entityManagerFactory.unwrap(SessionFactoryImplementor.class);
+    return sessionFactory.getServiceRegistry().getService(EventListenerRegistry.class);
+  }
 
-    private static <T> T createListenerInstance(T bean) {
-        SpringContextUtil.getApplicationContext().getAutowireCapableBeanFactory().autowireBean(bean);
-        return bean;
-    }
+  private static <T> T createListenerInstance(T bean) {
+    SpringContextUtil.getApplicationContext().getAutowireCapableBeanFactory().autowireBean(bean);
+    return bean;
+  }
 
-    @Primary
-    @Bean(name = "transactionManager")
-    public PlatformTransactionManager jpaTransactionManager() {
-        return new JpaTransactionManager(entityManagerFactory);
-    }
-
+  @Primary
+  @Bean(name = "transactionManager")
+  public PlatformTransactionManager jpaTransactionManager() {
+    return new JpaTransactionManager(entityManagerFactory);
+  }
 }

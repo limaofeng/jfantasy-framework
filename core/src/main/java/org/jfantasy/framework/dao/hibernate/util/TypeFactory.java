@@ -5,13 +5,11 @@ import org.hibernate.type.Type;
 
 public class TypeFactory {
 
-    private TypeFactory(){
+  private TypeFactory() {}
 
-    }
-    private static final BasicTypeRegistry typeResolver =new BasicTypeRegistry();
+  private static final BasicTypeRegistry typeResolver = new BasicTypeRegistry();
 
-    public static Type basic(String name) {
-        return typeResolver.getRegisteredType(name);
-    }
-
+  public static Type basic(String name) {
+    return typeResolver.getRegisteredType(name);
+  }
 }

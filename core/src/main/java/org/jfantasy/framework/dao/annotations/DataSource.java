@@ -15,7 +15,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface DataSource {
 
-     String name();
+  String name();
 
-    String catalog() default "";
+  String catalog() default "";
 }

@@ -1,13 +1,12 @@
 package org.jfantasy.framework.util.web.filter;
 
-import org.jfantasy.framework.util.web.context.ActionContext;
-import org.springframework.web.filter.OncePerRequestFilter;
-
+import java.io.IOException;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import org.jfantasy.framework.util.web.context.ActionContext;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
  * @author 李茂峰
@@ -16,31 +15,33 @@ import java.io.IOException;
  */
 public class ActionContextFilter extends OncePerRequestFilter {
 
-    private String encoding = "UTF-8";
+  private String encoding = "UTF-8";
 
-    private boolean forceEncoding = false;
+  private boolean forceEncoding = false;
 
-    public void setEncoding(String encoding) {
-        this.encoding = encoding;
+  public void setEncoding(String encoding) {
+    this.encoding = encoding;
+  }
+
+  public void setForceEncoding(boolean forceEncoding) {
+    this.forceEncoding = forceEncoding;
+  }
+
+  @Override
+  protected void doFilterInternal(
+      HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+      throws ServletException, IOException {
+    if (this.forceEncoding || (request.getCharacterEncoding() == null)) {
+      request.setCharacterEncoding(this.encoding);
+      if (this.forceEncoding) {
+        response.setCharacterEncoding(this.encoding);
+      }
     }
-
-    public void setForceEncoding(boolean forceEncoding) {
-        this.forceEncoding = forceEncoding;
+    ActionContext.getContext(request, response);
+    try {
+      chain.doFilter(request, response);
+    } finally {
+      ActionContext.clear();
     }
-
-    @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
-        if (this.forceEncoding || (request.getCharacterEncoding() == null)) {
-            request.setCharacterEncoding(this.encoding);
-            if (this.forceEncoding) {
-                response.setCharacterEncoding(this.encoding);
-            }
-        }
-        ActionContext.getContext(request, response);
-        try {
-            chain.doFilter(request, response);
-        } finally {
-            ActionContext.clear();
-        }
-    }
+  }
 }

@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 @EntityScan("org.jfantasy.*.bean")
 @EnableAutoConfiguration(exclude = {JmxAutoConfiguration.class})
 public class ApplicationTest {
-    public static void main(String[] args) {
-        SpringApplication.run(ApplicationTest.class, args);
-    }
+  public static void main(String[] args) {
+    SpringApplication.run(ApplicationTest.class, args);
+  }
 }

@@ -3,34 +3,33 @@ package org.jfantasy.framework.security.oauth2.core;
 import org.jfantasy.framework.security.AuthenticationException;
 import org.springframework.util.Assert;
 
-public class OAuth2AuthenticationException  extends AuthenticationException {
+public class OAuth2AuthenticationException extends AuthenticationException {
 
-    private final OAuth2Error error;
+  private final OAuth2Error error;
 
-    public OAuth2AuthenticationException(String errorCode) {
-        this(new OAuth2Error(errorCode));
-    }
+  public OAuth2AuthenticationException(String errorCode) {
+    this(new OAuth2Error(errorCode));
+  }
 
-    public OAuth2AuthenticationException(OAuth2Error error) {
-        this(error, error.getDescription());
-    }
+  public OAuth2AuthenticationException(OAuth2Error error) {
+    this(error, error.getDescription());
+  }
 
-    public OAuth2AuthenticationException(OAuth2Error error, Throwable cause) {
-        this(error, cause.getMessage(), cause);
-    }
+  public OAuth2AuthenticationException(OAuth2Error error, Throwable cause) {
+    this(error, cause.getMessage(), cause);
+  }
 
-    public OAuth2AuthenticationException(OAuth2Error error, String message) {
-        this(error, message, null);
-    }
+  public OAuth2AuthenticationException(OAuth2Error error, String message) {
+    this(error, message, null);
+  }
 
-    public OAuth2AuthenticationException(OAuth2Error error, String message, Throwable cause) {
-        super(message, cause);
-        Assert.notNull(error, "error cannot be null");
-        this.error = error;
-    }
+  public OAuth2AuthenticationException(OAuth2Error error, String message, Throwable cause) {
+    super(message, cause);
+    Assert.notNull(error, "error cannot be null");
+    this.error = error;
+  }
 
-    public OAuth2Error getError() {
-        return this.error;
-    }
-
+  public OAuth2Error getError() {
+    return this.error;
+  }
 }

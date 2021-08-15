@@ -1,6 +1,10 @@
 package org.jfantasy.framework.security.oauth2;
 
 import com.nimbusds.jose.JOSEException;
+import java.text.ParseException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Set;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.jackson.JSON;
@@ -15,180 +19,190 @@ import org.jfantasy.framework.security.oauth2.jwt.JwtUtils;
 import org.jfantasy.framework.security.oauth2.server.authentication.BearerTokenAuthentication;
 import org.jfantasy.framework.util.common.StringUtil;
 
-import java.text.ParseException;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Set;
-
 /**
  * Token 服务
  *
  * @author limaofeng
  */
 @Slf4j
-public class DefaultTokenServices implements AuthorizationServerTokenServices, ResourceServerTokenServices, ConsumerTokenServices {
+public class DefaultTokenServices
+    implements AuthorizationServerTokenServices,
+        ResourceServerTokenServices,
+        ConsumerTokenServices {
 
-    private TokenStore tokenStore;
-    private ClientDetailsService clientDetailsService;
-    private final JwtTokenService jwtTokenService = new JwtTokenServiceImpl();
+  private TokenStore tokenStore;
+  private ClientDetailsService clientDetailsService;
+  private final JwtTokenService jwtTokenService = new JwtTokenServiceImpl();
 
-    public DefaultTokenServices(TokenStore tokenStore, ClientDetailsService clientDetailsService) {
-        this.tokenStore = tokenStore;
-        this.clientDetailsService = clientDetailsService;
+  public DefaultTokenServices(TokenStore tokenStore, ClientDetailsService clientDetailsService) {
+    this.tokenStore = tokenStore;
+    this.clientDetailsService = clientDetailsService;
+  }
+
+  @SneakyThrows
+  @Override
+  public OAuth2AccessToken createAccessToken(OAuth2Authentication authentication) {
+    LoginUser principal = (LoginUser) authentication.getPrincipal();
+    OAuth2AuthenticationDetails details = (OAuth2AuthenticationDetails) authentication.getDetails();
+    ClientDetails clientDetails =
+        this.clientDetailsService.loadClientByClientId(details.getClientId());
+
+    int expires = clientDetails.getTokenExpires();
+    String secret = clientDetails.getClientSecret();
+    TokenType tokenType = details.getTokenType();
+
+    boolean supportRefreshToken = false;
+    Instant issuedAt = Instant.now();
+    Instant expiresAt = null;
+
+    if (tokenType == TokenType.PERSONAL) {
+      expiresAt = details.getExpiresAt();
+    } else if (tokenType == TokenType.TOKEN) {
+      supportRefreshToken = true;
+      expiresAt = Instant.now().plus(expires, ChronoUnit.MINUTES);
+    } else if (tokenType == TokenType.SESSION) {
+      expiresAt = Instant.now().plus(expires, ChronoUnit.MINUTES);
     }
 
-    @SneakyThrows
-    @Override
-    public OAuth2AccessToken createAccessToken(OAuth2Authentication authentication) {
-        LoginUser principal = (LoginUser) authentication.getPrincipal();
-        OAuth2AuthenticationDetails details = (OAuth2AuthenticationDetails) authentication.getDetails();
-        ClientDetails clientDetails = this.clientDetailsService.loadClientByClientId(details.getClientId());
+    JwtTokenPayload payload =
+        JwtTokenPayload.builder()
+            .uid(Long.valueOf(principal.getUid()))
+            .name(authentication.getName())
+            .clientId(clientDetails.getClientId())
+            .tokenType(tokenType)
+            .expiresAt(expiresAt)
+            .build();
 
-        int expires = clientDetails.getTokenExpires();
-        String secret = clientDetails.getClientSecret();
-        TokenType tokenType = details.getTokenType();
+    String tokenValue = generateTokenValue(payload, secret);
 
-        boolean supportRefreshToken = false;
-        Instant issuedAt = Instant.now();
-        Instant expiresAt = null;
+    OAuth2AccessToken accessToken =
+        new OAuth2AccessToken(tokenType, tokenValue, issuedAt, expiresAt);
 
-        if (tokenType == TokenType.PERSONAL) {
-            expiresAt = details.getExpiresAt();
-        } else if (tokenType == TokenType.TOKEN) {
-            supportRefreshToken = true;
-            expiresAt = Instant.now().plus(expires, ChronoUnit.MINUTES);
-        } else if (tokenType == TokenType.SESSION) {
-            expiresAt = Instant.now().plus(expires, ChronoUnit.MINUTES);
-        }
+    if (supportRefreshToken) {
+      String refreshTokenValue = generateRefreshTokenValue();
+      OAuth2RefreshToken refreshToken =
+          new OAuth2RefreshToken(refreshTokenValue, issuedAt, expiresAt.plus(7, ChronoUnit.DAYS));
+      tokenStore.storeRefreshToken(refreshToken, authentication);
 
-        JwtTokenPayload payload = JwtTokenPayload.builder().uid(Long.valueOf(principal.getUid())).name(authentication.getName()).clientId(clientDetails.getClientId()).tokenType(tokenType).expiresAt(expiresAt).build();
-
-        String tokenValue = generateTokenValue(payload, secret);
-
-        OAuth2AccessToken accessToken = new OAuth2AccessToken(tokenType, tokenValue, issuedAt, expiresAt);
-
-        if (supportRefreshToken) {
-            String refreshTokenValue = generateRefreshTokenValue();
-            OAuth2RefreshToken refreshToken = new OAuth2RefreshToken(refreshTokenValue, issuedAt, expiresAt.plus(7, ChronoUnit.DAYS));
-            tokenStore.storeRefreshToken(refreshToken, authentication);
-
-            accessToken.setRefreshTokenValue(refreshTokenValue);
-        }
-
-        tokenStore.storeAccessToken(accessToken, authentication);
-
-        return accessToken;
+      accessToken.setRefreshTokenValue(refreshTokenValue);
     }
 
-    @Override
-    public OAuth2AccessToken getAccessToken(OAuth2Authentication authentication) {
-        return null;
+    tokenStore.storeAccessToken(accessToken, authentication);
+
+    return accessToken;
+  }
+
+  @Override
+  public OAuth2AccessToken getAccessToken(OAuth2Authentication authentication) {
+    return null;
+  }
+
+  private void refreshAccessToken(OAuth2AccessToken accessToken, long expires) {
+    accessToken.setExpiresAt(accessToken.getExpiresAt().plus(expires, ChronoUnit.MINUTES));
+    this.tokenStore.storeAccessToken(
+        accessToken, this.tokenStore.readAuthentication(accessToken.getTokenValue()));
+  }
+
+  @Override
+  public boolean revokeToken(String tokenValue) {
+    OAuth2AccessToken accessToken = this.readAccessToken(tokenValue);
+
+    if (accessToken == null) {
+      return false;
     }
 
-    private void refreshAccessToken(OAuth2AccessToken accessToken, long expires) {
-        accessToken.setExpiresAt(accessToken.getExpiresAt().plus(expires, ChronoUnit.MINUTES));
-        this.tokenStore.storeAccessToken(accessToken, this.tokenStore.readAuthentication(accessToken.getTokenValue()));
+    String refreshTokenValue = accessToken.getRefreshTokenValue();
+
+    if (refreshTokenValue != null) {
+      OAuth2RefreshToken refreshToken = this.tokenStore.readRefreshToken(refreshTokenValue);
+      this.tokenStore.removeRefreshToken(refreshToken);
     }
 
-    @Override
-    public boolean revokeToken(String tokenValue) {
-        OAuth2AccessToken accessToken = this.readAccessToken(tokenValue);
+    this.tokenStore.removeAccessToken(accessToken);
+    return true;
+  }
 
-        if (accessToken == null) {
-            return false;
-        }
-
-        String refreshTokenValue = accessToken.getRefreshTokenValue();
-
-        if (refreshTokenValue != null) {
-            OAuth2RefreshToken refreshToken = this.tokenStore.readRefreshToken(refreshTokenValue);
-            this.tokenStore.removeRefreshToken(refreshToken);
-        }
-
-        this.tokenStore.removeAccessToken(accessToken);
-        return true;
+  @Override
+  public BearerTokenAuthentication loadAuthentication(String accessToken) {
+    OAuth2AccessToken token = this.readAccessToken(accessToken);
+    if (token == null) {
+      return null;
     }
+    return this.tokenStore.readAuthentication(token.getTokenValue());
+  }
 
-    @Override
-    public BearerTokenAuthentication loadAuthentication(String accessToken) {
-        OAuth2AccessToken token = this.readAccessToken(accessToken);
-        if (token == null) {
-            return null;
-        }
-        return this.tokenStore.readAuthentication(token.getTokenValue());
+  @Override
+  public OAuth2AccessToken readAccessToken(String accessToken) {
+    try {
+      // 解析内容
+      JwtTokenPayload payload = JwtUtils.payload(accessToken);
+
+      // 获取客户端配置
+      ClientDetails clientDetails =
+          clientDetailsService.loadClientByClientId(payload.getClientId());
+      Set<String> secrets = clientDetails.getClientSecrets();
+      int expires = clientDetails.getTokenExpires();
+
+      // 验证 Token
+      verifyToken(accessToken, secrets);
+
+      // 获取令牌
+      OAuth2AccessToken oAuth2AccessToken = this.tokenStore.readAccessToken(accessToken);
+
+      if (oAuth2AccessToken == null) {
+        throw new InvalidTokenException("无效的 Token");
+      }
+
+      // 如果续期方式为 Session 执行续期操作
+      if (payload.getTokenType() == TokenType.SESSION) {
+        this.refreshAccessToken(oAuth2AccessToken, expires);
+      }
+
+      return oAuth2AccessToken;
+    } catch (Exception e) {
+      log.error(e.getMessage(), e);
+      return null;
     }
+  }
 
-    @Override
-    public OAuth2AccessToken readAccessToken(String accessToken) {
-        try {
-            // 解析内容
-            JwtTokenPayload payload = JwtUtils.payload(accessToken);
-
-            // 获取客户端配置
-            ClientDetails clientDetails = clientDetailsService.loadClientByClientId(payload.getClientId());
-            Set<String> secrets = clientDetails.getClientSecrets();
-            int expires = clientDetails.getTokenExpires();
-
-            // 验证 Token
-            verifyToken(accessToken, secrets);
-
-            // 获取令牌
-            OAuth2AccessToken oAuth2AccessToken = this.tokenStore.readAccessToken(accessToken);
-
-            if (oAuth2AccessToken == null) {
-                throw new InvalidTokenException("无效的 Token");
-            }
-
-            // 如果续期方式为 Session 执行续期操作
-            if (payload.getTokenType() == TokenType.SESSION) {
-                this.refreshAccessToken(oAuth2AccessToken, expires);
-            }
-
-            return oAuth2AccessToken;
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            return null;
-        }
+  private void verifyToken(String accessToken, Set<String> secrets) throws Exception {
+    Exception firstException = null;
+    for (String secret : secrets) {
+      try {
+        jwtTokenService.verifyToken(accessToken, secret);
+        return;
+      } catch (ParseException | JOSEException e) {
+        firstException = firstException == null ? e : firstException;
+      }
     }
-
-    private void verifyToken(String accessToken, Set<String> secrets) throws Exception {
-        Exception firstException = null;
-        for (String secret : secrets) {
-            try {
-                jwtTokenService.verifyToken(accessToken, secret);
-                return;
-            } catch (ParseException | JOSEException e) {
-                firstException = firstException == null ? e : firstException;
-            }
-        }
-        if (firstException != null) {
-            throw firstException;
-        }
+    if (firstException != null) {
+      throw firstException;
     }
+  }
 
-    public void setTokenStore(TokenStore tokenStore) {
-        this.tokenStore = tokenStore;
-    }
+  public void setTokenStore(TokenStore tokenStore) {
+    this.tokenStore = tokenStore;
+  }
 
-    public void setClientDetailsService(ClientDetailsService clientDetailsService) {
-        this.clientDetailsService = clientDetailsService;
-    }
+  public void setClientDetailsService(ClientDetailsService clientDetailsService) {
+    this.clientDetailsService = clientDetailsService;
+  }
 
-    @SneakyThrows
-    private String generateTokenValue(JwtTokenPayload payload, String secret) {
-        String tokenValue;
-        do {
-            payload.setNonce(StringUtil.generateNonceString(32));
-            tokenValue = jwtTokenService.generateToken(JSON.serialize(payload), secret);
-        } while (tokenStore.readAccessToken(tokenValue) != null);
-        return tokenValue;
-    }
+  @SneakyThrows
+  private String generateTokenValue(JwtTokenPayload payload, String secret) {
+    String tokenValue;
+    do {
+      payload.setNonce(StringUtil.generateNonceString(32));
+      tokenValue = jwtTokenService.generateToken(JSON.serialize(payload), secret);
+    } while (tokenStore.readAccessToken(tokenValue) != null);
+    return tokenValue;
+  }
 
-    private String generateRefreshTokenValue() {
-        String tokenValue;
-        do {
-            tokenValue = StringUtil.generateNonceString(32);
-        } while (tokenStore.readRefreshToken(tokenValue) != null);
-        return tokenValue;
-    }
+  private String generateRefreshTokenValue() {
+    String tokenValue;
+    do {
+      tokenValue = StringUtil.generateNonceString(32);
+    } while (tokenStore.readRefreshToken(tokenValue) != null);
+    return tokenValue;
+  }
 }

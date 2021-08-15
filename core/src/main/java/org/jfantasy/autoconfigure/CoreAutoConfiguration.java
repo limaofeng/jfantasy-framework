@@ -13,32 +13,36 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
-
 /**
+ * 核心配置类
+ *
  * @author limaofeng
  */
 @Configuration
-@AutoConfigureAfter({ DataSourceAutoConfiguration.class, MybatisLanguageDriverAutoConfiguration.class })
+@AutoConfigureAfter({
+  DataSourceAutoConfiguration.class,
+  MybatisLanguageDriverAutoConfiguration.class
+})
 @Import({AppConfig.class, DaoConfig.class})
 public class CoreAutoConfiguration {
 
-    @Bean
-    public SpringContextUtil springContextUtil() {
-        return new SpringContextUtil();
-    }
+  @Bean
+  public SpringContextUtil springContextUtil() {
+    return new SpringContextUtil();
+  }
 
-    @Bean
-    public DataSourceSetUtf8mb4 dataSourceSetUtf8mb4() {
-        return new DataSourceSetUtf8mb4();
-    }
+  @Bean
+  public DataSourceSetUtf8mb4 dataSourceSetUtf8mb4() {
+    return new DataSourceSetUtf8mb4();
+  }
 
-    @Bean
-    public BusEntityInterceptor busEntityInterceptor(){
-        return new BusEntityInterceptor();
-    }
+  @Bean
+  public BusEntityInterceptor busEntityInterceptor() {
+    return new BusEntityInterceptor();
+  }
 
-    @Bean("hibernate.InterceptorRegistration")
-    public InterceptorRegistration interceptorRegistration() {
-        return new InterceptorRegistration(busEntityInterceptor());
-    }
+  @Bean("hibernate.InterceptorRegistration")
+  public InterceptorRegistration interceptorRegistration() {
+    return new InterceptorRegistration(busEntityInterceptor());
+  }
 }

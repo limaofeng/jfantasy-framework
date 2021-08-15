@@ -1,6 +1,12 @@
 package org.jfantasy.graphql.client;
 
+import static java.util.Objects.requireNonNull;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.lang.reflect.Field;
+import java.lang.reflect.Member;
+import java.util.HashMap;
+import java.util.Map;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.springframework.beans.BeanInstantiationException;
 import org.springframework.beans.BeansException;
@@ -12,70 +18,69 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.client.RestTemplate;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Member;
-import java.util.HashMap;
-import java.util.Map;
-
-import static java.util.Objects.requireNonNull;
-
-/**
- * @author limaofeng
- */
+/** @author limaofeng */
 public class GraphQLClientBeanPostProcessor implements BeanPostProcessor {
 
-    private final ResourceLoader resourceLoader;
-    private final ApplicationContext applicationContext;
+  private final ResourceLoader resourceLoader;
+  private final ApplicationContext applicationContext;
 
-    private Map<String, GraphQLTemplate> clientMap = new HashMap<>();
+  private Map<String, GraphQLTemplate> clientMap = new HashMap<>();
 
-    public GraphQLClientBeanPostProcessor(final ApplicationContext applicationContext, ResourceLoader resourceLoader) {
-        this.resourceLoader = resourceLoader;
-        this.applicationContext = requireNonNull(applicationContext, "applicationContext");
-    }
+  public GraphQLClientBeanPostProcessor(
+      final ApplicationContext applicationContext, ResourceLoader resourceLoader) {
+    this.resourceLoader = resourceLoader;
+    this.applicationContext = requireNonNull(applicationContext, "applicationContext");
+  }
 
-    @Override
-    public Object postProcessBeforeInitialization(final Object bean, final String beanName) throws BeansException {
-        Class<?> clazz = bean.getClass();
-        do {
-            for (final Field field : clazz.getDeclaredFields()) {
-                final GraphQLClient annotation = AnnotationUtils.findAnnotation(field, GraphQLClient.class);
-                if (annotation != null) {
-                    ReflectionUtils.makeAccessible(field);
-                    ReflectionUtils.setField(field, bean, processInjectionPoint(field, field.getType(), annotation));
-                }
-            }
-            clazz = clazz.getSuperclass();
-        } while (clazz != null);
-        return bean;
-    }
-
-    protected <T> T processInjectionPoint(final Member injectionTarget, final Class<T> injectionType, final GraphQLClient annotation) {
-        final String name = annotation.value();
-        final T value = valueForMember(name, injectionTarget, injectionType);
-        if (value == null) {
-            throw new IllegalStateException("Injection value is null unexpectedly for " + name + " at " + injectionTarget);
+  @Override
+  public Object postProcessBeforeInitialization(final Object bean, final String beanName)
+      throws BeansException {
+    Class<?> clazz = bean.getClass();
+    do {
+      for (final Field field : clazz.getDeclaredFields()) {
+        final GraphQLClient annotation = AnnotationUtils.findAnnotation(field, GraphQLClient.class);
+        if (annotation != null) {
+          ReflectionUtils.makeAccessible(field);
+          ReflectionUtils.setField(
+              field, bean, processInjectionPoint(field, field.getType(), annotation));
         }
-        return value;
-    }
+      }
+      clazz = clazz.getSuperclass();
+    } while (clazz != null);
+    return bean;
+  }
 
-    protected <T> T valueForMember(final String name, final Member injectionTarget, final Class<T> injectionType) throws BeansException {
-        if (clientMap.containsKey(name)) {
-            return (T) clientMap.get(name);
-        }
-        Environment environment = this.applicationContext.getEnvironment();
-        String url = environment.getProperty("graphql.client." + name + ".address");
-        if (StringUtil.isBlank(url) || !GraphQLTemplate.class.isAssignableFrom(injectionType)) {
-            throw new BeanInstantiationException(injectionType, "Failed to create GraphQL Client of Name " + name);
-        }
-        GraphQLTemplate graphQLTemplate = createGraphQLTemplate(url);
-        clientMap.put(name, graphQLTemplate);
-        return (T) graphQLTemplate;
+  protected <T> T processInjectionPoint(
+      final Member injectionTarget, final Class<T> injectionType, final GraphQLClient annotation) {
+    final String name = annotation.value();
+    final T value = valueForMember(name, injectionTarget, injectionType);
+    if (value == null) {
+      throw new IllegalStateException(
+          "Injection value is null unexpectedly for " + name + " at " + injectionTarget);
     }
+    return value;
+  }
 
-    public GraphQLTemplate createGraphQLTemplate(String url) {
-        RestTemplate restTemplate = applicationContext.getBean(RestTemplate.class);
-        ObjectMapper objectMapper = applicationContext.getBean(ObjectMapper.class);
-        return new GraphQLTemplate(resourceLoader, restTemplate, url, objectMapper);
+  protected <T> T valueForMember(
+      final String name, final Member injectionTarget, final Class<T> injectionType)
+      throws BeansException {
+    if (clientMap.containsKey(name)) {
+      return (T) clientMap.get(name);
     }
+    Environment environment = this.applicationContext.getEnvironment();
+    String url = environment.getProperty("graphql.client." + name + ".address");
+    if (StringUtil.isBlank(url) || !GraphQLTemplate.class.isAssignableFrom(injectionType)) {
+      throw new BeanInstantiationException(
+          injectionType, "Failed to create GraphQL Client of Name " + name);
+    }
+    GraphQLTemplate graphQLTemplate = createGraphQLTemplate(url);
+    clientMap.put(name, graphQLTemplate);
+    return (T) graphQLTemplate;
+  }
+
+  public GraphQLTemplate createGraphQLTemplate(String url) {
+    RestTemplate restTemplate = applicationContext.getBean(RestTemplate.class);
+    ObjectMapper objectMapper = applicationContext.getBean(ObjectMapper.class);
+    return new GraphQLTemplate(resourceLoader, restTemplate, url, objectMapper);
+  }
 }

@@ -4,8 +4,7 @@ import org.jfantasy.framework.security.AuthenticationException;
 
 public class ClientRegistrationException extends AuthenticationException {
 
-    public ClientRegistrationException(String msg) {
-        super(msg);
-    }
-
+  public ClientRegistrationException(String msg) {
+    super(msg);
+  }
 }

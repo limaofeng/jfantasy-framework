@@ -7,11 +7,10 @@ package org.jfantasy.framework.security.core;
  */
 public interface AuthenticatedPrincipal {
 
-    /**
-     * 当事人名称
-     *
-     * @return
-     */
-    String getName();
-
+  /**
+   * 当事人名称
+   *
+   * @return
+   */
+  String getName();
 }

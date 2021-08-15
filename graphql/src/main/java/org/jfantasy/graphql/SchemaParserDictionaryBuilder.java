@@ -1,8 +1,6 @@
 package org.jfantasy.graphql;
 
 import graphql.kickstart.tools.SchemaParserDictionary;
-import lombok.AllArgsConstructor;
-import lombok.Data;
 
 /**
  * 模式解析器字典生成器
@@ -13,11 +11,10 @@ import lombok.Data;
  */
 public interface SchemaParserDictionaryBuilder {
 
-    /**
-     * 构建方法
-     *
-     * @param dictionary
-     */
-    void build(SchemaParserDictionary dictionary);
-
+  /**
+   * 构建方法
+   *
+   * @param dictionary
+   */
+  void build(SchemaParserDictionary dictionary);
 }

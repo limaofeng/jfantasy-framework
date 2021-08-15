@@ -1,22 +1,28 @@
-pay-test
-oauth-test
+# IDE for VSCode
 .vscode
-.idea
-.gradle
 .settings
+.classpath
+.project
 out
 bin
-#.gradle
-backup
+
+# IDE for IDEA
+.idea
+*.iml
+
+.gradle
+
 # Package Files #
 *.war
 *.ear
-*.iml
 *.ipr
 *.iws
 target
 build
 classes
+
+log
 LOG_PATH_IS_UNDEFINED
 rebel.xml
 rebel-remote.xml
+

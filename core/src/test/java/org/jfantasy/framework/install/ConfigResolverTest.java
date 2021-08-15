@@ -11,26 +11,22 @@ import org.springframework.core.io.support.ResourcePatternResolver;
 
 public class ConfigResolverTest {
 
-    private static final Log LOG = LogFactory.getLog(ConfigResolverTest.class);
+  private static final Log LOG = LogFactory.getLog(ConfigResolverTest.class);
 
-    private ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
+  private ResourcePatternResolver resourcePatternResolver =
+      new PathMatchingResourcePatternResolver();
 
-    @BeforeEach
-    public void setUp() throws Exception {
+  @BeforeEach
+  public void setUp() throws Exception {}
+
+  @AfterEach
+  public void tearDown() throws Exception {}
+
+  @Test
+  public void testParseConfiguration() throws Exception {
+    Resource[] resources = this.resourcePatternResolver.getResources("classpath*:/install.xml");
+    for (Resource resource : resources) {
+      LOG.debug(resource);
     }
-
-    @AfterEach
-    public void tearDown() throws Exception {
-
-    }
-
-    @Test
-    public void testParseConfiguration() throws Exception {
-        Resource[] resources = this.resourcePatternResolver.getResources("classpath*:/install.xml" );
-        for(Resource resource : resources){
-            LOG.debug(resource);
-        }
-
-    }
-
+  }
 }

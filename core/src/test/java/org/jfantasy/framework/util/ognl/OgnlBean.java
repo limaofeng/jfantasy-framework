@@ -1,13 +1,10 @@
 package org.jfantasy.framework.util.ognl;
 
-
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.Arrays;
-import java.util.List;
 
 @Data
 @Builder
@@ -15,19 +12,17 @@ import java.util.List;
 @AllArgsConstructor
 public class OgnlBean {
 
-    private String name;
+  private String name;
 
-    private Long number;
+  private Long number;
 
-    private String[] names;
+  private String[] names;
 
-    private List<String> listNames;
+  private List<String> listNames;
 
-    private List<OgnlBean> list;
+  private List<OgnlBean> list;
 
-    private OgnlBean bean;
+  private OgnlBean bean;
 
-    private OgnlBean[] array;
-
-
+  private OgnlBean[] array;
 }

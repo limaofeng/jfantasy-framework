@@ -9,22 +9,20 @@ package org.jfantasy.framework.security;
  */
 public class SpringSecurityUtils {
 
-    private SpringSecurityUtils() {
-    }
+  private SpringSecurityUtils() {}
 
-    public static <T extends LoginUser> T getCurrentUser(Class<T> clazz) {
-        SecurityContext context = SecurityContextHolder.getContext();
-        if (context != null && context.getAuthentication().isAuthenticated()) {
-            Object principal = context.getAuthentication().getPrincipal();
-            if (principal instanceof LoginUser) {
-                return clazz.cast(principal);
-            }
-        }
-        return null;
+  public static <T extends LoginUser> T getCurrentUser(Class<T> clazz) {
+    SecurityContext context = SecurityContextHolder.getContext();
+    if (context != null && context.getAuthentication().isAuthenticated()) {
+      Object principal = context.getAuthentication().getPrincipal();
+      if (principal instanceof LoginUser) {
+        return clazz.cast(principal);
+      }
     }
+    return null;
+  }
 
-    public static LoginUser getCurrentUser() {
-        return getCurrentUser(LoginUser.class);
-    }
-
+  public static LoginUser getCurrentUser() {
+    return getCurrentUser(LoginUser.class);
+  }
 }

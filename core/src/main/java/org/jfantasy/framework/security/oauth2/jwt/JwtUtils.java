@@ -7,9 +7,8 @@ import org.jfantasy.framework.util.common.StringUtil;
 
 public class JwtUtils {
 
-    public static JwtTokenPayload payload(String accessToken) {
-        String[] strings = StringUtil.tokenizeToStringArray(accessToken, ".");
-        return JSON.deserialize(new String(Base64.decodeBase64(strings[1])), JwtTokenPayload.class);
-    }
-
+  public static JwtTokenPayload payload(String accessToken) {
+    String[] strings = StringUtil.tokenizeToStringArray(accessToken, ".");
+    return JSON.deserialize(new String(Base64.decodeBase64(strings[1])), JwtTokenPayload.class);
+  }
 }

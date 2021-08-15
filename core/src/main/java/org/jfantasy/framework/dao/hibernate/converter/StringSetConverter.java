@@ -5,5 +5,4 @@ package org.jfantasy.framework.dao.hibernate.converter;
  *
  * @author limaofeng
  */
-public class StringSetConverter extends SetConverter<String> {
-}
+public class StringSetConverter extends SetConverter<String> {}

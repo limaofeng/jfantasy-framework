@@ -4,31 +4,31 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 
 public interface IClass<T> {
-    Property getProperty(String paramString);
+  Property getProperty(String paramString);
 
-    Property[] getPropertys();
+  Property[] getPropertys();
 
-    T newInstance();
+  T newInstance();
 
-    T newInstance(Object paramObject);
+  T newInstance(Object paramObject);
 
-    T newInstance(Class<?> paramClass, Object paramObject);
+  T newInstance(Class<?> paramClass, Object paramObject);
 
-    MethodProxy getMethod(String paramString);
+  MethodProxy getMethod(String paramString);
 
-    MethodProxy getMethod(String paramString, Class<?>[] paramArrayOfClass);
+  MethodProxy getMethod(String paramString, Class<?>[] paramArrayOfClass);
 
-    void setValue(Object paramObject1, String paramString, Object paramObject2);
+  void setValue(Object paramObject1, String paramString, Object paramObject2);
 
-    <V> V getValue(Object paramObject, String paramString);
+  <V> V getValue(Object paramObject, String paramString);
 
-    T newInstance(Class<?>[] paramArrayOfClass, Object[] paramArrayOfObject);
+  T newInstance(Class<?>[] paramArrayOfClass, Object[] paramArrayOfObject);
 
-    Field[] getDeclaredFields();
+  Field[] getDeclaredFields();
 
-    Field getDeclaredField(String fieldName);
+  Field getDeclaredField(String fieldName);
 
-    Field[] getDeclaredFields(Class<? extends Annotation> annotClass);
+  Field[] getDeclaredFields(Class<? extends Annotation> annotClass);
 
-    <V> V getValue(String name);
+  <V> V getValue(String name);
 }

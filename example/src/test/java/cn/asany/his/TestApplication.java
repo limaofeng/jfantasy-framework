@@ -15,28 +15,23 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 /**
  * @author limaofeng
  * @version V1.0
- * 
  * @date 2019/2/13 4:04 PM
  */
 @Slf4j
 @Configuration
 @ComponentScan("cn.asany.his.demo")
 @EntityScan({
-    "cn.asany.his.*.bean",
+  "cn.asany.his.*.bean",
 })
 @EnableJpaRepositories(
     includeFilters = {
-        @ComponentScan.Filter(
-            type = FilterType.ASSIGNABLE_TYPE,
-            value = {JpaRepository.class}
-        )
+      @ComponentScan.Filter(
+          type = FilterType.ASSIGNABLE_TYPE,
+          value = {JpaRepository.class})
     },
     basePackages = {
-        "cn.asany.his.*.dao",
+      "cn.asany.his.*.dao",
     },
-    repositoryBaseClass = ComplexJpaRepository.class
-)
-@EnableAutoConfiguration(exclude = { MongoAutoConfiguration.class, QuartzAutoConfiguration.class})
-public class TestApplication  {
-
-}
+    repositoryBaseClass = ComplexJpaRepository.class)
+@EnableAutoConfiguration(exclude = {MongoAutoConfiguration.class, QuartzAutoConfiguration.class})
+public class TestApplication {}

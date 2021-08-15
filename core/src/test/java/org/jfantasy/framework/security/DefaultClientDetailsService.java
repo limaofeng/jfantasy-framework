@@ -5,8 +5,8 @@ import org.jfantasy.framework.security.oauth2.core.ClientDetailsService;
 import org.jfantasy.framework.security.oauth2.core.ClientRegistrationException;
 
 public class DefaultClientDetailsService implements ClientDetailsService {
-    @Override
-    public ClientDetails loadClientByClientId(String clientId) throws ClientRegistrationException {
-        return null;
-    }
+  @Override
+  public ClientDetails loadClientByClientId(String clientId) throws ClientRegistrationException {
+    return null;
+  }
 }

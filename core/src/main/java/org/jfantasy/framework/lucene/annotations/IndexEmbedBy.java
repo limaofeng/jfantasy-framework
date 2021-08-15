@@ -15,31 +15,31 @@ import java.lang.annotation.Target;
 @Target({java.lang.annotation.ElementType.FIELD, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface IndexEmbedBy {
-    /**
-     * value——Class类型，表示被引用的类
-     *
-     * @return class
-     */
-    Class[] value();
+  /**
+   * value——Class类型，表示被引用的类
+   *
+   * @return class
+   */
+  Class[] value();
 
-    /**
-     * analyze——boolean型，表示是否需要分词
-     *
-     * @return boolean
-     */
-    boolean[] analyze() default false;
+  /**
+   * analyze——boolean型，表示是否需要分词
+   *
+   * @return boolean
+   */
+  boolean[] analyze() default false;
 
-    /**
-     * store——boolean型，表示是否需要存储
-     *
-     * @return boolean
-     */
-    boolean[] store() default true;
+  /**
+   * store——boolean型，表示是否需要存储
+   *
+   * @return boolean
+   */
+  boolean[] store() default true;
 
-    /**
-     * boost——float型，表示该Field的权重
-     *
-     * @return boolean
-     */
-    float[] boost() default 1.0f;
+  /**
+   * boost——float型，表示该Field的权重
+   *
+   * @return boolean
+   */
+  float[] boost() default 1.0f;
 }

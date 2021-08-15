@@ -1,14 +1,13 @@
 package org.jfantasy.framework.error;
 
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.Test;
 
 class ErrorUtilsTest {
 
-    @Test
-    void errorCode() {
-        System.out.println(ErrorUtils.errorCode(new ValidationException("xxxx")));
-
-    }
+  @Test
+  void errorCode() {
+    System.out.println(ErrorUtils.errorCode(new ValidationException("xxxx")));
+  }
 }

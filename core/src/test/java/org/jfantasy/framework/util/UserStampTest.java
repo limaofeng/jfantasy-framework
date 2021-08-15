@@ -11,21 +11,20 @@ import org.junit.jupiter.api.Test;
 
 public class UserStampTest {
 
-    private static final Log LOG = LogFactory.getLog(UserStampTest.class);
+  private static final Log LOG = LogFactory.getLog(UserStampTest.class);
 
-    @Test
-    public void decode() {
-        UserResult result = Decoder.decode("vAcTChtxIcsgJAnI");//vAcTChtxVAsCVCHe
-        assert result != null;
-        assert result.checkPassword("1231245");
-        LOG.debug(JSON.serialize(result));
-    }
+  @Test
+  public void decode() {
+    UserResult result = Decoder.decode("vAcTChtxIcsgJAnI"); // vAcTChtxVAsCVCHe
+    assert result != null;
+    assert result.checkPassword("1231245");
+    LOG.debug(JSON.serialize(result));
+  }
 
-    @Test
-    public void encode() {
-        UserStamp stamp = Encoder.encode(1, 1123, "1231245",3,3);
-        LOG.debug(JSON.serialize(stamp) + "=>" + stamp);
-        LOG.debug(JSON.serialize(Decoder.decode(stamp.toString())));
-    }
-
+  @Test
+  public void encode() {
+    UserStamp stamp = Encoder.encode(1, 1123, "1231245", 3, 3);
+    LOG.debug(JSON.serialize(stamp) + "=>" + stamp);
+    LOG.debug(JSON.serialize(Decoder.decode(stamp.toString())));
+  }
 }

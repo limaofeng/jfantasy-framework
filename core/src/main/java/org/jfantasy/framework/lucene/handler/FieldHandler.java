@@ -4,6 +4,5 @@ import org.apache.lucene.document.Document;
 
 public interface FieldHandler {
 
-	void handle(Document paramDocument);
-
+  void handle(Document paramDocument);
 }

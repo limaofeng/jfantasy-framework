@@ -1,8 +1,12 @@
 package org.jfantasy.framework.spring.config;
 
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.Unirest;
+import java.nio.charset.Charset;
+import java.util.List;
+import javax.annotation.PostConstruct;
+import javax.servlet.DispatcherType;
+import javax.servlet.MultipartConfigElement;
 import org.hibernate.validator.HibernateValidator;
 import org.jfantasy.framework.jackson.JSON;
 import org.jfantasy.framework.jackson.UnirestObjectMapper;
@@ -39,123 +43,125 @@ import org.springframework.web.servlet.config.annotation.*;
 import org.springframework.web.servlet.i18n.CookieLocaleResolver;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 
-import javax.annotation.PostConstruct;
-import javax.servlet.DispatcherType;
-import javax.servlet.MultipartConfigElement;
-import java.nio.charset.Charset;
-import java.util.List;
-
-
-/**
- * @author limaofeng
- */
+/** @author limaofeng */
 @EnableWebMvc
 @Configuration
-@ComponentScan(basePackages = {"org.jfantasy.*.rest"}, useDefaultFilters = false, includeFilters = {
-    @ComponentScan.Filter(type = FilterType.ANNOTATION, value = {RestController.class, Controller.class})
-})
+@ComponentScan(
+    basePackages = {"org.jfantasy.*.rest"},
+    useDefaultFilters = false,
+    includeFilters = {
+      @ComponentScan.Filter(
+          type = FilterType.ANNOTATION,
+          value = {RestController.class, Controller.class})
+    })
 @Order(value = WebMvcConfig.ORDER)
 public class WebMvcConfig implements WebMvcConfigurer {
 
-    public static final int ORDER = Ordered.HIGHEST_PRECEDENCE + 32;
+  public static final int ORDER = Ordered.HIGHEST_PRECEDENCE + 32;
 
-    private final ApplicationContext applicationContext;
+  private final ApplicationContext applicationContext;
 
-    private final ObjectMapper objectMapper;
+  private final ObjectMapper objectMapper;
 
-    @Autowired
-    public WebMvcConfig(ApplicationContext applicationContext, ObjectMapper objectMapper) {
-        this.applicationContext = applicationContext;
-        this.objectMapper = objectMapper;
+  @Autowired
+  public WebMvcConfig(ApplicationContext applicationContext, ObjectMapper objectMapper) {
+    this.applicationContext = applicationContext;
+    this.objectMapper = objectMapper;
+  }
+
+  @Override
+  public void addResourceHandlers(ResourceHandlerRegistry registry) {
+    registry.addResourceHandler("*.html").addResourceLocations("/");
+  }
+
+  @Bean
+  public LocaleResolver localeResolver() {
+    return new CookieLocaleResolver();
+  }
+
+  @Override
+  public void addInterceptors(InterceptorRegistry registry) {
+    LocaleChangeInterceptor localeChangeInterceptor = new LocaleChangeInterceptor();
+    localeChangeInterceptor.setParamName("lang");
+    registry.addInterceptor(localeChangeInterceptor);
+  }
+
+  @Bean
+  public MultipartConfigElement multipartConfigElement() {
+    MultipartConfigFactory factory = new MultipartConfigFactory();
+    factory.setMaxFileSize(DataSize.ofBytes(10485760));
+    return factory.createMultipartConfig();
+  }
+
+  @PostConstruct
+  public void initObjectMapper() {
+    JSON.initialize(objectMapper);
+    Unirest.setObjectMapper(new UnirestObjectMapper(objectMapper));
+  }
+
+  @Override
+  public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+    Class[] removeClazz =
+        new Class[] {StringHttpMessageConverter.class, MappingJackson2HttpMessageConverter.class};
+    converters.removeIf(converter -> ObjectUtil.exists(removeClazz, converter.getClass()));
+    converters.add(0, new MappingJackson2HttpMessageConverter(this.objectMapper));
+    converters.add(0, new StringHttpMessageConverter(Charset.forName("utf-8")));
+  }
+
+  @Override
+  public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
+    argumentResolvers.add(new PropertyFilterModelAttributeMethodProcessor());
+    argumentResolvers.add(new PagerModelAttributeMethodProcessor());
+  }
+
+  @Override
+  public Validator getValidator() {
+    if (applicationContext instanceof XmlWebApplicationContext) {
+      ConfigurableApplicationContext configurableApplicationContext =
+          (ConfigurableApplicationContext) applicationContext;
+      DefaultListableBeanFactory defaultListableBeanFactory =
+          (DefaultListableBeanFactory) configurableApplicationContext.getBeanFactory();
+      BeanDefinitionBuilder beanDefinitionBuilder =
+          BeanDefinitionBuilder.genericBeanDefinition(LocalValidatorFactoryBean.class);
+      beanDefinitionBuilder.setAutowireMode(2);
+      beanDefinitionBuilder.addPropertyValue("providerClass", HibernateValidator.class);
+      defaultListableBeanFactory.registerBeanDefinition(
+          "validator", beanDefinitionBuilder.getBeanDefinition());
+      return configurableApplicationContext.getBean("validator", Validator.class);
     }
+    return null;
+  }
 
-    @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("*.html").addResourceLocations("/");
-    }
+  @Override
+  public void addCorsMappings(CorsRegistry registry) {
+    registry
+        .addMapping("/**")
+        .allowedOriginPatterns("*")
+        .allowedMethods("GET", "POST", "HEAD", "PATCH", "PUT", "DELETE", "OPTIONS")
+        .allowedHeaders("Accept", "Origin", "Authorization", "Content-Type", "Last-Modified")
+        .allowCredentials(true)
+        .maxAge(3600);
+  }
 
-    @Bean
-    public LocaleResolver localeResolver() {
-        return new CookieLocaleResolver();
-    }
+  @Bean
+  public FilterRegistrationBean conversionCharacterEncodingFilter() {
+    FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean();
+    filterRegistrationBean.setFilter(new ConversionCharacterEncodingFilter());
+    filterRegistrationBean.setEnabled(true);
+    filterRegistrationBean.setOrder(200);
+    filterRegistrationBean.setDispatcherTypes(DispatcherType.REQUEST);
+    filterRegistrationBean.addUrlPatterns("/*");
+    return filterRegistrationBean;
+  }
 
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        LocaleChangeInterceptor localeChangeInterceptor = new LocaleChangeInterceptor();
-        localeChangeInterceptor.setParamName("lang");
-        registry.addInterceptor(localeChangeInterceptor);
-    }
-
-    @Bean
-    public MultipartConfigElement multipartConfigElement() {
-        MultipartConfigFactory factory = new MultipartConfigFactory();
-        factory.setMaxFileSize(DataSize.ofBytes(10485760));
-        return factory.createMultipartConfig();
-    }
-
-    @PostConstruct
-    public void initObjectMapper() {
-        JSON.initialize(objectMapper);
-        Unirest.setObjectMapper(new UnirestObjectMapper(objectMapper));
-    }
-
-    @Override
-    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-        Class[] removeClazz = new Class[]{StringHttpMessageConverter.class, MappingJackson2HttpMessageConverter.class};
-        converters.removeIf(converter -> ObjectUtil.exists(removeClazz, converter.getClass()));
-        converters.add(0, new MappingJackson2HttpMessageConverter(this.objectMapper));
-        converters.add(0, new StringHttpMessageConverter(Charset.forName("utf-8")));
-    }
-
-    @Override
-    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
-        argumentResolvers.add(new PropertyFilterModelAttributeMethodProcessor());
-        argumentResolvers.add(new PagerModelAttributeMethodProcessor());
-    }
-
-    @Override
-    public Validator getValidator() {
-        if (applicationContext instanceof XmlWebApplicationContext) {
-            ConfigurableApplicationContext configurableApplicationContext = (ConfigurableApplicationContext) applicationContext;
-            DefaultListableBeanFactory defaultListableBeanFactory = (DefaultListableBeanFactory) configurableApplicationContext.getBeanFactory();
-            BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(LocalValidatorFactoryBean.class);
-            beanDefinitionBuilder.setAutowireMode(2);
-            beanDefinitionBuilder.addPropertyValue("providerClass", HibernateValidator.class);
-            defaultListableBeanFactory.registerBeanDefinition("validator", beanDefinitionBuilder.getBeanDefinition());
-            return configurableApplicationContext.getBean("validator", Validator.class);
-        }
-        return null;
-    }
-
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
-            .allowedOriginPatterns("*")
-            .allowedMethods("GET", "POST", "HEAD", "PATCH", "PUT", "DELETE", "OPTIONS")
-            .allowedHeaders("Accept", "Origin", "Authorization", "Content-Type", "Last-Modified")
-            .allowCredentials(true).maxAge(3600);
-    }
-
-    @Bean
-    public FilterRegistrationBean conversionCharacterEncodingFilter() {
-        FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean();
-        filterRegistrationBean.setFilter(new ConversionCharacterEncodingFilter());
-        filterRegistrationBean.setEnabled(true);
-        filterRegistrationBean.setOrder(200);
-        filterRegistrationBean.setDispatcherTypes(DispatcherType.REQUEST);
-        filterRegistrationBean.addUrlPatterns("/*");
-        return filterRegistrationBean;
-    }
-
-    @Bean
-    public FilterRegistrationBean actionContextFilter() {
-        FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean();
-        filterRegistrationBean.setFilter(new ActionContextFilter());
-        filterRegistrationBean.setEnabled(true);
-        filterRegistrationBean.setOrder(300);
-        filterRegistrationBean.setDispatcherTypes(DispatcherType.REQUEST);
-        filterRegistrationBean.addUrlPatterns("/*");
-        return filterRegistrationBean;
-    }
-
+  @Bean
+  public FilterRegistrationBean actionContextFilter() {
+    FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean();
+    filterRegistrationBean.setFilter(new ActionContextFilter());
+    filterRegistrationBean.setEnabled(true);
+    filterRegistrationBean.setOrder(300);
+    filterRegistrationBean.setDispatcherTypes(DispatcherType.REQUEST);
+    filterRegistrationBean.addUrlPatterns("/*");
+    return filterRegistrationBean;
+  }
 }

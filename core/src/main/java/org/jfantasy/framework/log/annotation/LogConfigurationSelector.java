@@ -6,18 +6,20 @@ import org.springframework.context.annotation.AutoProxyRegistrar;
 
 public class LogConfigurationSelector extends AdviceModeImportSelector<EnableLog> {
 
-    private static final String LOG_ASPECT_CONFIGURATION_CLASS_NAME = "org.springframework.log.aspectj.AspectJCachingConfiguration";
+  private static final String LOG_ASPECT_CONFIGURATION_CLASS_NAME =
+      "org.springframework.log.aspectj.AspectJCachingConfiguration";
 
-    @Override
-    public String[] selectImports(AdviceMode adviceMode) {
-        switch (adviceMode) {
-            case PROXY:
-                return new String[]{AutoProxyRegistrar.class.getName(), ProxyLogConfiguration.class.getName()};
-            case ASPECTJ:
-                return new String[]{LOG_ASPECT_CONFIGURATION_CLASS_NAME};
-            default:
-                return null;
-        }
+  @Override
+  public String[] selectImports(AdviceMode adviceMode) {
+    switch (adviceMode) {
+      case PROXY:
+        return new String[] {
+          AutoProxyRegistrar.class.getName(), ProxyLogConfiguration.class.getName()
+        };
+      case ASPECTJ:
+        return new String[] {LOG_ASPECT_CONFIGURATION_CLASS_NAME};
+      default:
+        return null;
     }
-
+  }
 }

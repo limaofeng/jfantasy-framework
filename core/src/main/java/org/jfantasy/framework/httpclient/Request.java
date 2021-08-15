@@ -1,6 +1,10 @@
 package org.jfantasy.framework.httpclient;
 
-
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.security.*;
+import java.util.*;
+import javax.net.ssl.SSLContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.Header;
@@ -19,12 +23,6 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.ssl.SSLContexts;
 import org.jfantasy.framework.util.common.StringUtil;
 
-import javax.net.ssl.SSLContext;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.security.*;
-import java.util.*;
-
 /**
  * HttpClient 请求对象
  *
@@ -34,174 +32,181 @@ import java.util.*;
  */
 public class Request {
 
-    private static final Log LOG = LogFactory.getLog(Request.class);
+  private static final Log LOG = LogFactory.getLog(Request.class);
 
-    private CookieStore cookieStore = new BasicCookieStore();
-    ;
-    private List<Header> requestHeaders = new ArrayList<Header>();
-    private Map<String, String> params = new HashMap<String, String>();
-    private Part[] upLoadFiles = new Part[0];
-    private Map<String, String> requestBody = new HashMap<String, String>();
-    private HttpEntity requestEntity;
-    private SSLConnectionSocketFactory sslSocketFactory;
+  private CookieStore cookieStore = new BasicCookieStore();;
+  private List<Header> requestHeaders = new ArrayList<Header>();
+  private Map<String, String> params = new HashMap<String, String>();
+  private Part[] upLoadFiles = new Part[0];
+  private Map<String, String> requestBody = new HashMap<String, String>();
+  private HttpEntity requestEntity;
+  private SSLConnectionSocketFactory sslSocketFactory;
 
-    public Request() {
+  public Request() {}
+
+  public Request(String queryString) {
+    String[] pairs = queryString.split("[;&]");
+    for (String pair : pairs) {
+      String[] param = pair.split("=");
+      this.params.put(param[0], param.length == 1 ? "" : param[1]);
     }
+  }
 
-    public Request(String queryString) {
-        String[] pairs = queryString.split("[;&]");
-        for (String pair : pairs) {
-            String[] param = pair.split("=");
-            this.params.put(param[0], param.length == 1 ? "" : param[1]);
+  public Request(HttpEntity requestEntity) {
+    this.requestEntity = requestEntity;
+  }
+
+  public Request(CookieStore store, Map<String, Object> params) throws FileNotFoundException {
+    this(params);
+    this.cookieStore = store;
+  }
+
+  public Request(CookieStore store) {
+    this.cookieStore = store;
+  }
+
+  public Request(CookieStore store, Header[] requestHeaders) {
+    this(store);
+    this.requestHeaders = new ArrayList<Header>(Arrays.asList(requestHeaders));
+  }
+
+  public NameValuePair[] getRequestBody() {
+    NameValuePair[] data = new NameValuePair[this.requestBody.size()];
+    int i = 0;
+    for (Map.Entry<String, String> entry : this.requestBody.entrySet()) {
+      data[i++] = new BasicNameValuePair(entry.getKey(), entry.getValue());
+    }
+    return data;
+  }
+
+  public void setRequestBody(Map<String, String> requestBody) {
+    this.requestBody = requestBody;
+  }
+
+  public Request(Map<String, ?> params) throws FileNotFoundException {
+    if (params != null) {
+      List<Part> parts = new ArrayList<Part>();
+      for (Map.Entry<String, ?> entry : params.entrySet()) {
+        if (entry.getValue() instanceof String) {
+          addParam(entry.getKey(), entry.getValue().toString());
+        } else if (entry.getValue() instanceof File) {
+          parts.add(new Part(entry.getKey(), new FileBody((File) entry.getValue())));
         }
-    }
-
-    public Request(HttpEntity requestEntity) {
-        this.requestEntity = requestEntity;
-    }
-
-    public Request(CookieStore store, Map<String, Object> params) throws FileNotFoundException {
-        this(params);
-        this.cookieStore = store;
-    }
-
-    public Request(CookieStore store) {
-        this.cookieStore = store;
-    }
-
-    public Request(CookieStore store, Header[] requestHeaders) {
-        this(store);
-        this.requestHeaders = new ArrayList<Header>(Arrays.asList(requestHeaders));
-    }
-
-    public NameValuePair[] getRequestBody() {
-        NameValuePair[] data = new NameValuePair[this.requestBody.size()];
-        int i = 0;
-        for (Map.Entry<String, String> entry : this.requestBody.entrySet()) {
-            data[i++] = new BasicNameValuePair(entry.getKey(), entry.getValue());
-
+      }
+      if (!parts.isEmpty()) {
+        for (Map.Entry<String, String> entry : this.getParams().entrySet()) {
+          parts.add(
+              new Part(entry.getKey(), new StringBody(entry.getValue(), ContentType.TEXT_PLAIN)));
         }
-        return data;
+        this.getParams().clear();
+        setUpLoadFiles(parts.toArray(new Part[parts.size()]));
+      }
+    }
+  }
+
+  public void addParam(String name, String value) {
+    this.params.put(name, value);
+  }
+
+  public String queryString() {
+    StringBuilder queryString = new StringBuilder();
+    Iterator<String> iterator = this.params.keySet().iterator();
+    while (iterator.hasNext()) {
+      String name = iterator.next();
+      queryString
+          .append(name)
+          .append("=")
+          .append(this.params.get(name))
+          .append(iterator.hasNext() ? "&" : "");
+    }
+    return queryString.toString();
+  }
+
+  public Map<String, String> getParams() {
+    return this.params;
+  }
+
+  public void addCookie(String name, String value) {
+    this.addCookie(null, name, value);
+  }
+
+  public void addCookie(String domain, String name, String value) {
+    BasicClientCookie cookie = new BasicClientCookie(name, value);
+    if (StringUtil.isNotBlank(domain)) {
+      cookie.setDomain(domain);
+    }
+    this.cookieStore.addCookie(cookie);
+  }
+
+  public void addRequestHeader(String name, String value) {
+    this.requestHeaders.add(new BasicHeader(name, value));
+  }
+
+  public CookieStore getCookies() {
+    return this.cookieStore;
+  }
+
+  public Header[] getRequestHeaders() {
+    return this.requestHeaders.toArray(new Header[this.requestHeaders.size()]);
+  }
+
+  public Part[] getUpLoadFiles() {
+    return this.upLoadFiles;
+  }
+
+  public void setUpLoadFiles(Part[] parts) {
+    this.upLoadFiles = parts;
+  }
+
+  public HttpEntity getRequestEntity() {
+    return requestEntity;
+  }
+
+  public void setRequestEntity(HttpEntity requestEntity) {
+    this.requestEntity = requestEntity;
+  }
+
+  public void enabledSSL(KeyStore keyStore, String keyPassword) {
+    try {
+      SSLContext sslcontext =
+          SSLContexts.custom().loadKeyMaterial(keyStore, keyPassword.toCharArray()).build();
+      this.sslSocketFactory =
+          new SSLConnectionSocketFactory(
+              sslcontext,
+              new String[] {"TLSv1"},
+              null,
+              SSLConnectionSocketFactory
+                  .BROWSER_COMPATIBLE_HOSTNAME_VERIFIER); // 设置httpclient的SSLSocketFactory
+    } catch (NoSuchAlgorithmException e) {
+      LOG.error(e.getMessage(), e);
+    } catch (KeyManagementException e) {
+      LOG.error(e.getMessage(), e);
+    } catch (KeyStoreException e) {
+      LOG.error(e.getMessage(), e);
+    } catch (UnrecoverableKeyException e) {
+      LOG.error(e.getMessage(), e);
+    }
+  }
+
+  public SSLConnectionSocketFactory getSslSocketFactory() {
+    return sslSocketFactory;
+  }
+
+  class Part {
+    String name;
+    ContentBody contentBody;
+
+    public Part(String name, ContentBody contentBody) {
+      this.name = name;
+      this.contentBody = contentBody;
     }
 
-    public void setRequestBody(Map<String, String> requestBody) {
-        this.requestBody = requestBody;
+    public String getName() {
+      return name;
     }
 
-    public Request(Map<String, ?> params) throws FileNotFoundException {
-        if (params != null) {
-            List<Part> parts = new ArrayList<Part>();
-            for (Map.Entry<String, ?> entry : params.entrySet()) {
-                if (entry.getValue() instanceof String) {
-                    addParam(entry.getKey(), entry.getValue().toString());
-                } else if (entry.getValue() instanceof File) {
-                    parts.add(new Part(entry.getKey(), new FileBody((File) entry.getValue())));
-                }
-            }
-            if (!parts.isEmpty()) {
-                for (Map.Entry<String, String> entry : this.getParams().entrySet()) {
-                    parts.add(new Part(entry.getKey(), new StringBody(entry.getValue(), ContentType.TEXT_PLAIN)));
-                }
-                this.getParams().clear();
-                setUpLoadFiles(parts.toArray(new Part[parts.size()]));
-            }
-        }
+    public ContentBody getContentBody() {
+      return contentBody;
     }
-
-    public void addParam(String name, String value) {
-        this.params.put(name, value);
-    }
-
-    public String queryString() {
-        StringBuilder queryString = new StringBuilder();
-        Iterator<String> iterator = this.params.keySet().iterator();
-        while (iterator.hasNext()) {
-            String name = iterator.next();
-            queryString.append(name).append("=").append(this.params.get(name)).append(iterator.hasNext() ? "&" : "");
-        }
-        return queryString.toString();
-    }
-
-    public Map<String, String> getParams() {
-        return this.params;
-    }
-
-    public void addCookie(String name, String value) {
-        this.addCookie(null, name, value);
-    }
-
-    public void addCookie(String domain, String name, String value) {
-        BasicClientCookie cookie = new BasicClientCookie(name, value);
-        if (StringUtil.isNotBlank(domain)) {
-            cookie.setDomain(domain);
-        }
-        this.cookieStore.addCookie(cookie);
-    }
-
-    public void addRequestHeader(String name, String value) {
-        this.requestHeaders.add(new BasicHeader(name, value));
-    }
-
-    public CookieStore getCookies() {
-        return this.cookieStore;
-    }
-
-    public Header[] getRequestHeaders() {
-        return this.requestHeaders.toArray(new Header[this.requestHeaders.size()]);
-    }
-
-    public Part[] getUpLoadFiles() {
-        return this.upLoadFiles;
-    }
-
-    public void setUpLoadFiles(Part[] parts) {
-        this.upLoadFiles = parts;
-    }
-
-    public HttpEntity getRequestEntity() {
-        return requestEntity;
-    }
-
-    public void setRequestEntity(HttpEntity requestEntity) {
-        this.requestEntity = requestEntity;
-    }
-
-    public void enabledSSL(KeyStore keyStore, String keyPassword) {
-        try {
-            SSLContext sslcontext = SSLContexts.custom().loadKeyMaterial(keyStore, keyPassword.toCharArray()).build();
-            this.sslSocketFactory = new SSLConnectionSocketFactory(sslcontext, new String[]{"TLSv1"}, null, SSLConnectionSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER);//设置httpclient的SSLSocketFactory 
-        } catch (NoSuchAlgorithmException e) {
-            LOG.error(e.getMessage(), e);
-        } catch (KeyManagementException e) {
-            LOG.error(e.getMessage(), e);
-        } catch (KeyStoreException e) {
-            LOG.error(e.getMessage(), e);
-        } catch (UnrecoverableKeyException e) {
-            LOG.error(e.getMessage(), e);
-        }
-    }
-
-    public SSLConnectionSocketFactory getSslSocketFactory() {
-        return sslSocketFactory;
-    }
-
-    class Part {
-        String name;
-        ContentBody contentBody;
-
-        public Part(String name, ContentBody contentBody) {
-            this.name = name;
-            this.contentBody = contentBody;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public ContentBody getContentBody() {
-            return contentBody;
-        }
-
-    }
-
+  }
 }

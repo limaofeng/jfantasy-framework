@@ -1,11 +1,10 @@
 package org.jfantasy.framework.security;
 
+import java.util.ArrayList;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.security.authentication.*;
 import org.springframework.util.Assert;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 身份验证管理器
@@ -15,92 +14,94 @@ import java.util.List;
 @Slf4j
 public class AuthenticationManager {
 
-    private List<AuthenticationProvider> providers = new ArrayList<>();
-    private AuthenticationEventPublisher eventPublisher = new NullEventPublisher();
+  private List<AuthenticationProvider> providers = new ArrayList<>();
+  private AuthenticationEventPublisher eventPublisher = new NullEventPublisher();
 
-    public AuthenticationManager() {
-    }
+  public AuthenticationManager() {}
 
-    public AuthenticationManager(List<AuthenticationProvider> providers) {
-        this.providers = providers;
-    }
+  public AuthenticationManager(List<AuthenticationProvider> providers) {
+    this.providers = providers;
+  }
 
-    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
-        Class<? extends Authentication> toTest = authentication.getClass();
-        AuthenticationException lastException = null;
-        AuthenticationException parentException = null;
-        Authentication result = null;
-        Authentication parentResult = null;
-        int currentPosition = 0;
-        int size = this.providers.size();
+  public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+    SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
+    Class<? extends Authentication> toTest = authentication.getClass();
+    AuthenticationException lastException = null;
+    AuthenticationException parentException = null;
+    Authentication result = null;
+    Authentication parentResult = null;
+    int currentPosition = 0;
+    int size = this.providers.size();
 
-        SecurityContextHolder.clearContext();
+    SecurityContextHolder.clearContext();
 
-        for (AuthenticationProvider provider : this.providers) {
-            if (!provider.supports(toTest)) {
-                continue;
-            }
-            if (log.isTraceEnabled()) {
-                log.trace("Authenticating request with %s (%d/%d)", provider.getClass().getSimpleName(), ++currentPosition, size);
-            }
-            try {
-                result = provider.authenticate(authentication);
-                if (result != null) {
-                    copyDetails(authentication, result);
-                    break;
-                }
-            } catch (AccountStatusException | InternalAuthenticationServiceException ex) {
-                prepareException(ex, authentication);
-                throw ex;
-            } catch (AuthenticationException ex) {
-                lastException = ex;
-            }
-        }
-
+    for (AuthenticationProvider provider : this.providers) {
+      if (!provider.supports(toTest)) {
+        continue;
+      }
+      if (log.isTraceEnabled()) {
+        log.trace(
+            "Authenticating request with %s (%d/%d)",
+            provider.getClass().getSimpleName(), ++currentPosition, size);
+      }
+      try {
+        result = provider.authenticate(authentication);
         if (result != null) {
-            this.eventPublisher.publishAuthenticationSuccess(result);
-            securityContext.setAuthentication(result);
-            SecurityContextHolder.setContext(securityContext);
-            return result;
+          copyDetails(authentication, result);
+          break;
         }
-
-        if (lastException == null) {
-            lastException = new ProviderNotFoundException("ProviderManager.providerNotFound No AuthenticationProvider found for " + toTest.getName());
-        }
-        prepareException(lastException, authentication);
-        throw lastException;
+      } catch (AccountStatusException | InternalAuthenticationServiceException ex) {
+        prepareException(ex, authentication);
+        throw ex;
+      } catch (AuthenticationException ex) {
+        lastException = ex;
+      }
     }
 
-    private void copyDetails(Authentication source, Authentication dest) {
-        if ((dest instanceof AbstractAuthenticationToken) && (dest.getDetails() == null)) {
-            AbstractAuthenticationToken token = (AbstractAuthenticationToken) dest;
-            token.setDetails(source.getDetails());
-        }
+    if (result != null) {
+      this.eventPublisher.publishAuthenticationSuccess(result);
+      securityContext.setAuthentication(result);
+      SecurityContextHolder.setContext(securityContext);
+      return result;
     }
 
-    public void setAuthenticationEventPublisher(AuthenticationEventPublisher eventPublisher) {
-        Assert.notNull(eventPublisher, "AuthenticationEventPublisher cannot be null");
-        this.eventPublisher = eventPublisher;
+    if (lastException == null) {
+      lastException =
+          new ProviderNotFoundException(
+              "ProviderManager.providerNotFound No AuthenticationProvider found for "
+                  + toTest.getName());
     }
+    prepareException(lastException, authentication);
+    throw lastException;
+  }
 
-    private void prepareException(AuthenticationException ex, Authentication auth) {
-        this.eventPublisher.publishAuthenticationFailure(ex, auth);
+  private void copyDetails(Authentication source, Authentication dest) {
+    if ((dest instanceof AbstractAuthenticationToken) && (dest.getDetails() == null)) {
+      AbstractAuthenticationToken token = (AbstractAuthenticationToken) dest;
+      token.setDetails(source.getDetails());
     }
+  }
 
-    public void addProvider(AuthenticationProvider provider) {
-        this.providers.add(provider);
-    }
+  public void setAuthenticationEventPublisher(AuthenticationEventPublisher eventPublisher) {
+    Assert.notNull(eventPublisher, "AuthenticationEventPublisher cannot be null");
+    this.eventPublisher = eventPublisher;
+  }
 
-    private static final class NullEventPublisher implements AuthenticationEventPublisher {
+  private void prepareException(AuthenticationException ex, Authentication auth) {
+    this.eventPublisher.publishAuthenticationFailure(ex, auth);
+  }
 
-        @Override
-        public void publishAuthenticationFailure(AuthenticationException exception, Authentication authentication) {
-        }
+  public void addProvider(AuthenticationProvider provider) {
+    this.providers.add(provider);
+  }
 
-        @Override
-        public void publishAuthenticationSuccess(Authentication authentication) {
-        }
+  private static final class NullEventPublisher implements AuthenticationEventPublisher {
 
-    }
+    @Override
+    public void publishAuthenticationFailure(
+        AuthenticationException exception, Authentication authentication) {}
+
+    @Override
+    public void publishAuthenticationSuccess(Authentication authentication) {}
+  }
 }

@@ -11,22 +11,19 @@ import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.graphql.util.Kit;
 import org.springframework.stereotype.Component;
 
-/**
- * @author limaofeng
- */
+/** @author limaofeng */
 @Component
 public class UserGraphQLQueryResolver implements GraphQLQueryResolver {
 
-    private final UserService userService;
+  private final UserService userService;
 
-    public UserGraphQLQueryResolver(UserService userService) {
-        this.userService = userService;
-    }
+  public UserGraphQLQueryResolver(UserService userService) {
+    this.userService = userService;
+  }
 
-    public UserConnection users(UserFilter filter, int page, int pageSize, OrderBy orderBy) {
-        Pager<User> pager = new Pager<>(page, pageSize, orderBy);
-        filter = ObjectUtil.defaultValue(filter, new UserFilter());
-        return Kit.connection(userService.findPager(pager, filter.build()), UserConnection.class);
-    }
-
+  public UserConnection users(UserFilter filter, int page, int pageSize, OrderBy orderBy) {
+    Pager<User> pager = new Pager<>(page, pageSize, orderBy);
+    filter = ObjectUtil.defaultValue(filter, new UserFilter());
+    return Kit.connection(userService.findPager(pager, filter.build()), UserConnection.class);
+  }
 }

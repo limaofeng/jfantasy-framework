@@ -1,12 +1,11 @@
 package org.jfantasy.framework.log.annotation;
 
-import org.springframework.context.annotation.Import;
-import org.springframework.core.Ordered;
-import org.springframework.context.annotation.AdviceMode;
+import static org.springframework.context.annotation.AdviceMode.*;
 
 import java.lang.annotation.*;
-
-import static org.springframework.context.annotation.AdviceMode.*;
+import org.springframework.context.annotation.AdviceMode;
+import org.springframework.context.annotation.Import;
+import org.springframework.core.Ordered;
 
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
@@ -14,10 +13,9 @@ import static org.springframework.context.annotation.AdviceMode.*;
 @Import(LogConfigurationSelector.class)
 public @interface EnableLog {
 
-    boolean proxyTargetClass() default false;
+  boolean proxyTargetClass() default false;
 
-    AdviceMode mode() default PROXY;
+  AdviceMode mode() default PROXY;
 
-    int order() default Ordered.LOWEST_PRECEDENCE;
-
+  int order() default Ordered.LOWEST_PRECEDENCE;
 }

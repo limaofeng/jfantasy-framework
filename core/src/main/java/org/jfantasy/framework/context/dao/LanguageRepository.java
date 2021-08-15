@@ -11,12 +11,12 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface LanguageRepository extends JpaRepository<Language, Long> {
-    /**
-     * 获取语言信息
-     *
-     * @param key
-     * @param locale
-     * @return
-     */
-    Language findByKeyAndLocale(String key, String locale);
+  /**
+   * 获取语言信息
+   *
+   * @param key
+   * @param locale
+   * @return
+   */
+  Language findByKeyAndLocale(String key, String locale);
 }

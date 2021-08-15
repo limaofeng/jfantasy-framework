@@ -7,6 +7,4 @@ package org.jfantasy.framework.dao.mybatis.sqlmapper;
  * @version 1.0
  * @since 2012-10-29 下午09:04:07
  */
-public interface SqlMapper {
-
-}
+public interface SqlMapper {}

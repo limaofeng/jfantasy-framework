@@ -2,16 +2,15 @@ package org.jfantasy.framework.error;
 
 public class IgnoreException extends RuntimeException {
 
-    public IgnoreException(String message) {
-        super(message);
-    }
+  public IgnoreException(String message) {
+    super(message);
+  }
 
-    public IgnoreException(String message, Exception e) {
-        super(message, e);
-    }
+  public IgnoreException(String message, Exception e) {
+    super(message, e);
+  }
 
-    public IgnoreException(Exception e) {
-        super(e);
-    }
-
+  public IgnoreException(Exception e) {
+    super(e);
+  }
 }

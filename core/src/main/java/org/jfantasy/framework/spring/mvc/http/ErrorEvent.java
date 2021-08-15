@@ -5,16 +5,15 @@ import org.springframework.context.ApplicationEvent;
 
 public class ErrorEvent extends ApplicationEvent {
 
-    public ErrorEvent(ErrorResponse error, Object state) {
-        super(new ErrorSource(error, state));
-    }
+  public ErrorEvent(ErrorResponse error, Object state) {
+    super(new ErrorSource(error, state));
+  }
 
-    public ErrorResponse getError() {
-        return ((ErrorSource)this.getSource()).getError();
-    }
+  public ErrorResponse getError() {
+    return ((ErrorSource) this.getSource()).getError();
+  }
 
-    public <T> T getState() {
-        return ((ErrorSource)this.getSource()).getState();
-    }
-
+  public <T> T getState() {
+    return ((ErrorSource) this.getSource()).getState();
+  }
 }

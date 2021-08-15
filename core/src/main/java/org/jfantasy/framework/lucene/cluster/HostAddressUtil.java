@@ -6,38 +6,35 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class HostAddressUtil {
-    private HostAddressUtil() {
+  private HostAddressUtil() {}
+
+  private static final Logger LOGGER = LogManager.getLogger(HostAddressUtil.class);
+
+  public static List<String> getLocalAddresses() {
+    List<String> list = new ArrayList<String>();
+    Enumeration<NetworkInterface> interfaceList = null;
+    try {
+      interfaceList = NetworkInterface.getNetworkInterfaces();
+    } catch (SocketException ex) {
+      LOGGER.error("Error when getting local network interfaces", ex);
     }
-
-    private static final Logger LOGGER = LogManager.getLogger(HostAddressUtil.class);
-
-    public static List<String> getLocalAddresses() {
-        List<String> list = new ArrayList<String>();
-        Enumeration<NetworkInterface> interfaceList = null;
-        try {
-            interfaceList = NetworkInterface.getNetworkInterfaces();
-        } catch (SocketException ex) {
-            LOGGER.error("Error when getting local network interfaces", ex);
+    if (interfaceList != null) {
+      while (interfaceList.hasMoreElements()) {
+        NetworkInterface face = (NetworkInterface) interfaceList.nextElement();
+        Enumeration<InetAddress> addressList = face.getInetAddresses();
+        if (addressList == null) {
+          continue;
         }
-        if (interfaceList != null) {
-            while (interfaceList.hasMoreElements()) {
-                NetworkInterface face = (NetworkInterface) interfaceList.nextElement();
-                Enumeration<InetAddress> addressList = face.getInetAddresses();
-                if (addressList == null) {
-                    continue;
-                }
-                while (addressList.hasMoreElements()) {
-                    InetAddress address = (InetAddress) addressList.nextElement();
-                    list.add(address.getHostAddress());
-                }
-            }
+        while (addressList.hasMoreElements()) {
+          InetAddress address = (InetAddress) addressList.nextElement();
+          list.add(address.getHostAddress());
         }
-        return list;
+      }
     }
-
+    return list;
+  }
 }

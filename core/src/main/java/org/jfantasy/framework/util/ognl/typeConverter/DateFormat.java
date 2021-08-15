@@ -4,10 +4,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target( { java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.METHOD })
+@Target({java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface DateFormat {
 
-	String pattern();
-
+  String pattern();
 }

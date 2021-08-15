@@ -7,10 +7,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class EmailRegisterListener implements ApplicationListener<RegisterEvent> {
 
-    @Async
-    @Override
-    public void onApplicationEvent(final RegisterEvent event) {
-        System.out.println("注册成功，发送确认邮件给：" + event.getSource());
-    }
-
+  @Async
+  @Override
+  public void onApplicationEvent(final RegisterEvent event) {
+    System.out.println("注册成功，发送确认邮件给：" + event.getSource());
+  }
 }

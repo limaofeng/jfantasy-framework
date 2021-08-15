@@ -11,31 +11,31 @@ import org.jfantasy.framework.util.common.ObjectUtil;
  */
 public class MultiDataSourceManager {
 
-    private static final ThreadLocal<MultiDataSourceManager> DELEGATE = new ThreadLocal<>();
+  private static final ThreadLocal<MultiDataSourceManager> DELEGATE = new ThreadLocal<>();
 
-    private Stack<DataSource> stack = new Stack<>();
+  private Stack<DataSource> stack = new Stack<>();
 
-    public static MultiDataSourceManager getManager() {
-        MultiDataSourceManager localMessage = DELEGATE.get();
-        if (ObjectUtil.isNull(localMessage)) {
-            DELEGATE.set(new MultiDataSourceManager());
-        }
-        return DELEGATE.get();
+  public static MultiDataSourceManager getManager() {
+    MultiDataSourceManager localMessage = DELEGATE.get();
+    if (ObjectUtil.isNull(localMessage)) {
+      DELEGATE.set(new MultiDataSourceManager());
     }
+    return DELEGATE.get();
+  }
 
-    public void push(DataSource dataSource) {
-        this.stack.push(dataSource);
-    }
+  public void push(DataSource dataSource) {
+    this.stack.push(dataSource);
+  }
 
-    public DataSource peek() {
-        return this.stack.peek();
-    }
+  public DataSource peek() {
+    return this.stack.peek();
+  }
 
-    public DataSource pop() {
-        return this.stack.pop();
-    }
+  public DataSource pop() {
+    return this.stack.pop();
+  }
 
-    public void destroy() {
-        DELEGATE.remove();
-    }
+  public void destroy() {
+    DELEGATE.remove();
+  }
 }

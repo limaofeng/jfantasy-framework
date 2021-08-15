@@ -4,8 +4,7 @@ import org.jfantasy.framework.security.authentication.Authentication;
 
 public class AuthenticationSuccessEvent extends AbstractAuthenticationEvent {
 
-    public AuthenticationSuccessEvent(Authentication authentication) {
-        super(authentication);
-    }
-
+  public AuthenticationSuccessEvent(Authentication authentication) {
+    super(authentication);
+  }
 }

@@ -5,8 +5,8 @@ import org.jfantasy.framework.security.authentication.Authentication;
 
 public class AuthenticationFailureExpiredEvent extends AbstractAuthenticationFailureEvent {
 
-    public AuthenticationFailureExpiredEvent(Authentication authentication, AuthenticationException exception) {
-        super(authentication, exception);
-    }
-
+  public AuthenticationFailureExpiredEvent(
+      Authentication authentication, AuthenticationException exception) {
+    super(authentication, exception);
+  }
 }

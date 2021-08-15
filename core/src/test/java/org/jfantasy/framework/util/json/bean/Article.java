@@ -1,30 +1,27 @@
 package org.jfantasy.framework.util.json.bean;
 
-
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 public class Article {
-	private String title;
-	
-	private User user;
+  private String title;
 
-	public String getTitle() {
-		return title;
-	}
+  private User user;
 
-	public void setTitle(String title) {
-		this.title = title;
-	}
+  public String getTitle() {
+    return title;
+  }
 
-	@JsonBackReference
-//	@JsonIgnore
-	public User getUser() {
-		return user;
-	}
+  public void setTitle(String title) {
+    this.title = title;
+  }
 
-	public void setUser(User user) {
-		this.user = user;
-	}
-	
-	
+  @JsonBackReference
+  // @JsonIgnore
+  public User getUser() {
+    return user;
+  }
+
+  public void setUser(User user) {
+    this.user = user;
+  }
 }

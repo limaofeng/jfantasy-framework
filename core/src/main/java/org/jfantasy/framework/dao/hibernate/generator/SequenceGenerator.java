@@ -1,5 +1,7 @@
 package org.jfantasy.framework.dao.hibernate.generator;
 
+import java.io.Serializable;
+import java.util.Properties;
 import org.hibernate.HibernateException;
 import org.hibernate.MappingException;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
@@ -15,9 +17,6 @@ import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.Serializable;
-import java.util.Properties;
-
 /**
  * 自定义序列生成器
  *
@@ -27,31 +26,37 @@ import java.util.Properties;
  */
 public class SequenceGenerator implements IdentifierGenerator, Configurable {
 
-    @Autowired
-    private DataBaseKeyGenerator baseKeyGenerator;
+  @Autowired private DataBaseKeyGenerator baseKeyGenerator;
 
-    public static final String KEY_NAME = "keyName";
+  public static final String KEY_NAME = "keyName";
 
-    private String keyName;
-    private String entityName;
+  private String keyName;
+  private String entityName;
 
+  @Override
+  public void configure(Type type, Properties params, ServiceRegistry serviceRegistry)
+      throws MappingException {
+    this.entityName = params.getProperty("entity_name");
+    this.keyName =
+        StringUtil.defaultValue(
+                params.getProperty(KEY_NAME),
+                params.getProperty("target_table") + ":" + params.getProperty("target_column"))
+            .toLowerCase();
+  }
 
-    @Override
-    public void configure(Type type, Properties params, ServiceRegistry serviceRegistry) throws MappingException {
-        this.entityName = params.getProperty("entity_name");
-        this.keyName = StringUtil.defaultValue(params.getProperty(KEY_NAME), params.getProperty("target_table") + ":" + params.getProperty("target_column")).toLowerCase();
+  @Override
+  public Serializable generate(SharedSessionContractImplementor session, Object object)
+      throws HibernateException {
+    final EntityPersister persister =
+        session.getFactory().getMetamodel().entityPersister(entityName);
+    Serializable id = persister.getIdentifier(object, session);
+    if (id != null) {
+      return id;
     }
-
-    @Override
-    public Serializable generate(SharedSessionContractImplementor session, Object object) throws HibernateException {
-        final EntityPersister persister = session.getFactory().getMetamodel().entityPersister(entityName);
-        Serializable id = persister.getIdentifier(object, session);
-        if (id != null) {
-            return id;
-        }
-        if (ObjectUtil.isNull(this.baseKeyGenerator)) {
-            SpringContextUtil.autowireBean(this);
-        }
-        return this.baseKeyGenerator.nextValue(StringUtil.defaultValue(keyName, ClassUtil.getRealClass(object).getName()));
+    if (ObjectUtil.isNull(this.baseKeyGenerator)) {
+      SpringContextUtil.autowireBean(this);
     }
+    return this.baseKeyGenerator.nextValue(
+        StringUtil.defaultValue(keyName, ClassUtil.getRealClass(object).getName()));
+  }
 }

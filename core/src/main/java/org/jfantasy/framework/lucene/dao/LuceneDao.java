@@ -1,24 +1,22 @@
 package org.jfantasy.framework.lucene.dao;
 
-import org.jfantasy.framework.lucene.backend.EntityChangedListener;
-
 import java.util.List;
+import org.jfantasy.framework.lucene.backend.EntityChangedListener;
 
 public interface LuceneDao {
 
-    long count();
+  long count();
 
-    <T> List<T> find(int start, int size);
+  <T> List<T> find(int start, int size);
 
-    /**
-     *
-     * @param fieldName    字段
-     * @param fieldValue 字段值
-     * @return List
-     */
-    <T> List<T> findByField(String fieldName, String fieldValue);
+  /**
+   * @param fieldName 字段
+   * @param fieldValue 字段值
+   * @return List
+   */
+  <T> List<T> findByField(String fieldName, String fieldValue);
 
-    <T> T getById(String id);
+  <T> T getById(String id);
 
-    EntityChangedListener getLuceneListener();
+  EntityChangedListener getLuceneListener();
 }

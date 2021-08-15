@@ -1,5 +1,9 @@
 package org.jfantasy.framework.spring.mvc.method.annotation;
 
+import java.util.List;
+import java.util.Map;
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
 import org.jfantasy.framework.dao.OrderBy;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.spring.mvc.error.RestException;
@@ -16,113 +20,119 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.multipart.MultipartRequest;
 import org.springframework.web.util.WebUtils;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
-import java.util.List;
-import java.util.Map;
-
-
 public class PagerModelAttributeMethodProcessor extends MethodArgumentResolver {
 
-    @Override
-    public boolean supportsParameter(MethodParameter parameter) {
-        return Pager.class.isAssignableFrom(parameter.getParameterType());
-    }
+  @Override
+  public boolean supportsParameter(MethodParameter parameter) {
+    return Pager.class.isAssignableFrom(parameter.getParameterType());
+  }
 
-    @Override
-    protected String getParameterName(MethodParameter parameter) {
-        return parameter.getParameterName();
-    }
+  @Override
+  protected String getParameterName(MethodParameter parameter) {
+    return parameter.getParameterName();
+  }
 
-    @Override
-    protected Object createAttribute(String attributeName, MethodParameter parameter, WebDataBinderFactory binderFactory, NativeWebRequest request) throws Exception {
-        String value = getRequestValueForAttribute(attributeName, request);
-        if (value != null) {
-            Object attribute = createAttributeFromRequestValue(value, attributeName, parameter, binderFactory, request);
-            if (attribute != null) {
-                return attribute;
-            }
-        }
-        Class<?> parameterType = parameter.getParameterType();
-        if (parameterType.isArray() || List.class.isAssignableFrom(parameterType)) {
-            return new Pager();
-        }
-        return BeanUtils.instantiateClass(parameter.getParameterType());
+  @Override
+  protected Object createAttribute(
+      String attributeName,
+      MethodParameter parameter,
+      WebDataBinderFactory binderFactory,
+      NativeWebRequest request)
+      throws Exception {
+    String value = getRequestValueForAttribute(attributeName, request);
+    if (value != null) {
+      Object attribute =
+          createAttributeFromRequestValue(value, attributeName, parameter, binderFactory, request);
+      if (attribute != null) {
+        return attribute;
+      }
     }
-
-    @Override
-    protected void bindRequestParameters(ModelAndViewContainer mavContainer, WebDataBinderFactory binderFactory, WebDataBinder binder, NativeWebRequest request, MethodParameter parameter) {
-        ServletRequest servletRequest = prepareServletRequest(binder.getTarget(), request, parameter);
-        Pager target = (Pager) binder.getTarget();
-        for (String paramName : servletRequest.getParameterMap().keySet()) {
-            String value = servletRequest.getParameter(paramName);
-            if (StringUtil.isBlank(value)) {
-                continue;
-            }
-            if ("limit".equalsIgnoreCase(paramName)) {
-                Integer[] limits = new Integer[0];
-                for (String s : StringUtil.tokenizeToStringArray(value)) {
-                    limits = ObjectUtil.join(limits, Integer.valueOf(s));
-                }
-                if (limits.length > 2) {
-                    throw new RestException(" limit 参数格式不正确,格式为: limit=0,5 or limit=5");
-                }
-                if (limits.length == 1) {
-                    limits = new Integer[]{0, limits[0]};
-                }
-                target.setFirst(limits[0]);
-                target.setPageSize(limits[1]);
-            } else if ("page".equalsIgnoreCase(paramName)) {
-                target.setCurrentPage(Integer.valueOf(value));
-            } else if ("per_page".equalsIgnoreCase(paramName)) {
-                target.setPageSize(Integer.valueOf(value));
-            } else if ("order_by".equalsIgnoreCase(paramName)) {
-                String[] sort = value.split("_");
-                target.setOrderBy(OrderBy.newOrderBy(sort[0], OrderBy.Direction.valueOf(sort[1])));
-            }
-        }
+    Class<?> parameterType = parameter.getParameterType();
+    if (parameterType.isArray() || List.class.isAssignableFrom(parameterType)) {
+      return new Pager();
     }
+    return BeanUtils.instantiateClass(parameter.getParameterType());
+  }
 
-    @Override
-    protected ServletRequest prepareServletRequest(Object target, NativeWebRequest request, MethodParameter parameter) {
-        HttpServletRequest nativeRequest = (HttpServletRequest) request.getNativeRequest();
-        MultipartRequest multipartRequest = WebUtils.getNativeRequest(nativeRequest, MultipartRequest.class);
-        MockHttpServletRequest mockRequest;
-        if (multipartRequest != null) {
-            MockMultipartHttpServletRequest mockMultipartRequest = new MockMultipartHttpServletRequest();
-            mockMultipartRequest.getMultiFileMap().putAll(multipartRequest.getMultiFileMap());
-            mockRequest = mockMultipartRequest;
-        } else {
-            mockRequest = new MockHttpServletRequest();
+  @Override
+  protected void bindRequestParameters(
+      ModelAndViewContainer mavContainer,
+      WebDataBinderFactory binderFactory,
+      WebDataBinder binder,
+      NativeWebRequest request,
+      MethodParameter parameter) {
+    ServletRequest servletRequest = prepareServletRequest(binder.getTarget(), request, parameter);
+    Pager target = (Pager) binder.getTarget();
+    for (String paramName : servletRequest.getParameterMap().keySet()) {
+      String value = servletRequest.getParameter(paramName);
+      if (StringUtil.isBlank(value)) {
+        continue;
+      }
+      if ("limit".equalsIgnoreCase(paramName)) {
+        Integer[] limits = new Integer[0];
+        for (String s : StringUtil.tokenizeToStringArray(value)) {
+          limits = ObjectUtil.join(limits, Integer.valueOf(s));
         }
-        for (Map.Entry<String, String> entry : getUriTemplateVariables(request).entrySet()) {
-            String parameterName = entry.getKey();
-            String value = entry.getValue();
-            if (isPagerModelAttribute(parameterName, getModelNames())) {
-                mockRequest.setParameter(parameterName, value);
-            }
+        if (limits.length > 2) {
+          throw new RestException(" limit 参数格式不正确,格式为: limit=0,5 or limit=5");
         }
-        for (Map.Entry<String, String[]> entry : nativeRequest.getParameterMap().entrySet()) {
-            String parameterName = entry.getKey();
-            String[] value = entry.getValue();
-            if (isPagerModelAttribute(parameterName, getModelNames())) {
-                mockRequest.setParameter(parameterName, value);
-            }
+        if (limits.length == 1) {
+          limits = new Integer[] {0, limits[0]};
         }
-        return mockRequest;
+        target.setFirst(limits[0]);
+        target.setPageSize(limits[1]);
+      } else if ("page".equalsIgnoreCase(paramName)) {
+        target.setCurrentPage(Integer.valueOf(value));
+      } else if ("per_page".equalsIgnoreCase(paramName)) {
+        target.setPageSize(Integer.valueOf(value));
+      } else if ("order_by".equalsIgnoreCase(paramName)) {
+        String[] sort = value.split("_");
+        target.setOrderBy(OrderBy.newOrderBy(sort[0], OrderBy.Direction.valueOf(sort[1])));
+      }
     }
+  }
 
-    private String[] getModelNames() {
-        return new String[]{"page", "size", "per_page", "sort", "order", "limit"};
+  @Override
+  protected ServletRequest prepareServletRequest(
+      Object target, NativeWebRequest request, MethodParameter parameter) {
+    HttpServletRequest nativeRequest = (HttpServletRequest) request.getNativeRequest();
+    MultipartRequest multipartRequest =
+        WebUtils.getNativeRequest(nativeRequest, MultipartRequest.class);
+    MockHttpServletRequest mockRequest;
+    if (multipartRequest != null) {
+      MockMultipartHttpServletRequest mockMultipartRequest = new MockMultipartHttpServletRequest();
+      mockMultipartRequest.getMultiFileMap().putAll(multipartRequest.getMultiFileMap());
+      mockRequest = mockMultipartRequest;
+    } else {
+      mockRequest = new MockHttpServletRequest();
     }
-
-    private boolean isPagerModelAttribute(String parameterName, String[] modelNames) {
-        for (String modelName : modelNames) {
-            if (parameterName.equalsIgnoreCase(modelName)) {
-                return true;
-            }
-        }
-        return false;
+    for (Map.Entry<String, String> entry : getUriTemplateVariables(request).entrySet()) {
+      String parameterName = entry.getKey();
+      String value = entry.getValue();
+      if (isPagerModelAttribute(parameterName, getModelNames())) {
+        mockRequest.setParameter(parameterName, value);
+      }
     }
+    for (Map.Entry<String, String[]> entry : nativeRequest.getParameterMap().entrySet()) {
+      String parameterName = entry.getKey();
+      String[] value = entry.getValue();
+      if (isPagerModelAttribute(parameterName, getModelNames())) {
+        mockRequest.setParameter(parameterName, value);
+      }
+    }
+    return mockRequest;
+  }
 
+  private String[] getModelNames() {
+    return new String[] {"page", "size", "per_page", "sort", "order", "limit"};
+  }
+
+  private boolean isPagerModelAttribute(String parameterName, String[] modelNames) {
+    for (String modelName : modelNames) {
+      if (parameterName.equalsIgnoreCase(modelName)) {
+        return true;
+      }
+    }
+    return false;
+  }
 }

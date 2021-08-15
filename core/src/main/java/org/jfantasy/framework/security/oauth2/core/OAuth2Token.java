@@ -4,16 +4,15 @@ import java.time.Instant;
 
 public interface OAuth2Token {
 
-    String getTokenValue();
+  String getTokenValue();
 
-    String getRefreshTokenValue();
+  String getRefreshTokenValue();
 
-    default Instant getIssuedAt() {
-        return null;
-    }
+  default Instant getIssuedAt() {
+    return null;
+  }
 
-    default Instant getExpiresAt() {
-        return null;
-    }
-
+  default Instant getExpiresAt() {
+    return null;
+  }
 }

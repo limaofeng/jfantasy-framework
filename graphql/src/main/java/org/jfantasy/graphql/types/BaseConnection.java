@@ -11,7 +11,6 @@ import org.jfantasy.graphql.PageInfo;
 /**
  * @author limaofeng
  * @version V1.0
- * 
  * @date 2020/4/14 10:13 上午
  */
 @Data
@@ -19,9 +18,9 @@ import org.jfantasy.graphql.PageInfo;
 @NoArgsConstructor
 @AllArgsConstructor
 public abstract class BaseConnection<T> implements Connection<T>, Pagination {
-    private int totalCount;
-    private int pageSize;
-    private int totalPage;
-    private int currentPage;
-    private PageInfo pageInfo;
+  private int totalCount;
+  private int pageSize;
+  private int totalPage;
+  private int currentPage;
+  private PageInfo pageInfo;
 }

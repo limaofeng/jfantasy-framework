@@ -8,31 +8,31 @@ package org.jfantasy.graphql;
  * @date 2019-04-02 18:23
  */
 public interface Edge<T> {
-    /**
-     * 游标
-     *
-     * @return
-     */
-    String getCursor();
+  /**
+   * 游标
+   *
+   * @return
+   */
+  String getCursor();
 
-    /**
-     * 当前数据
-     *
-     * @return
-     */
-    T getNode();
+  /**
+   * 当前数据
+   *
+   * @return
+   */
+  T getNode();
 
-    /**
-     * 设置游标
-     *
-     * @param cursor
-     */
-    void setCursor(String cursor);
+  /**
+   * 设置游标
+   *
+   * @param cursor
+   */
+  void setCursor(String cursor);
 
-    /**
-     * 设置数据
-     *
-     * @param node
-     */
-    void setNode(T node);
+  /**
+   * 设置数据
+   *
+   * @param node
+   */
+  void setNode(T node);
 }

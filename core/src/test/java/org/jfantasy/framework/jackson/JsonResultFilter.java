@@ -7,9 +7,9 @@ import java.lang.annotation.*;
 @Repeatable(JsonResultFilters.class)
 public @interface JsonResultFilter {
 
-    Class<?> type();
+  Class<?> type();
 
-    String include() default "";
+  String include() default "";
 
-    String filter() default "";
+  String filter() default "";
 }

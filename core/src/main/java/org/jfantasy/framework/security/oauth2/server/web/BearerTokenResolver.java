@@ -8,5 +8,5 @@ import javax.servlet.http.HttpServletRequest;
  * @author limaofeng
  */
 public interface BearerTokenResolver {
-    String resolve(HttpServletRequest request);
+  String resolve(HttpServletRequest request);
 }

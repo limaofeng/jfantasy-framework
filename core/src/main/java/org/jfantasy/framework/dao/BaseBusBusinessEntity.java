@@ -1,23 +1,20 @@
 package org.jfantasy.framework.dao;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import javax.persistence.Column;
+import javax.persistence.MappedSuperclass;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import javax.persistence.Column;
-import javax.persistence.MappedSuperclass;
-
-/**
- * @author limaofeng
- */
+/** @author limaofeng */
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper = false)
 @MappedSuperclass
 public class BaseBusBusinessEntity extends BaseBusEntity {
 
-    public static final String FIELD_DELETED = "deleted";
+  public static final String FIELD_DELETED = "deleted";
 
-    @JsonIgnore
-    @Column(name = "DELETED")
-    private Boolean deleted;
+  @JsonIgnore
+  @Column(name = "DELETED")
+  private Boolean deleted;
 }
