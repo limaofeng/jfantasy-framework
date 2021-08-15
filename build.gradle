@@ -25,6 +25,12 @@ allprojects {
     group = 'cn.asany.chaos'
     version = System.getenv().getOrDefault('RELEASE_VERSION', 'v0.0.0').replaceAll(/^v/, "")
     status = 'integration'
+
+    repositories {
+        maven { url "https://jcenter.bintray.com" }
+        mavenCentral()
+        mavenLocal()
+    }
 }
 
 subprojects {
@@ -43,12 +49,6 @@ subprojects {
             testOutputDir file("$buildDir/classes/java/test")
             inheritOutputDirs = false
         }
-    }
-
-    repositories {
-        maven { url "https://jcenter.bintray.com" }
-        mavenCentral()
-        mavenLocal()
     }
 
     sourceCompatibility = 1.8
