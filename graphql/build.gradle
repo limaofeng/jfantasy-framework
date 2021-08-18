@@ -8,7 +8,7 @@ apply plugin: 'java-library'
 apply plugin: 'jacoco'
 
 dependencies {
-	compileOnly project(":jfantasy-core")
+	implementation project(":jfantasy-core")
 	api "com.graphql-java-kickstart:graphql-spring-boot-starter:${LIB_GRAPHQL_VER}"
 	api "com.graphql-java-kickstart:graphql-java-tools:$LIB_GRAPHQL_JAVA_TOOLS_VER"
 	api "com.graphql-java:graphql-java-extended-scalars:${LIB_GRAPHQL_SCALARS_VER}"

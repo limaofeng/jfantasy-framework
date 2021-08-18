@@ -1,7 +1,6 @@
 package org.jfantasy.framework.crypto;
 
 import org.junit.jupiter.api.Test;
-import sun.misc.BASE64Encoder;
 
 public class ThreeDESUtilTest {
 
@@ -13,7 +12,7 @@ public class ThreeDESUtilTest {
     System.out.println("data.length=" + data.length);
     System.out.println("CBC加密解密");
     byte[] str5 = ThreeDESUtil.des3EncodeCBC(key, keyiv, data);
-    System.out.println(new BASE64Encoder().encode(str5));
+    // System.out.println(new BASE64Encoder().encode(str5));
 
     byte[] str6 = ThreeDESUtil.des3DecodeCBC(key, keyiv, str5);
     System.out.println(new String(str6, "UTF-8"));

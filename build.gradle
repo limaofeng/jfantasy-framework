@@ -1,6 +1,4 @@
 plugins {
-    id 'java'
-    id 'jacoco'
     id "io.spring.dependency-management" version "${PLUGIN_SPRING_DEPENDENCY_MANAGEMENT_VER}"
     id 'com.github.kt3k.coveralls' version '2.12.0'
     id "com.star-zero.gradle.githook" version "1.2.0"

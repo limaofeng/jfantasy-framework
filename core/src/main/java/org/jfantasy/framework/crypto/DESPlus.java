@@ -1,10 +1,8 @@
 package org.jfantasy.framework.crypto;
 
-import com.sun.crypto.provider.SunJCE;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
-import java.security.Security;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -28,7 +26,7 @@ public class DESPlus {
   }
 
   public DESPlus(String strKey) {
-    Security.addProvider(new SunJCE());
+    // Security.addProvider(new SunJCE());
     try {
       Key key = getKey(strKey.getBytes());
       this.encryptCipher = Cipher.getInstance(CIPHER_TYPE);
