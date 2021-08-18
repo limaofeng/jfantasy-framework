@@ -1,11 +1,11 @@
 description = "关键词过滤"
 
 configurations {
-    compile.exclude module: "tomcat-jdbc"
+	compile.exclude module: "tomcat-jdbc"
 }
 
 dependencies {
-    compileOnly "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
-    annotationProcessor "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
-    testImplementation libs['test']
+	compileOnly "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
+	annotationProcessor "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
+	testImplementation libs['test']
 }

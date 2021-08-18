@@ -6,6 +6,7 @@ plugins {
     id "com.star-zero.gradle.githook" version "1.2.0"
     id "ru.netris.commitlint" version "1.4.1"
     id "com.diffplug.spotless" version "5.14.2"
+    id "com.diffplug.eclipse.apt" version "3.31.0"
 }
 
 githook {
@@ -22,9 +23,36 @@ githook {
 }
 
 allprojects {
+    apply plugin: 'java'
+    apply plugin: 'idea'
+    apply plugin: 'eclipse'
+    apply plugin: "com.diffplug.eclipse.apt"
+
     group = 'cn.asany.chaos'
     version = System.getenv().getOrDefault('RELEASE_VERSION', 'v0.0.0').replaceAll(/^v/, "")
     status = 'integration'
+
+idea {
+        module {
+            outputDir file("$buildDir/classes/java/main")
+            testOutputDir file("$buildDir/classes/java/test")
+            inheritOutputDirs = false
+        }
+    }
+
+    eclipse {
+        jdt {
+            apt {
+                genSrcDir = file('build/generated/sources/annotationProcessor/java/main')
+                genTestSrcDir = file('build/generated_tests')
+            }
+        }
+        classpath {
+            file.beforeMerged { cp ->
+                cp.entries.add(new org.gradle.plugins.ide.eclipse.model.SourceFolder('build/generated/sources/annotationProcessor/java/main/', null))
+            }
+        }
+    }
 
     repositories {
         maven { url "https://jcenter.bintray.com" }
@@ -48,6 +76,14 @@ subprojects {
             outputDir file("$buildDir/classes/java/main")
             testOutputDir file("$buildDir/classes/java/test")
             inheritOutputDirs = false
+        }
+    }
+
+    eclipse {
+        classpath {
+            file.beforeMerged { cp ->
+                cp.entries.add( new org.gradle.plugins.ide.eclipse.model.SourceFolder("$buildDir/generated/source/apt/main", null) )
+            }
         }
     }
 

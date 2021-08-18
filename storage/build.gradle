@@ -1,13 +1,13 @@
 description = "文件对象相关"
 
 configurations {
-    compile.exclude module: "tomcat-jdbc"
+	compile.exclude module: "tomcat-jdbc"
 }
 
 dependencies {
-    compileOnly project(":jfantasy-core")
-    compileOnly project(":jfantasy-graphql")
-    compileOnly "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
-    annotationProcessor "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
-    testImplementation libs['test']
+	compileOnly project(":jfantasy-core")
+	compileOnly project(":jfantasy-graphql")
+	compileOnly "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
+	annotationProcessor "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
+	testImplementation libs['test']
 }

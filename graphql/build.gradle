@@ -1,25 +1,25 @@
 description = "GraphQL-java 集成"
 
 configurations {
-    compile.exclude module: "tomcat-jdbc"
+	compile.exclude module: "tomcat-jdbc"
 }
 
 apply plugin: 'java-library'
 apply plugin: 'jacoco'
 
 dependencies {
-    compileOnly project(":jfantasy-core")
-    api "com.graphql-java-kickstart:graphql-spring-boot-starter:${LIB_GRAPHQL_VER}"
-    api "com.graphql-java-kickstart:graphql-java-tools:$LIB_GRAPHQL_JAVA_TOOLS_VER"
-    api "com.graphql-java:graphql-java-extended-scalars:${LIB_GRAPHQL_SCALARS_VER}"
-    api "com.jayway.jsonpath:json-path"
-    compileOnly "org.springframework:spring-orm"
-    compileOnly "org.springframework.data:spring-data-jpa"
-    compileOnly 'org.aspectj:aspectjweaver'
-    compileOnly "org.springframework.boot:spring-boot-starter-data-redis"
-    compileOnly "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
-    annotationProcessor "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
-    testCompileOnly "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
-    testAnnotationProcessor "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
-    testImplementation libs['test']
+	compileOnly project(":jfantasy-core")
+	api "com.graphql-java-kickstart:graphql-spring-boot-starter:${LIB_GRAPHQL_VER}"
+	api "com.graphql-java-kickstart:graphql-java-tools:$LIB_GRAPHQL_JAVA_TOOLS_VER"
+	api "com.graphql-java:graphql-java-extended-scalars:${LIB_GRAPHQL_SCALARS_VER}"
+	api "com.jayway.jsonpath:json-path"
+	compileOnly "org.springframework:spring-orm"
+	compileOnly "org.springframework.data:spring-data-jpa"
+	compileOnly 'org.aspectj:aspectjweaver'
+	compileOnly "org.springframework.boot:spring-boot-starter-data-redis"
+	compileOnly "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
+	annotationProcessor "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
+	testCompileOnly "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
+	testAnnotationProcessor "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
+	testImplementation libs['test']
 }

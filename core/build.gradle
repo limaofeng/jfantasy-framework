@@ -3,48 +3,48 @@ description = "主框架 - 框架主体,包含基础的集成框架"
 apply plugin: 'jacoco'
 
 configurations {
-    compile.exclude module: "tomcat-jdbc"
+	compile.exclude module: "tomcat-jdbc"
 }
 
 dependencyManagement {
-    dependencies {
-        dependency("org.elasticsearch.client:transport:${LIB_ELASTICSEARCH_VER}") {
-            exclude 'org.elasticsearch:elasticsearch'
-            exclude 'org.apache.logging.log4j:log4j-core'
-        }
-        dependency("com.mashape.unirest:unirest-java:${LIB_UNIREST_VER}") {
-            exclude 'org.json:json'
-        }
-        dependency("org.elasticsearch.plugin:transport-netty4-client:${LIB_ELASTICSEARCH_VER}") {
-            exclude 'org.elasticsearch:elasticsearch'
-            exclude 'org.apache.logging.log4j:log4j-core'
-        }
-    }
+	dependencies {
+		dependency("org.elasticsearch.client:transport:${LIB_ELASTICSEARCH_VER}") {
+			exclude 'org.elasticsearch:elasticsearch'
+			exclude 'org.apache.logging.log4j:log4j-core'
+		}
+		dependency("com.mashape.unirest:unirest-java:${LIB_UNIREST_VER}") {
+			exclude 'org.json:json'
+		}
+		dependency("org.elasticsearch.plugin:transport-netty4-client:${LIB_ELASTICSEARCH_VER}") {
+			exclude 'org.elasticsearch:elasticsearch'
+			exclude 'org.apache.logging.log4j:log4j-core'
+		}
+	}
 }
 
 apply plugin: 'java-library'
 
 dependencies {
-    // spring boot
-    api libs['springBoot']
-    // quartz
-    api libs['quartz']
-    // orm
-    api libs['orm']
-    // unirest
-    api libs['unirest']
-    // elasticsearch
-    implementation libs['elasticsearch']
-    // commons
-    api libs['commons']
-    // ognl and cglib
-    api libs['third-party']
-    api 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
-    api "com.jayway.jsonpath:json-path"
-    compileOnly "org.springframework.boot:spring-boot-starter-data-redis"
-    compileOnly "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
-    annotationProcessor "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
-    testCompileOnly "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
-    testAnnotationProcessor "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
-    testImplementation libs['test']
+	// spring boot
+	api libs['springBoot']
+	// quartz
+	api libs['quartz']
+	// orm
+	api libs['orm']
+	// unirest
+	api libs['unirest']
+	// elasticsearch
+	implementation libs['elasticsearch']
+	// commons
+	api libs['commons']
+	// ognl and cglib
+	api libs['third-party']
+	api 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
+	api "com.jayway.jsonpath:json-path"
+	compileOnly "org.springframework.boot:spring-boot-starter-data-redis"
+	compileOnly "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
+	annotationProcessor "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
+	testCompileOnly "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
+	testAnnotationProcessor "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
+	testImplementation libs['test']
 }
