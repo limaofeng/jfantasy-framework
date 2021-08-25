@@ -10,7 +10,7 @@
 <dependency>
   <groupId>cn.asany.chaos</groupId>
   <artifactId>jfantasy-core</artifactId>
-  <version>0.8.7</version>
+  <version>2.8.7</version>
 </dependency>
 ```
 
