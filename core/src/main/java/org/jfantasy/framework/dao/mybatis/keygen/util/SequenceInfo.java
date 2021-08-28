@@ -7,7 +7,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.dao.mybatis.keygen.service.SequenceService;
-import org.jfantasy.framework.spring.SpringContextUtil;
+import org.jfantasy.framework.spring.SpringBeanUtils;
 
 /**
  * 序列信息
@@ -48,7 +48,7 @@ public class SequenceInfo {
 
   private static DataBaseKeyGenerator getKeyGenerator() {
     if (keyGenerator == null) {
-      keyGenerator = SpringContextUtil.getBeanByType(DataBaseKeyGenerator.class);
+      keyGenerator = SpringBeanUtils.getBeanByType(DataBaseKeyGenerator.class);
     }
     return keyGenerator;
   }

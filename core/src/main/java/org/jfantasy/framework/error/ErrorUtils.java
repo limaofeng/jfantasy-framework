@@ -1,6 +1,6 @@
 package org.jfantasy.framework.error;
 
-import org.jfantasy.framework.spring.SpringContextUtil;
+import org.jfantasy.framework.spring.SpringBeanUtils;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.PropertiesHelper;
 import org.springframework.validation.DataBinder;
@@ -70,7 +70,7 @@ public class ErrorUtils {
   }
 
   private static final DataBinder createBinder(Object target) {
-    SmartValidator validator = SpringContextUtil.getBeanByType(SmartValidator.class);
+    SmartValidator validator = SpringBeanUtils.getBeanByType(SmartValidator.class);
     DataBinder binder = new DataBinder(target);
     binder.setValidator(validator);
     return binder;

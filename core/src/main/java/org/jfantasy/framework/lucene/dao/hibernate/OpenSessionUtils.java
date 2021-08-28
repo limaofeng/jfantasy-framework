@@ -4,7 +4,7 @@ import org.hibernate.FlushMode;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.jfantasy.framework.spring.SpringContextUtil;
+import org.jfantasy.framework.spring.SpringBeanUtils;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.orm.hibernate5.SessionFactoryUtils;
 import org.springframework.orm.hibernate5.SessionHolder;
@@ -20,7 +20,7 @@ public class OpenSessionUtils {
 
   private static SessionFactory getSessionFactory() {
     if (sessionFactory == null) {
-      sessionFactory = SpringContextUtil.getBeanByType(SessionFactory.class);
+      sessionFactory = SpringBeanUtils.getBeanByType(SessionFactory.class);
     }
     return sessionFactory;
   }

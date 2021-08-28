@@ -11,7 +11,7 @@ import org.apache.ibatis.executor.keygen.KeyGenerator;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jfantasy.framework.spring.SpringContextUtil;
+import org.jfantasy.framework.spring.SpringBeanUtils;
 import org.springframework.util.DigestUtils;
 
 /**
@@ -29,8 +29,8 @@ public class GUIDKeyGenerator implements KeyGenerator {
   private static GUIDKeyGenerator instance;
 
   public static synchronized GUIDKeyGenerator getInstance() {
-    if (instance == null && SpringContextUtil.containsBean(GUIDKeyGenerator.class)) {
-      instance = SpringContextUtil.getBeanByType(GUIDKeyGenerator.class);
+    if (instance == null && SpringBeanUtils.containsBean(GUIDKeyGenerator.class)) {
+      instance = SpringBeanUtils.getBeanByType(GUIDKeyGenerator.class);
     }
     if (instance == null) {
       instance = new GUIDKeyGenerator();

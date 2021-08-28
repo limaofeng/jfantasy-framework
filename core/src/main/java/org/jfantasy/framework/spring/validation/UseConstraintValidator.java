@@ -4,7 +4,7 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jfantasy.framework.spring.SpringContextUtil;
+import org.jfantasy.framework.spring.SpringBeanUtils;
 import org.jfantasy.framework.util.common.ClassUtil;
 
 public class UseConstraintValidator implements ConstraintValidator<Use, String> {
@@ -16,7 +16,7 @@ public class UseConstraintValidator implements ConstraintValidator<Use, String> 
   @Override
   public void initialize(Use use) {
     Class<? extends Validator> clazz = use.vali();
-    validator = SpringContextUtil.getBeanByType(clazz);
+    validator = SpringBeanUtils.getBeanByType(clazz);
     if (validator == null) {
       validator = ClassUtil.newInstance(clazz);
     }

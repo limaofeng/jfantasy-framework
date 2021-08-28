@@ -6,7 +6,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Hibernate;
 import org.hibernate.proxy.HibernateProxy;
-import org.jfantasy.framework.spring.SpringContextUtil;
+import org.jfantasy.framework.spring.SpringBeanUtils;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
@@ -39,7 +39,7 @@ public abstract class JdbcUtil extends JdbcUtils {
 
   public static Transaction transaction() {
     PlatformTransactionManager transactionManager =
-        SpringContextUtil.getBean("transactionManager", PlatformTransactionManager.class);
+        SpringBeanUtils.getBean("transactionManager", PlatformTransactionManager.class);
     DefaultTransactionDefinition def = new DefaultTransactionDefinition();
     def.setPropagationBehavior(TransactionDefinition.PROPAGATION_NOT_SUPPORTED);
     assert transactionManager != null;
@@ -48,7 +48,7 @@ public abstract class JdbcUtil extends JdbcUtils {
 
   public static Transaction transaction(int propagationBehavior) {
     PlatformTransactionManager transactionManager =
-        SpringContextUtil.getBean("transactionManager", PlatformTransactionManager.class);
+        SpringBeanUtils.getBean("transactionManager", PlatformTransactionManager.class);
     DefaultTransactionDefinition def = new DefaultTransactionDefinition();
     def.setPropagationBehavior(propagationBehavior);
     assert transactionManager != null;

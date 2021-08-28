@@ -1,7 +1,7 @@
 package org.jfantasy.framework.dao.mybatis.keygen.util;
 
 import org.jfantasy.framework.dao.mybatis.keygen.service.SequenceService;
-import org.jfantasy.framework.spring.SpringContextUtil;
+import org.jfantasy.framework.spring.SpringBeanUtils;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -24,7 +24,7 @@ public class DataBaseKeyGenerator {
 
   public static DataBaseKeyGenerator getInstance() {
     if (ObjectUtil.isNull(dataBaseKeyGenerator)) {
-      dataBaseKeyGenerator = SpringContextUtil.getBeanByType(DataBaseKeyGenerator.class);
+      dataBaseKeyGenerator = SpringBeanUtils.getBeanByType(DataBaseKeyGenerator.class);
     }
     return dataBaseKeyGenerator;
   }

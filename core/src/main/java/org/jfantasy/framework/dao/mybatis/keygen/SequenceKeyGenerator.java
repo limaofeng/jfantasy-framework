@@ -9,7 +9,7 @@ import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jfantasy.framework.dao.mybatis.keygen.util.DataBaseKeyGenerator;
-import org.jfantasy.framework.spring.SpringContextUtil;
+import org.jfantasy.framework.spring.SpringBeanUtils;
 import org.jfantasy.framework.util.common.ObjectUtil;
 
 /**
@@ -46,7 +46,7 @@ public class SequenceKeyGenerator implements KeyGenerator {
 
   private DataBaseKeyGenerator getKeyGenerator() {
     if (ObjectUtil.isNull(this.dataBaseKeyGenerator)) {
-      this.dataBaseKeyGenerator = SpringContextUtil.getBeanByType(DataBaseKeyGenerator.class);
+      this.dataBaseKeyGenerator = SpringBeanUtils.getBeanByType(DataBaseKeyGenerator.class);
     }
     return this.dataBaseKeyGenerator;
   }

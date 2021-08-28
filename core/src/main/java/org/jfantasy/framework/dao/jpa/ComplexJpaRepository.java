@@ -19,7 +19,7 @@ import org.jfantasy.framework.dao.BaseBusBusinessEntity;
 import org.jfantasy.framework.dao.LimitPageRequest;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.util.HibernateUtils;
-import org.jfantasy.framework.spring.SpringContextUtil;
+import org.jfantasy.framework.spring.SpringBeanUtils;
 import org.jfantasy.framework.util.common.BeanUtil;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
@@ -328,8 +328,8 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
   public JpaRepository getJpaRepository(Class domainClass) {
     if (REPOSITORIES.isEmpty()) {
       Arrays.stream(
-              SpringContextUtil.getApplicationContext().getBeanNamesForType(JpaRepository.class))
-          .map(name -> SpringContextUtil.getBean(name, JpaRepository.class))
+              SpringBeanUtils.getApplicationContext().getBeanNamesForType(JpaRepository.class))
+          .map(name -> SpringBeanUtils.getBean(name, JpaRepository.class))
           .forEach(
               repository -> {
                 Class entityType =

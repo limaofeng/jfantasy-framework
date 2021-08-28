@@ -16,10 +16,10 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.io.Resource;
 
-public class SpringContextUtil
+public class SpringBeanUtils
     implements BeanDefinitionRegistryPostProcessor, ApplicationContextAware {
 
-  private static final Log LOGGER = LogFactory.getLog(SpringContextUtil.class);
+  private static final Log LOGGER = LogFactory.getLog(SpringBeanUtils.class);
 
   /** Spring应用上下文环境 */
   private static ApplicationContext applicationContext;
@@ -30,13 +30,13 @@ public class SpringContextUtil
   @Override
   public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry)
       throws BeansException {
-    SpringContextUtil.registry = registry;
+    SpringBeanUtils.registry = registry;
   }
 
   @Override
   public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory)
       throws BeansException {
-    SpringContextUtil.beanFactory = beanFactory;
+    SpringBeanUtils.beanFactory = beanFactory;
   }
 
   /**
@@ -47,13 +47,13 @@ public class SpringContextUtil
   @Override
   public void setApplicationContext(ApplicationContext applicationContext) {
     LOGGER.debug(applicationContext);
-    if (ObjectUtil.isNull(SpringContextUtil.applicationContext)) {
-      SpringContextUtil.applicationContext = applicationContext;
+    if (ObjectUtil.isNull(SpringBeanUtils.applicationContext)) {
+      SpringBeanUtils.applicationContext = applicationContext;
     }
   }
 
   public static void setRegistry(BeanDefinitionRegistry registry) {
-    SpringContextUtil.registry = registry;
+    SpringBeanUtils.registry = registry;
   }
 
   public enum AutoType {

@@ -7,7 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
-import org.jfantasy.framework.spring.SpringContextUtil;
+import org.jfantasy.framework.spring.SpringBeanUtils;
 import org.jfantasy.framework.util.common.ObjectUtil;
 
 public class DaoUtil {
@@ -15,7 +15,7 @@ public class DaoUtil {
   public DaoUtil() {}
 
   public static Connection getConnection(String dataSourceName) throws SQLException {
-    DataSource dataSource = SpringContextUtil.getBean(dataSourceName);
+    DataSource dataSource = SpringBeanUtils.getBean(dataSourceName);
     if (ObjectUtil.isNotNull(dataSource)) {
       return dataSource.getConnection();
     }

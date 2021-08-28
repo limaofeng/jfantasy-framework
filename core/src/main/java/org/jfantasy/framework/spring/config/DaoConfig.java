@@ -11,7 +11,7 @@ import org.jfantasy.framework.dao.hibernate.event.PropertyGeneratorSaveOrUpdateE
 import org.jfantasy.framework.dao.hibernate.generator.SequenceGenerator;
 import org.jfantasy.framework.dao.hibernate.generator.SerialNumberGenerator;
 import org.jfantasy.framework.dao.jpa.ComplexJpaRepository;
-import org.jfantasy.framework.spring.SpringContextUtil;
+import org.jfantasy.framework.spring.SpringBeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.*;
@@ -77,7 +77,7 @@ public class DaoConfig {
   }
 
   private static <T> T createListenerInstance(T bean) {
-    SpringContextUtil.getApplicationContext().getAutowireCapableBeanFactory().autowireBean(bean);
+    SpringBeanUtils.getApplicationContext().getAutowireCapableBeanFactory().autowireBean(bean);
     return bean;
   }
 

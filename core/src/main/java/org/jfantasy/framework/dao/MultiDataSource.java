@@ -6,7 +6,7 @@ import java.util.Map;
 import javax.sql.DataSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jfantasy.framework.spring.SpringContextUtil;
+import org.jfantasy.framework.spring.SpringBeanUtils;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
@@ -72,7 +72,7 @@ public class MultiDataSource extends AbstractRoutingDataSource {
       return dataSource.name();
     }
     try {
-      DataSource object = (DataSource) SpringContextUtil.getBean(dataSource.name());
+      DataSource object = (DataSource) SpringBeanUtils.getBean(dataSource.name());
       Map<Object, DataSource> resolvedDataSources =
           (Map<Object, DataSource>) ClassUtil.getValue(this, "resolvedDataSources");
       Object lookupKey = resolveSpecifiedLookupKey(dataSource.name());

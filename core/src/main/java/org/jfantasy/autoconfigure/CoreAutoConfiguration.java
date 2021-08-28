@@ -3,7 +3,7 @@ package org.jfantasy.autoconfigure;
 import org.jfantasy.framework.dao.DataSourceSetUtf8mb4;
 import org.jfantasy.framework.dao.hibernate.InterceptorRegistration;
 import org.jfantasy.framework.dao.hibernate.interceptors.BusEntityInterceptor;
-import org.jfantasy.framework.spring.SpringContextUtil;
+import org.jfantasy.framework.spring.SpringBeanUtils;
 import org.jfantasy.framework.spring.config.AppConfig;
 import org.jfantasy.framework.spring.config.DaoConfig;
 import org.mybatis.spring.boot.autoconfigure.MybatisLanguageDriverAutoConfiguration;
@@ -27,8 +27,8 @@ import org.springframework.context.annotation.Import;
 public class CoreAutoConfiguration {
 
   @Bean
-  public SpringContextUtil springContextUtil() {
-    return new SpringContextUtil();
+  public SpringBeanUtils springContextUtil() {
+    return new SpringBeanUtils();
   }
 
   @Bean

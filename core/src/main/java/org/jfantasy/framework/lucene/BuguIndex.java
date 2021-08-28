@@ -17,7 +17,7 @@ import org.jfantasy.framework.lucene.cluster.ClusterConfig;
 import org.jfantasy.framework.lucene.dao.LuceneDao;
 import org.jfantasy.framework.lucene.dao.hibernate.HibernateLuceneDao;
 import org.jfantasy.framework.spring.ClassPathScanner;
-import org.jfantasy.framework.spring.SpringContextUtil;
+import org.jfantasy.framework.spring.SpringBeanUtils;
 import org.jfantasy.framework.spring.mvc.error.NotFoundException;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.file.FileUtil;
@@ -72,7 +72,7 @@ public class BuguIndex implements ApplicationListener<ContextRefreshedEvent> {
   }
 
   private void scanDao(Set<Class<?>> indexedClasses, String basePackage) {
-    if (!SpringContextUtil.startup()) {
+    if (!SpringBeanUtils.startup()) {
       return;
     }
     for (Class<?> clazz :
@@ -83,7 +83,7 @@ public class BuguIndex implements ApplicationListener<ContextRefreshedEvent> {
       }
       LuceneDao dao =
           createHibernateLuceneDao(
-              entityClass.getSimpleName(), (JpaRepository) SpringContextUtil.getBeanByType(clazz));
+              entityClass.getSimpleName(), (JpaRepository) SpringBeanUtils.getBeanByType(clazz));
       indexedClasses.add(entityClass);
       DaoCache.getInstance().put(entityClass, dao);
     }
@@ -119,7 +119,7 @@ public class BuguIndex implements ApplicationListener<ContextRefreshedEvent> {
   }
 
   private static LuceneDao createHibernateLuceneDao(String name, JpaRepository jpaRepository) {
-    return SpringContextUtil.registerBeanDefinition(
+    return SpringBeanUtils.registerBeanDefinition(
         name + "HibernateLuceneDao", HibernateLuceneDao.class, new Object[] {jpaRepository});
   }
 

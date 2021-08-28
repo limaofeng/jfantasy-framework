@@ -11,7 +11,7 @@ import org.hibernate.persister.entity.EntityPersister;
 import org.hibernate.service.ServiceRegistry;
 import org.hibernate.type.Type;
 import org.jfantasy.framework.dao.mybatis.keygen.util.DataBaseKeyGenerator;
-import org.jfantasy.framework.spring.SpringContextUtil;
+import org.jfantasy.framework.spring.SpringBeanUtils;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
@@ -54,7 +54,7 @@ public class SequenceGenerator implements IdentifierGenerator, Configurable {
       return id;
     }
     if (ObjectUtil.isNull(this.baseKeyGenerator)) {
-      SpringContextUtil.autowireBean(this);
+      SpringBeanUtils.autowireBean(this);
     }
     return this.baseKeyGenerator.nextValue(
         StringUtil.defaultValue(keyName, ClassUtil.getRealClass(object).getName()));
