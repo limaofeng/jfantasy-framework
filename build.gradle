@@ -32,14 +32,14 @@ allprojects {
     version = System.getenv().getOrDefault('RELEASE_VERSION', 'v0.0.0').replaceAll(/^v/, "")
     status = 'integration'
 
-idea {
+    idea {
         module {
             outputDir file("$buildDir/classes/java/main")
             testOutputDir file("$buildDir/classes/java/test")
             inheritOutputDirs = false
         }
     }
-
+   
     eclipse {
         jdt {
             apt {
@@ -70,22 +70,6 @@ subprojects {
     apply plugin: 'io.spring.dependency-management'
     apply plugin: 'maven-publish'
     apply plugin: 'signing'
-
-    idea {
-        module {
-            outputDir file("$buildDir/classes/java/main")
-            testOutputDir file("$buildDir/classes/java/test")
-            inheritOutputDirs = false
-        }
-    }
-
-    eclipse {
-        classpath {
-            file.beforeMerged { cp ->
-                cp.entries.add( new org.gradle.plugins.ide.eclipse.model.SourceFolder("$buildDir/generated/source/apt/main", null) )
-            }
-        }
-    }
 
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
