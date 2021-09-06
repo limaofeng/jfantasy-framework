@@ -30,7 +30,7 @@ public class LoginUser implements UserDetails, Principal, OAuth2User {
   /** 密码 */
   private String password;
   /** 用户ID */
-  private String uid;
+  private Long uid;
   /** 用户类型 */
   private String type;
   /** 名称 */

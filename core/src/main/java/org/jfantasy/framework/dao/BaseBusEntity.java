@@ -27,17 +27,17 @@ public abstract class BaseBusEntity implements Serializable {
   };
   public static final String ALL_FIELD_STR = String.join(",", ALL_FIELD);
 
-  /** 创建人 */
-  @Column(updatable = false, name = "CREATOR", length = 20)
-  private String createdBy;
-  /** 创建时间 */
+  /** 创建人 还可以使用 spring data 的 @CreatedBy 注解 */
+  @Column(updatable = false, name = "CREATED_BY", length = 20)
+  private Long createdBy;
+  /** 创建时间 还可以使用 spring data 的 @CreatedDate */
   @Temporal(TemporalType.TIMESTAMP)
   @Column(updatable = false, name = "CREATED_AT")
   private Date createdAt;
-  /** 最后修改人 */
-  @Column(name = "UPDATOR", length = 20)
-  private String updatedBy;
-  /** 最后修改时间 */
+  /** 最后修改人 还可以使用 spring data 的 @LastModifiedBy */
+  @Column(name = "UPDATED_BY", length = 20)
+  private Long updatedBy;
+  /** 最后修改时间 还可以使用 spring data 的 @LastModifiedDate */
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "UPDATED_AT")
   private Date updatedAt;
