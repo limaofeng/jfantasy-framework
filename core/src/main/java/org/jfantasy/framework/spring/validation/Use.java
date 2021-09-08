@@ -10,15 +10,16 @@ import java.lang.annotation.Target;
 import javax.validation.Constraint;
 import javax.validation.Payload;
 
+/** @author limaofeng */
 @Constraint(validatedBy = UseConstraintValidator.class)
 @Target({METHOD, FIELD})
 @Retention(RUNTIME)
 @Documented
 public @interface Use {
 
-  String message() default "自定义错误";
+  String message() default "";
 
-  Class<? extends Validator> vali();
+  Class<? extends Validator<?>> value();
 
   Class<?>[] groups() default {};
 

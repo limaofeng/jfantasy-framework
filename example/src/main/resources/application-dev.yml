@@ -3,19 +3,19 @@ spring:
     name: server
   datasource:
     name: datasource
-    url: jdbc:mysql://dc3.docker.asany.cn:30306/demo?autoReconnect=true&useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull
-    username: admin
-    password: CU:4icgD4MF6Q!u^
+    url: jdbc:mysql://localhost:3306/demo?autoReconnect=true&useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull
+    username: root
+    password: yV2jJxvNs8BD
     druid:
       maxActive: 20
       initialSize: 10
       maxWait: 60000
       minIdle: 1
-  redis:
-    database: 0
-    host: dc3.docker.asany.cn
-    port: 30379
-    password: Y0HfNA{PdjSINZyy
+#  redis:
+#    database: 0
+#    host: dc3.docker.asany.cn
+#    port: 30379
+#    password: Y0HfNA{PdjSINZyy
 
 graphql:
   servlet:
@@ -24,12 +24,12 @@ graphql:
     websocket:
       enabled: true
 
-es:
-  clustername:
-    cluster_elasticsearch
-  ip:
-    192.168.3.35
-  port:
-    30300
-role:
-  name: 会务管理员
+#es:
+#  clustername:
+#    cluster_elasticsearch
+#  ip:
+#    192.168.3.35
+#  port:
+#    30300
+#role:
+#  name: 会务管理员
