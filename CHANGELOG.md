@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.8.9](https://github.com/limaofeng/jfantasy-framework/compare/v2.8.8...v2.8.9) (2021-09-08)
+
+
+### Features
+
+* 优化验证 ([98f4802](https://github.com/limaofeng/jfantasy-framework/commit/98f4802502066957f6f7953c2dae5cd1f47fe9c5))
+
 ### [2.8.8](https://github.com/limaofeng/jfantasy-framework/compare/v2.8.7...v2.8.8) (2021-09-06)
 
 ### [2.8.7](https://github.com/limaofeng/jfantasy-framework/compare/v2.8.6...v2.8.7) (2021-08-15)
