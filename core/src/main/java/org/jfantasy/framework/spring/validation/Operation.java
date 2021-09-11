@@ -5,12 +5,12 @@ package org.jfantasy.framework.spring.validation;
  *
  * @author limaofeng
  */
-public class Operation {
+public interface Operation {
 
-  public static final Class GET = Get.class;
-  public static final Class CREATE = Create.class;
-  public static final Class UPDATE = Update.class;
-  public static final Class DELETE = Delete.class;
+  Class GET = Get.class;
+  Class CREATE = Create.class;
+  Class UPDATE = Update.class;
+  Class DELETE = Delete.class;
 
   interface Create {}
 
