@@ -1,14 +1,14 @@
 plugins {
-    id "org.springframework.boot" version "${LIB_SPRING_BOOT_VER}"
+	id "org.springframework.boot" version "${LIB_SPRING_BOOT_VER}"
 }
 
 apply plugin: 'org.springframework.boot'
 apply plugin: 'java-library'
 
 jar {
-    manifest {
-        attributes 'Main-Class': 'cn.asany.his.Application'
-    }
+	manifest {
+		attributes 'Main-Class': 'cn.asany.his.Application'
+	}
 }
 
 tasks.publish.enabled = false
@@ -18,31 +18,31 @@ tasks.withType(Test) { enabled = false }
 tasks.withType(PublishToMavenRepository).configureEach { it.enabled = false }
 
 bootRun {
-    systemProperty "spring.profiles.active", "dev"
-    jvmArgs "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005"
+	systemProperty "spring.profiles.active", "dev"
+	jvmArgs "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005"
 }
 
 dependencyManagement {
-    dependencies {
-        dependency("com.mashape.unirest:unirest-java:${LIB_UNIREST_VER}") {
-            exclude 'org.json:json'
-        }
-    }
+	dependencies {
+		dependency("com.mashape.unirest:unirest-java:${LIB_UNIREST_VER}") {
+			exclude 'org.json:json'
+		}
+	}
 }
 
 dependencies {
-    implementation project(":jfantasy-core")
-    implementation project(":jfantasy-graphql")
-    implementation "org.springframework.boot:spring-boot-starter-data-redis"
-    implementation "org.mapstruct:mapstruct:${LIB_MAPSTRUCT_VER}"
-    annotationProcessor "org.mapstruct:mapstruct-processor:$LIB_MAPSTRUCT_VER"
-    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor:${LIB_SPRING_BOOT_VER}"
-    testImplementation "com.graphql-java-kickstart:graphql-spring-boot-starter-test:$LIB_GRAPHQL_VER"
-    compileOnly "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
-    annotationProcessor "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
-    annotationProcessor "org.projectlombok:lombok-mapstruct-binding:${LIB_LOMBOK_MAPSTRUCT_BINDING_VER}"
-    testCompileOnly "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
-    testAnnotationProcessor "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
-    testAnnotationProcessor "org.mapstruct:mapstruct-processor:$LIB_MAPSTRUCT_VER"
-    testImplementation libs['test']
+	implementation project(":jfantasy-core")
+	implementation project(":jfantasy-graphql")
+	implementation "org.springframework.boot:spring-boot-starter-data-redis"
+	implementation "org.mapstruct:mapstruct:${LIB_MAPSTRUCT_VER}"
+	annotationProcessor "org.mapstruct:mapstruct-processor:$LIB_MAPSTRUCT_VER"
+	annotationProcessor "org.springframework.boot:spring-boot-configuration-processor:${LIB_SPRING_BOOT_VER}"
+	testImplementation "com.graphql-java-kickstart:graphql-spring-boot-starter-test:$LIB_GRAPHQL_VER"
+	compileOnly "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
+	annotationProcessor "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
+	annotationProcessor "org.projectlombok:lombok-mapstruct-binding:${LIB_LOMBOK_MAPSTRUCT_BINDING_VER}"
+	testCompileOnly "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
+	testAnnotationProcessor "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
+	testAnnotationProcessor "org.mapstruct:mapstruct-processor:$LIB_MAPSTRUCT_VER"
+	testImplementation libs['test']
 }

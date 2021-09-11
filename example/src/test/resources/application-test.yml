@@ -3,8 +3,8 @@ spring:
     name: server
   datasource:
     name: datasource
-    url: jdbc:mysql://dc3.docker.asany.cn:30306/demo?autoReconnect=true&useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull
-    username: admin
+    url: jdbc:mysql://localhost:3306/demo?autoReconnect=true&useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull
+    username: root
     password: CU:4icgD4MF6Q!u^
     druid:
       maxActive: 20
