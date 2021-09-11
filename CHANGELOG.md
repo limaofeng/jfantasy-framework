@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.9.0](https://github.com/limaofeng/jfantasy-framework/compare/v2.8.9...v2.9.0) (2021-09-11)
+
+
+### Features
+
+* 集成 lombok-mapstruct-binding 插件 ([0418cbb](https://github.com/limaofeng/jfantasy-framework/commit/0418cbb58dfc05c3fbd7a2314879cfbe593810f8))
+
 ### [2.8.9](https://github.com/limaofeng/jfantasy-framework/compare/v2.8.8...v2.8.9) (2021-09-08)
 
 
