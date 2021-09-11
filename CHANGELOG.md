@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.9.1](https://github.com/limaofeng/jfantasy-framework/compare/v2.9.0...v2.9.1) (2021-09-11)
+
+
+### Bug Fixes
+
+* Operation 由 class 改为 interface ([c7a0842](https://github.com/limaofeng/jfantasy-framework/commit/c7a08422b83238d7831a1d5c1c9dba076ce7b268))
+
 ## [2.9.0](https://github.com/limaofeng/jfantasy-framework/compare/v2.8.9...v2.9.0) (2021-09-11)
 
 
