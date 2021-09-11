@@ -1,6 +1,8 @@
 package cn.asany.his.demo.graphql;
 
 import cn.asany.his.demo.bean.User;
+import cn.asany.his.demo.converter.UserConverter;
+import cn.asany.his.demo.graphql.inputs.UserCreateInput;
 import cn.asany.his.demo.service.UserService;
 import graphql.kickstart.tools.GraphQLMutationResolver;
 import org.springframework.stereotype.Component;
@@ -11,12 +13,15 @@ import org.springframework.validation.annotation.Validated;
 public class UserGraphQLMutationResolver implements GraphQLMutationResolver {
 
   private final UserService userService;
+  private final UserConverter userConverter;
 
-  public UserGraphQLMutationResolver(UserService userService) {
+  public UserGraphQLMutationResolver(UserService userService, UserConverter userConverter) {
     this.userService = userService;
+    this.userConverter = userConverter;
   }
 
-  public User createUser(@Validated User user) {
+  public User createUser(@Validated UserCreateInput input) {
+    User user = userConverter.toUser(input);
     return userService.save(user);
   }
 }

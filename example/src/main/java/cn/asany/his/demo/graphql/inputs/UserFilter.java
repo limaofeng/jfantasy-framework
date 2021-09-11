@@ -8,7 +8,7 @@ import org.jfantasy.graphql.inputs.QueryFilter;
 
 /** @author limaofeng */
 @Data
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 public class UserFilter extends QueryFilter<UserFilter, User> {
 
   @JsonProperty("username_contains")

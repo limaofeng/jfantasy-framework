@@ -15,7 +15,7 @@ public abstract class AbstractAuthenticationToken implements Authentication {
   private Collection<GrantedAuthority> authorities;
   private boolean authenticated;
 
-  public AbstractAuthenticationToken(Collection authorities) {
+  public AbstractAuthenticationToken(Collection<GrantedAuthority> authorities) {
     if (authorities == null) {
       this.authorities = AuthorityUtils.NO_AUTHORITIES;
       return;

@@ -47,9 +47,6 @@ public class LoginUser implements UserDetails, Principal, OAuth2User {
   private String group;
   /** 电话 */
   private String phone;
-
-  /** 权限 */
-  private List<String> authoritys;
   /** */
   private Map<String, Object> data;
   /** 启用状态 */
@@ -60,13 +57,13 @@ public class LoginUser implements UserDetails, Principal, OAuth2User {
   @Builder.Default private boolean accountNonLocked = true;
   /** 凭证过期状态 */
   @Builder.Default private boolean credentialsNonExpired = true;
-
-  private Collection<? extends GrantedAuthority> authorities;
+  /** 权限 */
+  private Collection<GrantedAuthority> authorities;
 
   @JsonAnySetter
   public void setAttribute(String key, Object value) {
     if (this.data == null) {
-      this.data = new HashMap<>();
+      this.data = new HashMap<>(0);
     }
     this.data.put(key, value);
   }

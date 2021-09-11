@@ -4,7 +4,11 @@ import java.io.Serializable;
 import java.util.Collection;
 import org.jfantasy.framework.security.core.GrantedAuthority;
 
-/** @author limaofeng */
+/**
+ * 用户详情
+ *
+ * @author limaofeng
+ */
 public interface UserDetails extends Serializable {
 
   /**
@@ -54,5 +58,5 @@ public interface UserDetails extends Serializable {
    *
    * @return 授予权限
    */
-  Collection<? extends GrantedAuthority> getAuthorities();
+  Collection<GrantedAuthority> getAuthorities();
 }

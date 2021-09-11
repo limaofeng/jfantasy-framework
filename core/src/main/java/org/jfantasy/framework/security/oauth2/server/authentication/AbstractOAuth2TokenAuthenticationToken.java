@@ -10,26 +10,23 @@ import org.springframework.util.Assert;
 public abstract class AbstractOAuth2TokenAuthenticationToken<T extends AbstractOAuth2Token>
     extends AbstractAuthenticationToken {
 
-  private Object principal;
+  private final Object principal;
 
-  private Object credentials;
+  private final Object credentials;
 
-  private T token;
+  private final T token;
 
   protected AbstractOAuth2TokenAuthenticationToken(T token) {
     this(token, null);
   }
 
   protected AbstractOAuth2TokenAuthenticationToken(
-      T token, Collection<? extends GrantedAuthority> authorities) {
+      T token, Collection<GrantedAuthority> authorities) {
     this(token, token, token, authorities);
   }
 
   protected AbstractOAuth2TokenAuthenticationToken(
-      T token,
-      Object principal,
-      Object credentials,
-      Collection<? extends GrantedAuthority> authorities) {
+      T token, Object principal, Object credentials, Collection<GrantedAuthority> authorities) {
     super(authorities);
     Assert.notNull(token, "token cannot be null");
     Assert.notNull(principal, "principal cannot be null");

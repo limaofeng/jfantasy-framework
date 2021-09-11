@@ -11,15 +11,16 @@ public class SpringSecurityUtils {
 
   private SpringSecurityUtils() {}
 
+  public SecurityContext getContext() {
+    return SecurityContextHolder.getContext();
+  }
+
   public static <T extends LoginUser> T getCurrentUser(Class<T> clazz) {
     SecurityContext context = SecurityContextHolder.getContext();
-    if (context != null && context.getAuthentication().isAuthenticated()) {
-      Object principal = context.getAuthentication().getPrincipal();
-      if (principal instanceof LoginUser) {
-        return clazz.cast(principal);
-      }
+    if (context == null || !context.isAuthenticated()) {
+      return null;
     }
-    return null;
+    return context.getPrincipal(clazz);
   }
 
   public static LoginUser getCurrentUser() {

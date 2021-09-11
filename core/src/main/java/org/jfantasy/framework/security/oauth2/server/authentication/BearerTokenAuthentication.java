@@ -17,7 +17,7 @@ public class BearerTokenAuthentication
   public BearerTokenAuthentication(
       OAuth2AuthenticatedPrincipal principal,
       OAuth2AccessToken credentials,
-      Collection<? extends GrantedAuthority> authorities) {
+      Collection<GrantedAuthority> authorities) {
     super(credentials, principal, credentials, authorities);
     this.attributes = Collections.unmodifiableMap(new LinkedHashMap<>(principal.getAttributes()));
     setAuthenticated(true);

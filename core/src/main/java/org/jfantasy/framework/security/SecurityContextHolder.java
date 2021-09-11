@@ -9,28 +9,24 @@ package org.jfantasy.framework.security;
  */
 public class SecurityContextHolder {
 
-  private static ThreadLocal<SecurityContext> holder = new ThreadLocal<>();
+  private static final ThreadLocal<SecurityContext> HOLDER = new ThreadLocal<>();
 
   public static SecurityContext getContext() {
-    SecurityContext securityContextHolder = holder.get();
-    if (securityContextHolder == null) {
-      return null;
-    }
-    return holder.get();
+    return HOLDER.get();
   }
 
   public static void setContext(SecurityContext context) {
-    SecurityContext securityContextHolder = holder.get();
+    SecurityContext securityContextHolder = HOLDER.get();
     if (securityContextHolder != null) {
-      holder.remove();
+      HOLDER.remove();
     }
-    holder.set(context);
+    HOLDER.set(context);
   }
 
   public static void clear() {
-    SecurityContext securityContextHolder = holder.get();
+    SecurityContext securityContextHolder = HOLDER.get();
     if (securityContextHolder != null) {
-      holder.remove();
+      HOLDER.remove();
     }
   }
 
