@@ -1,6 +1,8 @@
 package org.jfantasy.autoconfigure;
 
+import graphql.execution.AsyncSerialExecutionStrategy;
 import graphql.execution.ExecutionStrategy;
+import graphql.execution.instrumentation.Instrumentation;
 import graphql.kickstart.spring.web.boot.GraphQLWebAutoConfiguration;
 import graphql.kickstart.tools.SchemaParserDictionary;
 import graphql.kickstart.tools.boot.GraphQLJavaToolsAutoConfiguration;
@@ -10,8 +12,8 @@ import org.jfantasy.graphql.VersionGraphQLQueryResolver;
 import org.jfantasy.graphql.client.GraphQLClientBeanPostProcessor;
 import org.jfantasy.graphql.error.GraphQLResolverAdvice;
 import org.jfantasy.graphql.error.GraphQLStaticMethodMatcherPointcut;
-import org.jfantasy.graphql.execution.AsyncMutationTransactionalExecutionStrategy;
 import org.jfantasy.graphql.execution.AsyncQueryTransactionalExecutionStrategy;
+import org.jfantasy.graphql.execution.GraphQLTransactionInstrumentation;
 import org.springframework.aop.support.DefaultBeanFactoryPointcutAdvisor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -21,6 +23,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -48,14 +51,19 @@ public class GraphQLAutoConfiguration {
 
   @Bean(GraphQLWebAutoConfiguration.MUTATION_EXECUTION_STRATEGY)
   public ExecutionStrategy mutationExecutionStrategy() {
-    return new AsyncMutationTransactionalExecutionStrategy();
+    return new AsyncSerialExecutionStrategy();
+  }
+
+  @Bean
+  public Instrumentation getInstrumentation(PlatformTransactionManager transactionManager) {
+    return new GraphQLTransactionInstrumentation(transactionManager);
   }
 
   @Bean
   public SchemaParserDictionary schemaParserDictionary(
       List<SchemaParserDictionaryBuilder> builders) {
     SchemaParserDictionary dictionary = new SchemaParserDictionary();
-    builders.stream().forEach(item -> item.build(dictionary));
+    builders.forEach(item -> item.build(dictionary));
     return dictionary;
   }
 

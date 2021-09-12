@@ -8,6 +8,11 @@ import graphql.execution.NonNullableFieldWasNullException;
 import java.util.concurrent.CompletableFuture;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * 查询事务
+ *
+ * @author limaofeng
+ */
 public class AsyncQueryTransactionalExecutionStrategy extends AsyncExecutionStrategy {
 
   @Override
