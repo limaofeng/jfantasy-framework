@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.9.3](https://github.com/limaofeng/jfantasy-framework/compare/v2.9.2...v2.9.3) (2021-09-13)
+
+
+### Bug Fixes
+
+* 解决 javadoc: InterceptorBinding not found ([141f035](https://github.com/limaofeng/jfantasy-framework/commit/141f035321547de220e9ac1fa07da7fcd19d2f08))
+
 ### [2.9.2](https://github.com/limaofeng/jfantasy-framework/compare/v2.9.1...v2.9.2) (2021-09-13)
 
 
