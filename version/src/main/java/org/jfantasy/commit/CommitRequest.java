@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 /**
  * @Description
- * @Author ChenWenJie
+ * @author ChenWenJie
  * @Data 2020/11/17 2:55 下午
  **/
 @Data

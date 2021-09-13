@@ -9,7 +9,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
 /**
  * @Description 历史数据提交
- * @Author ChenWenJie
+ * @author ChenWenJie
  * @Data 2020/11/10 10:56 上午
  **/
 public class VcsCommit {

@@ -7,7 +7,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
-/** @Description @Author ChenWenJie @Data 2020/11/9 4:59 下午 */
+/** @Description @author ChenWenJie @Data 2020/11/9 4:59 下午 */
 public class LimitPageRequest implements Pageable, Serializable {
   private static final long serialVersionUID = -4541509938956089562L;
 

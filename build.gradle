@@ -39,7 +39,7 @@ allprojects {
             inheritOutputDirs = false
         }
     }
-   
+
     eclipse {
         jdt {
             apt {
@@ -58,6 +58,10 @@ allprojects {
         maven { url "https://jcenter.bintray.com" }
         mavenCentral()
         mavenLocal()
+    }
+
+    dependencies {
+        implementation 'javax.interceptor:javax.interceptor-api:1.2'
     }
 }
 

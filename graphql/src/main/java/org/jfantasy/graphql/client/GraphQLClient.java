@@ -11,7 +11,7 @@ public @interface GraphQLClient {
   /**
    * 对应配置
    *
-   * @return
+   * @return String
    */
   String value() default "GLOBAL";
 }

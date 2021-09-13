@@ -15,7 +15,7 @@ import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.storage.FileObject;
 import org.springframework.beans.factory.annotation.Value;
 
-/** @Author: fengmeng @Date: 2019/5/7 20:45 */
+/** @author: fengmeng @Date: 2019/5/7 20:45 */
 @Slf4j
 public class FileObjectFormatDirective implements SchemaDirectiveWiring {
 
@@ -85,9 +85,9 @@ public class FileObjectFormatDirective implements SchemaDirectiveWiring {
    * 在线图片转换成base64字符串
    *
    * @param imgURL 图片线上路径
-   * @return
    * @author ZHANGJL
    * @date 2018-02-23 14:43:18
+   * @return String
    */
   public static String ImageToBase64ByOnline(String imgURL) throws IOException {
     ByteArrayOutputStream data = new ByteArrayOutputStream();

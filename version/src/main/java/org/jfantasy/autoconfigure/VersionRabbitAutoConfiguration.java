@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * @Description
- * @Author ChenWenJie
+ * @author ChenWenJie
  * @Data 2020/11/10 11:02 上午
  **/
 @Configuration

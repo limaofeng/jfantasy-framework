@@ -11,28 +11,28 @@ public interface Edge<T> {
   /**
    * 游标
    *
-   * @return
+   * @return String
    */
   String getCursor();
 
   /**
    * 当前数据
    *
-   * @return
+   * @return T
    */
   T getNode();
 
   /**
    * 设置游标
    *
-   * @param cursor
+   * @param cursor String
    */
   void setCursor(String cursor);
 
   /**
    * 设置数据
    *
-   * @param node
+   * @param node T
    */
   void setNode(T node);
 }
