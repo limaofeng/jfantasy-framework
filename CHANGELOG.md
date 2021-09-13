@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.9.4](https://github.com/limaofeng/jfantasy-framework/compare/v2.9.3...v2.9.4) (2021-09-13)
+
+
+### Bug Fixes
+
+* 解决 GraphQL 异步情况下，获取授权错误 ([dd739a2](https://github.com/limaofeng/jfantasy-framework/commit/dd739a2ff8801ff259ace3459b2235c9debcc7e5))
+
 ### [2.9.3](https://github.com/limaofeng/jfantasy-framework/compare/v2.9.2...v2.9.3) (2021-09-13)
 
 
