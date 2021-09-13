@@ -2,7 +2,7 @@ package org.jfantasy.framework.util.concurrent;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jfantasy.framework.util.json.bean.User;
+import org.jfantasy.framework.jackson.models.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.Assert;
 

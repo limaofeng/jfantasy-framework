@@ -58,5 +58,5 @@ public interface UserDetails extends Serializable {
    *
    * @return 授予权限
    */
-  Collection<GrantedAuthority> getAuthorities();
+  Collection<? extends GrantedAuthority> getAuthorities();
 }

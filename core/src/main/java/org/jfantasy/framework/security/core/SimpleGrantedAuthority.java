@@ -15,8 +15,23 @@ public class SimpleGrantedAuthority implements GrantedAuthority {
   private String type;
   private String code;
 
+  public SimpleGrantedAuthority(String authority) {
+    int index = authority.indexOf("_");
+    type = authority.substring(0, index);
+    code = authority.substring(index + 1);
+  }
+
+  public static GrantedAuthority newInstance(String authority) {
+    return new SimpleGrantedAuthority(authority);
+  }
+
   @Override
   public String getAuthority() {
     return type + "_" + code;
+  }
+
+  @Override
+  public String toString() {
+    return getAuthority();
   }
 }

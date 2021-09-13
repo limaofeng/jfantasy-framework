@@ -4,17 +4,24 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.ReadContext;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.jackson.models.DefaultOutput;
 import org.jfantasy.framework.jackson.models.ListOutput;
 import org.jfantasy.framework.jackson.models.Output;
+import org.jfantasy.framework.security.LoginUser;
+import org.jfantasy.framework.security.core.GrantedAuthority;
+import org.jfantasy.framework.security.core.SimpleGrantedAuthority;
 import org.jfantasy.framework.util.asm.AnnotationDescriptor;
 import org.jfantasy.framework.util.asm.AsmUtil;
 import org.junit.jupiter.api.AfterEach;
@@ -138,6 +145,30 @@ public class JSONTest {
     String json = output.toString("utf-8");
 
     LOG.debug(json);
+  }
+
+  @Test
+  public void deserialize() {
+    ObjectMapper mapper = JSON.getObjectMapper();
+    GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_USER");
+    Set<GrantedAuthority> authorities = new HashSet<>();
+    authorities.add(authority);
+    Map<String, Object> data = new HashMap<>();
+    LoginUser loginUser = new LoginUser();
+    loginUser.setAuthorities(authorities);
+    data.put("principal", loginUser);
+    data.put(
+        "authorities",
+        authorities.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet()));
+    String json = JSON.serialize(data);
+    ReadContext context = JsonPath.parse(json);
+
+    LoginUser principal = mapper.convertValue(context.read("$.principal"), LoginUser.class);
+
+    List<? extends GrantedAuthority> _authorities =
+        mapper.convertValue(
+            context.read("$.authorities"), new TypeReference<List<SimpleGrantedAuthority>>() {});
+    LOG.debug(_authorities);
   }
 
   @Test

@@ -17,7 +17,7 @@ public interface Authentication extends Principal, Serializable {
    *
    * @return Collection<GrantedAuthority>
    */
-  Collection<GrantedAuthority> getAuthorities();
+  Collection<? extends GrantedAuthority> getAuthorities();
 
   /**
    * 凭证 密码 / Token 等

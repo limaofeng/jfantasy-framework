@@ -6,16 +6,16 @@ import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.ReadContext;
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 import org.jfantasy.framework.jackson.JSON;
 import org.jfantasy.framework.security.LoginUser;
 import org.jfantasy.framework.security.authentication.Authentication;
 import org.jfantasy.framework.security.core.GrantedAuthority;
+import org.jfantasy.framework.security.core.SimpleGrantedAuthority;
 import org.jfantasy.framework.security.oauth2.server.BearerTokenAuthenticationToken;
 import org.jfantasy.framework.security.oauth2.server.authentication.BearerTokenAuthentication;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.util.StringUtils;
@@ -30,15 +30,12 @@ public abstract class AbstractTokenStore implements TokenStore, InitializingBean
   private final String ASSESS_TOKEN_PREFIX = "assess_token:";
   private final String REFRESH_TOKEN_PREFIX = "refresh_token:";
 
-  @Autowired private StringRedisTemplate redisTemplate;
+  private final StringRedisTemplate redisTemplate;
+  private final ValueOperations<String, String> valueOperations;
 
-  private ValueOperations valueOperations;
-  private ListOperations listOperations;
-
-  @Override
-  public void afterPropertiesSet() throws Exception {
-    valueOperations = redisTemplate.opsForValue();
-    listOperations = redisTemplate.opsForList();
+  public AbstractTokenStore(StringRedisTemplate redisTemplate) {
+    this.redisTemplate = redisTemplate;
+    this.valueOperations = redisTemplate.opsForValue();
   }
 
   @Override
@@ -53,7 +50,7 @@ public abstract class AbstractTokenStore implements TokenStore, InitializingBean
     if (StringUtils.isEmpty(data)) {
       return null;
     }
-    OAuth2AccessToken accessToken = buildOAuth2AccessToken(data);
+    OAuth2AccessToken accessToken = buildOauth2AccessToken(data);
     return buildBearerTokenAuthentication(data, accessToken);
   }
 
@@ -63,7 +60,7 @@ public abstract class AbstractTokenStore implements TokenStore, InitializingBean
 
     String key = ASSESS_TOKEN_PREFIX + token.getTokenValue();
 
-    valueOperations.set(key, data);
+    this.valueOperations.set(key, data);
 
     if (token.getExpiresAt() != null) {
       redisTemplate.expireAt(key, Date.from(token.getExpiresAt()));
@@ -77,7 +74,7 @@ public abstract class AbstractTokenStore implements TokenStore, InitializingBean
     if (StringUtils.isEmpty(data)) {
       return null;
     }
-    return buildOAuth2AccessToken(data);
+    return buildOauth2AccessToken(data);
   }
 
   @Override
@@ -99,10 +96,14 @@ public abstract class AbstractTokenStore implements TokenStore, InitializingBean
   }
 
   @Override
+  public Collection<OAuth2AccessToken> findTokensByClientIdAndUserName(
+      String clientId, String userName) {
+    return null;
+  }
+
+  @Override
   public OAuth2RefreshToken readRefreshToken(String tokenValue) {
     String token = redisTemplate.boundValueOps(REFRESH_TOKEN_PREFIX + tokenValue).get();
-    if (StringUtils.isEmpty(token)) {}
-
     return null;
   }
 
@@ -111,15 +112,14 @@ public abstract class AbstractTokenStore implements TokenStore, InitializingBean
       OAuth2RefreshToken refreshToken) {
     String principal =
         redisTemplate.boundValueOps(REFRESH_TOKEN_PREFIX + refreshToken.getTokenValue()).get();
-
     LoginUser user = JSON.deserialize(principal, LoginUser.class);
-
     OAuth2AccessToken accessToken =
         new OAuth2AccessToken(
             TokenType.TOKEN,
             refreshToken.getTokenValue(),
             refreshToken.getIssuedAt(),
             refreshToken.getExpiresAt());
+    assert user != null;
     return new BearerTokenAuthentication(user, accessToken, user.getAuthorities());
   }
 
@@ -137,27 +137,25 @@ public abstract class AbstractTokenStore implements TokenStore, InitializingBean
   }
 
   @Override
-  public Collection<OAuth2AccessToken> findTokensByClientIdAndUserName(
-      String clientId, String userName) {
-    return null;
-  }
-
-  @Override
   public Collection<OAuth2AccessToken> findTokensByClientId(String clientId) {
     return null;
   }
 
   private String buildStoreData(OAuth2AccessToken token, Authentication authentication) {
     Map<String, Object> data = new HashMap<>();
+    Collection<? extends GrantedAuthority> tempGrantedAuthority =
+        ObjectUtil.defaultValue(authentication.getAuthorities(), Collections::emptyList);
+    Set<String> authorities =
+        tempGrantedAuthority.stream()
+            .map(GrantedAuthority::getAuthority)
+            .collect(Collectors.toSet());
     data.put("access_token", token);
     data.put("principal", authentication.getPrincipal());
-    data.put(
-        "authorities",
-        ObjectUtil.defaultValue(authentication.getAuthorities(), () -> Collections.emptyList()));
+    data.put("authorities", authorities);
     return JSON.serialize(data);
   }
 
-  private OAuth2AccessToken buildOAuth2AccessToken(String data) {
+  private OAuth2AccessToken buildOauth2AccessToken(String data) {
     ObjectMapper mapper = JSON.getObjectMapper();
     ReadContext context = JsonPath.parse(data);
     TokenType tokenType =
@@ -166,7 +164,9 @@ public abstract class AbstractTokenStore implements TokenStore, InitializingBean
         mapper.convertValue(context.read("$.access_token.tokenValue"), String.class);
     String refreshTokenValue =
         mapper.convertValue(context.read("$.access_token.refreshTokenValue"), String.class);
-    Set<String> scopes = mapper.convertValue(context.read("$.access_token.scopes"), Set.class);
+    Set<String> scopes =
+        Arrays.stream(mapper.convertValue(context.read("$.access_token.scopes"), String[].class))
+            .collect(Collectors.toSet());
     Instant issuedAt = mapper.convertValue(context.read("$.access_token.issuedAt"), Instant.class);
     Instant expiresAt =
         mapper.convertValue(context.read("$.access_token.expiresAt"), Instant.class);
@@ -181,10 +181,9 @@ public abstract class AbstractTokenStore implements TokenStore, InitializingBean
     ReadContext context = JsonPath.parse(data);
 
     LoginUser principal = mapper.convertValue(context.read("$.principal"), LoginUser.class);
-    List<GrantedAuthority> authorities =
+    List<? extends GrantedAuthority> authorities =
         mapper.convertValue(
-            context.read("$.authorities"), new TypeReference<List<GrantedAuthority>>() {});
-
+            context.read("$.authorities"), new TypeReference<List<SimpleGrantedAuthority>>() {});
     return new BearerTokenAuthentication(principal, accessToken, authorities);
   }
 }

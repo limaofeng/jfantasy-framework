@@ -12,10 +12,10 @@ import org.jfantasy.framework.security.core.authority.AuthorityUtils;
 public abstract class AbstractAuthenticationToken implements Authentication {
   private String name;
   private Object details;
-  private Collection<GrantedAuthority> authorities;
+  private Collection<? extends GrantedAuthority> authorities;
   private boolean authenticated;
 
-  public AbstractAuthenticationToken(Collection<GrantedAuthority> authorities) {
+  public AbstractAuthenticationToken(Collection<? extends GrantedAuthority> authorities) {
     if (authorities == null) {
       this.authorities = AuthorityUtils.NO_AUTHORITIES;
       return;

@@ -1,4 +1,4 @@
-package org.jfantasy.framework.util.json.bean;
+package org.jfantasy.framework.jackson.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 

@@ -2,7 +2,7 @@ package org.jfantasy.framework.util;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
-import org.jfantasy.framework.util.json.bean.User;
+import org.jfantasy.framework.jackson.models.User;
 import org.junit.jupiter.api.Test;
 
 public class JavaScriptEngineTest {

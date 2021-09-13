@@ -2,6 +2,8 @@ package org.jfantasy.framework.security;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.security.Principal;
 import java.util.*;
 import lombok.AllArgsConstructor;
@@ -58,7 +60,9 @@ public class LoginUser implements UserDetails, Principal, OAuth2User {
   /** 凭证过期状态 */
   @Builder.Default private boolean credentialsNonExpired = true;
   /** 权限 */
-  private Collection<GrantedAuthority> authorities;
+  @JsonSerialize(using = GrantedAuthority.GrantedAuthoritiesSerializer.class)
+  @JsonDeserialize(using = GrantedAuthority.GrantedAuthoritiesDeserializer.class)
+  private Set<? extends GrantedAuthority> authorities;
 
   @JsonAnySetter
   public void setAttribute(String key, Object value) {
@@ -80,5 +84,9 @@ public class LoginUser implements UserDetails, Principal, OAuth2User {
   @JsonAnyGetter
   public Map<String, Object> getAttributes() {
     return ObjectUtil.defaultValue(this.data, Collections.emptyMap());
+  }
+
+  public void setAuthorities(Set<? extends GrantedAuthority> authorities) {
+    this.authorities = authorities;
   }
 }

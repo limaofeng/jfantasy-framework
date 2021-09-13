@@ -26,7 +26,10 @@ public abstract class AbstractOAuth2TokenAuthenticationToken<T extends AbstractO
   }
 
   protected AbstractOAuth2TokenAuthenticationToken(
-      T token, Object principal, Object credentials, Collection<GrantedAuthority> authorities) {
+      T token,
+      Object principal,
+      Object credentials,
+      Collection<? extends GrantedAuthority> authorities) {
     super(authorities);
     Assert.notNull(token, "token cannot be null");
     Assert.notNull(principal, "principal cannot be null");
