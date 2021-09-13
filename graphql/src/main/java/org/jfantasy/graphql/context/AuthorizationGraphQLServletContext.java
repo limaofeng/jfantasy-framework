@@ -8,6 +8,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.websocket.Session;
 import javax.websocket.server.HandshakeRequest;
 import org.dataloader.DataLoaderRegistry;
+import org.jfantasy.framework.security.SecurityContext;
+import org.jfantasy.framework.security.authentication.Authentication;
 
 /**
  * 认证上下文对象
@@ -23,11 +25,14 @@ public class AuthorizationGraphQLServletContext implements GraphQLContext {
   private HttpServletResponse response;
   private DataLoaderRegistry dataLoaderRegistry;
   private HandshakeRequest handshakeRequest;
+  private Authentication authentication;
+  private SecurityContext securityContext;
 
   public AuthorizationGraphQLServletContext(
-      HttpServletRequest request, HttpServletResponse response) {
+      HttpServletRequest request, HttpServletResponse response, SecurityContext securityContext) {
     this.request = request;
     this.response = response;
+    this.securityContext = securityContext;
   }
 
   public AuthorizationGraphQLServletContext(Session session, HandshakeRequest request) {
@@ -59,5 +64,18 @@ public class AuthorizationGraphQLServletContext implements GraphQLContext {
 
   public HttpServletResponse getResponse() {
     return response;
+  }
+
+  public Authentication getAuthentication() {
+    return authentication;
+  }
+
+  public void setAuthentication(Authentication authentication) {
+    this.authentication = authentication;
+    securityContext.setAuthentication(authentication);
+  }
+
+  public SecurityContext getSecurityContext() {
+    return securityContext;
   }
 }

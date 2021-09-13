@@ -6,20 +6,26 @@ import graphql.execution.ExecutionContext;
 import graphql.execution.ExecutionStrategyParameters;
 import graphql.execution.NonNullableFieldWasNullException;
 import java.util.concurrent.CompletableFuture;
+import org.jfantasy.framework.security.SecurityContextHolder;
+import org.jfantasy.graphql.context.AuthorizationGraphQLServletContext;
+import org.jfantasy.graphql.context.GraphQLContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * 查询事务
+ * Mutation 执行策略
  *
  * @author limaofeng
  */
-public class AsyncQueryTransactionalExecutionStrategy extends AsyncExecutionStrategy {
+public class AsyncMutationExecutionStrategy extends AsyncExecutionStrategy {
 
   @Override
-  @Transactional(readOnly = true)
+  @Transactional
   public CompletableFuture<ExecutionResult> execute(
       ExecutionContext executionContext, ExecutionStrategyParameters parameters)
       throws NonNullableFieldWasNullException {
+    AuthorizationGraphQLServletContext context = executionContext.getContext();
+    GraphQLContextHolder.setContext(context);
+    SecurityContextHolder.setContext(context.getSecurityContext());
     return super.execute(executionContext, parameters);
   }
 }

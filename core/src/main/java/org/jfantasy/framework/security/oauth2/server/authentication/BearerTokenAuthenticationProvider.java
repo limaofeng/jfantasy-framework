@@ -21,7 +21,7 @@ public class BearerTokenAuthenticationProvider
   }
 
   @Override
-  public boolean supports(Class<?> authentication) {
+  public boolean supports(Class<? extends Authentication> authentication) {
     return BearerTokenAuthenticationToken.class.isAssignableFrom(authentication);
   }
 

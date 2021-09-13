@@ -24,16 +24,11 @@ public class AuthenticationManager {
   }
 
   public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-    SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
     Class<? extends Authentication> toTest = authentication.getClass();
     AuthenticationException lastException = null;
-    AuthenticationException parentException = null;
     Authentication result = null;
-    Authentication parentResult = null;
     int currentPosition = 0;
     int size = this.providers.size();
-
-    SecurityContextHolder.clearContext();
 
     for (AuthenticationProvider provider : this.providers) {
       if (!provider.supports(toTest)) {
@@ -60,8 +55,6 @@ public class AuthenticationManager {
 
     if (result != null) {
       this.eventPublisher.publishAuthenticationSuccess(result);
-      securityContext.setAuthentication(result);
-      SecurityContextHolder.setContext(securityContext);
       return result;
     }
 

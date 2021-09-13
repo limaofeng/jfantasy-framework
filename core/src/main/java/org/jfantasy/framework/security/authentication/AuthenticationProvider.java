@@ -16,7 +16,7 @@ public interface AuthenticationProvider<T extends Authentication> {
    * @param authentication
    * @return
    */
-  boolean supports(Class<?> authentication);
+  boolean supports(Class<? extends Authentication> authentication);
 
   /**
    * 进行身份验证

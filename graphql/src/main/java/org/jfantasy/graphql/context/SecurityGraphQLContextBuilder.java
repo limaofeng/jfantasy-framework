@@ -15,6 +15,7 @@ import org.dataloader.DataLoader;
 import org.dataloader.DataLoaderRegistry;
 import org.jfantasy.framework.security.AuthenticationException;
 import org.jfantasy.framework.security.AuthenticationManager;
+import org.jfantasy.framework.security.SecurityContext;
 import org.jfantasy.framework.security.SecurityContextHolder;
 import org.jfantasy.framework.security.authentication.Authentication;
 import org.jfantasy.framework.security.authentication.AuthenticationDetailsSource;
@@ -50,12 +51,14 @@ public class SecurityGraphQLContextBuilder extends DefaultGraphQLContextBuilder
   @Override
   @Transactional
   public GraphQLContext build(HttpServletRequest req, HttpServletResponse response) {
-    SecurityContextHolder.clear();
+    SecurityContextHolder.clearContext();
+
+    SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
+    SecurityContextHolder.setContext(securityContext);
 
     AuthorizationGraphQLServletContext context =
-        new AuthorizationGraphQLServletContext(req, response);
+        new AuthorizationGraphQLServletContext(req, response, securityContext);
     context.setDataLoaderRegistry(buildDataLoaderRegistry());
-
     GraphQLContextHolder.setContext(context);
 
     String token = bearerTokenResolver.resolve(req);
@@ -78,6 +81,8 @@ public class SecurityGraphQLContextBuilder extends DefaultGraphQLContextBuilder
         log.debug(
             LogMessage.format("Set SecurityContextHolder to %s", authenticationResult).toString());
       }
+
+      context.setAuthentication(authenticationResult);
     } catch (AuthenticationException failed) {
       SecurityContextHolder.clearContext();
       log.trace("Failed to process authentication request", failed);

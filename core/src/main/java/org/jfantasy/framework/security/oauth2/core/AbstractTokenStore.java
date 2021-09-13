@@ -15,7 +15,6 @@ import org.jfantasy.framework.security.core.SimpleGrantedAuthority;
 import org.jfantasy.framework.security.oauth2.server.BearerTokenAuthenticationToken;
 import org.jfantasy.framework.security.oauth2.server.authentication.BearerTokenAuthentication;
 import org.jfantasy.framework.util.common.ObjectUtil;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.util.StringUtils;
@@ -25,7 +24,7 @@ import org.springframework.util.StringUtils;
  *
  * @author limaofeng
  */
-public abstract class AbstractTokenStore implements TokenStore, InitializingBean {
+public abstract class AbstractTokenStore implements TokenStore {
 
   private final String ASSESS_TOKEN_PREFIX = "assess_token:";
   private final String REFRESH_TOKEN_PREFIX = "refresh_token:";

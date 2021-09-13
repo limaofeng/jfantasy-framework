@@ -1,6 +1,5 @@
 package org.jfantasy.autoconfigure;
 
-import graphql.execution.AsyncSerialExecutionStrategy;
 import graphql.execution.ExecutionStrategy;
 import graphql.execution.instrumentation.Instrumentation;
 import graphql.kickstart.spring.web.boot.GraphQLWebAutoConfiguration;
@@ -12,7 +11,8 @@ import org.jfantasy.graphql.VersionGraphQLQueryResolver;
 import org.jfantasy.graphql.client.GraphQLClientBeanPostProcessor;
 import org.jfantasy.graphql.error.GraphQLResolverAdvice;
 import org.jfantasy.graphql.error.GraphQLStaticMethodMatcherPointcut;
-import org.jfantasy.graphql.execution.AsyncQueryTransactionalExecutionStrategy;
+import org.jfantasy.graphql.execution.AsyncMutationExecutionStrategy;
+import org.jfantasy.graphql.execution.AsyncQueryExecutionStrategy;
 import org.jfantasy.graphql.execution.GraphQLTransactionInstrumentation;
 import org.springframework.aop.support.DefaultBeanFactoryPointcutAdvisor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,12 +46,12 @@ public class GraphQLAutoConfiguration {
 
   @Bean(GraphQLWebAutoConfiguration.QUERY_EXECUTION_STRATEGY)
   public ExecutionStrategy queryExecutionStrategy() {
-    return new AsyncQueryTransactionalExecutionStrategy();
+    return new AsyncQueryExecutionStrategy();
   }
 
   @Bean(GraphQLWebAutoConfiguration.MUTATION_EXECUTION_STRATEGY)
   public ExecutionStrategy mutationExecutionStrategy() {
-    return new AsyncSerialExecutionStrategy();
+    return new AsyncMutationExecutionStrategy();
   }
 
   @Bean
