@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.9.2](https://github.com/limaofeng/jfantasy-framework/compare/v2.9.1...v2.9.2) (2021-09-13)
+
+
+### Bug Fixes
+
+* 实现类型 OpenSessionInView 的效果 ([fbd0ee6](https://github.com/limaofeng/jfantasy-framework/commit/fbd0ee6e96be1cda61a05c3ec29394a0a97bc2dd))
+* 解决 GraphQLContext 构建时的 no session 问题 ([b365adb](https://github.com/limaofeng/jfantasy-framework/commit/b365adbdabf6267f4863a83accded716765d507b))
+
 ### [2.9.1](https://github.com/limaofeng/jfantasy-framework/compare/v2.9.0...v2.9.1) (2021-09-11)
 
 
