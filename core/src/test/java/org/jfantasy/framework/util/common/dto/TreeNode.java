@@ -13,5 +13,6 @@ public class TreeNode {
   private String name;
   private TreeNode parent;
   private int index;
+  private int layer;
   private List<TreeNode> children;
 }

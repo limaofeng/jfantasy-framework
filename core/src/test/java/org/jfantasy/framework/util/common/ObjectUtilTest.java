@@ -1,9 +1,6 @@
 package org.jfantasy.framework.util.common;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -71,7 +68,23 @@ public class ObjectUtilTest {
   public void exists() throws Exception {}
 
   @Test
-  public void find1() throws Exception {}
+  public void recursive() throws Exception {
+    TreeNode node1 = TreeNode.builder().name("1").build();
+    node1.setChildren(Collections.singletonList(TreeNode.builder().name("1-1").build()));
+    node1.setChildren(Collections.singletonList(TreeNode.builder().name("1-2").build()));
+    TreeNode node2 = TreeNode.builder().name("2").build();
+    List<TreeNode> list = Arrays.asList(node1, node2);
+    List<TreeNode> x =
+        ObjectUtil.recursive(
+            list,
+            "children",
+            (item, i, l) -> {
+              item.setIndex(i);
+              item.setLayer(l);
+              return item;
+            });
+    log.debug("Layer:" + x);
+  }
 
   @Test
   public void find2() throws Exception {}

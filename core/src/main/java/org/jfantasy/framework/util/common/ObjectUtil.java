@@ -197,6 +197,32 @@ public final class ObjectUtil {
     return packageResult(nodes.stream(), treeData.getClass());
   }
 
+  public static <T, R, C extends Collection<T>, RC extends Collection<R>> RC recursive(
+      C treeData, String childrenKey, NestedConverter<T, R> converter) {
+    return recursive(treeData, childrenKey, converter, 1);
+  }
+
+  private static <T, R, C extends Collection<T>, CR extends Collection<R>> CR recursive(
+      C treeData, String childrenKey, NestedConverter<T, R> converter, int level) {
+    Class listClass = treeData.getClass();
+    List<Object> list = packageResult((Stream<Object>) treeData.stream(), List.class);
+    for (int i = 0, len = list.size(); i < len; i++) {
+      T item = (T) list.get(i);
+      R obj = converter.apply(item, i, level);
+      list.set(i, obj);
+      Collection<T> children = getValue(childrenKey, item);
+      if (children == null) {
+        continue;
+      }
+      setValue(childrenKey, obj, recursive(children, childrenKey, converter, level + 1));
+    }
+    return packageResult((Stream<R>) list.stream(), listClass);
+  }
+
+  public static interface NestedConverter<T, R> {
+    R apply(T t, int level, int sortIndex);
+  }
+
   /**
    * 将集合对象中的 @{fieldName} 对于的值转换为字符串以 @{sign} 连接
    *
