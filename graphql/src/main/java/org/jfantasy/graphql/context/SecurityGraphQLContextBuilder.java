@@ -51,7 +51,8 @@ public class SecurityGraphQLContextBuilder extends DefaultGraphQLContextBuilder
   @Override
   @Transactional
   public GraphQLContext build(HttpServletRequest req, HttpServletResponse response) {
-    SecurityContextHolder.clearContext();
+    GraphQLContextHolder.clear();
+    SecurityContextHolder.clear();
 
     SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
     SecurityContextHolder.setContext(securityContext);
@@ -84,7 +85,6 @@ public class SecurityGraphQLContextBuilder extends DefaultGraphQLContextBuilder
 
       context.setAuthentication(authenticationResult);
     } catch (AuthenticationException failed) {
-      SecurityContextHolder.clearContext();
       log.trace("Failed to process authentication request", failed);
       throw failed;
     }

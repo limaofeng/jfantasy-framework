@@ -33,8 +33,4 @@ public class SecurityContextHolder {
   public static SecurityContext createEmptyContext() {
     return new SecurityContext();
   }
-
-  public static void clearContext() {
-    clear();
-  }
 }

@@ -2,30 +2,35 @@ package org.jfantasy.graphql.context;
 
 import graphql.kickstart.execution.context.GraphQLContext;
 
+/**
+ * GraphQL 上下文对象
+ *
+ * @author limaofeng
+ */
 public class GraphQLContextHolder {
 
-  private static ThreadLocal<AuthorizationGraphQLServletContext> holder = new ThreadLocal<>();
+  private static final ThreadLocal<AuthorizationGraphQLServletContext> HOLDER = new ThreadLocal<>();
 
   public static AuthorizationGraphQLServletContext getContext() {
-    GraphQLContext context = holder.get();
+    GraphQLContext context = HOLDER.get();
     if (context == null) {
       return null;
     }
-    return holder.get();
+    return HOLDER.get();
   }
 
   public static void setContext(AuthorizationGraphQLServletContext context) {
-    GraphQLContext contextHolder = holder.get();
+    GraphQLContext contextHolder = HOLDER.get();
     if (contextHolder != null) {
-      holder.remove();
+      HOLDER.remove();
     }
-    holder.set(context);
+    HOLDER.set(context);
   }
 
   public static void clear() {
-    GraphQLContext contextHolder = holder.get();
+    GraphQLContext contextHolder = HOLDER.get();
     if (contextHolder != null) {
-      holder.remove();
+      HOLDER.remove();
     }
   }
 }
