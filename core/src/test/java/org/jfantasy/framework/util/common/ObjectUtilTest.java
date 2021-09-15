@@ -77,10 +77,7 @@ public class ObjectUtilTest {
     List<TreeNode> x =
         ObjectUtil.recursive(
             list,
-            "children",
-            (item, i, l) -> {
-              item.setIndex(i);
-              item.setLayer(l);
+            (item, context) -> {
               return item;
             });
     log.debug("Layer:" + x);

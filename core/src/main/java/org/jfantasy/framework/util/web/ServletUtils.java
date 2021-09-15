@@ -12,6 +12,11 @@ import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.util.common.EncodeUtil;
 import org.jfantasy.framework.util.common.PropertiesHelper;
 
+/**
+ * Servlet 工具类
+ *
+ * @author limaofeng
+ */
 public class ServletUtils {
   private ServletUtils() {}
 
@@ -24,7 +29,7 @@ public class ServletUtils {
   public static final String EXCEL_TYPE = "application/vnd.ms-excel";
   public static final String AUTHENTICATION_HEADER = "Authorization";
   public static final long ONE_YEAR_SECONDS = 31536000L;
-  private static String poweredBy = "fantasy.com";
+  private static String poweredBy = "jfantasy.app";
 
   static {
     try {
@@ -38,8 +43,8 @@ public class ServletUtils {
   /**
    * 设置 页面过期时间
    *
-   * @param response
-   * @param expiresSeconds
+   * @param response HttpServletResponse
+   * @param expiresSeconds 过期时间(秒)
    */
   public static void setExpiresHeader(HttpServletResponse response, long expiresSeconds) {
     response.setDateHeader("Expires", System.currentTimeMillis() + expiresSeconds * 1000L);
@@ -49,7 +54,7 @@ public class ServletUtils {
   /**
    * 设置 页面不缓存
    *
-   * @param response
+   * @param response HttpServletResponse
    */
   public static void setNoCacheHeader(HttpServletResponse response) {
     response.setDateHeader("Expires", 0);
@@ -58,7 +63,11 @@ public class ServletUtils {
     response.setHeader("Cache-Control", "no-cache");
   }
 
-  /** @param response */
+  /**
+   * 设置 页面不存储
+   *
+   * @param response HttpServletResponse
+   */
   public static void setNoStoreHeader(HttpServletResponse response) {
     response.setDateHeader("Expires", 0);
     response.addHeader("Powered-By", poweredBy);
@@ -81,10 +90,12 @@ public class ServletUtils {
   }
 
   /**
-   * @param request
-   * @param response
-   * @param lastModified
-   * @return
+   * 检查 Modified 字段是否过期
+   *
+   * @param request HttpServletRequest
+   * @param response HttpServletResponse
+   * @param lastModified 过期时间
+   * @return boolean
    */
   public static boolean checkIfModifiedSince(
       HttpServletRequest request, HttpServletResponse response, long lastModified) {
@@ -96,6 +107,14 @@ public class ServletUtils {
     return true;
   }
 
+  /**
+   * 检查 etag 字段是否过期
+   *
+   * @param request HttpServletRequest
+   * @param response HttpServletResponse
+   * @param etag 版本的标识符
+   * @return boolean
+   */
   public static boolean checkIfNoneMatchEtag(
       HttpServletRequest request, HttpServletResponse response, String etag) {
     String headerValue = request.getHeader("If-None-Match");
@@ -127,8 +146,8 @@ public class ServletUtils {
   /**
    * 方法待优化
    *
-   * @param response
-   * @param fileName
+   * @param response HttpServletResponse
+   * @param fileName 设置下载文件名
    */
   @Deprecated
   public static void setFileDownloadHeader(HttpServletResponse response, String fileName) {

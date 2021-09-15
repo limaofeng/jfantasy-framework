@@ -13,6 +13,8 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import lombok.Builder;
+import lombok.Data;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.collection.internal.PersistentBag;
@@ -198,29 +200,97 @@ public final class ObjectUtil {
   }
 
   public static <T, R, C extends Collection<T>, RC extends Collection<R>> RC recursive(
-      C treeData, String childrenKey, NestedConverter<T, R> converter) {
-    return recursive(treeData, childrenKey, converter, 1);
+      C treeData, NestedConverter<T, R> converter) {
+    NestedContext<R> context =
+        NestedContext.<R>builder()
+            .treeData(treeData)
+            .options(NestedOptions.builder().build())
+            .build();
+    return recursive(treeData, converter, context);
+  }
+
+  public static <T, R, C extends Collection<T>, RC extends Collection<R>> RC recursive(
+      C treeData, NestedConverter<T, R> converter, NestedOptions options) {
+    NestedContext<R> context =
+        NestedContext.<R>builder().treeData(treeData).options(options).build();
+    return recursive(treeData, converter, context);
   }
 
   private static <T, R, C extends Collection<T>, CR extends Collection<R>> CR recursive(
-      C treeData, String childrenKey, NestedConverter<T, R> converter, int level) {
+      C treeData, NestedConverter<T, R> converter, NestedContext<R> context) {
     Class listClass = treeData.getClass();
     List<Object> list = packageResult((Stream<Object>) treeData.stream(), List.class);
+
+    int level = context.level;
+    R parent = context.parent;
+
+    String idKey = context.options.idKey;
+    String childrenKey = context.options.childrenKey;
+    String pathKey = context.options.pathKey;
+    String parentKey = context.options.parentKey;
+    String indexKey = context.options.indexKey;
+    String levelKey = context.options.levelKey;
+
     for (int i = 0, len = list.size(); i < len; i++) {
+      context.index = i;
       T item = (T) list.get(i);
-      R obj = converter.apply(item, i, level);
+      R obj = converter.apply(item, context);
+      if (getValue(parentKey, obj) == null && ClassUtil.hasProperty(obj.getClass(), parentKey)) {
+        setValue(parentKey, obj, parent);
+      }
+      if (getValue(indexKey, obj) == null && ClassUtil.hasProperty(obj.getClass(), indexKey)) {
+        setValue(indexKey, obj, i);
+      }
+      if (getValue(levelKey, obj) == null && ClassUtil.hasProperty(obj.getClass(), levelKey)) {
+        setValue(levelKey, obj, level);
+      }
+      if (getValue(pathKey, obj) == null
+          && idKey != null
+          && ClassUtil.hasProperty(obj.getClass(), pathKey)) {
+        if (parent != null) {
+          setValue(pathKey, obj, (String) getValue(pathKey, parent) + getValue(idKey, obj) + "/");
+        } else {
+          setValue(pathKey, obj, getValue(idKey, obj) + "/");
+        }
+      }
+
       list.set(i, obj);
       Collection<T> children = getValue(childrenKey, item);
       if (children == null) {
         continue;
       }
-      setValue(childrenKey, obj, recursive(children, childrenKey, converter, level + 1));
+      context.level += 1;
+      context.parent = obj;
+      setValue(childrenKey, obj, recursive(children, converter, context));
+      context.parent = parent;
+      context.level = level;
     }
     return packageResult((Stream<R>) list.stream(), listClass);
   }
 
+  @Data
+  @Builder
+  public static class NestedContext<R> {
+    private NestedOptions options;
+    private Collection treeData;
+    private R parent;
+    private int index;
+    private int level;
+  }
+
+  @Data
+  @Builder
+  public static class NestedOptions {
+    private String idKey;
+    @Builder.Default private String childrenKey = "children";
+    @Builder.Default private String parentKey = "parent";
+    @Builder.Default private String indexKey = "index";
+    @Builder.Default private String levelKey = "level";
+    @Builder.Default private String pathKey = "path";
+  }
+
   public static interface NestedConverter<T, R> {
-    R apply(T t, int level, int sortIndex);
+    R apply(T t, NestedContext<R> context);
   }
 
   /**

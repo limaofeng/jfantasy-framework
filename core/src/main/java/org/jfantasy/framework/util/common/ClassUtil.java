@@ -615,4 +615,15 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
 
     return target;
   }
+
+  /**
+   * 判断类型是否存在属性
+   *
+   * @param clazz 类型
+   * @param name 属性
+   * @return Boolean
+   */
+  public static boolean hasProperty(Class clazz, String name) {
+    return getDeclaredField(clazz, name) != null;
+  }
 }

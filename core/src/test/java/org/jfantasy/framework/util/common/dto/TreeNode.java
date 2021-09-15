@@ -12,7 +12,7 @@ public class TreeNode {
   private String id;
   private String name;
   private TreeNode parent;
-  private int index;
-  private int layer;
+  private Integer index;
+  private Integer level;
   private List<TreeNode> children;
 }
