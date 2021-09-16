@@ -173,6 +173,10 @@ public final class ObjectUtil {
     throw new ValidationException("不支持转换到 " + resultClass.getName());
   }
 
+  public static <T, C extends Collection<T>> C flat(C treeData) {
+    return flat(treeData, "children");
+  }
+
   public static <T, C extends Collection<T>> C flat(C treeData, String childrenKey) {
     return flat(treeData, childrenKey, null, null);
   }
@@ -201,18 +205,14 @@ public final class ObjectUtil {
 
   public static <T, R, C extends Collection<T>, RC extends Collection<R>> RC recursive(
       C treeData, NestedConverter<T, R> converter) {
-    NestedContext<R> context =
-        NestedContext.<R>builder()
-            .treeData(treeData)
-            .options(NestedOptions.builder().build())
-            .build();
+    NestedContext<R> context = NestedContext.<R>builder().treeData(treeData).build();
     return recursive(treeData, converter, context);
   }
 
   public static <T, R, C extends Collection<T>, RC extends Collection<R>> RC recursive(
-      C treeData, NestedConverter<T, R> converter, NestedOptions options) {
+      C treeData, NestedConverter<T, R> converter, String childrenKey) {
     NestedContext<R> context =
-        NestedContext.<R>builder().treeData(treeData).options(options).build();
+        NestedContext.<R>builder().treeData(treeData).childrenKey(childrenKey).build();
     return recursive(treeData, converter, context);
   }
 
@@ -224,36 +224,12 @@ public final class ObjectUtil {
     int level = context.level;
     R parent = context.parent;
 
-    String idKey = context.options.idKey;
-    String childrenKey = context.options.childrenKey;
-    String pathKey = context.options.pathKey;
-    String parentKey = context.options.parentKey;
-    String indexKey = context.options.indexKey;
-    String levelKey = context.options.levelKey;
+    String childrenKey = context.childrenKey;
 
     for (int i = 0, len = list.size(); i < len; i++) {
       context.index = i;
       T item = (T) list.get(i);
       R obj = converter.apply(item, context);
-      if (getValue(parentKey, obj) == null && ClassUtil.hasProperty(obj.getClass(), parentKey)) {
-        setValue(parentKey, obj, parent);
-      }
-      if (getValue(indexKey, obj) == null && ClassUtil.hasProperty(obj.getClass(), indexKey)) {
-        setValue(indexKey, obj, i);
-      }
-      if (getValue(levelKey, obj) == null && ClassUtil.hasProperty(obj.getClass(), levelKey)) {
-        setValue(levelKey, obj, level);
-      }
-      if (getValue(pathKey, obj) == null
-          && idKey != null
-          && ClassUtil.hasProperty(obj.getClass(), pathKey)) {
-        if (parent != null) {
-          setValue(pathKey, obj, (String) getValue(pathKey, parent) + getValue(idKey, obj) + "/");
-        } else {
-          setValue(pathKey, obj, getValue(idKey, obj) + "/");
-        }
-      }
-
       list.set(i, obj);
       Collection<T> children = getValue(childrenKey, item);
       if (children == null) {
@@ -271,22 +247,11 @@ public final class ObjectUtil {
   @Data
   @Builder
   public static class NestedContext<R> {
-    private NestedOptions options;
+    @Builder.Default private String childrenKey = "children";
     private Collection treeData;
     private R parent;
     private int index;
-    private int level;
-  }
-
-  @Data
-  @Builder
-  public static class NestedOptions {
-    private String idKey;
-    @Builder.Default private String childrenKey = "children";
-    @Builder.Default private String parentKey = "parent";
-    @Builder.Default private String indexKey = "index";
-    @Builder.Default private String levelKey = "level";
-    @Builder.Default private String pathKey = "path";
+    @Builder.Default private int level = 1;
   }
 
   public static interface NestedConverter<T, R> {

@@ -9,6 +9,8 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
 import java.util.Date;
 import java.util.List;
 import lombok.SneakyThrows;
@@ -117,6 +119,24 @@ public class JSON {
 
   public static XmlMapper getXmlMapper() {
     return xmlMapper;
+  }
+
+  public static <T> T deserialize(InputStream input, Class<T> classed) {
+    try {
+      return objectMapper.readValue(input, classed);
+    } catch (IOException e) {
+      LOG.error(e.getMessage() + " source input stream => " + classed, e);
+    }
+    return null;
+  }
+
+  public static <T> T deserialize(Reader src, Class<T> classed) {
+    try {
+      return objectMapper.readValue(src, classed);
+    } catch (IOException e) {
+      LOG.error(e.getMessage() + " source reader => " + classed, e);
+    }
+    return null;
   }
 
   public static <T> T deserialize(String json, Class<T> classed) {

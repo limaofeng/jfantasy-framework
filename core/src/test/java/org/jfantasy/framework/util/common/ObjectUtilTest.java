@@ -78,6 +78,9 @@ public class ObjectUtilTest {
         ObjectUtil.recursive(
             list,
             (item, context) -> {
+              item.setIndex(context.getIndex());
+              item.setLevel(context.getLevel());
+              item.setParent(context.getParent());
               return item;
             });
     log.debug("Layer:" + x);
