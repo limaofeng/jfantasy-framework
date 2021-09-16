@@ -3,8 +3,8 @@ package org.jfantasy.framework.jackson.models;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 public class Article {
+  private String name;
   private String title;
-
   private User user;
 
   public String getTitle() {
@@ -15,8 +15,15 @@ public class Article {
     this.title = title;
   }
 
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
   @JsonBackReference
-  // @JsonIgnore
   public User getUser() {
     return user;
   }

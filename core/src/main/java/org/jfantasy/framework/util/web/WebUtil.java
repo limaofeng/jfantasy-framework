@@ -133,7 +133,7 @@ public class WebUtil {
   public static int getPort(String url) {
     String scheme = getScheme(url);
     String port = RegexpUtil.parseGroup(url, ":([0-9]+)", 1);
-    return Integer.valueOf(port == null ? "http".equals(scheme) ? "80" : "443" : port);
+    return Integer.parseInt(port == null ? "http".equals(scheme) ? "80" : "443" : port);
   }
 
   /**
@@ -231,9 +231,7 @@ public class WebUtil {
           }
         }
       }
-    } catch (SocketException e) {
-      LOG.error(e.getMessage(), e);
-    } catch (UnknownHostException e) {
+    } catch (SocketException | UnknownHostException e) {
       LOG.error(e.getMessage(), e);
     }
     return false;

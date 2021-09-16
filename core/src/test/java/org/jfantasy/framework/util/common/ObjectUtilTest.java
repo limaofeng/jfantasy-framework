@@ -4,6 +4,8 @@ import java.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jfantasy.framework.jackson.models.Article;
+import org.jfantasy.framework.jackson.models.User;
 import org.jfantasy.framework.util.common.dto.TreeNode;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -181,6 +183,15 @@ public class ObjectUtilTest {
 
   @AfterEach
   public void tearDown() throws Exception {}
+
+  @Test
+  public void testCopy() throws Exception {
+    User user = new User();
+    user.setName("limaofeng");
+    Article article = ObjectUtil.copy(user, new Article());
+    log.debug(article.getName());
+    assert article.getName().equals(user.getName());
+  }
 
   @Test
   public void testClone() throws Exception {}

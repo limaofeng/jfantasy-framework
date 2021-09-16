@@ -127,25 +127,28 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
   }
 
   @Override
-  public <S extends T> S update(S entity) {
+  public T update(T entity) {
     return super.save(entity);
   }
 
   @Override
-  public <S extends T> S update(S entity, boolean merge) {
+  public T update(T entity, boolean merge) {
     if (merge) {
-      Class entityClass = this.getDomainClass();
-      OgnlUtil ognlUtil = OgnlUtil.getInstance();
-      ID id = HibernateUtils.getIdValue(entityClass, entity);
-      assert id != null;
-      T oldEntity = super.getById(id);
+      T oldEntity = super.getById(getIdValue(entity));
       if (entity == oldEntity) {
         return this.save(entity);
       }
-      return super.save(merge(entity, oldEntity, entityClass, ognlUtil));
+      return super.save(merge(entity, oldEntity, this.getDomainClass(), OgnlUtil.getInstance()));
     } else {
-      return this.update(entity);
+      this.update(entity);
+      return super.getById(getIdValue(entity));
     }
+  }
+
+  private ID getIdValue(T entity) {
+    ID id = HibernateUtils.getIdValue(this.getDomainClass(), entity);
+    assert id != null;
+    return id;
   }
 
   @Override

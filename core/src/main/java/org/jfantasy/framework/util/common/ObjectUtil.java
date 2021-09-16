@@ -46,7 +46,7 @@ public final class ObjectUtil {
    * @param <T>
    * @return
    */
-  public static <T> T copy(T source, T target, String... ignoreProperties) {
+  public static <T, R> R copy(T source, R target, String... ignoreProperties) {
     BeanUtils.copyProperties(source, target, ignoreProperties);
     return target;
   }
