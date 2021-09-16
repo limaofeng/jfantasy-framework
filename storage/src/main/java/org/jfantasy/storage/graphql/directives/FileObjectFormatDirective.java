@@ -15,7 +15,12 @@ import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.storage.FileObject;
 import org.springframework.beans.factory.annotation.Value;
 
-/** @author: fengmeng @Date: 2019/5/7 20:45 */
+/**
+ * 文件对象格式指令
+ *
+ * @author fengmeng
+ * @date 2019/5/7 20:45
+ */
 @Slf4j
 public class FileObjectFormatDirective implements SchemaDirectiveWiring {
 
@@ -66,7 +71,6 @@ public class FileObjectFormatDirective implements SchemaDirectiveWiring {
 
   /** 通过FileObject获取图片base64位编码 */
   public static String getImageBase64ByFileObject(FileObject fileObject, String url) {
-    String base64;
     if (fileObject.getLength() > (1024 * 1014 * 5L)) {
       return null;
     }
@@ -74,7 +78,7 @@ public class FileObjectFormatDirective implements SchemaDirectiveWiring {
       return null;
     }
     try {
-      return "data:" + fileObject.getMimeType() + ";base64," + ImageToBase64ByOnline(url);
+      return "data:" + fileObject.getMimeType() + ";base64," + imageToBase64ByOnline(url);
     } catch (IOException e) {
       log.error(e.getMessage());
       return null;
@@ -84,15 +88,15 @@ public class FileObjectFormatDirective implements SchemaDirectiveWiring {
   /**
    * 在线图片转换成base64字符串
    *
-   * @param imgURL 图片线上路径
+   * @param imgUrl 图片线上路径
    * @author ZHANGJL
    * @date 2018-02-23 14:43:18
    * @return String
    */
-  public static String ImageToBase64ByOnline(String imgURL) throws IOException {
+  public static String imageToBase64ByOnline(String imgUrl) throws IOException {
     ByteArrayOutputStream data = new ByteArrayOutputStream();
     // 创建URL
-    URL url = new URL(imgURL);
+    URL url = new URL(imgUrl);
     byte[] by = new byte[1024];
     // 创建链接
     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -100,7 +104,7 @@ public class FileObjectFormatDirective implements SchemaDirectiveWiring {
     conn.setConnectTimeout(5000);
     InputStream is = conn.getInputStream();
     // 将内容读取内存中
-    int len = -1;
+    int len;
     while ((len = is.read(by)) != -1) {
       data.write(by, 0, len);
     }
