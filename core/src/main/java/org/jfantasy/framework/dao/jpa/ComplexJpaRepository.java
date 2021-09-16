@@ -140,8 +140,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
       }
       return super.save(merge(entity, oldEntity, this.getDomainClass(), OgnlUtil.getInstance()));
     } else {
-      this.update(entity);
-      return super.getById(getIdValue(entity));
+      return this.update(entity);
     }
   }
 
