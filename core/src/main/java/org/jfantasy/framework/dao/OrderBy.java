@@ -18,7 +18,7 @@ import org.springframework.data.domain.Sort;
 public class OrderBy {
   private String property;
   private Direction direction;
-  private static final OrderBy UNSORTED = OrderBy.by(new OrderBy[0]);
+  private static final OrderBy UNSORTED = OrderBy.by();
   private final List<OrderBy> orders;
   private Sort.NullHandling nullHandling = Sort.NullHandling.NATIVE;
 
@@ -69,6 +69,10 @@ public class OrderBy {
   }
 
   public Sort toSort() {
+    boolean isEmpty = direction == null && this.orders.isEmpty();
+    if (this == UNSORTED || isEmpty) {
+      return Sort.unsorted();
+    }
     if (this.isMulti()) {
       return Sort.by(
           this.getOrders().stream()
@@ -92,7 +96,7 @@ public class OrderBy {
     if (this.orders.isEmpty()) {
       return property + "_" + this.direction.name();
     }
-    return this.orders.stream().map(item -> item.toString()).collect(Collectors.joining(","));
+    return this.orders.stream().map(OrderBy::toString).collect(Collectors.joining(","));
   }
 
   public boolean isMulti() {
