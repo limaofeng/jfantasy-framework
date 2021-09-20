@@ -18,13 +18,6 @@ import org.jfantasy.framework.util.common.DateUtil;
  */
 public class BusEntityInterceptor extends EmptyInterceptor {
 
-  private static final long serialVersionUID = -3073628114943223153L;
-
-  /** 默认编辑人 */
-  private static final Long DEFAULT_MODIFIED_BY = 0L;
-  /** 默认创建人 */
-  private static final Long DEFAULT_CREATED_BY = 0L;
-
   @Override
   public boolean onFlushDirty(
       Object entity,
@@ -34,10 +27,10 @@ public class BusEntityInterceptor extends EmptyInterceptor {
       String[] propertyNames,
       Type[] types) {
     if (entity instanceof BaseBusEntity) {
+      LoginUser user = SpringSecurityUtils.getCurrentUser();
       Long modifiedBy = ((BaseBusEntity) entity).getUpdatedBy();
-      if (modifiedBy == null) {
-        LoginUser user = SpringSecurityUtils.getCurrentUser();
-        modifiedBy = user != null ? user.getUid() : DEFAULT_MODIFIED_BY;
+      if (modifiedBy == null && user != null) {
+        modifiedBy = user.getUid();
       }
       int count = 0;
       for (int i = 0; i < propertyNames.length; i++) {
@@ -60,10 +53,10 @@ public class BusEntityInterceptor extends EmptyInterceptor {
   public boolean onSave(
       Object entity, Serializable id, Object[] state, String[] propertyNames, Type[] types) {
     if (entity instanceof BaseBusEntity) {
+      LoginUser user = SpringSecurityUtils.getCurrentUser();
       Long createdBy = ((BaseBusEntity) entity).getCreatedBy();
-      if (createdBy == null) {
-        LoginUser user = SpringSecurityUtils.getCurrentUser();
-        createdBy = user != null ? user.getUid() : DEFAULT_CREATED_BY;
+      if (createdBy == null && user != null) {
+        createdBy = user.getUid();
       }
       int count = 0;
       int maxCount = 4;
