@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.9.5](https://github.com/limaofeng/jfantasy-framework/compare/v2.9.4...v2.9.5) (2021-10-13)
+
+
+### Features
+
+* recursive 优化 ([0d5deeb](https://github.com/limaofeng/jfantasy-framework/commit/0d5deebe1d53375c57dcc2adbc49956b342ab0a4))
+* 工具类修改 ([2cd0560](https://github.com/limaofeng/jfantasy-framework/commit/2cd0560b8c39b5ddfc15093441164906870ed729))
+* 添加工具方法 recursive ([9bb5b2c](https://github.com/limaofeng/jfantasy-framework/commit/9bb5b2ce24d650d17b574fb30b75640321197e9f))
+* 添加集合比较方法 compare 实现差异比较 ([3b85f75](https://github.com/limaofeng/jfantasy-framework/commit/3b85f7516c400011cda61d272890af4cf6b3ed58))
+
+
+### Bug Fixes
+
+* 修复 ObjectUtil.copy 方法泛型错误 ([8288186](https://github.com/limaofeng/jfantasy-framework/commit/82881861b1497884d56aaa6ab436412c9c34e1e4))
+* 如果 token 验证出错, 直接抛出异常 ([f666e50](https://github.com/limaofeng/jfantasy-framework/commit/f666e5059a8183f405040c8d7e8a5917067c70fa))
+* 实体公共属性，创建人与修改人不在默认为 0L ([d972996](https://github.com/limaofeng/jfantasy-framework/commit/d9729966ca2adb58abc8a580efc14f663f7b455b))
+* 解决 token 失效时，请求失败问题 ([e4b03ba](https://github.com/limaofeng/jfantasy-framework/commit/e4b03ba891ba15f22fe58ae578d39cfc31473573))
+* 解决排序设置BUG ([5fdca75](https://github.com/limaofeng/jfantasy-framework/commit/5fdca755e3d43e9402219c79952207f3a9d35e53))
+
 ### [2.9.4](https://github.com/limaofeng/jfantasy-framework/compare/v2.9.3...v2.9.4) (2021-09-13)
 
 
