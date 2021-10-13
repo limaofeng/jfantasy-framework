@@ -217,6 +217,10 @@ public class SpringBeanUtils
     return applicationContext != null && getBeanNamesForType(clazz).length > 0;
   }
 
+  public static <T> T getBean(Class<T> clazz) {
+    return getBeanByType(clazz);
+  }
+
   public static <T> T getBeanByType(Class<T> clazz) {
     return applicationContext.getBean(clazz);
   }
@@ -236,6 +240,10 @@ public class SpringBeanUtils
 
   public void destroy() {
     cleanApplicationContext();
+  }
+
+  public void publishEvent(Object event) {
+    getApplicationContext().publishEvent(event);
   }
 
   public static void cleanApplicationContext() {

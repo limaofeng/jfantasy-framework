@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.collection.internal.PersistentBag;
@@ -543,6 +544,19 @@ public final class ObjectUtil {
     return -1;
   }
 
+  public static <T> int indexOf(List<T> objs, Predicate<T> selector) {
+    for (int i = 0; i < objs.size(); i++) {
+      T obj = objs.get(i);
+      if (obj == null) {
+        continue;
+      }
+      if (selector.test(obj)) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
   public static <T> int indexOf(T[] objs, T o) {
     for (int i = 0; i < objs.length; i++) {
       if (objs[i].equals(o)) {
@@ -815,6 +829,15 @@ public final class ObjectUtil {
     dest.addAll(news);
   }
 
+  public static <T, C extends Collection<T>> Boolean exists(C list, Predicate<T> selector) {
+    for (T t : list) {
+      if (selector.test(t)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   /**
    * 判断对象是否存在于集合中
    *
@@ -868,6 +891,14 @@ public final class ObjectUtil {
     int i = indexOf(orig, exper, value);
     orig.remove(array.get(i));
     return i == -1 ? null : array.get(i);
+  }
+
+  public static <T> T remove(List<T> orig, Predicate<T> selector) {
+    if (orig == null) {
+      return null;
+    }
+    int i = indexOf(orig, selector);
+    return i == -1 ? null : orig.remove(i);
   }
 
   /**
@@ -996,5 +1027,41 @@ public final class ObjectUtil {
       return (T[]) ((Collection<?>) value).stream().toArray((Object[]::new));
     }
     return (T[]) new Object[] {value};
+  }
+
+  /**
+   * 比较两个集合
+   *
+   * @param first
+   * @param second
+   * @param comparator
+   * @param <T>
+   * @return
+   */
+  public <T> CompareResults<T> compare(
+      Collection<T> first, Collection<T> second, Comparator<T> comparator) {
+    CompareResults<T> results = new CompareResults();
+    List<T> olds = new ArrayList<>(first);
+    for (T obj : second) {
+      if (exists(olds, (Predicate<T>) item -> comparator.compare(item, obj) != -1)) {
+        remove(olds, item -> comparator.compare(item, obj) != -1);
+        results.intersect.add(obj);
+      } else {
+        results.exceptB.add(obj);
+      }
+    }
+    results.setExceptA(olds);
+    return results;
+  }
+
+  @Data
+  @NoArgsConstructor
+  public static class CompareResults<T> {
+    /** B-A 多出的 */
+    private List<T> exceptB = new ArrayList<>();
+    /** 交集 */
+    private List<T> intersect = new ArrayList<>();
+    /** A - B 消失的 */
+    private List<T> exceptA = new ArrayList<>();
   }
 }
