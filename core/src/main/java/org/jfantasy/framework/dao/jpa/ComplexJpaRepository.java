@@ -23,6 +23,7 @@ import org.jfantasy.framework.spring.SpringBeanUtils;
 import org.jfantasy.framework.util.common.BeanUtil;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
+import org.jfantasy.framework.util.common.toys.CompareResults;
 import org.jfantasy.framework.util.ognl.OgnlUtil;
 import org.jfantasy.framework.util.regexp.RegexpUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,7 +92,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
   }
 
   @Override
-  public Optional<T> findBy(String name, Object value) {
+  public Optional<T> findOneBy(String name, Object value) {
     return this.findOne(PropertyFilter.builder().equal(name, value).build());
   }
 
@@ -262,16 +263,39 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
       if (!ClassUtil.isList(fks)) {
         continue;
       }
+
+      List<Object> source = ognlUtil.getValue(field.getName(), oldEntity);
       List<Object> objects = (List<Object>) fks;
-      List<Object> addObjects = new ArrayList<>();
-      for (Object fk : objects) {
-        Serializable fkId = HibernateUtils.getIdValue(targetEntityClass, fk);
-        Object fkObj = fkId != null ? getJpaRepository(targetEntityClass).getById(fkId) : null;
-        if (fkObj != null) {
-          addObjects.add(fkObj);
-        }
+
+      if (source == objects) {
+        continue;
       }
-      ognlUtil.setValue(field.getName(), oldEntity == null ? entity : oldEntity, addObjects);
+
+      if (source != null && !source.isEmpty()) {
+        Class finalTargetEntityClass = targetEntityClass;
+        CompareResults results =
+            ObjectUtil.compare(
+                source,
+                objects,
+                (Object o1, Object o2) -> {
+                  Serializable fkId1 = HibernateUtils.getIdValue(finalTargetEntityClass, o1);
+                  Serializable fkId2 = HibernateUtils.getIdValue(finalTargetEntityClass, o2);
+                  return (fkId1 == fkId2) ? 0 : -1;
+                });
+
+        ObjectUtil.remove(source, (item) -> results.getExceptA().contains(item));
+        source.addAll((Collection<?>) results.getExceptB());
+      } else {
+        List<Object> addObjects = new ArrayList<>();
+        for (Object fk : objects) {
+          Serializable fkId = HibernateUtils.getIdValue(targetEntityClass, fk);
+          Object fkObj = fkId != null ? getJpaRepository(targetEntityClass).getById(fkId) : null;
+          if (fkObj != null) {
+            addObjects.add(fkObj);
+          }
+        }
+        ognlUtil.setValue(field.getName(), oldEntity == null ? entity : oldEntity, addObjects);
+      }
     }
   }
 

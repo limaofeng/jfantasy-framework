@@ -67,7 +67,7 @@ public interface JpaRepository<T, PK extends Serializable>
    * @param value 字段值
    * @return Optional<T>
    */
-  Optional<T> findBy(String name, Object value);
+  Optional<T> findOneBy(String name, Object value);
 
   /**
    * 数据集数量

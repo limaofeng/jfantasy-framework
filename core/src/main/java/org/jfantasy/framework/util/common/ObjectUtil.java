@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.collection.internal.PersistentBag;
@@ -23,6 +22,7 @@ import org.jfantasy.framework.dao.mybatis.keygen.GUIDKeyGenerator;
 import org.jfantasy.framework.error.IgnoreException;
 import org.jfantasy.framework.error.ValidationException;
 import org.jfantasy.framework.spring.SpELUtil;
+import org.jfantasy.framework.util.common.toys.CompareResults;
 import org.jfantasy.framework.util.ognl.OgnlUtil;
 import org.jfantasy.framework.util.reflect.Property;
 import org.springframework.beans.BeanUtils;
@@ -1038,30 +1038,19 @@ public final class ObjectUtil {
    * @param <T>
    * @return
    */
-  public <T> CompareResults<T> compare(
+  public static <T> CompareResults<T> compare(
       Collection<T> first, Collection<T> second, Comparator<T> comparator) {
     CompareResults<T> results = new CompareResults();
     List<T> olds = new ArrayList<>(first);
     for (T obj : second) {
       if (exists(olds, (Predicate<T>) item -> comparator.compare(item, obj) != -1)) {
         remove(olds, item -> comparator.compare(item, obj) != -1);
-        results.intersect.add(obj);
+        results.getIntersect().add(obj);
       } else {
-        results.exceptB.add(obj);
+        results.getExceptB().add(obj);
       }
     }
     results.setExceptA(olds);
     return results;
-  }
-
-  @Data
-  @NoArgsConstructor
-  public static class CompareResults<T> {
-    /** B-A 多出的 */
-    private List<T> exceptB = new ArrayList<>();
-    /** 交集 */
-    private List<T> intersect = new ArrayList<>();
-    /** A - B 消失的 */
-    private List<T> exceptA = new ArrayList<>();
   }
 }
