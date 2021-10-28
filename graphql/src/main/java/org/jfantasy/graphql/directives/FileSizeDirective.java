@@ -7,7 +7,6 @@ import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLFieldsContainer;
 import graphql.schema.idl.SchemaDirectiveWiring;
 import graphql.schema.idl.SchemaDirectiveWiringEnvironment;
-import java.time.format.DateTimeFormatter;
 import org.jfantasy.framework.util.common.file.FileUtil;
 
 /**
@@ -33,8 +32,8 @@ public class FileSizeDirective implements SchemaDirectiveWiring {
     DataFetcher<?> dataFetcher =
         dataFetchingEnvironment -> {
           Long value = (Long) originalDataFetcher.get(dataFetchingEnvironment);
-          boolean format = dataFetchingEnvironment.getArgument(FORMAT_NAME);
-          if (!format) {
+          Boolean format = dataFetchingEnvironment.getArgument(FORMAT_NAME);
+          if (format == null || value == null || !format) {
             return value;
           }
           return FileUtil.fileSize(FileUtil.fileSize(value, unit));
@@ -43,15 +42,11 @@ public class FileSizeDirective implements SchemaDirectiveWiring {
     GraphQLArgument.Builder formatArgument =
         GraphQLArgument.newArgument()
             .name(FORMAT_NAME)
+            .defaultValue(false)
             .type(Scalars.GraphQLBoolean)
             .description("显示单位， 比如：1024 => 1 KB");
 
     environment.getCodeRegistry().dataFetcher(parentType, field, dataFetcher);
     return field.transform(builder -> builder.argument(formatArgument));
-  }
-
-  private DateTimeFormatter buildFormatter(String format) {
-    String dtFormat = format != null ? format : "YYYY-MM-dd'T'HH:mm:ss.SSS'Z'";
-    return DateTimeFormatter.ofPattern(dtFormat);
   }
 }

@@ -23,4 +23,9 @@ public class GraphQLDirectiveConfiguration {
   public SchemaDirective fileSizeDirective() {
     return new SchemaDirective("fileSize", new FileSizeDirective());
   }
+
+  @Bean
+  public SchemaDirective numberFormatDirective() {
+    return new SchemaDirective("numberFormat", new NumberFormatDirective());
+  }
 }
