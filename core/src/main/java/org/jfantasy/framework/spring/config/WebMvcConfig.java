@@ -2,7 +2,8 @@ package org.jfantasy.framework.spring.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.Unirest;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.servlet.DispatcherType;
@@ -12,6 +13,7 @@ import org.jfantasy.framework.jackson.JSON;
 import org.jfantasy.framework.jackson.UnirestObjectMapper;
 import org.jfantasy.framework.spring.mvc.method.annotation.PagerModelAttributeMethodProcessor;
 import org.jfantasy.framework.spring.mvc.method.annotation.PropertyFilterModelAttributeMethodProcessor;
+import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.web.filter.ActionContextFilter;
 import org.jfantasy.framework.web.filter.ConversionCharacterEncodingFilter;
@@ -37,13 +39,20 @@ import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.support.XmlWebApplicationContext;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.*;
 import org.springframework.web.servlet.i18n.CookieLocaleResolver;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 
-/** @author limaofeng */
+/**
+ * Web 配置
+ *
+ * @author limaofeng
+ */
 @EnableWebMvc
 @Configuration
 @ComponentScan(
@@ -62,11 +71,14 @@ public class WebMvcConfig implements WebMvcConfigurer {
   private final ApplicationContext applicationContext;
 
   private final ObjectMapper objectMapper;
+  private final CorsFilter corsFilter;
 
   @Autowired
-  public WebMvcConfig(ApplicationContext applicationContext, ObjectMapper objectMapper) {
+  public WebMvcConfig(
+      ApplicationContext applicationContext, ObjectMapper objectMapper, CorsFilter corsFilter) {
     this.applicationContext = applicationContext;
     this.objectMapper = objectMapper;
+    this.corsFilter = corsFilter;
   }
 
   @Override
@@ -105,7 +117,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
         new Class[] {StringHttpMessageConverter.class, MappingJackson2HttpMessageConverter.class};
     converters.removeIf(converter -> ObjectUtil.exists(removeClazz, converter.getClass()));
     converters.add(0, new MappingJackson2HttpMessageConverter(this.objectMapper));
-    converters.add(0, new StringHttpMessageConverter(Charset.forName("utf-8")));
+    converters.add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
   }
 
   @Override
@@ -134,13 +146,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
   @Override
   public void addCorsMappings(CorsRegistry registry) {
-    registry
-        .addMapping("/**")
-        .allowedOriginPatterns("*")
-        .allowedMethods("GET", "POST", "HEAD", "PATCH", "PUT", "DELETE", "OPTIONS")
-        .allowedHeaders("Accept", "Origin", "Authorization", "Content-Type", "Last-Modified")
-        .allowCredentials(true)
-        .maxAge(3600);
+    UrlBasedCorsConfigurationSource configSource =
+        ClassUtil.getValue(this.corsFilter, "configSource");
+    configSource.registerCorsConfiguration("/**", corsConfig());
   }
 
   @Bean
@@ -163,5 +171,29 @@ public class WebMvcConfig implements WebMvcConfigurer {
     filterRegistrationBean.setDispatcherTypes(DispatcherType.REQUEST);
     filterRegistrationBean.addUrlPatterns("/*");
     return filterRegistrationBean;
+  }
+
+  private CorsConfiguration corsConfig() {
+    CorsConfiguration corsConfiguration = new CorsConfiguration();
+
+    String[] headers =
+        new String[] {
+          "Accept",
+          "Origin",
+          "cache-control",
+          "x-requested-with",
+          "Authorization",
+          "Content-Type",
+          "Last-Modified"
+        };
+
+    String[] methods = new String[] {"GET", "POST", "HEAD", "PATCH", "PUT", "DELETE", "OPTIONS"};
+
+    corsConfiguration.addAllowedOriginPattern("*");
+    corsConfiguration.setAllowedHeaders(Arrays.asList(headers));
+    corsConfiguration.setAllowedMethods(Arrays.asList(methods));
+    corsConfiguration.setAllowCredentials(true);
+    corsConfiguration.setMaxAge(3600L);
+    return corsConfiguration;
   }
 }

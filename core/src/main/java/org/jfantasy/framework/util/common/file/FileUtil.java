@@ -23,6 +23,7 @@ public class FileUtil {
 
   private static final Log LOGGER = LogFactory.getLog(FileUtil.class);
   private static final String REGEXP_START = "[^\\/]+$";
+  public static final String[] UNITS = {"bytes", "KB", "MB", "GB", "TB"};
 
   static {
     MimeUtil.registerMimeDetector("eu.medsea.mimeutil.detector.MagicMimeMimeDetector");
@@ -520,14 +521,18 @@ public class FileUtil {
     void execute(String fileName, InputStream stream);
   }
 
+  public static long fileSize(long size, String unit) {
+    int index = ObjectUtil.indexOf(UNITS, unit);
+    return size * Double.valueOf(Math.pow(1024, index)).longValue();
+  }
+
   public static String fileSize(long length) {
     float size = length;
-    String[] units = {"B", "KB", "MB", "GB", "TB"};
     int i = 0;
     while (size >= 1024 && i < 4) {
       size /= 1024;
       i++;
     }
-    return Math.round(size) + units[i];
+    return Double.valueOf(Math.ceil(size)).longValue() + " " + UNITS[i];
   }
 }

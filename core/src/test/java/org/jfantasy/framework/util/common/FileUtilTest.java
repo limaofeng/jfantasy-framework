@@ -18,7 +18,11 @@ public class FileUtilTest {
 
   @Test
   public void fileSize() {
-    System.out.println(FileUtil.fileSize(1024 + 1024));
+    System.out.println(FileUtil.fileSize(1024 + 1024 + 100));
+
+    System.out.println(FileUtil.fileSize(2, "MB"));
+
+    System.out.println(FileUtil.fileSize(2097152));
   }
 
   public void ftp() {
