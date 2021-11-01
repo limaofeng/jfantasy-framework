@@ -11,6 +11,7 @@ import javax.servlet.MultipartConfigElement;
 import org.hibernate.validator.HibernateValidator;
 import org.jfantasy.framework.jackson.JSON;
 import org.jfantasy.framework.jackson.UnirestObjectMapper;
+import org.jfantasy.framework.spring.SpringBeanUtils;
 import org.jfantasy.framework.spring.mvc.method.annotation.PagerModelAttributeMethodProcessor;
 import org.jfantasy.framework.spring.mvc.method.annotation.PropertyFilterModelAttributeMethodProcessor;
 import org.jfantasy.framework.util.common.ClassUtil;
@@ -71,14 +72,11 @@ public class WebMvcConfig implements WebMvcConfigurer {
   private final ApplicationContext applicationContext;
 
   private final ObjectMapper objectMapper;
-  private final CorsFilter corsFilter;
 
   @Autowired
-  public WebMvcConfig(
-      ApplicationContext applicationContext, ObjectMapper objectMapper, CorsFilter corsFilter) {
+  public WebMvcConfig(ApplicationContext applicationContext, ObjectMapper objectMapper) {
     this.applicationContext = applicationContext;
     this.objectMapper = objectMapper;
-    this.corsFilter = corsFilter;
   }
 
   @Override
@@ -146,9 +144,43 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
   @Override
   public void addCorsMappings(CorsRegistry registry) {
-    UrlBasedCorsConfigurationSource configSource =
-        ClassUtil.getValue(this.corsFilter, "configSource");
-    configSource.registerCorsConfiguration("/**", corsConfig());
+    String path = "/**";
+    String originPatterns = "*";
+    String[] headers =
+        new String[] {
+          "Accept",
+          "Origin",
+          "cache-control",
+          "x-requested-with",
+          "Authorization",
+          "Content-Type",
+          "Last-Modified"
+        };
+    String[] methods = new String[] {"GET", "POST", "HEAD", "PATCH", "PUT", "DELETE", "OPTIONS"};
+    boolean credentials = true;
+    long maxAge = 3600;
+
+    if (SpringBeanUtils.containsBean(CorsFilter.class)) {
+      CorsFilter corsFilter = SpringBeanUtils.getBean(CorsFilter.class);
+      UrlBasedCorsConfigurationSource configSource = ClassUtil.getValue(corsFilter, "configSource");
+
+      CorsConfiguration corsConfiguration = new CorsConfiguration();
+      corsConfiguration.addAllowedOriginPattern(originPatterns);
+      corsConfiguration.setAllowedHeaders(Arrays.asList(headers));
+      corsConfiguration.setAllowedMethods(Arrays.asList(methods));
+      corsConfiguration.setAllowCredentials(credentials);
+      corsConfiguration.setMaxAge(maxAge);
+
+      configSource.registerCorsConfiguration(path, corsConfiguration);
+    } else {
+      registry
+          .addMapping(path)
+          .allowedOriginPatterns(originPatterns)
+          .allowedMethods(methods)
+          .allowedHeaders(headers)
+          .allowCredentials(credentials)
+          .maxAge(maxAge);
+    }
   }
 
   @Bean
@@ -171,29 +203,5 @@ public class WebMvcConfig implements WebMvcConfigurer {
     filterRegistrationBean.setDispatcherTypes(DispatcherType.REQUEST);
     filterRegistrationBean.addUrlPatterns("/*");
     return filterRegistrationBean;
-  }
-
-  private CorsConfiguration corsConfig() {
-    CorsConfiguration corsConfiguration = new CorsConfiguration();
-
-    String[] headers =
-        new String[] {
-          "Accept",
-          "Origin",
-          "cache-control",
-          "x-requested-with",
-          "Authorization",
-          "Content-Type",
-          "Last-Modified"
-        };
-
-    String[] methods = new String[] {"GET", "POST", "HEAD", "PATCH", "PUT", "DELETE", "OPTIONS"};
-
-    corsConfiguration.addAllowedOriginPattern("*");
-    corsConfiguration.setAllowedHeaders(Arrays.asList(headers));
-    corsConfiguration.setAllowedMethods(Arrays.asList(methods));
-    corsConfiguration.setAllowCredentials(true);
-    corsConfiguration.setMaxAge(3600L);
-    return corsConfiguration;
   }
 }

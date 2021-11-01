@@ -1043,8 +1043,8 @@ public final class ObjectUtil {
     CompareResults<T> results = new CompareResults();
     List<T> olds = new ArrayList<>(first);
     for (T obj : second) {
-      if (exists(olds, (Predicate<T>) item -> comparator.compare(item, obj) != -1)) {
-        remove(olds, item -> comparator.compare(item, obj) != -1);
+      if (exists(olds, (Predicate<T>) item -> comparator.compare(item, obj) == 0)) {
+        remove(olds, item -> comparator.compare(item, obj) == 0);
         results.getIntersect().add(obj);
       } else {
         results.getExceptB().add(obj);
