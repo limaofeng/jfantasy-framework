@@ -112,14 +112,20 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
 
   @Override
   public List<T> findAll(List<PropertyFilter> filters, int size) {
-    return super.getQuery(toSpecification(filters), Sort.unsorted())
-        .setMaxResults(size)
-        .getResultList();
+    TypedQuery<T> query = super.getQuery(toSpecification(filters), Sort.unsorted());
+    if (size > 0) {
+      query.setMaxResults(size);
+    }
+    return query.getResultList();
   }
 
   @Override
   public List<T> findAll(List<PropertyFilter> filters, int size, Sort sort) {
-    return super.getQuery(toSpecification(filters), sort).setMaxResults(size).getResultList();
+    TypedQuery<T> query = super.getQuery(toSpecification(filters), sort);
+    if (size > 0) {
+      query.setMaxResults(size);
+    }
+    return query.getResultList();
   }
 
   @Override
