@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.9.6](https://github.com/limaofeng/jfantasy-framework/compare/v2.9.5...v2.9.6) (2021-12-31)
+
+
+### Features
+
+* 扩展 JpaRepository 方法 ([c84587e](https://github.com/limaofeng/jfantasy-framework/commit/c84587e177d0842ea94c6b805688ebb18635cd81))
+* 添加 FileSize 指令 ([a2fd666](https://github.com/limaofeng/jfantasy-framework/commit/a2fd6661f6586d56b43bab8659a70c69bd520202))
+* 添加 NumberFormat 指令 ([1a74bfd](https://github.com/limaofeng/jfantasy-framework/commit/1a74bfd6496e5c06c24c3d691f10de007990b694))
+
+
+### Bug Fixes
+
+* 解决 FileSize 指令 format 为 NULL 的问题 ([5e7ba11](https://github.com/limaofeng/jfantasy-framework/commit/5e7ba11e0395b9eb27bf0ee6a9cb243032d89113))
+* 解决 ObjectUtil.compare 比较 BUG ([659a491](https://github.com/limaofeng/jfantasy-framework/commit/659a4919891d1616cee5ff94b5cbfc42f413084b))
+
 ### [2.9.5](https://github.com/limaofeng/jfantasy-framework/compare/v2.9.4...v2.9.5) (2021-10-13)
 
 
