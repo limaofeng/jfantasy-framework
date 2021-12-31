@@ -45,6 +45,25 @@ public interface JpaRepository<T, PK extends Serializable>
   List<T> findAll(List<PropertyFilter> filters, Sort sort);
 
   /**
+   * 查询数据集
+   *
+   * @param filters 过滤器
+   * @param size 返回结果集最大行数
+   * @return List<T>
+   */
+  List<T> findAll(List<PropertyFilter> filters, int size);
+
+  /**
+   * 查询数据集
+   *
+   * @param filters 过滤器
+   * @param size 返回结果集最大行数
+   * @param sort 排序
+   * @return List<T>
+   */
+  List<T> findAll(List<PropertyFilter> filters, int size, Sort sort);
+
+  /**
    * 通过过滤器返回唯一对象
    *
    * @param filters 过滤器

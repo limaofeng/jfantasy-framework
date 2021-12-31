@@ -56,7 +56,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
   protected JpaEntityInformation<T, ?> entityInformation;
   private static final Map<Class, JpaRepository> REPOSITORIES = new HashMap<>();
 
-  public ComplexJpaRepository(Class domainClass, EntityManager entityManager) {
+  public ComplexJpaRepository(Class<T> domainClass, EntityManager entityManager) {
     this(
         JpaEntityInformationSupport.getEntityInformation(domainClass, entityManager),
         entityManager);
@@ -78,12 +78,12 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
 
   @Override
   public List<T> findAll(List<PropertyFilter> filters) {
-    return this.findAll(new PropertyFilterSpecification(this.getDomainClass(), filters));
+    return this.findAll(toSpecification(filters));
   }
 
   @Override
   public Optional<T> findOne(List<PropertyFilter> filters) {
-    return this.findOne(new PropertyFilterSpecification(this.getDomainClass(), filters));
+    return this.findOne(toSpecification(filters));
   }
 
   @Override
@@ -96,19 +96,35 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
     return this.findOne(PropertyFilter.builder().equal(name, value).build());
   }
 
+  protected Specification<T> toSpecification(List<PropertyFilter> filters) {
+    return new PropertyFilterSpecification<T>(this.getDomainClass(), filters);
+  }
+
   @Override
   public long count(List<PropertyFilter> filters) {
-    return this.count(new PropertyFilterSpecification(this.getDomainClass(), filters));
+    return this.count(toSpecification(filters));
   }
 
   @Override
   public List<T> findAll(List<PropertyFilter> filters, Sort sort) {
-    return this.findAll(new PropertyFilterSpecification(this.getDomainClass(), filters), sort);
+    return this.findAll(toSpecification(filters), sort);
+  }
+
+  @Override
+  public List<T> findAll(List<PropertyFilter> filters, int size) {
+    return super.getQuery(toSpecification(filters), Sort.unsorted())
+        .setMaxResults(size)
+        .getResultList();
+  }
+
+  @Override
+  public List<T> findAll(List<PropertyFilter> filters, int size, Sort sort) {
+    return super.getQuery(toSpecification(filters), sort).setMaxResults(size).getResultList();
   }
 
   @Override
   public Pager<T> findPager(Pager<T> pager, List<PropertyFilter> filters) {
-    return this.findPager(pager, new PropertyFilterSpecification(this.getDomainClass(), filters));
+    return this.findPager(pager, toSpecification(filters));
   }
 
   @Override
@@ -440,7 +456,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
   static class FieldWarp {
     private Field field;
     private Class domainClass;
-    private JpaRepository repository;
+    private JpaRepository<Object, Serializable> repository;
 
     public Object getValue(Object entity) {
       OgnlUtil ognlUtil = OgnlUtil.getInstance();

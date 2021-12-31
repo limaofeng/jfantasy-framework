@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.util.List;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import org.apache.ibatis.type.Alias;
 import org.jfantasy.framework.util.web.RedirectAttributesWriter;
 import org.springframework.data.domain.Sort;
@@ -19,7 +18,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * @param <T>
  * @author limaofeng
  */
-@Builder
 @AllArgsConstructor
 @Alias("Pager")
 @JsonIgnoreProperties(value = {"orders", "first", "order_by_setted"})
@@ -27,28 +25,26 @@ public class Pager<T> implements Pagination, Serializable {
 
   private static final long serialVersionUID = -2343309063338998483L;
 
+  public static final int DEFAULT_PAGE_SIZE = 15;
+
   /** 排序 - 升序 */
   public static final String SORT_ASC = "asc";
   /** 排序 - 降序 */
   public static final String SORT_DESC = "desc";
   /** 最大数据条数 */
-  @Builder.Default
   @JsonProperty("count")
   private int totalCount = 0;
   /** 每页显示的数据条数 */
-  @Builder.Default
   @JsonProperty("per_page")
-  private int pageSize = 15;
+  private int pageSize = DEFAULT_PAGE_SIZE;
   /** 总页数 */
   @JsonProperty("total")
-  @Builder.Default
   private int totalPage = 1;
   /** 当前页码 */
-  @Builder.Default
   @JsonProperty("page")
   private int currentPage = 1;
   /** 开始数据索引 */
-  @Builder.Default private int first = 0;
+  private int first = 0;
   /** 排序字段 */
   @JsonProperty("sort")
   @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -99,6 +95,40 @@ public class Pager<T> implements Pagination, Serializable {
     this.first = first;
     this.pageSize = size;
     this.orderBy = orderBy;
+  }
+
+  public static <T> Pager<T> newPager() {
+    return new Pager<>();
+  }
+
+  public static <T> Pager<T> newPager(OrderBy orderBy) {
+    Pager<T> pager = new Pager<>();
+    pager.setOrderBy(orderBy);
+    return pager;
+  }
+
+  public static <T> Pager<T> newPager(int size) {
+    return new Pager<>(size);
+  }
+
+  public static <T> Pager<T> newPager(int page, int size) {
+    Pager<T> pager = new Pager<>(size);
+    pager.setCurrentPage(page);
+    return pager;
+  }
+
+  public static <T> Pager<T> newPager(int page, int size, OrderBy orderBy) {
+    return new Pager<>(page, size, orderBy);
+  }
+
+  public static <T> Pager<T> newPager(int size, OrderBy orderBy) {
+    Pager<T> pager = new Pager<>(size);
+    pager.setOrderBy(orderBy);
+    return pager;
+  }
+
+  public static <T> Pager<T> newPager(Pager<T> pager) {
+    return new Pager<>(pager);
   }
 
   /**
@@ -269,7 +299,7 @@ public class Pager<T> implements Pagination, Serializable {
   public RedirectAttributesWriter writeTo(RedirectAttributes attrs) {
     if (this.getFirst() != 0) {
       attrs.addAttribute("limit", this.getFirst() + "," + this.getPageSize());
-    } else if (this.getPageSize() != 15) {
+    } else if (this.getPageSize() != DEFAULT_PAGE_SIZE) {
       attrs.addAttribute("per_page", this.getPageSize());
     }
     if (this.getCurrentPage() != 1) {

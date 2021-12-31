@@ -16,13 +16,13 @@ import org.springframework.util.Assert;
  * @version V1.0 @Description: PropertyFilter 的 JPA 实现
  * @date 14/11/2017 10:01 AM
  */
-public class PropertyFilterSpecification implements Specification {
+public class PropertyFilterSpecification<T> implements Specification<T> {
 
   private List<PropertyFilter> filters;
   private Class<?> entityClass;
   private PropertyFilterSpecificationContext context;
 
-  public PropertyFilterSpecification(Class<?> entityClass, List<PropertyFilter> filters) {
+  public PropertyFilterSpecification(Class<T> entityClass, List<PropertyFilter> filters) {
     this.entityClass = entityClass;
     this.filters = filters;
     this.context = new PropertyFilterSpecificationContext();
