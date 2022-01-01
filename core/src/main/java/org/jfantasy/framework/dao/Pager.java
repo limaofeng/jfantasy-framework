@@ -127,6 +127,13 @@ public class Pager<T> implements Pagination, Serializable {
     return pager;
   }
 
+  public static <T> Pager<T> newPager(int size, OrderBy orderBy, int first) {
+    Pager<T> pager = new Pager<>(size);
+    pager.setOrderBy(orderBy);
+    pager.setFirst(first);
+    return pager;
+  }
+
   public static <T> Pager<T> newPager(Pager<T> pager) {
     return new Pager<>(pager);
   }
