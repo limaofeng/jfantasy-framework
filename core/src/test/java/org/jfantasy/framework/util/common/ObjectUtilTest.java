@@ -16,61 +16,61 @@ import org.springframework.util.Assert;
 public class ObjectUtilTest {
 
   @Test
-  public void toString1() throws Exception {}
+  public void toString1() {}
 
   @Test
-  public void filter() throws Exception {}
+  public void filter() {}
 
   @Test
-  public void filter1() throws Exception {}
+  public void filter1() {}
 
   @Test
-  public void filter2() throws Exception {}
+  public void filter2() {}
 
   @Test
-  public void filter3() throws Exception {}
+  public void filter3() {}
 
   @Test
-  public void toString2() throws Exception {}
+  public void toString2() {}
 
   @Test
-  public void toFieldList() throws Exception {}
+  public void toFieldList() {}
 
   @Test
-  public void toFieldArray() throws Exception {}
+  public void toFieldArray() {}
 
   @Test
-  public void toFieldArray1() throws Exception {}
+  public void toFieldArray1() {}
 
   @Test
-  public void toFieldArray2() throws Exception {}
+  public void toFieldArray2() {}
 
   @Test
-  public void getMaxObject() throws Exception {}
+  public void getMaxObject() {}
 
   @Test
-  public void getMinObject() throws Exception {}
+  public void getMinObject() {}
 
   @Test
-  public void indexOf() throws Exception {}
+  public void indexOf() {}
 
   @Test
-  public void indexOf1() throws Exception {}
+  public void indexOf1() {}
 
   @Test
-  public void find() throws Exception {}
+  public void find() {}
 
   @Test
-  public void first() throws Exception {}
+  public void first() {}
 
   @Test
-  public void last() throws Exception {}
+  public void last() {}
 
   @Test
-  public void exists() throws Exception {}
+  public void exists() {}
 
   @Test
-  public void recursive() throws Exception {
+  public void recursive() {
     TreeNode node1 = TreeNode.builder().name("1").build();
     node1.setChildren(Collections.singletonList(TreeNode.builder().name("1-1").build()));
     node1.setChildren(Collections.singletonList(TreeNode.builder().name("1-2").build()));
@@ -89,28 +89,28 @@ public class ObjectUtilTest {
   }
 
   @Test
-  public void find2() throws Exception {}
+  public void find2() {}
 
   @Test
-  public void indexOf2() throws Exception {}
+  public void indexOf2() {}
 
   @Test
-  public void indexOf3() throws Exception {}
+  public void indexOf3() {}
 
   @Test
-  public void indexOf4() throws Exception {}
+  public void indexOf4() {}
 
   @Test
-  public void indexOf5() throws Exception {}
+  public void indexOf5() {}
 
   @Test
-  public void indexOf6() throws Exception {}
+  public void indexOf6() {}
 
   @Test
-  public void setProperties() throws Exception {}
+  public void setProperties() {}
 
   @Test
-  public void sort() throws Exception {
+  public void sort() {
 
     List<HashMap<String, String>> list = new ArrayList<>();
 
@@ -135,57 +135,57 @@ public class ObjectUtilTest {
   }
 
   @Test
-  public void isNull() throws Exception {}
+  public void isNull() {}
 
   @Test
-  public void isNotNull() throws Exception {}
+  public void isNotNull() {}
 
   @Test
-  public void defaultValue() throws Exception {}
+  public void defaultValue() {}
 
   @Test
-  public void toMap() throws Exception {}
+  public void toMap() {}
 
   @Test
-  public void join() throws Exception {}
+  public void join() {}
 
   @Test
-  public void join1() throws Exception {}
+  public void join1() {}
 
   @Test
-  public void join2() throws Exception {}
+  public void join2() {}
 
   @Test
-  public void join3() throws Exception {}
+  public void join3() {}
 
   @Test
-  public void exists1() throws Exception {}
+  public void exists1() {}
 
   @Test
-  public void exists2() throws Exception {}
+  public void exists2() {}
 
   @Test
-  public void remove() throws Exception {}
+  public void remove() {}
 
   @Test
-  public void guid() throws Exception {}
+  public void guid() {}
 
   @Test
-  public void reverse() throws Exception {}
+  public void reverse() {}
 
   @Test
-  public void analyze() throws Exception {}
+  public void analyze() {}
 
   private static final Log LOG = LogFactory.getLog(ObjectUtilTest.class);
 
   @BeforeEach
-  public void setUp() throws Exception {}
+  public void setUp() {}
 
   @AfterEach
-  public void tearDown() throws Exception {}
+  public void tearDown() {}
 
   @Test
-  public void testCopy() throws Exception {
+  public void testCopy() {
     User user = new User();
     user.setName("limaofeng");
     Article article = ObjectUtil.copy(user, new Article());
@@ -194,13 +194,13 @@ public class ObjectUtilTest {
   }
 
   @Test
-  public void testClone() throws Exception {}
+  public void testClone() {}
 
   @Test
-  public void testToString() throws Exception {}
+  public void testToString() {}
 
   @Test
-  public void testFilter() throws Exception {
+  public void testFilter() {
     List<ObjectTestBean> list = new ArrayList<>();
     list.add(new ObjectTestBean("limaofeng", Boolean.TRUE, 32));
     list.add(new ObjectTestBean("wangmingliang", Boolean.TRUE, 27));
@@ -208,47 +208,45 @@ public class ObjectUtilTest {
 
     List<ObjectTestBean> listf = ObjectUtil.filter(list, "locked", Boolean.TRUE);
 
-    Assert.isTrue(listf.size() == 2);
+    Assert.isTrue(listf.size() == 2, "不一致");
 
     ObjectTestBean[] arrs =
         ObjectUtil.filter(
-            list.toArray(new ObjectTestBean[list.size()]), "locked", Boolean.TRUE, Boolean.FALSE);
+            list.toArray(new ObjectTestBean[0]), "locked", Boolean.TRUE, Boolean.FALSE);
 
-    Assert.isTrue(3 == arrs.length);
+    Assert.isTrue(3 == arrs.length, "长度不一致");
 
     arrs =
         ObjectUtil.filter(
-            list.toArray(new ObjectTestBean[list.size()]),
-            "locked",
-            new Boolean[] {Boolean.TRUE, Boolean.FALSE});
+            list.toArray(new ObjectTestBean[0]), "locked", Boolean.TRUE, Boolean.FALSE);
 
-    Assert.isTrue(3 == arrs.length);
+    Assert.isTrue(3 == arrs.length, "长度不一致");
   }
 
   @Test
-  public void testToFieldArray() throws Exception {}
+  public void testToFieldArray() {}
 
   @Test
-  public void testGetMinObject() throws Exception {}
+  public void testGetMinObject() {}
 
   @Test
-  public void testIndexOf() throws Exception {}
+  public void testIndexOf() {}
 
   @Test
-  public void testSort() throws Exception {}
+  public void testSort() {}
 
   @Test
-  public void merge() throws Exception {
+  public void merge() {
     String[] dest = {"中国", "美国"};
     String[] items = {"中国", "英国"};
 
     String[] array = ObjectUtil.merge(dest, items);
 
-    Assert.isTrue(array == new String[] {"中国", "美国", "英国"});
+    Assert.isTrue(Arrays.equals(array, new String[] {"中国", "美国", "英国"}), "长度不一致");
   }
 
   @Test
-  public void testAnalyze() throws Exception {}
+  public void testAnalyze() {}
 
   @Test
   public void map() {}
@@ -299,7 +297,7 @@ public class ObjectUtilTest {
 
     Assert.isTrue(flat.size() == 5, "平铺失败");
 
-    nodes.stream().forEach(item -> item.setParent(null));
+    nodes.forEach(item -> item.setParent(null));
 
     flat = ObjectUtil.flat(treeData, "children", "parent");
 
@@ -307,9 +305,9 @@ public class ObjectUtilTest {
   }
 
   public static class ObjectTestBean {
-    private String name;
-    private Boolean locked;
-    private int age;
+    private final String name;
+    private final Boolean locked;
+    private final int age;
 
     public ObjectTestBean(String name, Boolean locked, int age) {
       this.name = name;

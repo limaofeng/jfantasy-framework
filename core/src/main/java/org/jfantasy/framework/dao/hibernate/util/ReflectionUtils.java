@@ -24,9 +24,10 @@ import org.springframework.util.Assert;
  */
 public final class ReflectionUtils {
 
-  private static Logger LOGGER = LoggerFactory.getLogger(ReflectionUtils.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ReflectionUtils.class);
 
-  private static ConvertUtilsBean convertUtils = BeanUtilsBean.getInstance().getConvertUtils();
+  private static final ConvertUtilsBean CONVERT_UTILS =
+      BeanUtilsBean.getInstance().getConvertUtils();
 
   static {
     DateConverter dc = new DateConverter();
@@ -39,9 +40,10 @@ public final class ReflectionUtils {
           "yyyy-MM-dd HH:mm",
           "yyyyMMdd",
           "yyyyMMddHHmmss",
+          "yyyyMMdd'T'HHmmss",
           "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
         });
-    convertUtils.register(dc, Date.class);
+    CONVERT_UTILS.register(dc, Date.class);
   }
 
   public static Object invokeGetterMethod(Object target, String propertyName) {
@@ -60,16 +62,16 @@ public final class ReflectionUtils {
     invokeMethod(target, setterMethodName, new Class[] {type}, new Object[] {value});
   }
 
-  public static <T> T getFieldValue(Object object, String fieldName) {
+  public static Object getFieldValue(Object object, String fieldName) {
     Field field = getDeclaredField(object, fieldName);
     if (field == null) {
       throw new IllegalArgumentException(
           "Could not find field [" + fieldName + "] on target [" + object + "]");
     }
     makeAccessible(field);
-    T result = null;
+    Object result = null;
     try {
-      result = (T) field.get(object);
+      result = field.get(object);
     } catch (IllegalAccessException e) {
       LOGGER.error("不可能抛出的异常{}", e.getMessage(), e);
     }
@@ -105,7 +107,7 @@ public final class ReflectionUtils {
     }
   }
 
-  protected static Field getDeclaredField(Object object, String fieldName) {
+  private static Field getDeclaredField(Object object, String fieldName) {
     Assert.notNull(object, "object不能为空");
     Assert.hasText(fieldName, "fieldName");
     for (Class<?> superClass = object.getClass(); superClass != Object.class; ) {
@@ -120,14 +122,14 @@ public final class ReflectionUtils {
     return null;
   }
 
-  protected static void makeAccessible(Field field) {
+  private static void makeAccessible(Field field) {
     if ((!Modifier.isPublic(field.getModifiers()))
         || (!Modifier.isPublic(field.getDeclaringClass().getModifiers()))) {
       field.setAccessible(true);
     }
   }
 
-  protected static Method getDeclaredMethod(
+  private static Method getDeclaredMethod(
       Object object, String methodName, Class<?>[] parameterTypes) {
     Assert.notNull(object, "object不能为空");
     for (Class<?> superClass = object.getClass(); superClass != Object.class; ) {
@@ -141,16 +143,14 @@ public final class ReflectionUtils {
     return null;
   }
 
-  @SuppressWarnings("unchecked")
   public static <T> Class<T> getSuperClassGenricType(Class clazz) {
-    return (Class<T>) getSuperClassGenricType(clazz, 0);
+    return getSuperClassGenricType(clazz, 0);
   }
 
   public static Class getInterfaceGenricType(Class clazz, Class interfaceClazz) {
     return getInterfaceGenricType(clazz, interfaceClazz, 0);
   }
 
-  @SuppressWarnings("unchecked")
   public static <T> Class<T> getInterfaceGenricType(Class clazz, Class interfaceClazz, int index) {
     return ClassUtil.getInterfaceGenricType(clazz, interfaceClazz, index);
   }
@@ -162,10 +162,9 @@ public final class ReflectionUtils {
 
   public static List<Object> convertElementPropertyToList(
       Collection<Object> collection, String propertyName) {
-    List<Object> list = new ArrayList<Object>();
+    List<Object> list = new ArrayList<>();
     try {
-      for (Iterator<?> i = collection.iterator(); i.hasNext(); ) {
-        Object obj = i.next();
+      for (Object obj : collection) {
         list.add(PropertyUtils.getProperty(obj, propertyName));
       }
     } catch (Exception e) {
@@ -182,14 +181,14 @@ public final class ReflectionUtils {
 
   public static <T> T convertStringToObject(String value, Class<T> toType) {
     try {
-      return toType.cast(convertUtils.convert(value, toType));
+      return toType.cast(CONVERT_UTILS.convert(value, toType));
     } catch (Exception e) {
       throw convertReflectionExceptionToUnchecked(e);
     }
   }
 
   public static <T> T convert(Object value, Class<T> toType) {
-    return toType.cast(convertUtils.convert(value, toType));
+    return toType.cast(CONVERT_UTILS.convert(value, toType));
   }
 
   public static RuntimeException convertReflectionExceptionToUnchecked(Exception e) {
