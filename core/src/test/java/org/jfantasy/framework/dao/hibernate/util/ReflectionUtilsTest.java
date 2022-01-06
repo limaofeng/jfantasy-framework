@@ -16,6 +16,10 @@ public class ReflectionUtilsTest {
     LOG.debug(DateUtil.now());
     Date date = ReflectionUtils.convert("20150214T113000", Date.class);
     Asserts.check(DateUtil.format(date, "yyyyMMdd'T'HHmmss").equals("20150214T113000"), "错误");
+    date = ReflectionUtils.convert("2022-02-07T00:00:00+08:00", Date.class);
+    Asserts.check(
+        DateUtil.format(date, "yyyy-MM-dd'T'HH:mm:ssXXX").equals("2022-02-07T00:00:00+08:00"),
+        "错误");
     LOG.debug(ReflectionUtils.convert("20150214T113000", Date.class));
     LOG.debug(ReflectionUtils.convertStringToObject("2019-04-08T08:26:00.853Z", Date.class));
   }

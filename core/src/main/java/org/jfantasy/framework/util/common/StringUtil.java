@@ -3,7 +3,9 @@ package org.jfantasy.framework.util.common;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.function.Supplier;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -187,6 +189,17 @@ public abstract class StringUtil {
   }
 
   /**
+   * 判断字符串是否为空，如果为空返回 {defaultValue}，如果不为空，直接返回该字符串
+   *
+   * @param s 要转换的对象
+   * @param def 默认字符串
+   * @return {String}
+   */
+  public static String defaultValue(Object s, Supplier<String> def) {
+    return s == null ? def.get() : s.toString();
+  }
+
+  /**
    * 判断字符串是否为空，如果为空返回 {defaultValue}，如果不为空，直接返回该字符串 {@link #defaultValue(Object, String)} 的重载
    *
    * @param s 要转换的字符串
@@ -289,11 +302,11 @@ public abstract class StringUtil {
    * <p>resultLength 最终长度
    */
   public static String addZeroLeft(String ori, int resultLength) {
-    return append(ori, resultLength < 0 ? resultLength : 0 - resultLength, "0");
+    return append(ori, resultLength < 0 ? resultLength : -resultLength, "0");
   }
 
   public static String addLeft(String ori, int resultLength, String... fillChar) {
-    return append(ori, resultLength < 0 ? resultLength : 0 - resultLength, fillChar);
+    return append(ori, resultLength < 0 ? resultLength : -resultLength, fillChar);
   }
 
   /**
@@ -461,7 +474,7 @@ public abstract class StringUtil {
   public static String[] add(String[] array, String... strs) {
     Set<String> list = new HashSet<>(Arrays.asList(array));
     Collections.addAll(list, strs);
-    return list.toArray(new String[list.size()]);
+    return list.toArray(new String[0]);
   }
 
   public static String nonNull(String s) {
@@ -472,11 +485,7 @@ public abstract class StringUtil {
   }
 
   public static String toUTF8String(byte[] b, int offset, int length) {
-    try {
-      return new String(b, offset, length, "UTF-8");
-    } catch (UnsupportedEncodingException e) {
-      throw new IllegalArgumentException(e);
-    }
+    return new String(b, offset, length, StandardCharsets.UTF_8);
   }
 
   public static String toString(byte[] b, String charset) {
@@ -510,12 +519,7 @@ public abstract class StringUtil {
   }
 
   public static byte[] getBytes(String s) {
-    try {
-      return s.getBytes("ISO-8859-1");
-    } catch (Exception e) {
-      LOG.warn(e);
-    }
-    return s.getBytes();
+    return s.getBytes(StandardCharsets.ISO_8859_1);
   }
 
   public static byte[] getBytes(String s, String charset) {
@@ -620,8 +624,10 @@ public abstract class StringUtil {
   }
 
   /**
-   * @param s
-   * @return
+   * 生成短链接
+   *
+   * @param s 字符串
+   * @return String[]
    */
   public static String[] shortUrl(String s) {
     return shortUrl(s, "org.jfantasy");

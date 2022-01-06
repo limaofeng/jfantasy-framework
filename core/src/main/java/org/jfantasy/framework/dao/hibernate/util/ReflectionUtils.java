@@ -41,6 +41,7 @@ public final class ReflectionUtils {
           "yyyyMMdd",
           "yyyyMMddHHmmss",
           "yyyyMMdd'T'HHmmss",
+          "yyyy-MM-dd'T'HH:mm:ssXXX",
           "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
         });
     CONVERT_UTILS.register(dc, Date.class);
