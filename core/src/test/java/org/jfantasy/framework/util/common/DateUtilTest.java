@@ -1,9 +1,6 @@
 package org.jfantasy.framework.util.common;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
+import java.util.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -142,10 +139,24 @@ public class DateUtilTest {
   public void now() throws Exception {}
 
   @Test
-  public void age() throws Exception {}
+  public void betweenDates() throws Exception {
+    Date starts = DateUtil.parse("2022-01-03", "yyyy-MM-dd");
+    Date ends = DateUtil.parse("2022-01-05", "yyyy-MM-dd");
+
+    List<Date> dates = DateUtil.betweenDates(starts, ends, Calendar.DATE);
+
+    for (Date date : dates) {
+      LOGGER.debug("data ->" + DateUtil.format(date));
+    }
+  }
 
   @Test
-  public void set1() throws Exception {}
+  public void diff() throws Exception {
+    Date starts = DateUtil.parse("2022-01-03", "yyyy-MM-dd");
+    Date ends = DateUtil.parse("2022-01-05", "yyyy-MM-dd");
+    int number = DateUtil.diff(starts, ends, Calendar.DATE);
+    LOGGER.debug(String.format("number = %d%n", number));
+  }
 
   @Test
   public void fieldValue() throws Exception {}

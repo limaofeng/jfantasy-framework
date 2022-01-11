@@ -377,6 +377,32 @@ public class DateUtil extends DateUtils {
     return intervalFormat(field, between, format, "0[^\\d]{1,}", "");
   }
 
+  public static List<Date> betweenDates(Date start, Date end, int field) {
+    List<Date> dates = new ArrayList<>();
+    Date date = start;
+    do {
+      dates.add(
+          set(
+              date,
+              new FieldValue(Calendar.HOUR, 0),
+              new FieldValue(Calendar.MINUTE, 0),
+              new FieldValue(Calendar.SECOND, 0),
+              new FieldValue(Calendar.MILLISECOND, 0)));
+      date = add(date, field, 1);
+    } while (date.before(end));
+    return dates;
+  }
+
+  public static int diff(Date start, Date end, int type) {
+    int number = 0;
+    Date date = start;
+    do {
+      number++;
+      date = add(date, type, 1);
+    } while (date.before(end));
+    return number;
+  }
+
   public static String intervalFormat(
       int field, long between, String format, String zeroFormat, String repStr) {
     between = Math.abs(between);
@@ -682,8 +708,8 @@ public class DateUtil extends DateUtils {
   }
 
   public static class FieldValue {
-    private int field;
-    private int value;
+    private final int field;
+    private final int value;
 
     public FieldValue(int field, int value) {
       this.field = field;
