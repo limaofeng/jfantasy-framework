@@ -16,42 +16,42 @@ public interface ClientDetails {
   /**
    * 附加信息
    *
-   * @return
+   * @return Map<String, Object>
    */
   Map<String, Object> getAdditionalInformation();
 
   /**
    * 权限
    *
-   * @return
+   * @return Collection<GrantedAuthority>
    */
   Collection<GrantedAuthority> getAuthorities();
 
   /**
    * 支持的授权方式
    *
-   * @return
+   * @return Set<String>
    */
   Set<String> getAuthorizedGrantTypes();
 
   /**
    * 客户端 ID
    *
-   * @return
+   * @return String
    */
   String getClientId();
 
   /**
    * 客户端密钥
    *
-   * @return
+   * @return String
    */
   String getClientSecret();
 
   /**
    * 客户端密钥（多个）
    *
-   * @return
+   * @return Set<String>
    */
   default Set<String> getClientSecrets() {
     Set<String> secrets = new HashSet<>();
@@ -62,21 +62,21 @@ public interface ClientDetails {
   /**
    * 跳转地址
    *
-   * @return
+   * @return String
    */
   String getRedirectUri();
 
   /**
    * 授权范围
    *
-   * @return
+   * @return Set<String>
    */
   Set<String> getScope();
 
   /**
    * Token 失效时间（分钟）
    *
-   * @return
+   * @return int
    */
   int getTokenExpires();
 }
