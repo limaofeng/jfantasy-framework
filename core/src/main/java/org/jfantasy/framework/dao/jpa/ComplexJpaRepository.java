@@ -531,7 +531,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
   }
 
   /**
-   * 使用hql查询对象,推荐使用 {@link @HibernateDao.find(String,Map<String, ?>)}
+   * 使用hql查询对象
    *
    * @param hql hql语句
    * @param values 参数

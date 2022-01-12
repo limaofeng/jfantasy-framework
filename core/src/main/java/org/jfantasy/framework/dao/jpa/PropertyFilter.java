@@ -97,7 +97,7 @@ public class PropertyFilter {
 
   @SuppressWarnings("unchecked")
   public <T> T getPropertyValue(Class<T> clazz) {
-    return clazz.cast(this.propertyValue);
+    return (T) this.propertyValue;
   }
 
   public String getFilterName() {
