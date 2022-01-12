@@ -18,9 +18,9 @@ import org.springframework.util.Assert;
  */
 public class PropertyFilterSpecification<T> implements Specification<T> {
 
-  private List<PropertyFilter> filters;
-  private Class<?> entityClass;
-  private PropertyFilterSpecificationContext context;
+  private final List<PropertyFilter> filters;
+  private final Class<?> entityClass;
+  private final PropertyFilterSpecificationContext context;
 
   public PropertyFilterSpecification(Class<T> entityClass, List<PropertyFilter> filters) {
     this.entityClass = entityClass;
@@ -170,9 +170,9 @@ public class PropertyFilterSpecification<T> implements Specification<T> {
     throw new RuntimeException("不支持的查询");
   }
 
-  class PropertyFilterSpecificationContext {
+  static class PropertyFilterSpecificationContext {
 
-    private Map<String, Path> paths = new HashMap<>();
+    private final Map<String, Path> paths = new HashMap<>();
     private int rootHashCode = 0;
 
     public Path path(Root root, String propertyName) {
@@ -192,8 +192,14 @@ public class PropertyFilterSpecification<T> implements Specification<T> {
           continue;
         }
 
-        Path tmp = path.get(name);
-        if (!ClassUtil.isBasicType(tmp.getJavaType())) {
+        Path tmp;
+        try {
+          tmp = path.get(name);
+          if (!ClassUtil.isBasicType(tmp.getJavaType())) {
+            tmp = ((From) path).join(name, JoinType.LEFT);
+            paths.put(key, tmp);
+          }
+        } catch (ClassCastException e) {
           tmp = ((From) path).join(name, JoinType.LEFT);
           paths.put(key, tmp);
         }
