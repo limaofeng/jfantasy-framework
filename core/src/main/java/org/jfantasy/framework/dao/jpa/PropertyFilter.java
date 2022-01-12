@@ -91,10 +91,11 @@ public class PropertyFilter {
     return this.propertyName;
   }
 
-  public Object getPropertyValue() {
-    return this.propertyValue;
+  public <T> T getPropertyValue() {
+    return (T) this.propertyValue;
   }
 
+  @SuppressWarnings("unchecked")
   public <T> T getPropertyValue(Class<T> clazz) {
     return clazz.cast(this.propertyValue);
   }

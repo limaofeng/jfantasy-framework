@@ -18,9 +18,9 @@ import org.springframework.util.Assert;
  */
 public class PropertyFilterSpecification<T> implements Specification<T> {
 
-  private final List<PropertyFilter> filters;
-  private final Class<?> entityClass;
-  private final PropertyFilterSpecificationContext context;
+  private List<PropertyFilter> filters;
+  private Class<?> entityClass;
+  private PropertyFilterSpecificationContext context;
 
   public PropertyFilterSpecification(Class<T> entityClass, List<PropertyFilter> filters) {
     this.entityClass = entityClass;
@@ -170,9 +170,9 @@ public class PropertyFilterSpecification<T> implements Specification<T> {
     throw new RuntimeException("不支持的查询");
   }
 
-  static class PropertyFilterSpecificationContext {
+  class PropertyFilterSpecificationContext {
 
-    private final Map<String, Path> paths = new HashMap<>();
+    private Map<String, Path> paths = new HashMap<>();
     private int rootHashCode = 0;
 
     public Path path(Root root, String propertyName) {
