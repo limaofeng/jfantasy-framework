@@ -57,7 +57,7 @@ import org.springframework.util.StringUtils;
 @EnableConfigurationProperties(MybatisProperties.class)
 public class MyBatisConfig {
 
-  private DruidDataSource dataSource;
+  private final DruidDataSource dataSource;
 
   private final MybatisProperties properties;
 
@@ -97,8 +97,7 @@ public class MyBatisConfig {
     this.resourceLoader = resourceLoader;
     this.databaseIdProvider = databaseIdProvider.getIfAvailable();
     this.configurationCustomizers =
-        ObjectUtil.defaultValue(
-            configurationCustomizersProvider.getIfAvailable(), () -> new ArrayList<>());
+        ObjectUtil.defaultValue(configurationCustomizersProvider.getIfAvailable(), ArrayList::new);
     this.configurationCustomizers.add(0, mybatisConfigurationCustomizer());
 
     // Mybatis DataSource
@@ -176,8 +175,7 @@ public class MyBatisConfig {
   @Bean
   public DataBaseKeyGenerator dataBaseKeyGenerator(
       @Value("${spring.jfantasy.sequence.pool-size:10}") Integer poolSize) {
-    DataBaseKeyGenerator dataBaseKeyGenerator = new DataBaseKeyGenerator(poolSize);
-    return dataBaseKeyGenerator;
+    return new DataBaseKeyGenerator(poolSize);
   }
 
   public ConfigurationCustomizer mybatisConfigurationCustomizer() {
