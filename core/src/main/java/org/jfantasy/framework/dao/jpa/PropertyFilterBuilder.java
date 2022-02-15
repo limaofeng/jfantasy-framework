@@ -31,17 +31,23 @@ public class PropertyFilterBuilder {
   /**
    * 等于
    *
-   * @param name
-   * @param value
-   * @param <T>
-   * @return
+   * @param name 字段名
+   * @param value 值
+   * @param <T> 泛型
+   * @return PropertyFilterBuilder
    */
   public <T> PropertyFilterBuilder equal(String name, T value) {
     this.filters.add(new PropertyFilter(MatchType.EQ, name, value));
     return this;
   }
 
-  /** 模糊查询 */
+  /**
+   * 模糊查询
+   *
+   * @param name 字段名
+   * @param value 值
+   * @return PropertyFilterBuilder
+   */
   public PropertyFilterBuilder contains(String name, String value) {
     this.filters.add(new PropertyFilter(MatchType.CONTAINS, name, value));
     return this;
@@ -97,24 +103,33 @@ public class PropertyFilterBuilder {
   }
 
   /** in */
-  public <T> PropertyFilterBuilder in(String name, T... value) {
+  @SafeVarargs
+  public final <T> PropertyFilterBuilder in(String name, T... value) {
     this.filters.add(new PropertyFilter(MatchType.IN, name, value));
     return this;
   }
 
   /**
-   * @param name
-   * @param value
-   * @param <T>
-   * @return
+   * @param name 名称
+   * @param value 值
+   * @param <T> 泛型
+   * @return PropertyFilterBuilder
    */
   public <T> PropertyFilterBuilder in(String name, List<T> value) {
     this.filters.add(new PropertyFilter(MatchType.IN, name, value));
     return this;
   }
 
-  /** not in */
-  public <T> PropertyFilterBuilder notIn(String name, T... value) {
+  /**
+   * not in
+   *
+   * @param name 名称
+   * @param value 值
+   * @param <T> 泛型
+   * @return PropertyFilterBuilder
+   */
+  @SafeVarargs
+  public final <T> PropertyFilterBuilder notIn(String name, T... value) {
     this.filters.add(new PropertyFilter(MatchType.NOT_IN, name, value));
     return this;
   }
@@ -164,7 +179,8 @@ public class PropertyFilterBuilder {
     return this;
   }
 
-  public PropertyFilterBuilder and(List<PropertyFilter>... filters) {
+  @SafeVarargs
+  public final PropertyFilterBuilder and(List<PropertyFilter>... filters) {
     this.filters.add(new PropertyFilter(MatchType.AND, Arrays.asList(filters)));
     return this;
   }
@@ -174,7 +190,8 @@ public class PropertyFilterBuilder {
     return this;
   }
 
-  public PropertyFilterBuilder or(List<PropertyFilter>... filters) {
+  @SafeVarargs
+  public final PropertyFilterBuilder or(List<PropertyFilter>... filters) {
     this.filters.add(new PropertyFilter(MatchType.OR, Arrays.asList(filters)));
     return this;
   }
@@ -194,7 +211,8 @@ public class PropertyFilterBuilder {
     return this;
   }
 
-  public PropertyFilterBuilder not(List<PropertyFilter>... filters) {
+  @SafeVarargs
+  public final PropertyFilterBuilder not(List<PropertyFilter>... filters) {
     this.filters.add(new PropertyFilter(MatchType.NOT, Arrays.asList(filters)));
     return this;
   }

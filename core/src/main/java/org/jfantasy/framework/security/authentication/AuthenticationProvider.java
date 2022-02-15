@@ -13,17 +13,17 @@ public interface AuthenticationProvider<T extends Authentication> {
   /**
    * 判断是否支持此身份认证逻辑
    *
-   * @param authentication
-   * @return
+   * @param authentication 身份验证
+   * @return Boolean
    */
   boolean supports(Class<? extends Authentication> authentication);
 
   /**
    * 进行身份验证
    *
-   * @param authentication
-   * @return
-   * @throws AuthenticationException
+   * @param authentication 身份验证
+   * @return Boolean
+   * @throws AuthenticationException 异常
    */
   Authentication authenticate(T authentication) throws AuthenticationException;
 }

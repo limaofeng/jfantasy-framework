@@ -655,8 +655,8 @@ public abstract class StringUtil {
   /**
    * 下划线转驼峰命名
    *
-   * @param source
-   * @return
+   * @param source 原字符串
+   * @return 字符串
    */
   public static String camelCase(String source) {
     return Arrays.stream(StringUtil.tokenizeToStringArray(source, "_"))
@@ -667,8 +667,8 @@ public abstract class StringUtil {
   /**
    * 驼峰转下划线命名
    *
-   * @param source
-   * @return
+   * @param source 原字符串
+   * @return 字符串
    */
   public static String snakeCase(String source) {
     return ParsingUtils.reconcatenateCamelCase(source, "_");

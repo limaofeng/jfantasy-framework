@@ -12,9 +12,9 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
  *
  * @author limaofeng
  */
-public class GraphQLErrorUtils {
+public class GraphqlErrorUtil {
 
-  public static DefaultGraphQLError buildGraphQLError(
+  public static DefaultGraphQLError buildGraphqlError(
       ErrorContext context, String errorCode, Exception e) {
     DefaultGraphQLError error = new DefaultGraphQLError(context);
     ErrorUtils.fill(error, e);
@@ -22,7 +22,7 @@ public class GraphQLErrorUtils {
     return error;
   }
 
-  public static DefaultGraphQLError buildGraphQLError(
+  public static DefaultGraphQLError buildGraphqlError(
       ErrorContext context, String errorCode, String message) {
     DefaultGraphQLError error = new DefaultGraphQLError(context);
     ErrorUtils.fill(error, new Exception(message));
@@ -30,7 +30,7 @@ public class GraphQLErrorUtils {
     return error;
   }
 
-  public static DefaultGraphQLError buildGraphQLError(
+  public static DefaultGraphQLError buildGraphqlError(
       ErrorContext context, String errorCode, Exception e, Map<String, Object> extensions) {
     DefaultGraphQLError error = new DefaultGraphQLError(context);
     ErrorUtils.fill(error, e);
@@ -39,7 +39,7 @@ public class GraphQLErrorUtils {
     return error;
   }
 
-  public static DefaultGraphQLError buildGraphQLError(
+  public static DefaultGraphQLError buildGraphqlError(
       ErrorContext context, String errorCode, String message, Map<String, Object> extensions) {
     DefaultGraphQLError error = new DefaultGraphQLError(context);
     ErrorUtils.fill(error, new Exception(message));
@@ -48,7 +48,7 @@ public class GraphQLErrorUtils {
     return error;
   }
 
-  public static DefaultGraphQLError buildGraphQLError(ErrorContext context, Exception e) {
+  public static DefaultGraphQLError buildGraphqlError(ErrorContext context, Exception e) {
     DefaultGraphQLError error = new DefaultGraphQLError(context);
     if (e instanceof UndeclaredThrowableException) {
       e = (Exception) ((UndeclaredThrowableException) e).getUndeclaredThrowable();

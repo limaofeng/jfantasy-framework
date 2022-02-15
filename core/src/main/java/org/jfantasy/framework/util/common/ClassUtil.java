@@ -575,8 +575,8 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
    * 获取 目标对象
    *
    * @param proxy 代理对象
-   * @return
-   * @throws Exception
+   * @return T
+   * @throws Exception 异常
    */
   public static <T> T getTarget(T proxy) throws Exception {
     if (!AopUtils.isAopProxy(proxy)) {

@@ -1032,11 +1032,11 @@ public final class ObjectUtil {
   /**
    * 比较两个集合
    *
-   * @param first
-   * @param second
-   * @param comparator
+   * @param first 第一个集合
+   * @param second 第二个集合
+   * @param comparator 比较方法
    * @param <T>
-   * @return
+   * @return CompareResults
    */
   public static <T> CompareResults<T> compare(
       Collection<T> first, Collection<T> second, Comparator<T> comparator) {

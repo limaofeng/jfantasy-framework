@@ -8,8 +8,8 @@ import java.util.*;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.ConvertUtilsBean;
 import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.beanutils.converters.DateConverter;
 import org.apache.commons.lang3.StringUtils;
+import org.jfantasy.framework.dao.hibernate.util.converters.DateConverter;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,9 +40,6 @@ public final class ReflectionUtils {
           "yyyy-MM-dd HH:mm",
           "yyyyMMdd",
           "yyyyMMddHHmmss",
-          "yyyyMMdd'T'HHmmss",
-          "yyyy-MM-dd'T'HH:mm:ssXXX",
-          "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
         });
     CONVERT_UTILS.register(dc, Date.class);
   }

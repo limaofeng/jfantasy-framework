@@ -7,9 +7,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
-/** @Description @author ChenWenJie @Data 2020/11/9 4:59 下午 */
+/**
+ * Limit Page Request
+ *
+ * @author limaofeng
+ */
 public class LimitPageRequest implements Pageable, Serializable {
-  private static final long serialVersionUID = -4541509938956089562L;
 
   private final int page;
   private final int size;
@@ -33,7 +36,7 @@ public class LimitPageRequest implements Pageable, Serializable {
    *
    * @param page 从零开始的页面索引。
    * @param size 要返回的页面大小。
-   * @return
+   * @return LimitPageRequest
    */
   public static LimitPageRequest of(int page, int size) {
     return of(page, size, Sort.unsorted());
@@ -44,7 +47,7 @@ public class LimitPageRequest implements Pageable, Serializable {
    *
    * @param page 从零开始的页面索引。
    * @param size 要返回的页面大小。
-   * @param sort
+   * @param sort Sort
    * @since 2.0
    */
   public static LimitPageRequest of(int page, int size, Sort sort) {

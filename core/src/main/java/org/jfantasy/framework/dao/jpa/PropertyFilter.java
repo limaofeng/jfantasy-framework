@@ -69,6 +69,7 @@ public class PropertyFilter {
     this.propertyValue = value;
   }
 
+  @SafeVarargs
   public <T> PropertyFilter(MatchType matchType, String propertyName, T... value) {
     this.initialize(matchType, propertyName);
     this.propertyValue = value;

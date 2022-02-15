@@ -11,17 +11,20 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
 import org.springframework.util.SystemPropertyUtils;
 
-/** Properties的操作的工具类,为Properties提供一个代理增加相关工具方法如 getRequiredString(),getInt(),getBoolean()等方法 */
+/**
+ * Properties 的操作的工具类 <br>
+ * 为Properties提供一个代理增加相关工具方法如 <br>
+ * getRequiredString(),getInt(),getBoolean() 等方法
+ */
 public class PropertiesHelper {
 
   public static final Log LOGGER = LogFactory.getLog(PropertiesHelper.class);
 
-  private static final PropertiesHelper nullPropertiesHelper =
+  private static final PropertiesHelper NULL_PROPERTIES_HELPER =
       new PropertiesHelper(new Properties());
 
-  private List<Properties> propertiesList = new ArrayList<Properties>();
-  private ConcurrentMap<String, Properties> propertiesCache =
-      new ConcurrentHashMap<String, Properties>();
+  private final List<Properties> propertiesList = new ArrayList<>();
+  private final ConcurrentMap<String, Properties> propertiesCache = new ConcurrentHashMap<>();
 
   public static PropertiesHelper load(String propertiesPath) {
     try {
@@ -34,7 +37,7 @@ public class PropertiesHelper {
       return helper;
     } catch (IOException e) {
       LOGGER.error(e.getMessage(), e);
-      return nullPropertiesHelper;
+      return NULL_PROPERTIES_HELPER;
     }
   }
 
@@ -237,7 +240,7 @@ public class PropertiesHelper {
         }
       }
     }
-    return values.toArray(new String[values.size()]);
+    return values.toArray(new String[0]);
   }
 
   public Object setProperty(String key, String value) {
@@ -297,7 +300,7 @@ public class PropertiesHelper {
   public static Iterator<URL> getResources(
       String resourceName, Class callingClass, boolean aggregate) throws IOException {
 
-    AggregateIterator<URL> iterator = new AggregateIterator<URL>();
+    AggregateIterator<URL> iterator = new AggregateIterator<>();
 
     iterator.addEnumeration(
         Thread.currentThread().getContextClassLoader().getResources(resourceName));
@@ -325,10 +328,10 @@ public class PropertiesHelper {
 
   static class AggregateIterator<E> implements Iterator<E> {
 
-    LinkedList<Enumeration<E>> enums = new LinkedList<Enumeration<E>>();
+    LinkedList<Enumeration<E>> enums = new LinkedList<>();
     Enumeration<E> cur = null;
     E next = null;
-    Set<E> loaded = new HashSet<E>();
+    Set<E> loaded = new HashSet<>();
 
     public AggregateIterator<E> addEnumeration(Enumeration<E> e) {
       if (e.hasMoreElements()) {

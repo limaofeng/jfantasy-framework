@@ -3,12 +3,14 @@ package org.jfantasy.framework.jackson.models;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import java.util.List;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * @author limaofeng
  * @version V1.0
  * @date 2019-03-07 10:43
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class ListOutput extends Output<ListOutput.ChannelList> {
 

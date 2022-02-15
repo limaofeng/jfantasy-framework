@@ -44,6 +44,7 @@ public class PathUtil {
           url = PathUtil.class.getResource("");
           LOGGER.debug("PathUtil.class.getResource(\"\") 获取的 url = " + url);
         }
+        assert url != null;
         PathUtil.WEBCLASSES_PATH =
             new File(RegexpUtil.replace(url.getPath(), "[\\/]$", "")).getAbsolutePath();
         if (WEBCLASSES_PATH.indexOf("WEB-INF") > 0) {
@@ -165,7 +166,6 @@ public class PathUtil {
    * @param relatedPath 文件路径
    * @param cls 相对class
    * @return 文件路径
-   * @throws IOException
    */
   @Deprecated
   public static String getFullPathRelateClass(String relatedPath, Class<?> cls) throws IOException {
@@ -265,7 +265,7 @@ public class PathUtil {
         pathPrefix = pathPrefix + "/";
       }
     }
-    return pathPrefixes.toArray(new String[pathPrefixes.size()]);
+    return pathPrefixes.toArray(new String[0]);
   }
 
   public static URL getTmpdir() {

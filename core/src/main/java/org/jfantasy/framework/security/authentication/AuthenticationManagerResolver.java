@@ -12,8 +12,8 @@ public interface AuthenticationManagerResolver<C> {
   /**
    * 查询 AuthenticationManager
    *
-   * @param context
-   * @return
+   * @param context 上下文
+   * @return AuthenticationManager
    */
   AuthenticationManager resolve(C context);
 }

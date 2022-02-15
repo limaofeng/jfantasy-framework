@@ -6,6 +6,11 @@ import com.nimbusds.jose.crypto.MACVerifier;
 import java.text.ParseException;
 import org.springframework.stereotype.Service;
 
+/**
+ * JwtToken 服务实现
+ *
+ * @author limaofeng
+ */
 @Service
 public class JwtTokenServiceImpl implements JwtTokenService {
   @Override

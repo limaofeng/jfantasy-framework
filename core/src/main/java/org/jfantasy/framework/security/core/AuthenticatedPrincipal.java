@@ -10,7 +10,7 @@ public interface AuthenticatedPrincipal {
   /**
    * 当事人名称
    *
-   * @return
+   * @return String
    */
   String getName();
 }
