@@ -15,8 +15,8 @@ import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.jfantasy.framework.dao.BaseBusBusinessEntity;
 import org.jfantasy.framework.dao.LimitPageRequest;
+import org.jfantasy.framework.dao.LogicalDeletion;
 import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.dao.hibernate.util.HibernateUtils;
 import org.jfantasy.framework.spring.SpringBeanUtils;
@@ -370,7 +370,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
   public String getIdName(Class entityClass) {
     JpaRepository repository = getJpaRepository(entityClass);
     JpaEntityInformation<T, ?> entityInformation = repository.getJpaEntityInformation();
-    return entityInformation.getIdAttribute().getName();
+    return Objects.requireNonNull(entityInformation.getIdAttribute()).getName();
   }
 
   public JpaRepository getJpaRepository(Class domainClass) {
@@ -378,6 +378,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
       Arrays.stream(
               SpringBeanUtils.getApplicationContext().getBeanNamesForType(JpaRepository.class))
           .map(name -> SpringBeanUtils.getBean(name, JpaRepository.class))
+          .filter(Objects::nonNull)
           .forEach(
               repository -> {
                 Class entityType =
@@ -391,8 +392,8 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
 
   @Override
   public void delete(T entity) {
-    if (BaseBusBusinessEntity.class.isAssignableFrom(this.getDomainClass())) {
-      ((BaseBusBusinessEntity) entity).setDeleted(true);
+    if (LogicalDeletion.class.isAssignableFrom(this.getDomainClass())) {
+      ((LogicalDeletion) entity).setDeleted(true);
       List<FieldWarp> fields =
           Arrays.stream(ClassUtil.getDeclaredFields(this.getDomainClass()))
               .filter(
@@ -426,7 +427,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
       for (FieldWarp field : fields) {
         field.delete(entity);
       }
-      ((BaseBusBusinessEntity) entity).setDeleted(true);
+      ((LogicalDeletion) entity).setDeleted(true);
       this.save(entity);
     } else {
       super.delete(entity);
@@ -446,11 +447,12 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
   }
 
   protected <S extends T> Specification<S> defaultSpecification(Specification<S> spec) {
-    if (BaseBusBusinessEntity.class.isAssignableFrom(this.getDomainClass())) {
+    if (LogicalDeletion.class.isAssignableFrom(this.getDomainClass())) {
+      String fieldName = LogicalDeletion.getDeletedFieldName(this.getDomainClass());
       if (spec == null) {
-        spec = new ExcludeDeletedSpecification();
+        spec = new ExcludeDeletedSpecification(fieldName);
       } else {
-        spec = spec.and(new ExcludeDeletedSpecification());
+        spec = spec.and(new ExcludeDeletedSpecification(fieldName));
       }
     }
     return spec;
@@ -482,10 +484,17 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
     }
   }
 
-  public class ExcludeDeletedSpecification implements Specification {
+  public static class ExcludeDeletedSpecification implements Specification {
+
+    private final String fieldName;
+
+    public ExcludeDeletedSpecification(String fieldName) {
+      this.fieldName = fieldName;
+    }
+
     @Override
     public Predicate toPredicate(Root root, CriteriaQuery query, CriteriaBuilder builder) {
-      return builder.notEqual(root.get("deleted"), true);
+      return builder.notEqual(root.get(this.fieldName), true);
     }
   }
 

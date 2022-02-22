@@ -2,16 +2,23 @@ package org.jfantasy.framework.dao;
 
 import java.io.Serializable;
 import java.util.Date;
-import javax.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import javax.persistence.Column;
+import javax.persistence.MappedSuperclass;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-/** @author limaofeng */
-@Data
+/**
+ * 通用基础 Entity
+ *
+ * @author limaofeng
+ */
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
 @SuperBuilder
-@NoArgsConstructor
 @AllArgsConstructor
 @MappedSuperclass
 public abstract class BaseBusEntity implements Serializable {

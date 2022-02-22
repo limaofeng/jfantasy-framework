@@ -3,8 +3,8 @@ package org.jfantasy.framework.dao.hibernate.interceptors;
 import java.io.Serializable;
 import org.hibernate.EmptyInterceptor;
 import org.hibernate.type.Type;
-import org.jfantasy.framework.dao.BaseBusBusinessEntity;
 import org.jfantasy.framework.dao.BaseBusEntity;
+import org.jfantasy.framework.dao.LogicalDeletion;
 import org.jfantasy.framework.security.LoginUser;
 import org.jfantasy.framework.security.SpringSecurityUtils;
 import org.jfantasy.framework.util.common.DateUtil;
@@ -60,7 +60,10 @@ public class BusEntityInterceptor extends EmptyInterceptor {
       }
       int count = 0;
       int maxCount = 4;
-      if (entity instanceof BaseBusBusinessEntity) {
+      String deletedFieldName = "";
+
+      if (entity instanceof LogicalDeletion) {
+        deletedFieldName = LogicalDeletion.getDeletedFieldName(entity.getClass());
         maxCount++;
       }
       for (int i = 0; i < propertyNames.length; i++) {
@@ -72,10 +75,10 @@ public class BusEntityInterceptor extends EmptyInterceptor {
             || BaseBusEntity.FIELD_UPDATED_AT.equals(propertyNames[i])) {
           state[i] = DateUtil.now().clone();
           count++;
-        } else if (BaseBusBusinessEntity.FIELD_DELETED.equals(propertyNames[i])) {
+        } else if (deletedFieldName.equals(propertyNames[i])) {
           state[i] = false;
-          assert entity instanceof BaseBusBusinessEntity;
-          ((BaseBusBusinessEntity) entity).setDeleted(false);
+          assert entity instanceof LogicalDeletion;
+          ((LogicalDeletion) entity).setDeleted(false);
         }
         if (count >= maxCount) {
           return true;
