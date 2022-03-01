@@ -87,7 +87,7 @@ public class LimitInterceptor implements Interceptor {
     Map<String, Object> parameter = (Map<String, Object>) queryArgs[PARAMETER_INDEX];
     Pager pager = getPager(parameter);
     assert pager != null;
-    if (pager.getFirst() == 0) {
+    if (pager.getOffset() == 0) {
       pager.reset(executeForCount(ms, parameter));
     }
     pager.reset(executeForList(invocation, ms, parameter));
@@ -195,10 +195,10 @@ public class LimitInterceptor implements Interceptor {
       Pager<?> pager = getPager(parameterObject);
       assert pager != null;
       int pageSize =
-          pager.getTotalCount() - pager.getFirst() < pager.getPageSize()
-              ? pager.getTotalCount() - pager.getFirst()
+          pager.getTotalCount() - pager.getOffset() < pager.getPageSize()
+              ? pager.getTotalCount() - pager.getOffset()
               : pager.getPageSize();
-      String newSql = this.dialect.getLimitString(mapperSQL, pager.getFirst(), pageSize);
+      String newSql = this.dialect.getLimitString(mapperSQL, pager.getOffset(), pageSize);
       return sqlSourceParser.parse(newSql, parameterType, parameterObject);
     }
   }

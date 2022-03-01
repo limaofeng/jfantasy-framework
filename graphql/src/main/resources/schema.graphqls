@@ -6,6 +6,12 @@ type Query {
     vesion: String
 }
 
+enum UpdateMode {
+    ADD
+    REMOVE
+    REPLACE
+}
+
 # 页信息
 type PageInfo {
     # 是否存在下一页

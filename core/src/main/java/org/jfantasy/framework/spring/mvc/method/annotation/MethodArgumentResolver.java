@@ -49,10 +49,12 @@ public abstract class MethodArgumentResolver implements HandlerMethodArgumentRes
       throws Exception {
     String name = getParameterName(parameter);
 
+    assert mavContainer != null;
     Object target =
         mavContainer.containsAttribute(name)
             ? mavContainer.getModel().get(name)
             : createAttribute(name, parameter, binderFactory, request);
+    assert binderFactory != null;
     WebDataBinder binder = binderFactory.createBinder(request, target, name);
     target = binder.getTarget();
     if (target != null) {
@@ -72,7 +74,7 @@ public abstract class MethodArgumentResolver implements HandlerMethodArgumentRes
   }
 
   protected String getParameterName(MethodParameter parameter) {
-    return parameter.getParameterAnnotation(FormModel.class).value();
+    return Objects.requireNonNull(parameter.getParameterAnnotation(FormModel.class)).value();
   }
 
   protected Object createAttribute(
@@ -277,24 +279,15 @@ public abstract class MethodArgumentResolver implements HandlerMethodArgumentRes
     return name.substring(begin, end);
   }
 
-  @SuppressWarnings("unchecked")
   protected ServletRequest prepareServletRequest(
       Object target, NativeWebRequest request, MethodParameter parameter) {
 
-    String modelPrefixName = parameter.getParameterAnnotation(FormModel.class).value();
+    String modelPrefixName =
+        Objects.requireNonNull(parameter.getParameterAnnotation(FormModel.class)).value();
 
     HttpServletRequest nativeRequest = (HttpServletRequest) request.getNativeRequest();
-    MultipartRequest multipartRequest =
-        WebUtils.getNativeRequest(nativeRequest, MultipartRequest.class);
 
-    MockHttpServletRequest mockRequest;
-    if (multipartRequest != null) {
-      MockMultipartHttpServletRequest mockMultipartRequest = new MockMultipartHttpServletRequest();
-      mockMultipartRequest.getMultiFileMap().putAll(multipartRequest.getMultiFileMap());
-      mockRequest = mockMultipartRequest;
-    } else {
-      mockRequest = new MockHttpServletRequest();
-    }
+    MockHttpServletRequest mockRequest = withMockRequest(nativeRequest);
 
     for (Entry<String, String> entry : getUriTemplateVariables(request).entrySet()) {
       String parameterName = entry.getKey();
@@ -304,10 +297,9 @@ public abstract class MethodArgumentResolver implements HandlerMethodArgumentRes
       }
     }
 
-    for (Object parameterEntry : nativeRequest.getParameterMap().entrySet()) {
-      Entry<String, String[]> entry = (Entry<String, String[]>) parameterEntry;
-      String parameterName = entry.getKey();
-      String[] value = entry.getValue();
+    for (Entry<String, String[]> parameterEntry : nativeRequest.getParameterMap().entrySet()) {
+      String parameterName = parameterEntry.getKey();
+      String[] value = parameterEntry.getValue();
       if (isFormModelAttribute(parameterName, modelPrefixName)) {
         mockRequest.setParameter(getNewParameterName(parameterName, modelPrefixName), value);
       }
@@ -350,7 +342,8 @@ public abstract class MethodArgumentResolver implements HandlerMethodArgumentRes
       throws BindException {
 
     boolean validateParameter = validateParameter(parameter);
-    Annotation[] annotations = binder.getTarget().getClass().getAnnotations();
+    Annotation[] annotations =
+        Objects.requireNonNull(binder.getTarget()).getClass().getAnnotations();
     for (Annotation annot : annotations) {
       if (annot.annotationType().getSimpleName().startsWith("Valid") && validateParameter) {
         Object hints = AnnotationUtils.getValue(annot);
@@ -386,10 +379,24 @@ public abstract class MethodArgumentResolver implements HandlerMethodArgumentRes
 
   protected boolean isBindExceptionRequired(WebDataBinder binder, MethodParameter parameter) {
     int i = parameter.getParameterIndex();
-    Class<?>[] paramTypes = parameter.getMethod().getParameterTypes();
+    Class<?>[] paramTypes = Objects.requireNonNull(parameter.getMethod()).getParameterTypes();
     boolean hasBindingResult =
         paramTypes.length > (i + 1) && Errors.class.isAssignableFrom(paramTypes[i + 1]);
 
     return !hasBindingResult;
+  }
+
+  protected MockHttpServletRequest withMockRequest(HttpServletRequest nativeRequest) {
+    MultipartRequest multipartRequest =
+        WebUtils.getNativeRequest(nativeRequest, MultipartRequest.class);
+    MockHttpServletRequest mockRequest;
+    if (multipartRequest != null) {
+      MockMultipartHttpServletRequest mockMultipartRequest = new MockMultipartHttpServletRequest();
+      mockMultipartRequest.getMultiFileMap().putAll(multipartRequest.getMultiFileMap());
+      mockRequest = mockMultipartRequest;
+    } else {
+      mockRequest = new MockHttpServletRequest();
+    }
+    return mockRequest;
   }
 }

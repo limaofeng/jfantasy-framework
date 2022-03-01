@@ -136,13 +136,13 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
   @Override
   public Pager<T> findPager(Pager<T> pager, Specification<T> spec) {
     Pageable pageRequest;
-    if (pager.getFirst() == 0) {
+    if (pager.getOffset() == 0) {
       pager.reset((int) this.count(spec));
       pageRequest =
           PageRequest.of(pager.getCurrentPage() - 1, pager.getPageSize(), pager.getSort());
     } else {
       pager.setTotalCount((int) this.count(spec));
-      pageRequest = LimitPageRequest.of(pager.getFirst(), pager.getPageSize(), pager.getSort());
+      pageRequest = LimitPageRequest.of(pager.getOffset(), pager.getPageSize(), pager.getSort());
     }
     Page<T> page = this.findAll(spec, pageRequest);
     pager.reset((int) page.getTotalElements(), page.getContent());
@@ -473,11 +473,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
 
     public void delete(Object entity) {
       if (ClassUtil.isList(field.getType())) {
-        ((List) this.getValue(entity))
-            .forEach(
-                value -> {
-                  repository.delete(value);
-                });
+        repository.deleteAll(((List) this.getValue(entity)));
       } else {
         repository.delete(this.getValue(entity));
       }
@@ -515,7 +511,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
   }
 
   protected <C> Query setPageParameter(Query q, Pager<C> pagination) {
-    q.setFirstResult(pagination.getFirst());
+    q.setFirstResult(pagination.getOffset());
     q.setMaxResults(pagination.getPageSize());
     return q;
   }

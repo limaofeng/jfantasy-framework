@@ -14,16 +14,13 @@ import org.jfantasy.framework.util.common.StringUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.MethodParameter;
 import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockMultipartHttpServletRequest;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.method.support.ModelAndViewContainer;
-import org.springframework.web.multipart.MultipartRequest;
 import org.springframework.web.servlet.HandlerMapping;
-import org.springframework.web.util.WebUtils;
 
 public class PropertyFilterModelAttributeMethodProcessor extends MethodArgumentResolver {
 
@@ -143,16 +140,8 @@ public class PropertyFilterModelAttributeMethodProcessor extends MethodArgumentR
   protected ServletRequest prepareServletRequest(
       Object target, NativeWebRequest request, MethodParameter parameter) {
     HttpServletRequest nativeRequest = (HttpServletRequest) request.getNativeRequest();
-    MultipartRequest multipartRequest =
-        WebUtils.getNativeRequest(nativeRequest, MultipartRequest.class);
-    MockHttpServletRequest mockRequest;
-    if (multipartRequest != null) {
-      MockMultipartHttpServletRequest mockMultipartRequest = new MockMultipartHttpServletRequest();
-      mockMultipartRequest.getMultiFileMap().putAll(multipartRequest.getMultiFileMap());
-      mockRequest = mockMultipartRequest;
-    } else {
-      mockRequest = new MockHttpServletRequest();
-    }
+    MockHttpServletRequest mockRequest = withMockRequest(nativeRequest);
+
     for (Map.Entry<String, String> entry : getUriTemplateVariables(request).entrySet()) {
       String parameterName = entry.getKey();
       String value = entry.getValue();

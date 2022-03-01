@@ -34,10 +34,10 @@ public class DaoUtil {
   /**
    * 多数据分页
    *
-   * @param <T>
-   * @param pager
-   * @param param
-   * @param callBacks
+   * @param <T> 类型
+   * @param pager 分页对象
+   * @param param 参数
+   * @param callBacks 回调
    * @return Pager<T>
    */
   public static <T> Pager<T> findPager(
@@ -52,7 +52,7 @@ public class DaoUtil {
       pagers.put(page, callBack);
     }
     pager.reset(totalCount, new ArrayList<>());
-    int first = pager.getFirst();
+    int first = pager.getOffset();
     int pageSize = pager.getPageSize();
     totalCount = 0;
     for (Map.Entry<Pager<T>, FindPagerCallBack<T>> entry : pagers.entrySet()) {
@@ -60,7 +60,7 @@ public class DaoUtil {
       if (first < totalCount && entry.getKey().getTotalCount() > 0) {
         int cFirst =
             first - (totalCount - entry.getKey().getTotalCount()) + pager.getPageItems().size();
-        entry.getKey().setFirst(cFirst);
+        entry.getKey().setOffset(cFirst);
         entry.getKey().setPageSize(pageSize - pager.getPageItems().size());
         Pager<T> page = entry.getValue().call(entry.getKey(), param);
         pager.getPageItems().addAll(page.getPageItems());

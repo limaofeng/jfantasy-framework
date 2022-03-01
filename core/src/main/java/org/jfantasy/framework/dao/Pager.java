@@ -44,7 +44,7 @@ public class Pager<T> implements Pagination, Serializable {
   @JsonProperty("page")
   private int currentPage = 1;
   /** 开始数据索引 */
-  private int first = 0;
+  private int offset = 0;
   /** 排序字段 */
   @JsonProperty("sort")
   @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -88,11 +88,11 @@ public class Pager<T> implements Pagination, Serializable {
    * 根据下标查询时使用
    *
    * @param orderBy
-   * @param first
+   * @param offset
    * @param size
    */
-  public Pager(OrderBy orderBy, int first, int size) {
-    this.first = first;
+  public Pager(OrderBy orderBy, int offset, int size) {
+    this.offset = offset;
     this.pageSize = size;
     this.orderBy = orderBy;
   }
@@ -127,10 +127,10 @@ public class Pager<T> implements Pagination, Serializable {
     return pager;
   }
 
-  public static <T> Pager<T> newPager(int size, OrderBy orderBy, int first) {
+  public static <T> Pager<T> newPager(int size, OrderBy orderBy, int offset) {
     Pager<T> pager = new Pager<>(size);
     pager.setOrderBy(orderBy);
-    pager.setFirst(first);
+    pager.setOffset(offset);
     return pager;
   }
 
@@ -158,8 +158,8 @@ public class Pager<T> implements Pagination, Serializable {
     return pageSize;
   }
 
-  public long getOffset() {
-    return this.getFirst();
+  public int getOffset() {
+    return this.offset;
   }
 
   @JsonIgnore
@@ -183,14 +183,10 @@ public class Pager<T> implements Pagination, Serializable {
   /**
    * 返回翻页开始位置
    *
-   * @param first 数据开始位置
+   * @param offset 数据开始位置
    */
-  public void setFirst(int first) {
-    this.first = first;
-  }
-
-  public int getFirst() {
-    return first;
+  public void setOffset(int offset) {
+    this.offset = offset;
   }
 
   /**
@@ -258,8 +254,8 @@ public class Pager<T> implements Pagination, Serializable {
   public String toString() {
     return "Pager [totalCount="
         + totalCount
-        + ", first="
-        + first
+        + ", offset="
+        + offset
         + ", pageSize="
         + pageSize
         + ", totalPage="
@@ -281,12 +277,12 @@ public class Pager<T> implements Pagination, Serializable {
     this.totalPage = totalCount % pageSize == 0 ? totalCount / pageSize : totalCount / pageSize + 1;
     if (currentPage >= totalPage) {
       setCurrentPage(totalPage);
-      setFirst((totalPage - 1) * pageSize);
+      setOffset((totalPage - 1) * pageSize);
     } else if (currentPage <= 0) {
       setCurrentPage(1);
-      setFirst(first);
+      setOffset(offset);
     } else {
-      setFirst((currentPage - 1) * pageSize);
+      setOffset((currentPage - 1) * pageSize);
     }
   }
 
@@ -304,8 +300,8 @@ public class Pager<T> implements Pagination, Serializable {
   }
 
   public RedirectAttributesWriter writeTo(RedirectAttributes attrs) {
-    if (this.getFirst() != 0) {
-      attrs.addAttribute("limit", this.getFirst() + "," + this.getPageSize());
+    if (this.getOffset() != 0) {
+      attrs.addAttribute("limit", this.getOffset() + "," + this.getPageSize());
     } else if (this.getPageSize() != DEFAULT_PAGE_SIZE) {
       attrs.addAttribute("per_page", this.getPageSize());
     }

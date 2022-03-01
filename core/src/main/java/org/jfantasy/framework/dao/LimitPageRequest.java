@@ -14,18 +14,18 @@ import org.springframework.util.Assert;
  */
 public class LimitPageRequest implements Pageable, Serializable {
 
-  private final int page;
+  private final int offset;
   private final int size;
   private final Sort sort;
 
-  public LimitPageRequest(int page, int size, Sort sort) {
-    if (page < 0) {
+  public LimitPageRequest(int offset, int size, Sort sort) {
+    if (offset < 0) {
       throw new IllegalArgumentException("Page index must not be less than zero!");
     }
-    if (size < 1) {
+    if (offset < 1) {
       throw new IllegalArgumentException("Page size must not be less than one!");
     }
-    this.page = page;
+    this.offset = offset;
     this.size = size;
     Assert.notNull(sort, "Sort must not be null!");
     this.sort = sort;
@@ -75,7 +75,7 @@ public class LimitPageRequest implements Pageable, Serializable {
 
   @Override
   public boolean isPaged() {
-    return false;
+    return true;
   }
 
   @Override
@@ -85,17 +85,17 @@ public class LimitPageRequest implements Pageable, Serializable {
 
   @Override
   public int getPageNumber() {
-    return page;
+    return offset;
   }
 
   @Override
   public long getOffset() {
-    return this.page;
+    return this.offset;
   }
 
   @Override
   public boolean hasPrevious() {
-    return page > 0;
+    return offset > 0;
   }
 
   @Override

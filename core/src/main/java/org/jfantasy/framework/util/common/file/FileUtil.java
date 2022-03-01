@@ -22,7 +22,7 @@ import org.jfantasy.framework.util.regexp.RegexpUtil;
 public class FileUtil {
 
   private static final Log LOGGER = LogFactory.getLog(FileUtil.class);
-  private static final String REGEXP_START = "[^\\/]+$";
+  private static final String REGEXP_START = "[^/]+$";
   public static final String[] UNITS = {"bytes", "KB", "MB", "GB", "TB"};
 
   static {
@@ -433,6 +433,10 @@ public class FileUtil {
     return new Date(file.lastModified());
   }
 
+  public static Date lastModified(File file) {
+    return new Date(file.lastModified());
+  }
+
   public static String getExtension(File file) {
     return getExtension(file.getName());
   }
@@ -482,7 +486,6 @@ public class FileUtil {
     return htSizes;
   }
 
-  @SuppressWarnings("unchecked")
   public static void decompress(File file, UnZipCallBack callBack) {
     Map<String, Integer> htSizes = zipHtSizes(file);
 
