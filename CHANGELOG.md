@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.9.7](https://github.com/limaofeng/jfantasy-framework/compare/v2.9.6...v2.9.7) (2022-03-06)
+
+
+### Features
+
+* 分页对象优化 ([b754218](https://github.com/limaofeng/jfantasy-framework/commit/b7542183be04a61ec829d584023ba47ab4cc7e90))
+* 可以通过 AuthorizationGraphQLServletContext 共享数据 ([dabfb74](https://github.com/limaofeng/jfantasy-framework/commit/dabfb74d181b72fa6d4c28df07636bc1a27f983a))
+* 日期格式处理 DateConverter ([c7b4f58](https://github.com/limaofeng/jfantasy-framework/commit/c7b4f58472c4c6ac0935ed1676d2035f31212564))
+* 日期格式处理 DateConverter ([647d2fb](https://github.com/limaofeng/jfantasy-framework/commit/647d2fb9b87dbde6feeb2f938396cd6f3d418aa6))
+* 逻辑删除优化 ([f8bdf32](https://github.com/limaofeng/jfantasy-framework/commit/f8bdf3277ea8d47e5c2fd67a7a7412b1781efb8e))
+
+
+### Bug Fixes
+
+* getPropertyValue 转换 cast 会有问题 ([b0d770d](https://github.com/limaofeng/jfantasy-framework/commit/b0d770d4740304038361c8fd474cf92f062bad14))
+* 使用默认的 MultipartConfigElement 配置上传逻辑 ([762e7ff](https://github.com/limaofeng/jfantasy-framework/commit/762e7ff3cd2ea76ff5a2511ff1381882a77235f6))
+* 修复 findAll size <= 0 的问题 ([f2bce89](https://github.com/limaofeng/jfantasy-framework/commit/f2bce898f86703b4e04e3a439e4d525323d0dc28))
+* 修复上个版本启动出错的问题 ([aeadf5c](https://github.com/limaofeng/jfantasy-framework/commit/aeadf5c01e43e6f93e754fd332af1c3cc85b252f))
+* 修复多层关联 ([63c4075](https://github.com/limaofeng/jfantasy-framework/commit/63c40759662e6cce7926ef47b92910a4d8be37e7))
+* 日期工具类，添加 betweenDates, diff 方法 ([79eb41d](https://github.com/limaofeng/jfantasy-framework/commit/79eb41d758d310370eb1384aa973b8bcb7e3cf74))
+* 日期转换工具类，添加新格式 ([5edfbf2](https://github.com/limaofeng/jfantasy-framework/commit/5edfbf2f50a176c4ee74f028bde023e3950ccc8a))
+* 日期转换工具类，添加新格式 ([10ad075](https://github.com/limaofeng/jfantasy-framework/commit/10ad0753bed58cbf24e1101e5118f6711515c72d))
+* 添加 Pager.newPager(size, orderBy, first) 方法 ([24455da](https://github.com/limaofeng/jfantasy-framework/commit/24455da80ebae088dca641382732c5414ed64421))
+
 ### [2.9.6](https://github.com/limaofeng/jfantasy-framework/compare/v2.9.5...v2.9.6) (2021-12-31)
 
 
