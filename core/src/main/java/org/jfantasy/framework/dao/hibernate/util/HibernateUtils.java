@@ -2,10 +2,7 @@ package org.jfantasy.framework.dao.hibernate.util;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
-import javax.persistence.Table;
+import javax.persistence.*;
 import org.jfantasy.framework.error.ValidationException;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.StringUtil;
@@ -20,6 +17,16 @@ import org.jfantasy.framework.util.ognl.OgnlUtil;
  */
 public class HibernateUtils {
 
+  public static IdClass getIdClass(Class entityClass) {
+    Class _entityClass = entityClass;
+    IdClass idClass;
+    do {
+      idClass = ClassUtil.getClassGenricType(_entityClass, IdClass.class);
+      _entityClass = _entityClass.getSuperclass();
+    } while (idClass == null && _entityClass != Object.class);
+    return idClass;
+  }
+
   public static <ID> ID getIdValue(Class entityClass, Object entity) {
     OgnlUtil ognlUtil = OgnlUtil.getInstance();
     Field[] idFields = ClassUtil.getDeclaredFields(entityClass, Id.class);
@@ -27,15 +34,27 @@ public class HibernateUtils {
       return null;
     }
     if (idFields.length > 1) {
-      IdClass idClass = ClassUtil.getClassGenricType(entityClass, IdClass.class);
+      IdClass idClass = getIdClass(entityClass);
       Serializable id = ClassUtil.newInstance((Class<Serializable>) idClass.value());
       for (Field idField : idFields) {
-        ognlUtil.setValue(idField.getName(), id, ognlUtil.getValue(idField.getName(), entity));
+        ognlUtil.setValue(
+            idField.getName(),
+            id,
+            ognlUtil.getValue(getIdFieldName(idField, idClass.value()), entity));
       }
       return (ID) id;
     } else {
-      return (ID) ClassUtil.getValue(entity, idFields[0].getName());
+      return ClassUtil.getValue(entity, idFields[0].getName());
     }
+  }
+
+  private static String getIdFieldName(Field field, Class idClass) {
+    Field fieldByIdClass = ClassUtil.getDeclaredField(idClass, field.getName());
+    if (fieldByIdClass.getType() != field.getType()
+        && field.getAnnotation(ManyToOne.class) != null) {
+      return field.getName() + "." + getIdName(field.getType());
+    }
+    return field.getName();
   }
 
   public static <T> String getIdName(Class<T> entityClass) {
@@ -45,13 +64,13 @@ public class HibernateUtils {
       throw new ValidationException("未发现主键配置:" + clazz.getName());
     }
     if (idFields.length > 1) {
-      IdClass idClass = ClassUtil.getClassGenricType(entityClass, IdClass.class);
+      IdClass idClass = getIdClass(entityClass);
       Serializable id = ClassUtil.newInstance((Class<Serializable>) idClass.value());
-      String idNames = "";
+      StringBuilder idNames = new StringBuilder();
       for (Field idField : idFields) {
-        idNames += idField.getName();
+        idNames.append(idField.getName());
       }
-      return idNames;
+      return idNames.toString();
     } else {
       return idFields[0].getName();
     }
