@@ -1,6 +1,8 @@
 package org.jfantasy.graphql.context;
 
 import graphql.kickstart.execution.context.GraphQLContext;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import javax.security.auth.Subject;
 import javax.servlet.http.HttpServletRequest;
@@ -27,6 +29,7 @@ public class AuthorizationGraphQLServletContext implements GraphQLContext {
   private HandshakeRequest handshakeRequest;
   private Authentication authentication;
   private SecurityContext securityContext;
+  private final Map<String, Object> attributes = new HashMap<>();
 
   public AuthorizationGraphQLServletContext(
       HttpServletRequest request, HttpServletResponse response, SecurityContext securityContext) {
@@ -47,11 +50,15 @@ public class AuthorizationGraphQLServletContext implements GraphQLContext {
 
   @Override
   public DataLoaderRegistry getDataLoaderRegistry() {
-    return dataLoaderRegistry != null ? dataLoaderRegistry : null;
+    return dataLoaderRegistry;
   }
 
   public void setDataLoaderRegistry(DataLoaderRegistry dataLoaderRegistry) {
     this.dataLoaderRegistry = dataLoaderRegistry;
+  }
+
+  public HandshakeRequest getHandshakeRequest() {
+    return handshakeRequest;
   }
 
   public HttpServletRequest getRequest() {
@@ -68,6 +75,14 @@ public class AuthorizationGraphQLServletContext implements GraphQLContext {
 
   public Authentication getAuthentication() {
     return authentication;
+  }
+
+  public <T> void setAttribute(String name, T o) {
+    attributes.put(name, o);
+  }
+
+  public <T> T getAttribute(String name) {
+    return (T) attributes.get(name);
   }
 
   public void setAuthentication(Authentication authentication) {
