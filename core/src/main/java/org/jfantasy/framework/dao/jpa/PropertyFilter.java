@@ -166,7 +166,9 @@ public class PropertyFilter {
     /** in */
     IN("in", (builder, name, value) -> builder.in(name, multipleValuesObjectsObjects(value))),
     /** not in */
-    NOT_IN("notIn", (builder, name, value) -> builder.notIn(name, value)),
+    NOT_IN(
+        "notIn",
+        (builder, name, value) -> builder.notIn(name, multipleValuesObjectsObjects(value))),
     /** is null */
     NULL("null", (builder, name, value) -> builder.isNull(name)),
     /** not null */
