@@ -18,9 +18,9 @@ import org.springframework.util.Assert;
  */
 public class PropertyFilterSpecification<T> implements Specification<T> {
 
-  private List<PropertyFilter> filters;
-  private Class<?> entityClass;
-  private PropertyFilterSpecificationContext context;
+  private final List<PropertyFilter> filters;
+  private final Class<?> entityClass;
+  private final PropertyFilterSpecificationContext context;
 
   public PropertyFilterSpecification(Class<T> entityClass, List<PropertyFilter> filters) {
     this.entityClass = entityClass;
@@ -69,7 +69,7 @@ public class PropertyFilterSpecification<T> implements Specification<T> {
                 filter.getMatchType()));
       }
     }
-    return conjunction(MatchType.AND, builder, predicates.stream().toArray(Predicate[]::new));
+    return conjunction(MatchType.AND, builder, predicates.toArray(new Predicate[0]));
   }
 
   private Predicate conjunction(
@@ -137,42 +137,40 @@ public class PropertyFilterSpecification<T> implements Specification<T> {
       return builder.like(path, '%' + (String) propertyValue);
     } else if (MatchType.NOT_ENDS_WITH == matchType) {
       return builder.notLike(path, '%' + (String) propertyValue);
-    } else if (MatchType.LTE == matchType || MatchType.LE == matchType) {
+    } else if (MatchType.LTE == matchType) {
       return builder.lessThanOrEqualTo(path, (Comparable) propertyValue);
     } else if (MatchType.LT == matchType) {
       return builder.lessThan(path, (Comparable) propertyValue);
-    } else if (MatchType.GTE == matchType || MatchType.GE == matchType) {
+    } else if (MatchType.GTE == matchType) {
       return builder.greaterThanOrEqualTo(path, (Comparable) propertyValue);
     } else if (MatchType.GT == matchType) {
       return builder.greaterThan(path, (Comparable) propertyValue);
     } else if (MatchType.IN == matchType) {
       return path.in(Arrays.stream(multipleValuesObjectsObjects(propertyValue)).toArray());
-    } else if (MatchType.NOT_IN == matchType || MatchType.NOTIN == matchType) {
+    } else if (MatchType.NOT_IN == matchType) {
       return builder.not(
           path.in(Arrays.stream(multipleValuesObjectsObjects(propertyValue)).toArray()));
-    } else if (MatchType.NOT_EQUAL == matchType || MatchType.NE == matchType) {
+    } else if (MatchType.NOT_EQUAL == matchType) {
       return builder.notEqual(path, propertyValue);
     } else if (MatchType.NULL == matchType) {
       return builder.isNull(path);
-    } else if (MatchType.NOT_NULL == matchType || MatchType.NOTNULL == matchType) {
+    } else if (MatchType.NOT_NULL == matchType) {
       return builder.isNotNull(path);
     } else if (MatchType.EMPTY == matchType) {
       return builder.isEmpty(path);
-    } else if (MatchType.NOT_EMPTY == matchType || MatchType.NOTEMPTY == matchType) {
+    } else if (MatchType.NOT_EMPTY == matchType) {
       return builder.isNotEmpty(path);
     } else if (MatchType.BETWEEN == matchType) {
       Comparable x = (Comparable) Array.get(propertyValue, 0);
       Comparable y = (Comparable) Array.get(propertyValue, 1);
       return builder.between(path, x, y);
-    } else if (MatchType.LIKE == matchType) {
-      return builder.like(path, (String) propertyValue);
     }
     throw new RuntimeException("不支持的查询");
   }
 
-  class PropertyFilterSpecificationContext {
+  static class PropertyFilterSpecificationContext {
 
-    private Map<String, Path> paths = new HashMap<>();
+    private final Map<String, Path> paths = new HashMap<>();
     private int rootHashCode = 0;
 
     public Path path(Root root, String propertyName) {

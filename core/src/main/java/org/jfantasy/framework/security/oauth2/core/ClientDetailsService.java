@@ -9,9 +9,9 @@ public interface ClientDetailsService {
   /**
    * 查询客户端信息
    *
-   * @param clientId
-   * @return
-   * @throws ClientRegistrationException
+   * @param clientId 客户ID
+   * @return ClientDetails
+   * @throws ClientRegistrationException 异常
    */
   ClientDetails loadClientByClientId(String clientId) throws ClientRegistrationException;
 }

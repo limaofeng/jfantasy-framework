@@ -6,7 +6,6 @@ import java.lang.reflect.Array;
 import org.apache.commons.lang3.StringUtils;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
-import org.jfantasy.framework.util.regexp.RegexpUtil;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.Assert;
 
@@ -50,6 +49,7 @@ public class PropertyFilter {
     this.propertyName = StringUtils.substringAfter(filterName, "_");
   }
 
+  @SafeVarargs
   @Deprecated
   public <T> PropertyFilter(String filterName, T... value) {
     String errorTemplate = "filter名称 %s 没有按规则编写,无法得到属性比较类型.";
@@ -96,7 +96,6 @@ public class PropertyFilter {
     return (T) this.propertyValue;
   }
 
-  @SuppressWarnings("unchecked")
   public <T> T getPropertyValue(Class<T> clazz) {
     return (T) this.propertyValue;
   }
@@ -183,23 +182,7 @@ public class PropertyFilter {
           Comparable x = (Comparable) Array.get(value, 0);
           Comparable y = (Comparable) Array.get(value, 1);
           return builder.between(name, x, y);
-        }),
-    /** 模糊查询 */
-    @Deprecated
-    LIKE("like", (builder, name, value) -> builder.contains(name, (String) value)),
-    /** 不存在 */
-    @Deprecated
-    NOTEMPTY("notEmpty", (builder, name, value) -> builder.isNotEmpty(name)),
-    @Deprecated
-    NOTNULL("notNull", (builder, name, value) -> builder.isNotNull(name)),
-    @Deprecated
-    NE("NE", (builder, name, value) -> builder.notEqual(name, value)),
-    @Deprecated
-    NOTIN("notIn", (builder, name, value) -> builder.notIn(name, (Object[]) value)),
-    @Deprecated
-    LE("lte", (builder, name, value) -> builder.lessThanOrEqual(name, value)),
-    @Deprecated
-    GE("gte", (builder, name, value) -> builder.greaterThanOrEqual(name, value));
+        });
 
     private final String slug;
     private final MatchBuilder builder;
@@ -216,7 +199,7 @@ public class PropertyFilter {
     public static MatchType get(String str) {
       str = ObjectUtil.exists(new String[] {"AND", "OR", "NOT"}, str) ? str.toLowerCase() : str;
       for (MatchType matchType : MatchType.values()) {
-        if (RegexpUtil.find(str, "^" + matchType.slug)) {
+        if (matchType.slug.equals(str)) {
           return matchType;
         }
       }
@@ -243,7 +226,7 @@ public class PropertyFilter {
         + "]";
   }
 
-  static interface MatchBuilder {
+  interface MatchBuilder {
     PropertyFilterBuilder exec(PropertyFilterBuilder builder, String name, Object value);
   }
 }

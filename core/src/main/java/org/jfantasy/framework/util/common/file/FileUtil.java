@@ -83,9 +83,9 @@ public class FileUtil {
     }
   }
 
-  public static interface ReadLineCallback {
+  public interface ReadLineCallback {
 
-    public boolean readLine(String line);
+    boolean readLine(String line);
   }
 
   public static String readFile(InputStream in, String charset) throws IOException {
@@ -188,7 +188,7 @@ public class FileUtil {
     if (!folder.exists()) {
       throw new IgnoreException("(目录不存在。)folder [" + folder + "]not exist。");
     }
-    return folder.listFiles(pathname -> pathname.isDirectory());
+    return folder.listFiles(File::isDirectory);
   }
 
   /**
@@ -247,8 +247,8 @@ public class FileUtil {
     }
   }
 
-  public static byte[] gbk2utf8(String chenese) throws UnsupportedEncodingException {
-    char[] c = chenese.toCharArray();
+  public static byte[] gbk2utf8(String chinese) {
+    char[] c = chinese.toCharArray();
     byte[] fullByte = new byte[3 * c.length];
     for (int i = 0; i < c.length; i++) {
       int m = c[i];
@@ -399,7 +399,7 @@ public class FileUtil {
     delFile(new File(filePath));
   }
 
-  public static File tmp() throws IOException {
+  public static File tmp() {
     return createFile(
         System.getProperty("java.io.tmpdir")
             + File.separator
@@ -519,7 +519,7 @@ public class FileUtil {
     }
   }
 
-  public static interface UnZipCallBack {
+  public interface UnZipCallBack {
 
     void execute(String fileName, InputStream stream);
   }

@@ -64,16 +64,16 @@ public abstract class StringUtil {
     if (length(value) <= len) {
       return value;
     }
-    String tvalue = value;
-    int tlen = len;
-    tlen -= length(word);
-    if (tvalue.length() > tlen) {
-      tvalue = tvalue.substring(0, tlen);
+    String tValue = value;
+    int tLen = len;
+    tLen -= length(word);
+    if (tValue.length() > tLen) {
+      tValue = tValue.substring(0, tLen);
     }
-    while (length(tvalue) > tlen) {
-      tvalue = tvalue.substring(0, tvalue.length() - 1);
+    while (length(tValue) > tLen) {
+      tValue = tValue.substring(0, tValue.length() - 1);
     }
-    return tvalue + word;
+    return tValue + word;
   }
 
   /**
@@ -424,13 +424,13 @@ public abstract class StringUtil {
     }
     StringBuilder buf = new StringBuilder(s.length() + with.length());
     do {
-      buf.append(s.substring(c, i));
+      buf.append(s, c, i);
       buf.append(with);
       c = i + sub.length();
     } while ((i = s.indexOf(sub, c)) != -1);
 
     if (c < s.length()) {
-      buf.append(s.substring(c, s.length()));
+      buf.append(s.substring(c));
     }
     return buf.toString();
   }
@@ -552,11 +552,11 @@ public abstract class StringUtil {
   }
 
   public static String[] tokenizeToStringArray(String[] tokenizes) {
-    List<String> strs = new ArrayList<>(tokenizes.length);
+    List<String> strings = new ArrayList<>(tokenizes.length);
     for (String tokenize : tokenizes) {
-      strs.addAll(Arrays.asList(tokenizeToStringArray(tokenize)));
+      strings.addAll(Arrays.asList(tokenizeToStringArray(tokenize)));
     }
-    return strs.toArray(new String[strs.size()]);
+    return strings.toArray(new String[0]);
   }
 
   public static String[] tokenizeToStringArray(String tokenize) {
@@ -606,19 +606,19 @@ public abstract class StringUtil {
     for (int i = 0; i < 4; i++) {
       // 把加密字符按照 8 位一组 16 进制与 0x3FFFFFFF 进行位与运算
       String sTempSubString = hex.substring(i * 8, i * 8 + 8);
-      // 这里需要使用 long 型来转换，因为 Inteper .parseInt() 只能处理 31 位 , 首位为符号位 , 如果不用 long ，则会越界
+      // 这里需要使用 long 型来转换，因为 Integer.parseInt() 只能处理 31 位 , 首位为符号位 , 如果不用 long ，则会越界
       long lHexLong = 0x3FFFFFFF & Long.parseLong(sTempSubString, 16);
-      String outChars = "";
+      StringBuilder outChars = new StringBuilder();
       for (int j = 0; j < 6; j++) {
         // 把得到的值与 0x0000003D 进行位与运算，取得字符数组 chars 索引
         long index = 0x0000003D & lHexLong;
         // 把取得的字符相加
-        outChars += chars[(int) index];
+        outChars.append(chars[(int) index]);
         // 每次循环按位右移 5 位
         lHexLong = lHexLong >> 5;
       }
       // 把字符串存入对应索引的输出数组
-      resUrl[i] = outChars;
+      resUrl[i] = outChars.toString();
     }
     return resUrl;
   }
@@ -650,6 +650,25 @@ public abstract class StringUtil {
   public static String uuid() {
     UUID uuid = UUID.randomUUID();
     return uuid.toString().replaceAll("-", "");
+  }
+
+  public static String[] chars =
+      new String[] {
+        "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r",
+        "s", "t", "u", "v", "w", "x", "y", "z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
+        "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R",
+        "S", "T", "U", "V", "W", "X", "Y", "Z"
+      };
+
+  public static String shortUUID() {
+    StringBuilder shortBuffer = new StringBuilder();
+    String uuid = java.util.UUID.randomUUID().toString().replace("-", "");
+    for (int i = 0; i < 8; i++) {
+      String str = uuid.substring(i * 4, i * 4 + 4);
+      int x = Integer.parseInt(str, 16);
+      shortBuffer.append(chars[x % 0x3E]);
+    }
+    return shortBuffer.toString();
   }
 
   /**
