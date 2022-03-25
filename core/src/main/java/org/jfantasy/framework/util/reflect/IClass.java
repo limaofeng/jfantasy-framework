@@ -6,7 +6,7 @@ import java.lang.reflect.Field;
 public interface IClass<T> {
   Property getProperty(String paramString);
 
-  Property[] getPropertys();
+  Property[] getProperties();
 
   T newInstance();
 

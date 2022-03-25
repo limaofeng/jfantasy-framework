@@ -720,7 +720,7 @@ public final class ObjectUtil {
       return (Map<String, Object>) data;
     }
     Map<String, Object> rootMap = new HashMap();
-    Property[] properties = ClassUtil.getPropertys(data);
+    Property[] properties = ClassUtil.getProperties(data);
     for (Property property : properties) {
       if (property.isRead()) {
         rootMap.put(property.getName(), property.getValue(data));
@@ -879,8 +879,12 @@ public final class ObjectUtil {
     }
     List<T> array = packageResult(orig.stream(), List.class);
     int i = indexOf(orig, property, value);
-    orig.remove(array.get(i));
-    return i == -1 ? null : array.get(i);
+    if (i == -1) {
+      return null;
+    }
+    T t = array.get(i);
+    orig.remove(t);
+    return t;
   }
 
   public static <T, C extends Collection<T>> T remove(C orig, Expression exper, Object value) {
@@ -889,8 +893,12 @@ public final class ObjectUtil {
     }
     List<T> array = packageResult(orig.stream(), List.class);
     int i = indexOf(orig, exper, value);
-    orig.remove(array.get(i));
-    return i == -1 ? null : array.get(i);
+    if (i == -1) {
+      return null;
+    }
+    T t = array.get(i);
+    orig.remove(t);
+    return t;
   }
 
   public static <T> T remove(List<T> orig, Predicate<T> selector) {

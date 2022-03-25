@@ -37,7 +37,9 @@ public class RegexpUtilTest {
   public void testSplit() throws Exception {}
 
   @Test
-  public void testIsMatch1() throws Exception {}
+  public void testIsMatch1() throws Exception {
+    assert RegexpUtil.isMatch("na/me", "[<>|*?,/]");
+  }
 
   @Test
   public void testFind() throws Exception {}
@@ -60,6 +62,8 @@ public class RegexpUtilTest {
   @Test
   public void testReplaceFirst() throws Exception {
     LOG.debug("member:15921884771".replaceAll("^[^:]+:", ""));
+
+    LOG.debug("/a/b/c/".replaceFirst("[^/]+/$", ""));
   }
 
   @Test

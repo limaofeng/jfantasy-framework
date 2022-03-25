@@ -123,12 +123,12 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
     return null;
   }
 
-  public static Property[] getPropertys(Object target) {
-    return getPropertys(target.getClass());
+  public static Property[] getProperties(Object target) {
+    return getProperties(target.getClass());
   }
 
-  public static Property[] getPropertys(Class<?> clazz) {
-    return classFactory.getClass(clazz).getPropertys();
+  public static Property[] getProperties(Class<?> clazz) {
+    return classFactory.getClass(clazz).getProperties();
   }
 
   public static Property getProperty(Object target, String name) {
@@ -140,7 +140,7 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
     for (int i = 0; i < propertyNames.length - 1; i++) {
       Property property = ClassUtil.getProperty(clazz, propertyNames[i]);
       clazz = property.getPropertyType();
-      if (List.class.isAssignableFrom(clazz)) {
+      if (ClassUtil.isList(clazz) || ClassUtil.isSet(clazz)) {
         clazz =
             ClassUtil.forName(property.getGenericType().getActualTypeArguments()[0].getTypeName());
       }

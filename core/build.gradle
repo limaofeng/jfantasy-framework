@@ -48,3 +48,7 @@ dependencies {
 	testAnnotationProcessor "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
 	testImplementation libs['test']
 }
+
+repositories {
+    mavenCentral()
+}

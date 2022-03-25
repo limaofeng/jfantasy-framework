@@ -20,24 +20,21 @@ import org.jfantasy.framework.util.common.ObjectUtil;
 
 public class FastClasses<T> implements IClass<T> {
   private static final Log LOGGER = LogFactory.getLog(FastClasses.class);
-  private Class<T> clazz;
-  private FastClass fastClass;
-  private BeanInfo beanInfo;
-  private Map<String, Property> propertys = new HashMap<>();
-  private Map<String, MethodProxy> methodProxys = new HashMap<>();
-  private Map<Class<?>, Constructor<T>> constructors = new HashMap<>();
-  private Map<String, Field> fields = new HashMap<>();
-  private Map<String, Field> staticFields = new HashMap<>();
+  private final Class<T> clazz;
+  private final Map<String, Property> properties = new HashMap<>();
+  private final Map<String, MethodProxy> methodProxies = new HashMap<>();
+  private final Map<Class<?>, Constructor<T>> constructors = new HashMap<>();
+  private final Map<String, Field> fields = new HashMap<>();
+  private final Map<String, Field> staticFields = new HashMap<>();
 
-  @SuppressWarnings("unchecked")
   public FastClasses(Class<T> clazz) {
     this.clazz = clazz;
-    this.fastClass = FastClass.create(clazz);
+    FastClass fastClass = FastClass.create(clazz);
     if (!clazz.isInterface()) {
-      this.beanInfo = ClassUtil.getBeanInfo(clazz);
-      PropertyDescriptor[] propertyDescriptors = this.beanInfo.getPropertyDescriptors();
+      BeanInfo beanInfo = ClassUtil.getBeanInfo(clazz);
+      PropertyDescriptor[] propertyDescriptors = beanInfo.getPropertyDescriptors();
       for (PropertyDescriptor descriptor : propertyDescriptors) {
-        this.propertys.put(descriptor.getName(), new Property(descriptor));
+        this.properties.put(descriptor.getName(), new Property(descriptor));
       }
       for (Method method : this.clazz.getDeclaredMethods()) {
         Class<?>[] parameters = method.getParameterTypes();
@@ -54,13 +51,13 @@ public class FastClasses<T> implements IClass<T> {
         }
         try {
           if (method.isAccessible()) {
-            this.methodProxys.put(
-                name.toString(), new MethodProxy(this.fastClass.getMethod(method), parameters));
+            this.methodProxies.put(
+                name.toString(), new MethodProxy(fastClass.getMethod(method), parameters));
           } else {
             if (!method.isAccessible()) {
               method.setAccessible(true);
             }
-            this.methodProxys.put(name.toString(), new MethodProxy(method, parameters));
+            this.methodProxies.put(name.toString(), new MethodProxy(method, parameters));
           }
         } catch (Exception e) {
           LOGGER.error(e.getMessage(), e);
@@ -82,11 +79,11 @@ public class FastClasses<T> implements IClass<T> {
               .append(parameterType.getName())
               .append(i + 1 == parameters.length ? ")" : ",");
         }
-        this.methodProxys.put(
-            name.toString(), new MethodProxy(this.fastClass.getMethod(method), parameters));
+        this.methodProxies.put(
+            name.toString(), new MethodProxy(fastClass.getMethod(method), parameters));
       }
     }
-    for (Class<?> superClass = clazz; superClass != Object.class; ) {
+    for (Class<?> superClass = clazz; superClass != null && superClass != Object.class; ) {
       for (Field field : filterFields(superClass.getDeclaredFields())) {
         if (!this.fields.containsKey(field.getName())) {
           this.fields.put(field.getName(), field);
@@ -134,7 +131,7 @@ public class FastClasses<T> implements IClass<T> {
   @Override
   public T newInstance(Class<?> type, Object object) {
     try {
-      return this.constructors.get(type).newInstance(new Object[] {object});
+      return this.constructors.get(type).newInstance(object);
     } catch (Exception e) {
       throw new IgnoreException(e.getMessage(), e);
     }
@@ -142,24 +139,24 @@ public class FastClasses<T> implements IClass<T> {
 
   @Override
   public Property getProperty(String name) {
-    if (this.propertys.containsKey(name)) {
-      return this.propertys.get(name);
+    if (this.properties.containsKey(name)) {
+      return this.properties.get(name);
     }
     return null;
   }
 
   @Override
-  public Property[] getPropertys() {
-    return this.propertys.values().toArray(new Property[this.propertys.size()]);
+  public Property[] getProperties() {
+    return this.properties.values().toArray(new Property[0]);
   }
 
   @Override
   public MethodProxy getMethod(String methodName) {
-    MethodProxy methodProxy = this.methodProxys.get(methodName + "()");
+    MethodProxy methodProxy = this.methodProxies.get(methodName + "()");
     if (ObjectUtil.isNotNull(methodProxy)) {
       return methodProxy;
     }
-    for (Map.Entry<String, MethodProxy> entry : this.methodProxys.entrySet()) {
+    for (Map.Entry<String, MethodProxy> entry : this.methodProxies.entrySet()) {
       if (entry.getKey().equals(methodName) || entry.getKey().startsWith(methodName + "(")) {
         return entry.getValue();
       }
@@ -183,7 +180,7 @@ public class FastClasses<T> implements IClass<T> {
     } else {
       methodname.append("()");
     }
-    return this.methodProxys.get(methodname.toString());
+    return this.methodProxies.get(methodname.toString());
   }
 
   @Override
@@ -209,7 +206,7 @@ public class FastClasses<T> implements IClass<T> {
     }
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes"})
+  @SuppressWarnings({"rawtypes"})
   public <V> V getValue(Object target, Field field)
       throws IllegalAccessException, NoSuchFieldException {
     if (field == null) {
@@ -231,7 +228,7 @@ public class FastClasses<T> implements IClass<T> {
 
   @Override
   public Field[] getDeclaredFields() {
-    return this.fields.values().toArray(new Field[this.fields.size()]);
+    return this.fields.values().toArray(new Field[0]);
   }
 
   @Override
@@ -241,13 +238,13 @@ public class FastClasses<T> implements IClass<T> {
 
   @Override
   public Field[] getDeclaredFields(Class<? extends Annotation> annotClass) {
-    List<Field> retvalues = new ArrayList<>();
+    List<Field> retValues = new ArrayList<>();
     for (Field field : this.fields.values()) {
       if (field.isAnnotationPresent(annotClass)) {
-        retvalues.add(field);
+        retValues.add(field);
       }
     }
-    return retvalues.toArray(new Field[retvalues.size()]);
+    return retValues.toArray(new Field[0]);
   }
 
   @Override

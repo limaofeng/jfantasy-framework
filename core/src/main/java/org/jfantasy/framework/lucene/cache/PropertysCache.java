@@ -23,7 +23,7 @@ public class PropertysCache {
   }
 
   public Property[] get(Class<?> clazz) {
-    return ClassUtil.getPropertys(clazz);
+    return ClassUtil.getProperties(clazz);
   }
 
   public <T extends Annotation> Property[] filter(Class<?> clazz, Class<T> tClass) {

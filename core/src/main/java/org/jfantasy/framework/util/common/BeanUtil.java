@@ -27,7 +27,7 @@ public class BeanUtil {
       return dest;
     }
     Class destClass = dest.getClass();
-    Property[] properties = ClassUtil.getPropertys(orig);
+    Property[] properties = ClassUtil.getProperties(orig);
     for (Property property : properties) {
       if (ObjectUtil.indexOf(excludeProperties, property.getName()) != -1) {
         continue;
@@ -68,7 +68,7 @@ public class BeanUtil {
 
   public static <T> T copyNotNull(T dest, Object orig) {
     List<String> excludeProperties = new ArrayList<String>();
-    Property[] properties = ClassUtil.getPropertys(orig);
+    Property[] properties = ClassUtil.getProperties(orig);
     for (Property property : properties) {
       if (!property.isRead() || property.getValue(orig) == null) {
         excludeProperties.add(property.getName());

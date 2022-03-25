@@ -43,9 +43,7 @@ ext {
                     "org.projectlombok:lombok:${LIB_LOMBOK_VER}",
                     "cglib:cglib:${LIB_CGLIB_VER}",
                     "net.sourceforge.htmlcleaner:htmlcleaner:${LIB_HTMLCLEANER_VER}",
-                    dependencies.create("eu.medsea.mimeutil:mime-util:${LIB_MIME_UTIL_VER}") {
-                        exclude group: "org.slf4j", module: "slf4j-log4j12"
-                    },
+                    "org.apache.tika:tika-core:${LIB_TIKA_VER}",
                     dependencies.create("ognl:ognl:${LIB_OGNL_VER}") {
                         exclude group: "javassist", module: "javassist"
                     },

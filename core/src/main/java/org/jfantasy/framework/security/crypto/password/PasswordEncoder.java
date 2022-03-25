@@ -12,8 +12,8 @@ public interface PasswordEncoder {
   /**
    * 加密逻辑
    *
-   * @param rawPassword
-   * @return
+   * @param rawPassword 原密码
+   * @return 加密后的密码
    */
   String encode(CharSequence rawPassword);
 
@@ -22,7 +22,7 @@ public interface PasswordEncoder {
    *
    * @param rawPassword 未加密密码 一般指用户输入的原始密码
    * @param encodedPassword 已加密密码 数据库中存储的已加密密码
-   * @return
+   * @return 是否相同
    */
   boolean matches(CharSequence rawPassword, String encodedPassword);
 }

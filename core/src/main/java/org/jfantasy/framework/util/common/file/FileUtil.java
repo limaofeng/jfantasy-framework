@@ -1,7 +1,5 @@
 package org.jfantasy.framework.util.common.file;
 
-import eu.medsea.mimeutil.MimeUtil;
-import eu.medsea.mimeutil.MimeUtil2;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -13,6 +11,7 @@ import java.util.zip.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.tika.Tika;
 import org.jfantasy.framework.dao.mybatis.keygen.GUIDKeyGenerator;
 import org.jfantasy.framework.error.IgnoreException;
 import org.jfantasy.framework.util.common.ObjectUtil;
@@ -21,13 +20,10 @@ import org.jfantasy.framework.util.regexp.RegexpUtil;
 
 public class FileUtil {
 
+  private static final Tika TIKA = new Tika();
   private static final Log LOGGER = LogFactory.getLog(FileUtil.class);
   private static final String REGEXP_START = "[^/]+$";
   public static final String[] UNITS = {"bytes", "KB", "MB", "GB", "TB"};
-
-  static {
-    MimeUtil.registerMimeDetector("eu.medsea.mimeutil.detector.MagicMimeMimeDetector");
-  }
 
   private static final String ENCODE = "UTF-8";
 
@@ -176,11 +172,21 @@ public class FileUtil {
   }
 
   public static String getMimeType(File file) {
-    return MimeUtil2.getMostSpecificMimeType(MimeUtil.getMimeTypes(file)).toString();
+    try {
+      return TIKA.detect(file);
+    } catch (IOException e) {
+      LOGGER.error(e.getMessage());
+      return null;
+    }
   }
 
   public static String getMimeType(InputStream input) {
-    return MimeUtil2.getMostSpecificMimeType(MimeUtil.getMimeTypes(input)).toString();
+    try {
+      return TIKA.detect(input);
+    } catch (IOException e) {
+      LOGGER.error(e.getMessage());
+      return null;
+    }
   }
 
   public static File[] listFolders(String folderName) {
