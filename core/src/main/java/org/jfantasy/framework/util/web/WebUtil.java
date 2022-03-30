@@ -3,7 +3,7 @@ package org.jfantasy.framework.util.web;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
 import java.net.*;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -52,15 +52,21 @@ public class WebUtil {
     return getExtension(request.getRequestURI());
   }
 
+  public static String getExtension(String requestUri) {
+    return getExtension(requestUri, false);
+  }
+
   /**
    * 获取请求URL的后缀名
    *
    * @param requestUri 请求路径
+   * @param pure 为 True 时, 不包含开头的 "."
    * @return {String}
    */
-  public static String getExtension(String requestUri) {
-    if (RegexpUtil.isMatch(requestUri, "[^/]{1,}[.]([^./]{1,})$")) {
-      return RegexpUtil.parseGroup(requestUri, "[^/]{1,}[.]([^./]{1,})$", 1);
+  public static String getExtension(String requestUri, boolean pure) {
+    int lastIndex = requestUri.lastIndexOf(".");
+    if (lastIndex != -1) {
+      return requestUri.substring(lastIndex + (pure ? 1 : 0));
     }
     return "";
   }
@@ -273,39 +279,39 @@ public class WebUtil {
   }
 
   public static String getOsVersion(HttpServletRequest request) {
-    String useros = request.getHeader("User-Agent").toLowerCase();
+    String userOs = request.getHeader("User-Agent").toLowerCase();
     String osVersion = "unknown";
-    if (useros.contains("nt 6.1")) {
+    if (userOs.contains("nt 6.1")) {
       osVersion = "Windows 7";
-    } else if (useros.contains("nt 6.0")) {
+    } else if (userOs.contains("nt 6.0")) {
       osVersion = "Windows Vista/Server 2008";
-    } else if (useros.contains("nt 5.2")) {
+    } else if (userOs.contains("nt 5.2")) {
       osVersion = "Windows Server 2003";
-    } else if (useros.contains("nt 5.1")) {
+    } else if (userOs.contains("nt 5.1")) {
       osVersion = "Windows XP";
-    } else if (useros.contains("nt 5")) {
+    } else if (userOs.contains("nt 5")) {
       osVersion = "Windows 2000";
-    } else if (useros.contains("nt 4")) {
+    } else if (userOs.contains("nt 4")) {
       osVersion = "Windows nt4";
-    } else if (useros.contains("me")) {
+    } else if (userOs.contains("me")) {
       osVersion = "Windows Me";
-    } else if (useros.contains("98")) {
+    } else if (userOs.contains("98")) {
       osVersion = "Windows 98";
-    } else if (useros.contains("95")) {
+    } else if (userOs.contains("95")) {
       osVersion = "Windows 95";
-    } else if (useros.contains("ipad")) {
+    } else if (userOs.contains("ipad")) {
       osVersion = "iPad";
-    } else if (useros.contains("macintosh")) {
+    } else if (userOs.contains("macintosh")) {
       osVersion = "Mac";
-    } else if (useros.contains("unix")) {
+    } else if (userOs.contains("unix")) {
       osVersion = "UNIX";
-    } else if (useros.contains("linux")) {
+    } else if (userOs.contains("linux")) {
       osVersion = "Linux";
-    } else if (useros.contains("sunos")) {
+    } else if (userOs.contains("sunos")) {
       osVersion = "SunOS";
-    } else if (useros.contains("iPhone")) {
+    } else if (userOs.contains("iphone")) {
       osVersion = "iPhone";
-    } else if (useros.contains("Android")) {
+    } else if (userOs.contains("android")) {
       osVersion = "Android";
     }
     return osVersion;
@@ -322,7 +328,7 @@ public class WebUtil {
   }
 
   public static <T> Map<String, T> parseQuery(String query, boolean single) {
-    Map<String, T> params = new LinkedHashMap<String, T>();
+    Map<String, T> params = new LinkedHashMap<>();
     if (StringUtil.isBlank(query)) {
       return params;
     }
@@ -335,10 +341,10 @@ public class WebUtil {
       String val = vs.length == 1 ? "" : vs[1];
       if (StringUtil.isNotBlank(val)) {
         String newVal = val;
-        if (Charset.forName("ASCII").newEncoder().canEncode(val)) {
+        if (StandardCharsets.US_ASCII.newEncoder().canEncode(val)) {
           newVal = StringUtil.decodeURI(val, "utf-8");
           LOG.debug(key + " 的原始编码为[ASCII]转编码:" + val + "=>" + newVal);
-        } else if (Charset.forName("ISO-8859-1").newEncoder().canEncode(val)) {
+        } else if (StandardCharsets.ISO_8859_1.newEncoder().canEncode(val)) {
           newVal = WebUtil.transformCoding(val, "ISO-8859-1", "utf-8");
           LOG.debug(key + " 的原始编码为[ISO-8859-1]转编码:" + val + "=>" + newVal);
         }
@@ -406,7 +412,7 @@ public class WebUtil {
   }
 
   public static Map<String, String> getParameterMap(HttpServletRequest request) {
-    Map<String, String> parameter = new LinkedHashMap<String, String>();
+    Map<String, String> parameter = new LinkedHashMap<>();
     Set<Map.Entry<String, String[]>> entries = request.getParameterMap().entrySet();
     for (Map.Entry<String, String[]> entry : entries) {
       parameter.put(entry.getKey(), entry.getValue()[0]);
@@ -424,7 +430,7 @@ public class WebUtil {
 
   public static class UserAgent {}
 
-  public static enum Browser {
+  public enum Browser {
     Opera("Opera", "version/\\d+\\W\\d+"), // NOSONAR
     chrome("Chrome", "Chrome/\\d+\\W\\d+"), // NOSONAR
     Firefox("Firefox", "Firefox/\\d+\\W\\d+"), // NOSONAR
@@ -440,10 +446,10 @@ public class WebUtil {
     baidubrowser("baidubrowser", "baidubrowser/\\d+\\W\\d+"), // NOSONAR
     unknown("unknown", "version/\\d+\\W\\d+"); // NOSONAR
 
-    private String browser;
-    private String version;
+    private final String browser;
+    private final String version;
 
-    private Browser(String browser, String version) {
+    Browser(String browser, String version) {
       this.browser = browser;
       this.version = version;
     }
@@ -474,7 +480,7 @@ public class WebUtil {
   public static String filename(String name, HttpServletRequest request) {
     try {
       return Browser.mozilla == browser(request)
-          ? new String(name.getBytes("UTF-8"), "iso8859-1")
+          ? new String(name.getBytes(StandardCharsets.UTF_8), "iso8859-1")
           : URLEncoder.encode(name, "UTF-8");
     } catch (UnsupportedEncodingException e) {
       LOG.error(e);
@@ -485,7 +491,7 @@ public class WebUtil {
   public static String filename(String name) {
     try {
       return Browser.mozilla == browser(getRequest())
-          ? new String(name.getBytes("UTF-8"), "iso8859-1")
+          ? new String(name.getBytes(StandardCharsets.UTF_8), "iso8859-1")
           : URLEncoder.encode(name, "UTF-8");
     } catch (UnsupportedEncodingException e) {
       LOG.error(e);

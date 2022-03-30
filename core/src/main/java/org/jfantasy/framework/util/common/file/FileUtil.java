@@ -8,20 +8,22 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.*;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.tika.Tika;
+import org.apache.tika.mime.MimeType;
+import org.apache.tika.mime.MimeTypeException;
+import org.apache.tika.mime.MimeTypes;
 import org.jfantasy.framework.dao.mybatis.keygen.GUIDKeyGenerator;
 import org.jfantasy.framework.error.IgnoreException;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StreamUtil;
 import org.jfantasy.framework.util.regexp.RegexpUtil;
 
+@Slf4j
 public class FileUtil {
 
   private static final Tika TIKA = new Tika();
-  private static final Log LOGGER = LogFactory.getLog(FileUtil.class);
   private static final String REGEXP_START = "[^/]+$";
   public static final String[] UNITS = {"bytes", "KB", "MB", "GB", "TB"};
 
@@ -107,7 +109,7 @@ public class FileUtil {
       out.flush();
       out.write(content);
     } catch (IOException ex) {
-      LOGGER.error(ex);
+      log.error(ex.getMessage(), ex);
       throw new IgnoreException(ex.getMessage());
     }
   }
@@ -117,9 +119,9 @@ public class FileUtil {
     try (FileOutputStream fos = new FileOutputStream(file)) {
       fos.write(content, 0, content.length);
       fos.flush();
-      LOGGER.debug("Write File:" + file);
+      log.debug("Write File:" + file);
     } catch (IOException ex) {
-      LOGGER.error(ex);
+      log.error(ex.getMessage(), ex);
       throw ex;
     }
   }
@@ -133,7 +135,7 @@ public class FileUtil {
       createFolder(file.getParentFile());
     }
     if (!file.exists() && !file.mkdirs()) {
-      LOGGER.error("文件: " + file + " > " + file.exists());
+      log.error("文件: " + file + " > " + file.exists());
     }
     return file;
   }
@@ -175,7 +177,7 @@ public class FileUtil {
     try {
       return TIKA.detect(file);
     } catch (IOException e) {
-      LOGGER.error(e.getMessage());
+      log.error(e.getMessage());
       return null;
     }
   }
@@ -184,7 +186,7 @@ public class FileUtil {
     try {
       return TIKA.detect(input);
     } catch (IOException e) {
-      LOGGER.error(e.getMessage());
+      log.error(e.getMessage());
       return null;
     }
   }
@@ -197,31 +199,10 @@ public class FileUtil {
     return folder.listFiles(File::isDirectory);
   }
 
-  /**
-   * 列出文件夹下面所有扩展名相同的文件名.jpg等
-   *
-   * @param folderName 文件名
-   * @param extNames 扩展名
-   * @return {File[]}
-   */
-  public static File[] listFiles(String folderName, final String... extNames) {
-    File folder = new File(folderName);
-    if (!folder.exists()) {
-      throw new IgnoreException("(目录不存在。)folder [" + folder + "]not exist。");
-    }
-    return folder.listFiles(
-        pathname -> {
-          if (extNames.length == 0) {
-            return pathname.isFile();
-          }
-          return pathname.isFile() && ObjectUtil.indexOf(extNames, getExtension(pathname)) != -1;
-        });
-  }
-
   public static void compressionGZIP(String oldPath, String newPath) {
     createFolder(
         RegexpUtil.replace(newPath, "(([a-zA-Z0-9]|([(]|[)]|[ ]))+)[.]([a-zA-Z0-9]+)$", ""));
-    LOGGER.debug(
+    log.debug(
         "创建文件 ："
             + RegexpUtil.replace(newPath, "(([a-zA-Z0-9]|([(]|[)]|[ ]))+)[.]([a-zA-Z0-9]+)$", "")
             + "|"
@@ -235,7 +216,7 @@ public class FileUtil {
         gzout.write(buf, 0, num);
       }
     } catch (IOException e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     }
   }
 
@@ -249,7 +230,7 @@ public class FileUtil {
         fout.write(buf, 0, num);
       }
     } catch (IOException e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     }
   }
 
@@ -319,7 +300,7 @@ public class FileUtil {
       try {
         copyFile(sourceFile, targetFile);
         if (sourceFile.exists()) {
-          LOGGER.debug("delete file:" + sourceFile + ":" + sourceFile.delete());
+          log.debug("delete file:" + sourceFile + ":" + sourceFile.delete());
         }
       } catch (IOException e) {
         throw new IgnoreException(e.getMessage(), e);
@@ -343,8 +324,8 @@ public class FileUtil {
   }
 
   private static void copyOnlyFile(File sourceFile, File targetFile) throws IOException {
-    LOGGER.debug("copy from:" + sourceFile);
-    LOGGER.debug("copy to:" + targetFile);
+    log.debug("copy from:" + sourceFile);
+    log.debug("copy to:" + targetFile);
     File parentFile = targetFile.getParentFile();
     if (!parentFile.exists() && !parentFile.mkdirs()) {
       throw new IgnoreException("创建文件" + parentFile.getAbsolutePath() + "失败");
@@ -381,7 +362,7 @@ public class FileUtil {
       }
     }
     if (!dir.delete()) {
-      LOGGER.error("删除文件" + dir.getAbsolutePath() + "失败");
+      log.error("删除文件" + dir.getAbsolutePath() + "失败");
     }
   }
 
@@ -397,7 +378,7 @@ public class FileUtil {
 
   private static void delOnlyFile(File file) {
     if (file.exists() && !file.delete()) {
-      LOGGER.error("删除文件" + file.getAbsolutePath() + "失败");
+      log.error("删除文件" + file.getAbsolutePath() + "失败");
     }
   }
 
@@ -443,13 +424,16 @@ public class FileUtil {
     return new Date(file.lastModified());
   }
 
-  public static String getExtension(File file) {
-    return getExtension(file.getName());
-  }
-
-  public static String getExtension(String fileName) {
-    String[] ress = fileName.split("\\.");
-    return ress.length < 2 ? "" : ress[ress.length - 1];
+  public static String getExtension(String mimeType) {
+    String extension = ".bin";
+    try {
+      MimeTypes allTypes = MimeTypes.getDefaultMimeTypes();
+      MimeType _mimeType = allTypes.forName(mimeType);
+      extension = _mimeType.getExtension();
+    } catch (MimeTypeException e) {
+      log.warn("Can't detect extension for MIME-type {} {}", mimeType, e);
+    }
+    return extension;
   }
 
   public static File writeFile(InputStream in, String filePath) throws IOException {
@@ -487,7 +471,7 @@ public class FileUtil {
         htSizes.put(ze.getName(), (int) ze.getSize());
       }
     } catch (IOException e) {
-      LOGGER.error(e);
+      log.error(e.getMessage(), e);
     }
     return htSizes;
   }
@@ -521,7 +505,7 @@ public class FileUtil {
       }
       zis.closeEntry();
     } catch (NullPointerException | IOException e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     }
   }
 

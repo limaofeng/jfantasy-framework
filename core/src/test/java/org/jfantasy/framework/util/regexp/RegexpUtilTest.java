@@ -1,9 +1,11 @@
 package org.jfantasy.framework.util.regexp;
 
 import java.lang.reflect.Array;
+import java.util.Objects;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.jackson.models.User;
+import org.jfantasy.framework.util.web.WebUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.Assert;
 
@@ -51,10 +53,23 @@ public class RegexpUtilTest {
     LOG.debug(RegexpUtil.parseGroup("aaa/bbb/ccc/ddd/", "([^/]+)/$", 1));
 
     LOG.debug(RegexpUtil.parseGroup("qqqq/", "([^/]+)/$", 1));
+
+    String fileName = "[电影天堂www.dytt89.com]美丽人生BD国意双语中英双字.mp4.part00001";
+
+    String number = RegexpUtil.parseGroup(WebUtil.getExtension(fileName), "part(\\d+)$", 1);
+
+    LOG.debug(number);
   }
 
   @Test
-  public void testParseGroup() throws Exception {}
+  public void testParseGroup() throws Exception {
+    String fileName = "sdsdfsdf.jpg.part0001";
+    int partNumber =
+        Integer.parseInt(
+            Objects.requireNonNull(
+                RegexpUtil.parseGroup(WebUtil.getExtension(fileName, true), "part(\\d+)$", 1)));
+    System.out.println("partNumber:" + partNumber);
+  }
 
   @Test
   public void testParseGroup1() throws Exception {}
@@ -86,6 +101,8 @@ public class RegexpUtilTest {
   }
 
   public static void main(String[] args) {
+    System.out.println(RegexpUtil.replace("as.jpgfsdf", "()$", ""));
+
     // System.out.println(replace("15921884771", "(\\d{3})\\d{4}(\\d{4,})",
     // "$1****$2"));
     // test("*.js", "/itsm/static/js/fantasy/String.js");

@@ -46,6 +46,8 @@ public class WebUtilTest {
 
   @Test
   public void testGetExtension() throws Exception {
+    Assert.isTrue("".equals(WebUtil.getExtension("12312312.jsg")));
+
     Assert.isTrue("jsp".equals(WebUtil.getExtension(request)));
 
     Assert.isTrue("do" == WebUtil.getExtension("/test/test.do"));
