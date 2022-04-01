@@ -15,6 +15,7 @@ import org.jfantasy.framework.spring.mvc.method.annotation.PagerModelAttributeMe
 import org.jfantasy.framework.spring.mvc.method.annotation.PropertyFilterModelAttributeMethodProcessor;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
+import org.jfantasy.framework.util.web.ServletUtils;
 import org.jfantasy.framework.util.web.filter.ActionContextFilter;
 import org.jfantasy.framework.web.filter.ConversionCharacterEncodingFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -135,20 +136,13 @@ public class WebMvcConfig implements WebMvcConfigurer {
   @Override
   public void addCorsMappings(CorsRegistry registry) {
     String path = "/**";
-    String originPatterns = "*";
-    String[] headers =
-        new String[] {
-          "Accept",
-          "Origin",
-          "cache-control",
-          "x-requested-with",
-          "Authorization",
-          "Content-Type",
-          "Last-Modified"
-        };
-    String[] methods = new String[] {"GET", "POST", "HEAD", "PATCH", "PUT", "DELETE", "OPTIONS"};
+
     boolean credentials = true;
-    long maxAge = 3600;
+    String originPatterns = ServletUtils.CORS_DEFAULT_ORIGIN_PATTERNS;
+    String[] allowedHeaders = ServletUtils.CORS_DEFAULT_ALLOWED_HEADERS;
+    String[] allowedMethods = ServletUtils.CORS_DEFAULT_ALLOWED_METHODS;
+    String[] exposeHeaders = ServletUtils.CORS_DEFAULT_EXPOSE_METHODS;
+    long maxAge = ServletUtils.CORS_DEFAULT_MAX_AGE;
 
     if (SpringBeanUtils.containsBean(CorsFilter.class)) {
       CorsFilter corsFilter = SpringBeanUtils.getBean(CorsFilter.class);
@@ -156,8 +150,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
       CorsConfiguration corsConfiguration = new CorsConfiguration();
       corsConfiguration.addAllowedOriginPattern(originPatterns);
-      corsConfiguration.setAllowedHeaders(Arrays.asList(headers));
-      corsConfiguration.setAllowedMethods(Arrays.asList(methods));
+      corsConfiguration.setAllowedHeaders(Arrays.asList(allowedHeaders));
+      corsConfiguration.setAllowedMethods(Arrays.asList(allowedMethods));
+      corsConfiguration.setExposedHeaders(Arrays.asList(exposeHeaders));
       corsConfiguration.setAllowCredentials(credentials);
       corsConfiguration.setMaxAge(maxAge);
 
@@ -166,8 +161,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
       registry
           .addMapping(path)
           .allowedOriginPatterns(originPatterns)
-          .allowedMethods(methods)
-          .allowedHeaders(headers)
+          .allowedMethods(allowedMethods)
+          .allowedHeaders(allowedHeaders)
+          .exposedHeaders(exposeHeaders)
           .allowCredentials(credentials)
           .maxAge(maxAge);
     }

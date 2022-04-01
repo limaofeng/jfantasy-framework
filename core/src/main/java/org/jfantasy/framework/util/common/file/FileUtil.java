@@ -207,13 +207,13 @@ public class FileUtil {
             + RegexpUtil.replace(newPath, "(([a-zA-Z0-9]|([(]|[)]|[ ]))+)[.]([a-zA-Z0-9]+)$", "")
             + "|"
             + newPath);
-    try (FileInputStream fin = new FileInputStream(oldPath);
-        FileOutputStream fout = new FileOutputStream(newPath)) {
-      GZIPOutputStream gzout = new GZIPOutputStream(fout);
+    try (FileInputStream in = new FileInputStream(oldPath);
+        FileOutputStream out = new FileOutputStream(newPath)) {
+      GZIPOutputStream zipOut = new GZIPOutputStream(out);
       byte[] buf = new byte[1024];
       int num;
-      while ((num = fin.read(buf)) != -1) {
-        gzout.write(buf, 0, num);
+      while ((num = in.read(buf)) != -1) {
+        zipOut.write(buf, 0, num);
       }
     } catch (IOException e) {
       log.error(e.getMessage(), e);
@@ -222,12 +222,12 @@ public class FileUtil {
 
   public static void extractGzip(String fileUrl) {
     try (FileInputStream fin = new FileInputStream(fileUrl);
-        FileOutputStream fout = new FileOutputStream(RegexpUtil.replace(fileUrl, ".gz$", ""))) {
-      GZIPInputStream gzin = new GZIPInputStream(fin);
+        FileOutputStream out = new FileOutputStream(RegexpUtil.replace(fileUrl, ".gz$", ""))) {
+      GZIPInputStream zipIn = new GZIPInputStream(fin);
       byte[] buf = new byte[1024];
       int num;
-      while ((num = gzin.read(buf, 0, buf.length)) != -1) {
-        fout.write(buf, 0, num);
+      while ((num = zipIn.read(buf, 0, buf.length)) != -1) {
+        out.write(buf, 0, num);
       }
     } catch (IOException e) {
       log.error(e.getMessage(), e);

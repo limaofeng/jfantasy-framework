@@ -24,7 +24,7 @@ public class DateUtil extends DateUtils {
       new ConcurrentHashMap<>();
 
   /** 日期驱动接口 针对DateUtil.now()方法获取时间 */
-  private static DateDriver dateDriver = new SimpleDateDriver();
+  private static final DateDriver dateDriver = new SimpleDateDriver();
 
   public static String formatRfc822Date(Date expirationTime) {
     SimpleDateFormat rfc822DateFormat =
@@ -182,16 +182,16 @@ public class DateUtil extends DateUtils {
   /**
    * 将字符串转换为日期
    *
-   * @param s
-   * @return
+   * @param s 字符串
+   * @return 日期
    */
   public static Date parseFormat(String s) {
     if (s == null) {
       return null;
     }
-    Boolean ymd = RegexpUtil.isMatch(s, RegexpConstant.VALIDATOR_DATE_YMD);
-    Boolean ymdhms = RegexpUtil.isMatch(s, RegexpConstant.VALIDATOR_DATE_YMDHMS);
-    if (!ymd && !ymdhms) {
+    boolean ymd = RegexpUtil.isMatch(s, RegexpConstant.VALIDATOR_DATE_YMD);
+    boolean ampms = RegexpUtil.isMatch(s, RegexpConstant.VALIDATOR_DATE_YMDHMS);
+    if (!ymd && !ampms) {
       return null;
     }
     if (ymd) {
@@ -214,7 +214,7 @@ public class DateUtil extends DateUtils {
   public static boolean isWorkDay(Date date) {
     GregorianCalendar gc = new GregorianCalendar();
     gc.setTime(date);
-    int week = gc.get(7);
+    int week = gc.get(Calendar.DAY_OF_WEEK);
     return (week == 7) || (week == 1);
   }
 
@@ -668,9 +668,9 @@ public class DateUtil extends DateUtils {
 
   private static class DateFormatCache {
 
-    private SimpleDateFormat format;
+    private final SimpleDateFormat format;
 
-    private Lock lock;
+    private final Lock lock;
 
     public DateFormatCache(Lock lock, SimpleDateFormat format) {
       this.lock = lock;

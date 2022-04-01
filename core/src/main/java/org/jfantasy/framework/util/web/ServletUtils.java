@@ -1,16 +1,15 @@
 package org.jfantasy.framework.util.web;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Enumeration;
-import java.util.Map;
-import java.util.StringTokenizer;
-import java.util.TreeMap;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.util.common.EncodeUtil;
-import org.jfantasy.framework.util.common.PropertiesHelper;
+import org.jfantasy.framework.util.common.StringUtil;
 
 /**
  * Servlet 工具类
@@ -18,7 +17,6 @@ import org.jfantasy.framework.util.common.PropertiesHelper;
  * @author limaofeng
  */
 public class ServletUtils {
-  private ServletUtils() {}
 
   private static final Log LOGGER = LogFactory.getLog(ServletUtils.class);
   public static final String TEXT_TYPE = "text/plain";
@@ -29,26 +27,69 @@ public class ServletUtils {
   public static final String EXCEL_TYPE = "application/vnd.ms-excel";
   public static final String AUTHENTICATION_HEADER = "Authorization";
   public static final long ONE_YEAR_SECONDS = 31536000L;
-  private static String poweredBy = "jfantasy.app";
 
-  static {
-    try {
-      poweredBy =
-          PropertiesHelper.load("plugin.properties").getProperty("system.PoweredBy", "fantasy.com");
-    } catch (Exception e) {
-      LOGGER.error(e.getMessage(), e);
-    }
+  public static final String[] CORS_DEFAULT_ALLOWED_HEADERS =
+      new String[] {
+        "Accept",
+        "Origin",
+        "Cache-Control",
+        "X-Requested-With",
+        "Authorization",
+        "Content-Type",
+        "Last-Modified"
+      };
+  public static final String CORS_DEFAULT_ORIGIN_PATTERNS = "*";
+  public static final String[] CORS_DEFAULT_ALLOWED_METHODS =
+      new String[] {"GET", "POST", "HEAD", "PATCH", "PUT", "DELETE", "OPTIONS"};
+  public static final String[] CORS_DEFAULT_EXPOSE_METHODS =
+      new String[] {"ETag", "Connection", "Content-Disposition"};
+  public static final long CORS_DEFAULT_MAX_AGE = 3600;
+
+  private ServletUtils() {}
+
+  public static void cors(
+      String allowedOriginPatterns,
+      String[] allowedMethods,
+      String[] allowedHeaders,
+      String[] exposeHeaders,
+      HttpServletResponse response) {
+    response.setHeader("Access-Control-Allow-Origin", allowedOriginPatterns);
+    response.setHeader("Access-Control-Allow-Methods", StringUtil.join(allowedMethods, ","));
+    response.setHeader("Access-Control-Allow-Headers", StringUtil.join(allowedHeaders, ","));
+    response.setHeader("Access-Control-Expose-Headers", StringUtil.join(exposeHeaders, ","));
   }
 
   /**
-   * 设置 页面过期时间
-   *
-   * @param response HttpServletResponse
-   * @param expiresSeconds 过期时间(秒)
+   * @param etag 版本的标识符
+   * @param lastModified 资源修改时间
+   * @param response 响应
    */
-  public static void setExpiresHeader(HttpServletResponse response, long expiresSeconds) {
-    response.setDateHeader("Expires", System.currentTimeMillis() + expiresSeconds * 1000L);
-    response.setHeader("Cache-Control", "private, max-age=" + expiresSeconds);
+  public static void setCache(String etag, Date lastModified, HttpServletResponse response) {
+    response.setHeader("ETag", etag);
+    response.setDateHeader("Last-Modified", lastModified.getTime());
+    response.setHeader("Pragma", "public");
+    response.setHeader("Cache-Control", "must-revalidate, post-check=0, pre-check=0");
+  }
+
+  /**
+   * 强缓存
+   *
+   * @param expires 过期时间
+   * @param response 响应
+   */
+  public static void setCache(long expires, HttpServletResponse response) {
+    response.setHeader("Pragma", "public");
+
+    response.setDateHeader("Expires", System.currentTimeMillis() + expires * 1000L);
+    response.setHeader("Cache-Control", "private, max-age=" + expires);
+  }
+
+  public static boolean checkCache(String etag, Date lastModified, HttpServletRequest request) {
+    return checkIfNoneMatchEtag(etag, request) && checkIfModifiedSince(lastModified, request);
+  }
+
+  public static void setNotModified(HttpServletResponse response) {
+    response.setStatus(304);
   }
 
   /**
@@ -56,67 +97,46 @@ public class ServletUtils {
    *
    * @param response HttpServletResponse
    */
-  public static void setNoCacheHeader(HttpServletResponse response) {
-    response.setDateHeader("Expires", 0);
-    response.addHeader("Powered-By", poweredBy);
-    response.addHeader("Pragma", "no-cache");
+  public static void setNoCache(HttpServletResponse response) {
+    response.setHeader("Expires", "0");
+    response.setHeader("Pragma", "no-cache");
     response.setHeader("Cache-Control", "no-cache");
-  }
-
-  /**
-   * 设置 页面不存储
-   *
-   * @param response HttpServletResponse
-   */
-  public static void setNoStoreHeader(HttpServletResponse response) {
-    response.setDateHeader("Expires", 0);
-    response.addHeader("Powered-By", poweredBy);
-    response.addHeader("Pragma", "no-cache");
-    response.setHeader("Cache-Control", "no-store");
   }
 
   /**
    * 设置 页面的最后修改时间
    *
-   * @param response
-   * @param lastModifiedDate
+   * @param response 响应
+   * @param lastModifiedDate 最后修改时间
    */
-  public static void setLastModifiedHeader(HttpServletResponse response, long lastModifiedDate) {
+  public static void setLastModified(long lastModifiedDate, HttpServletResponse response) {
     response.setDateHeader("Last-Modified", lastModifiedDate);
   }
 
-  public static void setEtag(HttpServletResponse response, String etag) {
+  public static void setEtag(String etag, HttpServletResponse response) {
     response.setHeader("ETag", etag);
   }
 
   /**
    * 检查 Modified 字段是否过期
    *
-   * @param request HttpServletRequest
-   * @param response HttpServletResponse
    * @param lastModified 过期时间
-   * @return boolean
+   * @param request HttpServletRequest
+   * @return boolean 命中返回 true
    */
-  public static boolean checkIfModifiedSince(
-      HttpServletRequest request, HttpServletResponse response, long lastModified) {
+  public static boolean checkIfModifiedSince(Date lastModified, HttpServletRequest request) {
     long ifModifiedSince = request.getDateHeader("If-Modified-Since");
-    if ((ifModifiedSince != -1L) && (lastModified < ifModifiedSince + 1000L)) {
-      response.setStatus(304);
-      return false;
-    }
-    return true;
+    return (ifModifiedSince != -1L) && (lastModified.getTime() < ifModifiedSince + 1000L);
   }
 
   /**
    * 检查 etag 字段是否过期
    *
-   * @param request HttpServletRequest
-   * @param response HttpServletResponse
    * @param etag 版本的标识符
-   * @return boolean
+   * @param request HttpServletRequest
+   * @return boolean 命中返回 true
    */
-  public static boolean checkIfNoneMatchEtag(
-      HttpServletRequest request, HttpServletResponse response, String etag) {
+  public static boolean checkIfNoneMatchEtag(String etag, HttpServletRequest request) {
     String headerValue = request.getHeader("If-None-Match");
     if (headerValue != null) {
       boolean conditionSatisfied = false;
@@ -134,50 +154,80 @@ public class ServletUtils {
       } else {
         conditionSatisfied = true;
       }
-      if (conditionSatisfied) {
-        response.setStatus(304);
-        response.setHeader("ETag", etag);
-        return false;
-      }
+      return conditionSatisfied;
     }
-    return true;
+    return false;
   }
 
   /**
    * 方法待优化
    *
-   * @param response HttpServletResponse
    * @param fileName 设置下载文件名
+   * @param request HttpServletRequest
+   * @param response HttpServletResponse
    */
-  @Deprecated
-  public static void setFileDownloadHeader(HttpServletResponse response, String fileName) {
+  public static void setContentDisposition(
+      String fileName, HttpServletRequest request, HttpServletResponse response) {
     try {
-      String encodedfileName = new String(fileName.getBytes(), "ISO8859-1");
-      response.setHeader("Content-Disposition", "attachment; filename=\"" + encodedfileName + "\"");
-    } catch (UnsupportedEncodingException localUnsupportedEncodingException) {
-      LOGGER.error(
-          localUnsupportedEncodingException.getMessage(), localUnsupportedEncodingException);
+      fileName = URLEncoder.encode(fileName, "UTF-8");
+      if (WebUtil.Browser.mozilla == WebUtil.browser(request)) {
+        byte[] bytes = fileName.getBytes(StandardCharsets.UTF_8);
+        fileName = new String(bytes, StandardCharsets.ISO_8859_1);
+      }
+      response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
+    } catch (UnsupportedEncodingException e) {
+      LOGGER.error(e.getMessage(), e);
     }
   }
 
-  @SuppressWarnings("unchecked")
+  public static boolean isKeepAlive(HttpServletRequest request) {
+    return "keep-alive".equals(request.getHeader("connection"));
+  }
+
+  public static long[] getRange(long maxLength, HttpServletRequest request) {
+    String range = StringUtil.defaultValue(request.getHeader("Range"), "bytes=0-");
+    String bytes = WebUtil.parseQuery(range).get("bytes")[0];
+    String[] sf = bytes.split("-");
+    long start = 0;
+    long end = 0;
+    if (sf.length == 2) {
+      start = Long.parseLong(sf[0]);
+      end = Long.parseLong(sf[1]);
+    } else if (bytes.startsWith("-")) {
+      end = maxLength - 1;
+    } else if (bytes.endsWith("-")) {
+      start = Long.parseLong(sf[0]);
+      end = maxLength - 1;
+    }
+    return new long[] {start, end};
+  }
+
+  public static void setKeepAlive(long start, long end, long length, HttpServletResponse response) {
+    long contentLength = end - start + 1;
+    response.setHeader("Accept-Ranges", "bytes");
+    response.setDateHeader("Content-Length", Math.min(contentLength, length));
+    response.setHeader(
+        "Content-Range",
+        "bytes " + start + "-" + (end != 1 && end >= length ? end - 1 : end) + "/" + length);
+  }
+
   public static Map<String, Object> getParametersStartingWith(
-      HttpServletRequest request, String prefix) {
+      String prefix, HttpServletRequest request) {
     Enumeration<String> paramNames = request.getParameterNames();
-    Map<String, Object> params = new TreeMap<String, Object>();
+    Map<String, Object> params = new TreeMap<>();
     if (prefix == null) {
       prefix = "";
     }
     while ((paramNames != null) && (paramNames.hasMoreElements())) {
-      String paramName = (String) paramNames.nextElement();
+      String paramName = paramNames.nextElement();
       if (("".equals(prefix)) || (paramName.startsWith(prefix))) {
-        String unprefixed = paramName.substring(prefix.length());
+        String unPrefixed = paramName.substring(prefix.length());
         String[] values = request.getParameterValues(paramName);
         if ((values != null) && (values.length != 0)) {
           if (values.length > 1) {
-            params.put(unprefixed, values);
+            params.put(unPrefixed, values);
           } else {
-            params.put(unprefixed, values[0]);
+            params.put(unPrefixed, values[0]);
           }
         }
       }
