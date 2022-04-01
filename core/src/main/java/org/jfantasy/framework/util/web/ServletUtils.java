@@ -43,7 +43,7 @@ public class ServletUtils {
   public static final String[] CORS_DEFAULT_ALLOWED_METHODS =
       new String[] {"GET", "POST", "HEAD", "PATCH", "PUT", "DELETE", "OPTIONS"};
   public static final String[] CORS_DEFAULT_EXPOSE_METHODS =
-      new String[] {"ETag", "Connection", "Content-Disposition"};
+      new String[] {"ETag", "Content-Range", "Connection", "Content-Disposition"};
   public static final long CORS_DEFAULT_MAX_AGE = 3600;
 
   private ServletUtils() {}
@@ -211,11 +211,10 @@ public class ServletUtils {
 
   public static void setKeepAlive(long start, long end, long length, HttpServletResponse response) {
     long contentLength = end - start + 1;
+    long rangeEnd = (end != 1 && end >= length ? end - 1 : end);
     response.setHeader("Accept-Ranges", "bytes");
     response.setDateHeader("Content-Length", Math.min(contentLength, length));
-    response.setHeader(
-        "Content-Range",
-        "bytes " + start + "-" + (end != 1 && end >= length ? end - 1 : end) + "/" + length);
+    response.setHeader("Content-Range", "bytes " + start + "-" + rangeEnd + "/" + length);
   }
 
   public static Map<String, Object> getParametersStartingWith(
