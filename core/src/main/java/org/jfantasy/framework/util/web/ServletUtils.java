@@ -36,7 +36,8 @@ public class ServletUtils {
         "X-Requested-With",
         "Authorization",
         "Content-Type",
-        "Last-Modified"
+        "If-Modified-Since",
+        "If-None-Match"
       };
   public static final String CORS_DEFAULT_ORIGIN_PATTERNS = "*";
   public static final String[] CORS_DEFAULT_ALLOWED_METHODS =
@@ -85,7 +86,19 @@ public class ServletUtils {
   }
 
   public static boolean checkCache(String etag, Date lastModified, HttpServletRequest request) {
-    return checkIfNoneMatchEtag(etag, request) && checkIfModifiedSince(lastModified, request);
+    String ifNoneMatch = request.getHeader("If-None-Match");
+
+    if (StringUtil.isNotBlank(ifNoneMatch)) {
+      return checkIfNoneMatchEtag(etag, ifNoneMatch);
+    }
+
+    long ifModifiedSince = request.getDateHeader("If-Modified-Since");
+
+    if (StringUtil.isNotBlank(ifModifiedSince)) {
+      return checkIfModifiedSince(lastModified, ifModifiedSince);
+    }
+
+    return false;
   }
 
   public static void setNotModified(HttpServletResponse response) {
@@ -121,11 +134,10 @@ public class ServletUtils {
    * 检查 Modified 字段是否过期
    *
    * @param lastModified 过期时间
-   * @param request HttpServletRequest
+   * @param ifModifiedSince HttpServletRequest
    * @return boolean 命中返回 true
    */
-  public static boolean checkIfModifiedSince(Date lastModified, HttpServletRequest request) {
-    long ifModifiedSince = request.getDateHeader("If-Modified-Since");
+  public static boolean checkIfModifiedSince(Date lastModified, long ifModifiedSince) {
     return (ifModifiedSince != -1L) && (lastModified.getTime() < ifModifiedSince + 1000L);
   }
 
@@ -133,30 +145,25 @@ public class ServletUtils {
    * 检查 etag 字段是否过期
    *
    * @param etag 版本的标识符
-   * @param request HttpServletRequest
+   * @param ifNoneMatch HttpServletRequest
    * @return boolean 命中返回 true
    */
-  public static boolean checkIfNoneMatchEtag(String etag, HttpServletRequest request) {
-    String headerValue = request.getHeader("If-None-Match");
-    if (headerValue != null) {
-      boolean conditionSatisfied = false;
-      if (!"*".equals(headerValue)) {
-        StringTokenizer commaTokenizer = new StringTokenizer(headerValue, ",");
-        do {
-          String currentToken = commaTokenizer.nextToken();
-          if (currentToken.trim().equals(etag)) {
-            conditionSatisfied = true;
-          }
-          if (conditionSatisfied) {
-            break;
-          }
-        } while (commaTokenizer.hasMoreTokens());
-      } else {
+  public static boolean checkIfNoneMatchEtag(String etag, String ifNoneMatch) {
+    if ("*".equals(ifNoneMatch)) {
+      return true;
+    }
+    boolean conditionSatisfied = false;
+    StringTokenizer commaTokenizer = new StringTokenizer(ifNoneMatch, ",");
+    do {
+      String currentToken = commaTokenizer.nextToken();
+      if (currentToken.trim().equals(etag)) {
         conditionSatisfied = true;
       }
-      return conditionSatisfied;
-    }
-    return false;
+      if (conditionSatisfied) {
+        break;
+      }
+    } while (commaTokenizer.hasMoreTokens());
+    return conditionSatisfied;
   }
 
   /**
