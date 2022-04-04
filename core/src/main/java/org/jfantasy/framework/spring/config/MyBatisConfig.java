@@ -24,6 +24,7 @@ import org.jfantasy.framework.dao.mybatis.interceptors.AutoKeyInterceptor;
 import org.jfantasy.framework.dao.mybatis.interceptors.LimitInterceptor;
 import org.jfantasy.framework.dao.mybatis.interceptors.MultiDataSourceInterceptor;
 import org.jfantasy.framework.dao.mybatis.keygen.bean.Sequence;
+import org.jfantasy.framework.dao.mybatis.keygen.service.SequenceService;
 import org.jfantasy.framework.dao.mybatis.keygen.util.DataBaseKeyGenerator;
 import org.jfantasy.framework.dao.mybatis.sqlmapper.SqlMapper;
 import org.jfantasy.framework.util.common.ClassUtil;
@@ -174,8 +175,9 @@ public class MyBatisConfig {
 
   @Bean
   public DataBaseKeyGenerator dataBaseKeyGenerator(
+      @Autowired SequenceService sequenceService,
       @Value("${spring.jfantasy.sequence.pool-size:10}") Integer poolSize) {
-    return new DataBaseKeyGenerator(poolSize);
+    return new DataBaseKeyGenerator(sequenceService, poolSize);
   }
 
   public ConfigurationCustomizer mybatisConfigurationCustomizer() {

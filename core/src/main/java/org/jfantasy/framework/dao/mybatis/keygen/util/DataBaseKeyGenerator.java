@@ -3,7 +3,6 @@ package org.jfantasy.framework.dao.mybatis.keygen.util;
 import org.jfantasy.framework.dao.mybatis.keygen.service.SequenceService;
 import org.jfantasy.framework.spring.SpringBeanUtils;
 import org.jfantasy.framework.util.common.ObjectUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /** @author limaofeng */
 public class DataBaseKeyGenerator {
@@ -12,14 +11,15 @@ public class DataBaseKeyGenerator {
 
   private final int poolSize;
 
-  private SequenceService sequenceService;
+  private final SequenceService sequenceService;
 
-  public DataBaseKeyGenerator() {
-    this.poolSize = 10;
+  public DataBaseKeyGenerator(SequenceService sequenceService) {
+    this(sequenceService, 10);
   }
 
-  public DataBaseKeyGenerator(int poolSize) {
+  public DataBaseKeyGenerator(SequenceService sequenceService, int poolSize) {
     this.poolSize = poolSize;
+    this.sequenceService = sequenceService;
   }
 
   public static DataBaseKeyGenerator getInstance() {
@@ -31,9 +31,5 @@ public class DataBaseKeyGenerator {
 
   public long nextValue(String key) {
     return SequenceInfo.retrieve(this.sequenceService, this.poolSize, key).nextValue();
-  }
-
-  public void setSequenceService(@Autowired SequenceService sequenceService) {
-    this.sequenceService = sequenceService;
   }
 }

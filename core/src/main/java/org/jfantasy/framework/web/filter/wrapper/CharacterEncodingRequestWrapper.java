@@ -1,6 +1,6 @@
 package org.jfantasy.framework.web.filter.wrapper;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -15,7 +15,7 @@ public class CharacterEncodingRequestWrapper extends HttpServletRequestWrapper {
 
   protected static final Log LOG = LogFactory.getLog(CharacterEncodingRequestWrapper.class);
 
-  private Map<String, String[]> parameterMaps = new LinkedHashMap<>();
+  private final Map<String, String[]> parameterMaps = new LinkedHashMap<>();
 
   public CharacterEncodingRequestWrapper(HttpServletRequest request) {
     super(request);
@@ -38,7 +38,7 @@ public class CharacterEncodingRequestWrapper extends HttpServletRequestWrapper {
     }
     String[] newValues = new String[values.length];
     for (int i = 0; i < values.length; i++) {
-      if (Charset.forName("ISO-8859-1").newEncoder().canEncode(values[i])) {
+      if (StandardCharsets.ISO_8859_1.newEncoder().canEncode(values[i])) {
         newValues[i] =
             WebUtil.transformCoding(values[i], "ISO-8859-1", getRequest().getCharacterEncoding());
         LOG.debug(name + " 的原始编码为[ISO-8859-1]转编码:" + values[i] + "=>" + newValues[i]);
@@ -51,7 +51,6 @@ public class CharacterEncodingRequestWrapper extends HttpServletRequestWrapper {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public Map<String, String[]> getParameterMap() {
     Enumeration<String> enumeration = super.getParameterNames();
     if (parameterMaps.size() == super.getParameterMap().size()) {
