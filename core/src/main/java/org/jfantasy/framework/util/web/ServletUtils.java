@@ -179,28 +179,30 @@ public class ServletUtils {
   }
 
   /**
-   * 方法待优化
+   * 设置内容该以何种形式展示
    *
+   * @param type 类型 inline | attachment
    * @param fileName 设置下载文件名
    * @param request HttpServletRequest
    * @param response HttpServletResponse
    */
   public static void setContentDisposition(
-      String fileName, HttpServletRequest request, HttpServletResponse response) {
+      String type, String fileName, HttpServletRequest request, HttpServletResponse response) {
     try {
       fileName = URLEncoder.encode(fileName, "UTF-8");
       if (WebUtil.Browser.mozilla == WebUtil.browser(request)) {
         byte[] bytes = fileName.getBytes(StandardCharsets.UTF_8);
         fileName = new String(bytes, StandardCharsets.ISO_8859_1);
       }
-      response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
+      response.setHeader("Content-Disposition", type + "; filename=\"" + fileName + "\"");
     } catch (UnsupportedEncodingException e) {
       LOGGER.error(e.getMessage(), e);
     }
   }
 
   public static boolean isKeepAlive(HttpServletRequest request) {
-    return "keep-alive".equals(request.getHeader("connection"));
+    return "keep-alive".equals(request.getHeader("connection"))
+        && StringUtil.isNotBlank(request.getHeader("Range"));
   }
 
   public static String getRange(HttpServletRequest request) {
