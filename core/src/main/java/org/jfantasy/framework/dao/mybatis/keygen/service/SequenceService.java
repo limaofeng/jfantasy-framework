@@ -4,7 +4,6 @@ import org.jfantasy.framework.dao.mybatis.keygen.bean.Sequence;
 import org.jfantasy.framework.dao.mybatis.keygen.dao.SequenceDao;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.regexp.RegexpUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,8 +11,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class SequenceService {
 
-  @Autowired(required = false)
-  private SequenceDao sequenceDao;
+  private final SequenceDao sequenceDao;
+
+  public SequenceService(SequenceDao sequenceDao) {
+    this.sequenceDao = sequenceDao;
+  }
 
   /**
    * 判断序列是否存在
@@ -43,7 +45,7 @@ public class SequenceService {
   public long next(String key, long poolSize) {
     Sequence sequence = this.sequenceDao.findUniqueByKey(key);
     if (ObjectUtil.isNull(sequence)) {
-      return newkey(key, poolSize);
+      return newKey(key, poolSize);
     }
     sequence.setOriginalValue(sequence.getValue());
     sequence.setValue(sequence.getValue() + poolSize);
@@ -65,7 +67,7 @@ public class SequenceService {
       value = "dataSourceTransactionManager",
       rollbackFor = Exception.class,
       propagation = Propagation.REQUIRES_NEW)
-  public long newkey(String key, long poolSize) {
+  public long newKey(String key, long poolSize) {
     String[] keys = RegexpUtil.split(key, ":");
     int index =
         keys.length == 2

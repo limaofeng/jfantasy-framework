@@ -10,9 +10,9 @@ public class DataBaseKeyGenerator {
 
   private static DataBaseKeyGenerator dataBaseKeyGenerator;
 
-  private int poolSize;
+  private final int poolSize;
 
-  @Autowired private SequenceService sequenceService;
+  private SequenceService sequenceService;
 
   public DataBaseKeyGenerator() {
     this.poolSize = 10;
@@ -31,5 +31,9 @@ public class DataBaseKeyGenerator {
 
   public long nextValue(String key) {
     return SequenceInfo.retrieve(this.sequenceService, this.poolSize, key).nextValue();
+  }
+
+  public void setSequenceService(@Autowired SequenceService sequenceService) {
+    this.sequenceService = sequenceService;
   }
 }

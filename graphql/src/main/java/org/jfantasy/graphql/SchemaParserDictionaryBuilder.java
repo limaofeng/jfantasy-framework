@@ -14,7 +14,7 @@ public interface SchemaParserDictionaryBuilder {
   /**
    * 构建方法
    *
-   * @param dictionary
+   * @param dictionary SchemaParserDictionary
    */
   void build(SchemaParserDictionary dictionary);
 }

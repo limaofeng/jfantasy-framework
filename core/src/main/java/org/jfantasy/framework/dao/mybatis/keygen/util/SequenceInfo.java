@@ -22,27 +22,26 @@ public class SequenceInfo {
 
   private static DataBaseKeyGenerator keyGenerator;
 
-  private static final ConcurrentMap<String, SequenceInfo> keys =
-      new ConcurrentHashMap<String, SequenceInfo>(10);
-  private static final Lock retrievelock = new ReentrantLock();
+  private static final ConcurrentMap<String, SequenceInfo> keys = new ConcurrentHashMap<>(10);
+  private static final Lock RETRIEVE_LOCK = new ReentrantLock();
 
-  private Lock lock = new ReentrantLock();
-  private SequenceService service;
+  private final Lock lock = new ReentrantLock();
+  private final SequenceService service;
   private long keyMax = 1L;
   private long keyMin;
   private long nextKey = 0L;
   private long poolSize;
-  private String keyName;
+  private final String keyName;
 
   static SequenceInfo retrieve(SequenceService service, long poolSize, String keyName) {
     try {
-      retrievelock.lock();
+      RETRIEVE_LOCK.lock();
       if (!keys.containsKey(keyName)) {
         keys.put(keyName, new SequenceInfo(service, poolSize, keyName));
       }
       return keys.get(keyName);
     } finally {
-      retrievelock.unlock();
+      RETRIEVE_LOCK.unlock();
     }
   }
 
@@ -107,7 +106,7 @@ public class SequenceInfo {
    * @return long
    */
   private long createKey(String keyName, long poolSize) {
-    return this.service.newkey(keyName, poolSize);
+    return this.service.newKey(keyName, poolSize);
   }
 
   /**

@@ -85,6 +85,18 @@ public class ServletUtils {
     response.setHeader("Cache-Control", "private, max-age=" + expires);
   }
 
+  /**
+   * 请求时，用到了缓存
+   *
+   * @param request 请求
+   * @return boolean
+   */
+  public static boolean cacheable(HttpServletRequest request) {
+    String ifNoneMatch = request.getHeader("If-None-Match");
+    String ifModifiedSince = request.getHeader("If-Modified-Since");
+    return StringUtil.isNotBlank(ifNoneMatch) || StringUtil.isNotBlank(ifModifiedSince);
+  }
+
   public static boolean checkCache(String etag, Date lastModified, HttpServletRequest request) {
     String ifNoneMatch = request.getHeader("If-None-Match");
 
@@ -191,8 +203,16 @@ public class ServletUtils {
     return "keep-alive".equals(request.getHeader("connection"));
   }
 
-  public static long[] getRange(long maxLength, HttpServletRequest request) {
-    String range = StringUtil.defaultValue(request.getHeader("Range"), "bytes=0-");
+  public static String getRange(HttpServletRequest request) {
+    return request.getHeader("Range");
+  }
+
+  public static long[] getRange(HttpServletRequest request, long length) {
+    return getRange(request.getHeader("Range"), length);
+  }
+
+  public static long[] getRange(String range, long length) {
+    range = StringUtil.defaultValue(range, "bytes=0-");
     String bytes = WebUtil.parseQuery(range).get("bytes")[0];
     String[] sf = bytes.split("-");
     long start = 0;
@@ -201,10 +221,10 @@ public class ServletUtils {
       start = Long.parseLong(sf[0]);
       end = Long.parseLong(sf[1]);
     } else if (bytes.startsWith("-")) {
-      end = maxLength - 1;
+      end = length - 1;
     } else if (bytes.endsWith("-")) {
       start = Long.parseLong(sf[0]);
-      end = maxLength - 1;
+      end = length - 1;
     }
     return new long[] {start, end};
   }
