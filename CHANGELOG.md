@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.9.9](https://github.com/limaofeng/jfantasy-framework/compare/v2.9.8...v2.9.9) (2022-04-06)
+
 ### [2.9.8](https://github.com/limaofeng/jfantasy-framework/compare/v2.9.7...v2.9.8) (2022-04-06)
 
 
