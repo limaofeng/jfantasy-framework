@@ -185,7 +185,7 @@ tasks.register("codeCoverageReport", JacocoReport) {
         subproject.plugins.withType(JacocoPlugin).configureEach {
             subproject.tasks.matching({ t -> t.extensions.findByType(JacocoTaskExtension) }).configureEach { testTask ->
                 //noinspection GroovyAssignabilityCheck
-                sourceSets(subproject.sourceSets.main.get())
+                sourceSets subproject.sourceSets.main
                 executionData(testTask)
             }
             subproject.tasks.matching({ t -> t.extensions.findByType(JacocoTaskExtension) }).forEach {
