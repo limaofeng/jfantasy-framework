@@ -16,6 +16,7 @@ import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
 import org.jfantasy.framework.dao.mybatis.keygen.GUIDKeyGenerator;
 import org.jfantasy.framework.error.IgnoreException;
+import org.jfantasy.framework.util.common.NumberUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StreamUtil;
 import org.jfantasy.framework.util.regexp.RegexpUtil;
@@ -526,6 +527,12 @@ public class FileUtil {
       size /= 1024;
       i++;
     }
-    return Double.valueOf(Math.ceil(size)).longValue() + " " + UNITS[i];
+    if (i < 2) {
+      return Double.valueOf(Math.ceil(size)).longValue() + ' ' + UNITS[i];
+    } else if (i == 2) {
+      return NumberUtil.format(Math.ceil(size * 10) / 10) + ' ' + UNITS[i];
+    } else {
+      return NumberUtil.format(Math.ceil(size * 100) / 100) + ' ' + UNITS[i];
+    }
   }
 }

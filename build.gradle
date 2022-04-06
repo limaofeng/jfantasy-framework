@@ -1,3 +1,5 @@
+import org.gradle.plugins.ide.eclipse.model.SourceFolder
+
 plugins {
     id 'java'
     id 'jacoco'
@@ -48,20 +50,18 @@ allprojects {
             }
         }
         classpath {
-            file.beforeMerged { cp ->
-                cp.entries.add(new org.gradle.plugins.ide.eclipse.model.SourceFolder('build/generated/sources/annotationProcessor/java/main/', null))
+            file.beforeMerged { cp -> cp.entries.add(new SourceFolder('build/generated/sources/annotationProcessor/java/main/', null))
             }
         }
     }
 
     repositories {
-        maven { url "https://jcenter.bintray.com" }
         mavenCentral()
         mavenLocal()
     }
 
     dependencies {
-        implementation 'javax.interceptor:javax.interceptor-api:1.2'
+        implementation 'javax.interceptor:javax.interceptor-api:1.2.2'
     }
 }
 
@@ -110,12 +110,12 @@ subprojects {
     }
 
     task javadocJar(type: Jar) {
-        archiveClassifier = "javadoc"
+        archiveClassifier.set("javadoc")
         from javadoc
     }
 
     task sourceJar(type: Jar) {
-        archiveClassifier = "sources"
+        archiveClassifier.set("sources")
         from sourceSets.main.allSource
     }
 
@@ -184,7 +184,8 @@ tasks.register("codeCoverageReport", JacocoReport) {
     subprojects { subproject ->
         subproject.plugins.withType(JacocoPlugin).configureEach {
             subproject.tasks.matching({ t -> t.extensions.findByType(JacocoTaskExtension) }).configureEach { testTask ->
-                sourceSets subproject.sourceSets.main
+                //noinspection GroovyAssignabilityCheck
+                sourceSets(subproject.sourceSets.main.get())
                 executionData(testTask)
             }
             subproject.tasks.matching({ t -> t.extensions.findByType(JacocoTaskExtension) }).forEach {

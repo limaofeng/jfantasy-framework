@@ -1,12 +1,12 @@
 package org.jfantasy.graphql.directives;
 
 import graphql.Scalars;
-import graphql.schema.DataFetcher;
-import graphql.schema.GraphQLArgument;
-import graphql.schema.GraphQLFieldDefinition;
-import graphql.schema.GraphQLFieldsContainer;
+import graphql.language.BooleanValue;
+import graphql.language.StringValue;
+import graphql.schema.*;
 import graphql.schema.idl.SchemaDirectiveWiring;
 import graphql.schema.idl.SchemaDirectiveWiringEnvironment;
+import java.util.Objects;
 import org.jfantasy.framework.util.common.file.FileUtil;
 
 /**
@@ -22,7 +22,7 @@ public class FileSizeDirective implements SchemaDirectiveWiring {
   @Override
   public GraphQLFieldDefinition onField(
       SchemaDirectiveWiringEnvironment<GraphQLFieldDefinition> environment) {
-    String unit = (String) environment.getDirective().getArgument(UNIT_NAME).getValue();
+    InputValueWithState unit = environment.getDirective().getArgument(UNIT_NAME).getArgumentValue();
 
     GraphQLFieldDefinition field = environment.getElement();
     GraphQLFieldsContainer parentType = environment.getFieldsContainer();
@@ -36,13 +36,15 @@ public class FileSizeDirective implements SchemaDirectiveWiring {
           if (format == null || value == null || !format) {
             return value;
           }
-          return FileUtil.fileSize(FileUtil.fileSize(value, unit));
+          return FileUtil.fileSize(
+              FileUtil.fileSize(
+                  value, ((StringValue) Objects.requireNonNull(unit.getValue())).getValue()));
         };
 
     GraphQLArgument.Builder formatArgument =
         GraphQLArgument.newArgument()
             .name(FORMAT_NAME)
-            .defaultValue(false)
+            .defaultValueLiteral(BooleanValue.of(false))
             .type(Scalars.GraphQLBoolean)
             .description("显示单位， 比如：1024 => 1 KB");
 

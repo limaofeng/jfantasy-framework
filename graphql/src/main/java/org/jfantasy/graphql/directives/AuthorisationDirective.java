@@ -15,7 +15,8 @@ public class AuthorisationDirective implements SchemaDirectiveWiring {
   @Override
   public GraphQLFieldDefinition onField(
       SchemaDirectiveWiringEnvironment<GraphQLFieldDefinition> environment) {
-    String targetAuthRole = (String) environment.getDirective().getArgument("requires").getValue();
+    InputValueWithState targetAuthRole =
+        environment.getDirective().getArgument("requires").getArgumentValue();
 
     GraphQLFieldDefinition field = environment.getElement();
     //
@@ -28,7 +29,7 @@ public class AuthorisationDirective implements SchemaDirectiveWiring {
         new DataFetcher() {
           @Override
           public Object get(DataFetchingEnvironment dataFetchingEnvironment) throws Exception {
-            Object contextMap = dataFetchingEnvironment.getContext();
+            Object contextMap = dataFetchingEnvironment.getGraphQlContext();
             System.out.println(contextMap);
             return originalDataFetcher.get(dataFetchingEnvironment);
           }

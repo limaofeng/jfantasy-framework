@@ -14,9 +14,9 @@ public interface LanguageRepository extends JpaRepository<Language, Long> {
   /**
    * 获取语言信息
    *
-   * @param key
-   * @param locale
-   * @return
+   * @param key 国际化 Key
+   * @param locale 地区
+   * @return Language 语音
    */
   Language findByKeyAndLocale(String key, String locale);
 }

@@ -45,7 +45,7 @@ public final class ObjectUtil {
    * @param target 目标对象
    * @param ignoreProperties 忽略字段
    * @param <T>
-   * @return
+   * @return R 目标结果
    */
   public static <T, R> R copy(T source, R target, String... ignoreProperties) {
     BeanUtils.copyProperties(source, target, ignoreProperties);
@@ -958,7 +958,7 @@ public final class ObjectUtil {
    * 获取集合的末尾元素，没有时返回NULL
    *
    * @param <T> 泛型
-   * @param list 集合
+   * @param collection 集合
    * @return T
    */
   public static <T, C extends Collection<T>> T last(C collection) {

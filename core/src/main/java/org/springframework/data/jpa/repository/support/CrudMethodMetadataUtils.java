@@ -13,7 +13,7 @@ import org.springframework.util.ClassUtils;
  */
 public class CrudMethodMetadataUtils {
 
-  private static ClassLoader classLoader = ClassUtils.getDefaultClassLoader();
+  private static final ClassLoader classLoader = ClassUtils.getDefaultClassLoader();
 
   public static CrudMethodMetadata getCrudMethodMetadata() {
     ProxyFactory factory = new ProxyFactory();

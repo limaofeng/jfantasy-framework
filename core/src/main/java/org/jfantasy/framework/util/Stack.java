@@ -19,7 +19,7 @@ public class Stack<T> {
   /**
    * 读取对象，但不取出
    *
-   * @return
+   * @return T
    */
   public T peek() {
     return list.peek();

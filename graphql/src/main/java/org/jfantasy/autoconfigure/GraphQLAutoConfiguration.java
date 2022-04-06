@@ -2,9 +2,9 @@ package org.jfantasy.autoconfigure;
 
 import graphql.execution.ExecutionStrategy;
 import graphql.execution.instrumentation.Instrumentation;
-import graphql.kickstart.spring.web.boot.GraphQLWebAutoConfiguration;
+import graphql.kickstart.autoconfigure.tools.GraphQLJavaToolsAutoConfiguration;
+import graphql.kickstart.autoconfigure.web.servlet.GraphQLWebAutoConfiguration;
 import graphql.kickstart.tools.SchemaParserDictionary;
-import graphql.kickstart.tools.boot.GraphQLJavaToolsAutoConfiguration;
 import java.util.List;
 import org.jfantasy.graphql.SchemaParserDictionaryBuilder;
 import org.jfantasy.graphql.VersionGraphQLQueryResolver;

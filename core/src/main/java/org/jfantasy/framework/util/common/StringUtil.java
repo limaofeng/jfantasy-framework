@@ -322,7 +322,7 @@ public abstract class StringUtil {
   }
 
   /**
-   * 编码字符串 {s} 格式{enc} 调用{@link #'URLEncoder.encode(String,String)'}
+   * 编码字符串 {s} 格式{enc}
    *
    * @param s 要编码的字符串
    * @param enc 格式
@@ -347,7 +347,7 @@ public abstract class StringUtil {
   }
 
   /**
-   * 解码字符串 {s} 格式{enc} 调用{@link #'URLEncoder.decode(String,String)'}
+   * 解码字符串 {s} 格式{enc}
    *
    * @param s 要解码的字符串
    * @param enc 格式

@@ -19,6 +19,12 @@ public class NumberUtil {
       new String[] {"元", "拾", "佰", "仟", "万", "亿", "角", "分", "整"};
   private static final byte[] HEX = "0123456789ABCDEF".getBytes();
   public static final int INTEGER_MAX = 99999;
+  private static final NumberFormat DEFAULT_NUMBER_FORMAT = NumberFormat.getInstance();
+
+  static {
+    DEFAULT_NUMBER_FORMAT.setGroupingUsed(false);
+  }
+
   private static Random random = new Random();
 
   private NumberUtil() {}
@@ -228,7 +234,11 @@ public class NumberUtil {
   }
 
   public static String format(double num) {
-    NumberFormat nf = new DecimalFormat("0.00");
+    return DEFAULT_NUMBER_FORMAT.format(num);
+  }
+
+  public static String format(double num, String format) {
+    NumberFormat nf = new DecimalFormat(format);
     return nf.format(num);
   }
 
