@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.9.8](https://github.com/limaofeng/jfantasy-framework/compare/v2.9.7...v2.9.8) (2022-04-06)
+
+
+### Bug Fixes
+
+* cors allowed headers 修改 ([fde7500](https://github.com/limaofeng/jfantasy-framework/commit/fde75008942bf0588c7b2bccd3a06807305aad5e))
+* cors 暴露 Content-Range 信息 ([7bf1703](https://github.com/limaofeng/jfantasy-framework/commit/7bf17031c8ba7aef3296d61f25f3ebb7d602f696))
+* 优化 getExtension 逻辑 ([b803a85](https://github.com/limaofeng/jfantasy-framework/commit/b803a853f2893aa318cd5d76571ca6471ce7e707))
+* 优化 ServletUtils 中的方法 ([ed99310](https://github.com/limaofeng/jfantasy-framework/commit/ed99310a007acadf40015b26fb404848f9840a15))
+* 修复 FileUtil getMimeType 方法 ([3b4f6ff](https://github.com/limaofeng/jfantasy-framework/commit/3b4f6ffdaf8c884fdd0e0449099381b5f31d9931))
+* 修复 HibernateUtils 中，联合主键配置时, 获取 IdClass 的 BUG ([d0caa98](https://github.com/limaofeng/jfantasy-framework/commit/d0caa989286e660ea760295cef0a06e1b25db9bc))
+* 修复 MatchType 匹配 BUG ([284d353](https://github.com/limaofeng/jfantasy-framework/commit/284d353ae7acba8a045d144c4ca19ea3faf7ab72))
+* 修复筛选 Not in BUG ([02ee204](https://github.com/limaofeng/jfantasy-framework/commit/02ee204b45f3e91951e1d6fdcce3668501a28e36))
+* 修正对范围请求的错误理解 ([8f7cab5](https://github.com/limaofeng/jfantasy-framework/commit/8f7cab56ac84aaaf28f2d438e08570a37110d003))
+* 全局异常处理只处理部分异常 ([7cd2056](https://github.com/limaofeng/jfantasy-framework/commit/7cd2056c7919a9b58f680e81125a0efab2b89bf8))
+* 添加浏览器缓存检查方法 ([8d6b094](https://github.com/limaofeng/jfantasy-framework/commit/8d6b094eeec1cb06918adc94a606688ee75d6a24))
+* 解决 DataBaseKeyGenerator 注入 Bug ([400842d](https://github.com/limaofeng/jfantasy-framework/commit/400842d632688886e46d13308c8c53092af1a381))
+* 长连接判断添加 Range 设置 ([51078e0](https://github.com/limaofeng/jfantasy-framework/commit/51078e04e4018683d7e3dad1c82f3553542b9eb8))
+
 ### [2.9.7](https://github.com/limaofeng/jfantasy-framework/compare/v2.9.6...v2.9.7) (2022-03-06)
 
 
