@@ -387,6 +387,10 @@ public class FileUtil {
     delFile(new File(filePath));
   }
 
+  public static String tmpdir() {
+    return System.getProperty("java.io.tmpdir");
+  }
+
   public static File tmp() {
     return createFile(
         System.getProperty("java.io.tmpdir")
