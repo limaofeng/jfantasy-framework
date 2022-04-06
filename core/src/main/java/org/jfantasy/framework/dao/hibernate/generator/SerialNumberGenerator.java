@@ -14,7 +14,7 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 
 public class SerialNumberGenerator implements IdentifierGenerator, Configurable {
 
-  private SpelExpressionParser parser = new SpelExpressionParser();
+  private final SpelExpressionParser parser = new SpelExpressionParser();
   private Expression expression;
 
   @Override

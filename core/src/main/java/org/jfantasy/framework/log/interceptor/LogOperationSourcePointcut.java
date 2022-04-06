@@ -7,7 +7,6 @@ import org.springframework.aop.support.StaticMethodMatcherPointcut;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
-@SuppressWarnings("serial")
 abstract class LogOperationSourcePointcut extends StaticMethodMatcherPointcut
     implements Serializable {
 

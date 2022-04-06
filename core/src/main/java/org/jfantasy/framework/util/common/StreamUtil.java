@@ -8,7 +8,7 @@ public abstract class StreamUtil {
 
   private static final Logger LOGGER = LogManager.getLogger(StreamUtil.class);
 
-  private static final int DEFAULT_BUFFER_SIZE = 2048;
+  private static final int DEFAULT_BUFFER_SIZE = 8192;
 
   private StreamUtil() {}
 
@@ -26,13 +26,13 @@ public abstract class StreamUtil {
       throw new IOException(" skip failure");
     }
 
-    int bytesRead = input.read(buf, 0, loadLength > bufferSize ? bufferSize : loadLength);
+    int bytesRead = input.read(buf, 0, Math.min(loadLength, bufferSize));
     while (bytesRead != -1 && loadLength > 0) {
       loadLength -= bytesRead;
       output.write(buf, 0, bytesRead);
-      bytesRead = input.read(buf, 0, loadLength > bufferSize ? bufferSize : loadLength);
+      output.flush();
+      bytesRead = input.read(buf, 0, Math.min(loadLength, bufferSize));
     }
-    output.flush();
   }
 
   public static void copy(InputStream input, OutputStream output, int bufferSize)
@@ -41,9 +41,9 @@ public abstract class StreamUtil {
     int bytesRead = input.read(buf);
     while (bytesRead != -1) {
       output.write(buf, 0, bytesRead);
+      output.flush();
       bytesRead = input.read(buf);
     }
-    output.flush();
   }
 
   public static void copyThenClose(InputStream input, OutputStream output) throws IOException {

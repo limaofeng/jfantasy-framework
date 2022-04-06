@@ -14,11 +14,11 @@ public class SpELUtil {
   private SpELUtil() {}
 
   public static EvaluationContext createEvaluationContext() {
-    return initiaVariable(new StandardEvaluationContext());
+    return initialVariable(new StandardEvaluationContext());
   }
 
   public static EvaluationContext createEvaluationContext(Object object) {
-    return initiaVariable(new StandardEvaluationContext(object));
+    return initialVariable(new StandardEvaluationContext(object));
   }
 
   public static EvaluationContext createEvaluationContext(Map<String, Object> data) {
@@ -42,7 +42,7 @@ public class SpELUtil {
     return parser.parseExpression(el);
   }
 
-  private static EvaluationContext initiaVariable(EvaluationContext context) {
+  private static EvaluationContext initialVariable(EvaluationContext context) {
     context.setVariable("DateUtil", DateUtil.class);
     context.setVariable("SequenceInfo", SequenceInfo.class);
     context.setVariable("StringUtil", StringUtil.class);

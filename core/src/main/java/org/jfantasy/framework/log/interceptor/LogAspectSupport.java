@@ -1,8 +1,5 @@
 package org.jfantasy.framework.log.interceptor;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.log.LogManager;
@@ -15,10 +12,13 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.cache.interceptor.KeyGenerator;
 import org.springframework.cache.interceptor.SimpleKeyGenerator;
 import org.springframework.expression.EvaluationContext;
-import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
 
 public class LogAspectSupport implements InitializingBean {
 
@@ -61,7 +61,6 @@ public class LogAspectSupport implements InitializingBean {
   }
 
   public void setLogOperationSources(LogOperationSource... logOperationSources) {
-    Assert.notEmpty(logOperationSources);
     this.logOperationSource =
         (logOperationSources.length > 1
             ? new CompositeLogOperationSource(logOperationSources)
@@ -101,7 +100,7 @@ public class LogAspectSupport implements InitializingBean {
       Object[] args,
       Object target,
       Class<?> targetClass) {
-    Collection<LogOperationContext> logables = new ArrayList<LogOperationContext>();
+    Collection<LogOperationContext> logables = new ArrayList<>();
 
     for (LogOperation logOperation : logOp) {
       LogOperationContext opContext =

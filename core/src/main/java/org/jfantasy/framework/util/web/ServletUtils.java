@@ -4,12 +4,14 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.util.common.EncodeUtil;
 import org.jfantasy.framework.util.common.StringUtil;
+import org.springframework.http.CacheControl;
 
 /**
  * Servlet 工具类
@@ -43,7 +45,7 @@ public class ServletUtils {
   public static final String[] CORS_DEFAULT_ALLOWED_METHODS =
       new String[] {"GET", "POST", "HEAD", "PATCH", "PUT", "DELETE", "OPTIONS"};
   public static final String[] CORS_DEFAULT_EXPOSE_METHODS =
-      new String[] {"ETag", "Content-Range", "Connection", "Content-Disposition"};
+      new String[] {"ETag", "Content-Range", "Connection", "Accept-Ranges", "Content-Disposition"};
   public static final long CORS_DEFAULT_MAX_AGE = 3600;
 
   private ServletUtils() {}
@@ -61,28 +63,39 @@ public class ServletUtils {
   }
 
   /**
-   * @param etag 版本的标识符
-   * @param lastModified 资源修改时间
-   * @param response 响应
-   */
-  public static void setCache(String etag, Date lastModified, HttpServletResponse response) {
-    response.setHeader("ETag", etag);
-    response.setDateHeader("Last-Modified", lastModified.getTime());
-    response.setHeader("Pragma", "public");
-    response.setHeader("Cache-Control", "must-revalidate, post-check=0, pre-check=0");
-  }
-
-  /**
-   * 强缓存
+   * 缓存
    *
    * @param expires 过期时间
    * @param response 响应
    */
   public static void setCache(long expires, HttpServletResponse response) {
-    response.setHeader("Pragma", "public");
+    setCache(expires, null, null, CacheControl.maxAge(expires, TimeUnit.SECONDS), response);
+  }
 
+  /**
+   * 缓存
+   *
+   * @param expires 过期时间
+   * @param response 响应
+   */
+  public static void setCache(
+      long expires,
+      String etag,
+      Date lastModified,
+      CacheControl cacheControl,
+      HttpServletResponse response) {
     response.setDateHeader("Expires", System.currentTimeMillis() + expires * 1000L);
-    response.setHeader("Cache-Control", "private, max-age=" + expires);
+    if (StringUtil.isNotBlank(etag)) {
+      response.setHeader("ETag", etag);
+    }
+    if (lastModified != null) {
+      response.setDateHeader("Last-Modified", lastModified.getTime());
+    }
+    response.setHeader("Cache-Control", cacheControl.getHeaderValue());
+  }
+
+  public static boolean isNoCache(HttpServletRequest request) {
+    return "no-cache".equalsIgnoreCase(request.getHeader("Cache-Control"));
   }
 
   /**
@@ -124,22 +137,7 @@ public class ServletUtils {
    */
   public static void setNoCache(HttpServletResponse response) {
     response.setHeader("Expires", "0");
-    response.setHeader("Pragma", "no-cache");
-    response.setHeader("Cache-Control", "no-cache");
-  }
-
-  /**
-   * 设置 页面的最后修改时间
-   *
-   * @param response 响应
-   * @param lastModifiedDate 最后修改时间
-   */
-  public static void setLastModified(long lastModifiedDate, HttpServletResponse response) {
-    response.setDateHeader("Last-Modified", lastModifiedDate);
-  }
-
-  public static void setEtag(String etag, HttpServletResponse response) {
-    response.setHeader("ETag", etag);
+    response.setHeader("Cache-Control", CacheControl.noCache().getHeaderValue());
   }
 
   /**
@@ -200,9 +198,8 @@ public class ServletUtils {
     }
   }
 
-  public static boolean isKeepAlive(HttpServletRequest request) {
-    return "keep-alive".equals(request.getHeader("connection"))
-        && StringUtil.isNotBlank(request.getHeader("Range"));
+  public static boolean isRange(HttpServletRequest request) {
+    return StringUtil.isNotBlank(request.getHeader("Range"));
   }
 
   public static String getRange(HttpServletRequest request) {
@@ -231,11 +228,12 @@ public class ServletUtils {
     return new long[] {start, end};
   }
 
-  public static void setKeepAlive(long start, long end, long length, HttpServletResponse response) {
+  public static void setContentRange(
+      long start, long end, long length, HttpServletResponse response) {
     long contentLength = end - start + 1;
     long rangeEnd = (end != 1 && end >= length ? end - 1 : end);
     response.setHeader("Accept-Ranges", "bytes");
-    response.setDateHeader("Content-Length", Math.min(contentLength, length));
+    response.setHeader("Connection", "close");
     response.setHeader("Content-Range", "bytes " + start + "-" + rangeEnd + "/" + length);
   }
 

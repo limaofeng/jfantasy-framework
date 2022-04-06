@@ -9,7 +9,7 @@ import org.jfantasy.framework.dao.hibernate.generator.SerialNumberGenerator;
 public class CustomIdentifierGeneratorStrategyProvider
     implements IdentifierGeneratorStrategyProvider {
 
-  private Map<String, Class<?>> strategies = new HashMap<>();
+  private final Map<String, Class<?>> strategies = new HashMap<>();
 
   {
     strategies.put("fantasy-sequence", SequenceGenerator.class);

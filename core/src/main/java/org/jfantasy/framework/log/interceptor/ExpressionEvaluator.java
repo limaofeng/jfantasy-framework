@@ -11,16 +11,16 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 
 public class ExpressionEvaluator {
 
-  private SpelExpressionParser parser = new SpelExpressionParser();
+  private final SpelExpressionParser parser = new SpelExpressionParser();
 
-  private ParameterNameDiscoverer paramNameDiscoverer =
+  private final ParameterNameDiscoverer paramNameDiscoverer =
       new LocalVariableTableParameterNameDiscoverer();
 
-  private Map<String, Expression> conditionCache = new ConcurrentHashMap<String, Expression>();
+  private final Map<String, Expression> conditionCache = new ConcurrentHashMap<>();
 
-  private Map<String, Expression> keyCache = new ConcurrentHashMap<String, Expression>();
+  private final Map<String, Expression> keyCache = new ConcurrentHashMap<>();
 
-  private Map<String, Method> targetMethodCache = new ConcurrentHashMap<String, Method>();
+  private final Map<String, Method> targetMethodCache = new ConcurrentHashMap<>();
 
   public EvaluationContext createEvaluationContext(
       Method method, Object[] args, Object target, Class<?> targetClass) {
@@ -39,7 +39,7 @@ public class ExpressionEvaluator {
       condExp = this.parser.parseExpression(conditionExpression);
       this.conditionCache.put(key, condExp);
     }
-    return condExp.getValue(evalContext, boolean.class);
+    return Boolean.TRUE.equals(condExp.getValue(evalContext, boolean.class));
   }
 
   public Object key(String keyExpression, Method method, EvaluationContext evalContext) {
@@ -53,12 +53,6 @@ public class ExpressionEvaluator {
   }
 
   private String toString(Method method, String expression) {
-    StringBuilder sb = new StringBuilder();
-    sb.append(method.getDeclaringClass().getName());
-    sb.append("#");
-    sb.append(method.toString());
-    sb.append("#");
-    sb.append(expression);
-    return sb.toString();
+    return method.getDeclaringClass().getName() + "#" + method + "#" + expression;
   }
 }

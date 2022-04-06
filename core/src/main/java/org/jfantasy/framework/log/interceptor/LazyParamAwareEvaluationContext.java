@@ -85,10 +85,6 @@ class LazyParamAwareEvaluationContext extends StandardEvaluationContext {
   }
 
   private String toString(Method m) {
-    StringBuilder sb = new StringBuilder();
-    sb.append(m.getDeclaringClass().getName());
-    sb.append("#");
-    sb.append(m.toString());
-    return sb.toString();
+    return m.getDeclaringClass().getName() + "#" + m;
   }
 }
