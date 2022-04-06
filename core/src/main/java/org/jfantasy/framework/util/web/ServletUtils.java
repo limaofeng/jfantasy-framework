@@ -32,6 +32,7 @@ public class ServletUtils {
 
   public static final String[] CORS_DEFAULT_ALLOWED_HEADERS =
       new String[] {
+        "Range",
         "Accept",
         "Origin",
         "Cache-Control",

@@ -18,7 +18,17 @@ class ImageUtilTest {
 
   @Test
   void identify() {
-    ImageUtil.ImageMetadata metadata = ImageUtil.identify("/Users/limaofeng/Downloads/测试文件名.jpg");
+    ImageUtil.ImageMetadata metadata = ImageUtil.identify("/Users/limaofeng/Downloads/foo-1.jpeg");
     log.debug(metadata.toString());
+
+    int r = metadata.getChannelStatistics().getRed().getMean();
+    int g = metadata.getChannelStatistics().getGreen().getMean();
+    int b = metadata.getChannelStatistics().getBlue().getMean();
+
+    double luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+
+    if (luma < 40) {
+      log.debug("图片偏黑");
+    }
   }
 }
