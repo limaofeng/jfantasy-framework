@@ -23,7 +23,11 @@ public class ErrorHandler {
 
   protected ApplicationContext applicationContext;
 
-  @ExceptionHandler(value = Exception.class)
+  @ExceptionHandler(
+      value = {
+        ValidationException.class,
+        MethodArgumentNotValidException.class,
+      })
   @ResponseBody
   public WebError errorAttributes(
       Exception exception, HttpServletRequest request, HttpServletResponse response) {
@@ -38,9 +42,6 @@ public class ErrorHandler {
     } else if (exception instanceof ValidationException) {
       ErrorUtils.fill(error, (ValidationException) exception);
       response.setStatus(HttpStatus.UNPROCESSABLE_ENTITY.value());
-    } else if (exception instanceof RestException) {
-      RestException restException = (RestException) exception;
-      response.setStatus(restException.getStatusCode());
     } else if (exception instanceof MethodArgumentNotValidException) {
       ErrorUtils.fill(error, ((MethodArgumentNotValidException) exception));
       response.setStatus(HttpStatus.UNPROCESSABLE_ENTITY.value());
