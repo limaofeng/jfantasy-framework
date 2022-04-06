@@ -528,7 +528,7 @@ public class FileUtil {
       i++;
     }
     if (i < 2) {
-      return Double.valueOf(Math.ceil(size)).longValue() + ' ' + UNITS[i];
+      return NumberUtil.format((Math.ceil(size))) + ' ' + UNITS[i];
     } else if (i == 2) {
       return NumberUtil.format(Math.ceil(size * 10) / 10) + ' ' + UNITS[i];
     } else {
