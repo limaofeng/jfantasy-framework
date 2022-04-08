@@ -1,28 +1,34 @@
 package org.jfantasy.schedule.service;
 
-import static org.quartz.CalendarIntervalScheduleBuilder.calendarIntervalSchedule;
-import static org.quartz.CronScheduleBuilder.cronSchedule;
-import static org.quartz.DailyTimeIntervalScheduleBuilder.dailyTimeIntervalSchedule;
-import static org.quartz.JobBuilder.newJob;
-import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.quartz.*;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.quartz.impl.matchers.StringMatcher;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-public class ScheduleService {
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-  private static final Log LOGGER = LogFactory.getLog(ScheduleService.class);
+import static org.quartz.CalendarIntervalScheduleBuilder.calendarIntervalSchedule;
+import static org.quartz.CronScheduleBuilder.cronSchedule;
+import static org.quartz.DailyTimeIntervalScheduleBuilder.dailyTimeIntervalSchedule;
+import static org.quartz.JobBuilder.newJob;
+import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 
-  @Autowired(required = false)
-  private Scheduler scheduler;
+@Service
+public class SchedulerUtil {
+
+  private static final Log LOGGER = LogFactory.getLog(SchedulerUtil.class);
+
+  private final Scheduler scheduler;
+
+  public SchedulerUtil(@Autowired(required = false) Scheduler scheduler) {
+    this.scheduler = scheduler;
+  }
 
   /**
    * 返回 各时段的表达式
@@ -51,7 +57,7 @@ public class ScheduleService {
       return this.scheduler.getJobGroupNames();
     } catch (SchedulerException e) {
       LOGGER.error(e.getMessage(), e);
-      return new ArrayList<String>();
+      return new ArrayList<>();
     }
   }
 
@@ -60,7 +66,7 @@ public class ScheduleService {
       return this.scheduler.getTriggerGroupNames();
     } catch (SchedulerException e) {
       LOGGER.error(e.getMessage(), e);
-      return new ArrayList<String>();
+      return new ArrayList<>();
     }
   }
 
@@ -70,7 +76,7 @@ public class ScheduleService {
    * @return list<jobkey>
    */
   public List<JobKey> getJobKeys() {
-    List<JobKey> jobKeys = new ArrayList<JobKey>();
+    List<JobKey> jobKeys = new ArrayList<>();
     try {
       for (String group : this.scheduler.getJobGroupNames()) {
         jobKeys.addAll(
@@ -89,12 +95,12 @@ public class ScheduleService {
       return (List<Trigger>) this.scheduler.getTriggersOfJob(jobKey);
     } catch (SchedulerException e) {
       LOGGER.error(e.getMessage(), e);
-      return new ArrayList<Trigger>();
+      return new ArrayList<>();
     }
   }
 
   public List<TriggerKey> getTriggers() {
-    List<TriggerKey> triggerKeys = new ArrayList<TriggerKey>();
+    List<TriggerKey> triggerKeys = new ArrayList<>();
     try {
       for (String group : this.scheduler.getTriggerGroupNames()) {
         triggerKeys.addAll(
@@ -109,7 +115,7 @@ public class ScheduleService {
   }
 
   public List<TriggerKey> getTriggers(GroupMatcher<TriggerKey> matcher) {
-    List<TriggerKey> triggerKeys = new ArrayList<TriggerKey>();
+    List<TriggerKey> triggerKeys = new ArrayList<>();
     try {
       triggerKeys.addAll(this.scheduler.getTriggerKeys(matcher));
       return triggerKeys;
@@ -171,7 +177,7 @@ public class ScheduleService {
   public JobDetail addJob(JobKey jobKey, Class<? extends Job> jobClass, Map<String, String> data) {
     try {
       if (data == null) {
-        data = new HashMap<String, String>();
+        data = new HashMap<>();
       }
       JobDetail job =
           newJob(jobClass)
@@ -352,6 +358,24 @@ public class ScheduleService {
       DateBuilder.IntervalUnit unit,
       Map<String, String> args) {
     return this.addTrigger(jobKey, triggerKey, interval, unit, emptyString, args);
+  }
+
+  public Trigger addTrigger(JobKey jobKey, TriggerKey triggerKey, Map<String, String> args) {
+    try {
+      Trigger trigger =
+          TriggerBuilder.newTrigger()
+              .forJob(jobKey)
+              .withIdentity(triggerKey)
+              .usingJobData(new JobDataMap(args))
+              .startNow()
+              .build();
+      this.scheduler.scheduleJob(trigger);
+      this.scheduler.resumeTrigger(triggerKey);
+      return trigger;
+    } catch (SchedulerException e) {
+      LOGGER.error(e.getMessage(), e);
+      return null;
+    }
   }
 
   public Trigger addTrigger(
@@ -577,7 +601,7 @@ public class ScheduleService {
   }
 
   public List<JobDetail> jobs() {
-    List<JobDetail> jobDetails = new ArrayList<JobDetail>();
+    List<JobDetail> jobDetails = new ArrayList<>();
     for (JobKey jobKey : this.getJobKeys()) {
       try {
         jobDetails.add(scheduler.getJobDetail(jobKey));
@@ -589,6 +613,17 @@ public class ScheduleService {
       }
     }
     return jobDetails;
+  }
+
+  public boolean isRunning(TriggerKey triggerKey) {
+    try {
+      List<JobExecutionContext> jobContexts = scheduler.getCurrentlyExecutingJobs();
+      return jobContexts.stream()
+          .anyMatch(context -> triggerKey.equals(context.getTrigger().getKey()));
+    } catch (SchedulerException e) {
+      LOGGER.debug(e.getMessage(), e);
+      return false;
+    }
   }
 
   public ListenerManager getListenerManager() throws SchedulerException {

@@ -17,9 +17,9 @@ import org.springframework.util.Assert;
 
 @WebAppConfiguration
 @ContextConfiguration(locations = {"classpath:spring/applicationContext.xml"})
-public class ScheduleServiceJUnit {
+public class SchedulerUtilJUnit {
 
-  @Autowired private ScheduleService scheduleService;
+  @Autowired private SchedulerUtil scheduleService;
 
   @BeforeEach
   public void setUp() throws Exception {
