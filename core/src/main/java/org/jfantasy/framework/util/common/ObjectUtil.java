@@ -232,7 +232,10 @@ public final class ObjectUtil {
       T item = (T) list.get(i);
       R obj = converter.apply(item, context);
       list.set(i, obj);
-      Collection<T> children = getValue(childrenKey, item);
+      if (obj == null) {
+        continue;
+      }
+      Collection<T> children = getValue(childrenKey, obj);
       if (children == null) {
         continue;
       }
@@ -242,7 +245,7 @@ public final class ObjectUtil {
       context.parent = parent;
       context.level = level;
     }
-    return packageResult((Stream<R>) list.stream(), listClass);
+    return packageResult((Stream<R>) list.stream().filter(item -> item != null), listClass);
   }
 
   @Data
