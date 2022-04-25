@@ -4,7 +4,7 @@ import org.jfantasy.framework.dao.hibernate.util.ReflectionUtils;
 
 public class DefaultTypeConverter<T> implements TypeConverter<T> {
 
-  private Class<T> type;
+  private final Class<T> type;
 
   public DefaultTypeConverter(Class<T> type) {
     this.type = type;

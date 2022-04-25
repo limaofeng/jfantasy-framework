@@ -20,13 +20,8 @@ public class DateConverter extends DefaultTypeConverter {
       Map context, Object target, Member member, String propertyName, Object value, Class toType) {
     if (Date.class.isAssignableFrom(toType)) {
       String dateFormatString;
-      try {
-        DateFormat dateFormat = (DateFormat) ClassUtil.getParamAnno((Method) member);
-        dateFormatString = dateFormat.pattern();
-      } catch (Exception e) {
-        dateFormatString = "yyyy-MM-dd";
-        LOGGER.error(e.getMessage(), e);
-      }
+      DateFormat dateFormat = ClassUtil.getParamAnno((Method) member, DateFormat.class);
+      dateFormatString = dateFormat != null ? dateFormat.pattern() : "yyyy-MM-dd HH:mm:ss";
       return DateUtil.parse(
           StringUtil.nullValue(ClassUtil.isArray(value) ? Array.get(value, 0) : value),
           dateFormatString);

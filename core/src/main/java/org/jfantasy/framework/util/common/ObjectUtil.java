@@ -233,6 +233,7 @@ public final class ObjectUtil {
       R obj = converter.apply(item, context);
       list.set(i, obj);
       if (obj == null) {
+        treeData.remove(item);
         continue;
       }
       Collection<T> children = getValue(childrenKey, obj);
@@ -245,6 +246,11 @@ public final class ObjectUtil {
       context.parent = parent;
       context.level = level;
     }
+
+    if (list.size() != treeData.size()) {
+      return recursive(treeData, converter, context);
+    }
+
     return packageResult((Stream<R>) list.stream().filter(item -> item != null), listClass);
   }
 

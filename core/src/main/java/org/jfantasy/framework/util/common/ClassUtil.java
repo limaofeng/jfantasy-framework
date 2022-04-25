@@ -430,16 +430,16 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
     return getParamAnnos(method, 0, 0);
   }
 
-  public static Annotation[] getParamAnnos(Method method, Class<? extends Annotation> annotClass) {
+  public static <T> T getParamAnno(Method method, Class<? extends Annotation> annotClass) {
     Annotation[][] annotations = method.getParameterAnnotations();
     for (Annotation[] paramAnnots : annotations) {
       for (Annotation annot : paramAnnots) {
         if (annotClass.equals(annot.annotationType())) {
-          return paramAnnots;
+          return (T) annot;
         }
       }
     }
-    return new Annotation[0];
+    return null;
   }
 
   public static Annotation getParamAnnos(Method method, int i, int j) {
