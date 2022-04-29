@@ -15,8 +15,8 @@ public class IndexChecker {
   /**
    * 判断Class是否标注了 @Indexed 注解
    *
-   * @param clazz
-   * @return
+   * @param clazz 类名
+   * @return boolean
    */
   public static boolean hasIndexed(Class<?> clazz) {
     return clazz.getAnnotation(Indexed.class) != null;
@@ -28,7 +28,7 @@ public class IndexChecker {
     if (index != -1) {
       key = key.substring(0, index);
     }
-    Property property = null;
+    Property property;
     try {
       property = PropertysCache.getInstance().getProperty(clazz, key);
     } catch (PropertyException ex) {
@@ -51,8 +51,8 @@ public class IndexChecker {
   /**
    * 判断Class是否标注@indexed注解或者属性是否标注了@IndexRefBy注解
    *
-   * @param clazz
-   * @return
+   * @param clazz 类名
+   * @return boolean
    */
   public static boolean needListener(Class<?> clazz) {
     boolean result = false;

@@ -11,8 +11,7 @@ public class JavassistUtil {
 
   private JavassistUtil() {}
 
-  private static final ConcurrentHashMap<String, CtClass> ctClassCache =
-      new ConcurrentHashMap<String, CtClass>();
+  private static final ConcurrentHashMap<String, CtClass> ctClassCache = new ConcurrentHashMap<>();
 
   public static ClassPool getDefault() throws NotFoundException {
     ClassPool classPool = ClassPool.getDefault();
@@ -47,31 +46,31 @@ public class JavassistUtil {
   /**
    * 获取方法参数名称
    *
-   * @param classname
-   * @param methodname
-   * @param parameterTypes
-   * @return
-   * @throws NotFoundException
-   * @throws MissingLVException
+   * @param classname 类名
+   * @param methodName 方法名
+   * @param parameterTypes 参数类型
+   * @return String[]
+   * @throws NotFoundException 类未找到出错
+   * @throws MissingLVException 缺失 LV 异常
    */
   public static String[] getParamNames(
-      String classname, String methodname, Class<?>... parameterTypes)
+      String classname, String methodName, Class<?>... parameterTypes)
       throws NotFoundException, MissingLVException {
     String[] paramTypeNames = new String[parameterTypes.length];
     for (int i = 0; i < parameterTypes.length; i++) {
       paramTypeNames[i] = parameterTypes[i].getName();
     }
     CtMethod cm =
-        getCtClass(classname).getDeclaredMethod(methodname, getDefault().get(paramTypeNames));
+        getCtClass(classname).getDeclaredMethod(methodName, getDefault().get(paramTypeNames));
     return getParamNames(cm);
   }
 
   /**
    * 获取方法参数名称
    *
-   * @param cm
-   * @return
-   * @throws NotFoundException
+   * @param cm CtMethod
+   * @return String[]
+   * @throws NotFoundException 类未找到
    * @throws MissingLVException 如果最终编译的class文件不包含局部变量表信息
    */
   protected static String[] getParamNames(CtMethod cm)
@@ -104,7 +103,6 @@ public class JavassistUtil {
    *
    * @author Administrator
    */
-  @SuppressWarnings("serial")
   public static class MissingLVException extends Exception {
     static String msg = "class:%s 不包含局部变量表信息，请使用编译器选项 javac -g:{vars}来编译源文件。";
 

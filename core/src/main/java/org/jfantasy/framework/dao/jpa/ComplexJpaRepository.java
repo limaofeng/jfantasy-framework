@@ -97,7 +97,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
   }
 
   protected Specification<T> toSpecification(List<PropertyFilter> filters) {
-    return new PropertyFilterSpecification<T>(this.getDomainClass(), filters);
+    return new PropertyFilterSpecification<>(this.getDomainClass(), filters);
   }
 
   @Override
@@ -227,6 +227,8 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
     // 一对多关联关系的表
     this.cleanOneToMany(
         entity, oldEntity, ClassUtil.getDeclaredFields(entityClass, OneToMany.class), ognlUtil);
+    this.cleanEmbedded(
+        entity, oldEntity, ClassUtil.getDeclaredFields(entityClass, Embedded.class), ognlUtil);
     return (O) oldEntity;
   }
 
@@ -246,16 +248,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
           || ObjectUtil.indexOf(oneToOne.cascade(), CascadeType.MERGE) > -1)) {
         continue;
       }
-      Object value = ClassUtil.getValue(entity, field.getName());
-      if (value == null) {
-        continue;
-      }
-      Object oldValue = ClassUtil.getValue(oldEntity, field.getName());
-      if (oldValue == null) {
-        ClassUtil.setValue(oldEntity, field.getName(), value);
-      } else {
-        merge(value, oldValue, ClassUtil.getRealClass(field.getType()), ognlUtil);
-      }
+      copy(entity, oldEntity, field, ognlUtil);
     }
   }
 
@@ -318,6 +311,26 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
         }
         ognlUtil.setValue(field.getName(), oldEntity == null ? entity : oldEntity, addObjects);
       }
+    }
+  }
+
+  private void cleanEmbedded(
+      Object entity, Object oldEntity, Field[] embeddedFields, OgnlUtil ognlUtil) {
+    for (Field field : embeddedFields) {
+      copy(entity, oldEntity, field, ognlUtil);
+    }
+  }
+
+  private void copy(Object entity, Object oldEntity, Field field, OgnlUtil ognlUtil) {
+    Object value = ClassUtil.getValue(entity, field.getName());
+    if (value == null) {
+      return;
+    }
+    Object oldValue = ClassUtil.getValue(oldEntity, field.getName());
+    if (oldValue == null) {
+      ClassUtil.setValue(oldEntity, field.getName(), value);
+    } else {
+      merge(value, oldValue, ClassUtil.getRealClass(field.getType()), ognlUtil);
     }
   }
 
