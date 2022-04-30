@@ -236,7 +236,8 @@ public final class ObjectUtil {
         treeData.remove(item);
         continue;
       }
-      Collection<T> children = getValue(childrenKey, obj);
+      Collection<T> children =
+          getValue(childrenKey, obj.getClass() == item.getClass() ? obj : item);
       if (children == null) {
         continue;
       }
