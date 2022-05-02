@@ -215,6 +215,9 @@ public class WebUtil {
     if ((ip == null) || (ip.length() == 0) || ("unknown".equalsIgnoreCase(ip))) {
       ip = request.getRemoteAddr();
     }
+    if (ip.contains(",")) {
+      return ip.split(",")[0];
+    }
     return ip;
   }
 

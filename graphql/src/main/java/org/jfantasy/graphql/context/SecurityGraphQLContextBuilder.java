@@ -24,7 +24,6 @@ import org.jfantasy.framework.security.oauth2.server.BearerTokenAuthenticationTo
 import org.jfantasy.framework.security.oauth2.server.web.BearerTokenResolver;
 import org.jfantasy.framework.security.oauth2.server.web.DefaultBearerTokenResolver;
 import org.jfantasy.framework.security.web.WebAuthenticationDetailsSource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.log.LogMessage;
 import org.springframework.stereotype.Component;
 
@@ -45,8 +44,12 @@ public class SecurityGraphQLContextBuilder extends DefaultGraphQLContextBuilder
   private final AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource =
       new WebAuthenticationDetailsSource();
 
-  @Autowired
-  private AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver;
+  private final AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver;
+
+  public SecurityGraphQLContextBuilder(
+      AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver) {
+    this.authenticationManagerResolver = authenticationManagerResolver;
+  }
 
   @Override
   @Transactional

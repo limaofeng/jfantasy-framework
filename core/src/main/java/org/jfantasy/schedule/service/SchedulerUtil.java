@@ -1,5 +1,15 @@
 package org.jfantasy.schedule.service;
 
+import static org.quartz.CalendarIntervalScheduleBuilder.calendarIntervalSchedule;
+import static org.quartz.CronScheduleBuilder.cronSchedule;
+import static org.quartz.DailyTimeIntervalScheduleBuilder.dailyTimeIntervalSchedule;
+import static org.quartz.JobBuilder.newJob;
+import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.quartz.*;
@@ -7,17 +17,6 @@ import org.quartz.impl.matchers.GroupMatcher;
 import org.quartz.impl.matchers.StringMatcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.quartz.CalendarIntervalScheduleBuilder.calendarIntervalSchedule;
-import static org.quartz.CronScheduleBuilder.cronSchedule;
-import static org.quartz.DailyTimeIntervalScheduleBuilder.dailyTimeIntervalSchedule;
-import static org.quartz.JobBuilder.newJob;
-import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 
 @Service
 public class SchedulerUtil {
