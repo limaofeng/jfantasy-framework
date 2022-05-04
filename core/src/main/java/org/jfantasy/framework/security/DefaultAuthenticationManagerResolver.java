@@ -5,7 +5,7 @@ import org.jfantasy.framework.security.authentication.AuthenticationManagerResol
 /** @author limaofeng */
 public class DefaultAuthenticationManagerResolver implements AuthenticationManagerResolver {
 
-  private AuthenticationManager authenticationManager;
+  private final AuthenticationManager authenticationManager;
 
   public DefaultAuthenticationManagerResolver(AuthenticationManager authenticationManager) {
     this.authenticationManager = authenticationManager;

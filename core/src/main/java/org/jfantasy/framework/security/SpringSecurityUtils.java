@@ -1,5 +1,7 @@
 package org.jfantasy.framework.security;
 
+import org.jfantasy.framework.security.authentication.Authentication;
+
 /**
  * SpringSecurityUtils
  *
@@ -13,6 +15,14 @@ public class SpringSecurityUtils {
 
   public SecurityContext getContext() {
     return SecurityContextHolder.getContext();
+  }
+
+  public static <T extends Authentication> T getAuthentication() {
+    SecurityContext context = SecurityContextHolder.getContext();
+    if (context == null || !context.isAuthenticated()) {
+      return null;
+    }
+    return (T) context.getAuthentication();
   }
 
   public static <T extends LoginUser> T getCurrentUser(Class<T> clazz) {
