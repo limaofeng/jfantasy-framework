@@ -1,13 +1,12 @@
 package org.jfantasy.framework.util.web;
 
+import eu.bitwalker.useragentutils.Browser;
+import eu.bitwalker.useragentutils.UserAgent;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
-import java.util.Enumeration;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,6 +30,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
  * @since 2013-9-10 上午9:16:01
  */
 public class WebUtil {
+
+  public static final List<String> LOCAL_IP_ADDRESS = Arrays.asList("0:0:0:0:0:0:0:1", "127.0.0.1");
 
   private WebUtil() {
     throw new IllegalStateException("Utility class");
@@ -176,9 +177,9 @@ public class WebUtil {
   public static Cookie getCookie(HttpServletRequest request, String name) {
     Cookie[] cookies = getCookies(request);
     if (cookies != null) {
-      for (Cookie cooky : cookies) {
-        if (cooky.getName().equals(name)) {
-          return cooky;
+      for (Cookie cook : cookies) {
+        if (cook.getName().equals(name)) {
+          return cook;
         }
       }
     }
@@ -217,6 +218,9 @@ public class WebUtil {
     }
     if (ip.contains(",")) {
       return ip.split(",")[0];
+    }
+    if (LOCAL_IP_ADDRESS.contains(ip)) {
+      return null;
     }
     return ip;
   }
@@ -274,52 +278,8 @@ public class WebUtil {
   }
 
   public static Browser browser(HttpServletRequest request) {
-    return Browser.getBrowser(request.getHeader("User-Agent"));
+    return parseUserAgent(request).getBrowser();
   }
-
-  public static String getBrowserVersion(Browser browser, HttpServletRequest request) {
-    return browser.getVersion(request.getHeader("User-Agent").toLowerCase());
-  }
-
-  public static String getOsVersion(HttpServletRequest request) {
-    String userOs = request.getHeader("User-Agent").toLowerCase();
-    String osVersion = "unknown";
-    if (userOs.contains("nt 6.1")) {
-      osVersion = "Windows 7";
-    } else if (userOs.contains("nt 6.0")) {
-      osVersion = "Windows Vista/Server 2008";
-    } else if (userOs.contains("nt 5.2")) {
-      osVersion = "Windows Server 2003";
-    } else if (userOs.contains("nt 5.1")) {
-      osVersion = "Windows XP";
-    } else if (userOs.contains("nt 5")) {
-      osVersion = "Windows 2000";
-    } else if (userOs.contains("nt 4")) {
-      osVersion = "Windows nt4";
-    } else if (userOs.contains("me")) {
-      osVersion = "Windows Me";
-    } else if (userOs.contains("98")) {
-      osVersion = "Windows 98";
-    } else if (userOs.contains("95")) {
-      osVersion = "Windows 95";
-    } else if (userOs.contains("ipad")) {
-      osVersion = "iPad";
-    } else if (userOs.contains("macintosh")) {
-      osVersion = "Mac";
-    } else if (userOs.contains("unix")) {
-      osVersion = "UNIX";
-    } else if (userOs.contains("linux")) {
-      osVersion = "Linux";
-    } else if (userOs.contains("sunos")) {
-      osVersion = "SunOS";
-    } else if (userOs.contains("iphone")) {
-      osVersion = "iPhone";
-    } else if (userOs.contains("android")) {
-      osVersion = "Android";
-    }
-    return osVersion;
-  }
-
   /**
    * 将请求参数转换为Map
    *
@@ -431,58 +391,14 @@ public class WebUtil {
     return method.equalsIgnoreCase(request.getMethod());
   }
 
-  public static class UserAgent {}
-
-  public enum Browser {
-    Opera("Opera", "version/\\d+\\W\\d+"), // NOSONAR
-    chrome("Chrome", "Chrome/\\d+\\W\\d+"), // NOSONAR
-    Firefox("Firefox", "Firefox/\\d+\\W\\d+"), // NOSONAR
-    safari("Safari", "version/\\d+\\W\\d+\\W\\d+"), // NOSONAR
-    _360se("360SE", "360SE/\\d+\\W\\d+"), // NOSONAR
-    green("GreenBrowser", "GreenBrowser/\\d+\\W\\d+"), // NOSONAR
-    qq("QQBrowser", "QQBrowser/\\d+\\W\\d+"), // NOSONAR
-    maxthon("Maxthon", "Maxthon \\d+\\W\\d+"), // NOSONAR
-    msie("MSIE", "msie\\s\\d+\\W\\d+"), // NOSONAR
-    mozilla("Mozilla", "firefox/\\d+\\W\\d+"), // NOSONAR
-    mqqbrowser("MQQBrowser", "MQQBrowser/\\d+\\W\\d+"), // NOSONAR
-    ucbrowser("UCBrowser", "UCBrowser/\\d+\\W\\d+"), // NOSONAR
-    baidubrowser("baidubrowser", "baidubrowser/\\d+\\W\\d+"), // NOSONAR
-    unknown("unknown", "version/\\d+\\W\\d+"); // NOSONAR
-
-    private final String browser;
-    private final String version;
-
-    Browser(String browser, String version) {
-      this.browser = browser;
-      this.version = version;
-    }
-
-    public String getVersion(String agent) {
-      if ("unknown".equals(this.version)) {
-        return null;
-      }
-      return RegexpUtil.parseFirst(agent, this.version);
-    }
-
-    public static Browser getBrowser(String userAgent) {
-      userAgent = ObjectUtil.defaultValue(userAgent, "").toLowerCase();
-      for (Browser browser : Browser.values()) {
-        if (RegexpUtil.isMatch(userAgent, browser.browser)) {
-          return browser;
-        }
-      }
-      return unknown;
-    }
-
-    @Override
-    public String toString() {
-      return this.browser;
-    }
+  public static UserAgent parseUserAgent(HttpServletRequest request) {
+    return UserAgent.parseUserAgentString(request.getHeader("User-Agent"));
   }
 
   public static String filename(String name, HttpServletRequest request) {
     try {
-      return Browser.mozilla == browser(request)
+      UserAgent userAgent = parseUserAgent(request);
+      return Browser.MOZILLA == userAgent.getBrowser()
           ? new String(name.getBytes(StandardCharsets.UTF_8), "iso8859-1")
           : URLEncoder.encode(name, "UTF-8");
     } catch (UnsupportedEncodingException e) {
@@ -492,14 +408,7 @@ public class WebUtil {
   }
 
   public static String filename(String name) {
-    try {
-      return Browser.mozilla == browser(getRequest())
-          ? new String(name.getBytes(StandardCharsets.UTF_8), "iso8859-1")
-          : URLEncoder.encode(name, "UTF-8");
-    } catch (UnsupportedEncodingException e) {
-      LOG.error(e);
-      return name;
-    }
+    return filename(name, getRequest());
   }
 
   public static String transformCoding(String str, String oldCharset, String charset) {

@@ -20,6 +20,7 @@ ext {
                     "mysql:mysql-connector-java"
             ],
             commons      : [
+                    "eu.bitwalker:UserAgentUtils:1.21",
                     "com.nimbusds:nimbus-jose-jwt:8.16",
                     'org.aspectj:aspectjweaver:1.9.6',
                     'javax.persistence:javax.persistence-api:2.2',

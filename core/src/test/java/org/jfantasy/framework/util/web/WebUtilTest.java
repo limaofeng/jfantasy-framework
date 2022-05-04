@@ -1,5 +1,8 @@
 package org.jfantasy.framework.util.web;
 
+import eu.bitwalker.useragentutils.Browser;
+import eu.bitwalker.useragentutils.OperatingSystem;
+import eu.bitwalker.useragentutils.UserAgent;
 import java.util.Arrays;
 import java.util.Map;
 import javax.servlet.http.Cookie;
@@ -32,7 +35,7 @@ public class WebUtilTest {
     request.addHeader("copyright", "jfantasy");
     request.addHeader(
         "User-Agent",
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:33.0) Gecko/20100101 Firefox/33.0");
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.54 Safari/537.36");
 
     request.setCookies(new Cookie("username", "limaofeng"));
 
@@ -125,20 +128,8 @@ public class WebUtilTest {
 
   @Test
   public void testBrowser() throws Exception {
-    WebUtil.Browser browser = WebUtil.browser(request);
+    Browser browser = WebUtil.browser(request);
     LOG.debug(browser);
-  }
-
-  @Test
-  public void testGetBrowserVersion() throws Exception {
-    WebUtil.Browser browser = WebUtil.browser(request);
-
-    LOG.debug(WebUtil.getBrowserVersion(browser, request));
-  }
-
-  @Test
-  public void testGetOsVersion() throws Exception {
-    LOG.debug(WebUtil.getOsVersion(request));
   }
 
   @Test
@@ -161,6 +152,27 @@ public class WebUtilTest {
     Assert.isTrue(tUser.getArrays().length == 2);
     Assert.isTrue(tUser.getArrays()[0] == 1);
     Assert.isTrue(tUser.getArrays()[1] == 2);
+  }
+
+  @Test
+  void parseUserAgent() {
+    UserAgent userAgent = WebUtil.parseUserAgent(request);
+    // 获取浏览器对象
+    Browser browser = userAgent.getBrowser();
+    // 获取操作系统对象
+    OperatingSystem operatingSystem = userAgent.getOperatingSystem();
+
+    System.out.println("浏览器名:" + browser.getName());
+    System.out.println("浏览器类型:" + browser.getBrowserType());
+    System.out.println("浏览器家族:" + browser.getGroup());
+    System.out.println("浏览器生产厂商:" + browser.getManufacturer());
+    System.out.println("浏览器使用的渲染引擎:" + browser.getRenderingEngine());
+    System.out.println("浏览器版本:" + userAgent.getBrowserVersion());
+
+    System.out.println("操作系统名:" + operatingSystem.getName());
+    System.out.println("访问设备类型:" + operatingSystem.getDeviceType());
+    System.out.println("操作系统家族:" + operatingSystem.getGroup());
+    System.out.println("操作系统生产厂商:" + operatingSystem.getManufacturer());
   }
 
   public static class TUser {
