@@ -14,7 +14,7 @@ import org.jfantasy.framework.security.oauth2.server.BearerTokenAuthenticationTo
 public class BearerTokenAuthenticationProvider
     implements AuthenticationProvider<BearerTokenAuthenticationToken> {
 
-  private ResourceServerTokenServices tokenServices;
+  private final ResourceServerTokenServices tokenServices;
 
   public BearerTokenAuthenticationProvider(ResourceServerTokenServices tokenServices) {
     this.tokenServices = tokenServices;
@@ -28,7 +28,7 @@ public class BearerTokenAuthenticationProvider
   @Override
   public Authentication authenticate(BearerTokenAuthenticationToken bearer)
       throws AuthenticationException {
-    AbstractAuthenticationToken token = this.tokenServices.loadAuthentication(bearer.getToken());
+    AbstractAuthenticationToken token = this.tokenServices.loadAuthentication(bearer);
     if (token == null) {
       throw new InvalidTokenException("Invalid token");
     }

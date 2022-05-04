@@ -7,9 +7,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 /**
+ * Graphql 异常处理
+ *
  * @author limaofeng
  * @version V1.0
- * @date 2020/3/22 4:15 下午
  */
 @Component
 public class GraphqlErrorHandler {

@@ -1,5 +1,6 @@
 package org.jfantasy.framework.util.web;
 
+import eu.bitwalker.useragentutils.Browser;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -189,7 +190,7 @@ public class ServletUtils {
       String type, String fileName, HttpServletRequest request, HttpServletResponse response) {
     try {
       fileName = URLEncoder.encode(fileName, "UTF-8");
-      if (WebUtil.Browser.mozilla == WebUtil.browser(request)) {
+      if (Browser.MOZILLA == WebUtil.browser(request)) {
         byte[] bytes = fileName.getBytes(StandardCharsets.UTF_8);
         fileName = new String(bytes, StandardCharsets.ISO_8859_1);
       }

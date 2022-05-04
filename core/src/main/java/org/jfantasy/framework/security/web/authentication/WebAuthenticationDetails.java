@@ -8,7 +8,10 @@ public class WebAuthenticationDetails {
   private final String remoteAddress;
   private final String sessionId;
 
+  private HttpServletRequest request;
+
   public WebAuthenticationDetails(HttpServletRequest request) {
+    this.request = request;
     this.remoteAddress = request.getRemoteAddr();
     HttpSession session = request.getSession(false);
     this.sessionId = (session != null) ? session.getId() : null;
@@ -41,9 +44,7 @@ public class WebAuthenticationDetails {
         return false;
       }
       if (this.sessionId != null) {
-        if (!this.sessionId.equals(other.getSessionId())) {
-          return false;
-        }
+        return this.sessionId.equals(other.getSessionId());
       }
       return true;
     }
@@ -56,6 +57,10 @@ public class WebAuthenticationDetails {
 
   public String getSessionId() {
     return this.sessionId;
+  }
+
+  public HttpServletRequest getRequest() {
+    return request;
   }
 
   @Override
@@ -72,10 +77,13 @@ public class WebAuthenticationDetails {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append(getClass().getSimpleName()).append(" [");
-    sb.append("RemoteIpAddress=").append(this.getRemoteAddress()).append(", ");
-    sb.append("SessionId=").append(this.getSessionId()).append("]");
-    return sb.toString();
+    return getClass().getSimpleName()
+        + " ["
+        + "RemoteIpAddress="
+        + this.getRemoteAddress()
+        + ", "
+        + "SessionId="
+        + this.getSessionId()
+        + "]";
   }
 }

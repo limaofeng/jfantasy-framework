@@ -1,8 +1,10 @@
 package org.jfantasy.framework.security.oauth2.core;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.Instant;
 import java.util.Set;
+import javax.servlet.http.HttpServletRequest;
 import lombok.*;
 
 /**
@@ -53,4 +55,6 @@ public class OAuth2AuthenticationDetails {
   /** 过期时间 */
   @JsonProperty("expires_at")
   private Instant expiresAt;
+
+  @JsonIgnore private HttpServletRequest request;
 }

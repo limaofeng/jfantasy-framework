@@ -7,6 +7,7 @@ import com.jayway.jsonpath.ReadContext;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.jackson.JSON;
 import org.jfantasy.framework.security.LoginUser;
 import org.jfantasy.framework.security.authentication.Authentication;
@@ -15,15 +16,16 @@ import org.jfantasy.framework.security.core.SimpleGrantedAuthority;
 import org.jfantasy.framework.security.oauth2.server.BearerTokenAuthenticationToken;
 import org.jfantasy.framework.security.oauth2.server.authentication.BearerTokenAuthentication;
 import org.jfantasy.framework.util.common.ObjectUtil;
+import org.jfantasy.framework.util.common.StringUtil;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.util.StringUtils;
 
 /**
  * Redis 令牌存储器
  *
  * @author limaofeng
  */
+@Slf4j
 public abstract class AbstractTokenStore implements TokenStore {
 
   private final String ASSESS_TOKEN_PREFIX = "assess_token:";
@@ -39,14 +41,20 @@ public abstract class AbstractTokenStore implements TokenStore {
 
   @Override
   public BearerTokenAuthentication readAuthentication(BearerTokenAuthenticationToken token) {
-    return null;
+    String key = ASSESS_TOKEN_PREFIX + token.getToken();
+    String data = redisTemplate.boundValueOps(key).get();
+    if (StringUtil.isEmpty(data)) {
+      return null;
+    }
+    OAuth2AccessToken accessToken = buildOauth2AccessToken(data);
+    return buildBearerTokenAuthentication(data, accessToken, token.getDetails());
   }
 
   @Override
   public BearerTokenAuthentication readAuthentication(String token) {
     String key = ASSESS_TOKEN_PREFIX + token;
     String data = redisTemplate.boundValueOps(key).get();
-    if (StringUtils.isEmpty(data)) {
+    if (StringUtil.isEmpty(data)) {
       return null;
     }
     OAuth2AccessToken accessToken = buildOauth2AccessToken(data);
@@ -70,7 +78,7 @@ public abstract class AbstractTokenStore implements TokenStore {
   public OAuth2AccessToken readAccessToken(String tokenValue) {
     String key = ASSESS_TOKEN_PREFIX + tokenValue;
     String data = redisTemplate.boundValueOps(key).get();
-    if (StringUtils.isEmpty(data)) {
+    if (StringUtil.isEmpty(data)) {
       return null;
     }
     return buildOauth2AccessToken(data);
@@ -83,6 +91,7 @@ public abstract class AbstractTokenStore implements TokenStore {
 
   @Override
   public void storeRefreshToken(OAuth2RefreshToken refreshToken, Authentication authentication) {
+    log.warn("未实现 storeRefreshToken 逻辑");
     // String principal = principalToString(authentication);
     //
     // String key = refreshToken.getTokenValue();
@@ -176,6 +185,11 @@ public abstract class AbstractTokenStore implements TokenStore {
 
   private BearerTokenAuthentication buildBearerTokenAuthentication(
       String data, OAuth2AccessToken accessToken) {
+    return buildBearerTokenAuthentication(data, accessToken, null);
+  }
+
+  private BearerTokenAuthentication buildBearerTokenAuthentication(
+      String data, OAuth2AccessToken accessToken, Object details) {
     ObjectMapper mapper = JSON.getObjectMapper();
     ReadContext context = JsonPath.parse(data);
 
@@ -183,6 +197,11 @@ public abstract class AbstractTokenStore implements TokenStore {
     List<? extends GrantedAuthority> authorities =
         mapper.convertValue(
             context.read("$.authorities"), new TypeReference<List<SimpleGrantedAuthority>>() {});
-    return new BearerTokenAuthentication(principal, accessToken, authorities);
+    BearerTokenAuthentication bearerTokenAuthentication =
+        new BearerTokenAuthentication(principal, accessToken, authorities);
+    if (details != null) {
+      bearerTokenAuthentication.setDetails(details);
+    }
+    return bearerTokenAuthentication;
   }
 }

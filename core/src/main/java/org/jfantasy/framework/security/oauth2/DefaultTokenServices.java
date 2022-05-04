@@ -16,6 +16,7 @@ import org.jfantasy.framework.security.oauth2.core.token.ResourceServerTokenServ
 import org.jfantasy.framework.security.oauth2.jwt.JwtTokenService;
 import org.jfantasy.framework.security.oauth2.jwt.JwtTokenServiceImpl;
 import org.jfantasy.framework.security.oauth2.jwt.JwtUtils;
+import org.jfantasy.framework.security.oauth2.server.BearerTokenAuthenticationToken;
 import org.jfantasy.framework.security.oauth2.server.authentication.BearerTokenAuthentication;
 import org.jfantasy.framework.util.common.StringUtil;
 
@@ -66,7 +67,7 @@ public class DefaultTokenServices
 
     JwtTokenPayload payload =
         JwtTokenPayload.builder()
-            .uid(Long.valueOf(principal.getUid()))
+            .uid(principal.getUid())
             .name(authentication.getName())
             .clientId(clientDetails.getClientId())
             .tokenType(tokenType)
@@ -103,6 +104,13 @@ public class DefaultTokenServices
         accessToken, this.tokenStore.readAuthentication(accessToken.getTokenValue()));
   }
 
+  private void refreshAccessToken(
+      OAuth2AccessToken accessToken, long expires, BearerTokenAuthenticationToken authentication) {
+    accessToken.setExpiresAt(accessToken.getExpiresAt().plus(expires, ChronoUnit.MINUTES));
+    this.tokenStore.storeAccessToken(
+        accessToken, this.tokenStore.readAuthentication(authentication));
+  }
+
   @Override
   public boolean revokeToken(String tokenValue) {
     OAuth2AccessToken accessToken = this.readAccessToken(tokenValue);
@@ -120,6 +128,15 @@ public class DefaultTokenServices
 
     this.tokenStore.removeAccessToken(accessToken);
     return true;
+  }
+
+  @Override
+  public BearerTokenAuthentication loadAuthentication(BearerTokenAuthenticationToken accessToken) {
+    OAuth2AccessToken token = this.readAccessToken(accessToken);
+    if (token == null) {
+      return null;
+    }
+    return this.tokenStore.readAuthentication(token.getTokenValue());
   }
 
   @Override
@@ -156,6 +173,40 @@ public class DefaultTokenServices
       // 如果续期方式为 Session 执行续期操作
       if (payload.getTokenType() == TokenType.SESSION) {
         this.refreshAccessToken(oAuth2AccessToken, expires);
+      }
+
+      return oAuth2AccessToken;
+    } catch (Exception e) {
+      log.error(e.getMessage(), e);
+      return null;
+    }
+  }
+
+  @Override
+  public OAuth2AccessToken readAccessToken(BearerTokenAuthenticationToken accessToken) {
+    try {
+      // 解析内容
+      JwtTokenPayload payload = JwtUtils.payload(accessToken.getToken());
+
+      // 获取客户端配置
+      ClientDetails clientDetails =
+          clientDetailsService.loadClientByClientId(payload.getClientId());
+      Set<String> secrets = clientDetails.getClientSecrets();
+      int expires = clientDetails.getTokenExpires();
+
+      // 验证 Token
+      verifyToken(accessToken.getToken(), secrets);
+
+      // 获取令牌
+      OAuth2AccessToken oAuth2AccessToken = this.tokenStore.readAccessToken(accessToken.getToken());
+
+      if (oAuth2AccessToken == null) {
+        throw new InvalidTokenException("无效的 Token");
+      }
+
+      // 如果续期方式为 Session 执行续期操作
+      if (payload.getTokenType() == TokenType.SESSION) {
+        this.refreshAccessToken(oAuth2AccessToken, expires, accessToken);
       }
 
       return oAuth2AccessToken;
