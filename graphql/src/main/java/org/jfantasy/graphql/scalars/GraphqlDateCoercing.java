@@ -25,6 +25,9 @@ public class GraphqlDateCoercing implements Coercing<Date, Object> {
     if (input instanceof Date) {
       return (Date) input;
     }
+    if (input instanceof Long) {
+      return new Date((Long) input);
+    }
     if (!(input instanceof String)) {
       throw new CoercingParseValueException(
           "Expected a 'String' or 'java.time.temporal.TemporalAccessor' but was '"
