@@ -1,10 +1,7 @@
 package org.jfantasy.graphql.directives;
 
 import graphql.Scalars;
-import graphql.schema.DataFetcher;
-import graphql.schema.GraphQLArgument;
-import graphql.schema.GraphQLFieldDefinition;
-import graphql.schema.GraphQLFieldsContainer;
+import graphql.schema.*;
 import graphql.schema.idl.SchemaDirectiveWiring;
 import graphql.schema.idl.SchemaDirectiveWiringEnvironment;
 import java.time.LocalDateTime;
@@ -22,6 +19,12 @@ public class DateFormatDirective implements SchemaDirectiveWiring {
 
   private static final String FORMAT_NAME = "format";
 
+  private static final GraphQLArgument.Builder FORMAT_ARGUMENT =
+      GraphQLArgument.newArgument()
+          .name(FORMAT_NAME)
+          .type(Scalars.GraphQLString)
+          .description("日期格式, 如： YYYY-MM-dd");
+
   @Override
   public GraphQLFieldDefinition onField(
       SchemaDirectiveWiringEnvironment<GraphQLFieldDefinition> environment) {
@@ -31,37 +34,33 @@ public class DateFormatDirective implements SchemaDirectiveWiring {
         environment.getCodeRegistry().getDataFetcher(parentType, field);
 
     DataFetcher<?> dataFetcher =
-        dataFetchingEnvironment -> {
-          Object value = originalDataFetcher.get(dataFetchingEnvironment);
-          String format = dataFetchingEnvironment.getArgument(FORMAT_NAME);
-          if (StringUtil.isBlank(format)) {
-            if (value instanceof LocalDateTime) {
-              return Date.from(((LocalDateTime) value).atZone(ZoneId.systemDefault()).toInstant())
-                  .getTime();
-            } else if (value instanceof Date) {
+        DataFetcherFactories.wrapDataFetcher(
+            originalDataFetcher,
+            (dataFetchingEnvironment, value) -> {
+              String format = dataFetchingEnvironment.getArgument(FORMAT_NAME);
+              if (StringUtil.isBlank(format)) {
+                if (value instanceof LocalDateTime) {
+                  return Date.from(
+                          ((LocalDateTime) value).atZone(ZoneId.systemDefault()).toInstant())
+                      .getTime();
+                } else if (value instanceof Date) {
+                  return value;
+                } else {
+                  return value;
+                }
+              }
+              DateTimeFormatter dateTimeFormatter = buildFormatter(format);
+              if (value instanceof LocalDateTime) {
+                return dateTimeFormatter.format((LocalDateTime) value);
+              } else if (value instanceof Date) {
+                return dateTimeFormatter.format(
+                    LocalDateTime.ofInstant(((Date) value).toInstant(), ZoneId.systemDefault()));
+              }
               return value;
-            } else {
-              return value;
-            }
-          }
-          DateTimeFormatter dateTimeFormatter = buildFormatter(format);
-          if (value instanceof LocalDateTime) {
-            return dateTimeFormatter.format((LocalDateTime) value);
-          } else if (value instanceof Date) {
-            return dateTimeFormatter.format(
-                LocalDateTime.ofInstant(((Date) value).toInstant(), ZoneId.systemDefault()));
-          }
-          return value;
-        };
-
-    GraphQLArgument.Builder formatArgument =
-        GraphQLArgument.newArgument()
-            .name(FORMAT_NAME)
-            .type(Scalars.GraphQLString)
-            .description("日期格式, 如： YYYY-MM-dd");
+            });
 
     environment.getCodeRegistry().dataFetcher(parentType, field, dataFetcher);
-    return field.transform(builder -> builder.argument(formatArgument));
+    return field.transform(builder -> builder.argument(FORMAT_ARGUMENT));
   }
 
   private DateTimeFormatter buildFormatter(String format) {
