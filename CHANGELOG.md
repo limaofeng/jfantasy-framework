@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.9.10](https://github.com/limaofeng/jfantasy-framework/compare/v2.9.9...v2.9.10) (2022-05-08)
+
+
+### Features
+
+* 添加FFmpeg工具类，从视频中提取帧图片 ([90bbb42](https://github.com/limaofeng/jfantasy-framework/commit/90bbb426a5ac428afafc50dd1d277bc99906992c))
+* 添加图片处理工具类，提供 resize 与 identify 函数 ([97b1d65](https://github.com/limaofeng/jfantasy-framework/commit/97b1d65d7d4cdf23b4690f0d0a20f86b7c4fe4a6))
+* 添加图片处理工具类，提供 resize 与 identify 函数 ([f5f6f62](https://github.com/limaofeng/jfantasy-framework/commit/f5f6f628957be09cbfdd0816cb9cb0cbfec9e78f))
+
+
+### Bug Fixes
+
+* graphql date 类型支持 long 转换 ([f5fddb3](https://github.com/limaofeng/jfantasy-framework/commit/f5fddb3c1883b237c753d6e76bfe97ca82ac49c3))
+* graphql 指令 argument 配置优化 ([7a9f1db](https://github.com/limaofeng/jfantasy-framework/commit/7a9f1dbbf7c2584cc522c3e143acf97a984355f9))
+* TokenStore 支持传递 Details 信息 ([7c13d2b](https://github.com/limaofeng/jfantasy-framework/commit/7c13d2b8e72d13099373c669b22c7c2b0038ce81))
+* 优化 UserAgent 获取设备信息逻辑 ([46fb163](https://github.com/limaofeng/jfantasy-framework/commit/46fb16339a3d77301f77c983c018375bc27349ac))
+* 修复时间序列号的BUG ([92ccaeb](https://github.com/limaofeng/jfantasy-framework/commit/92ccaeb33f863df1a72a5ec4889c692411b55c3a))
+* 工具类 SpringSecurityUtils 添加返回授权对象方法 ([02e307e](https://github.com/limaofeng/jfantasy-framework/commit/02e307e23a9c3c723d0b02ac2ff0bcb63e579fbb))
+* 获取 IP 的逻辑 ([194a9a6](https://github.com/limaofeng/jfantasy-framework/commit/194a9a6243edbb34abaacb1eff6effc58d2817f3))
+* 解决 ObjectUtil recursive 如果返回 NULL 会自动删除改字段 ([6cfc65c](https://github.com/limaofeng/jfantasy-framework/commit/6cfc65c06958157c7f581fe3e20bc9774857566e))
+* 解决 recursive 函数 "cannot be cast to " 的错误 ([5ab8949](https://github.com/limaofeng/jfantasy-framework/commit/5ab894939ee91effe325d411bafeb539fe7738d9))
+* 解决 SequenceService 注入问题 ([3d31426](https://github.com/limaofeng/jfantasy-framework/commit/3d314268b9d42bf09271e91fe398855947b5eccb))
+* 读取 DateFormat 时的错误 ([ef0c7f7](https://github.com/limaofeng/jfantasy-framework/commit/ef0c7f76011322916295f2d9febfeca8fd7c614c))
+
 ### [2.9.9](https://github.com/limaofeng/jfantasy-framework/compare/v2.9.8...v2.9.9) (2022-04-06)
 
 ### [2.9.8](https://github.com/limaofeng/jfantasy-framework/compare/v2.9.7...v2.9.8) (2022-04-06)
