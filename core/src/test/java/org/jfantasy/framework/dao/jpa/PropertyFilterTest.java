@@ -1,8 +1,10 @@
 package org.jfantasy.framework.dao.jpa;
 
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
+@Slf4j
 public class PropertyFilterTest {
 
   @Test
@@ -25,5 +27,11 @@ public class PropertyFilterTest {
   void getMatchTypeOfNotStartsWith() {
     PropertyFilter.MatchType matchType = PropertyFilter.MatchType.get("notStartsWith");
     System.out.println(matchType);
+  }
+
+  @Test
+  void testToString() {
+    List<PropertyFilter> filters = PropertyFilter.builder().in("aaa", "12").build();
+    log.debug(filters.toString());
   }
 }

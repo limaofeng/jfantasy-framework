@@ -4,6 +4,7 @@ import static org.jfantasy.framework.util.common.ObjectUtil.multipleValuesObject
 
 import java.lang.reflect.Array;
 import org.apache.commons.lang3.StringUtils;
+import org.jfantasy.framework.jackson.JSON;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.springframework.data.jpa.domain.Specification;
@@ -224,7 +225,7 @@ public class PropertyFilter {
         + ", propertyName="
         + propertyName
         + ", propertyValue="
-        + propertyValue
+        + JSON.serialize(propertyValue)
         + "]";
   }
 
