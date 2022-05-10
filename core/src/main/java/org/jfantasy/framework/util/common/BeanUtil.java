@@ -1,8 +1,7 @@
 package org.jfantasy.framework.util.common;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Date;
+import java.util.Arrays;
 import java.util.List;
 import org.jfantasy.framework.util.ognl.OgnlUtil;
 import org.jfantasy.framework.util.reflect.Property;
@@ -19,19 +18,13 @@ public class BeanUtil {
   }
 
   public static <T> T copyProperties(T dest, Object orig, PropertyFilter filter) {
-    return null;
-  }
-
-  public static <T> T copyProperties(T dest, Object orig, String... excludeProperties) {
+    OgnlUtil _ognlUtil = OgnlUtil.getInstance();
     if (dest == null || orig == null) {
       return dest;
     }
     Class destClass = dest.getClass();
     Property[] properties = ClassUtil.getProperties(orig);
     for (Property property : properties) {
-      if (ObjectUtil.indexOf(excludeProperties, property.getName()) != -1) {
-        continue;
-      }
       if (!property.isRead()) {
         continue;
       }
@@ -39,43 +32,24 @@ public class BeanUtil {
       if (setProperty == null || !setProperty.isWrite()) {
         continue;
       }
-      if (ClassUtil.isBasicType(property.getPropertyType())
-          && ClassUtil.isBasicType(setProperty.getPropertyType())) {
-        Object o = property.getValue(orig);
-        if (o == null) {
-          continue;
-        }
-        if (Boolean.class.isAssignableFrom(property.getPropertyType())
-            || boolean.class.isAssignableFrom(property.getPropertyType())
-            || Date.class.isAssignableFrom(property.getPropertyType())) {
-          OgnlUtil.getInstance().setValue(setProperty.getName(), dest, o);
-        } else {
-          OgnlUtil.getInstance().setValue(setProperty.getName(), dest, o);
-        }
-        continue;
+      Object value = _ognlUtil.getValue(property.getName(), orig);
+      if (filter.accept(property, value, dest)) {
+        _ognlUtil.setValue(property.getName(), dest, value);
       }
-      if (!property.getPropertyType().equals(setProperty.getPropertyType())) {
-        continue;
-      }
-      Object o = property.getValue(orig);
-      if (o == null) {
-        continue;
-      }
-      setProperty.setValue(dest, o);
     }
     return dest;
   }
 
-  public static <T> T copyNotNull(T dest, Object orig) {
-    List<String> excludeProperties = new ArrayList<String>();
-    Property[] properties = ClassUtil.getProperties(orig);
-    for (Property property : properties) {
-      if (!property.isRead() || property.getValue(orig) == null) {
-        excludeProperties.add(property.getName());
-      }
+  public static <T> T copyProperties(T dest, Object orig, String... excludeProperties) {
+    if (dest == null || orig == null) {
+      return dest;
     }
+    return copyProperties(dest, orig, new IgnorePropertyFilter(excludeProperties));
+  }
+
+  public static <T> T copyNotNull(T dest, Object orig) {
     return copyProperties(
-        dest, orig, excludeProperties.toArray(new String[excludeProperties.size()]));
+        dest, orig, (Property property, Object value, Object _dest) -> value != null);
   }
 
   private static int length(Object value) {
@@ -106,9 +80,35 @@ public class BeanUtil {
     return null;
   }
 
-  private interface PropertyFilter {}
+  public static interface PropertyFilter {
+    boolean accept(Property property, Object value, Object target);
+  }
 
-  private class IgnorePropertyFilter implements PropertyFilter {}
+  private static class IgnorePropertyFilter implements PropertyFilter {
 
-  private class AllowPropertyFilter implements PropertyFilter {}
+    private final String[] propertyNames;
+
+    public IgnorePropertyFilter(String... propertyNames) {
+      this.propertyNames = propertyNames;
+    }
+
+    @Override
+    public boolean accept(Property property, Object value, Object target) {
+      return !Arrays.stream(propertyNames).allMatch(item -> item.equals(property.getName()));
+    }
+  }
+
+  private static class AllowPropertyFilter implements PropertyFilter {
+
+    private final String[] propertyNames;
+
+    public AllowPropertyFilter(String... propertyNames) {
+      this.propertyNames = propertyNames;
+    }
+
+    @Override
+    public boolean accept(Property property, Object propDest, Object propOrig) {
+      return Arrays.stream(propertyNames).allMatch(item -> item.equals(property.getName()));
+    }
+  }
 }
