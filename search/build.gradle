@@ -1,4 +1,4 @@
-description = "主框架 - 框架主体,包含基础的集成框架"
+description = " 集成 elastic "
 
 configurations {
 	compile.exclude module: "tomcat-jdbc"
@@ -8,29 +8,14 @@ apply plugin: 'java-library'
 apply plugin: 'jacoco'
 
 dependencies {
-	api project(":jfantasy-commons")
-	// spring boot
-	api libs['springBoot']
-	// quartz
-	api libs['quartz']
-	// orm
-	api libs['orm']
-	// unirest
-	api libs['unirest']
-	// commons
-	api libs['commons']
-	// ognl and cglib
-	api libs['third-party']
-	api 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
-	api "com.jayway.jsonpath:json-path"
+	implementation project(":jfantasy-commons")
+	implementation "co.elastic.clients:elasticsearch-java:${LIB_ELASTICSEARCH_VER}"
+	compileOnly "org.springframework:spring-orm"
+	compileOnly "org.springframework.data:spring-data-jpa"
 	compileOnly "org.springframework.boot:spring-boot-starter-data-redis"
 	compileOnly "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
 	annotationProcessor "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
 	testCompileOnly "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
 	testAnnotationProcessor "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
 	testImplementation libs['test']
-}
-
-repositories {
-	mavenCentral()
 }

@@ -35,12 +35,8 @@ ext {
                     "commons-fileupload:commons-fileupload:${LIB_COMMONS_FILEUPLOAD_VER}",
                     "org.apache.commons:commons-lang3:${LIB_APACHE_COMMONS_LANG3_VER}"
             ],
-            elasticsearch: [
-                    'org.elasticsearch.client:transport',
-                    'org.elasticsearch.plugin:transport-netty4-client',
-                    'org.elasticsearch:elasticsearch'
-            ],
             'third-party': [
+                    "org.javassist:javassist:3.27.0-GA",
                     "org.projectlombok:lombok:${LIB_LOMBOK_VER}",
                     "cglib:cglib:${LIB_CGLIB_VER}",
                     "net.sourceforge.htmlcleaner:htmlcleaner:${LIB_HTMLCLEANER_VER}",

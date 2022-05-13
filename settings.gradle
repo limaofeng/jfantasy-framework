@@ -12,9 +12,12 @@ pluginManagement {
 }
 
 rootProject.name = 'jfantasy-framework'
-include ":jfantasy-core", ":jfantasy-graphql", ":jfantasy-desensitize", ":jfantasy-example"
+include ":jfantasy-core", ":jfantasy-graphql", ":jfantasy-commons", ":jfantasy-search", ":jfantasy-desensitize", ":jfantasy-example"
 
 project(':jfantasy-core').projectDir = "$rootDir/core" as File
 project(':jfantasy-graphql').projectDir = "$rootDir/graphql" as File
 project(':jfantasy-desensitize').projectDir = "$rootDir/desensitize" as File
 project(':jfantasy-example').projectDir = "$rootDir/example" as File
+project(':jfantasy-commons').projectDir = "$rootDir/commons" as File
+project(':jfantasy-search').projectDir = "$rootDir/search" as File
+project(':jfantasy-search').projectDir = "$rootDir/search" as File
