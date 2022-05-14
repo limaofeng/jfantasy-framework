@@ -5,21 +5,26 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import org.jfantasy.framework.search.annotations.Indexed;
 import org.jfantasy.framework.search.backend.IndexReopenTask;
+import org.jfantasy.framework.search.config.IndexedScanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.scheduling.SchedulingTaskExecutor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.util.StopWatch;
-import org.springframework.util.StringUtils;
 
-public class BuguIndex implements ApplicationListener<ContextRefreshedEvent> {
+public class CuckooIndex
+    implements ApplicationContextAware, ApplicationListener<ContextRefreshedEvent> {
 
-  private static final Logger LOG = LoggerFactory.getLogger(BuguIndex.class);
+  private static final Logger LOG = LoggerFactory.getLogger(CuckooIndex.class);
 
-  private static BuguIndex instance;
+  private static CuckooIndex instance;
   /** RAMBufferSizeMB */
   private double bufferSizeMB = 16.0D;
   /** Lucene 版本 */
@@ -39,9 +44,11 @@ public class BuguIndex implements ApplicationListener<ContextRefreshedEvent> {
 
   private Map<Class<?>, IndexRebuilder> indexRebuilders = new HashMap<>();
 
-  private String[] packagesToScan = new String[] {"org.jfantasy"};
+  private IndexedFactory indexedFactory;
 
-  public static synchronized BuguIndex getInstance() {
+  private ApplicationContext applicationContext;
+
+  public static synchronized CuckooIndex getInstance() {
     //    if (instance == null) {
     //      throw new NotFoundException(" BuguIndex 未初始化 .");
     //    }
@@ -51,12 +58,18 @@ public class BuguIndex implements ApplicationListener<ContextRefreshedEvent> {
   @Async
   @Override
   public void onApplicationEvent(ContextRefreshedEvent event) {
-    if (BuguIndex.instance == null) {
-      this.afterPropertiesSet();
+    if (CuckooIndex.instance == null) {
+      try {
+        this.initialize();
+      } catch (ClassNotFoundException e) {
+        throw new RuntimeException(e);
+      }
     }
   }
 
-  private void scanDao(Set<Class<?>> indexedClasses, String basePackage) {
+  private void scanDao(Set<Class<?>> indexedClasses, String basePackage)
+      throws ClassNotFoundException {
+
     //    if (!SpringBeanUtils.startup()) {
     //      return;
     //    }
@@ -76,28 +89,28 @@ public class BuguIndex implements ApplicationListener<ContextRefreshedEvent> {
     //    }
   }
 
-  @SuppressWarnings("unchecked")
-  public void afterPropertiesSet() {
+  public void initialize() throws ClassNotFoundException {
     LOG.debug("Starting Lucene");
     StopWatch watch = new StopWatch();
     watch.start();
-    Set<Class<?>> indexedClasses = new LinkedHashSet<>();
-    for (String basePackage : packagesToScan) {
-      scanDao(indexedClasses, basePackage);
-    }
+
+    Set<Class<?>> indexedClasses = new IndexedScanner(applicationContext).scan(Indexed.class);
+
     for (Class<?> clazz : indexedClasses) {
       indexRebuilders.put(clazz, new IndexRebuilder(clazz));
     }
-    if (BuguIndex.instance == null) {
-      BuguIndex.instance = this; // NOSONAR
+
+    if (CuckooIndex.instance == null) {
+      CuckooIndex.instance = this; // NOSONAR
     }
+
     if (this.rebuild) {
       new Timer()
           .schedule(
               new TimerTask() {
                 @Override
                 public void run() {
-                  BuguIndex.this.rebuild();
+                  CuckooIndex.this.rebuild();
                 }
               },
               period);
@@ -193,10 +206,6 @@ public class BuguIndex implements ApplicationListener<ContextRefreshedEvent> {
   //    this.clusterConfig = clusterConfig;
   //  }
 
-  public void setBasePackage(String basePackage) {
-    this.packagesToScan = StringUtils.tokenizeToStringArray(basePackage, ",; \t\n");
-  }
-
   public void setRebuild(boolean rebuild) {
     this.rebuild = rebuild;
   }
@@ -210,6 +219,19 @@ public class BuguIndex implements ApplicationListener<ContextRefreshedEvent> {
   }
 
   public static boolean isRunning() {
-    return BuguIndex.instance != null;
+    return CuckooIndex.instance != null;
+  }
+
+  public void setIndexedFactory(IndexedFactory indexedFactory) {
+    this.indexedFactory = indexedFactory;
+  }
+
+  public IndexedFactory getIndexedFactory() {
+    return indexedFactory;
+  }
+
+  @Override
+  public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+    this.applicationContext = applicationContext;
   }
 }

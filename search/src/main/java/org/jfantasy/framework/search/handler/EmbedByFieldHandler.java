@@ -1,8 +1,8 @@
 package org.jfantasy.framework.search.handler;
 
 import java.util.List;
+import org.jfantasy.framework.search.Document;
 import org.jfantasy.framework.search.annotations.IndexEmbedBy;
-import org.jfantasy.framework.search.elastic.Document;
 import org.jfantasy.framework.util.reflect.Property;
 
 public class EmbedByFieldHandler extends ByFieldHandler {

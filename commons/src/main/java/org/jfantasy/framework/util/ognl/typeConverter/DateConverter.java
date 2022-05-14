@@ -6,14 +6,11 @@ import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.Map;
 import ognl.DefaultTypeConverter;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.DateUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 
 public class DateConverter extends DefaultTypeConverter {
-  private static final Log LOGGER = LogFactory.getLog(DateConverter.class);
 
   @Override
   public Object convertValue(

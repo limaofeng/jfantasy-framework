@@ -1,0 +1,8 @@
+
+spring:
+  elasticsearch:
+    rest:
+      uris: https://es.thuni-h.com:9200
+
+logging:
+  config: classpath:logback.xml

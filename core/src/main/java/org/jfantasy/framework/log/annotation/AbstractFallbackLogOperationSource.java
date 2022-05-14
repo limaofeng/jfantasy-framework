@@ -6,17 +6,15 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.BridgeMethodResolver;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
 
+@Slf4j
 public abstract class AbstractFallbackLogOperationSource implements LogOperationSource {
 
   private static final Collection<LogOperation> NULL_ATTRIBUTE = Collections.emptyList();
-
-  protected final Log LOGGER = LogFactory.getLog(getClass());
 
   final Map<Object, Collection<LogOperation>> attributeCache =
       new ConcurrentHashMap<Object, Collection<LogOperation>>();
@@ -35,9 +33,8 @@ public abstract class AbstractFallbackLogOperationSource implements LogOperation
       if (logOps == null) {
         this.attributeCache.put(cacheKey, NULL_ATTRIBUTE);
       } else {
-        if (LOGGER.isDebugEnabled()) {
-          LOGGER.debug(
-              "Adding cacheable method '" + method.getName() + "' with attribute: " + logOps);
+        if (log.isDebugEnabled()) {
+          log.debug("Adding cacheable method '" + method.getName() + "' with attribute: " + logOps);
         }
         this.attributeCache.put(cacheKey, logOps);
       }

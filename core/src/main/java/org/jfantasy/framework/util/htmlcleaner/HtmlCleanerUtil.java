@@ -5,8 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.net.URL;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.htmlcleaner.*;
 import org.jfantasy.framework.error.IgnoreException;
 
@@ -17,6 +16,7 @@ import org.jfantasy.framework.error.IgnoreException;
  * @version 1.0
  * @since 2013-8-13 下午01:41:42
  */
+@Slf4j
 public class HtmlCleanerUtil {
 
   private HtmlCleanerUtil() {}
@@ -28,8 +28,6 @@ public class HtmlCleanerUtil {
     props.setOmitXmlDeclaration(true);
   }
 
-  private static Log logger = LogFactory.getLog(HtmlCleanerUtil.class);
-
   public static TagNode[] findTagNodes(String html, String xpath) {
     return findTagNodes(htmlCleaner(html), xpath);
   }
@@ -38,7 +36,7 @@ public class HtmlCleanerUtil {
     try {
       return findTagNodes(htmlCleaner(reader), xpath);
     } catch (IOException e) {
-      logger.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     }
     return new TagNode[0];
   }
@@ -47,7 +45,7 @@ public class HtmlCleanerUtil {
     try {
       return findTagNodes(htmlCleaner(in), xpath);
     } catch (IOException e) {
-      logger.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     }
     return new TagNode[0];
   }
@@ -56,7 +54,7 @@ public class HtmlCleanerUtil {
     try {
       return findTagNodes(htmlCleaner(in, charset), xpath);
     } catch (IOException e) {
-      logger.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     }
     return new TagNode[0];
   }
@@ -65,7 +63,7 @@ public class HtmlCleanerUtil {
     try {
       return findTagNodes(htmlCleaner(url), xpath);
     } catch (IOException e) {
-      logger.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     }
     return new TagNode[0];
   }
@@ -74,7 +72,7 @@ public class HtmlCleanerUtil {
     try {
       return findTagNodes(htmlCleaner(url, charset), xpath);
     } catch (IOException e) {
-      logger.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     }
     return new TagNode[0];
   }
@@ -83,7 +81,7 @@ public class HtmlCleanerUtil {
     try {
       return findTagNodes(htmlCleaner(file), xpath);
     } catch (IOException e) {
-      logger.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     }
     return new TagNode[0];
   }
@@ -92,7 +90,7 @@ public class HtmlCleanerUtil {
     try {
       return findTagNodes(htmlCleaner(file, charset), xpath);
     } catch (IOException e) {
-      logger.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     }
     return new TagNode[0];
   }
@@ -106,7 +104,7 @@ public class HtmlCleanerUtil {
       }
       return nodes;
     } catch (XPatherException e) {
-      logger.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     }
     return new TagNode[0];
   }
@@ -118,7 +116,7 @@ public class HtmlCleanerUtil {
         return (TagNode) objects[0];
       }
     } catch (XPatherException e) {
-      logger.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     }
     return null;
   }
@@ -127,7 +125,7 @@ public class HtmlCleanerUtil {
     try {
       return findFristTagNode(htmlCleaner(url), xpath);
     } catch (IOException e) {
-      logger.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     }
     return null;
   }
@@ -136,7 +134,7 @@ public class HtmlCleanerUtil {
     try {
       return findFristTagNode(htmlCleaner(url, charset), xpath);
     } catch (IOException e) {
-      logger.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     }
     return null;
   }

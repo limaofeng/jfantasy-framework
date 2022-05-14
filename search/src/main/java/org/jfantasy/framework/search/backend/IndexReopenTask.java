@@ -3,14 +3,13 @@ package org.jfantasy.framework.search.backend;
 import java.io.IOException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.search.elastic.IndexReader;
 import org.jfantasy.framework.search.elastic.IndexSearcher;
 
+@Slf4j
 public class IndexReopenTask implements Runnable {
 
-  private static final Logger LOGGER = LogManager.getLogger(IndexReopenTask.class);
   private static final Lock reopenLock = new ReentrantLock();
 
   @Override
@@ -53,7 +52,7 @@ public class IndexReopenTask implements Runnable {
     try {
       reader.decRef();
     } catch (IOException ex) {
-      LOGGER.error("Something is wrong when decrease the reference of the lucene IndexReader", ex);
+      log.error("Something is wrong when decrease the reference of the lucene IndexReader", ex);
     }
   }
 }

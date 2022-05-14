@@ -5,8 +5,7 @@ import java.net.URL;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.UrlResource;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
 import org.springframework.util.SystemPropertyUtils;
@@ -16,10 +15,8 @@ import org.springframework.util.SystemPropertyUtils;
  * 为Properties提供一个代理增加相关工具方法如 <br>
  * getRequiredString(),getInt(),getBoolean() 等方法
  */
+@Slf4j
 public class PropertiesHelper {
-
-  public static final Log LOGGER = LogFactory.getLog(PropertiesHelper.class);
-
   private static final PropertiesHelper NULL_PROPERTIES_HELPER =
       new PropertiesHelper(new Properties());
 
@@ -36,7 +33,7 @@ public class PropertiesHelper {
       }
       return helper;
     } catch (IOException e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
       return NULL_PROPERTIES_HELPER;
     }
   }

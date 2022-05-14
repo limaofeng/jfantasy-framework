@@ -16,17 +16,15 @@ import java.util.stream.Stream;
 import lombok.Builder;
 import lombok.Data;
 import lombok.SneakyThrows;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.util.common.toys.CompareResults;
 import org.jfantasy.framework.util.error.TransformException;
 import org.jfantasy.framework.util.ognl.OgnlUtil;
 import org.jfantasy.framework.util.reflect.Property;
 import org.springframework.beans.BeanUtils;
 
+@Slf4j
 public final class ObjectUtil {
-
-  private static final Log LOGGER = LogFactory.getLog(ObjectUtil.class);
 
   private static final ConcurrentMap<String, Comparator<?>> COMPARATOR_MAP =
       new ConcurrentHashMap<>();

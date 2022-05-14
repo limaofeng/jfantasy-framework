@@ -1,16 +1,14 @@
 package org.jfantasy.framework.util.cglib;
 
 import java.lang.reflect.Method;
+import lombok.extern.slf4j.Slf4j;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.util.ognl.OgnlUtil;
 import org.junit.jupiter.api.Test;
 
+@Slf4j
 public class CglibUtilTest {
-
-  private static final Log logger = LogFactory.getLog(CglibUtilTest.class);
 
   @Test
   public void testNewInstance() throws Exception {
@@ -25,7 +23,7 @@ public class CglibUtilTest {
                 return methodProxy.invokeSuper(o, objects);
               }
             });
-    logger.debug(object);
+    log.debug(object.toString());
     OgnlUtil.getInstance().setValue("integer", object, "123456");
     OgnlUtil.getInstance().setValue("string", object, "limaofeng");
   }

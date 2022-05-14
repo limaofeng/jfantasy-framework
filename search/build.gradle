@@ -10,9 +10,10 @@ apply plugin: 'jacoco'
 dependencies {
 	implementation project(":jfantasy-commons")
 	implementation "co.elastic.clients:elasticsearch-java:${LIB_ELASTICSEARCH_VER}"
-	compileOnly "org.springframework:spring-orm"
-	compileOnly "org.springframework.data:spring-data-jpa"
-	compileOnly "org.springframework.boot:spring-boot-starter-data-redis"
+//	implementation "org.elasticsearch.client:elasticsearch-rest-high-level-client:7.17.3"
+	implementation 'jakarta.json:jakarta.json-api:2.1.0'
+	compileOnly "org.springframework:spring-context"
+	compileOnly "org.springframework.boot:spring-boot-autoconfigure"
 	compileOnly "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
 	annotationProcessor "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
 	testCompileOnly "org.projectlombok:lombok:${LIB_LOMBOK_VER}"

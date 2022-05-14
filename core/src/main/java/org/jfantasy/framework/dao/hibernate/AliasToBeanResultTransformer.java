@@ -7,8 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 import javax.persistence.Column;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.SQLQuery;
 import org.hibernate.transform.ResultTransformer;
 import org.hibernate.type.Type;
@@ -23,15 +22,14 @@ import org.jfantasy.framework.util.ognl.OgnlUtil;
  * @version 1.0
  * @since 2013-9-12 上午9:52:00
  */
+@Slf4j
 public class AliasToBeanResultTransformer implements ResultTransformer {
   private static final long serialVersionUID = -5199190581393587893L;
 
-  private static final Log LOGGER = LogFactory.getLog(AliasToBeanResultTransformer.class);
-
   private final Class<?> resultClass;
 
-  private Map<String, String> propertyNames = new HashMap<>();
-  private Map<String, Type> propertyTypes = new HashMap<>();
+  private final Map<String, String> propertyNames = new HashMap<>();
+  private final Map<String, Type> propertyTypes = new HashMap<>();
 
   public AliasToBeanResultTransformer(Class<?> resultClass) {
     if (resultClass == null) {

@@ -1,16 +1,14 @@
 package org.jfantasy.framework.util.htmlcleaner;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.htmlcleaner.TagNode;
 import org.jfantasy.framework.httpclient.HttpClientUtil;
 import org.jfantasy.framework.httpclient.Request;
 import org.jfantasy.framework.httpclient.Response;
 import org.junit.jupiter.api.Test;
 
+@Slf4j
 public class HtmlCleanerUtilTest {
-
-  private static final Log logger = LogFactory.getLog(HtmlCleanerUtilTest.class);
 
   @Test
   public void testFindTagNodes() throws Exception {}
@@ -41,11 +39,11 @@ public class HtmlCleanerUtilTest {
             "http://whir.f3322.net:7008/defaultroot/Information!view.action?informationId=375&informationType=1&userChannelName=信息管理&channelId=316&userDefine=0&channelType=0&gdType=infomation&checkdepart=&index=0&recordCount=42",
             request);
     String body = response.text("utf-8");
-    logger.debug(body);
+    log.debug(body);
     TagNode root = HtmlCleanerUtil.htmlCleaner(body);
     TagNode nodes =
         HtmlCleanerUtil.findFristTagNode(
             root, "//*[@id=\"info-view-body\"]/div[2]/div/div[2]/div/div[1]/div");
-    logger.debug(nodes);
+    log.debug(nodes.getName());
   }
 }

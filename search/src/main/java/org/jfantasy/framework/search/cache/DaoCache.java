@@ -2,15 +2,15 @@ package org.jfantasy.framework.search.cache;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.jfantasy.framework.search.dao.LuceneDao;
+import org.jfantasy.framework.search.dao.DataFetcher;
 
 public class DaoCache {
 
-  private static DaoCache instance = new DaoCache();
-  private Map<Class<?>, LuceneDao> cache;
+  private static final DaoCache instance = new DaoCache();
+  private final Map<Class<?>, DataFetcher> cache;
 
   private DaoCache() {
-    this.cache = new ConcurrentHashMap<Class<?>, LuceneDao>();
+    this.cache = new ConcurrentHashMap<>();
   }
 
   public static DaoCache getInstance() {
@@ -21,12 +21,11 @@ public class DaoCache {
     return this.cache.containsKey(clazz);
   }
 
-  @SuppressWarnings("unchecked")
-  public <T> LuceneDao get(Class<T> clazz) {
+  public <T> DataFetcher get(Class<T> clazz) {
     return this.cache.get(clazz);
   }
 
-  public <T> void put(Class<T> clazz, LuceneDao dao) {
+  public <T> void put(Class<T> clazz, DataFetcher dao) {
     this.cache.put(clazz, dao);
   }
 }

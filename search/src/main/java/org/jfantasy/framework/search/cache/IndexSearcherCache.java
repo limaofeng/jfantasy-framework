@@ -2,13 +2,11 @@ package org.jfantasy.framework.search.cache;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.search.elastic.IndexSearcher;
 
+@Slf4j
 public class IndexSearcherCache {
-
-  private static final Logger LOGGER = LogManager.getLogger(IndexSearcherCache.class);
 
   private static IndexSearcherCache instance = new IndexSearcherCache();
   private Map<String, IndexSearcher> cache;

@@ -5,8 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.binding.BindingException;
 import org.apache.ibatis.mapping.MappedStatement;
@@ -26,8 +25,8 @@ import org.jfantasy.framework.util.common.ObjectUtil;
  * @version 1.0
  * @since 2012-10-28 下午08:39:09
  */
+@Slf4j
 public class MyBatisMapperMethod {
-  protected final Log LOGGER = LogFactory.getLog(MyBatisMapperMethod.class);
   private SqlSession sqlSession;
   private Configuration config;
   private SqlCommandType type;

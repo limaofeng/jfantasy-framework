@@ -3,7 +3,7 @@ package org.jfantasy.framework.search;
 import org.jfantasy.framework.search.backend.IndexRebuildTask;
 
 public class IndexRebuilder {
-  private Class<?> clazz;
+  private final Class<?> clazz;
   private int batchSize = 100;
 
   public IndexRebuilder(Class<?> clazz) {
@@ -17,7 +17,7 @@ public class IndexRebuilder {
 
   public void rebuild() {
     IndexRebuildTask task = new IndexRebuildTask(this.clazz, this.batchSize);
-    BuguIndex.getInstance().getExecutor().execute(task);
+    CuckooIndex.getInstance().getExecutor().execute(task);
   }
 
   public void setBatchSize(int batchSize) {

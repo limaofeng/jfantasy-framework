@@ -1,6 +1,6 @@
 package org.jfantasy.autoconfigure;
 
-import org.jfantasy.framework.search.BuguIndex;
+import org.jfantasy.framework.search.CuckooIndex;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,9 +10,9 @@ import org.springframework.scheduling.SchedulingTaskExecutor;
 public class SearchAutoConfiguration {
 
   @Bean(initMethod = "open", destroyMethod = "close")
-  public BuguIndex buguIndex(@Autowired(required = false) SchedulingTaskExecutor taskExecutor) {
+  public CuckooIndex buguIndex(@Autowired(required = false) SchedulingTaskExecutor taskExecutor) {
     //    PropertiesHelper helper = PropertiesHelper.load("props/lucene.properties");
-    BuguIndex buguIndex = new BuguIndex();
+    CuckooIndex cuckooIndex = new CuckooIndex();
     // if (StringUtil.isNotBlank(helper.getProperty("indexes.analyzer"))) {
     //
     // buguIndex.setAnalyzer(ClassUtil.newInstance(helper.getProperty("indexes.analyzer")));
@@ -23,6 +23,6 @@ public class SearchAutoConfiguration {
     //    buguIndex.setIndexReopenPeriod(helper.getLong("indexes.reopen.reriod", 30000L));
     //    buguIndex.setExecutor(taskExecutor);
     //    buguIndex.setRebuild(helper.getBoolean("indexes.rebuild", false));
-    return buguIndex;
+    return cuckooIndex;
   }
 }

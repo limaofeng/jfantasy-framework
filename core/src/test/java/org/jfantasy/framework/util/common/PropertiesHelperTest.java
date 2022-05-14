@@ -2,14 +2,12 @@ package org.jfantasy.framework.util.common;
 
 import java.util.Enumeration;
 import java.util.Map;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.Assert;
 
+@Slf4j
 public class PropertiesHelperTest {
-
-  private static final Log logger = LogFactory.getLog(PropertiesHelperTest.class);
 
   @Test
   public void testLoad() throws Exception {}
@@ -77,22 +75,22 @@ public class PropertiesHelperTest {
         PropertiesHelper.load("backup/testconfig/props/application.properties");
 
     // 普通测试
-    logger.debug(helper.getProperty("test"));
+    log.debug(helper.getProperty("test"));
     Assert.isTrue(helper.getProperty("test") == "limaofeng");
 
     // 测试默认值
-    logger.debug(helper.getProperty("test1", "limaofeng"));
+    log.debug(helper.getProperty("test1", "limaofeng"));
     Assert.isTrue(helper.getProperty("test1", "limaofeng") == "limaofeng");
 
     // 使用环境变量
     System.setProperty("username", "limaofeng");
-    logger.debug("System getProperty by key(username) = " + System.getProperty("username"));
-    logger.debug("System getenv by key(username) = " + System.getenv("username"));
-    logger.debug(helper.getProperty("testenv"));
+    log.debug("System getProperty by key(username) = " + System.getProperty("username"));
+    log.debug("System getenv by key(username) = " + System.getenv("username"));
+    log.debug(helper.getProperty("testenv"));
 
     Assert.isTrue(helper.getProperty("testenv") == "username=limaofeng");
     System.setProperty("username", "haolue");
-    logger.debug(helper.getProperty("testenv"));
+    log.debug(helper.getProperty("testenv"));
 
     Assert.isTrue(helper.getProperty("testenv") == "username=haolue");
   }
@@ -102,12 +100,12 @@ public class PropertiesHelperTest {
     PropertiesHelper helper =
         PropertiesHelper.load("backup/testconfig/props/application.properties");
 
-    logger.debug(helper.getProperty("test"));
+    log.debug(helper.getProperty("test"));
     Assert.isTrue(helper.getProperty("test") == "limaofeng");
 
     helper.clear();
 
-    logger.debug(helper.getProperty("test"));
+    log.debug(helper.getProperty("test"));
     Assert.notNull(helper.getProperty("test"));
   }
 
@@ -117,7 +115,7 @@ public class PropertiesHelperTest {
         PropertiesHelper.load("backup/testconfig/props/application.properties");
 
     for (Map.Entry<Object, Object> entry : helper.getProperties().entrySet()) {
-      logger.debug(entry.getKey() + " = " + entry.getValue());
+      log.debug(entry.getKey() + " = " + entry.getValue());
     }
   }
 
@@ -129,7 +127,7 @@ public class PropertiesHelperTest {
     Enumeration<?> enumeration = helper.getProperties().propertyNames();
     while (enumeration.hasMoreElements()) {
       Object key = enumeration.nextElement();
-      logger.debug(key + " = " + helper.getProperties().get(key));
+      log.debug(key + " = " + helper.getProperties().get(key));
     }
   }
 
@@ -161,7 +159,7 @@ public class PropertiesHelperTest {
     Enumeration<?> enumeration = helper.getProperties().elements();
     while (enumeration.hasMoreElements()) {
       Object value = enumeration.nextElement();
-      logger.debug(value);
+      log.debug(value.toString());
     }
   }
 

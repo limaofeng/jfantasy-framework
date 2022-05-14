@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Id;
-import org.jfantasy.framework.search.BuguIndex;
+import org.jfantasy.framework.search.CuckooIndex;
 import org.jfantasy.framework.search.annotations.IndexRefBy;
 import org.jfantasy.framework.search.cache.PropertysCache;
 import org.jfantasy.framework.util.reflect.Property;
@@ -48,7 +48,7 @@ public class EntityChangedListener {
     IndexFilterChecker checker = new IndexFilterChecker(entity);
     if (checker.needIndex()) {
       IndexInsertTask task = new IndexInsertTask(entity);
-      BuguIndex.getInstance().getExecutor().execute(task);
+      CuckooIndex.getInstance().getExecutor().execute(task);
     }
   }
 
@@ -57,7 +57,7 @@ public class EntityChangedListener {
     IndexFilterChecker checker = new IndexFilterChecker(entity);
     if (checker.needIndex()) {
       IndexUpdateTask task = new IndexUpdateTask(entity);
-      BuguIndex.getInstance().getExecutor().execute(task);
+      CuckooIndex.getInstance().getExecutor().execute(task);
     } else {
       processRemove(id);
     }
@@ -75,7 +75,7 @@ public class EntityChangedListener {
 
   private void processRemove(String id) {
     IndexRemoveTask task = new IndexRemoveTask(this.clazz, id);
-    BuguIndex.getInstance().getExecutor().execute(task);
+    CuckooIndex.getInstance().getExecutor().execute(task);
   }
 
   private void processRefBy(String id) {

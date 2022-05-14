@@ -8,14 +8,11 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jfantasy.framework.search.Document;
 import org.jfantasy.framework.search.cache.DaoCache;
 import org.jfantasy.framework.search.cache.IndexWriterCache;
-import org.jfantasy.framework.search.dao.LuceneDao;
-import org.jfantasy.framework.search.elastic.Document;
+import org.jfantasy.framework.search.dao.DataFetcher;
 import org.jfantasy.framework.search.elastic.IndexWriter;
-import org.jfantasy.framework.search.mapper.MapperUtil;
-
-// import org.jfantasy.framework.util.common.JdbcUtil;
 
 public class IndexRebuildTask implements Runnable {
   private static final Log LOG = LogFactory.getLog(IndexRebuildTask.class);
@@ -29,9 +26,8 @@ public class IndexRebuildTask implements Runnable {
   public IndexRebuildTask(Class<?> clazz, int batchSize) {
     this.clazz = clazz;
     this.batchSize = batchSize;
-    String name = MapperUtil.getEntityName(clazz);
     IndexWriterCache cache = IndexWriterCache.getInstance();
-    this.writer = cache.get(name);
+    this.writer = cache.get(clazz);
     if (!rebuildLocks.containsKey(clazz)) {
       rebuildLocks.put(clazz, new ReentrantLock());
     }
@@ -58,7 +54,7 @@ public class IndexRebuildTask implements Runnable {
           LOG.error("Something is wrong when lucene IndexWriter doing deleteAll()", ex);
         }
       }
-      final LuceneDao luceneDao = DaoCache.getInstance().get(clazz);
+      final DataFetcher luceneDao = DaoCache.getInstance().get(clazz);
       long count = luceneDao.count();
       int pages = (int) (count / this.batchSize);
       int remainder = (int) (count % this.batchSize);

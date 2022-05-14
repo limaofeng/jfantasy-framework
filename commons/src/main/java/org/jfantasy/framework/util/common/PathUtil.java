@@ -12,15 +12,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 import lombok.SneakyThrows;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.util.regexp.RegexpUtil;
 
+@Slf4j
 public class PathUtil {
 
   private PathUtil() {}
-
-  private static final Log LOGGER = LogFactory.getLog(PathUtil.class);
 
   private static String WEBCLASSES_PATH = null;
   private static String WEBINF_PATH = null;
@@ -34,15 +32,15 @@ public class PathUtil {
           PropertiesHelper.load("plugin.properties").getProperty("webAppRootKey", "webapp.root");
       PathUtil.WEBROOT_PATH = System.getProperty(webAppRootKey);
       if (StringUtil.isNull(PathUtil.WEBROOT_PATH)) {
-        LOGGER.debug("根据webAppRootKey[" + webAppRootKey + "]获取WebRoot路径失败");
-        LOGGER.debug(
+        log.debug("根据webAppRootKey[" + webAppRootKey + "]获取WebRoot路径失败");
+        log.debug(
             "改用 Thread.currentThread().getContextClassLoader().getResource(\"/\") 方式获取WebRoot路径");
         URL url = Thread.currentThread().getContextClassLoader().getResource("");
-        LOGGER.debug(
+        log.debug(
             "Thread.currentThread().getContextClassLoader().getResource(\"/\") 获取的 url = " + url);
         if (url == null) {
           url = PathUtil.class.getResource("");
-          LOGGER.debug("PathUtil.class.getResource(\"\") 获取的 url = " + url);
+          log.debug("PathUtil.class.getResource(\"\") 获取的 url = " + url);
         }
         assert url != null;
         PathUtil.WEBCLASSES_PATH =
@@ -57,7 +55,7 @@ public class PathUtil {
         if (StringUtil.isBlank(WEBROOT_PATH)
             || StringUtil.isBlank(WEBINF_PATH)
             || "/".equals(WEBCLASSES_PATH)) {
-          LOGGER.debug("改用  PathUtil.getClassLocationURL(PathUtil.class) 方式获取WebRoot路径");
+          log.debug("改用  PathUtil.getClassLocationURL(PathUtil.class) 方式获取WebRoot路径");
           url = PathUtil.getClassLocationURL(PathUtil.class);
           if ("jar".equalsIgnoreCase(url.getProtocol())) {
             String path = PathUtil.getPathFromClass(PathUtil.class);
@@ -83,14 +81,18 @@ public class PathUtil {
         PathUtil.WEBLIB_PATH = PathUtil.webinf() + "lib" + File.separator;
       }
     } catch (Exception e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     }
-    if (LOGGER.isDebugEnabled()) {
-      StringBuffer debug = new StringBuffer("\r\nPathUtil获取的路径信息如下:");
-      debug.append("\r\nwebclasses:").append(WEBCLASSES_PATH);
-      debug.append("\r\nwebinf:").append(WEBINF_PATH);
-      debug.append("\r\nwebroot:").append(WEBROOT_PATH);
-      LOGGER.debug(debug);
+    if (log.isDebugEnabled()) {
+      String debug =
+          "\r\nPathUtil获取的路径信息如下:"
+              + "\r\nwebclasses:"
+              + WEBCLASSES_PATH
+              + "\r\nwebinf:"
+              + WEBINF_PATH
+              + "\r\nwebroot:"
+              + WEBROOT_PATH;
+      log.debug(debug);
     }
   }
 
@@ -151,7 +153,7 @@ public class PathUtil {
       try {
         path = file.getCanonicalPath();
       } catch (IOException e) {
-        LOGGER.error(e.getMessage(), e);
+        log.error(e.getMessage(), e);
       }
     }
     return path;
@@ -219,7 +221,7 @@ public class PathUtil {
       URL url = getClassLocationURL(cls);
       return new URI(url.toString().replaceAll(" ", "%20"));
     } catch (URISyntaxException e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
       return null;
     }
   }

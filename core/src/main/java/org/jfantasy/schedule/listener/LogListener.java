@@ -1,31 +1,29 @@
 package org.jfantasy.schedule.listener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
 
+@Slf4j
 public class LogListener implements SchedulerListener {
-
-  private static final Log LOGGER = LogFactory.getLog(LogListener.class);
 
   @Override
   public void jobScheduled(Trigger trigger) {
-    LOGGER.debug(trigger);
+    log.debug(trigger.toString());
   }
 
   @Override
   public void jobUnscheduled(TriggerKey triggerKey) {
-    LOGGER.debug(triggerKey);
+    log.debug(triggerKey.toString());
   }
 
   @Override
   public void triggerFinalized(Trigger trigger) {
-    LOGGER.debug(trigger);
+    log.debug(trigger.toString());
   }
 
   @Override
   public void triggerPaused(TriggerKey triggerKey) {
-    LOGGER.debug(triggerKey);
+    log.debug(triggerKey.toString());
   }
 
   @Override

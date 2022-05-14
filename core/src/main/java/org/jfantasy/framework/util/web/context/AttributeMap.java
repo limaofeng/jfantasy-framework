@@ -4,15 +4,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 
-@SuppressWarnings("rawtypes")
+@Slf4j
 public class AttributeMap implements Map {
   protected static final String UNSUPPORTED = "method makes no sense for a simplified map";
   private static final Object PAGE_CONTEXT = null;
   Map context;
-  private static final Log LOGGER = LogFactory.getLog(AttributeMap.class);
 
   public AttributeMap(Map context) {
     this.context = context;

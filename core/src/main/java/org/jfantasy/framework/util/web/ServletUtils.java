@@ -8,8 +8,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.util.common.EncodeUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.springframework.http.CacheControl;
@@ -19,9 +18,9 @@ import org.springframework.http.CacheControl;
  *
  * @author limaofeng
  */
+@Slf4j
 public class ServletUtils {
 
-  private static final Log LOGGER = LogFactory.getLog(ServletUtils.class);
   public static final String TEXT_TYPE = "text/plain";
   public static final String JSON_TYPE = "application/json";
   public static final String XML_TYPE = "text/xml";
@@ -196,7 +195,7 @@ public class ServletUtils {
       }
       response.setHeader("Content-Disposition", type + "; filename=\"" + fileName + "\"");
     } catch (UnsupportedEncodingException e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     }
   }
 

@@ -8,8 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.Consts;
 import org.apache.http.Header;
 import org.apache.http.NameValuePair;
@@ -31,11 +30,10 @@ import org.jfantasy.framework.util.common.ObjectUtil;
  * @version 1.0 依赖 commons-httpclient.jar
  * @since 2012-11-30 下午04:38:14
  */
+@Slf4j
 public class HttpClientUtil {
 
   private HttpClientUtil() {}
-
-  private static final Log LOGGER = LogFactory.getLog(HttpClientUtil.class);
 
   /**
    * 执行get请求
@@ -100,7 +98,7 @@ public class HttpClientUtil {
       response.setRequestHeaders(request.getRequestHeaders());
       return response;
     } catch (IOException e) {
-      LOGGER.error("执行HTTP Get请求" + url + "时，发生异常！", e);
+      log.error("执行HTTP Get请求" + url + "时，发生异常！", e);
       throw e;
     }
   }
@@ -167,7 +165,7 @@ public class HttpClientUtil {
 
       return response;
     } catch (IOException e) {
-      LOGGER.error("执行HTTP Post请求" + url + "时，发生异常！", e);
+      log.error("执行HTTP Post请求" + url + "时，发生异常！", e);
       throw e;
     }
   }

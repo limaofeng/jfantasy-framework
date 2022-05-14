@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.jfantasy.framework.search.Document;
 import org.jfantasy.framework.search.annotations.IndexEmbedBy;
 import org.jfantasy.framework.search.cache.PropertysCache;
-import org.jfantasy.framework.search.elastic.Document;
 import org.jfantasy.framework.search.mapper.DataType;
 import org.jfantasy.framework.util.reflect.Property;
 

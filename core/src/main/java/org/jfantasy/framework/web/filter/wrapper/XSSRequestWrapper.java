@@ -1,11 +1,12 @@
 package org.jfantasy.framework.web.filter.wrapper;
 
 import java.lang.reflect.Array;
-import java.util.*;
+import java.util.Enumeration;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.util.common.Base64Util;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.StringUtil;
@@ -13,9 +14,8 @@ import org.jfantasy.framework.util.regexp.RegexpUtil;
 import org.jfantasy.framework.util.web.WebUtil;
 import org.springframework.web.util.HtmlUtils;
 
+@Slf4j
 public class XSSRequestWrapper extends HttpServletRequestWrapper {
-
-  private static final Log LOGGER = LogFactory.getLog(XSSRequestWrapper.class);
 
   private Map<String, String[]> parameterMaps = new LinkedHashMap<>();
 
@@ -48,8 +48,8 @@ public class XSSRequestWrapper extends HttpServletRequestWrapper {
     Object vals = ClassUtil.newInstance(String.class, values.length);
     for (int i = 0; i < values.length; i++) {
       String escapeStr = transform(values[i]);
-      if (LOGGER.isDebugEnabled()) {
-        LOGGER.debug(name + "[" + values[i] + "]" + " => htmlEscape => [" + escapeStr + "]");
+      if (log.isDebugEnabled()) {
+        log.debug(name + "[" + values[i] + "]" + " => htmlEscape => [" + escapeStr + "]");
       }
       Array.set(vals, i, escapeStr);
     }

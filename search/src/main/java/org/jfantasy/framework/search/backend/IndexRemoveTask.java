@@ -1,7 +1,6 @@
 package org.jfantasy.framework.search.backend;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 删除索引
@@ -10,8 +9,8 @@ import org.apache.logging.log4j.Logger;
  * @version 1.0
  * @since 2013-1-26 下午09:09:59
  */
+@Slf4j
 public class IndexRemoveTask implements Runnable {
-  private static final Logger LOGGER = LogManager.getLogger(IndexRemoveTask.class);
   private Class<?> clazz;
   private String id;
 

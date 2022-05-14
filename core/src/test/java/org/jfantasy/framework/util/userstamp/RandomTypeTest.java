@@ -1,13 +1,11 @@
 package org.jfantasy.framework.util.userstamp;
 
 import java.util.Random;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
+@Slf4j
 public class RandomTypeTest {
-
-  private static final Log LOGGER = LogFactory.getLog(RandomType.class);
 
   @Test
   public void randomType() {
@@ -32,11 +30,11 @@ public class RandomTypeTest {
       }
     }
     for (int i = 0; i < 31; i++) {
-      LOGGER.debug("{");
+      log.debug("{");
       for (int j = 0; j < 10; j++) {
-        LOGGER.debug(test[i][j] + ", ");
+        log.debug(test[i][j] + ", ");
       }
-      LOGGER.debug("}, ");
+      log.debug("}, ");
     }
   }
 

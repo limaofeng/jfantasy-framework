@@ -10,8 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.quartz.impl.matchers.StringMatcher;
@@ -19,9 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class SchedulerUtil {
-
-  private static final Log LOGGER = LogFactory.getLog(SchedulerUtil.class);
 
   private final Scheduler scheduler;
 
@@ -55,7 +53,7 @@ public class SchedulerUtil {
     try {
       return this.scheduler.getJobGroupNames();
     } catch (SchedulerException e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
       return new ArrayList<>();
     }
   }
@@ -64,7 +62,7 @@ public class SchedulerUtil {
     try {
       return this.scheduler.getTriggerGroupNames();
     } catch (SchedulerException e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
       return new ArrayList<>();
     }
   }
@@ -84,7 +82,7 @@ public class SchedulerUtil {
       }
       return jobKeys;
     } catch (SchedulerException e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
       return jobKeys;
     }
   }
@@ -93,7 +91,7 @@ public class SchedulerUtil {
     try {
       return (List<Trigger>) this.scheduler.getTriggersOfJob(jobKey);
     } catch (SchedulerException e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
       return new ArrayList<>();
     }
   }
@@ -108,7 +106,7 @@ public class SchedulerUtil {
       }
       return triggerKeys;
     } catch (SchedulerException e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
       return triggerKeys;
     }
   }
@@ -119,7 +117,7 @@ public class SchedulerUtil {
       triggerKeys.addAll(this.scheduler.getTriggerKeys(matcher));
       return triggerKeys;
     } catch (SchedulerException e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
       return triggerKeys;
     }
   }
@@ -128,7 +126,7 @@ public class SchedulerUtil {
     try {
       return this.scheduler.getJobDetail(jobKey);
     } catch (SchedulerException e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
       return null;
     }
   }
@@ -137,7 +135,7 @@ public class SchedulerUtil {
     try {
       return this.scheduler.checkExists(jobKey);
     } catch (SchedulerException e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
       return true;
     }
   }
@@ -146,7 +144,7 @@ public class SchedulerUtil {
     try {
       return this.scheduler.checkExists(triggerKey);
     } catch (SchedulerException e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
       return false;
     }
   }
@@ -168,7 +166,7 @@ public class SchedulerUtil {
       scheduler.resumeJob(jobKey);
       return job;
     } catch (SchedulerException e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
       return null;
     }
   }
@@ -188,7 +186,7 @@ public class SchedulerUtil {
       scheduler.resumeJob(jobKey);
       return job;
     } catch (SchedulerException e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
       return null;
     }
   }
@@ -237,7 +235,7 @@ public class SchedulerUtil {
       this.scheduler.resumeTrigger(trigger.getKey());
       return trigger;
     } catch (SchedulerException e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
       return null;
     }
   }
@@ -285,7 +283,7 @@ public class SchedulerUtil {
       this.scheduler.resumeTrigger(triggerKey);
       return trigger;
     } catch (SchedulerException e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
       return null;
     }
   }
@@ -314,7 +312,7 @@ public class SchedulerUtil {
       this.scheduler.resumeTrigger(triggerKey);
       return trigger;
     } catch (SchedulerException e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
       return null;
     }
   }
@@ -345,7 +343,7 @@ public class SchedulerUtil {
       this.scheduler.resumeTrigger(triggerKey);
       return trigger;
     } catch (SchedulerException e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
       return null;
     }
   }
@@ -372,7 +370,7 @@ public class SchedulerUtil {
       this.scheduler.resumeTrigger(triggerKey);
       return trigger;
     } catch (SchedulerException e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
       return null;
     }
   }
@@ -397,7 +395,7 @@ public class SchedulerUtil {
       this.scheduler.resumeTrigger(triggerKey);
       return trigger;
     } catch (SchedulerException e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
       return null;
     }
   }
@@ -406,7 +404,7 @@ public class SchedulerUtil {
     try {
       return this.scheduler.getTriggerState(triggerKey);
     } catch (SchedulerException e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
       return null;
     }
   }
@@ -420,7 +418,7 @@ public class SchedulerUtil {
     try {
       return this.scheduler != null && this.scheduler.isStarted();
     } catch (SchedulerException e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
       return false;
     }
   }
@@ -434,7 +432,7 @@ public class SchedulerUtil {
     try {
       return this.scheduler != null && this.scheduler.isShutdown();
     } catch (SchedulerException e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
       return false;
     }
   }
@@ -449,7 +447,7 @@ public class SchedulerUtil {
     try {
       this.scheduler.pauseJob(JobKey.jobKey(jobName, groupName));
     } catch (SchedulerException e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     }
   }
 
@@ -462,7 +460,7 @@ public class SchedulerUtil {
     try {
       this.scheduler.resumeJob(jobKey);
     } catch (SchedulerException e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     }
   }
 
@@ -476,7 +474,7 @@ public class SchedulerUtil {
     try {
       return this.scheduler.deleteJob(jobKey);
     } catch (SchedulerException e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
       return false;
     }
   }
@@ -490,7 +488,7 @@ public class SchedulerUtil {
     try {
       this.scheduler.pauseTrigger(triggerKey); // 停止触发器
     } catch (SchedulerException e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     }
   }
 
@@ -503,7 +501,7 @@ public class SchedulerUtil {
     try {
       this.scheduler.resumeTrigger(triggerKey); // 重启触发器
     } catch (SchedulerException e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     }
   }
 
@@ -518,7 +516,7 @@ public class SchedulerUtil {
       this.scheduler.pauseTrigger(triggerKey); // 停止触发器
       return this.scheduler.unscheduleJob(triggerKey); // 移除触发器
     } catch (SchedulerException e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
       return false;
     }
   }
@@ -528,7 +526,7 @@ public class SchedulerUtil {
     try {
       scheduler.pauseAll();
     } catch (SchedulerException e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     }
   }
 
@@ -537,7 +535,7 @@ public class SchedulerUtil {
     try {
       scheduler.resumeAll();
     } catch (SchedulerException e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     }
   }
 
@@ -551,7 +549,7 @@ public class SchedulerUtil {
     try {
       return scheduler.interrupt(jobKey);
     } catch (SchedulerException e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
       return false;
     }
   }
@@ -565,7 +563,7 @@ public class SchedulerUtil {
     try {
       this.scheduler.triggerJob(jobKey);
     } catch (SchedulerException e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     }
   }
 
@@ -579,7 +577,7 @@ public class SchedulerUtil {
     try {
       this.scheduler.triggerJob(jobKey, new JobDataMap(args));
     } catch (SchedulerException e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     }
   }
 
@@ -587,7 +585,7 @@ public class SchedulerUtil {
     try {
       this.scheduler.shutdown();
     } catch (SchedulerException e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     }
   }
 
@@ -595,7 +593,7 @@ public class SchedulerUtil {
     try {
       this.scheduler.clear();
     } catch (SchedulerException e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     }
   }
 
@@ -605,7 +603,7 @@ public class SchedulerUtil {
       try {
         jobDetails.add(scheduler.getJobDetail(jobKey));
       } catch (SchedulerException e) {
-        LOGGER.error(e.getMessage(), e);
+        log.error(e.getMessage(), e);
         if (e.getCause() instanceof ClassNotFoundException) {
           this.deleteJob(jobKey);
         }
@@ -620,7 +618,7 @@ public class SchedulerUtil {
       return jobContexts.stream()
           .anyMatch(context -> triggerKey.equals(context.getTrigger().getKey()));
     } catch (SchedulerException e) {
-      LOGGER.debug(e.getMessage(), e);
+      log.debug(e.getMessage(), e);
       return false;
     }
   }

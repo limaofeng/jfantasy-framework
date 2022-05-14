@@ -1,16 +1,14 @@
 package org.jfantasy.framework.search.backend;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.search.annotations.*;
 import org.jfantasy.framework.search.cache.PropertysCache;
 import org.jfantasy.framework.search.exception.PropertyException;
 import org.jfantasy.framework.util.reflect.Property;
 
+@Slf4j
 public class IndexChecker {
   private IndexChecker() {}
-
-  private static final Logger LOGGER = LogManager.getLogger(IndexChecker.class);
 
   /**
    * 判断Class是否标注了 @Indexed 注解
@@ -32,7 +30,7 @@ public class IndexChecker {
     try {
       property = PropertysCache.getInstance().getProperty(clazz, key);
     } catch (PropertyException ex) {
-      LOGGER.error(ex.getMessage(), ex);
+      log.error(ex.getMessage(), ex);
       return false;
     }
     if ((property.getAnnotation(IndexProperty.class) != null)

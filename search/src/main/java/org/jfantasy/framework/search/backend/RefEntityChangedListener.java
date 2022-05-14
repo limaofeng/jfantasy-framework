@@ -4,7 +4,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Set;
-import org.jfantasy.framework.search.BuguIndex;
+import org.jfantasy.framework.search.CuckooIndex;
 import org.jfantasy.framework.search.annotations.IndexRef;
 import org.jfantasy.framework.search.annotations.IndexRefList;
 import org.jfantasy.framework.search.cache.DaoCache;
@@ -13,7 +13,7 @@ import org.jfantasy.framework.search.dao.LuceneDao;
 import org.jfantasy.framework.util.reflect.Property;
 
 public class RefEntityChangedListener {
-  private Set<Class<?>> refBySet;
+  private final Set<Class<?>> refBySet;
 
   public RefEntityChangedListener(Set<Class<?>> refBySet) {
     this.refBySet = refBySet;
@@ -60,7 +60,7 @@ public class RefEntityChangedListener {
           List<?> list = dao.findByField(fieldName, id);
           for (Object o : list) {
             IndexUpdateTask task = new IndexUpdateTask(o);
-            BuguIndex.getInstance().getExecutor().execute(task);
+            CuckooIndex.getInstance().getExecutor().execute(task);
           }
         }
       } finally {

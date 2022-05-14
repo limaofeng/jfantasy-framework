@@ -3,8 +3,7 @@ package org.jfantasy.framework.log.interceptor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.log.LogManager;
 import org.jfantasy.framework.log.annotation.CompositeLogOperationSource;
 import org.jfantasy.framework.log.annotation.LogOperation;
@@ -19,6 +18,7 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+@Slf4j
 public class LogAspectSupport implements InitializingBean {
 
   public interface Invoker {
@@ -28,8 +28,6 @@ public class LogAspectSupport implements InitializingBean {
   private final ExpressionEvaluator evaluator = new ExpressionEvaluator();
 
   private LogOperationSource logOperationSource;
-
-  protected final Log LOGGER = LogFactory.getLog(getClass());
 
   private LogManager logManager;
 
@@ -87,7 +85,7 @@ public class LogAspectSupport implements InitializingBean {
       Collection<LogOperationContext> ops =
           createOperationContext(logOp, method, args, target, targetClass);
       for (LogOperationContext context : ops) {
-        LOGGER.debug("Log Info : " + context.isConditionPassing() + " - " + context.text());
+        log.debug("Log Info : " + context.isConditionPassing() + " - " + context.text());
       }
     }
     return invoker.invoke();

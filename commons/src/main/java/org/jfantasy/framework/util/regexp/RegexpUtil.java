@@ -6,8 +6,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.framework.util.error.InputDataException;
 
@@ -18,9 +17,8 @@ import org.jfantasy.framework.util.error.InputDataException;
  * @version 1.0
  * @since 2012-11-30 下午05:01:51
  */
+@Slf4j
 public class RegexpUtil {
-
-  private static final Log LOGGER = LogFactory.getLog(RegexpUtil.class);
 
   private static final ConcurrentHashMap<String, Pattern> patternCache = new ConcurrentHashMap<>();
 
@@ -35,8 +33,8 @@ public class RegexpUtil {
       throw new InputDataException("pattern string is space");
     }
     if (!patternCache.containsKey(patternString)) {
-      if (LOGGER.isDebugEnabled()) {
-        LOGGER.debug("缓存正则表达式:" + patternString);
+      if (log.isDebugEnabled()) {
+        log.debug("缓存正则表达式:" + patternString);
       }
       patternCache.putIfAbsent(patternString, Pattern.compile(patternString));
     }

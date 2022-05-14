@@ -1,14 +1,12 @@
 package org.jfantasy.framework.util.concurrent;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.jackson.models.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.Assert;
 
+@Slf4j
 public class LinkedQueueTest {
-
-  private static Log logger = LogFactory.getLog(LinkedQueueTest.class);
 
   @Test
   public void testRemove() throws Exception {
@@ -51,10 +49,10 @@ public class LinkedQueueTest {
     queue.remove(_u3);
     queue.remove(_u1);
 
-    logger.error("queue size : " + queue.size());
+    log.error("queue size : " + queue.size());
 
     for (User user : queue) {
-      logger.error(user.getNickName());
+      log.error(user.getNickName());
       Assert.isTrue(user.getNickName() == "test-2");
     }
   }

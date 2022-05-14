@@ -3,9 +3,8 @@ package org.jfantasy.framework.httpclient;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.*;
 import java.util.Arrays;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.http.Header;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.cookie.Cookie;
@@ -19,9 +18,8 @@ import org.jfantasy.framework.util.common.StringUtil;
  * @version 1.0
  * @since 2012-11-30 下午04:46:02
  */
+@Slf4j
 public class Response {
-
-  private static final Log LOGGER = LogFactory.getLog(Response.class);
 
   private CloseableHttpResponse response;
   private String url;
@@ -166,7 +164,7 @@ public class Response {
    */
   private ByteArrayOutputStream cache() throws IOException {
     if (this.out == null) {
-      LOGGER.debug("将文件写入缓冲区");
+      log.debug("将文件写入缓冲区");
       this.out = new ByteArrayOutputStream();
       try {
         byte[] buf = new byte[1024];

@@ -6,14 +6,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.output.ByteArrayOutputStream;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.util.common.StreamUtil;
 
+@Slf4j
 public class GzipEncode {
-
-  private static final Log LOGGER = LogFactory.getLog(GzipEncode.class);
 
   public String encode(String sb) {
     return sb;
@@ -45,7 +43,7 @@ public class GzipEncode {
       gzout.finish();
       return o.toByteArray();
     } catch (IOException e) {
-      LOGGER.error(e);
+      log.error(e.getMessage(), e);
       throw e;
     } finally {
       StreamUtil.closeQuietly(gzout);
@@ -65,7 +63,7 @@ public class GzipEncode {
       System.arraycopy(buf, 0, b, 0, size);
       return b;
     } catch (IOException e) {
-      LOGGER.error(e);
+      log.error(e.getMessage(), e);
       throw e;
     }
   }

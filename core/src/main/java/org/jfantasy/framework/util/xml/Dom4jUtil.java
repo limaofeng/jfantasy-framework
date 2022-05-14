@@ -3,23 +3,21 @@ package org.jfantasy.framework.util.xml;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.List;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.dom4j.*;
 import org.dom4j.io.SAXReader;
 import org.jfantasy.framework.error.IgnoreException;
 
+@Slf4j
 public final class Dom4jUtil {
 
   private Dom4jUtil() {}
-
-  private static final Log LOGGER = LogFactory.getLog(Dom4jUtil.class);
 
   public static Document reader(InputStream inputStream) {
     try {
       return new SAXReader().read(inputStream);
     } catch (Exception e) {
-      LOGGER.error(e);
+      log.error(e.getMessage(), e);
       throw new IgnoreException(e.getMessage());
     }
   }
@@ -28,7 +26,7 @@ public final class Dom4jUtil {
     try {
       return new SAXReader().read(url);
     } catch (Exception e) {
-      LOGGER.error(e);
+      log.error(e.getMessage(), e);
       throw new IgnoreException(e.getMessage());
     }
   }
@@ -41,9 +39,9 @@ public final class Dom4jUtil {
     // 获取属性
     List<Attribute> attrs = root.attributes();
     if (attrs != null && !attrs.isEmpty()) {
-      LOGGER.error(prefix);
+      log.error(prefix);
       for (Attribute attr : attrs) {
-        LOGGER.error(attr.getValue() + " ");
+        log.error(attr.getValue() + " ");
       }
     }
     // 获取他的子节点
@@ -57,21 +55,21 @@ public final class Dom4jUtil {
   public static class MyVistor extends VisitorSupport {
     @Override
     public void visit(Attribute node) {
-      LOGGER.debug("Attibute: " + node.getName() + "=" + node.getValue());
+      log.debug("Attibute: " + node.getName() + "=" + node.getValue());
     }
 
     @Override
     public void visit(Element node) {
       if (node.isTextOnly()) {
-        LOGGER.debug("Element: " + node.getName() + "=" + node.getText());
+        log.debug("Element: " + node.getName() + "=" + node.getText());
       } else {
-        LOGGER.debug("root:" + node.getName());
+        log.debug("root:" + node.getName());
       }
     }
 
     @Override
     public void visit(ProcessingInstruction node) {
-      LOGGER.debug("PI:" + node.getTarget() + " " + node.getText());
+      log.debug("PI:" + node.getTarget() + " " + node.getText());
     }
   }
 }

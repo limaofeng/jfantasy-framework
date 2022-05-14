@@ -3,8 +3,7 @@ package org.jfantasy.framework.spring;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -16,10 +15,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.io.Resource;
 
+@Slf4j
 public class SpringBeanUtils
     implements BeanDefinitionRegistryPostProcessor, ApplicationContextAware {
-
-  private static final Log LOGGER = LogFactory.getLog(SpringBeanUtils.class);
 
   /** Spring应用上下文环境 */
   private static ApplicationContext applicationContext;
@@ -46,7 +44,6 @@ public class SpringBeanUtils
    */
   @Override
   public void setApplicationContext(ApplicationContext applicationContext) {
-    LOGGER.debug(applicationContext);
     if (ObjectUtil.isNull(SpringBeanUtils.applicationContext)) {
       SpringBeanUtils.applicationContext = applicationContext;
     }
@@ -89,13 +86,13 @@ public class SpringBeanUtils
     try {
       return (T) applicationContext.getBean(name);
     } catch (NoSuchBeanDefinitionException e) {
-      if (LOGGER.isErrorEnabled()) {
-        LOGGER.error("BeanName:" + name + "没有找到!", e);
+      if (log.isErrorEnabled()) {
+        log.error("BeanName:" + name + "没有找到!", e);
       }
       return null;
     } catch (BeansException e) {
-      if (LOGGER.isErrorEnabled()) {
-        LOGGER.error("BeanName:" + name + "没有找到!", e);
+      if (log.isErrorEnabled()) {
+        log.error("BeanName:" + name + "没有找到!", e);
       }
       throw e;
     }
@@ -112,17 +109,17 @@ public class SpringBeanUtils
     try {
       return applicationContext.getBean(name, requiredType);
     } catch (NoSuchBeanDefinitionException e) {
-      if (LOGGER.isErrorEnabled()) {
-        LOGGER.error("{Bean:" + name + ",Class:" + requiredType + "}没有找到!", e);
+      if (log.isErrorEnabled()) {
+        log.error("{Bean:" + name + ",Class:" + requiredType + "}没有找到!", e);
       }
       return null;
     } catch (BeansException e) {
-      if (LOGGER.isErrorEnabled()) {
-        LOGGER.error("{Bean:" + name + ",Class:" + requiredType + "}没有找到!", e);
+      if (log.isErrorEnabled()) {
+        log.error("{Bean:" + name + ",Class:" + requiredType + "}没有找到!", e);
       }
       throw e;
     } catch (NullPointerException e) {
-      LOGGER.error("查找Bean:" + name + "时发现applicationContext未启动", e);
+      log.error("查找Bean:" + name + "时发现applicationContext未启动", e);
       return null;
     }
   }
@@ -229,7 +226,7 @@ public class SpringBeanUtils
     try {
       return applicationContext.getResources(pattern);
     } catch (IOException e) {
-      LOGGER.error(e);
+      log.error(e.getMessage(), e);
       return new Resource[0];
     }
   }

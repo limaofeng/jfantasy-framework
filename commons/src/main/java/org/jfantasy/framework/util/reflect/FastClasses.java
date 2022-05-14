@@ -12,15 +12,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import net.sf.cglib.reflect.FastClass;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.error.UnsupportedException;
 
+@Slf4j
 public class FastClasses<T> implements IClass<T> {
-  private static final Log LOGGER = LogFactory.getLog(FastClasses.class);
   private final Class<T> clazz;
   private final Map<String, Property> properties = new HashMap<>();
   private final Map<String, MethodProxy> methodProxies = new HashMap<>();
@@ -61,7 +60,7 @@ public class FastClasses<T> implements IClass<T> {
             this.methodProxies.put(name.toString(), new MethodProxy(method, parameters));
           }
         } catch (Exception e) {
-          LOGGER.error(e.getMessage(), e);
+          log.error(e.getMessage(), e);
         }
       }
       for (Constructor<?> constructor : clazz.getConstructors()) {

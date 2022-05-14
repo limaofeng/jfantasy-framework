@@ -2,9 +2,11 @@ package org.jfantasy.framework.log.interceptor;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import lombok.extern.slf4j.Slf4j;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
+@Slf4j
 public class LogInterceptor extends LogAspectSupport implements MethodInterceptor, Serializable {
 
   private static class ThrowableWrapper extends RuntimeException {
@@ -22,15 +24,15 @@ public class LogInterceptor extends LogAspectSupport implements MethodIntercepto
         () -> {
           try {
             return invocation.proceed();
-          } catch (Throwable ex) { // NOSONAR
-            LOGGER.debug(ex.getMessage(), ex);
+          } catch (Throwable ex) {
+            log.debug(ex.getMessage(), ex);
             throw new ThrowableWrapper(ex);
           }
         };
     try {
       return execute(aopAllianceInvoker, invocation.getThis(), method, invocation.getArguments());
     } catch (ThrowableWrapper th) {
-      LOGGER.error(th.getMessage(), th);
+      log.error(th.getMessage(), th);
       throw th.original;
     }
   }

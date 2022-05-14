@@ -1,19 +1,17 @@
 package org.jfantasy.framework.util.common;
 
 import java.util.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.Assert;
 
+@Slf4j
 public class DateUtilTest {
-
-  private static final Log LOGGER = LogFactory.getLog(DateUtilTest.class);
 
   @BeforeEach
   public void setUp() throws Exception {
-    LOGGER.debug("TimeZone : " + TimeZone.getDefault().getID());
+    log.debug("TimeZone : " + TimeZone.getDefault().getID());
   }
 
   @Test
@@ -48,7 +46,7 @@ public class DateUtilTest {
     String str = "2016-09-23 17:02:02";
     Date date = DateUtil.parse(str, "yyyy-MM-dd HH:mm:ss");
     String strNew = DateUtil.format(date, "yyyy-MM-dd HH:mm:ss");
-    LOGGER.debug(strNew);
+    log.debug(strNew);
     Assert.isTrue(str == strNew);
   }
 
@@ -57,7 +55,7 @@ public class DateUtilTest {
     Date day = DateUtil.now();
     long num = DateUtil.dayInterval(day, day);
     Assert.isTrue(num == 0);
-    LOGGER.debug(num);
+    log.debug(num + "");
   }
 
   @Test
@@ -146,7 +144,7 @@ public class DateUtilTest {
     List<Date> dates = DateUtil.betweenDates(starts, ends, Calendar.DATE);
 
     for (Date date : dates) {
-      LOGGER.debug("data ->" + DateUtil.format(date));
+      log.debug("data ->" + DateUtil.format(date));
     }
   }
 
@@ -155,7 +153,7 @@ public class DateUtilTest {
     Date starts = DateUtil.parse("2022-01-03", "yyyy-MM-dd");
     Date ends = DateUtil.parse("2022-01-05", "yyyy-MM-dd");
     int number = DateUtil.diff(starts, ends, Calendar.DATE);
-    LOGGER.debug(String.format("number = %d%n", number));
+    log.debug(String.format("number = %d%n", number));
   }
 
   @Test
@@ -163,32 +161,36 @@ public class DateUtilTest {
 
   @Test
   public void truncatedCompareTo() throws Exception {
-    LOGGER.debug(
-        DateUtil.truncatedCompareTo(
-            DateUtil.now(), DateUtil.parse("2017-01-19 21:21:11", "yyyy-MM-dd"), Calendar.DATE));
-    LOGGER.debug(
-        DateUtil.truncatedCompareTo(
-            DateUtil.parse("2017-02-15", "yyyy-MM-dd"), DateUtil.now(), Calendar.DATE));
+    log.debug(
+        ""
+            + DateUtil.truncatedCompareTo(
+                DateUtil.now(),
+                DateUtil.parse("2017-01-19 21:21:11", "yyyy-MM-dd"),
+                Calendar.DATE));
+    log.debug(
+        ""
+            + DateUtil.truncatedCompareTo(
+                DateUtil.parse("2017-02-15", "yyyy-MM-dd"), DateUtil.now(), Calendar.DATE));
   }
 
   @Test
   public void testFormat() throws Exception {
-    LOGGER.debug(" 当前日期 :" + DateUtil.format("yyyy-MM-dd"));
+    log.debug(" 当前日期 :" + DateUtil.format("yyyy-MM-dd"));
 
-    LOGGER.debug(" 上下午 :" + DateUtil.format("a") + "/" + DateUtil.format("a", Locale.US));
+    log.debug(" 上下午 :" + DateUtil.format("a") + "/" + DateUtil.format("a", Locale.US));
 
-    LOGGER.debug(" 时间 :" + DateUtil.format("zzzz") + "/" + DateUtil.format("zzzz", Locale.US));
+    log.debug(" 时间 :" + DateUtil.format("zzzz") + "/" + DateUtil.format("zzzz", Locale.US));
 
-    LOGGER.debug(" 星期 :" + DateUtil.format("EEE") + "/" + DateUtil.format("EEE", Locale.US));
+    log.debug(" 星期 :" + DateUtil.format("EEE") + "/" + DateUtil.format("EEE", Locale.US));
 
-    LOGGER.debug(" 月份 :" + DateUtil.format("MMM") + "/" + DateUtil.format("MMM", Locale.US));
+    log.debug(" 月份 :" + DateUtil.format("MMM") + "/" + DateUtil.format("MMM", Locale.US));
 
-    LOGGER.debug(
+    log.debug(
         " 当前日期 :"
             + DateUtil.format("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
             + "/"
             + DateUtil.format("yyyy-MM-dd'T'HH:mm:ss.SSSZ", Locale.US));
 
-    LOGGER.debug(" 当前日期 :" + DateUtil.formatRfc822Date(DateUtil.now()));
+    log.debug(" 当前日期 :" + DateUtil.formatRfc822Date(DateUtil.now()));
   }
 }

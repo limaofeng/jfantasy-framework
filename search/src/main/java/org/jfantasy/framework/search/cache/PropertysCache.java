@@ -4,17 +4,15 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Id;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.search.exception.IdException;
 import org.jfantasy.framework.search.exception.PropertyException;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.reflect.Property;
 
+@Slf4j
 public class PropertysCache {
-  private static final Logger LOGGER = LogManager.getLogger(PropertysCache.class);
-
-  private static PropertysCache instance = new PropertysCache();
+  private static final PropertysCache instance = new PropertysCache();
 
   private PropertysCache() {}
 
@@ -27,13 +25,13 @@ public class PropertysCache {
   }
 
   public <T extends Annotation> Property[] filter(Class<?> clazz, Class<T> tClass) {
-    List<Property> properties = new ArrayList<Property>();
+    List<Property> properties = new ArrayList<>();
     for (Property p : this.get(clazz)) {
       if (p.getAnnotation(tClass) != null) {
         properties.add(p);
       }
     }
-    return properties.toArray(new Property[properties.size()]);
+    return properties.toArray(new Property[0]);
   }
 
   public Property getIdProperty(Class<?> clazz) throws IdException {
@@ -57,7 +55,7 @@ public class PropertysCache {
     try {
       f = getIdProperty(clazz);
     } catch (IdException ex) {
-      LOGGER.error(ex.getMessage(), ex);
+      log.error(ex.getMessage(), ex);
     }
     if (f != null) {
       name = f.getName();

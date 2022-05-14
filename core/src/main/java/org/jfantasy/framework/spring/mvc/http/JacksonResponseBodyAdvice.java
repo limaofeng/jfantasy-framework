@@ -4,8 +4,7 @@ import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.jackson.BeanPropertyFilter;
 import org.jfantasy.framework.jackson.annotation.BeanFilter;
 import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
@@ -24,10 +23,9 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 /** 支持 REST 接口的响应头设置 <br> */
 @Order(1)
+@Slf4j
 @ControllerAdvice
 public class JacksonResponseBodyAdvice implements ResponseBodyAdvice<Object> {
-
-  private static final Log LOGGER = LogFactory.getLog(JacksonResponseBodyAdvice.class);
 
   private static final String DEFAULT_PROVIDER_KEY = "default_provider_key";
 
@@ -59,7 +57,7 @@ public class JacksonResponseBodyAdvice implements ResponseBodyAdvice<Object> {
       throw new NotFoundException("查询的对象不存在");
     }
     if (mediaType.isCompatibleWith(MediaType.APPLICATION_JSON)) {
-      LOGGER.debug("启用自定义 FilterProvider ");
+      log.debug("启用自定义 FilterProvider ");
       MappingJacksonValue mappingJacksonValue = new MappingJacksonValue(returnValue);
       mappingJacksonValue.setFilters(getFilterProvider(methodParameter));
       return mappingJacksonValue;

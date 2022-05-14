@@ -10,9 +10,8 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import ognl.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.error.OperationFailedException;
@@ -20,13 +19,13 @@ import org.jfantasy.framework.util.ognl.typeConverter.DateConverter;
 import org.jfantasy.framework.util.reflect.Property;
 import org.jfantasy.framework.util.regexp.RegexpUtil;
 
+@Slf4j
 public class OgnlUtil {
 
-  private static final Log LOGGER = LogFactory.getLog(OgnlUtil.class);
-
-  private static ConcurrentHashMap<String, OgnlUtil> ognlUtilCache =
+  private static final ConcurrentHashMap<String, OgnlUtil> ognlUtilCache =
       new ConcurrentHashMap<String, OgnlUtil>();
-  private ConcurrentHashMap<String, Object> expressions = new ConcurrentHashMap<String, Object>();
+  private final ConcurrentHashMap<String, Object> expressions =
+      new ConcurrentHashMap<String, Object>();
   private final ConcurrentHashMap<Class<?>, BeanInfo> beanInfoCache =
       new ConcurrentHashMap<Class<?>, BeanInfo>();
 
@@ -90,7 +89,7 @@ public class OgnlUtil {
       Map<String, Object> context = createDefaultContext(root);
       setValue(name, context, root, value);
     } catch (OgnlException e) {
-      LOGGER.debug(e.getMessage(), e);
+      log.debug(e.getMessage(), e);
     }
   }
 
@@ -160,7 +159,7 @@ public class OgnlUtil {
         } else {
           Object v = getValue(names, root);
           if (v == null) {
-            LOGGER.debug("p:" + names);
+            log.debug("p:" + names);
             Ognl.setValue(compile(names), context, root, "EMPTY");
           }
         }
@@ -170,7 +169,6 @@ public class OgnlUtil {
     Ognl.setValue(compile(name), context, root, value);
   }
 
-  @SuppressWarnings({"unchecked"})
   public <T> T getValue(String key, Object root) {
     return (T) getValue(key, createDefaultContext(root), root);
   }
@@ -182,7 +180,7 @@ public class OgnlUtil {
       }
       return Ognl.getValue(compile(name), context, root);
     } catch (OgnlException e) {
-      LOGGER.debug(e.getMessage(), e);
+      log.debug(e.getMessage(), e);
       return null;
     }
   }
@@ -197,7 +195,7 @@ public class OgnlUtil {
     try {
       return (T) Ognl.getValue(compile(name), context, root, resultType);
     } catch (OgnlException e) {
-      LOGGER.debug(e.getMessage(), e);
+      log.debug(e.getMessage(), e);
       return null;
     }
   }
@@ -312,7 +310,7 @@ public class OgnlUtil {
                   @Override
                   public Class classForName(String className, Map context)
                       throws ClassNotFoundException {
-                    LOGGER.debug(className);
+                    log.debug(className);
                     return resolver.classForName(className, context);
                   }
                 },
@@ -341,7 +339,7 @@ public class OgnlUtil {
       fromPds = getPropertyDescriptors(from);
       toPds = getPropertyDescriptors(to);
     } catch (IntrospectionException e) {
-      LOGGER.debug("An error occured", e);
+      log.debug("An error occured", e);
       return;
     }
     Map<String, PropertyDescriptor> toPdHash = new HashMap<String, PropertyDescriptor>();
@@ -366,7 +364,7 @@ public class OgnlUtil {
             Object value = Ognl.getValue(expr, contextFrom, from);
             Ognl.setValue(expr, contextTo, to, value);
           } catch (OgnlException e) {
-            LOGGER.debug(e.getMessage(), e);
+            log.debug(e.getMessage(), e);
           }
         }
       }

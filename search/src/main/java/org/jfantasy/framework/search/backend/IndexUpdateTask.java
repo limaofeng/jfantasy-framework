@@ -1,12 +1,11 @@
 package org.jfantasy.framework.search.backend;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.search.cache.IndexWriterCache;
 import org.jfantasy.framework.search.mapper.MapperUtil;
 
+@Slf4j
 public class IndexUpdateTask implements Runnable {
-  private static final Logger LOGGER = LogManager.getLogger(IndexUpdateTask.class);
   private Object entity;
 
   public IndexUpdateTask(Object entity) {

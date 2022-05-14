@@ -3,7 +3,7 @@ package org.jfantasy.framework.search.dao;
 import java.util.List;
 import org.jfantasy.framework.search.backend.EntityChangedListener;
 
-public interface LuceneDao {
+public interface DataFetcher {
 
   long count();
 
@@ -18,5 +18,5 @@ public interface LuceneDao {
 
   <T> T getById(String id);
 
-  EntityChangedListener getLuceneListener();
+  EntityChangedListener getListener();
 }

@@ -1,22 +1,20 @@
 package org.jfantasy.framework.util.sax;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.*;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import lombok.SneakyThrows;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public abstract class XMLReader {
 
   private XMLReader() {
     throw new IllegalStateException("Utility class");
   }
-
-  private static final Log LOGGER = LogFactory.getLog(XMLReader.class);
 
   @SneakyThrows
   public static XmlElement reader(InputStream input) {
@@ -31,19 +29,19 @@ public abstract class XMLReader {
   @SneakyThrows
   public static XmlElement reader(String path) {
     File xmlFile = new File(path);
-    LOGGER.info("开始解析XML文件：[" + path + "]");
-    InputStream input = new FileInputStream(xmlFile);
+    log.info("开始解析XML文件：[" + path + "]");
+    InputStream input = Files.newInputStream(xmlFile.toPath());
     try {
       return reader(input);
     } finally {
-      LOGGER.info("XML文件：[" + path + "]解析完成");
+      log.info("XML文件：[" + path + "]解析完成");
       input.close();
     }
   }
 
   public static String toJSON(XmlElement element) {
     String retVal = parse(element);
-    LOGGER.info("将XML文件转为JSON：" + retVal);
+    log.info("将XML文件转为JSON：" + retVal);
     return retVal;
   }
 

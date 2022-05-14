@@ -2,16 +2,14 @@ package org.jfantasy.framework.spring;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Set;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.dao.BaseBusEntity;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+@Slf4j
 public class ClassPathScannerTest {
-
-  private static final Log logger = LogFactory.getLog(ClassPathScannerTest.class);
 
   private ClassPathScanner pathScanner;
 
@@ -27,7 +25,7 @@ public class ClassPathScannerTest {
   public void testFindTargetClassNames() throws Exception {
     Set<String> classeNames = pathScanner.findTargetClassNames("org.jfantasy.framework.spring");
     for (String clazz : classeNames) {
-      logger.debug(clazz);
+      log.debug(clazz);
     }
   }
 
@@ -35,7 +33,7 @@ public class ClassPathScannerTest {
   public void testFindAnnotationedClasses() throws Exception {
     Set<Class> classes = pathScanner.findAnnotationedClasses("", JsonIgnoreProperties.class);
     for (Class clazz : classes) {
-      logger.debug(clazz);
+      log.debug(clazz.getName());
     }
   }
 
@@ -45,7 +43,7 @@ public class ClassPathScannerTest {
         ClassPathScanner.getInstance()
             .findInterfaceClasses("org.jfantasy.*.bean", BaseBusEntity.class);
     for (Class clazz : classes) {
-      logger.debug(clazz);
+      log.debug(clazz.getName());
     }
   }
 }

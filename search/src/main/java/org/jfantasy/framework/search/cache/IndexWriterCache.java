@@ -1,109 +1,41 @@
 package org.jfantasy.framework.search.cache;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.jfantasy.framework.search.elastic.IndexWriter;
-
-import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import lombok.extern.slf4j.Slf4j;
+import org.jfantasy.framework.search.CuckooIndex;
+import org.jfantasy.framework.search.elastic.IndexWriter;
 
+@Slf4j
 public class IndexWriterCache {
-  private static final Log LOGGER = LogFactory.getLog(IndexWriterCache.class);
 
-  private static IndexWriterCache instance = new IndexWriterCache();
-  private Map<String, IndexWriter> cache;
+  private static final IndexWriterCache instance = new IndexWriterCache();
+  private final Map<Class, IndexWriter> cache;
 
   private IndexWriterCache() {
-    this.cache = new ConcurrentHashMap<String, IndexWriter>();
+    this.cache = new ConcurrentHashMap<>();
   }
 
   public static IndexWriterCache getInstance() {
     return instance;
   }
 
-//  private PreBuiltTransportClient client;
-
-  public void createIndex() throws IOException {
-   /* XContentBuilder builder =
-        jsonBuilder()
-            .startObject()
-            // 类型名称
-            .startObject("")
-            // 定义字段关键字
-            .startObject("properties")
-            .startObject("id")
-            .field("type", "keyword")
-            .field("index", false)
-            .endObject()
-            .startObject("no")
-            .field("type", "keyword")
-            .endObject()
-            .startObject("name")
-            .field("type", "text")
-            .field("analyzer", "pinyin_analyzer")
-            .field("search_analyzer", "ik_max_word")
-            .endObject()
-            .startObject("type")
-            .field("type", "text")
-            .field("analyzer", "pinyin_analyzer")
-            .field("search_analyzer", "ik_max_word")
-            .endObject()
-            .startObject("stage")
-            .field("type", "text")
-            .field("analyzer", "pinyin_analyzer")
-            .field("search_analyzer", "ik_max_word")
-            .endObject()
-            .startObject("organizationIdArray")
-            .field("type", "text")
-            .endObject()
-            .startObject("finishDate")
-            .field("type", "date")
-            .field("index", false)
-            .field("format", "yyyy-MM-dd HH:mm:ss||epoch_millis")
-            .endObject()
-            .startObject("suggest")
-            .field("type", "completion")
-            .field("analyzer", "ik_smart")
-            .endObject()
-            .endObject()
-            .endObject()
-            .endObject();
-
-    PutMappingRequest mapping = Requests.putMappingRequest("").type("").source(builder);
-    client.admin().indices().putMapping(mapping).actionGet();*/
-  }
-
-  public IndexWriter get(String name) {
-    if (this.cache.containsKey(name)) {
-      return this.cache.get(name);
+  public IndexWriter get(Class indexedClass) {
+    if (this.cache.containsKey(indexedClass)) {
+      return this.cache.get(indexedClass);
     }
-    // synchronized (this) {
-    // if (this.cache.containsKey(name)) {
-    // return this.cache.get(name);
-    // }
-    // BuguIndex index = BuguIndex.getInstance();
-    // IndexWriterConfig cfg = new IndexWriterConfig(index.getVersion(),
-    // index.getAnalyzer());
-    // cfg.setRAMBufferSizeMB(index.getBufferSizeMB());
-    // try {
-    // Directory dir = FSDirectory.open(BuguIndex.getInstance().getOpenFolder("/" +
-    // name + "/"));
-    // if (IndexWriter.isLocked(dir)) {
-    // IndexWriter.unlock(dir);
-    // }
-    // cfg.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
-    // this.cache.put(name, new IndexWriter(dir, cfg));
-    // return this.cache.get(name);
-    // } catch (IOException ex) {
-    // LOGGER.error("Something is wrong when create IndexWriter for " + name, ex);
-    // throw new IgnoreException(ex.getMessage(), ex);
-    // }
-    // }
-    return null;
+    synchronized (this) {
+      if (this.cache.containsKey(indexedClass)) {
+        return this.cache.get(indexedClass);
+      }
+      CuckooIndex cuckooIndex = CuckooIndex.getInstance();
+      IndexWriter indexWriter = cuckooIndex.getIndexedFactory().createIndexWriter(indexedClass);
+      this.cache.put(indexedClass, indexWriter);
+      return this.cache.get(indexedClass);
+    }
   }
 
-  public Map<String, IndexWriter> getAll() {
+  public Map<Class, IndexWriter> getAll() {
     return this.cache;
   }
 }

@@ -5,8 +5,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.HashSet;
 import java.util.Set;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.binding.BindingException;
 import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.session.SqlSession;
@@ -21,10 +20,9 @@ import org.springframework.util.ReflectionUtils;
  * @version 1.0
  * @since 2012-10-28 下午08:33:14
  */
+@Slf4j
 public class MyBatisMapperProxy implements InvocationHandler {
-  protected final Log LOGGER = LogFactory.getLog(MyBatisMapperProxy.class);
-
-  private SqlSession sqlSession;
+  private final SqlSession sqlSession;
 
   /** 不需要代理的方法 */
   private static final Set<String> OBJECT_METHODS =
@@ -86,7 +84,7 @@ public class MyBatisMapperProxy implements InvocationHandler {
         .hasStatement(declaringInterface.getName() + "." + method.getName())) {
       Class<?>[] declaringInterfaces = declaringInterface.getInterfaces();
       for (Class<?> declaringinterface : declaringInterfaces) {
-        this.LOGGER.debug("向父接口查找Mapper:" + declaringinterface.getName() + "." + method.getName());
+        log.debug("向父接口查找Mapper:" + declaringinterface.getName() + "." + method.getName());
         if (this.sqlSession
             .getConfiguration()
             .hasStatement(declaringinterface.getName() + "." + method.getName())) {

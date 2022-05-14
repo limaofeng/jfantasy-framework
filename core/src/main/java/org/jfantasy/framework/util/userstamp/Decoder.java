@@ -1,26 +1,24 @@
 package org.jfantasy.framework.util.userstamp;
 
 import java.security.MessageDigest;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class Decoder {
 
   private Decoder() {}
 
-  private static final Log LOGGER = LogFactory.getLog(Decoder.class);
-
   public static UserResult decode(String userStamp) {
     if (userStamp == null) {
-      if (LOGGER.isDebugEnabled()) {
-        LOGGER.debug("userStamp is NULL ");
+      if (log.isDebugEnabled()) {
+        log.debug("userStamp is NULL ");
       }
       return null;
     }
     char[] stamp = userStamp.toCharArray();
     if ((stamp.length != 16) || (!v(stamp))) {
-      if (LOGGER.isDebugEnabled()) {
-        LOGGER.debug("无效的userStamp : " + userStamp);
+      if (log.isDebugEnabled()) {
+        log.debug("无效的userStamp : " + userStamp);
       }
       return null;
     }
@@ -56,7 +54,7 @@ public class Decoder {
         }
       }
     } catch (Exception e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
       return false;
     }
     return true;
