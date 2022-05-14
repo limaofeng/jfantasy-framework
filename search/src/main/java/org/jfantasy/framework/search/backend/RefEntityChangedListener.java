@@ -9,7 +9,7 @@ import org.jfantasy.framework.search.annotations.IndexRef;
 import org.jfantasy.framework.search.annotations.IndexRefList;
 import org.jfantasy.framework.search.cache.DaoCache;
 import org.jfantasy.framework.search.cache.PropertysCache;
-import org.jfantasy.framework.search.dao.LuceneDao;
+import org.jfantasy.framework.search.dao.DataFetcher;
 import org.jfantasy.framework.util.reflect.Property;
 
 public class RefEntityChangedListener {
@@ -55,7 +55,7 @@ public class RefEntityChangedListener {
     if (match) {
       //      Session session = OpenSessionUtils.openSession();
       try {
-        LuceneDao dao = DaoCache.getInstance().get(cls);
+        DataFetcher dao = DaoCache.getInstance().get(cls);
         if (dao != null) {
           List<?> list = dao.findByField(fieldName, id);
           for (Object o : list) {

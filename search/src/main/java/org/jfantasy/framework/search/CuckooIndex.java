@@ -7,7 +7,11 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import org.jfantasy.framework.search.annotations.Indexed;
 import org.jfantasy.framework.search.backend.IndexReopenTask;
+import org.jfantasy.framework.search.cache.DaoCache;
 import org.jfantasy.framework.search.config.IndexedScanner;
+import org.jfantasy.framework.search.dao.DataFetcher;
+import org.jfantasy.framework.search.dao.JpaDefaultDataFetcher;
+import org.jfantasy.framework.util.common.ClassUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -32,17 +36,16 @@ public class CuckooIndex
   /** 分词器 */
   // private Analyzer analyzer = new StandardAnalyzer(this.version);
   /** 索引文件的存放目录 */
-  private String directoryPath;
   /** 集群配置 */
   //  private ClusterConfig clusterConfig;
   /** 线程池 */
   private SchedulingTaskExecutor executor;
   /** reopen 执行周期 */
-  private long period = 30000L;
+  private long period = 10000L;
 
   private boolean rebuild = false;
 
-  private Map<Class<?>, IndexRebuilder> indexRebuilders = new HashMap<>();
+  private final Map<Class<?>, IndexRebuilder> indexRebuilds = new HashMap<>();
 
   private IndexedFactory indexedFactory;
 
@@ -96,8 +99,11 @@ public class CuckooIndex
 
     Set<Class<?>> indexedClasses = new IndexedScanner(applicationContext).scan(Indexed.class);
 
+    DaoCache daoCache = DaoCache.getInstance();
+
     for (Class<?> clazz : indexedClasses) {
-      indexRebuilders.put(clazz, new IndexRebuilder(clazz));
+      indexRebuilds.put(clazz, new IndexRebuilder(clazz));
+      daoCache.put(clazz, buildDataFetcher(applicationContext, clazz));
     }
 
     if (CuckooIndex.instance == null) {
@@ -118,13 +124,30 @@ public class CuckooIndex
     LOG.debug("Started Lucene in {} ms", watch.getTotalTimeMillis());
   }
 
+  private DataFetcher buildDataFetcher(ApplicationContext applicationContext, Class<?> clazz) {
+    Indexed indexed = clazz.getAnnotation(Indexed.class);
+    Class<? extends DataFetcher> daoClass = indexed.fetcher();
+
+    if (ClassUtil.isAssignable(JpaDefaultDataFetcher.class, daoClass)) {
+      return ClassUtil.newInstance(
+          daoClass,
+          new Class[] {ApplicationContext.class, Class.class},
+          new Object[] {applicationContext, clazz});
+    }
+    boolean existent = applicationContext.getBeanNamesForType(daoClass).length > 0;
+    if (existent) {
+      return applicationContext.getBean(daoClass);
+    }
+    return ClassUtil.newInstance(daoClass);
+  }
+
   //  private static LuceneDao createHibernateLuceneDao(String name, JpaRepository jpaRepository) {
   //    return SpringBeanUtils.registerBeanDefinition(
   //        name + "HibernateLuceneDao", HibernateLuceneDao.class, new Object[] {jpaRepository});
   //  }
 
   private void rebuild() {
-    for (IndexRebuilder indexRebuilder : indexRebuilders.values()) {
+    for (IndexRebuilder indexRebuilder : indexRebuilds.values()) {
       indexRebuilder.rebuild();
     }
   }
@@ -136,7 +159,7 @@ public class CuckooIndex
     //    if (!this.indexRebuilders.containsKey(clazz)) {
     //      throw new IgnoreException(clazz + " not found indexRebuilder");
     //    }
-    indexRebuilders.get(clazz).rebuild();
+    indexRebuilds.get(clazz).rebuild();
   }
 
   /** 初始化方法 */
@@ -192,10 +215,6 @@ public class CuckooIndex
 
   public void setIndexReopenPeriod(long period) {
     this.period = period;
-  }
-
-  public void setDirectoryPath(String directoryPath) {
-    this.directoryPath = directoryPath;
   }
 
   //  public ClusterConfig getClusterConfig() {

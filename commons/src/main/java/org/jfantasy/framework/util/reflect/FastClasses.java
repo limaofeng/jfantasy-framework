@@ -16,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.sf.cglib.reflect.FastClass;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
-import org.jfantasy.framework.util.error.UnsupportedException;
 
 @Slf4j
 public class FastClasses<T> implements IClass<T> {
@@ -208,7 +207,7 @@ public class FastClasses<T> implements IClass<T> {
     if (parameterTypes.length == 1) {
       return newInstance(parameterTypes[0], parameters[0]);
     }
-    throw new UnsupportedException("还不支持多个参数的构造器");
+    return clazz.getConstructor(parameterTypes).newInstance(parameters);
   }
 
   @Override

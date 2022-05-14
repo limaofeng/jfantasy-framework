@@ -66,7 +66,7 @@ public class IndexRebuildTask implements Runnable {
       }
       if (remainder > 0) {
         pages++;
-        List<?> list = luceneDao.find((pages - 1) * this.batchSize, (pages - 1) * this.batchSize);
+        List<?> list = luceneDao.find((pages - 1) * this.batchSize, remainder);
         process(list);
       }
       try {

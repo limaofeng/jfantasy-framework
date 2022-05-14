@@ -8,7 +8,7 @@ apply plugin: 'java-library'
 apply plugin: 'jacoco'
 
 dependencies {
-	api project(":jfantasy-commons")
+    api project(":jfantasy-commons")
 	// spring boot
 	api libs['springBoot']
 	// quartz

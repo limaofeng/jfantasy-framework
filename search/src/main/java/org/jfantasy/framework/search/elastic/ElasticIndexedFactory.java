@@ -5,6 +5,6 @@ import org.jfantasy.framework.search.IndexedFactory;
 public class ElasticIndexedFactory implements IndexedFactory {
   @Override
   public IndexWriter createIndexWriter(Class entity) {
-    return null;
+    return new ElasticIndexWriter();
   }
 }

@@ -47,6 +47,7 @@ public class PropertyFieldHandler extends AbstractFieldHandler {
     }
     Class<?> type = this.property.getPropertyType();
     String fieldName = this.prefix + this.property.getName();
+    doc.add(fieldName, objValue);
     // IndexableField f = null;
     // if (DataType.isString(type) || type.isEnum()) { //TODO 枚举使用字符串的方式处理
     // f = new org.apache.lucene.document.Field(fieldName, objValue.toString(),
