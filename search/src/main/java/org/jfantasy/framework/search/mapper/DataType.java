@@ -1,5 +1,8 @@
 package org.jfantasy.framework.search.mapper;
 
+import org.jfantasy.framework.search.annotations.FieldType;
+
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
@@ -99,5 +102,42 @@ public class DataType {
 
   public static boolean isEnum(Class<?> type) {
     return type.isEnum();
+  }
+
+  public static boolean isBigDecimal(Class<?> type) {
+    return BigDecimal.class.isAssignableFrom(type);
+  }
+
+  public static FieldType getFieldType(Class<?> type) {
+    if (type.isEnum()) {
+      return FieldType.Keyword;
+    }
+    if (DataType.isString(type)) {
+      return FieldType.Text;
+    } else if ((DataType.isBoolean(type)) || (DataType.isBooleanObject(type))) {
+      builder.boolean_(builder1 -> builder1.store(store));
+    } else if ((DataType.isChar(type)) || (DataType.isCharObject(type))) {
+      builder.text(builder1 -> builder1.store(store).index(false));
+    } else if ((DataType.isInteger(type)) || (DataType.isIntegerObject(type))) {
+      builder.integer(builder1 -> builder1.store(store));
+    } else if ((DataType.isLong(type)) || (DataType.isLongObject(type))) {
+      builder.long_(builder1 -> builder1.store(store));
+    } else if ((DataType.isShort(type)) || (DataType.isShortObject(type))) {
+      builder.short_(builder1 -> builder1.store(store));
+    } else if ((DataType.isFloat(type)) || (DataType.isFloatObject(type))) {
+      builder.float_(builder1 -> builder1.store(store));
+    } else if ((DataType.isDouble(type)) || (DataType.isDoubleObject(type))) {
+      builder.double_(builder1 -> builder1.store(store));
+    } else if (DataType.isDate(type)) {
+      builder.date(builder1 -> builder1.store(store));
+    } else if (DataType.isTimestamp(type)) {
+      builder.long_(builder1 -> builder1.store(store));
+    } else if ((DataType.isSet(type)) || (DataType.isList(type))) {
+      builder.text(builder1 -> builder1.store(store).index(analyze));
+    } else if (DataType.isMap(type)) {
+      builder.text(builder1 -> builder1.store(store).index(analyze));
+    } else if (DataType.isBigDecimal(type)) {
+      builder.text(builder1 -> builder1.store(store));
+    }
   }
 }

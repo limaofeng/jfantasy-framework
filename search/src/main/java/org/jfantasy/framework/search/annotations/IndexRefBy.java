@@ -17,28 +17,28 @@ public @interface IndexRefBy {
   /**
    * value——Class类型，表示被引用的类
    *
-   * @return
+   * @return Class<?>[]
    */
   public abstract Class<?>[] value();
 
   /**
-   * analyze——boolean型，表示是否需要分词
+   * 是否为字段建立索引
    *
-   * @return
+   * @return boolean[]
    */
-  public abstract boolean[] analyze() default false;
+  public abstract boolean[] index() default false;
 
   /**
    * store——boolean型，表示是否需要存储
    *
-   * @return
+   * @return boolean[]
    */
   public abstract boolean[] store() default true;
 
   /**
    * boost——float型，表示该Field的权重
    *
-   * @return
+   * @return double[]
    */
-  public abstract float[] boost() default 1.0f;
+  public abstract double[] boost() default 1.0f;
 }

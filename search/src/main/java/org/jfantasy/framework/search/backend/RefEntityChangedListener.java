@@ -4,19 +4,22 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Set;
-import org.jfantasy.framework.search.CuckooIndex;
 import org.jfantasy.framework.search.annotations.IndexRef;
 import org.jfantasy.framework.search.annotations.IndexRefList;
 import org.jfantasy.framework.search.cache.DaoCache;
 import org.jfantasy.framework.search.cache.PropertysCache;
 import org.jfantasy.framework.search.dao.DataFetcher;
 import org.jfantasy.framework.util.reflect.Property;
+import org.springframework.core.task.TaskExecutor;
 
 public class RefEntityChangedListener {
   private final Set<Class<?>> refBySet;
 
-  public RefEntityChangedListener(Set<Class<?>> refBySet) {
+  private final TaskExecutor executor;
+
+  public RefEntityChangedListener(Set<Class<?>> refBySet, TaskExecutor executor) {
     this.refBySet = refBySet;
+    this.executor = executor;
   }
 
   public void entityChange(Class<?> refClass, String id) {
@@ -60,7 +63,7 @@ public class RefEntityChangedListener {
           List<?> list = dao.findByField(fieldName, id);
           for (Object o : list) {
             IndexUpdateTask task = new IndexUpdateTask(o);
-            CuckooIndex.getInstance().getExecutor().execute(task);
+            executor.execute(task);
           }
         }
       } finally {

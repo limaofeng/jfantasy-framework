@@ -1,21 +1,43 @@
 package org.jfantasy.framework.search.handler;
 
-import org.jfantasy.framework.search.Document;
-import org.jfantasy.framework.search.annotations.IndexProperty;
+import co.elastic.clients.elasticsearch._types.mapping.TypeMapping;
+import org.jfantasy.framework.search.DocumentData;
+import org.jfantasy.framework.search.annotations.Field;
+import org.jfantasy.framework.search.annotations.FieldType;
+import org.jfantasy.framework.search.mapper.DataType;
 import org.jfantasy.framework.util.reflect.Property;
 
 public class PropertyFieldHandler extends AbstractFieldHandler {
+  public PropertyFieldHandler(Property property, String prefix) {
+    super(property, prefix);
+  }
+
   public PropertyFieldHandler(Object obj, Property property, String prefix) {
     super(obj, property, prefix);
   }
 
   @Override
-  public void handle(Document doc) {
-    IndexProperty ip = this.property.getAnnotation(IndexProperty.class);
-    process(doc, ip.analyze(), ip.store(), ip.boost());
+  public void handle(DocumentData doc) {
+    Field ip = this.property.getAnnotation(Field.class);
+    process(doc, ip.index(), ip.store(), ip.boost());
   }
 
-  protected void process(Document doc, boolean analyze, boolean store, float boost) {
+  @Override
+  public void handle(TypeMapping.Builder typeMapping) {
+    Field ip = this.property.getAnnotation(Field.class);
+    process(typeMapping, field);
+  }
+
+  protected void process(TypeMapping.Builder typeMapping, Field field) {
+    Class<?> type = this.property.getPropertyType();
+    if (type.isArray()) {
+      processArray(typeMapping, analyze, store, boost);
+    } else {
+      processPrimitive(typeMapping, field);
+    }
+  }
+
+  protected void process(DocumentData doc, boolean analyze, boolean store, double boost) {
     Class<?> type = this.property.getPropertyType();
     if (type.isArray()) {
       processArray(doc, analyze, store, boost);
@@ -24,7 +46,7 @@ public class PropertyFieldHandler extends AbstractFieldHandler {
     }
   }
 
-  private void processArray(Document doc, boolean analyze, boolean store, float boost) {
+  private void processArray(DocumentData doc, boolean analyze, boolean store, double boost) {
     Object objValue = this.property.getValue(this.obj);
     if (objValue == null) {
       return;
@@ -40,7 +62,7 @@ public class PropertyFieldHandler extends AbstractFieldHandler {
     // doc.add(f);
   }
 
-  private void processPrimitive(Document doc, boolean analyze, boolean store, float boost) {
+  private void processPrimitive(DocumentData doc, boolean analyze, boolean store, double boost) {
     Object objValue = this.property.getValue(this.obj);
     if (objValue == null) {
       return;
@@ -117,5 +139,66 @@ public class PropertyFieldHandler extends AbstractFieldHandler {
     // f.setBoost(boost);
     // doc.add(f);
     // }
+  }
+
+  private void processArray(
+      TypeMapping.Builder typeMapping, boolean analyze, boolean store, double boost) {
+    Class<?> type = this.property.getPropertyType();
+    String fieldName = this.prefix + this.property.getName();
+    typeMapping.properties(
+        fieldName,
+        builder -> builder.text(builder1 -> builder1.store(store).index(analyze).boost(boost)));
+  }
+
+  private void processPrimitive(TypeMapping.Builder typeMapping, Field field) {
+    Class<?> type = this.property.getPropertyType();
+    String fieldName = this.prefix + this.property.getName();
+
+    boolean store = field.store();
+    boolean index = field.index();
+    double boost = field.boost();
+
+    FieldType fieldType = field.type();
+
+    if(FieldType.Auto == fieldType) {
+        DataType.getFieldType(type);
+    }
+
+    typeMapping.properties(
+        fieldName,
+        builder -> {
+          if (DataType.isString(type) || type.isEnum()) {
+            builder.text(
+                builder1 -> {
+                  builder1.store(store).index(index).boost(boost);
+                  return builder1;
+                });
+          } else if ((DataType.isBoolean(type)) || (DataType.isBooleanObject(type))) {
+            builder.boolean_(builder1 -> builder1.store(store));
+          } else if ((DataType.isChar(type)) || (DataType.isCharObject(type))) {
+            builder.text(builder1 -> builder1.store(store).index(false));
+          } else if ((DataType.isInteger(type)) || (DataType.isIntegerObject(type))) {
+            builder.integer(builder1 -> builder1.store(store));
+          } else if ((DataType.isLong(type)) || (DataType.isLongObject(type))) {
+            builder.long_(builder1 -> builder1.store(store));
+          } else if ((DataType.isShort(type)) || (DataType.isShortObject(type))) {
+            builder.short_(builder1 -> builder1.store(store));
+          } else if ((DataType.isFloat(type)) || (DataType.isFloatObject(type))) {
+            builder.float_(builder1 -> builder1.store(store));
+          } else if ((DataType.isDouble(type)) || (DataType.isDoubleObject(type))) {
+            builder.double_(builder1 -> builder1.store(store));
+          } else if (DataType.isDate(type)) {
+            builder.date(builder1 -> builder1.store(store));
+          } else if (DataType.isTimestamp(type)) {
+            builder.long_(builder1 -> builder1.store(store));
+          } else if ((DataType.isSet(type)) || (DataType.isList(type))) {
+            builder.text(builder1 -> builder1.store(store).index(analyze));
+          } else if (DataType.isMap(type)) {
+            builder.text(builder1 -> builder1.store(store).index(analyze));
+          } else if (DataType.isBigDecimal(type)) {
+            builder.text(builder1 -> builder1.store(store));
+          }
+          return builder;
+        });
   }
 }

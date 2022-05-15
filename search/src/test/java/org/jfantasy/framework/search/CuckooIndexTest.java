@@ -1,7 +1,5 @@
 package org.jfantasy.framework.search;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import cn.asany.demo.bean.User;
 import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.search.elastic.ElasticIndexedFactory;
@@ -24,15 +22,15 @@ class CuckooIndexTest {
 
   @Autowired private SchedulingTaskExecutor executor;
 
-  private final CuckooIndex cuckooIndex = new CuckooIndex();
+  private final CuckooIndexFactory cuckooIndexFactory = new CuckooIndexFactory();
 
   @Test
   void initialize() throws ClassNotFoundException {
-    cuckooIndex.setApplicationContext(applicationContext);
-    cuckooIndex.setIndexedFactory(new ElasticIndexedFactory());
-    cuckooIndex.setExecutor(executor);
-    cuckooIndex.initialize();
+    cuckooIndexFactory.setApplicationContext(applicationContext);
+    cuckooIndexFactory.setIndexedFactory(new ElasticIndexedFactory());
+    cuckooIndexFactory.setExecutor(executor);
+    cuckooIndexFactory.initialize();
 
-    cuckooIndex.rebuild(User.class);
+    cuckooIndexFactory.rebuild(User.class);
   }
 }

@@ -4,15 +4,17 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Id;
-import org.jfantasy.framework.search.CuckooIndex;
 import org.jfantasy.framework.search.annotations.IndexRefBy;
 import org.jfantasy.framework.search.cache.PropertysCache;
 import org.jfantasy.framework.util.reflect.Property;
+import org.springframework.core.task.TaskExecutor;
 
 public class EntityChangedListener {
   private final Class<?> clazz;
   private boolean onlyIdRefBy;
   private RefEntityChangedListener refListener;
+
+  private TaskExecutor executor;
 
   //  private ClusterConfig cluster() {
   //    return BuguIndex.getInstance().getClusterConfig();
@@ -37,7 +39,7 @@ public class EntityChangedListener {
       }
     }
     if (!refBySet.isEmpty()) {
-      this.refListener = new RefEntityChangedListener(refBySet);
+      this.refListener = new RefEntityChangedListener(refBySet, executor);
       if ((byId) && (!byOther)) {
         this.onlyIdRefBy = true;
       }
@@ -48,7 +50,7 @@ public class EntityChangedListener {
     IndexFilterChecker checker = new IndexFilterChecker(entity);
     if (checker.needIndex()) {
       IndexInsertTask task = new IndexInsertTask(entity);
-      CuckooIndex.getInstance().getExecutor().execute(task);
+      this.executor.execute(task);
     }
   }
 
@@ -57,7 +59,7 @@ public class EntityChangedListener {
     IndexFilterChecker checker = new IndexFilterChecker(entity);
     if (checker.needIndex()) {
       IndexUpdateTask task = new IndexUpdateTask(entity);
-      CuckooIndex.getInstance().getExecutor().execute(task);
+      this.executor.execute(task);
     } else {
       processRemove(id);
     }
@@ -75,7 +77,7 @@ public class EntityChangedListener {
 
   private void processRemove(String id) {
     IndexRemoveTask task = new IndexRemoveTask(this.clazz, id);
-    CuckooIndex.getInstance().getExecutor().execute(task);
+    this.executor.execute(task);
   }
 
   private void processRefBy(String id) {

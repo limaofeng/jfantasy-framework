@@ -1,9 +1,10 @@
 package org.jfantasy.framework.search.handler;
 
-import java.util.List;
-import org.jfantasy.framework.search.Document;
+import org.jfantasy.framework.search.DocumentData;
 import org.jfantasy.framework.search.annotations.IndexRefBy;
 import org.jfantasy.framework.util.reflect.Property;
+
+import java.util.List;
 
 public class RefByFieldHandler extends ByFieldHandler {
   private Class<?> refBy;
@@ -14,14 +15,14 @@ public class RefByFieldHandler extends ByFieldHandler {
   }
 
   @Override
-  public void handle(Document doc) {
+  public void handle(DocumentData doc) {
     IndexRefBy irb = this.property.getAnnotation(IndexRefBy.class);
     Class<?>[] cls = irb.value();
     int len = cls.length;
     for (int i = 0; i < len; i++) {
       if (cls[i].equals(this.refBy)) {
         boolean analyze = false;
-        boolean[] as = irb.analyze();
+        boolean[] as = irb.index();
         if (as.length > 0) {
           analyze = as[i];
         }
@@ -30,8 +31,8 @@ public class RefByFieldHandler extends ByFieldHandler {
         if (ss.length > 0) {
           store = ss[i];
         }
-        float boost = 1.0F;
-        float[] bs = irb.boost();
+        double boost = 1.0F;
+        double[] bs = irb.boost();
         if (bs.length > 0) {
           boost = bs[i];
         }

@@ -8,6 +8,25 @@ import org.jfantasy.framework.search.dao.JpaDefaultDataFetcher;
 
 @Target({java.lang.annotation.ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Indexed {
+public @interface Document {
+  /**
+   * elasticsearch 索引名称
+   *
+   * @return String
+   */
+  String indexName();
+
+  /**
+   * 配置是否创建索引
+   *
+   * @return boolean
+   */
+  boolean createIndex() default true;
+
+  /**
+   * 文档数据加载器
+   *
+   * @return Class<? extends DataFetcher>
+   */
   Class<? extends DataFetcher> fetcher() default JpaDefaultDataFetcher.class;
 }

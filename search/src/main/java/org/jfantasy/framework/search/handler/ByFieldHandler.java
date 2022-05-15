@@ -1,8 +1,9 @@
 package org.jfantasy.framework.search.handler;
 
-import java.util.List;
-import org.jfantasy.framework.search.Document;
+import org.jfantasy.framework.search.DocumentData;
 import org.jfantasy.framework.util.reflect.Property;
+
+import java.util.List;
 
 public abstract class ByFieldHandler extends PropertyFieldHandler {
 
@@ -11,7 +12,7 @@ public abstract class ByFieldHandler extends PropertyFieldHandler {
   }
 
   protected void processList(
-      List<?> objList, Document doc, boolean analyze, boolean store, float boost) {
+      List<?> objList, DocumentData doc, boolean analyze, boolean store, double boost) {
     StringBuilder sb = new StringBuilder();
     Class<?> type = this.property.getPropertyType();
     if (type.isArray()) {

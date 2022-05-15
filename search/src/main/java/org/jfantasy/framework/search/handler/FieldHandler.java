@@ -1,8 +1,11 @@
 package org.jfantasy.framework.search.handler;
 
-import org.jfantasy.framework.search.Document;
+import co.elastic.clients.elasticsearch._types.mapping.TypeMapping;
+import org.jfantasy.framework.search.DocumentData;
 
 public interface FieldHandler {
 
-  void handle(Document paramDocument);
+  void handle(DocumentData paramDocument);
+
+  void handle(TypeMapping.Builder typeMapping);
 }

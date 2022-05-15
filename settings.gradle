@@ -20,4 +20,3 @@ project(':jfantasy-desensitize').projectDir = "$rootDir/desensitize" as File
 project(':jfantasy-example').projectDir = "$rootDir/example" as File
 project(':jfantasy-commons').projectDir = "$rootDir/commons" as File
 project(':jfantasy-search').projectDir = "$rootDir/search" as File
-project(':jfantasy-search').projectDir = "$rootDir/search" as File

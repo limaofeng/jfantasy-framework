@@ -1,0 +1,60 @@
+{
+  "groups": [
+    {
+      "name": "spring.cuckoo",
+      "description": "cuckoo",
+      "type": "org.jfantasy.autoconfigure.properties.CuckooProperties",
+      "sourceType": "org.jfantasy.autoconfigure.properties.CuckooProperties"
+    },
+    {
+      "name": "spring.cuckoo.elasticsearch.client",
+      "description": "Elasticsearch 客户端设置",
+      "type": "org.jfantasy.autoconfigure.properties.ElasticsearchClientProperties",
+      "sourceType": "org.jfantasy.autoconfigure.properties.ElasticsearchClientProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "spring.cuckoo.rebuild",
+      "type": "java.lang.Boolean",
+      "description": "启动重建索引",
+      "sourceType": "org.jfantasy.autoconfigure.properties.CuckooProperties"
+    },
+    {
+      "name": "spring.cuckoo.elasticsearch.client.url",
+      "type": "java.lang.String",
+      "description": "连接地址",
+      "sourceType": "org.jfantasy.autoconfigure.properties.ElasticsearchClientProperties"
+    },
+    {
+      "name": "spring.cuckoo.elasticsearch.client.apiKey",
+      "type": "java.lang.String",
+      "description": "推荐使用 apikey 取代 username/password 的方式",
+      "sourceType": "org.jfantasy.autoconfigure.properties.ElasticsearchClientProperties"
+    },
+    {
+      "name": "spring.cuckoo.elasticsearch.client.username",
+      "type": "java.lang.String",
+      "description": "连接用户名",
+      "sourceType": "org.jfantasy.autoconfigure.properties.ElasticsearchClientProperties"
+    },
+    {
+      "name": "spring.cuckoo.elasticsearch.client.password",
+      "type": "java.lang.String",
+      "description": "连接密码",
+      "sourceType": "org.jfantasy.autoconfigure.properties.ElasticsearchClientProperties"
+    },
+    {
+      "name": "spring.cuckoo.elasticsearch.client.ssl.certificate-path",
+      "type": "java.lang.String",
+      "description": "证书路径",
+      "sourceType": "org.jfantasy.autoconfigure.properties.ElasticsearchClientProperties$SSL"
+    },
+    {
+      "name": "spring.cuckoo.elasticsearch.client.ssl.certificate",
+      "type": "java.lang.String",
+      "description": "证书字符串",
+      "sourceType": "org.jfantasy.autoconfigure.properties.ElasticsearchClientProperties$SSL"
+    }
+  ]
+}

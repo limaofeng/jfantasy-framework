@@ -3,7 +3,6 @@ package org.jfantasy.framework.search.elastic;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.jfantasy.framework.search.Document;
 
 public class ElasticIndexWriter implements IndexWriter {

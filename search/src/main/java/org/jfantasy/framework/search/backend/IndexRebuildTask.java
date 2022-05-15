@@ -10,7 +10,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.search.Document;
 import org.jfantasy.framework.search.cache.DaoCache;
-import org.jfantasy.framework.search.cache.IndexWriterCache;
+import org.jfantasy.framework.search.cache.IndexCache;
 import org.jfantasy.framework.search.dao.DataFetcher;
 import org.jfantasy.framework.search.elastic.IndexWriter;
 
@@ -26,8 +26,8 @@ public class IndexRebuildTask implements Runnable {
   public IndexRebuildTask(Class<?> clazz, int batchSize) {
     this.clazz = clazz;
     this.batchSize = batchSize;
-    IndexWriterCache cache = IndexWriterCache.getInstance();
-    this.writer = cache.get(clazz);
+    IndexCache cache = IndexCache.getInstance();
+    this.writer = cache.get(clazz).getIndexWriter();
     if (!rebuildLocks.containsKey(clazz)) {
       rebuildLocks.put(clazz, new ReentrantLock());
     }

@@ -1,5 +1,12 @@
 package org.jfantasy.framework.search.handler;
 
+import co.elastic.clients.elasticsearch._types.mapping.TypeMapping;
+import org.jfantasy.framework.search.DocumentData;
+import org.jfantasy.framework.search.annotations.IndexEmbedBy;
+import org.jfantasy.framework.search.cache.PropertysCache;
+import org.jfantasy.framework.search.mapper.DataType;
+import org.jfantasy.framework.util.reflect.Property;
+
 import java.lang.reflect.Array;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -7,19 +14,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.jfantasy.framework.search.Document;
-import org.jfantasy.framework.search.annotations.IndexEmbedBy;
-import org.jfantasy.framework.search.cache.PropertysCache;
-import org.jfantasy.framework.search.mapper.DataType;
-import org.jfantasy.framework.util.reflect.Property;
 
 public class EmbedListFieldHandler extends AbstractFieldHandler {
+
+  public EmbedListFieldHandler(Property property, String prefix) {
+    super(property, prefix);
+  }
+
   public EmbedListFieldHandler(Object obj, Property property, String prefix) {
     super(obj, property, prefix);
   }
 
   @Override
-  public void handle(Document doc) {
+  public void handle(DocumentData doc) {
     Object value = this.property.getValue(this.obj);
     if (value == null) {
       return;
@@ -62,4 +69,9 @@ public class EmbedListFieldHandler extends AbstractFieldHandler {
       }
     }
   }
+
+    @Override
+    public void handle(TypeMapping.Builder typeMapping) {
+
+    }
 }

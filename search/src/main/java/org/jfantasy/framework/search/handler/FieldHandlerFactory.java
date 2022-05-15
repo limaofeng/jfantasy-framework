@@ -12,7 +12,7 @@ public class FieldHandlerFactory {
   public static boolean isHandler(Property p) {
     Class[] tClases = {
       Id.class,
-      IndexProperty.class,
+      Field.class,
       IndexEmbed.class,
       IndexEmbedList.class,
       IndexRef.class,
@@ -30,7 +30,7 @@ public class FieldHandlerFactory {
     FieldHandler handler = null;
     if (p.getAnnotation(Id.class) != null) {
       handler = new IdFieldHandler(obj, p, "");
-    } else if (p.getAnnotation(IndexProperty.class) != null) {
+    } else if (p.getAnnotation(Field.class) != null) {
       handler = new PropertyFieldHandler(obj, p, prefix);
     } else if (p.getAnnotation(IndexEmbed.class) != null) {
       handler = new EmbedFieldHandler(obj, p, p.getName() + DOT);
@@ -40,6 +40,24 @@ public class FieldHandlerFactory {
       handler = new RefFieldHandler(obj, p, p.getName() + DOT);
     } else if (p.getAnnotation(IndexRefList.class) != null) {
       handler = new RefListFieldHandler(obj, p, p.getName() + DOT);
+    }
+    return handler;
+  }
+
+  public static FieldHandler create(Property p, String prefix) {
+    FieldHandler handler = null;
+    if (p.getAnnotation(Id.class) != null) {
+      handler = new IdFieldHandler(p, "");
+    } else if (p.getAnnotation(Field.class) != null) {
+      handler = new PropertyFieldHandler(p, prefix);
+    } else if (p.getAnnotation(IndexEmbed.class) != null) {
+      handler = new EmbedFieldHandler(p, p.getName() + DOT);
+    } else if (p.getAnnotation(IndexEmbedList.class) != null) {
+      handler = new EmbedListFieldHandler(p, p.getName() + DOT);
+    } else if (p.getAnnotation(IndexRef.class) != null) {
+      handler = new RefFieldHandler(p, p.getName() + DOT);
+    } else if (p.getAnnotation(IndexRefList.class) != null) {
+      handler = new RefListFieldHandler(p, p.getName() + DOT);
     }
     return handler;
   }

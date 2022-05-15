@@ -1,18 +1,17 @@
 package org.jfantasy.framework.search.dao;
 
+import static org.springframework.data.jpa.repository.query.QueryUtils.*;
+
+import java.util.List;
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import org.jfantasy.framework.search.backend.EntityChangedListener;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.jpa.provider.PersistenceProvider;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.JpaEntityInformationSupport;
-
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
-import java.util.List;
-
-import static org.springframework.data.jpa.repository.query.QueryUtils.*;
 
 public class JpaDefaultDataFetcher implements DataFetcher {
 
@@ -42,11 +41,11 @@ public class JpaDefaultDataFetcher implements DataFetcher {
   @Override
   public <T> List<T> find(int start, int size) {
 
-      CriteriaBuilder builder = em.getCriteriaBuilder();
-      CriteriaQuery<T> query = builder.createQuery(domainClass);
+    CriteriaBuilder builder = em.getCriteriaBuilder();
+    CriteriaQuery<T> query = builder.createQuery(domainClass);
 
-      Root<T> root = query.from(domainClass);
-      query.select(root);
+    Root<T> root = query.from(domainClass);
+    query.select(root);
 
     return this.em.createQuery(query).setFirstResult(start).setMaxResults(size).getResultList();
   }

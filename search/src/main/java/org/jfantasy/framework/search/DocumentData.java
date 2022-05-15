@@ -3,7 +3,7 @@ package org.jfantasy.framework.search;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Document {
+public class DocumentData {
   private final Map<String, Object> attrs = new HashMap<>();
 
   public void setBoost(float fit) {}

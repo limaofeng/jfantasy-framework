@@ -4,19 +4,22 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.jfantasy.framework.search.annotations.IndexProperty;
-import org.jfantasy.framework.search.annotations.Indexed;
+import org.jfantasy.framework.search.annotations.Field;
+import org.jfantasy.framework.search.annotations.Document;
 
-@Indexed(fetcher = UserService.class)
+@Document(fetcher = UserService.class)
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class User {
 
-  @IndexProperty private Long id;
+  @Field
+  private Long id;
 
-  @IndexProperty private String name;
+  @Field
+  private String name;
 
-  @IndexProperty private int age;
+  @Field
+  private int age;
 }

@@ -12,6 +12,11 @@ public abstract class AbstractFieldHandler implements FieldHandler {
   protected Property property;
   protected String prefix;
 
+  protected AbstractFieldHandler(Property property, String prefix) {
+    this.property = property;
+    this.prefix = prefix;
+  }
+
   protected AbstractFieldHandler(Object obj, Property property, String prefix) {
     this.obj = obj;
     this.property = property;

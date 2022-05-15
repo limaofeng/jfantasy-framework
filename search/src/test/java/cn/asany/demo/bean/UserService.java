@@ -1,16 +1,15 @@
 package cn.asany.demo.bean;
 
-import org.jfantasy.framework.search.backend.EntityChangedListener;
-import org.jfantasy.framework.search.dao.DataFetcher;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.jfantasy.framework.search.backend.EntityChangedListener;
+import org.jfantasy.framework.search.dao.DataFetcher;
 
 public class UserService implements DataFetcher {
 
   public List<User> users = new ArrayList<>();
 
-//    EntityChangedListener changedListener = new EntityChangedListener(User.class);
+  //    EntityChangedListener changedListener = new EntityChangedListener(User.class);
 
   UserService() {
     users.add(User.builder().id(1L).name("limaofeng").age(38).build());

@@ -1,7 +1,7 @@
 package org.jfantasy.framework.search.backend;
 
 import lombok.extern.slf4j.Slf4j;
-import org.jfantasy.framework.search.cache.IndexWriterCache;
+import org.jfantasy.framework.search.cache.IndexCache;
 import org.jfantasy.framework.search.mapper.MapperUtil;
 
 @Slf4j
@@ -16,7 +16,7 @@ public class IndexUpdateTask implements Runnable {
   public void run() {
     Class<?> clazz = this.entity.getClass();
     String name = MapperUtil.getEntityName(clazz);
-    IndexWriterCache cache = IndexWriterCache.getInstance();
+    IndexCache cache = IndexCache.getInstance();
     // IndexWriter writer = cache.get(name);
     // Document doc = new Document();
     // IndexCreator creator = new IndexCreator(this.entity, "");

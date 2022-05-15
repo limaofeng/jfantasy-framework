@@ -7,8 +7,8 @@ import javax.validation.constraints.NotBlank;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.jfantasy.framework.dao.BaseBusEntity;
-import org.jfantasy.framework.search.annotations.IndexProperty;
-import org.jfantasy.framework.search.annotations.Indexed;
+import org.jfantasy.framework.search.annotations.Field;
+import org.jfantasy.framework.search.annotations.Document;
 import org.jfantasy.framework.spring.validation.Use;
 
 /**
@@ -22,7 +22,7 @@ import org.jfantasy.framework.spring.validation.Use;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @Entity
-@Indexed
+@Document
 @Table(name = "SYS_USER")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class User extends BaseBusEntity {
@@ -32,7 +32,7 @@ public class User extends BaseBusEntity {
   @GenericGenerator(name = "fantasy-sequence", strategy = "fantasy-sequence")
   private Long id;
 
-  @IndexProperty
+  @Field
   @NotBlank(message = "用户名不能为空")
   @Use(value = CaseValidator.class, message = "自定义的错误消息")
   @Column(name = "USERNAME", length = 18)

@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import co.elastic.clients.elasticsearch._types.mapping.TypeMapping;
 import org.jfantasy.framework.search.Document;
 import org.jfantasy.framework.search.annotations.IndexRefBy;
 import org.jfantasy.framework.search.cache.PropertysCache;
@@ -17,6 +19,10 @@ public class RefListFieldHandler extends AbstractFieldHandler {
 
   public RefListFieldHandler(Object obj, Property property, String prefix) {
     super(obj, property, prefix);
+  }
+
+  public RefListFieldHandler(Property property, String prefix) {
+    super(property, prefix);
   }
 
   @Override
@@ -63,12 +69,15 @@ public class RefListFieldHandler extends AbstractFieldHandler {
         return;
       }
     }
-    clazz = ClassUtil.getRealType(clazz);
+    Class newClazz = ClassUtil.getRealType(clazz);
     if (!list.isEmpty()) {
-      for (Property p : PropertysCache.getInstance().filter(clazz, IndexRefBy.class)) {
+      for (Property p : PropertysCache.getInstance().filter(newClazz, IndexRefBy.class)) {
         FieldHandler handler = new RefByFieldHandler(this.obj.getClass(), list, p, this.prefix);
         handler.handle(doc);
       }
     }
   }
+
+  @Override
+  public void handle(TypeMapping.Builder typeMapping) {}
 }
