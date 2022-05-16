@@ -6,11 +6,15 @@ import org.jfantasy.framework.search.CuckooIndexFactory;
 import org.jfantasy.framework.search.dao.EntityChangedEventListener;
 import org.jfantasy.framework.util.regexp.RegexpUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.SchedulingTaskExecutor;
 
+@AutoConfigureAfter(JpaRepositoriesAutoConfiguration.class)
 @Configuration
 @EnableConfigurationProperties({CuckooProperties.class, ElasticsearchClientProperties.class})
 public class SearchAutoConfiguration {

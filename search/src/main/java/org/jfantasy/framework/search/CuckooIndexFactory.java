@@ -57,15 +57,6 @@ public class CuckooIndexFactory implements ApplicationContextAware {
     DaoCache daoCache = DaoCache.getInstance();
     IndexCache indexCache = IndexCache.getInstance();
 
-    for (Class<?> clazz : indexedClasses) {
-      DataFetcher dataFetcher = buildDataFetcher(applicationContext, clazz);
-      CuckooIndex cuckooIndex = this.createIndex(clazz, dataFetcher, this.connection);
-
-      daoCache.put(clazz, dataFetcher);
-      indexCache.put(clazz, cuckooIndex);
-      indexRebuilds.put(clazz, new IndexRebuilder(clazz, this.executor, 100));
-    }
-
     if (this.apiKey != null) {
       this.connection.connect(this.apiKey);
     } else if (this.username != null && this.password != null) {
@@ -74,10 +65,13 @@ public class CuckooIndexFactory implements ApplicationContextAware {
       throw new ElasticsearchConnectionException("Elasticsearch 连接失败,未配置授权");
     }
 
-    Map<Class, CuckooIndex> indexMap = IndexCache.getInstance().getAll();
-    for (Map.Entry<Class, CuckooIndex> entry : indexMap.entrySet()) {
-      CuckooIndex cuckooIndex = entry.getValue();
-      cuckooIndex.createIndex();
+    for (Class<?> clazz : indexedClasses) {
+      DataFetcher dataFetcher = buildDataFetcher(applicationContext, clazz);
+      CuckooIndex cuckooIndex = this.createIndex(clazz, dataFetcher, this.connection);
+
+      daoCache.put(clazz, dataFetcher);
+      indexCache.put(clazz, cuckooIndex);
+      indexRebuilds.put(clazz, new IndexRebuilder(clazz, this.executor, 100));
     }
 
     if (this.rebuild) {
@@ -98,7 +92,7 @@ public class CuckooIndexFactory implements ApplicationContextAware {
   }
 
   private CuckooIndex createIndex(
-      Class<?> clazz, DataFetcher dataFetcher, ElasticsearchConnection connection) {
+      Class<?> clazz, DataFetcher dataFetcher, ElasticsearchConnection connection) throws IOException {
     return new ElasticCuckooIndex(clazz, dataFetcher, connection);
   }
 

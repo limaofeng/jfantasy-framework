@@ -1,10 +1,11 @@
 package org.jfantasy.framework.search.annotations;
 
+import org.springframework.core.annotation.AliasFor;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import org.springframework.core.annotation.AliasFor;
 
 /**
  * 标注需要索引的字段<br>

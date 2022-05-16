@@ -1,6 +1,5 @@
 package org.jfantasy.framework.search;
 
-import cn.asany.demo.bean.User;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,14 +20,11 @@ class CuckooIndexTest {
 
   @Autowired private SchedulingTaskExecutor executor;
 
-  private final CuckooIndexFactory cuckooIndexFactory = new CuckooIndexFactory();
+  @Autowired
+  private CuckooIndexFactory cuckooIndexFactory;
 
   @Test
   void initialize() throws ClassNotFoundException {
-    cuckooIndexFactory.setApplicationContext(applicationContext);
-    cuckooIndexFactory.setExecutor(executor);
-    cuckooIndexFactory.initialize();
 
-    cuckooIndexFactory.rebuild(User.class);
   }
 }

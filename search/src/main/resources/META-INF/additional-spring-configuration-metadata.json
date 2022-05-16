@@ -27,7 +27,7 @@
       "sourceType": "org.jfantasy.autoconfigure.properties.ElasticsearchClientProperties"
     },
     {
-      "name": "spring.cuckoo.elasticsearch.client.apiKey",
+      "name": "spring.cuckoo.elasticsearch.client.api-key",
       "type": "java.lang.String",
       "description": "推荐使用 apikey 取代 username/password 的方式.",
       "sourceType": "org.jfantasy.autoconfigure.properties.ElasticsearchClientProperties"

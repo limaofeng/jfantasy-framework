@@ -20,7 +20,7 @@ spring:
     elasticsearch:
       client:
         url: https://es.thuni-h.com:9200
-        apiKey: RWpsR3dvQUJINEtJY2FvWGJGMXg6QkNXZzJ0X01UY2VocFNBQUVXNGExQQ==
+        api-key: RWpsR3dvQUJINEtJY2FvWGJGMXg6QkNXZzJ0X01UY2VocFNBQUVXNGExQQ==
         ssl:
           certificate-path: /Users/limaofeng/Downloads/ca/ca.crt
 

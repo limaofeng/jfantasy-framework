@@ -45,11 +45,11 @@ public class Property {
     return this.read;
   }
 
-  public Object getValue(Object target) {
+  public <T> T getValue(Object target) {
     if (!this.read) {
       return null;
     }
-    return this.readMethodProxy.invoke(target);
+    return (T) this.readMethodProxy.invoke(target);
   }
 
   public void setValue(Object target, Object value) {

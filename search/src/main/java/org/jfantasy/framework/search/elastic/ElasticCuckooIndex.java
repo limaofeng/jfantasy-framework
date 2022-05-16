@@ -27,15 +27,20 @@ public class ElasticCuckooIndex implements CuckooIndex {
   private final DataFetcher dataFetcher;
 
   private final IndexWriter indexWriter;
+  private final IndexSearcher indexSearcher;
 
   public ElasticCuckooIndex(
-      Class<?> clazz, DataFetcher dataFetcher, ElasticsearchConnection connection) {
+      Class<?> clazz, DataFetcher dataFetcher, ElasticsearchConnection connection)
+      throws IOException {
     this.document = clazz.getAnnotation(Document.class);
     this.indexClass = clazz;
     this.dataFetcher = dataFetcher;
     this.connection = connection;
 
     this.indexWriter = new ElasticIndexWriter(this, this.connection);
+    this.indexSearcher = new ElasticIndexSearcher(this, this.connection);
+
+    this.initialize();
   }
 
   public TypeMapping.Builder initProperties(TypeMapping.Builder typeMapping) {
@@ -54,8 +59,7 @@ public class ElasticCuckooIndex implements CuckooIndex {
     return typeMapping;
   }
 
-  @Override
-  public void createIndex() throws IOException {
+  private void initialize() throws IOException {
     if (!document.createIndex()) {
       return;
     }
@@ -82,6 +86,11 @@ public class ElasticCuckooIndex implements CuckooIndex {
   }
 
   @Override
+  public Class getDocumentClass() {
+    return this.indexClass;
+  }
+
+  @Override
   public Document getDocument() {
     return this.document;
   }
@@ -89,5 +98,10 @@ public class ElasticCuckooIndex implements CuckooIndex {
   @Override
   public IndexWriter getIndexWriter() {
     return this.indexWriter;
+  }
+
+  @Override
+  public IndexSearcher getIndexSearcher() {
+    return this.indexSearcher;
   }
 }

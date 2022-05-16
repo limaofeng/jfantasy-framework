@@ -1,5 +1,6 @@
 package org.jfantasy.framework.search.dao;
 
+import java.io.Serializable;
 import java.util.List;
 import org.jfantasy.framework.search.backend.EntityChangedListener;
 
@@ -16,7 +17,7 @@ public interface DataFetcher {
    */
   <T> List<T> findByField(String fieldName, String fieldValue);
 
-  <T> T getById(String id);
+  <T> T getById(Serializable id);
 
   EntityChangedListener getListener();
 }
