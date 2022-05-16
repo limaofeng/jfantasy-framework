@@ -21,7 +21,7 @@ public class IndexCache {
   }
 
   public CuckooIndex get(Class indexedClass) {
-    if (this.cache.containsKey(indexedClass)) {
+    if (!this.cache.containsKey(indexedClass)) {
       throw new NoIndexException(indexedClass.getName() + "  索引未找到");
     }
     return this.cache.get(indexedClass);

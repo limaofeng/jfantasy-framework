@@ -17,14 +17,16 @@ public class IdFieldHandler extends AbstractFieldHandler {
 
   @Override
   public void handle(DocumentData doc) {
-    String fieldName = this.property.getName();
+    doc.setId(getEntityId());
     doc.add(fieldName, getEntityId());
-    // doc.add(new Field(fieldName, getEntityId(), Field.Store.YES,
-    // Field.Index.NOT_ANALYZED));
   }
 
   @Override
-  public void handle(TypeMapping.Builder typeMapping) {}
+  public void handle(TypeMapping.Builder typeMapping) {
+    String fieldName = this.prefix + this.property.getName();
+    typeMapping.properties(
+        fieldName, builder -> builder.keyword(builder1 -> builder1.store(true).index(false)));
+  }
 
   private String getEntityId() {
     Object id = this.property.getValue(this.obj);

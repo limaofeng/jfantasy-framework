@@ -2,9 +2,18 @@ package org.jfantasy.framework.search;
 
 import java.util.HashMap;
 import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 
 public class DocumentData {
-  private final Map<String, Object> attrs = new HashMap<>();
+  @Getter private final Map<String, Object> attrs = new HashMap<>();
+
+  @Getter private final String indexName;
+  @Getter @Setter private String id;
+
+  public DocumentData(String indexName) {
+    this.indexName = indexName;
+  }
 
   public void setBoost(float fit) {}
 

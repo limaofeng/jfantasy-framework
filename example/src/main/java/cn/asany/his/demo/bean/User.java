@@ -7,8 +7,8 @@ import javax.validation.constraints.NotBlank;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.jfantasy.framework.dao.BaseBusEntity;
-import org.jfantasy.framework.search.annotations.Field;
 import org.jfantasy.framework.search.annotations.Document;
+import org.jfantasy.framework.search.annotations.Field;
 import org.jfantasy.framework.spring.validation.Use;
 
 /**
@@ -22,7 +22,7 @@ import org.jfantasy.framework.spring.validation.Use;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @Entity
-@Document
+@Document(indexName = "users")
 @Table(name = "SYS_USER")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class User extends BaseBusEntity {

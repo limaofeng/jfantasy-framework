@@ -1,19 +1,9 @@
 package org.jfantasy.framework.search.mapper;
 
-import org.jfantasy.framework.search.annotations.FieldType;
-
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import java.util.*;
+import org.jfantasy.framework.search.annotations.FieldType;
 
 public class DataType {
   private DataType() {}
@@ -23,59 +13,31 @@ public class DataType {
   }
 
   public static boolean isInteger(Class<?> type) {
-    return type.equals(Integer.TYPE);
-  }
-
-  public static boolean isIntegerObject(Class<?> type) {
-    return type.equals(Integer.class);
+    return type.equals(Integer.TYPE) || type.equals(Integer.class);
   }
 
   public static boolean isLong(Class<?> type) {
-    return type.equals(Long.TYPE);
-  }
-
-  public static boolean isLongObject(Class<?> type) {
-    return type.equals(Long.class);
+    return type.equals(Long.TYPE) || type.equals(Long.class);
   }
 
   public static boolean isShort(Class<?> type) {
-    return type.equals(Short.TYPE);
-  }
-
-  public static boolean isShortObject(Class<?> type) {
-    return type.equals(Short.class);
+    return type.equals(Short.TYPE) || type.equals(Short.class);
   }
 
   public static boolean isFloat(Class<?> type) {
-    return type.equals(Float.TYPE);
-  }
-
-  public static boolean isFloatObject(Class<?> type) {
-    return type.equals(Float.class);
+    return type.equals(Float.TYPE) || type.equals(Float.class);
   }
 
   public static boolean isDouble(Class<?> type) {
-    return type.equals(Double.TYPE);
-  }
-
-  public static boolean isDoubleObject(Class<?> type) {
-    return type.equals(Double.class);
+    return type.equals(Double.TYPE) || type.equals(Double.class);
   }
 
   public static boolean isBoolean(Class<?> type) {
-    return type.equals(Boolean.TYPE);
-  }
-
-  public static boolean isBooleanObject(Class<?> type) {
-    return type.equals(Boolean.class);
+    return type.equals(Boolean.TYPE) || type.equals(Boolean.class);
   }
 
   public static boolean isChar(Class<?> type) {
-    return type.equals(Character.TYPE);
-  }
-
-  public static boolean isCharObject(Class<?> type) {
-    return type.equals(Character.class);
+    return type.equals(Character.TYPE) || type.equals(Character.class);
   }
 
   public static boolean isDate(Class<?> type) {
@@ -114,30 +76,43 @@ public class DataType {
     }
     if (DataType.isString(type)) {
       return FieldType.Text;
-    } else if ((DataType.isBoolean(type)) || (DataType.isBooleanObject(type))) {
-      builder.boolean_(builder1 -> builder1.store(store));
-    } else if ((DataType.isChar(type)) || (DataType.isCharObject(type))) {
-      builder.text(builder1 -> builder1.store(store).index(false));
-    } else if ((DataType.isInteger(type)) || (DataType.isIntegerObject(type))) {
-      builder.integer(builder1 -> builder1.store(store));
-    } else if ((DataType.isLong(type)) || (DataType.isLongObject(type))) {
-      builder.long_(builder1 -> builder1.store(store));
-    } else if ((DataType.isShort(type)) || (DataType.isShortObject(type))) {
-      builder.short_(builder1 -> builder1.store(store));
-    } else if ((DataType.isFloat(type)) || (DataType.isFloatObject(type))) {
-      builder.float_(builder1 -> builder1.store(store));
-    } else if ((DataType.isDouble(type)) || (DataType.isDoubleObject(type))) {
-      builder.double_(builder1 -> builder1.store(store));
-    } else if (DataType.isDate(type)) {
-      builder.date(builder1 -> builder1.store(store));
-    } else if (DataType.isTimestamp(type)) {
-      builder.long_(builder1 -> builder1.store(store));
-    } else if ((DataType.isSet(type)) || (DataType.isList(type))) {
-      builder.text(builder1 -> builder1.store(store).index(analyze));
-    } else if (DataType.isMap(type)) {
-      builder.text(builder1 -> builder1.store(store).index(analyze));
-    } else if (DataType.isBigDecimal(type)) {
-      builder.text(builder1 -> builder1.store(store));
     }
+    if ((DataType.isBoolean(type))) {
+      return FieldType.Boolean;
+    }
+    if ((DataType.isChar(type))) {
+      return FieldType.Keyword;
+    }
+    if ((DataType.isInteger(type))) {
+      return FieldType.Integer;
+    }
+    if ((DataType.isLong(type))) {
+      return FieldType.Long;
+    }
+    if ((DataType.isShort(type))) {
+      return FieldType.Short;
+    }
+    if ((DataType.isFloat(type))) {
+      return FieldType.Float;
+    }
+    if ((DataType.isDouble(type))) {
+      return FieldType.Double;
+    }
+    if (DataType.isDate(type)) {
+      return FieldType.Date;
+    }
+    if (DataType.isTimestamp(type)) {
+      return FieldType.Date_Nanos;
+    }
+    if ((DataType.isSet(type)) || (DataType.isList(type))) {
+      return FieldType.Text;
+    }
+    if (DataType.isMap(type)) {
+      return FieldType.Text;
+    }
+    if (DataType.isBigDecimal(type)) {
+      return FieldType.Double;
+    }
+    return FieldType.Text;
   }
 }

@@ -1,11 +1,10 @@
 package org.jfantasy.framework.search.annotations;
 
-import org.springframework.core.annotation.AliasFor;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import org.springframework.core.annotation.AliasFor;
 
 /**
  * 标注需要索引的字段<br>
@@ -49,7 +48,7 @@ public @interface Field {
    *
    * @return boolean
    */
-  boolean index() default false;
+  boolean index() default true;
 
   /**
    * 日期字段格式化方式
@@ -73,11 +72,4 @@ public @interface Field {
    * @return String
    */
   String analyzer() default "";
-
-  /**
-   * float型，表示该Field的权重，缺省值为1.0
-   *
-   * @return boolean
-   */
-  double boost() default 1.0d;
 }

@@ -9,9 +9,9 @@ import org.jfantasy.framework.util.reflect.Property;
 
 public class RefFieldHandler extends AbstractFieldHandler {
 
-    public RefFieldHandler(Property property, String prefix) {
-        super(property, prefix);
-    }
+  public RefFieldHandler(Property property, String prefix) {
+    super(property, prefix);
+  }
 
   public RefFieldHandler(Object obj, Property property, String prefix) {
     super(obj, property, prefix);
@@ -34,12 +34,20 @@ public class RefFieldHandler extends AbstractFieldHandler {
     }
   }
 
-    @Override
-    public void handle(TypeMapping.Builder typeMapping) {
-
+  @Override
+  public void handle(TypeMapping.Builder typeMapping) {
+    Class<?> clazz = ClassUtil.getRealType(this.property);
+    Property[] properties = PropertysCache.getInstance().get(clazz);
+    for (Property p : properties) {
+      IndexRefBy irb = p.getAnnotation(IndexRefBy.class);
+      if (irb != null) {
+        FieldHandler handler = new RefByFieldHandler(p, this.prefix);
+        handler.handle(typeMapping);
+      }
     }
+  }
 
-    private String getEntityId(Object obj) {
+  private String getEntityId(Object obj) {
     Property property = PropertysCache.getInstance().getIdProperty(obj.getClass());
     return String.valueOf(property.getValue(obj));
   }

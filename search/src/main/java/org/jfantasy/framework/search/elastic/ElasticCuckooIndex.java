@@ -1,10 +1,14 @@
 package org.jfantasy.framework.search.elastic;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.mapping.Property;
 import co.elastic.clients.elasticsearch._types.mapping.TypeMapping;
 import co.elastic.clients.elasticsearch.indices.CreateIndexRequest;
 import co.elastic.clients.elasticsearch.indices.ExistsRequest;
+import co.elastic.clients.elasticsearch.indices.PutMappingRequest;
 import co.elastic.clients.transport.endpoints.BooleanResponse;
+import java.io.IOException;
+import java.util.Map;
 import org.jfantasy.framework.search.CuckooIndex;
 import org.jfantasy.framework.search.annotations.BoostSwitch;
 import org.jfantasy.framework.search.annotations.Document;
@@ -13,8 +17,6 @@ import org.jfantasy.framework.search.dao.DataFetcher;
 import org.jfantasy.framework.search.handler.FieldHandler;
 import org.jfantasy.framework.search.handler.FieldHandlerFactory;
 import org.jfantasy.framework.util.common.StringUtil;
-
-import java.io.IOException;
 
 public class ElasticCuckooIndex implements CuckooIndex {
 
@@ -33,7 +35,7 @@ public class ElasticCuckooIndex implements CuckooIndex {
     this.dataFetcher = dataFetcher;
     this.connection = connection;
 
-    this.indexWriter = new ElasticIndexWriter();
+    this.indexWriter = new ElasticIndexWriter(this, this.connection);
   }
 
   public TypeMapping.Builder initProperties(TypeMapping.Builder typeMapping) {
@@ -67,7 +69,11 @@ public class ElasticCuckooIndex implements CuckooIndex {
     BooleanResponse response =
         client.indices().exists(ExistsRequest.of(builder -> builder.index(indexName)));
     if (response.value()) {
-      System.out.println("xx");
+      TypeMapping.Builder builder = new TypeMapping.Builder();
+      Map<String, Property> propertyMap = initProperties(builder).build().properties();
+      PutMappingRequest request =
+          new PutMappingRequest.Builder().index(indexName).properties(propertyMap).build();
+      client.indices().putMapping(request);
     } else {
       CreateIndexRequest request =
           new CreateIndexRequest.Builder().index(indexName).mappings(this::initProperties).build();

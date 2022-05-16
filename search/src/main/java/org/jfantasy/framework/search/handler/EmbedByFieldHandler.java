@@ -1,17 +1,20 @@
 package org.jfantasy.framework.search.handler;
 
+import java.util.List;
 import org.jfantasy.framework.search.DocumentData;
 import org.jfantasy.framework.search.annotations.IndexEmbedBy;
 import org.jfantasy.framework.util.reflect.Property;
 
-import java.util.List;
-
 public class EmbedByFieldHandler extends ByFieldHandler {
-  private final Class<?> embedBy;
+  private Class<?> embedBy;
 
   public EmbedByFieldHandler(Class<?> embedBy, Object obj, Property property, String prefix) {
     super(obj, property, prefix);
     this.embedBy = embedBy;
+  }
+
+  public EmbedByFieldHandler(Property property, String prefix) {
+    super(property, prefix);
   }
 
   @Override
@@ -40,7 +43,7 @@ public class EmbedByFieldHandler extends ByFieldHandler {
           processList((List<?>) this.obj, doc, analyze, store, boost);
           break;
         }
-        process(doc, analyze, store, boost);
+        process(doc);
         break;
       }
     }

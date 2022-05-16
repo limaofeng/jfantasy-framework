@@ -112,9 +112,9 @@ public class ElasticsearchJava {
             s -> s.index("products").query(q -> q.match(t -> t.field("name").query(searchText))),
             Product.class);
 
-//    TotalHits total1 = response1.hits().total();
-//    assert total1 != null;
-//    boolean isExactResult = total1.relation() == TotalHitsRelation.Eq;
+    //    TotalHits total1 = response1.hits().total();
+    //    assert total1 != null;
+    //    boolean isExactResult = total1.relation() == TotalHitsRelation.Eq;
 
     client
         .indices()

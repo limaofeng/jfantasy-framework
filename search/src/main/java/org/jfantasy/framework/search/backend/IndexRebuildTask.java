@@ -8,11 +8,13 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jfantasy.framework.search.Document;
+import org.jfantasy.framework.search.CuckooIndex;
+import org.jfantasy.framework.search.DocumentData;
 import org.jfantasy.framework.search.cache.DaoCache;
 import org.jfantasy.framework.search.cache.IndexCache;
 import org.jfantasy.framework.search.dao.DataFetcher;
 import org.jfantasy.framework.search.elastic.IndexWriter;
+import org.jfantasy.framework.util.common.ClassUtil;
 
 public class IndexRebuildTask implements Runnable {
   private static final Log LOG = LogFactory.getLog(IndexRebuildTask.class);
@@ -72,10 +74,7 @@ public class IndexRebuildTask implements Runnable {
       try {
         this.writer.commit();
       } catch (IOException ex) {
-        LOG.error("Can not commit and close the lucene index", ex);
-      }
-      if (LOG.isInfoEnabled()) {
-        LOG.info("Index(" + this.clazz + ") rebuilding finish.");
+        LOG.error("Can not commit and close the index", ex);
       }
     } finally {
       //      OpenSessionUtils.closeSession(session);
@@ -92,7 +91,9 @@ public class IndexRebuildTask implements Runnable {
   private void process(Object entity) {
     IndexFilterChecker checker = new IndexFilterChecker(entity);
     if (checker.needIndex()) {
-      Document doc = new Document();
+      CuckooIndex cuckooIndex =
+          IndexCache.getInstance().get(ClassUtil.getRealClass(entity.getClass()));
+      DocumentData doc = new DocumentData(cuckooIndex.getDocument().indexName());
       IndexCreator creator = new IndexCreator(entity, "");
       creator.create(doc);
       try {

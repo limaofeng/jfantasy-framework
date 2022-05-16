@@ -15,8 +15,8 @@ import org.springframework.scheduling.SchedulingTaskExecutor;
 @EnableConfigurationProperties({CuckooProperties.class, ElasticsearchClientProperties.class})
 public class SearchAutoConfiguration {
 
-  @Bean(initMethod = "open", destroyMethod = "close")
-  public CuckooIndexFactory cuckooIndex(
+  @Bean(initMethod = "initialize", destroyMethod = "destroy")
+  public CuckooIndexFactory cuckooIndexFactory(
       @Autowired(required = false) SchedulingTaskExecutor taskExecutor,
       @Autowired CuckooProperties cuckooProperties,
       @Autowired ElasticsearchClientProperties clientProperties) {
@@ -27,17 +27,22 @@ public class SearchAutoConfiguration {
     String portString = RegexpUtil.parseGroup(clientProperties.getUrl(), ":([0-9]+)", 1);
     int port = Integer.parseInt(portString == null ? !ssl ? "80" : "443" : portString);
 
-    String hostname = RegexpUtil.parseFirst(clientProperties.getUrl(), "^(https|http)://([^/]+)");
+    String hostname =
+        RegexpUtil.parseGroup(clientProperties.getUrl(), "^(https|http)://([^:|/]+)", 2);
 
     cuckooIndexFactory.setHostname(hostname);
+    cuckooIndexFactory.setPort(port);
     cuckooIndexFactory.setApiKey(clientProperties.getApiKey());
     cuckooIndexFactory.setUsername(clientProperties.getUsername());
     cuckooIndexFactory.setPassword(clientProperties.getPassword());
 
+    if (clientProperties.getSsl() != null) {
+      cuckooIndexFactory.setSslCertificatePath(clientProperties.getSsl().getCertificatePath());
+    }
+
     cuckooIndexFactory.setRebuild(cuckooProperties.isRebuild());
 
     cuckooIndexFactory.setExecutor(taskExecutor);
-    cuckooIndexFactory.setRebuild(true);
 
     return cuckooIndexFactory;
   }

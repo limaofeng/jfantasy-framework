@@ -1,10 +1,8 @@
 package org.jfantasy.framework.search;
 
+import java.io.IOException;
 import org.jfantasy.framework.search.annotations.Document;
 import org.jfantasy.framework.search.elastic.IndexWriter;
-
-import javax.print.Doc;
-import java.io.IOException;
 
 public interface CuckooIndex {
 
@@ -13,5 +11,4 @@ public interface CuckooIndex {
   Document getDocument();
 
   IndexWriter getIndexWriter();
-
 }

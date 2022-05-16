@@ -7,5 +7,5 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "spring.cuckoo")
 public class CuckooProperties {
 
-   private boolean rebuild;
+  private boolean rebuild;
 }

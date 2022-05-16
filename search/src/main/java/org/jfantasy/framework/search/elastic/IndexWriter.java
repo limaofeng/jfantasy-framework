@@ -1,7 +1,7 @@
 package org.jfantasy.framework.search.elastic;
 
 import java.io.IOException;
-import org.jfantasy.framework.search.Document;
+import org.jfantasy.framework.search.DocumentData;
 
 public interface IndexWriter {
 
@@ -9,5 +9,5 @@ public interface IndexWriter {
 
   void deleteAll() throws IOException;
 
-  void addDocument(Document doc) throws IOException;
+  void addDocument(DocumentData doc) throws IOException;
 }

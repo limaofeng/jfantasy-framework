@@ -1,14 +1,13 @@
 package org.jfantasy.framework.search.handler;
 
+import co.elastic.clients.elasticsearch._types.mapping.TypeMapping;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import co.elastic.clients.elasticsearch._types.mapping.TypeMapping;
-import org.jfantasy.framework.search.Document;
+import org.jfantasy.framework.search.DocumentData;
 import org.jfantasy.framework.search.annotations.IndexRefBy;
 import org.jfantasy.framework.search.cache.PropertysCache;
 import org.jfantasy.framework.search.mapper.DataType;
@@ -26,14 +25,14 @@ public class RefListFieldHandler extends AbstractFieldHandler {
   }
 
   @Override
-  public void handle(Document doc) {
+  public void handle(DocumentData doc) {
     Object value = this.property.getValue(this.obj);
     if (value == null) {
       return;
     }
     Class<?> clazz;
     Class<?> type = this.property.getPropertyType();
-    List<Object> list = new ArrayList<Object>();
+    List<Object> list = new ArrayList<>();
     if (type.isArray()) {
       clazz = type.getComponentType();
     } else {

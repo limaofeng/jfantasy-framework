@@ -4,8 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.jfantasy.framework.search.annotations.Field;
 import org.jfantasy.framework.search.annotations.Document;
+import org.jfantasy.framework.search.annotations.Field;
 
 @Document(fetcher = UserService.class)
 @Data
@@ -14,12 +14,9 @@ import org.jfantasy.framework.search.annotations.Document;
 @NoArgsConstructor
 public class User {
 
-  @Field
-  private Long id;
+  @Field private Long id;
 
-  @Field
-  private String name;
+  @Field private String name;
 
-  @Field
-  private int age;
+  @Field private int age;
 }

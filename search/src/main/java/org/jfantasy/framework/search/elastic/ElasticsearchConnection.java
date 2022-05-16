@@ -5,6 +5,19 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.ElasticsearchTransport;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import javax.net.ssl.SSLContext;
 import lombok.Getter;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
@@ -19,20 +32,6 @@ import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.jfantasy.framework.search.exception.ElasticsearchConnectionException;
 
-import javax.net.ssl.SSLContext;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-
 public class ElasticsearchConnection {
 
   private final String hostname;
@@ -41,6 +40,7 @@ public class ElasticsearchConnection {
   @Getter private ElasticsearchClient client = null;
   @Getter private ElasticsearchAsyncClient asyncClient = null;
   private RestClient restClient;
+  private ElasticsearchTransport transport;
 
   private String sslCertificatePath;
 
@@ -69,8 +69,7 @@ public class ElasticsearchConnection {
 
       this.restClient = builder.build();
 
-      ElasticsearchTransport transport =
-          new RestClientTransport(restClient, new JacksonJsonpMapper());
+      this.transport = new RestClientTransport(restClient, new JacksonJsonpMapper());
 
       this.client = new ElasticsearchClient(transport);
       this.asyncClient = new ElasticsearchAsyncClient(transport);
@@ -94,9 +93,7 @@ public class ElasticsearchConnection {
       builder.setDefaultHeaders(defaultHeaders);
 
       this.restClient = builder.build();
-
-      ElasticsearchTransport transport =
-          new RestClientTransport(restClient, new JacksonJsonpMapper());
+      this.transport = new RestClientTransport(restClient, new JacksonJsonpMapper());
 
       this.client = new ElasticsearchClient(transport);
       this.asyncClient = new ElasticsearchAsyncClient(transport);
@@ -132,6 +129,7 @@ public class ElasticsearchConnection {
 
   public void close() throws IOException {
     if (this.restClient != null) {
+      this.transport.close();
       this.restClient.close();
     }
   }

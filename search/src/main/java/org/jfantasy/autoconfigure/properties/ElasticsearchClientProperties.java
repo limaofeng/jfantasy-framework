@@ -4,14 +4,13 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @Data
-@ConfigurationProperties(prefix = "spring.elasticsearch.client")
+@ConfigurationProperties(prefix = "spring.cuckoo.elasticsearch.client")
 public class ElasticsearchClientProperties {
 
   private String url;
   private String username;
   private String password;
   private String apiKey;
-  private String sslCertificate;
   private SSL ssl;
 
   @Data

@@ -1,5 +1,9 @@
 package org.jfantasy.framework.search;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import org.jfantasy.framework.search.annotations.Document;
@@ -17,32 +21,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.scheduling.SchedulingTaskExecutor;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.util.StopWatch;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
-public class CuckooIndexFactory
-    implements ApplicationContextAware, ApplicationListener<ContextRefreshedEvent> {
+public class CuckooIndexFactory implements ApplicationContextAware {
 
   private static final Logger LOG = LoggerFactory.getLogger(CuckooIndexFactory.class);
-
-  private static CuckooIndexFactory instance;
-  /** RAMBufferSizeMB */
-  private double bufferSizeMB = 16.0D;
-  /** Lucene 版本 */
-  // private Version version = Version.LUCENE_36;
-  /** 分词器 */
-  // private Analyzer analyzer = new StandardAnalyzer(this.version);
-  /** 索引文件的存放目录 */
-  /** 集群配置 */
-  //  private ClusterConfig clusterConfig;
   /** 线程池 */
   private SchedulingTaskExecutor executor;
 
@@ -59,12 +43,6 @@ public class CuckooIndexFactory
 
   private ApplicationContext applicationContext;
   private ElasticsearchConnection connection;
-
-  @Async
-  @Override
-  public void onApplicationEvent(ContextRefreshedEvent event) {
-    this.initialize();
-  }
 
   @SneakyThrows
   public void initialize() {
@@ -86,6 +64,24 @@ public class CuckooIndexFactory
       daoCache.put(clazz, dataFetcher);
       indexCache.put(clazz, cuckooIndex);
       indexRebuilds.put(clazz, new IndexRebuilder(clazz, this.executor, 100));
+    }
+
+    if (this.apiKey != null) {
+      this.connection.connect(this.apiKey);
+    } else if (this.username != null && this.password != null) {
+      this.connection.connect(this.username, this.password);
+    } else {
+      throw new ElasticsearchConnectionException("Elasticsearch 连接失败,未配置授权");
+    }
+
+    Map<Class, CuckooIndex> indexMap = IndexCache.getInstance().getAll();
+    for (Map.Entry<Class, CuckooIndex> entry : indexMap.entrySet()) {
+      CuckooIndex cuckooIndex = entry.getValue();
+      cuckooIndex.createIndex();
+    }
+
+    if (this.rebuild) {
+      executor.execute(CuckooIndexFactory.this::rebuild, 1000 * 30);
     }
 
     LOG.debug("Started Lucene in {} ms", watch.getTotalTimeMillis());
@@ -133,67 +129,17 @@ public class CuckooIndexFactory
     indexRebuilds.get(clazz).rebuild();
   }
 
-  /** 初始化方法 */
-  public void open() throws IOException {
-    if (this.apiKey != null) {
-      this.connection.connect(this.apiKey);
-    } else if (this.username != null && this.password != null) {
-      this.connection.connect(this.username, this.password);
-    } else {
-      throw new ElasticsearchConnectionException("Elasticsearch 连接失败,未配置授权");
-    }
-    Map<Class, CuckooIndex> indexMap = IndexCache.getInstance().getAll();
-    for (Map.Entry<Class, CuckooIndex> entry : indexMap.entrySet()) {
-      CuckooIndex cuckooIndex = entry.getValue();
-      cuckooIndex.createIndex();
-    }
-
-    if (this.rebuild) {
-      this.rebuild();
-    }
-  }
-
   /** 关闭方法 */
-  public void close() throws IOException {
+  public void destroy() throws IOException {
     this.connection.close();
-    // Map<String, IndexWriter> map = IndexWriterCache.getInstance().getAll();
-    // for (IndexWriter writer : map.values()) {
-    // if (writer != null) {
-    // this.closeIndexWriter(writer);
-    // }
-    // }
   }
-
-  public double getBufferSizeMB() {
-    return this.bufferSizeMB;
-  }
-
-  public void setBufferSizeMB(double bufferSizeMB) {
-    this.bufferSizeMB = bufferSizeMB;
-  }
-
-  //  public ClusterConfig getClusterConfig() {
-  //    return this.clusterConfig;
-  //  }
-  //
-  //  public void setClusterConfig(ClusterConfig clusterConfig) {
-  //    this.clusterConfig = clusterConfig;
-  //  }
 
   public void setRebuild(boolean rebuild) {
     this.rebuild = rebuild;
   }
 
-  //  public File getOpenFolder(String remotePath) {
-  //    return FileUtil.createFolder(this.directoryPath + remotePath);
-  //  }
-
   public void setExecutor(SchedulingTaskExecutor executor) {
     this.executor = executor;
-  }
-
-  public static boolean isRunning() {
-    return CuckooIndexFactory.instance != null;
   }
 
   @Override

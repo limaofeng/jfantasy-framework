@@ -31,5 +31,11 @@ public class EmbedFieldHandler extends AbstractFieldHandler {
   }
 
   @Override
-  public void handle(TypeMapping.Builder typeMapping) {}
+  public void handle(TypeMapping.Builder typeMapping) {
+    Class<?> clazz = ClassUtil.getRealType(this.property);
+    for (Property p : PropertysCache.getInstance().filter(clazz, IndexEmbedBy.class)) {
+      FieldHandler handler = new EmbedByFieldHandler(p, this.prefix);
+      handler.handle(typeMapping);
+    }
+  }
 }
