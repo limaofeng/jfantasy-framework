@@ -92,8 +92,9 @@ public class CuckooIndexFactory implements ApplicationContextAware {
   }
 
   private CuckooIndex createIndex(
-      Class<?> clazz, DataFetcher dataFetcher, ElasticsearchConnection connection) throws IOException {
-    return new ElasticCuckooIndex(clazz, dataFetcher, connection);
+      Class<?> clazz, DataFetcher dataFetcher, ElasticsearchConnection connection)
+      throws IOException {
+    return new ElasticCuckooIndex(clazz, dataFetcher, connection, this.executor);
   }
 
   private DataFetcher buildDataFetcher(ApplicationContext applicationContext, Class<?> clazz) {

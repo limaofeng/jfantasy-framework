@@ -12,11 +12,13 @@ import java.util.Map;
 import org.jfantasy.framework.search.CuckooIndex;
 import org.jfantasy.framework.search.annotations.BoostSwitch;
 import org.jfantasy.framework.search.annotations.Document;
+import org.jfantasy.framework.search.backend.EntityChangedListener;
 import org.jfantasy.framework.search.cache.PropertysCache;
 import org.jfantasy.framework.search.dao.DataFetcher;
 import org.jfantasy.framework.search.handler.FieldHandler;
 import org.jfantasy.framework.search.handler.FieldHandlerFactory;
 import org.jfantasy.framework.util.common.StringUtil;
+import org.springframework.core.task.TaskExecutor;
 
 public class ElasticCuckooIndex implements CuckooIndex {
 
@@ -28,9 +30,13 @@ public class ElasticCuckooIndex implements CuckooIndex {
 
   private final IndexWriter indexWriter;
   private final IndexSearcher indexSearcher;
+  private final EntityChangedListener changedListener;
 
   public ElasticCuckooIndex(
-      Class<?> clazz, DataFetcher dataFetcher, ElasticsearchConnection connection)
+      Class<?> clazz,
+      DataFetcher dataFetcher,
+      ElasticsearchConnection connection,
+      TaskExecutor executor)
       throws IOException {
     this.document = clazz.getAnnotation(Document.class);
     this.indexClass = clazz;
@@ -39,6 +45,7 @@ public class ElasticCuckooIndex implements CuckooIndex {
 
     this.indexWriter = new ElasticIndexWriter(this, this.connection);
     this.indexSearcher = new ElasticIndexSearcher(this, this.connection);
+    this.changedListener = new EntityChangedListener(clazz, executor);
 
     this.initialize();
   }
@@ -98,6 +105,16 @@ public class ElasticCuckooIndex implements CuckooIndex {
   @Override
   public IndexWriter getIndexWriter() {
     return this.indexWriter;
+  }
+
+  @Override
+  public EntityChangedListener getEntityChangedListener() {
+    return this.changedListener;
+  }
+
+  @Override
+  public String getIndexName() {
+    return this.getDocument().indexName();
   }
 
   @Override

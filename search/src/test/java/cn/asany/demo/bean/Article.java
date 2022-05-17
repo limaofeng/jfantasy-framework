@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import org.jfantasy.framework.search.annotations.Document;
 import org.jfantasy.framework.search.annotations.Field;
+import org.jfantasy.framework.search.annotations.FieldType;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -23,11 +24,18 @@ import java.util.Objects;
 @Entity
 public class Article {
 
-  @Id private Long id;
+  @Id
+  private Long id;
 
-  @Field(name = "title")
-  @Column(name = "title")
-  private String name;
+  @Field @Column private String title;
+
+  @Column
+  @Field(type = FieldType.Keyword)
+  private String author;
+
+  @Column
+  @Field(type = FieldType.Keyword)
+  private String url;
 
   @Column @Field private String content;
 

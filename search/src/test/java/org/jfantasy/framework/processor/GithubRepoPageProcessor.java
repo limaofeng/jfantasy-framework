@@ -1,4 +1,4 @@
-package cn.asany.his.processor;
+package org.jfantasy.framework.processor;
 
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Site;

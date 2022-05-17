@@ -14,14 +14,11 @@ public class EntityChangedListener {
   private boolean onlyIdRefBy;
   private RefEntityChangedListener refListener;
 
-  private TaskExecutor executor;
+  private final TaskExecutor executor;
 
-  //  private ClusterConfig cluster() {
-  //    return BuguIndex.getInstance().getClusterConfig();
-  //  }
-
-  public EntityChangedListener(Class clazz) {
+  public EntityChangedListener(Class clazz, TaskExecutor executor) {
     this.clazz = clazz;
+    this.executor = executor;
     Set<Class<?>> refBySet = new HashSet<>();
     boolean byId = false;
     boolean byOther = false;

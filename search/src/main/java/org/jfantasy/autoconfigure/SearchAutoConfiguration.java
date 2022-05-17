@@ -1,5 +1,8 @@
 package org.jfantasy.autoconfigure;
 
+import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.event.service.spi.EventListenerRegistry;
+import org.hibernate.event.spi.EventType;
 import org.jfantasy.autoconfigure.properties.CuckooProperties;
 import org.jfantasy.autoconfigure.properties.ElasticsearchClientProperties;
 import org.jfantasy.framework.search.CuckooIndexFactory;
@@ -7,17 +10,38 @@ import org.jfantasy.framework.search.dao.EntityChangedEventListener;
 import org.jfantasy.framework.util.regexp.RegexpUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.SchedulingTaskExecutor;
 
+import javax.annotation.PostConstruct;
+import javax.persistence.EntityManagerFactory;
+
 @AutoConfigureAfter(JpaRepositoriesAutoConfiguration.class)
 @Configuration
 @EnableConfigurationProperties({CuckooProperties.class, ElasticsearchClientProperties.class})
 public class SearchAutoConfiguration {
+
+  private final EntityManagerFactory entityManagerFactory;
+
+  public SearchAutoConfiguration(EntityManagerFactory entityManagerFactory) {
+    this.entityManagerFactory = entityManagerFactory;
+  }
+
+  @PostConstruct
+  private void init() {
+    SessionFactoryImplementor sessionFactory =
+        this.entityManagerFactory.unwrap(SessionFactoryImplementor.class);
+    EventListenerRegistry registry =
+        sessionFactory.getServiceRegistry().getService(EventListenerRegistry.class);
+
+    EntityChangedEventListener entityChangedEventListener = entityChangedEventListener();
+    registry.prependListeners(EventType.POST_INSERT, entityChangedEventListener);
+    registry.prependListeners(EventType.POST_UPDATE, entityChangedEventListener);
+    registry.prependListeners(EventType.POST_DELETE, entityChangedEventListener);
+  }
 
   @Bean(initMethod = "initialize", destroyMethod = "destroy")
   public CuckooIndexFactory cuckooIndexFactory(

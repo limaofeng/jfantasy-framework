@@ -1,12 +1,20 @@
 package org.jfantasy.framework.search.backend;
 
 import lombok.extern.slf4j.Slf4j;
+import org.jfantasy.framework.search.CuckooIndex;
+import org.jfantasy.framework.search.DocumentData;
 import org.jfantasy.framework.search.cache.IndexCache;
+import org.jfantasy.framework.search.cache.PropertysCache;
+import org.jfantasy.framework.search.elastic.IndexWriter;
 import org.jfantasy.framework.search.mapper.MapperUtil;
+import org.jfantasy.framework.util.reflect.Property;
+
+import java.io.IOException;
+import java.io.Serializable;
 
 @Slf4j
 public class IndexUpdateTask implements Runnable {
-  private Object entity;
+  private final Object entity;
 
   public IndexUpdateTask(Object entity) {
     this.entity = entity;
@@ -15,19 +23,20 @@ public class IndexUpdateTask implements Runnable {
   @Override
   public void run() {
     Class<?> clazz = this.entity.getClass();
-    String name = MapperUtil.getEntityName(clazz);
-    IndexCache cache = IndexCache.getInstance();
-    // IndexWriter writer = cache.get(name);
-    // Document doc = new Document();
-    // IndexCreator creator = new IndexCreator(this.entity, "");
-    // creator.create(doc);
-    // Property property = PropertysCache.getInstance().getIdProperty(clazz);
-    // Term term = new
-    // Term(property.getName(),property.getValue(this.entity).toString());
-    // try {
-    // writer.updateDocument(term, doc);
-    // } catch (IOException ex) {
-    // LOGGER.error("IndexWriter can not update the document", ex);
-    // }
+    CuckooIndex cuckooIndex = IndexCache.getInstance().get(clazz);
+    IndexWriter writer = cuckooIndex.getIndexWriter();
+
+    DocumentData doc = new DocumentData(cuckooIndex.getDocument().indexName());
+
+    IndexCreator creator = new IndexCreator(this.entity, "");
+    creator.create(doc);
+
+    Property property = PropertysCache.getInstance().getIdProperty(clazz);
+    Serializable id = property.getValue(this.entity);
+    try {
+      writer.updateDocument(id, doc);
+    } catch (IOException ex) {
+      log.error("IndexWriter can not update the document", ex);
+    }
   }
 }
