@@ -1,15 +1,17 @@
-package org.jfantasy.framework.search;
+package org.jfantasy.framework.search.query;
 
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.elasticsearch.core.search.HitsMetadata;
 import lombok.extern.slf4j.Slf4j;
+import org.jfantasy.framework.search.CuckooIndex;
 import org.jfantasy.framework.search.cache.DaoCache;
 import org.jfantasy.framework.search.cache.IndexCache;
 import org.jfantasy.framework.search.cache.PropertysCache;
 import org.jfantasy.framework.search.dao.DataFetcher;
 import org.jfantasy.framework.search.elastic.IndexSearcher;
 import org.jfantasy.framework.search.exception.IdException;
+import org.jfantasy.framework.search.query.Query;
 import org.jfantasy.framework.util.common.ClassUtil;
 
 import java.io.IOException;

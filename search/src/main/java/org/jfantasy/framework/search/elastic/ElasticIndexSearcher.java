@@ -1,16 +1,11 @@
 package org.jfantasy.framework.search.elastic;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
-import co.elastic.clients.elasticsearch._types.query_dsl.TermQuery;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
-import co.elastic.clients.elasticsearch.core.search.Hit;
-import co.elastic.clients.elasticsearch.core.search.HitsMetadata;
-import org.jfantasy.framework.search.CuckooIndex;
-import org.jfantasy.framework.search.Query;
-
 import java.io.IOException;
+import org.jfantasy.framework.search.CuckooIndex;
+import org.jfantasy.framework.search.query.Query;
 
 public class ElasticIndexSearcher implements IndexSearcher<Object> {
 
@@ -23,12 +18,11 @@ public class ElasticIndexSearcher implements IndexSearcher<Object> {
   }
 
   @Override
-  public SearchResponse<Object> search(Query _query, int size) throws IOException {
-    TermQuery query = QueryBuilders.term().field("id").value("1").build();
+  public SearchResponse<Object> search(Query query, int size) throws IOException {
     SearchRequest request =
         new SearchRequest.Builder()
             .index(cuckooIndex.getDocument().indexName())
-            .query(query._toQuery())
+            .query(query.toQuery()._toQuery())
             .build();
     ElasticsearchClient client = connection.getClient();
     return client.search(request, cuckooIndex.getDocumentClass());
