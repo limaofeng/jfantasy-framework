@@ -14,7 +14,7 @@ import org.apache.ibatis.mapping.ResultMapping;
 import org.apache.ibatis.mapping.SqlCommandType;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSession;
-import org.jfantasy.framework.dao.Pager;
+import org.jfantasy.framework.dao.Pagination;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
 
@@ -80,7 +80,7 @@ public class MyBatisMapperMethod {
   @SuppressWarnings("unchecked")
   public Object execute(Object[] args) {
     Map<String, Object> param = getParam(args);
-    Pager<Object> pager = (Pager<Object>) param.get("pager");
+    Pagination<Object> pager = (Pagination<Object>) param.get("pager");
     pager.reset(this.sqlSession.selectList(this.commandName, param));
     return pager;
   }
@@ -97,7 +97,7 @@ public class MyBatisMapperMethod {
     int paramCount = this.paramPositions.size();
     if (args == null || paramCount == 0) {
       if (args != null) {
-        param.put("pager", getPager((Pager<Object>) args[this.pageIndex]));
+        param.put("pager", getPager((Pagination<Object>) args[this.pageIndex]));
       }
       return param;
     }
@@ -108,13 +108,13 @@ public class MyBatisMapperMethod {
       } else {
         param.putAll(ObjectUtil.toMap(args[this.paramPositions.get(0)]));
       }
-      param.put("pager", getPager((Pager<Object>) args[this.pageIndex]));
+      param.put("pager", getPager((Pagination<Object>) args[this.pageIndex]));
       return param;
     }
     for (int i = 0; i < paramCount; i++) {
       param.put(this.paramNames.get(i), args[this.paramPositions.get(i)]);
     }
-    param.put("pager", getPager((Pager<Object>) args[this.pageIndex]));
+    param.put("pager", getPager((Pagination<Object>) args[this.pageIndex]));
     return param;
   }
 
@@ -124,9 +124,9 @@ public class MyBatisMapperMethod {
    * @param page Pager<Object>
    * @return Pager<Object>
    */
-  private Pager<Object> getPager(Pager<Object> page) {
+  private Pagination<Object> getPager(Pagination<Object> page) {
     if (ObjectUtil.isNull(page)) {
-      page = new Pager<Object>();
+      page = new Pagination<Object>();
     }
     return page;
   }
@@ -135,7 +135,7 @@ public class MyBatisMapperMethod {
   private void setupMethodSignature() {
     Class<?>[] argTypes = this.method.getParameterTypes();
     for (int i = 0; i < argTypes.length; i++) {
-      if (Pager.class.isAssignableFrom(argTypes[i])) {
+      if (Pagination.class.isAssignableFrom(argTypes[i])) {
         this.pageIndex = i;
       } else {
         String paramName = String.valueOf(this.paramPositions.size());

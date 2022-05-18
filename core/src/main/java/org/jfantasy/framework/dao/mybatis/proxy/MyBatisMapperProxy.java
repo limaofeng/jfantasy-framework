@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.binding.BindingException;
 import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.session.SqlSession;
-import org.jfantasy.framework.dao.Pager;
+import org.jfantasy.framework.dao.Pagination;
 import org.jfantasy.framework.error.IgnoreException;
 import org.springframework.util.ReflectionUtils;
 
@@ -54,7 +54,7 @@ public class MyBatisMapperProxy implements InvocationHandler {
       return null;
     }
     final Class<?> declaringInterface = findDeclaringInterface(proxy, method);
-    if (Pager.class.isAssignableFrom(method.getReturnType())) {
+    if (Pagination.class.isAssignableFrom(method.getReturnType())) {
       return new MyBatisMapperMethod(
               getDeclaringInterface(declaringInterface, method), method, this.sqlSession)
           .execute(args);

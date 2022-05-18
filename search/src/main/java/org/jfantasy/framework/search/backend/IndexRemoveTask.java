@@ -1,6 +1,13 @@
 package org.jfantasy.framework.search.backend;
 
+import java.io.IOException;
+import java.io.Serializable;
 import lombok.extern.slf4j.Slf4j;
+import org.jfantasy.framework.search.CuckooIndex;
+import org.jfantasy.framework.search.cache.IndexCache;
+import org.jfantasy.framework.search.cache.PropertysCache;
+import org.jfantasy.framework.search.elastic.IndexWriter;
+import org.jfantasy.framework.util.reflect.Property;
 
 /**
  * 删除索引
@@ -11,30 +18,23 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class IndexRemoveTask implements Runnable {
-  private Class<?> clazz;
-  private String id;
+  private final Class<?> clazz;
+  private final Serializable id;
 
-  public IndexRemoveTask(Class<?> clazz, String id) {
+  public IndexRemoveTask(Class<?> clazz, Serializable id) {
     this.clazz = clazz;
     this.id = id;
   }
 
   @Override
   public void run() {
-    // String name = MapperUtil.getEntityName(this.clazz);
-    // IndexWriterCache cache = IndexWriterCache.getInstance();
-    // IndexWriter writer = cache.get(name);
-    // Term term = new
-    // Term(PropertysCache.getInstance().getIdPropertyName(this.clazz),
-    // this.id);
-    // try {
-    // writer.deleteDocuments(term);
-    // } catch (CorruptIndexException ex) {
-    // LOGGER.error("IndexWriter can not delete a document from the lucene index",
-    // ex);
-    // } catch (IOException ex) {
-    // LOGGER.error("IndexWriter can not delete a document from the lucene index",
-    // ex);
-    // }
+    CuckooIndex cuckooIndex = IndexCache.getInstance().get(this.clazz);
+    IndexWriter writer = cuckooIndex.getIndexWriter();
+    Property property = PropertysCache.getInstance().getIdProperty(this.clazz);
+    try {
+      writer.deleteDocument(this.id);
+    } catch (IOException e) {
+      log.error("IndexWriter can not delete a document from the index", e);
+    }
   }
 }

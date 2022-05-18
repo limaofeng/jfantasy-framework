@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.jfantasy.framework.dao.Pager;
+import org.jfantasy.framework.dao.Page;
 import org.jfantasy.framework.dao.jpa.PropertyFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,7 +38,7 @@ public class UserService {
     return this.userDao.update(user, merge);
   }
 
-  public Pager<User> findPager(Pager<User> pager, List<PropertyFilter> filters) {
+  public Page<User> findPager(Page<User> pager, List<PropertyFilter> filters) {
     return this.userDao.findPager(pager, filters);
   }
 

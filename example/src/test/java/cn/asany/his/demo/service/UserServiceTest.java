@@ -3,7 +3,7 @@ package cn.asany.his.demo.service;
 import cn.asany.his.TestApplication;
 import cn.asany.his.demo.bean.User;
 import lombok.extern.slf4j.Slf4j;
-import org.jfantasy.framework.dao.Pager;
+import org.jfantasy.framework.dao.Pagination;
 import org.jfantasy.framework.dao.jpa.PropertyFilter;
 import org.jfantasy.framework.dao.jpa.PropertyFilterBuilder;
 import org.junit.jupiter.api.Test;
@@ -25,7 +25,7 @@ class UserServiceTest {
 
   @Test
   void findPager() {
-    Pager<User> pager = Pager.newPager();
+    Pagination<User> pager = Pagination.newPager();
     PropertyFilterBuilder builder =
         PropertyFilter.builder()
             .equal("username", "3")

@@ -25,7 +25,7 @@ import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jfantasy.framework.dao.Pager;
+import org.jfantasy.framework.dao.Pagination;
 import org.jfantasy.framework.dao.mybatis.MyBatisException;
 import org.jfantasy.framework.dao.mybatis.dialect.Dialect;
 import org.jfantasy.framework.util.common.ClassUtil;
@@ -65,7 +65,7 @@ public class LimitInterceptor implements Interceptor {
   @Override
   public Object intercept(Invocation invocation) throws Throwable {
     try {
-      Pager pager = getPager(invocation.getArgs()[PARAMETER_INDEX]);
+      Pagination pager = getPager(invocation.getArgs()[PARAMETER_INDEX]);
       if (ObjectUtil.isNotNull(pager)) { // 如果参数中有Pager对象，执行翻页逻辑,否则按普通逻辑处理查询
         return processIntercept(invocation, invocation.getArgs());
       }
@@ -85,7 +85,7 @@ public class LimitInterceptor implements Interceptor {
       throws InvocationTargetException, IllegalAccessException {
     MappedStatement ms = (MappedStatement) queryArgs[MAPPED_STATEMENT_INDEX];
     Map<String, Object> parameter = (Map<String, Object>) queryArgs[PARAMETER_INDEX];
-    Pager pager = getPager(parameter);
+    Pagination pager = getPager(parameter);
     assert pager != null;
     if (pager.getOffset() == 0) {
       pager.reset(executeForCount(ms, parameter));
@@ -100,12 +100,12 @@ public class LimitInterceptor implements Interceptor {
    * @param parameterObject Object
    * @return Pager
    */
-  private Pager getPager(Object parameterObject) {
-    Pager pager = null;
+  private Pagination getPager(Object parameterObject) {
+    Pagination pager = null;
     if (ObjectUtil.isNotNull(parameterObject)
         && Map.class.isAssignableFrom(parameterObject.getClass())) {
       Map<String, Object> param = (Map<String, Object>) parameterObject;
-      pager = param.containsKey("pager") ? (Pager) param.get("pager") : null;
+      pager = param.containsKey("pager") ? (Pagination) param.get("pager") : null;
     }
     return pager;
   }
@@ -192,13 +192,13 @@ public class LimitInterceptor implements Interceptor {
       return sqlSourceParser.parse(mapperSQL, Object.class, null);
     } else {
       Class<?> parameterType = parameterObject.getClass();
-      Pager<?> pager = getPager(parameterObject);
+      Pagination<?> pager = getPager(parameterObject);
       assert pager != null;
       int pageSize =
           pager.getTotalCount() - pager.getOffset() < pager.getPageSize()
-              ? pager.getTotalCount() - pager.getOffset()
+              ? (int) (pager.getTotalCount() - pager.getOffset())
               : pager.getPageSize();
-      String newSql = this.dialect.getLimitString(mapperSQL, pager.getOffset(), pageSize);
+      String newSql = this.dialect.getLimitString(mapperSQL, (int) pager.getOffset(), pageSize);
       return sqlSourceParser.parse(newSql, parameterType, parameterObject);
     }
   }

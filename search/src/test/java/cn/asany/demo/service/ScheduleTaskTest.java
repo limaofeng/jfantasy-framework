@@ -1,15 +1,13 @@
 package cn.asany.demo.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class ScheduleTaskTest {
@@ -17,7 +15,7 @@ public class ScheduleTaskTest {
   private Timer timer;
 
   @BeforeEach
-  void setUp() throws InterruptedException, JsonProcessingException {
+  void setUp() throws InterruptedException {
     Thread.sleep(TimeUnit.SECONDS.toMillis(10));
   }
 

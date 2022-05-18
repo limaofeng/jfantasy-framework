@@ -1,32 +1,31 @@
 description = " 集成 elastic "
 
 configurations {
-    compile.exclude module: "tomcat-jdbc"
+	compile.exclude module: "tomcat-jdbc"
 }
 
 apply plugin: 'java-library'
 apply plugin: 'jacoco'
 
 dependencies {
-    api project(":jfantasy-commons")
-    implementation "co.elastic.clients:elasticsearch-java:${LIB_ELASTICSEARCH_VER}"
-    implementation "jakarta.json:jakarta.json-api:2.1.0"
-    compileOnly "org.hibernate:hibernate-core:5.4.32.Final"
-    compileOnly "org.springframework.data:spring-data-jpa"
-    compileOnly "org.springframework:spring-context"
-    compileOnly "org.springframework.boot:spring-boot-autoconfigure"
-    compileOnly "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
-    testImplementation "us.codecraft:webmagic-core:0.7.5"
-    testImplementation "us.codecraft:webmagic-extension:0.7.5"
-    testImplementation libs['springBoot']
-    testImplementation libs['orm']
-    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
-    annotationProcessor "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
-    testCompileOnly "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
-    testAnnotationProcessor "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
-    testImplementation libs['test']
+	api project(":jfantasy-commons")
+	implementation "co.elastic.clients:elasticsearch-java:${LIB_ELASTICSEARCH_VER}"
+	implementation "jakarta.json:jakarta.json-api:${LIB_JAKARTA_VAR}"
+	compileOnly "org.springframework.boot:spring-boot-starter-data-jpa"
+	compileOnly "org.springframework:spring-context"
+	compileOnly "org.springframework.boot:spring-boot-autoconfigure"
+	compileOnly "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
+	testImplementation "us.codecraft:webmagic-core:0.7.5"
+	testImplementation "us.codecraft:webmagic-extension:0.7.5"
+	testImplementation libs['springBoot']
+	testImplementation libs['orm']
+	annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+	annotationProcessor "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
+	testCompileOnly "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
+	testAnnotationProcessor "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
+	testImplementation libs['test']
 }
 
 repositories {
-    mavenCentral()
+	mavenCentral()
 }

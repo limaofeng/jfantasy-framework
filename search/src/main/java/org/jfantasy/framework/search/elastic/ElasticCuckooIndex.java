@@ -12,40 +12,29 @@ import java.util.Map;
 import org.jfantasy.framework.search.CuckooIndex;
 import org.jfantasy.framework.search.annotations.BoostSwitch;
 import org.jfantasy.framework.search.annotations.Document;
-import org.jfantasy.framework.search.backend.EntityChangedListener;
 import org.jfantasy.framework.search.cache.PropertysCache;
-import org.jfantasy.framework.search.dao.DataFetcher;
+import org.jfantasy.framework.search.dao.CuckooDao;
 import org.jfantasy.framework.search.handler.FieldHandler;
 import org.jfantasy.framework.search.handler.FieldHandlerFactory;
 import org.jfantasy.framework.util.common.StringUtil;
-import org.springframework.core.task.TaskExecutor;
 
 public class ElasticCuckooIndex implements CuckooIndex {
 
   private final Document document;
   private final Class indexClass;
-
   private final ElasticsearchConnection connection;
-  private final DataFetcher dataFetcher;
-
   private final IndexWriter indexWriter;
   private final IndexSearcher indexSearcher;
-  private final EntityChangedListener changedListener;
 
   public ElasticCuckooIndex(
-      Class<?> clazz,
-      DataFetcher dataFetcher,
-      ElasticsearchConnection connection,
-      TaskExecutor executor)
+      Class<?> clazz, CuckooDao cuckooDao, ElasticsearchConnection connection, int batchSize)
       throws IOException {
     this.document = clazz.getAnnotation(Document.class);
     this.indexClass = clazz;
-    this.dataFetcher = dataFetcher;
     this.connection = connection;
 
-    this.indexWriter = new ElasticIndexWriter(this, this.connection);
+    this.indexWriter = new ElasticIndexWriter(this, this.connection, batchSize);
     this.indexSearcher = new ElasticIndexSearcher(this, this.connection);
-    this.changedListener = new EntityChangedListener(clazz, executor);
 
     this.initialize();
   }
@@ -105,11 +94,6 @@ public class ElasticCuckooIndex implements CuckooIndex {
   @Override
   public IndexWriter getIndexWriter() {
     return this.indexWriter;
-  }
-
-  @Override
-  public EntityChangedListener getEntityChangedListener() {
-    return this.changedListener;
   }
 
   @Override

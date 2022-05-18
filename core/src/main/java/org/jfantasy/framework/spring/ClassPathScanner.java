@@ -149,10 +149,8 @@ public class ClassPathScanner implements ResourceLoaderAware {
           if (interfaceClass.isAssignableFrom(clazz)) {
             candidates.add(clazz);
           }
-        } catch (ClassNotFoundException localClassNotFoundException) {
+        } catch (ClassNotFoundException | NoClassDefFoundError localClassNotFoundException) {
           LOG.error(localClassNotFoundException.getMessage(), localClassNotFoundException);
-        } catch (NoClassDefFoundError e) {
-          LOG.error(e.getMessage(), e);
         }
       }
     } catch (IOException ex) {

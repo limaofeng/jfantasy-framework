@@ -3,8 +3,8 @@ package org.jfantasy.framework.search.annotations;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import org.jfantasy.framework.search.dao.DataFetcher;
-import org.jfantasy.framework.search.dao.JpaDefaultDataFetcher;
+import org.jfantasy.framework.search.dao.CuckooDao;
+import org.jfantasy.framework.search.dao.JpaDefaultCuckooDao;
 
 @Target({java.lang.annotation.ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
@@ -26,7 +26,7 @@ public @interface Document {
   /**
    * 文档数据加载器
    *
-   * @return Class<? extends DataFetcher>
+   * @return Class<? extends CuckooDao>
    */
-  Class<? extends DataFetcher> fetcher() default JpaDefaultDataFetcher.class;
+  Class<? extends CuckooDao> dao() default JpaDefaultCuckooDao.class;
 }

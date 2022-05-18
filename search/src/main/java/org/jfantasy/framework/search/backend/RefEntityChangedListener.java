@@ -8,7 +8,7 @@ import org.jfantasy.framework.search.annotations.IndexRef;
 import org.jfantasy.framework.search.annotations.IndexRefList;
 import org.jfantasy.framework.search.cache.DaoCache;
 import org.jfantasy.framework.search.cache.PropertysCache;
-import org.jfantasy.framework.search.dao.DataFetcher;
+import org.jfantasy.framework.search.dao.CuckooDao;
 import org.jfantasy.framework.util.reflect.Property;
 import org.springframework.core.task.TaskExecutor;
 
@@ -58,7 +58,7 @@ public class RefEntityChangedListener {
     if (match) {
       //      Session session = OpenSessionUtils.openSession();
       try {
-        DataFetcher dao = DaoCache.getInstance().get(cls);
+        CuckooDao dao = DaoCache.getInstance().get(cls);
         if (dao != null) {
           List<?> list = dao.findByField(fieldName, id);
           for (Object o : list) {

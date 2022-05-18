@@ -5,7 +5,7 @@ import java.util.Map;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import org.jfantasy.framework.dao.OrderBy;
-import org.jfantasy.framework.dao.Pager;
+import org.jfantasy.framework.dao.Pagination;
 import org.jfantasy.framework.spring.mvc.error.RestException;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
@@ -21,7 +21,7 @@ public class PagerModelAttributeMethodProcessor extends MethodArgumentResolver {
 
   @Override
   public boolean supportsParameter(MethodParameter parameter) {
-    return Pager.class.isAssignableFrom(parameter.getParameterType());
+    return Pagination.class.isAssignableFrom(parameter.getParameterType());
   }
 
   @Override
@@ -46,7 +46,7 @@ public class PagerModelAttributeMethodProcessor extends MethodArgumentResolver {
     }
     Class<?> parameterType = parameter.getParameterType();
     if (parameterType.isArray() || List.class.isAssignableFrom(parameterType)) {
-      return new Pager();
+      return new Pagination();
     }
     return BeanUtils.instantiateClass(parameter.getParameterType());
   }
@@ -59,7 +59,7 @@ public class PagerModelAttributeMethodProcessor extends MethodArgumentResolver {
       NativeWebRequest request,
       MethodParameter parameter) {
     ServletRequest servletRequest = prepareServletRequest(binder.getTarget(), request, parameter);
-    Pager target = (Pager) binder.getTarget();
+    Pagination target = (Pagination) binder.getTarget();
     assert target != null;
     for (String paramName : servletRequest.getParameterMap().keySet()) {
       String value = servletRequest.getParameter(paramName);

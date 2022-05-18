@@ -20,11 +20,8 @@ class CuckooIndexTest {
 
   @Autowired private SchedulingTaskExecutor executor;
 
-  @Autowired
-  private CuckooIndexFactory cuckooIndexFactory;
+  @Autowired private CuckooIndexFactory cuckooIndexFactory;
 
   @Test
-  void initialize() throws ClassNotFoundException {
-
-  }
+  void initialize() throws ClassNotFoundException {}
 }

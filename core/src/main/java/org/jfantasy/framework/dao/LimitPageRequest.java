@@ -14,11 +14,11 @@ import org.springframework.util.Assert;
  */
 public class LimitPageRequest implements Pageable, Serializable {
 
-  private final int offset;
+  private final long offset;
   private final int size;
   private final Sort sort;
 
-  public LimitPageRequest(int offset, int size, Sort sort) {
+  public LimitPageRequest(long offset, int size, Sort sort) {
     if (offset < 0) {
       throw new IllegalArgumentException("Page index must not be less than zero!");
     }
@@ -45,13 +45,13 @@ public class LimitPageRequest implements Pageable, Serializable {
   /**
    * 创建一个新的{@link LimitPageRequest}并应用排序参数。
    *
-   * @param page 从零开始的页面索引。
+   * @param offset 从零开始的页面索引。
    * @param size 要返回的页面大小。
    * @param sort Sort
    * @since 2.0
    */
-  public static LimitPageRequest of(int page, int size, Sort sort) {
-    return new LimitPageRequest(page, size, sort);
+  public static LimitPageRequest of(long offset, int size, Sort sort) {
+    return new LimitPageRequest(offset, size, sort);
   }
 
   /**
@@ -85,7 +85,7 @@ public class LimitPageRequest implements Pageable, Serializable {
 
   @Override
   public int getPageNumber() {
-    return offset;
+    return (int) offset;
   }
 
   @Override

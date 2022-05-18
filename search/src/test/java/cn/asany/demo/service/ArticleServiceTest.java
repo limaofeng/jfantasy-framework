@@ -1,11 +1,11 @@
 package cn.asany.demo.service;
 
 import cn.asany.demo.bean.Article;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
+import org.jfantasy.framework.processor.WeiXinPageProcessor;
 import org.jfantasy.framework.search.TestApplication;
 import org.jfantasy.framework.search.query.Query;
 import org.junit.jupiter.api.AfterEach;
@@ -14,8 +14,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import us.codecraft.webmagic.Spider;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = TestApplication.class)
@@ -26,7 +28,7 @@ class ArticleServiceTest {
   @Autowired private ArticleService articleService;
 
   @BeforeEach
-  void setUp() throws InterruptedException, JsonProcessingException {
+  void setUp() throws InterruptedException {
     Thread.sleep(TimeUnit.SECONDS.toMillis(10));
   }
 
@@ -44,14 +46,15 @@ class ArticleServiceTest {
 
   @Test
   void findAll() {
-    articleService.findAll();
+    Page<Article> page = articleService.findAll(100);
+    log.info("totalElements:" + page.getTotalElements());
   }
 
   @Test
   void save() {
     this.articleService.save(
         Article.builder()
-            .url("http://localhost:8080/")
+            .url("http://localhost:8080/01")
             .author("赵四")
             .title("今天要坐飞机")
             .content("我的大摩托艇")
@@ -64,7 +67,7 @@ class ArticleServiceTest {
         1L,
         Article.builder()
             .id(1L)
-            .title("我们一定要有自己的大飞机")
+            .title("我们一定要有自己的大飞机2")
             .author("limaofeng")
             .content(
                 "国产大飞机，承载着几代人的中国梦。这一刻，梦想迎来新时代的回响。\n"
@@ -112,5 +115,15 @@ class ArticleServiceTest {
   }
 
   @Test
-  void deleteById() {}
+  void deleteById() {
+    this.articleService.deleteById(4L);
+  }
+
+  @Test
+  void downloadArticles() {
+    Spider.create(new WeiXinPageProcessor(this.articleService))
+        .addUrl("https://mp.weixin.qq.com/s/mO7HCSsLCtCghBpCeY1OeQ")
+        .thread(10)
+        .run();
+  }
 }

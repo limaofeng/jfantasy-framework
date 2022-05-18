@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 import org.jfantasy.framework.search.backend.EntityChangedListener;
 
-public interface DataFetcher {
+public interface CuckooDao {
 
   long count();
 
@@ -19,5 +19,5 @@ public interface DataFetcher {
 
   <T> T getById(Serializable id);
 
-  EntityChangedListener getListener();
+  EntityChangedListener getEntityChangedListener();
 }

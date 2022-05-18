@@ -1,17 +1,12 @@
 package cn.asany.demo.bean;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Date;
+import java.util.Objects;
+import javax.persistence.*;
 import lombok.*;
 import org.jfantasy.framework.search.annotations.Document;
 import org.jfantasy.framework.search.annotations.Field;
 import org.jfantasy.framework.search.annotations.FieldType;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import java.util.Date;
-import java.util.Objects;
 
 @Document(indexName = "articles")
 @Getter
@@ -24,8 +19,7 @@ import java.util.Objects;
 @Entity
 public class Article {
 
-  @Id
-  private Long id;
+  @Id @GeneratedValue private Long id;
 
   @Field @Column private String title;
 

@@ -1,5 +1,7 @@
 package org.jfantasy.autoconfigure;
 
+import javax.annotation.PostConstruct;
+import javax.persistence.EntityManagerFactory;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.EventType;
@@ -15,9 +17,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.SchedulingTaskExecutor;
-
-import javax.annotation.PostConstruct;
-import javax.persistence.EntityManagerFactory;
 
 @AutoConfigureAfter(JpaRepositoriesAutoConfiguration.class)
 @Configuration
@@ -69,7 +68,7 @@ public class SearchAutoConfiguration {
     }
 
     cuckooIndexFactory.setRebuild(cuckooProperties.isRebuild());
-
+    cuckooIndexFactory.setBatchSize(cuckooProperties.getBatchSize());
     cuckooIndexFactory.setExecutor(taskExecutor);
 
     return cuckooIndexFactory;

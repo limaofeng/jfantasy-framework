@@ -17,7 +17,7 @@ import org.apache.ibatis.scripting.LanguageDriver;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.type.TypeAliasRegistry;
 import org.apache.ibatis.type.TypeHandler;
-import org.jfantasy.framework.dao.Pager;
+import org.jfantasy.framework.dao.Pagination;
 import org.jfantasy.framework.dao.mybatis.binding.MyBatisMapperRegistry;
 import org.jfantasy.framework.dao.mybatis.dialect.MySQLDialect;
 import org.jfantasy.framework.dao.mybatis.interceptors.AutoKeyInterceptor;
@@ -197,7 +197,7 @@ public class MyBatisConfig {
       configuration.addInterceptor(new LimitInterceptor(MySQLDialect.class));
 
       TypeAliasRegistry typeAliasRegistry = configuration.getTypeAliasRegistry();
-      typeAliasRegistry.registerAlias(Pager.class);
+      typeAliasRegistry.registerAlias(Pagination.class);
       typeAliasRegistry.registerAlias(Sequence.class);
     };
   }

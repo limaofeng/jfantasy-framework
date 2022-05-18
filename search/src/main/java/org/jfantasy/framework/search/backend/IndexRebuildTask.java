@@ -12,7 +12,7 @@ import org.jfantasy.framework.search.CuckooIndex;
 import org.jfantasy.framework.search.DocumentData;
 import org.jfantasy.framework.search.cache.DaoCache;
 import org.jfantasy.framework.search.cache.IndexCache;
-import org.jfantasy.framework.search.dao.DataFetcher;
+import org.jfantasy.framework.search.dao.CuckooDao;
 import org.jfantasy.framework.search.elastic.IndexWriter;
 import org.jfantasy.framework.util.common.ClassUtil;
 
@@ -44,7 +44,6 @@ public class IndexRebuildTask implements Runnable {
       }
       return;
     }
-    //    Session session = OpenSessionUtils.openSession();
     try {
       if (LOG.isInfoEnabled()) {
         LOG.info("Index(" + this.clazz + ") rebuilding start...");
@@ -56,7 +55,7 @@ public class IndexRebuildTask implements Runnable {
           LOG.error("Something is wrong when lucene IndexWriter doing deleteAll()", ex);
         }
       }
-      final DataFetcher luceneDao = DaoCache.getInstance().get(clazz);
+      final CuckooDao luceneDao = DaoCache.getInstance().get(clazz);
       long count = luceneDao.count();
       int pages = (int) (count / this.batchSize);
       int remainder = (int) (count % this.batchSize);
@@ -77,7 +76,6 @@ public class IndexRebuildTask implements Runnable {
         LOG.error("Can not commit and close the index", ex);
       }
     } finally {
-      //      OpenSessionUtils.closeSession(session);
       rebuildLock.unlock();
     }
   }

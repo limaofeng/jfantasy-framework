@@ -3,7 +3,7 @@ package org.jfantasy.framework.dao.jpa;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
-import org.jfantasy.framework.dao.Pager;
+import org.jfantasy.framework.dao.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -103,7 +103,7 @@ public interface JpaRepository<T, PK extends Serializable>
    * @param filters 过滤
    * @return Pager<T>
    */
-  Pager<T> findPager(Pager<T> pager, List<PropertyFilter> filters);
+  Page<T> findPager(Page<T> pager, List<PropertyFilter> filters);
 
   /**
    * 分页查询
@@ -112,7 +112,7 @@ public interface JpaRepository<T, PK extends Serializable>
    * @param spec Specification
    * @return Pager<T>
    */
-  Pager<T> findPager(Pager<T> pager, Specification<T> spec);
+  Page<T> findPager(Page<T> pager, Specification<T> spec);
 
   /**
    * 更新

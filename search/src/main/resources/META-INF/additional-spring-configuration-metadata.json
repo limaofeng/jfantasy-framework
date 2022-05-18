@@ -21,6 +21,12 @@
       "sourceType": "org.jfantasy.autoconfigure.properties.CuckooProperties"
     },
     {
+      "name": "spring.cuckoo.batch-size",
+      "type": "java.lang.Integer",
+      "description": "启动重建索引已经其他操作时，最大处理的数据量.",
+      "sourceType": "org.jfantasy.autoconfigure.properties.CuckooProperties"
+    },
+    {
       "name": "spring.cuckoo.elasticsearch.client.url",
       "type": "java.lang.String",
       "description": "连接地址.",

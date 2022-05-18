@@ -3,30 +3,29 @@ package org.jfantasy.framework.search.query;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.elasticsearch.core.search.HitsMetadata;
-import lombok.extern.slf4j.Slf4j;
-import org.jfantasy.framework.search.CuckooIndex;
-import org.jfantasy.framework.search.cache.DaoCache;
-import org.jfantasy.framework.search.cache.IndexCache;
-import org.jfantasy.framework.search.cache.PropertysCache;
-import org.jfantasy.framework.search.dao.DataFetcher;
-import org.jfantasy.framework.search.elastic.IndexSearcher;
-import org.jfantasy.framework.search.exception.IdException;
-import org.jfantasy.framework.search.query.Query;
-import org.jfantasy.framework.util.common.ClassUtil;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
+import org.jfantasy.framework.dao.Page;
+import org.jfantasy.framework.search.CuckooIndex;
+import org.jfantasy.framework.search.cache.DaoCache;
+import org.jfantasy.framework.search.cache.IndexCache;
+import org.jfantasy.framework.search.cache.PropertysCache;
+import org.jfantasy.framework.search.dao.CuckooDao;
+import org.jfantasy.framework.search.elastic.IndexSearcher;
+import org.jfantasy.framework.search.exception.IdException;
+import org.jfantasy.framework.util.common.ClassUtil;
 
 @Slf4j
 public class CuckooIndexSearcher<T> {
 
-  private Class<T> entityClass;
+  private final Class<T> entityClass;
   private String idName;
   private final LoadEntityMode loadMode;
 
-  private DataFetcher dataFetcher;
+  private CuckooDao cuckooDao;
 
   protected CuckooIndexSearcher() {
     this(LoadEntityMode.es);
@@ -45,11 +44,11 @@ public class CuckooIndexSearcher<T> {
     }
   }
 
-  protected DataFetcher dataFetcher() {
-    if (this.dataFetcher == null) {
-      this.dataFetcher = DaoCache.getInstance().get(this.entityClass);
+  protected CuckooDao dataFetcher() {
+    if (this.cuckooDao == null) {
+      this.cuckooDao = DaoCache.getInstance().get(this.entityClass);
     }
-    return this.dataFetcher;
+    return this.cuckooDao;
   }
 
   protected CuckooIndex cuckooIndex() {
@@ -153,9 +152,52 @@ public class CuckooIndexSearcher<T> {
    * @param query 查询条件
    * @return Pager<T>
    */
-  //  public Pager<T> search(Pager<T> pager, Query query) {
-  //    return this.search(pager, query, null);
-  //  }
+  public Page<T> search(Page<T> pager, Query query) {
+    //    IndexSearcher searcher = open();
+    //    int between = 0;
+    //    try {
+    //      TopDocs hits;
+    //      if (pager.isOrderBySetted()) {
+    //        hits =
+    //            searcher.search(
+    //                query,
+    //                pager.getCurrentPage() * pager.getPageSize(),
+    //                new Sort(
+    //                    new SortField(
+    //                        pager.getOrderBy(),
+    //                        getSortField(pager.getOrderBy()),
+    //                        Pagination.Order.asc == pager.getOrders()[0])));
+    //      } else {
+    //        hits = searcher.search(query, pager.getCurrentPage() * pager.getPageSize());
+    //        int index = (pager.getCurrentPage() - 1) * pager.getPageSize();
+    //        if (hits.totalHits > 0 && hits.scoreDocs.length > 0) {
+    //          ScoreDoc scoreDoc = index > 0 ? hits.scoreDocs[index - 1] : null;
+    //          hits = searcher.searchAfter(scoreDoc, query, pager.getPageSize());
+    //        }
+    //        between = index;
+    //      }
+    //      pager.setTotalCount(hits.totalHits);
+    //      List<T> data = new ArrayList<T>();
+    //      for (int i = pager.getFirst() - between;
+    //          i < hits.scoreDocs.length && hits.totalHits > 0;
+    //          i++) {
+    //        ScoreDoc sdoc = hits.scoreDocs[i];
+    //        Document doc = searcher.doc(sdoc.doc);
+    //        data.add(this.build(doc));
+    //      }
+    //      pager.setPageItems(data);
+    //      if (highlighter != null) {
+    //        for (T obj : pager.getPageItems()) {
+    //          highlightObject(highlighter, obj);
+    //        }
+    //      }
+    //    } catch (IOException e) {
+    //      LOGGER.error(e.getMessage(), e);
+    //    } finally {
+    //      close(searcher);
+    //    }
+    return pager;
+  }
 
   //  /**
   //   * 将javaType 转换为 SortField

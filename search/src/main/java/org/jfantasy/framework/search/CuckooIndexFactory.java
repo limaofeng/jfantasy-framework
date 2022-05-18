@@ -10,12 +10,10 @@ import org.jfantasy.framework.search.annotations.Document;
 import org.jfantasy.framework.search.cache.DaoCache;
 import org.jfantasy.framework.search.cache.IndexCache;
 import org.jfantasy.framework.search.config.IndexedScanner;
-import org.jfantasy.framework.search.dao.DataFetcher;
-import org.jfantasy.framework.search.dao.JpaDefaultDataFetcher;
+import org.jfantasy.framework.search.dao.CuckooDao;
 import org.jfantasy.framework.search.elastic.ElasticCuckooIndex;
 import org.jfantasy.framework.search.elastic.ElasticsearchConnection;
 import org.jfantasy.framework.search.exception.ElasticsearchConnectionException;
-import org.jfantasy.framework.util.common.ClassUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -41,20 +39,20 @@ public class CuckooIndexFactory implements ApplicationContextAware {
   @Setter private String username;
   @Setter private String password;
 
+  private int batchSize;
   private ApplicationContext applicationContext;
   private ElasticsearchConnection connection;
 
   @SneakyThrows
   public void initialize() {
-    LOG.debug("Starting Lucene");
+    LOG.info("Starting CuckooIndex");
     StopWatch watch = new StopWatch();
     watch.start();
 
     this.connection = this.makeConnection();
 
     Set<Class<?>> indexedClasses = new IndexedScanner(applicationContext).scan(Document.class);
-
-    DaoCache daoCache = DaoCache.getInstance();
+    DaoCache daoCache = DaoCache.getInstance(this.applicationContext, this.executor);
     IndexCache indexCache = IndexCache.getInstance();
 
     if (this.apiKey != null) {
@@ -66,19 +64,19 @@ public class CuckooIndexFactory implements ApplicationContextAware {
     }
 
     for (Class<?> clazz : indexedClasses) {
-      DataFetcher dataFetcher = buildDataFetcher(applicationContext, clazz);
-      CuckooIndex cuckooIndex = this.createIndex(clazz, dataFetcher, this.connection);
+      CuckooDao cuckooDao = daoCache.buildDao(clazz);
+      CuckooIndex cuckooIndex = this.createIndex(clazz, cuckooDao, this.connection);
 
-      daoCache.put(clazz, dataFetcher);
+      daoCache.put(clazz, cuckooDao);
       indexCache.put(clazz, cuckooIndex);
-      indexRebuilds.put(clazz, new IndexRebuilder(clazz, this.executor, 100));
+      indexRebuilds.put(clazz, new IndexRebuilder(clazz, this.executor, this.batchSize));
     }
 
     if (this.rebuild) {
       executor.execute(CuckooIndexFactory.this::rebuild, 1000 * 30);
     }
 
-    LOG.debug("Started Lucene in {} ms", watch.getTotalTimeMillis());
+    LOG.info("Started CuckooIndex in {} ms", watch.getTotalTimeMillis());
   }
 
   private synchronized ElasticsearchConnection makeConnection() {
@@ -92,26 +90,8 @@ public class CuckooIndexFactory implements ApplicationContextAware {
   }
 
   private CuckooIndex createIndex(
-      Class<?> clazz, DataFetcher dataFetcher, ElasticsearchConnection connection)
-      throws IOException {
-    return new ElasticCuckooIndex(clazz, dataFetcher, connection, this.executor);
-  }
-
-  private DataFetcher buildDataFetcher(ApplicationContext applicationContext, Class<?> clazz) {
-    Document document = clazz.getAnnotation(Document.class);
-    Class<? extends DataFetcher> daoClass = document.fetcher();
-
-    if (ClassUtil.isAssignable(JpaDefaultDataFetcher.class, daoClass)) {
-      return ClassUtil.newInstance(
-          daoClass,
-          new Class[] {ApplicationContext.class, Class.class},
-          new Object[] {applicationContext, clazz});
-    }
-    boolean existent = applicationContext.getBeanNamesForType(daoClass).length > 0;
-    if (existent) {
-      return applicationContext.getBean(daoClass);
-    }
-    return ClassUtil.newInstance(daoClass);
+      Class<?> clazz, CuckooDao cuckooDao, ElasticsearchConnection connection) throws IOException {
+    return new ElasticCuckooIndex(clazz, cuckooDao, connection, this.batchSize);
   }
 
   private void rebuild() {
@@ -127,6 +107,10 @@ public class CuckooIndexFactory implements ApplicationContextAware {
   /** 关闭方法 */
   public void destroy() throws IOException {
     this.connection.close();
+  }
+
+  public void setBatchSize(int batchSize) {
+    this.batchSize = batchSize;
   }
 
   public void setRebuild(boolean rebuild) {

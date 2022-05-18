@@ -8,4 +8,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class CuckooProperties {
 
   private boolean rebuild;
+
+  private int batchSize = 100;
 }

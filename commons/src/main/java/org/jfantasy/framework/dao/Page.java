@@ -1,5 +1,9 @@
 package org.jfantasy.framework.dao;
 
+import java.util.Collection;
+import java.util.List;
+import org.springframework.data.domain.Sort;
+
 /**
  * 分页对象
  *
@@ -7,7 +11,7 @@ package org.jfantasy.framework.dao;
  * @version V1.0
  * @date 2019-04-02 18:22
  */
-public interface Pagination {
+public interface Page<T> {
   /**
    * 每页数据条数
    *
@@ -63,4 +67,16 @@ public interface Pagination {
    * @param totalCount
    */
   void setTotalCount(int totalCount);
+
+  long getOffset();
+
+  void reset(int count);
+
+  void reset(List<T> items);
+
+  void reset(int totalElements, List<T> content);
+
+  Sort getSort();
+
+  Collection<T> getPageItems();
 }

@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jfantasy.framework.dao.LimitPageRequest;
 import org.jfantasy.framework.dao.LogicalDeletion;
-import org.jfantasy.framework.dao.Pager;
+import org.jfantasy.framework.dao.Page;
 import org.jfantasy.framework.dao.hibernate.util.HibernateUtils;
 import org.jfantasy.framework.spring.SpringBeanUtils;
 import org.jfantasy.framework.util.common.BeanUtil;
@@ -27,7 +27,6 @@ import org.jfantasy.framework.util.common.toys.CompareResults;
 import org.jfantasy.framework.util.ognl.OgnlUtil;
 import org.jfantasy.framework.util.regexp.RegexpUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -129,12 +128,12 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
   }
 
   @Override
-  public Pager<T> findPager(Pager<T> pager, List<PropertyFilter> filters) {
+  public Page<T> findPager(Page<T> pager, List<PropertyFilter> filters) {
     return this.findPager(pager, toSpecification(filters));
   }
 
   @Override
-  public Pager<T> findPager(Pager<T> pager, Specification<T> spec) {
+  public Page<T> findPager(Page<T> pager, Specification<T> spec) {
     Pageable pageRequest;
     if (pager.getOffset() == 0) {
       pager.reset((int) this.count(spec));
@@ -142,9 +141,10 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
           PageRequest.of(pager.getCurrentPage() - 1, pager.getPageSize(), pager.getSort());
     } else {
       pager.setTotalCount((int) this.count(spec));
-      pageRequest = LimitPageRequest.of(pager.getOffset(), pager.getPageSize(), pager.getSort());
+      pageRequest =
+          LimitPageRequest.of((int) pager.getOffset(), pager.getPageSize(), pager.getSort());
     }
-    Page<T> page = this.findAll(spec, pageRequest);
+    org.springframework.data.domain.Page<T> page = this.findAll(spec, pageRequest);
     pager.reset((int) page.getTotalElements(), page.getContent());
     return pager;
   }
@@ -507,7 +507,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
     }
   }
 
-  public Pager<T> findPager(Pager<T> pager, String hql, Object... values) {
+  public Page<T> findPager(Page<T> pager, String hql, Object... values) {
     Query q = createQuery(hql, values);
     pager.setTotalCount(countHqlResult(hql, values));
     setPageParameter(q, pager);
@@ -515,7 +515,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
     return pager;
   }
 
-  public Pager<T> findPager(Pager<T> pager, String hql, Map<String, ?> values) {
+  public Page<T> findPager(Page<T> pager, String hql, Map<String, ?> values) {
     Query q = createQuery(hql, values);
     pager.setTotalCount(countHqlResult(hql, values));
     setPageParameter(q, pager);
@@ -523,8 +523,8 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
     return pager;
   }
 
-  protected <C> Query setPageParameter(Query q, Pager<C> pagination) {
-    q.setFirstResult(pagination.getOffset());
+  protected <C> Query setPageParameter(Query q, Page<C> pagination) {
+    q.setFirstResult((int) pagination.getOffset());
     q.setMaxResults(pagination.getPageSize());
     return q;
   }

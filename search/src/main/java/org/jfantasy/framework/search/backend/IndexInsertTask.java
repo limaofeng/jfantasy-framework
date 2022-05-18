@@ -1,14 +1,11 @@
 package org.jfantasy.framework.search.backend;
 
+import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.search.CuckooIndex;
 import org.jfantasy.framework.search.DocumentData;
-import org.jfantasy.framework.search.annotations.Document;
 import org.jfantasy.framework.search.cache.IndexCache;
 import org.jfantasy.framework.search.elastic.IndexWriter;
-import org.jfantasy.framework.search.mapper.MapperUtil;
-
-import java.io.IOException;
 
 @Slf4j
 public class IndexInsertTask implements Runnable {

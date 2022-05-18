@@ -2,8 +2,7 @@ package org.jfantasy.graphql.util;
 
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.jfantasy.framework.dao.Pager;
-import org.jfantasy.framework.dao.Pagination;
+import org.jfantasy.framework.dao.Page;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.regexp.RegexpUtil;
 import org.jfantasy.graphql.Connection;
@@ -25,7 +24,7 @@ public class Kit {
   }
 
   public static <C extends Connection, T, R extends Edge> C connection(
-      Pager<T> pager, Class<C> connectionClass, Function<? super T, ? extends R> mapper) {
+      Page<T> pager, Class<C> connectionClass, Function<? super T, ? extends R> mapper) {
     Connection connection = ClassUtil.newInstance(connectionClass);
     connection.setPageInfo(
         PageInfo.builder()
@@ -40,17 +39,17 @@ public class Kit {
       ((EdgeConverter<? super T, ? extends R>) mapper).setEdgeClass(edgeClass);
     }
     connection.setEdges(pager.getPageItems().stream().map(mapper).collect(Collectors.toList()));
-    if (connection instanceof Pagination) {
-      Pagination pagination = (Pagination) connection;
-      pagination.setCurrentPage(pager.getCurrentPage());
-      pagination.setPageSize(pager.getPageSize());
-      pagination.setTotalCount(pager.getTotalCount());
-      pagination.setTotalPage(pager.getTotalPage());
+    if (connection instanceof Page) {
+      Page page = (Page) connection;
+      page.setCurrentPage(pager.getCurrentPage());
+      page.setPageSize(pager.getPageSize());
+      page.setTotalCount(pager.getTotalCount());
+      page.setTotalPage(pager.getTotalPage());
     }
     return (C) connection;
   }
 
-  public static <C extends Connection, T> C connection(Pager<T> pager, Class<C> connectionClass) {
+  public static <C extends Connection, T> C connection(Page<T> pager, Class<C> connectionClass) {
     Class edgeClass =
         ClassUtil.forName(
             RegexpUtil.parseGroup(
