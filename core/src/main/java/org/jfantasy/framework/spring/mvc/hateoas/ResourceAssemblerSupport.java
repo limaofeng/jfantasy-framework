@@ -2,7 +2,7 @@ package org.jfantasy.framework.spring.mvc.hateoas;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.jfantasy.framework.dao.Pager;
+import org.jfantasy.framework.dao.Page;
 
 public abstract class ResourceAssemblerSupport<T, R extends ResultResourceSupport> {
 
@@ -24,7 +24,7 @@ public abstract class ResourceAssemblerSupport<T, R extends ResultResourceSuppor
     return supports;
   }
 
-  public Pager<ResultResourceSupport> toResources(Pager<T> pager) {
-    return new Pager<>(pager, this.toResources(pager.getPageItems()));
+  public Page<ResultResourceSupport> toResources(Page<T> page) {
+    return Page.of(page, this.toResources(page.getPageItems()));
   }
 }

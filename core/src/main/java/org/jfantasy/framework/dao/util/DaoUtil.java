@@ -8,7 +8,8 @@ import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
 import org.jfantasy.framework.dao.OrderBy;
-import org.jfantasy.framework.dao.Pager;
+import org.jfantasy.framework.dao.Page;
+import org.jfantasy.framework.dao.Pagination;
 import org.jfantasy.framework.spring.SpringBeanUtils;
 import org.jfantasy.framework.util.common.ObjectUtil;
 
@@ -24,8 +25,8 @@ public class DaoUtil {
     throw new SQLException("名为:" + dataSourceName + ",的数据源没有找到!");
   }
 
-  public static <T> Pager<T> returnPager(int page, int pageSize, OrderBy orderBy, List<T> reset) {
-    Pager<T> pager = new Pager<>();
+  public static <T> Page<T> returnPager(int page, int pageSize, OrderBy orderBy, List<T> reset) {
+    Page<T> pager = new Pagination<>();
     pager.setPageSize(pageSize);
     pager.setOrderBy(orderBy);
     pager.setCurrentPage(page);
@@ -43,14 +44,14 @@ public class DaoUtil {
    * @return Pager<T>
    */
   @SafeVarargs
-  public static <T> Pager<T> findPager(
-      Pager<T> pager, Map<String, Object> param, FindPagerCallBack<T>... callBacks) {
-    pager = pager == null ? new Pager<>() : pager;
+  public static <T> Page<T> findPager(
+      Page<T> pager, Map<String, Object> param, FindPagerCallBack<T>... callBacks) {
+    pager = pager == null ? new Pagination<>() : pager;
     int totalCount = 0;
-    Map<Pager<T>, FindPagerCallBack<T>> pagers = new LinkedHashMap<>();
+    Map<Page<T>, FindPagerCallBack<T>> pagers = new LinkedHashMap<>();
     // 计算总条数
     for (FindPagerCallBack<T> callBack : callBacks) {
-      Pager<T> page = callBack.call(new Pager<>(1), param);
+      Page<T> page = callBack.call(new Pagination(1) {}, param);
       totalCount += page.getTotalCount();
       pagers.put(page, callBack);
     }
@@ -58,14 +59,14 @@ public class DaoUtil {
     int first = pager.getOffset();
     int pageSize = pager.getPageSize();
     totalCount = 0;
-    for (Map.Entry<Pager<T>, FindPagerCallBack<T>> entry : pagers.entrySet()) {
+    for (Map.Entry<Page<T>, FindPagerCallBack<T>> entry : pagers.entrySet()) {
       totalCount += entry.getKey().getTotalCount();
       if (first < totalCount && entry.getKey().getTotalCount() > 0) {
         int cFirst =
             first - (totalCount - entry.getKey().getTotalCount()) + pager.getPageItems().size();
         entry.getKey().setOffset(cFirst);
         entry.getKey().setPageSize(pageSize - pager.getPageItems().size());
-        Pager<T> page = entry.getValue().call(entry.getKey(), param);
+        Page<T> page = entry.getValue().call(entry.getKey(), param);
         pager.getPageItems().addAll(page.getPageItems());
         if (pager.getPageItems().size() >= pageSize) {
           break;
@@ -88,10 +89,10 @@ public class DaoUtil {
     /**
      * 回调
      *
-     * @param pager 分页对象
+     * @param page 分页对象
      * @param param 查询参数
      * @return Pager<T>
      */
-    Pager<T> call(Pager<T> pager, Map<String, Object> param);
+    Page<T> call(Page<T> page, Map<String, Object> param);
   }
 }
