@@ -14,7 +14,7 @@ import org.apache.ibatis.mapping.ResultMapping;
 import org.apache.ibatis.mapping.SqlCommandType;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSession;
-import org.jfantasy.framework.dao.Pagination;
+import org.jfantasy.framework.dao.Pager;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
 
@@ -27,17 +27,15 @@ import org.jfantasy.framework.util.common.ObjectUtil;
  */
 @Slf4j
 public class MyBatisMapperMethod {
-  private SqlSession sqlSession;
-  private Configuration config;
-  private SqlCommandType type;
+  private final SqlSession sqlSession;
+  private final Configuration config;
   private String commandName;
-  private Class<?> declaringInterface;
-  private Method method;
+  private final Class<?> declaringInterface;
+  private final Method method;
   private Integer pageIndex;
-  private List<String> paramNames;
-  private List<Integer> paramPositions;
+  private final List<String> paramNames;
+  private final List<Integer> paramPositions;
   private boolean hasNamedParameters;
-  private Map<String, Map<String, ResultMapping>> resultMaps;
 
   /**
    * @param declaringInterface Mapper接口
@@ -45,8 +43,8 @@ public class MyBatisMapperMethod {
    * @param sqlSession SqlSession
    */
   public MyBatisMapperMethod(Class<?> declaringInterface, Method method, SqlSession sqlSession) {
-    this.paramNames = new ArrayList<String>();
-    this.paramPositions = new ArrayList<Integer>();
+    this.paramNames = new ArrayList<>();
+    this.paramPositions = new ArrayList<>();
     this.sqlSession = sqlSession;
     this.method = method;
     this.config = sqlSession.getConfiguration();
@@ -60,27 +58,26 @@ public class MyBatisMapperMethod {
   }
 
   private void setupResultMap() {
-    this.resultMaps = new HashMap<String, Map<String, ResultMapping>>();
+    Map<String, Map<String, ResultMapping>> resultMaps = new HashMap<>();
     MappedStatement ms = this.sqlSession.getConfiguration().getMappedStatement(this.commandName);
     for (ResultMap resultMap : ms.getResultMaps()) {
-      if (this.resultMaps.containsKey(resultMap.getId())) {
+      if (resultMaps.containsKey(resultMap.getId())) {
         continue;
       }
-      Map<String, ResultMapping> mappings = new HashMap<String, ResultMapping>();
+      Map<String, ResultMapping> mappings = new HashMap<>();
       for (ResultMapping mapping : resultMap.getResultMappings()) {
         if (mappings.containsKey(mapping.getProperty())) {
           continue;
         }
         mappings.put(mapping.getProperty(), mapping);
       }
-      this.resultMaps.put(resultMap.getId(), mappings);
+      resultMaps.put(resultMap.getId(), mappings);
     }
   }
 
-  @SuppressWarnings("unchecked")
   public Object execute(Object[] args) {
     Map<String, Object> param = getParam(args);
-    Pagination<Object> pager = (Pagination<Object>) param.get("pager");
+    Pager<Object> pager = (Pager<Object>) param.get("pager");
     pager.reset(this.sqlSession.selectList(this.commandName, param));
     return pager;
   }
@@ -91,13 +88,12 @@ public class MyBatisMapperMethod {
    * @param args 查询参数
    * @return Map
    */
-  @SuppressWarnings("unchecked")
   private Map<String, Object> getParam(Object[] args) {
-    Map<String, Object> param = new HashMap<String, Object>();
+    Map<String, Object> param = new HashMap<>();
     int paramCount = this.paramPositions.size();
     if (args == null || paramCount == 0) {
       if (args != null) {
-        param.put("pager", getPager((Pagination<Object>) args[this.pageIndex]));
+        param.put("pager", getPager((Pager<Object>) args[this.pageIndex]));
       }
       return param;
     }
@@ -108,13 +104,13 @@ public class MyBatisMapperMethod {
       } else {
         param.putAll(ObjectUtil.toMap(args[this.paramPositions.get(0)]));
       }
-      param.put("pager", getPager((Pagination<Object>) args[this.pageIndex]));
+      param.put("pager", getPager((Pager<Object>) args[this.pageIndex]));
       return param;
     }
     for (int i = 0; i < paramCount; i++) {
       param.put(this.paramNames.get(i), args[this.paramPositions.get(i)]);
     }
-    param.put("pager", getPager((Pagination<Object>) args[this.pageIndex]));
+    param.put("pager", getPager((Pager<Object>) args[this.pageIndex]));
     return param;
   }
 
@@ -124,9 +120,9 @@ public class MyBatisMapperMethod {
    * @param page Pager<Object>
    * @return Pager<Object>
    */
-  private Pagination<Object> getPager(Pagination<Object> page) {
+  private Pager<Object> getPager(Pager<Object> page) {
     if (ObjectUtil.isNull(page)) {
-      page = new Pagination<Object>();
+      page = new Pager<>();
     }
     return page;
   }
@@ -135,7 +131,7 @@ public class MyBatisMapperMethod {
   private void setupMethodSignature() {
     Class<?>[] argTypes = this.method.getParameterTypes();
     for (int i = 0; i < argTypes.length; i++) {
-      if (Pagination.class.isAssignableFrom(argTypes[i])) {
+      if (Pager.class.isAssignableFrom(argTypes[i])) {
         this.pageIndex = i;
       } else {
         String paramName = String.valueOf(this.paramPositions.size());
@@ -172,8 +168,8 @@ public class MyBatisMapperMethod {
   /** 验证 CommandType 是否为Select查询 */
   private void setupCommandType() {
     MappedStatement ms = this.config.getMappedStatement(this.commandName);
-    this.type = ms.getSqlCommandType();
-    if (this.type != SqlCommandType.SELECT) {
+    SqlCommandType type = ms.getSqlCommandType();
+    if (type != SqlCommandType.SELECT) {
       throw new BindingException("Unsupport execution method for: " + this.commandName);
     }
   }

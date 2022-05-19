@@ -19,4 +19,12 @@ public class PageInfo {
   private Boolean hasPreviousPage;
   private String startCursor;
   private String endCursor;
+  /** 当前页码 */
+  private int current;
+  /** 每页条数 */
+  private int pageSize;
+  /** 数据总数 */
+  private long total;
+  /** 总页数 */
+  private int totalPages;
 }

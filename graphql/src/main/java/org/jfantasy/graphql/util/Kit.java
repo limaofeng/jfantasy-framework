@@ -2,12 +2,12 @@ package org.jfantasy.graphql.util;
 
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.jfantasy.framework.dao.Page;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.regexp.RegexpUtil;
 import org.jfantasy.graphql.Connection;
 import org.jfantasy.graphql.Edge;
 import org.jfantasy.graphql.PageInfo;
+import org.springframework.data.domain.Page;
 
 /**
  * @author limaofeng
@@ -24,12 +24,17 @@ public class Kit {
   }
 
   public static <C extends Connection, T, R extends Edge> C connection(
-      Page<T> pager, Class<C> connectionClass, Function<? super T, ? extends R> mapper) {
+      Page<T> page, Class<C> connectionClass, Function<? super T, ? extends R> mapper) {
     Connection connection = ClassUtil.newInstance(connectionClass);
+    assert connection != null;
     connection.setPageInfo(
         PageInfo.builder()
-            .hasPreviousPage(pager.getCurrentPage() > 1)
-            .hasNextPage(pager.getCurrentPage() < pager.getTotalPage())
+            .total(page.getTotalElements())
+            .totalPages(page.getTotalPages())
+            .current(page.getNumber())
+            .pageSize(page.getSize())
+            .hasPreviousPage(page.hasPrevious())
+            .hasNextPage(page.hasNext())
             .build());
     if (mapper instanceof EdgeConverter && ((EdgeConverter) mapper).edgeClass == null) {
       Class edgeClass =
@@ -38,23 +43,16 @@ public class Kit {
                   connectionClass.getGenericSuperclass().getTypeName(), "<([^>]+)>", 1));
       ((EdgeConverter<? super T, ? extends R>) mapper).setEdgeClass(edgeClass);
     }
-    connection.setEdges(pager.getPageItems().stream().map(mapper).collect(Collectors.toList()));
-    if (connection instanceof Page) {
-      Page page = (Page) connection;
-      page.setCurrentPage(pager.getCurrentPage());
-      page.setPageSize(pager.getPageSize());
-      page.setTotalCount(pager.getTotalCount());
-      page.setTotalPage(pager.getTotalPage());
-    }
+    connection.setEdges(page.getContent().stream().map(mapper).collect(Collectors.toList()));
     return (C) connection;
   }
 
-  public static <C extends Connection, T> C connection(Page<T> pager, Class<C> connectionClass) {
+  public static <C extends Connection, T> C connection(Page<T> page, Class<C> connectionClass) {
     Class edgeClass =
         ClassUtil.forName(
             RegexpUtil.parseGroup(
                 connectionClass.getGenericSuperclass().getTypeName(), "<([^>]+)>", 1));
-    return (C) connection(pager, connectionClass, new EdgeConverter(edgeClass));
+    return (C) connection(page, connectionClass, new EdgeConverter(edgeClass));
   }
 
   public static class EdgeConverter<T, R> implements Function<T, R> {
@@ -76,6 +74,7 @@ public class Kit {
     @Override
     public R apply(T value) {
       Edge edge = (Edge) ClassUtil.newInstance(edgeClass);
+      assert edge != null;
       if (mapper != null) {
         edge.setNode(mapper.apply(value));
       } else {

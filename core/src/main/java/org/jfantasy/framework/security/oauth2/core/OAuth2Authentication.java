@@ -10,7 +10,7 @@ import org.jfantasy.framework.security.authentication.Authentication;
  */
 public class OAuth2Authentication extends AbstractAuthenticationToken {
 
-  private OAuth2AuthenticatedPrincipal principal;
+  private final OAuth2AuthenticatedPrincipal principal;
   private Object credentials;
 
   public OAuth2Authentication(Authentication authentication, OAuth2AuthenticationDetails details) {

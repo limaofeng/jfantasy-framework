@@ -6,9 +6,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.jfantasy.framework.dao.Page;
 import org.jfantasy.framework.dao.jpa.PropertyFilter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,8 +39,8 @@ public class UserService {
     return this.userDao.update(user, merge);
   }
 
-  public Page<User> findPager(Page<User> pager, List<PropertyFilter> filters) {
-    return this.userDao.findPager(pager, filters);
+  public Page<User> findPage(Pageable pageable, List<PropertyFilter> filters) {
+    return this.userDao.findPage(pageable, filters);
   }
 
   public void delete(Long... ids) {

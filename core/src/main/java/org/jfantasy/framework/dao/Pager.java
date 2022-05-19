@@ -8,7 +8,9 @@ import java.io.Serializable;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.apache.ibatis.type.Alias;
+import org.jfantasy.framework.util.web.RedirectAttributesWriter;
 import org.springframework.data.domain.Sort;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
  * 通用分页对象
@@ -19,7 +21,7 @@ import org.springframework.data.domain.Sort;
 @AllArgsConstructor
 @Alias("Pager")
 @JsonIgnoreProperties(value = {"orders", "first", "order_by_setted"})
-public class Pagination<T> implements Page<T>, Serializable {
+public class Pager<T> implements Pagination, Serializable {
 
   private static final long serialVersionUID = -2343309063338998483L;
 
@@ -34,7 +36,7 @@ public class Pagination<T> implements Page<T>, Serializable {
   private int totalCount = 0;
   /** 每页显示的数据条数 */
   @JsonProperty("per_page")
-  private int pageSize;
+  private int pageSize = DEFAULT_PAGE_SIZE;
   /** 总页数 */
   @JsonProperty("total")
   private int totalPage = 1;
@@ -42,7 +44,7 @@ public class Pagination<T> implements Page<T>, Serializable {
   @JsonProperty("page")
   private int currentPage = 1;
   /** 开始数据索引 */
-  private long offset = 0;
+  private int offset = 0;
   /** 排序字段 */
   @JsonProperty("sort")
   @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -51,24 +53,23 @@ public class Pagination<T> implements Page<T>, Serializable {
   @JsonProperty("items")
   private transient List<T> pageItems;
 
-  public Pagination() {
+  public Pager() {
     this(15);
   }
 
-  public Pagination(int pageSize) {
+  public Pager(int pageSize) {
     this.pageSize = pageSize;
   }
 
-  public Pagination(Pagination pager) {
+  public Pager(Pager pager) {
     this.currentPage = pager.currentPage;
     this.pageSize = pager.pageSize;
     this.totalCount = pager.totalCount;
     this.totalPage = pager.totalPage;
     this.orderBy = pager.orderBy;
-    this.offset = pager.offset;
   }
 
-  public Pagination(Pagination pager, List<T> items) {
+  public Pager(Pager pager, List<T> items) {
     this.currentPage = pager.currentPage;
     this.pageSize = pager.pageSize;
     this.totalCount = pager.totalCount;
@@ -77,7 +78,7 @@ public class Pagination<T> implements Page<T>, Serializable {
     this.pageItems = items;
   }
 
-  public Pagination(int currentPage, int pageSize, OrderBy orderBy) {
+  public Pager(int currentPage, int pageSize, OrderBy orderBy) {
     this.currentPage = currentPage;
     this.pageSize = pageSize;
     this.orderBy = orderBy;
@@ -86,55 +87,55 @@ public class Pagination<T> implements Page<T>, Serializable {
   /**
    * 根据下标查询时使用
    *
-   * @param orderBy 排序
-   * @param offset 开始位置
-   * @param size 返回长度
+   * @param orderBy
+   * @param offset
+   * @param size
    */
-  public Pagination(OrderBy orderBy, int offset, int size) {
+  public Pager(OrderBy orderBy, int offset, int size) {
     this.offset = offset;
     this.pageSize = size;
     this.orderBy = orderBy;
   }
 
-  public static <T> Pagination<T> newPager() {
-    return new Pagination<>();
+  public static <T> Pager<T> newPager() {
+    return new Pager<>();
   }
 
-  public static <T> Pagination<T> newPager(OrderBy orderBy) {
-    Pagination<T> pager = new Pagination<>();
+  public static <T> Pager<T> newPager(OrderBy orderBy) {
+    Pager<T> pager = new Pager<>();
     pager.setOrderBy(orderBy);
     return pager;
   }
 
-  public static <T> Pagination<T> newPager(int size) {
-    return new Pagination<>(size);
+  public static <T> Pager<T> newPager(int size) {
+    return new Pager<>(size);
   }
 
-  public static <T> Pagination<T> newPager(int page, int size) {
-    Pagination<T> pager = new Pagination<>(size);
+  public static <T> Pager<T> newPager(int page, int size) {
+    Pager<T> pager = new Pager<>(size);
     pager.setCurrentPage(page);
     return pager;
   }
 
-  public static <T> Pagination<T> newPager(int page, int size, OrderBy orderBy) {
-    return new Pagination<>(page, size, orderBy);
+  public static <T> Pager<T> newPager(int page, int size, OrderBy orderBy) {
+    return new Pager<>(page, size, orderBy);
   }
 
-  public static <T> Pagination<T> newPager(int size, OrderBy orderBy) {
-    Pagination<T> pager = new Pagination<>(size);
+  public static <T> Pager<T> newPager(int size, OrderBy orderBy) {
+    Pager<T> pager = new Pager<>(size);
     pager.setOrderBy(orderBy);
     return pager;
   }
 
-  public static <T> Pagination<T> newPager(int size, OrderBy orderBy, int offset) {
-    Pagination<T> pager = new Pagination<>(size);
+  public static <T> Pager<T> newPager(int size, OrderBy orderBy, int offset) {
+    Pager<T> pager = new Pager<>(size);
     pager.setOrderBy(orderBy);
     pager.setOffset(offset);
     return pager;
   }
 
-  public static <T> Pagination<T> newPager(Pagination<T> pager) {
-    return new Pagination<>(pager);
+  public static <T> Pager<T> newPager(Pager<T> pager) {
+    return new Pager<>(pager);
   }
 
   /**
@@ -157,7 +158,7 @@ public class Pagination<T> implements Page<T>, Serializable {
     return pageSize;
   }
 
-  public long getOffset() {
+  public int getOffset() {
     return this.offset;
   }
 
@@ -184,7 +185,7 @@ public class Pagination<T> implements Page<T>, Serializable {
    *
    * @param offset 数据开始位置
    */
-  public void setOffset(long offset) {
+  public void setOffset(int offset) {
     this.offset = offset;
   }
 
@@ -276,12 +277,12 @@ public class Pagination<T> implements Page<T>, Serializable {
     this.totalPage = totalCount % pageSize == 0 ? totalCount / pageSize : totalCount / pageSize + 1;
     if (currentPage >= totalPage) {
       setCurrentPage(totalPage);
-      setOffset((long) (totalPage - 1) * pageSize);
+      setOffset((totalPage - 1) * pageSize);
     } else if (currentPage <= 0) {
       setCurrentPage(1);
       setOffset(offset);
     } else {
-      setOffset((long) (currentPage - 1) * pageSize);
+      setOffset((currentPage - 1) * pageSize);
     }
   }
 
@@ -296,5 +297,20 @@ public class Pagination<T> implements Page<T>, Serializable {
   public void reset(int totalCount, List<T> items) {
     this.reset(totalCount);
     this.reset(items);
+  }
+
+  public RedirectAttributesWriter writeTo(RedirectAttributes attrs) {
+    if (this.getOffset() != 0) {
+      attrs.addAttribute("limit", this.getOffset() + "," + this.getPageSize());
+    } else if (this.getPageSize() != DEFAULT_PAGE_SIZE) {
+      attrs.addAttribute("per_page", this.getPageSize());
+    }
+    if (this.getCurrentPage() != 1) {
+      attrs.addAttribute("page", this.getCurrentPage());
+    }
+    if (this.isOrderBySetted()) {
+      attrs.addAttribute("orderBy", this.getOrderBy());
+    }
+    return RedirectAttributesWriter.writer(attrs);
   }
 }

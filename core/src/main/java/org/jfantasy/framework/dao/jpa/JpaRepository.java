@@ -3,7 +3,8 @@ package org.jfantasy.framework.dao.jpa;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
-import org.jfantasy.framework.dao.Page;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -99,20 +100,20 @@ public interface JpaRepository<T, PK extends Serializable>
   /**
    * 分页查询
    *
-   * @param pager 分页对象
+   * @param pageable 分页对象
    * @param filters 过滤
    * @return Pager<T>
    */
-  Page<T> findPager(Page<T> pager, List<PropertyFilter> filters);
+  Page<T> findPage(Pageable pageable, List<PropertyFilter> filters);
 
   /**
    * 分页查询
    *
-   * @param pager 分页对象
+   * @param pageable 分页对象
    * @param spec Specification
    * @return Pager<T>
    */
-  Page<T> findPager(Page<T> pager, Specification<T> spec);
+  Page<T> findPage(Pageable pageable, Specification<T> spec);
 
   /**
    * 更新

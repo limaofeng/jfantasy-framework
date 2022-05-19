@@ -15,9 +15,7 @@ import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.jfantasy.framework.dao.LimitPageRequest;
 import org.jfantasy.framework.dao.LogicalDeletion;
-import org.jfantasy.framework.dao.Page;
 import org.jfantasy.framework.dao.hibernate.util.HibernateUtils;
 import org.jfantasy.framework.spring.SpringBeanUtils;
 import org.jfantasy.framework.util.common.BeanUtil;
@@ -27,7 +25,8 @@ import org.jfantasy.framework.util.common.toys.CompareResults;
 import org.jfantasy.framework.util.ognl.OgnlUtil;
 import org.jfantasy.framework.util.regexp.RegexpUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -35,6 +34,7 @@ import org.springframework.data.jpa.repository.support.CrudMethodMetadataUtils;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.JpaEntityInformationSupport;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
@@ -128,25 +128,13 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
   }
 
   @Override
-  public Page<T> findPager(Page<T> pager, List<PropertyFilter> filters) {
-    return this.findPager(pager, toSpecification(filters));
+  public Page<T> findPage(Pageable pageable, List<PropertyFilter> filters) {
+    return this.findPage(pageable, toSpecification(filters));
   }
 
   @Override
-  public Page<T> findPager(Page<T> pager, Specification<T> spec) {
-    Pageable pageRequest;
-    if (pager.getOffset() == 0) {
-      pager.reset((int) this.count(spec));
-      pageRequest =
-          PageRequest.of(pager.getCurrentPage() - 1, pager.getPageSize(), pager.getSort());
-    } else {
-      pager.setTotalCount((int) this.count(spec));
-      pageRequest =
-          LimitPageRequest.of((int) pager.getOffset(), pager.getPageSize(), pager.getSort());
-    }
-    org.springframework.data.domain.Page<T> page = this.findAll(spec, pageRequest);
-    pager.reset((int) page.getTotalElements(), page.getContent());
-    return pager;
+  public Page<T> findPage(Pageable pageable, Specification<T> spec) {
+    return this.findAll(spec, pageable);
   }
 
   @Override
@@ -507,26 +495,35 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
     }
   }
 
-  public Page<T> findPager(Page<T> pager, String hql, Object... values) {
-    Query q = createQuery(hql, values);
-    pager.setTotalCount(countHqlResult(hql, values));
-    setPageParameter(q, pager);
-    pager.reset(q.getResultList());
-    return pager;
+  public Page<T> findPage(Pageable pageable, String hql, Object... values) {
+    Query query = createQuery(hql, values);
+
+    if (pageable.isUnpaged()) {
+      return new PageImpl<T>(query.getResultList());
+    }
+
+    if (pageable.isPaged()) {
+      query.setFirstResult((int) pageable.getOffset());
+      query.setMaxResults(pageable.getPageSize());
+    }
+
+    return PageableExecutionUtils.getPage(
+        query.getResultList(), pageable, () -> countHqlResult(hql, values));
   }
 
-  public Page<T> findPager(Page<T> pager, String hql, Map<String, ?> values) {
-    Query q = createQuery(hql, values);
-    pager.setTotalCount(countHqlResult(hql, values));
-    setPageParameter(q, pager);
-    pager.reset(q.getResultList());
-    return pager;
-  }
+  public Page<T> findPage(Pageable pageable, String hql, Map<String, ?> values) {
+    Query query = createQuery(hql, values);
 
-  protected <C> Query setPageParameter(Query q, Page<C> pagination) {
-    q.setFirstResult((int) pagination.getOffset());
-    q.setMaxResults(pagination.getPageSize());
-    return q;
+    if (pageable.isUnpaged()) {
+      return new PageImpl<T>(query.getResultList());
+    }
+
+    if (pageable.isPaged()) {
+      query.setFirstResult((int) pageable.getOffset());
+      query.setMaxResults(pageable.getPageSize());
+    }
+    return PageableExecutionUtils.getPage(
+        query.getResultList(), pageable, () -> countHqlResult(hql, values));
   }
 
   protected String createCountHQL(String hql) {

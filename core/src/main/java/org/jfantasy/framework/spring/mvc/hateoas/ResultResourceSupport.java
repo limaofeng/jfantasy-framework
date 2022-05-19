@@ -9,8 +9,8 @@ import java.util.Map;
 
 public class ResultResourceSupport<T> {
 
-  private T model;
-  private Map<String, Object> properties = new HashMap<>();
+  private final T model;
+  private final Map<String, Object> properties = new HashMap<>();
 
   @JsonCreator
   public ResultResourceSupport(T model) {
