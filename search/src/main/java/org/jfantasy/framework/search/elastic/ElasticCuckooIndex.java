@@ -16,6 +16,7 @@ import org.jfantasy.framework.search.cache.PropertysCache;
 import org.jfantasy.framework.search.dao.CuckooDao;
 import org.jfantasy.framework.search.handler.FieldHandler;
 import org.jfantasy.framework.search.handler.FieldHandlerFactory;
+import org.jfantasy.framework.search.query.Query;
 import org.jfantasy.framework.util.common.StringUtil;
 
 public class ElasticCuckooIndex implements CuckooIndex {
@@ -24,7 +25,6 @@ public class ElasticCuckooIndex implements CuckooIndex {
   private final Class indexClass;
   private final ElasticsearchConnection connection;
   private final IndexWriter indexWriter;
-  private final IndexSearcher indexSearcher;
 
   public ElasticCuckooIndex(
       Class<?> clazz, CuckooDao cuckooDao, ElasticsearchConnection connection, int batchSize)
@@ -34,7 +34,6 @@ public class ElasticCuckooIndex implements CuckooIndex {
     this.connection = connection;
 
     this.indexWriter = new ElasticIndexWriter(this, this.connection, batchSize);
-    this.indexSearcher = new ElasticIndexSearcher(this, this.connection);
 
     this.initialize();
   }
@@ -102,7 +101,7 @@ public class ElasticCuckooIndex implements CuckooIndex {
   }
 
   @Override
-  public IndexSearcher getIndexSearcher() {
-    return this.indexSearcher;
+  public <T> SmartSearcher<T> searcher(Query query) {
+    return new SmartSearcherImpl<>(this, this.connection, query);
   }
 }

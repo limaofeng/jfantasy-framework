@@ -8,7 +8,7 @@ import org.hibernate.event.spi.EventType;
 import org.jfantasy.autoconfigure.properties.CuckooProperties;
 import org.jfantasy.autoconfigure.properties.ElasticsearchClientProperties;
 import org.jfantasy.framework.search.CuckooIndexFactory;
-import org.jfantasy.framework.search.dao.EntityChangedEventListener;
+import org.jfantasy.framework.search.dao.jpa.EntityChangedEventListener;
 import org.jfantasy.framework.util.regexp.RegexpUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;

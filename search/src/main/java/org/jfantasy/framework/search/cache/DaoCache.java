@@ -5,7 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import org.jfantasy.framework.search.annotations.Document;
 import org.jfantasy.framework.search.dao.CuckooDao;
-import org.jfantasy.framework.search.dao.JpaDefaultCuckooDao;
+import org.jfantasy.framework.search.dao.jpa.JpaDefaultCuckooDao;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.task.TaskExecutor;

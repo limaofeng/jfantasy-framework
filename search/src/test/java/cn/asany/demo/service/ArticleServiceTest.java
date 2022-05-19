@@ -1,11 +1,11 @@
 package cn.asany.demo.service;
 
 import cn.asany.demo.bean.Article;
-import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.processor.WeiXinPageProcessor;
+import org.jfantasy.framework.search.Highlighter;
 import org.jfantasy.framework.search.TestApplication;
 import org.jfantasy.framework.search.query.Query;
 import org.junit.jupiter.api.AfterEach;
@@ -15,6 +15,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import us.codecraft.webmagic.Spider;
@@ -38,9 +41,45 @@ class ArticleServiceTest {
   }
 
   @Test
-  void testSearch() throws IOException {
-    Query query = Query.match("title", "大飞机");
+  void testSearch() {
+    Query query = Query.match("title", "Java");
     List<Article> articles = articleService.search(query, 20);
+    assert !articles.isEmpty();
+  }
+
+  @Test
+  void testSearchPage() {
+    Query query = Query.match("title", "Java");
+    Page<Article> page = articleService.search(query, Pageable.ofSize(2).withPage(1));
+    log.info("totalCount:" + page.getTotalElements());
+    assert !page.isEmpty();
+  }
+
+  @Test
+  void testSearchPageAndSort() {
+    Query query = Query.match("title", "Java");
+    Pageable pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
+    Page<Article> page = articleService.search(query, pageable);
+    log.info("totalCount:" + page.getTotalElements());
+    assert !page.isEmpty();
+  }
+
+  @Test
+  void testSearchAndHighlight() {
+    Query query = Query.match("title", "思维导图");
+    Pageable pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
+    List<Article> articles =
+        articleService.search(
+            query,
+            10,
+            Highlighter.of(
+                builder ->
+                    builder.fields("title", b1 -> b1.preTags("<span>").postTags("</span>"))));
+
+    for (Article article : articles) {
+      log.info(article.getId() + "." + article.getTitle());
+    }
+
     assert !articles.isEmpty();
   }
 

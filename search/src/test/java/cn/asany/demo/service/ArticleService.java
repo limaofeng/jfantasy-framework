@@ -18,7 +18,7 @@ public class ArticleService extends CuckooIndexSearcher<Article> {
 
   @Transactional(readOnly = true, propagation = Propagation.NOT_SUPPORTED)
   public Page<Article> findAll(int size) {
-    return articleDao.findAll(Pageable.ofSize(size));
+    return articleDao.findAll(Pageable.ofSize(size).withPage(1));
   }
 
   public void save(Article article) {

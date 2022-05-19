@@ -1,10 +1,11 @@
-package org.jfantasy.framework.search.dao;
+package org.jfantasy.framework.search.dao.jpa;
 
 import org.hibernate.event.spi.*;
 import org.hibernate.persister.entity.EntityPersister;
 import org.jfantasy.framework.search.backend.EntityChangedListener;
 import org.jfantasy.framework.search.backend.IndexChecker;
 import org.jfantasy.framework.search.cache.DaoCache;
+import org.jfantasy.framework.search.dao.CuckooDao;
 import org.jfantasy.framework.util.common.ClassUtil;
 
 public class EntityChangedEventListener

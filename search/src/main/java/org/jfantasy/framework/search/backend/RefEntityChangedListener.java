@@ -56,18 +56,13 @@ public class RefEntityChangedListener {
       }
     }
     if (match) {
-      //      Session session = OpenSessionUtils.openSession();
-      try {
-        CuckooDao dao = DaoCache.getInstance().get(cls);
-        if (dao != null) {
-          List<?> list = dao.findByField(fieldName, id);
-          for (Object o : list) {
-            IndexUpdateTask task = new IndexUpdateTask(o);
-            executor.execute(task);
-          }
+      CuckooDao dao = DaoCache.getInstance().get(cls);
+      if (dao != null) {
+        List<?> list = dao.findByField(fieldName, id);
+        for (Object o : list) {
+          IndexUpdateTask task = new IndexUpdateTask(o);
+          executor.execute(task);
         }
-      } finally {
-        //        OpenSessionUtils.closeSession(session);
       }
     }
   }

@@ -2,17 +2,23 @@ package org.jfantasy.framework.search.cache;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.persistence.Id;
 import lombok.extern.slf4j.Slf4j;
+import org.jfantasy.framework.search.annotations.Field;
 import org.jfantasy.framework.search.exception.IdException;
 import org.jfantasy.framework.search.exception.PropertyException;
 import org.jfantasy.framework.util.common.ClassUtil;
+import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.framework.util.reflect.Property;
 
 @Slf4j
 public class PropertysCache {
   private static final PropertysCache instance = new PropertysCache();
+
+  private final Map<Class<?>, Map<String, Property>> fields = new HashMap<>();
 
   private PropertysCache() {}
 
@@ -79,5 +85,17 @@ public class PropertysCache {
       throw new PropertyException("Field '" + fieldName + "' does not exists!");
     }
     return property;
+  }
+
+  public Property getPropertyByFieldName(Class<?> clazz, String fieldName) {
+    if (!fields.containsKey(clazz)) {
+      Map<String, Property> propertyMap = new HashMap<>();
+      for (Property property : filter(clazz, Field.class)) {
+        Field field = property.getAnnotation(Field.class);
+        propertyMap.put(StringUtil.defaultValue(field.name(), property.getName()), property);
+      }
+      fields.put(clazz, propertyMap);
+    }
+    return fields.get(clazz).get(fieldName);
   }
 }

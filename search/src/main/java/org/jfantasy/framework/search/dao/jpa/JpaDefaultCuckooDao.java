@@ -1,4 +1,4 @@
-package org.jfantasy.framework.search.dao;
+package org.jfantasy.framework.search.dao.jpa;
 
 import static org.springframework.data.jpa.repository.query.QueryUtils.COUNT_QUERY_STRING;
 import static org.springframework.data.jpa.repository.query.QueryUtils.getQueryString;
@@ -10,6 +10,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import org.jfantasy.framework.search.backend.EntityChangedListener;
+import org.jfantasy.framework.search.dao.CuckooDao;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.data.jpa.provider.PersistenceProvider;
