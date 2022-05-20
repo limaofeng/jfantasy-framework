@@ -15,6 +15,7 @@ import org.springframework.data.domain.Sort;
  * @date 2019-04-03 14:01
  */
 @Data
+@Deprecated
 public class OrderBy {
   private String property;
   private Direction direction;
