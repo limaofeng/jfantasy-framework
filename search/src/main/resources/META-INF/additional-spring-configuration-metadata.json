@@ -21,6 +21,12 @@
       "sourceType": "org.jfantasy.autoconfigure.properties.CuckooProperties"
     },
     {
+      "name": "spring.cuckoo.enable",
+      "type": "java.lang.Boolean",
+      "description": "启用与禁用.",
+      "sourceType": "org.jfantasy.autoconfigure.properties.CuckooProperties"
+    },
+    {
       "name": "spring.cuckoo.batch-size",
       "type": "java.lang.Integer",
       "description": "启动重建索引已经其他操作时，最大处理的数据量.",
