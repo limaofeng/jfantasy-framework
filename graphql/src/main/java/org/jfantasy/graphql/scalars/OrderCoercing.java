@@ -2,15 +2,12 @@ package org.jfantasy.graphql.scalars;
 
 import static org.jfantasy.graphql.util.Kit.typeName;
 
-import graphql.language.ObjectField;
-import graphql.language.ObjectValue;
 import graphql.language.StringValue;
 import graphql.schema.Coercing;
 import graphql.schema.CoercingParseLiteralException;
 import graphql.schema.CoercingParseValueException;
 import graphql.schema.CoercingSerializeException;
 import java.util.Arrays;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.dao.OrderBy;
 import org.jfantasy.framework.util.common.StringUtil;
@@ -32,6 +29,9 @@ public class OrderCoercing implements Coercing<OrderBy, String> {
   @Override
   public OrderBy parseValue(Object input) throws CoercingParseValueException {
     String inputString = input.toString();
+    if ("unsorted".equals(inputString)) {
+      return OrderBy.unsorted();
+    }
     if (inputString.contains(",")) {
       return OrderBy.by(
           Arrays.stream(inputString.split(","))
@@ -54,13 +54,6 @@ public class OrderCoercing implements Coercing<OrderBy, String> {
 
   @Override
   public OrderBy parseLiteral(Object input) throws CoercingParseLiteralException {
-    if (input instanceof ObjectValue) {
-      List<ObjectField> fields = ((ObjectValue) input).getObjectFields();
-      if (!fields.isEmpty()) {
-        log.warn("OrderBy 类型的对象赋值,只用来设置空排序. 设置无效!");
-      }
-      return OrderBy.unsorted();
-    }
     if (!(input instanceof StringValue)) {
       throw new CoercingParseLiteralException(
           "Expected AST type 'StringValue' but was '" + typeName(input) + "'.");
