@@ -44,6 +44,13 @@ public class Kit {
       ((EdgeConverter<? super T, ? extends R>) mapper).setEdgeClass(edgeClass);
     }
     connection.setEdges(page.getContent().stream().map(mapper).collect(Collectors.toList()));
+
+    // 临时的兼容，后期会删除
+    connection.setTotalCount((int) page.getTotalElements());
+    connection.setTotalPage(page.getTotalPages());
+    connection.setCurrentPage(page.getNumber());
+    connection.setPageSize(page.getSize());
+
     return (C) connection;
   }
 

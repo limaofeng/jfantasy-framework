@@ -27,24 +27,24 @@ type UserConnection implements Connection {
   """
   每页显示条数
   """
-  pageSize: Int @deprecated
+  pageSize: Int! @deprecated
   """
   总数据条数
   """
-  totalCount: Int @deprecated
+  totalCount: Int! @deprecated
   """
   总页数
   """
-  totalPage: Int @deprecated
+  totalPage: Int! @deprecated
   """
   当前页
   """
-  currentPage: Int @deprecated
-  edges: [UserEdge]
-  pageInfo: PageInfo
+  currentPage: Int! @deprecated
+  edges: [UserEdge!]!
+  pageInfo: PageInfo!
 }
-type UserEdge {
-  cursor: String
+type UserEdge implements Edge {
+  cursor: String!
   node: User
 }
 

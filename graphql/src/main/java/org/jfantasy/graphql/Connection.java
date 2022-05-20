@@ -15,4 +15,16 @@ public interface Connection<T> {
   void setEdges(List<T> edges);
 
   void setPageInfo(PageInfo pageInfo);
+
+  @Deprecated
+  void setTotalCount(int totalCount);
+
+  @Deprecated
+  void setPageSize(int pageSize);
+
+  @Deprecated
+  void setTotalPage(int totalPage);
+
+  @Deprecated
+  void setCurrentPage(int currentPage);
 }

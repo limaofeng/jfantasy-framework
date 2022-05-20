@@ -12,16 +12,18 @@ enum UpdateMode {
   REPLACE
 }
 
-# 页信息
+"""
+页信息
+"""
 type PageInfo {
   """
   是否存在下一页
   """
-  hasNextPage: Boolean
+  hasNextPage: Boolean!
   """
   是否存在上一页
   """
-  hasPreviousPage: Boolean
+  hasPreviousPage: Boolean!
   """
   数据页第一个游标
   """
@@ -33,40 +35,65 @@ type PageInfo {
   """
   当前页
   """
-  current: Int
+  current: Int!
   """
   每页显示数量
   """
-  pageSize: Int
+  pageSize: Int!
   """
   总数据条数
   """
-  total: Int
+  total: Int!
   """
   总页数
   """
-  totalPages: Int
+  totalPages: Int!
+}
+
+interface Edge {
+  """
+  游标
+  """
+  cursor: String!
 }
 
 interface Connection {
   """
   总数据条数
   """
-  totalCount: Int @deprecated
+  totalCount: Int! @deprecated
   """
   每页显示条数
   """
-  pageSize: Int @deprecated
+  pageSize: Int! @deprecated
   """
   总页数
   """
-  totalPage: Int @deprecated
+  totalPage: Int! @deprecated
   """
   当前页
   """
-  currentPage: Int @deprecated
+  currentPage: Int! @deprecated
   """
   分页信息
   """
-  pageInfo: PageInfo
+  pageInfo: PageInfo!
+  """
+  数据集
+  """
+  edges: [Edge]!
+}
+
+"""
+基础的实体
+"""
+interface BaseEntity {
+  """
+  创建时间
+  """
+  createdAt: Date @dateFormat
+  """
+  修改时间
+  """
+  updatedAt: Date @dateFormat
 }
