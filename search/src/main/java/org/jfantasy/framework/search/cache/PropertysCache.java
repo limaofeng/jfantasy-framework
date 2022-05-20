@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import javax.persistence.Id;
 import lombok.extern.slf4j.Slf4j;
-import org.jfantasy.framework.search.annotations.Field;
+import org.jfantasy.framework.search.annotations.IndexProperty;
 import org.jfantasy.framework.search.exception.IdException;
 import org.jfantasy.framework.search.exception.PropertyException;
 import org.jfantasy.framework.util.common.ClassUtil;
@@ -90,9 +90,10 @@ public class PropertysCache {
   public Property getPropertyByFieldName(Class<?> clazz, String fieldName) {
     if (!fields.containsKey(clazz)) {
       Map<String, Property> propertyMap = new HashMap<>();
-      for (Property property : filter(clazz, Field.class)) {
-        Field field = property.getAnnotation(Field.class);
-        propertyMap.put(StringUtil.defaultValue(field.name(), property.getName()), property);
+      for (Property property : filter(clazz, IndexProperty.class)) {
+        IndexProperty indexProperty = property.getAnnotation(IndexProperty.class);
+        propertyMap.put(
+            StringUtil.defaultValue(indexProperty.name(), property.getName()), property);
       }
       fields.put(clazz, propertyMap);
     }

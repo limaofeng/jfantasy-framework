@@ -1,6 +1,6 @@
 package org.jfantasy.framework.search.backend;
 
-import org.jfantasy.framework.search.DocumentData;
+import org.jfantasy.framework.search.Document;
 import org.jfantasy.framework.search.annotations.BoostSwitch;
 import org.jfantasy.framework.search.cache.PropertysCache;
 import org.jfantasy.framework.search.handler.FieldHandler;
@@ -23,7 +23,7 @@ public class IndexCreator {
     this.prefix = prefix;
   }
 
-  public void create(DocumentData doc) {
+  public void create(Document doc) {
     for (Property p : PropertysCache.getInstance().get(this.obj.getClass())) {
       BoostSwitch bs = p.getAnnotation(BoostSwitch.class);
       if (bs != null) {

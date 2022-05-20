@@ -4,11 +4,11 @@ import java.util.Date;
 import java.util.Objects;
 import javax.persistence.*;
 import lombok.*;
-import org.jfantasy.framework.search.annotations.Document;
-import org.jfantasy.framework.search.annotations.Field;
 import org.jfantasy.framework.search.annotations.FieldType;
+import org.jfantasy.framework.search.annotations.IndexProperty;
+import org.jfantasy.framework.search.annotations.Indexed;
 
-@Document(indexName = "articles")
+@Indexed(indexName = "articles")
 @Getter
 @Setter
 @ToString
@@ -21,19 +21,19 @@ public class Article {
 
   @Id @GeneratedValue private Long id;
 
-  @Field @Column private String title;
+  @IndexProperty @Column private String title;
 
   @Column
-  @Field(type = FieldType.Keyword)
+  @IndexProperty(type = FieldType.Keyword)
   private String author;
 
   @Column
-  @Field(type = FieldType.Keyword)
+  @IndexProperty(type = FieldType.Keyword)
   private String url;
 
-  @Column @Field private String content;
+  @Column @IndexProperty private String content;
 
-  @Column @Field private Date publishDate;
+  @Column @IndexProperty private Date publishDate;
 
   @Override
   public boolean equals(Object o) {

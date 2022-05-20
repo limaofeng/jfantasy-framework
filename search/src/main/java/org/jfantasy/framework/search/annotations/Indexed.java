@@ -8,7 +8,7 @@ import org.jfantasy.framework.search.dao.jpa.JpaDefaultCuckooDao;
 
 @Target({java.lang.annotation.ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Document {
+public @interface Indexed {
   /**
    * elasticsearch 索引名称
    *

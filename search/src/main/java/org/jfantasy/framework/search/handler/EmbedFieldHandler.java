@@ -1,7 +1,7 @@
 package org.jfantasy.framework.search.handler;
 
 import co.elastic.clients.elasticsearch._types.mapping.TypeMapping;
-import org.jfantasy.framework.search.DocumentData;
+import org.jfantasy.framework.search.Document;
 import org.jfantasy.framework.search.annotations.IndexEmbedBy;
 import org.jfantasy.framework.search.cache.PropertysCache;
 import org.jfantasy.framework.util.common.ClassUtil;
@@ -18,7 +18,7 @@ public class EmbedFieldHandler extends AbstractFieldHandler {
   }
 
   @Override
-  public void handle(DocumentData doc) {
+  public void handle(Document doc) {
     Object embedObj = this.property.getValue(this.obj);
     if (embedObj == null) {
       return;

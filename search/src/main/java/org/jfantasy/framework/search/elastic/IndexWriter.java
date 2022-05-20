@@ -2,7 +2,7 @@ package org.jfantasy.framework.search.elastic;
 
 import java.io.IOException;
 import java.io.Serializable;
-import org.jfantasy.framework.search.DocumentData;
+import org.jfantasy.framework.search.Document;
 
 public interface IndexWriter {
 
@@ -10,9 +10,9 @@ public interface IndexWriter {
 
   void deleteAll() throws IOException;
 
-  void addDocument(DocumentData doc) throws IOException;
+  void addDocument(Document doc) throws IOException;
 
-  void updateDocument(Serializable id, DocumentData doc) throws IOException;
+  void updateDocument(Serializable id, Document doc) throws IOException;
 
   void deleteDocument(Serializable id) throws IOException;
 }

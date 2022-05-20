@@ -17,7 +17,7 @@ public class IndexChecker {
    * @return boolean
    */
   public static boolean hasIndexed(Class<?> clazz) {
-    return clazz.getAnnotation(Document.class) != null;
+    return clazz.getAnnotation(Indexed.class) != null;
   }
 
   public static boolean hasIndexAnnotation(Class<?> clazz, String key) {
@@ -33,7 +33,7 @@ public class IndexChecker {
       log.error(ex.getMessage(), ex);
       return false;
     }
-    if ((property.getAnnotation(Field.class) != null)
+    if ((property.getAnnotation(IndexProperty.class) != null)
         || (property.getAnnotation(IndexEmbed.class) != null)
         || (property.getAnnotation(IndexEmbedList.class) != null)
         || (property.getAnnotation(IndexRef.class) != null)
@@ -54,7 +54,7 @@ public class IndexChecker {
    */
   public static boolean needListener(Class<?> clazz) {
     boolean result = false;
-    if (clazz.getAnnotation(Document.class) != null) {
+    if (clazz.getAnnotation(Indexed.class) != null) {
       result = true;
     } else {
       Property[] properties = PropertysCache.getInstance().get(clazz);

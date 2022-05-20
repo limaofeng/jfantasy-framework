@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.Map;
 import org.jfantasy.framework.search.CuckooIndex;
 import org.jfantasy.framework.search.annotations.BoostSwitch;
-import org.jfantasy.framework.search.annotations.Document;
+import org.jfantasy.framework.search.annotations.Indexed;
 import org.jfantasy.framework.search.cache.PropertysCache;
 import org.jfantasy.framework.search.dao.CuckooDao;
 import org.jfantasy.framework.search.handler.FieldHandler;
@@ -21,7 +21,7 @@ import org.jfantasy.framework.util.common.StringUtil;
 
 public class ElasticCuckooIndex implements CuckooIndex {
 
-  private final Document document;
+  private final Indexed indexed;
   private final Class indexClass;
   private final ElasticsearchConnection connection;
   private final IndexWriter indexWriter;
@@ -29,7 +29,7 @@ public class ElasticCuckooIndex implements CuckooIndex {
   public ElasticCuckooIndex(
       Class<?> clazz, CuckooDao cuckooDao, ElasticsearchConnection connection, int batchSize)
       throws IOException {
-    this.document = clazz.getAnnotation(Document.class);
+    this.indexed = clazz.getAnnotation(Indexed.class);
     this.indexClass = clazz;
     this.connection = connection;
 
@@ -55,13 +55,13 @@ public class ElasticCuckooIndex implements CuckooIndex {
   }
 
   private void initialize() throws IOException {
-    if (!document.createIndex()) {
+    if (!indexed.createIndex()) {
       return;
     }
 
     String indexName =
         StringUtil.defaultValue(
-            document.indexName(), () -> StringUtil.snakeCase(indexClass.getName()));
+            indexed.indexName(), () -> StringUtil.snakeCase(indexClass.getName()));
 
     ElasticsearchClient client = connection.getClient();
 
@@ -81,13 +81,8 @@ public class ElasticCuckooIndex implements CuckooIndex {
   }
 
   @Override
-  public Class getDocumentClass() {
+  public Class getIndexClass() {
     return this.indexClass;
-  }
-
-  @Override
-  public Document getDocument() {
-    return this.document;
   }
 
   @Override
@@ -97,7 +92,7 @@ public class ElasticCuckooIndex implements CuckooIndex {
 
   @Override
   public String getIndexName() {
-    return this.getDocument().indexName();
+    return this.indexed.indexName();
   }
 
   @Override

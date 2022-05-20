@@ -17,7 +17,7 @@ import org.springframework.core.annotation.AliasFor;
  */
 @Target({ElementType.FIELD, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Field {
+public @interface IndexProperty {
   /**
    * Alias for {@link #name}.
    *

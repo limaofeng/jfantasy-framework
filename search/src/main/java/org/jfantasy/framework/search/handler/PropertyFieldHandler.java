@@ -1,7 +1,7 @@
 package org.jfantasy.framework.search.handler;
 
 import co.elastic.clients.elasticsearch._types.mapping.TypeMapping;
-import org.jfantasy.framework.search.DocumentData;
+import org.jfantasy.framework.search.Document;
 import org.jfantasy.framework.search.annotations.FieldType;
 import org.jfantasy.framework.util.reflect.Property;
 
@@ -15,7 +15,7 @@ public class PropertyFieldHandler extends AbstractFieldHandler {
   }
 
   @Override
-  public void handle(DocumentData doc) {
+  public void handle(Document doc) {
     process(doc);
   }
 
@@ -33,7 +33,7 @@ public class PropertyFieldHandler extends AbstractFieldHandler {
     }
   }
 
-  protected void process(DocumentData doc) {
+  protected void process(Document doc) {
     Class<?> type = this.property.getPropertyType();
     if (type.isArray()) {
       processArray(doc);
@@ -42,7 +42,7 @@ public class PropertyFieldHandler extends AbstractFieldHandler {
     }
   }
 
-  private void processArray(DocumentData doc) {
+  private void processArray(Document doc) {
     Object objValue = this.property.getValue(this.obj);
     if (objValue == null) {
       return;
@@ -52,7 +52,7 @@ public class PropertyFieldHandler extends AbstractFieldHandler {
     doc.add(fieldName, objValue);
   }
 
-  private void processPrimitive(DocumentData doc) {
+  private void processPrimitive(Document doc) {
     Object objValue = this.property.getValue(this.obj);
     if (objValue == null) {
       return;
@@ -86,8 +86,8 @@ public class PropertyFieldHandler extends AbstractFieldHandler {
     Class<?> type = this.property.getPropertyType();
     String fieldName = this.prefix + this.property.getName();
 
-    boolean store = field.store();
-    boolean index = field.index();
+    boolean store = indexProperty.store();
+    boolean index = indexProperty.index();
 
     typeMapping.properties(
         fieldName, builder -> builder.text(builder1 -> builder1.store(store).index(index)));
@@ -96,8 +96,8 @@ public class PropertyFieldHandler extends AbstractFieldHandler {
   private void processPrimitive(TypeMapping.Builder typeMapping) {
     Class<?> type = this.property.getPropertyType();
 
-    boolean store = field.store();
-    boolean index = field.index();
+    boolean store = indexProperty.store();
+    boolean index = indexProperty.index();
 
     typeMapping.properties(
         fieldName,

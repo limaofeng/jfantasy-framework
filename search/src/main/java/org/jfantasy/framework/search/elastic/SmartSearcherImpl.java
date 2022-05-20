@@ -18,7 +18,7 @@ public class SmartSearcherImpl<T> implements SmartSearcher<T> {
 
   private final CuckooIndex cuckooIndex;
   private final ElasticsearchConnection connection;
-  private SearchRequest.Builder requestBuilder;
+  private final SearchRequest.Builder requestBuilder;
 
   public SmartSearcherImpl(
       CuckooIndex cuckooIndex, ElasticsearchConnection connection, Query query) {
@@ -26,7 +26,7 @@ public class SmartSearcherImpl<T> implements SmartSearcher<T> {
     this.connection = connection;
     this.requestBuilder =
         new SearchRequest.Builder()
-            .index(cuckooIndex.getDocument().indexName())
+            .index(cuckooIndex.getIndexName())
             .query(query.toQuery()._toQuery());
   }
 
@@ -75,6 +75,6 @@ public class SmartSearcherImpl<T> implements SmartSearcher<T> {
   @Override
   public SearchResponse<T> search() throws IOException {
     ElasticsearchClient client = connection.getClient();
-    return client.search(this.requestBuilder.build(), cuckooIndex.getDocumentClass());
+    return client.search(this.requestBuilder.build(), cuckooIndex.getIndexClass());
   }
 }

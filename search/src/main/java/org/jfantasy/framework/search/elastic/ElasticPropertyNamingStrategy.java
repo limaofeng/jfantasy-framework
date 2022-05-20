@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.AnnotatedField;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
-import org.jfantasy.framework.search.annotations.Field;
+import org.jfantasy.framework.search.annotations.IndexProperty;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.framework.util.reflect.Property;
@@ -20,22 +20,22 @@ public class ElasticPropertyNamingStrategy extends PropertyNamingStrategy {
   public String nameForGetterMethod(
       MapperConfig<?> config, AnnotatedMethod method, String defaultName) {
     Property property = ClassUtil.getProperty(method.getDeclaringClass(), defaultName);
-    Field field = property.getAnnotation(Field.class);
-    if (field == null || StringUtil.isBlank(field.name())) {
+    IndexProperty indexProperty = property.getAnnotation(IndexProperty.class);
+    if (indexProperty == null || StringUtil.isBlank(indexProperty.name())) {
       return super.nameForSetterMethod(config, method, defaultName);
     }
-    return field.name();
+    return indexProperty.name();
   }
 
   @Override
   public String nameForSetterMethod(
       MapperConfig<?> config, AnnotatedMethod method, String defaultName) {
     Property property = ClassUtil.getProperty(method.getDeclaringClass(), defaultName);
-    Field field = property.getAnnotation(Field.class);
-    if (field == null || StringUtil.isBlank(field.name())) {
+    IndexProperty indexProperty = property.getAnnotation(IndexProperty.class);
+    if (indexProperty == null || StringUtil.isBlank(indexProperty.name())) {
       return super.nameForSetterMethod(config, method, defaultName);
     }
-    return field.name();
+    return indexProperty.name();
   }
 
   @Override

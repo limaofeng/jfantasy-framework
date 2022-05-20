@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import lombok.Setter;
 import lombok.SneakyThrows;
-import org.jfantasy.framework.search.annotations.Document;
+import org.jfantasy.framework.search.annotations.Indexed;
 import org.jfantasy.framework.search.cache.DaoCache;
 import org.jfantasy.framework.search.cache.IndexCache;
 import org.jfantasy.framework.search.config.IndexedScanner;
@@ -51,7 +51,7 @@ public class CuckooIndexFactory implements ApplicationContextAware {
 
     this.connection = this.makeConnection();
 
-    Set<Class<?>> indexedClasses = new IndexedScanner(applicationContext).scan(Document.class);
+    Set<Class<?>> indexedClasses = new IndexedScanner(applicationContext).scan(Indexed.class);
     DaoCache daoCache = DaoCache.getInstance(this.applicationContext, this.executor);
     IndexCache indexCache = IndexCache.getInstance();
 

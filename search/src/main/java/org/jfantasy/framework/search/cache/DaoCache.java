@@ -3,7 +3,7 @@ package org.jfantasy.framework.search.cache;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
-import org.jfantasy.framework.search.annotations.Document;
+import org.jfantasy.framework.search.annotations.Indexed;
 import org.jfantasy.framework.search.dao.CuckooDao;
 import org.jfantasy.framework.search.dao.jpa.JpaDefaultCuckooDao;
 import org.jfantasy.framework.util.common.ClassUtil;
@@ -50,9 +50,9 @@ public class DaoCache {
   }
 
   public CuckooDao buildDao(Class<?> clazz) {
-    Document document = clazz.getAnnotation(Document.class);
+    Indexed indexed = clazz.getAnnotation(Indexed.class);
     Class<? extends CuckooDao> daoClass =
-        document == null ? JpaDefaultCuckooDao.class : document.dao();
+        indexed == null ? JpaDefaultCuckooDao.class : indexed.dao();
     if (ClassUtil.isAssignable(JpaDefaultCuckooDao.class, daoClass)) {
       return ClassUtil.newInstance(
           daoClass,

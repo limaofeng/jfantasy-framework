@@ -13,7 +13,7 @@ import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.search.CuckooIndex;
-import org.jfantasy.framework.search.DocumentData;
+import org.jfantasy.framework.search.Document;
 
 @Slf4j
 public class ElasticIndexWriter implements IndexWriter {
@@ -63,7 +63,7 @@ public class ElasticIndexWriter implements IndexWriter {
         // 批量处理
         List<BulkOperation> bulkOperations = new ArrayList<>();
         for (Task task : data) {
-          DocumentData doc = task.getDoc();
+          Document doc = task.getDoc();
           if (Operation.create == task.getOperation()) {
             bulkOperations.add(
                 new BulkOperation.Builder()
@@ -118,7 +118,7 @@ public class ElasticIndexWriter implements IndexWriter {
     log.debug("deleted response id: " + response.id());
   }
 
-  private void update(String id, DocumentData doc) throws IOException {
+  private void update(String id, Document doc) throws IOException {
     UpdateRequest request =
         new UpdateRequest.Builder()
             .index(doc.getIndexName())
@@ -129,7 +129,7 @@ public class ElasticIndexWriter implements IndexWriter {
     log.debug("updated response id: " + updateResponse.id());
   }
 
-  private void create(DocumentData doc) throws IOException {
+  private void create(Document doc) throws IOException {
     IndexRequest<Object> indexRequest =
         new IndexRequest.Builder<>()
             .index(doc.getIndexName())
@@ -152,7 +152,7 @@ public class ElasticIndexWriter implements IndexWriter {
   }
 
   @Override
-  public void addDocument(DocumentData doc) throws IOException {
+  public void addDocument(Document doc) throws IOException {
     cachedDataList.add(
         Task.builder()
             .indexName(doc.getIndexName())
@@ -164,7 +164,7 @@ public class ElasticIndexWriter implements IndexWriter {
   }
 
   @Override
-  public void updateDocument(Serializable id, DocumentData doc) throws IOException {
+  public void updateDocument(Serializable id, Document doc) throws IOException {
     this.cachedDataList.add(
         Task.builder()
             .operation(Operation.update)
@@ -224,6 +224,6 @@ public class ElasticIndexWriter implements IndexWriter {
     private String indexName;
     private String id;
     private Operation operation;
-    private DocumentData doc;
+    private Document doc;
   }
 }

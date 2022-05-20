@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.search.CuckooIndex;
-import org.jfantasy.framework.search.DocumentData;
+import org.jfantasy.framework.search.Document;
 import org.jfantasy.framework.search.cache.IndexCache;
 import org.jfantasy.framework.search.cache.PropertysCache;
 import org.jfantasy.framework.search.elastic.IndexWriter;
@@ -24,7 +24,7 @@ public class IndexUpdateTask implements Runnable {
     CuckooIndex cuckooIndex = IndexCache.getInstance().get(clazz);
     IndexWriter writer = cuckooIndex.getIndexWriter();
 
-    DocumentData doc = new DocumentData(cuckooIndex.getDocument().indexName());
+    Document doc = new Document(cuckooIndex.getIndexName());
 
     IndexCreator creator = new IndexCreator(this.entity, "");
     creator.create(doc);

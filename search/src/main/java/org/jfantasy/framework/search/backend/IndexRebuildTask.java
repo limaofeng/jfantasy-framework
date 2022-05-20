@@ -9,7 +9,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.search.CuckooIndex;
-import org.jfantasy.framework.search.DocumentData;
+import org.jfantasy.framework.search.Document;
 import org.jfantasy.framework.search.cache.DaoCache;
 import org.jfantasy.framework.search.cache.IndexCache;
 import org.jfantasy.framework.search.dao.CuckooDao;
@@ -91,7 +91,7 @@ public class IndexRebuildTask implements Runnable {
     if (checker.needIndex()) {
       CuckooIndex cuckooIndex =
           IndexCache.getInstance().get(ClassUtil.getRealClass(entity.getClass()));
-      DocumentData doc = new DocumentData(cuckooIndex.getDocument().indexName());
+      Document doc = new Document(cuckooIndex.getIndexName());
       IndexCreator creator = new IndexCreator(entity, "");
       creator.create(doc);
       try {

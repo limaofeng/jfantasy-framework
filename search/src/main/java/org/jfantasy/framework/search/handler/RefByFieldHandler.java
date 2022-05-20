@@ -1,7 +1,7 @@
 package org.jfantasy.framework.search.handler;
 
 import java.util.List;
-import org.jfantasy.framework.search.DocumentData;
+import org.jfantasy.framework.search.Document;
 import org.jfantasy.framework.search.annotations.IndexRefBy;
 import org.jfantasy.framework.util.reflect.Property;
 
@@ -18,7 +18,7 @@ public class RefByFieldHandler extends ByFieldHandler {
   }
 
   @Override
-  public void handle(DocumentData doc) {
+  public void handle(Document doc) {
     IndexRefBy irb = this.property.getAnnotation(IndexRefBy.class);
     Class<?>[] cls = irb.value();
     int len = cls.length;

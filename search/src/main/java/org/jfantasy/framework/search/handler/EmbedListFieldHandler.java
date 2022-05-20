@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.jfantasy.framework.search.DocumentData;
+import org.jfantasy.framework.search.Document;
 import org.jfantasy.framework.search.annotations.IndexEmbedBy;
 import org.jfantasy.framework.search.cache.PropertysCache;
 import org.jfantasy.framework.search.mapper.DataType;
@@ -25,7 +25,7 @@ public class EmbedListFieldHandler extends AbstractFieldHandler {
   }
 
   @Override
-  public void handle(DocumentData doc) {
+  public void handle(Document doc) {
     Object value = this.property.getValue(this.obj);
     if (value == null) {
       return;
