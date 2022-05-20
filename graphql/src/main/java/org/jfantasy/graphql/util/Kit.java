@@ -42,7 +42,7 @@ public class Kit {
         PageInfo.builder()
             .total(page.getTotalElements())
             .totalPages(page.getTotalPages())
-            .current(page.getNumber())
+            .current(page.getNumber() + 1)
             .pageSize(page.getSize())
             .hasPreviousPage(page.hasPrevious())
             .hasNextPage(page.hasNext());
@@ -68,7 +68,7 @@ public class Kit {
     // 临时的兼容，后期会删除
     connection.setTotalCount((int) page.getTotalElements());
     connection.setTotalPage(page.getTotalPages());
-    connection.setCurrentPage(page.getNumber());
+    connection.setCurrentPage(page.getNumber() + 1);
     connection.setPageSize(page.getSize());
 
     return connection;
