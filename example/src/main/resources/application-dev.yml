@@ -16,7 +16,6 @@ spring:
     port: 6379
     password: sOmE_sEcUrE_pAsS
   cuckoo:
-    enable: false
     elasticsearch:
       client:
         url: https://es.thuni-h.com:9200

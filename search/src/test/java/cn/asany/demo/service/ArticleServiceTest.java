@@ -103,10 +103,10 @@ class ArticleServiceTest {
   @Test
   void update() {
     this.articleService.update(
-        1L,
+        11606L,
         Article.builder()
-            .id(1L)
-            .title("我们一定要有自己的大飞机2")
+            .id(11606L)
+            .title("我们一定要有自己的大飞机")
             .author("limaofeng")
             .content(
                 "国产大飞机，承载着几代人的中国梦。这一刻，梦想迎来新时代的回响。\n"

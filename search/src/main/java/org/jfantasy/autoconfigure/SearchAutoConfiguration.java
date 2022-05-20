@@ -40,7 +40,7 @@ public class SearchAutoConfiguration {
     EventListenerRegistry registry =
         sessionFactory.getServiceRegistry().getService(EventListenerRegistry.class);
 
-    EntityChangedEventListener entityChangedEventListener = entityChangedEventListener();
+    EntityChangedEventListener entityChangedEventListener = new EntityChangedEventListener();
     registry.prependListeners(EventType.POST_INSERT, entityChangedEventListener);
     registry.prependListeners(EventType.POST_UPDATE, entityChangedEventListener);
     registry.prependListeners(EventType.POST_DELETE, entityChangedEventListener);
@@ -76,10 +76,5 @@ public class SearchAutoConfiguration {
     cuckooIndexFactory.setExecutor(taskExecutor);
 
     return cuckooIndexFactory;
-  }
-
-  @Bean
-  public EntityChangedEventListener entityChangedEventListener() {
-    return new EntityChangedEventListener();
   }
 }

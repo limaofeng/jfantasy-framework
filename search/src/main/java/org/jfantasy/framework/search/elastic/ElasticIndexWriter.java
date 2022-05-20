@@ -1,5 +1,6 @@
 package org.jfantasy.framework.search.elastic;
 
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import co.elastic.clients.elasticsearch.core.*;
 import co.elastic.clients.elasticsearch.core.bulk.BulkOperation;
 import co.elastic.clients.elasticsearch.core.bulk.BulkResponseItem;
@@ -119,14 +120,21 @@ public class ElasticIndexWriter implements IndexWriter {
   }
 
   private void update(String id, Document doc) throws IOException {
-    UpdateRequest request =
-        new UpdateRequest.Builder()
-            .index(doc.getIndexName())
-            .id(String.valueOf(id))
-            .doc(doc.getAttrs())
-            .build();
-    UpdateResponse updateResponse = connection.getClient().update(request, Map.class);
-    log.debug("updated response id: " + updateResponse.id());
+    try {
+      UpdateRequest request =
+          new UpdateRequest.Builder().index(doc.getIndexName()).id(id).doc(doc.getAttrs()).build();
+      UpdateResponse updateResponse = connection.getClient().update(request, Map.class);
+      log.debug("updated response id: " + updateResponse.id());
+    } catch (ElasticsearchException e) {
+      if (e.response().status() == 404) {
+        log.info(
+            String.format(
+                "document %s (%s) not exist, will switch to the create.", doc.getIndexName(), id));
+        this.create(doc);
+        return;
+      }
+      throw e;
+    }
   }
 
   private void create(Document doc) throws IOException {
