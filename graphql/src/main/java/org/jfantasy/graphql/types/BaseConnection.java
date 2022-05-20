@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.jfantasy.graphql.Connection;
+import org.jfantasy.graphql.Edge;
 import org.jfantasy.graphql.PageInfo;
 
 /**
@@ -16,7 +17,7 @@ import org.jfantasy.graphql.PageInfo;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public abstract class BaseConnection<T> implements Connection<T> {
+public abstract class BaseConnection<E extends Edge<T>, T> implements Connection<E, T> {
   private int totalCount;
   private int pageSize;
   private int totalPage;

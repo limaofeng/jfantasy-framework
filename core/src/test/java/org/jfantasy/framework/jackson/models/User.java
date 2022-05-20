@@ -5,9 +5,12 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import javax.persistence.Id;
 
 @JsonFilter("myFilter")
 public class User {
+
+  @Id private String id;
   private String name;
   private Date createDate;
   private Set<Article> articles = new HashSet<>();

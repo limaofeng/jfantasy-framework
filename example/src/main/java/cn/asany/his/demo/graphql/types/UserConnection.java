@@ -9,7 +9,7 @@ import org.jfantasy.graphql.types.BaseConnection;
 /** @author limaofeng */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class UserConnection extends BaseConnection<UserConnection.UserEdge> {
+public class UserConnection extends BaseConnection<UserConnection.UserEdge, User> {
 
   private List<UserEdge> edges;
 

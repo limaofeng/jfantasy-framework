@@ -2,7 +2,7 @@ package org.jfantasy.graphql;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 /**
@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
  * @version V1.0
  * @date 2019-04-02 18:24
  */
-@Data
+@Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor

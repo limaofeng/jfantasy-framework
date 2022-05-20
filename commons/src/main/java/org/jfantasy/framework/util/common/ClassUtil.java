@@ -134,6 +134,10 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
     return getProperty(target.getClass(), name);
   }
 
+  public static Property getProperty(Class<?> clazz, String name) {
+    return classFactory.getClass(clazz).getProperty(name);
+  }
+
   public static Class<?> getPropertyType(Class<?> clazz, String name) {
     String[] propertyNames = name.split("\\.");
     for (int i = 0; i < propertyNames.length - 1; i++) {
@@ -145,10 +149,6 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
       }
     }
     return ClassUtil.getProperty(clazz, propertyNames[propertyNames.length - 1]).getPropertyType();
-  }
-
-  public static Property getProperty(Class<?> clazz, String name) {
-    return classFactory.getClass(clazz).getProperty(name);
   }
 
   public static <T> Class<T> forName(String className) {
@@ -181,7 +181,7 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
   public static <T> T getValue(Object target, String name) {
     Property property = getProperty(target, name);
     if ((property != null) && (property.isRead())) {
-      return (T) property.getValue(target);
+      return property.getValue(target);
     }
     return classFactory.getClass(target.getClass()).getValue(target, name);
   }
@@ -556,7 +556,7 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
 
   public static Class getRealType(Class clazz) {
     if (clazz.isInterface()) {
-      LOGGER.error("The implementation of interface " + clazz.toString() + " is not specified.");
+      LOGGER.error("The implementation of interface " + clazz + " is not specified.");
     }
     return clazz;
   }
@@ -564,6 +564,7 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
   @SneakyThrows
   public static <T> T call(String methodName, Object obj) {
     MethodProxy method = ClassUtil.getMethodProxy(getRealClass(obj), methodName);
+    assert method != null;
     return (T) method.invoke(obj);
   }
 
@@ -597,10 +598,7 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
     Field advised = dynamicAdvisedInterceptor.getClass().getDeclaredField("advised");
     advised.setAccessible(true);
 
-    Object target =
-        ((AdvisedSupport) advised.get(dynamicAdvisedInterceptor)).getTargetSource().getTarget();
-
-    return target;
+    return ((AdvisedSupport) advised.get(dynamicAdvisedInterceptor)).getTargetSource().getTarget();
   }
 
   private static Object getJdkDynamicProxyTargetObject(Object proxy) throws Exception {
@@ -611,9 +609,7 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
     Field advised = aopProxy.getClass().getDeclaredField("advised");
     advised.setAccessible(true);
 
-    Object target = ((AdvisedSupport) advised.get(aopProxy)).getTargetSource().getTarget();
-
-    return target;
+    return ((AdvisedSupport) advised.get(aopProxy)).getTargetSource().getTarget();
   }
 
   /**

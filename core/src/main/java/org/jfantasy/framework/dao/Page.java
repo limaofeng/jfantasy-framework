@@ -9,6 +9,7 @@ import java.util.List;
  * @version V1.0
  * @date 2019-04-02 18:22
  */
+@Deprecated
 public interface Page<T> {
   static <T> Page<T> of(Page page, List<T> list) {
     return new Pagination<>(page, list);

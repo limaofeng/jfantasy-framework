@@ -4,7 +4,7 @@ extend type Query {
     filter: UserFilter
     page: Int = 1
     pageSize: Int = 15
-    orderBy: OrderBy = {}
+    orderBy: OrderBy = "unsorted"
   ): UserConnection
 }
 

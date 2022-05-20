@@ -3,6 +3,7 @@ package org.jfantasy.framework.util.common;
 import java.lang.reflect.Array;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import javax.persistence.Id;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.jackson.JSONTest;
@@ -36,6 +37,10 @@ public class ClassUtilTest {
     // for(Property property : propertys){
     // System.out.println(property.getReadMethod().getAnnotations());
     // }
+  }
+
+  public void testGetAnnotation() {
+    ClassUtil.getProperty(User.class, Id.class);
   }
 
   @Test

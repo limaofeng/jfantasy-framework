@@ -7,12 +7,12 @@ import java.util.List;
  * @version V1.0
  * @date 2019-04-03 10:10
  */
-public interface Connection<T> {
+public interface Connection<E extends Edge<T>, T> {
   PageInfo getPageInfo();
 
-  List<T> getEdges();
+  List<E> getEdges();
 
-  void setEdges(List<T> edges);
+  void setEdges(List<E> edges);
 
   void setPageInfo(PageInfo pageInfo);
 
