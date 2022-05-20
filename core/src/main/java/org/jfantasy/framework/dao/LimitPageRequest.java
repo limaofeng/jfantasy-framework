@@ -22,7 +22,7 @@ public class LimitPageRequest implements Pageable, Serializable {
     if (offset < 0) {
       throw new IllegalArgumentException("Page index must not be less than zero!");
     }
-    if (offset < 1) {
+    if (size < 1) {
       throw new IllegalArgumentException("Page size must not be less than one!");
     }
     this.offset = offset;
