@@ -167,8 +167,6 @@ class ArticleServiceTest {
     this.articleService.deleteById(4L);
   }
 
-  @Test
-  @Timeout(value = 30, unit = TimeUnit.SECONDS)
   void downloadArticles() {
     Spider.create(new WeiXinPageProcessor(this.articleService))
         .addUrl("https://mp.weixin.qq.com/s/mO7HCSsLCtCghBpCeY1OeQ")
