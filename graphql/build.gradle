@@ -9,9 +9,13 @@ apply plugin: 'jacoco'
 
 dependencies {
 	implementation project(":jfantasy-core")
-	api "com.graphql-java-kickstart:graphql-spring-boot-starter:${LIB_GRAPHQL_VER}"
+	api dependencies.create("com.graphql-java-kickstart:graphql-spring-boot-starter:${LIB_GRAPHQL_VER}"){
+		exclude group: "com.graphql-java-kickstart", module: "graphql-java-tools"
+		exclude group: "com.graphql-java", module: "graphql-java"
+	}
+	api "com.graphql-java:graphql-java:$LIB_GRAPHQL_JAVA_VER"
 	api "com.graphql-java-kickstart:graphql-java-tools:$LIB_GRAPHQL_JAVA_TOOLS_VER"
-	api "com.graphql-java:graphql-java-extended-scalars:${LIB_GRAPHQL_SCALARS_VER}"
+	api "com.graphql-java:graphql-java-extended-scalars:$LIB_GRAPHQL_SCALARS_VER"
 	api "com.jayway.jsonpath:json-path"
 	compileOnly "org.springframework:spring-orm"
 	compileOnly "org.springframework.data:spring-data-jpa"
