@@ -33,12 +33,12 @@ class ArticleServiceTest {
 
   @BeforeEach
   void setUp() throws InterruptedException {
-    Thread.sleep(TimeUnit.SECONDS.toMillis(10));
+    //    Thread.sleep(TimeUnit.SECONDS.toMillis(10));
   }
 
   @AfterEach
   void tearDown() throws InterruptedException {
-    Thread.sleep(TimeUnit.SECONDS.toMillis(10));
+    //    Thread.sleep(TimeUnit.SECONDS.toMillis(10));
   }
 
   @Test
