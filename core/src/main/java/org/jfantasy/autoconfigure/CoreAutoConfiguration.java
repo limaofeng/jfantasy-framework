@@ -1,6 +1,5 @@
 package org.jfantasy.autoconfigure;
 
-import org.jfantasy.framework.dao.DataSourceSetUtf8mb4;
 import org.jfantasy.framework.dao.hibernate.InterceptorRegistration;
 import org.jfantasy.framework.dao.hibernate.interceptors.BusEntityInterceptor;
 import org.jfantasy.framework.spring.SpringBeanUtils;
@@ -27,13 +26,8 @@ import org.springframework.context.annotation.Import;
 public class CoreAutoConfiguration {
 
   @Bean
-  public SpringBeanUtils springContextUtil() {
+  public SpringBeanUtils springBeanUtils() {
     return new SpringBeanUtils();
-  }
-
-  @Bean
-  public DataSourceSetUtf8mb4 dataSourceSetUtf8mb4() {
-    return new DataSourceSetUtf8mb4();
   }
 
   @Bean

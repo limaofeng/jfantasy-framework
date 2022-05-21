@@ -1,5 +1,6 @@
 package org.jfantasy.graphql.util;
 
+import java.lang.reflect.ParameterizedType;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -13,9 +14,10 @@ import org.jfantasy.graphql.Connection;
 import org.jfantasy.graphql.Edge;
 import org.jfantasy.graphql.PageInfo;
 import org.springframework.data.domain.Page;
-import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
 /**
+ * 将分页对象转为 connection
+ *
  * @author limaofeng
  * @version V1.0
  * @date 2019-04-02 17:30
@@ -50,7 +52,7 @@ public class Kit {
     if (mapper instanceof EdgeConverter && ((EdgeConverter) mapper).edgeClass == null) {
       Class edgeClass =
           ClassUtil.forName(
-              ((ParameterizedTypeImpl) connectionClass.getGenericSuperclass())
+              ((ParameterizedType) connectionClass.getGenericSuperclass())
                   .getActualTypeArguments()[0].getTypeName());
       ((EdgeConverter<T, R>) mapper).setEdgeClass(edgeClass);
     }
@@ -77,7 +79,7 @@ public class Kit {
   public static <C extends Connection, T> C connection(Page<T> page, Class<C> connectionClass) {
     Class edgeClass =
         ClassUtil.forName(
-            ((ParameterizedTypeImpl) connectionClass.getGenericSuperclass())
+            ((ParameterizedType) connectionClass.getGenericSuperclass())
                 .getActualTypeArguments()[0].getTypeName());
     return (C) connection(page, connectionClass, new EdgeConverter(edgeClass));
   }

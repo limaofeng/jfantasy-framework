@@ -14,6 +14,8 @@ spring:
       testOnReturn: true
       poolPreparedStatements: true
       maxOpenPreparedStatements: 20
+      connection-init-sqls:
+        - set names utf8mb4
   redis:
     jedis:
       pool:

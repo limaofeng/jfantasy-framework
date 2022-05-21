@@ -2,7 +2,6 @@ package org.jfantasy.framework.util;
 
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Helper;
-import com.github.jknack.handlebars.Options;
 import com.github.jknack.handlebars.Template;
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -15,27 +14,18 @@ import org.jfantasy.framework.util.common.StringUtil;
 
 public class HandlebarsTemplateUtils {
 
-  private static Handlebars handlebars = new Handlebars();
+  private static final Handlebars handlebars = new Handlebars();
 
   private static final Log LOG = LogFactory.getLog(HandlebarsTemplateUtils.class);
 
   static {
     registerHelper(
         "format",
-        new Helper<Date>() {
-          @Override
-          public CharSequence apply(Date context, Options options) throws IOException {
-            return DateUtil.format(context, (String) options.params[0]);
-          }
-        });
+        (Helper<Date>) (context, options) -> DateUtil.format(context, (String) options.params[0]));
     registerHelper(
         "URLEncode",
-        new Helper<String>() {
-          @Override
-          public CharSequence apply(String context, Options options) throws IOException {
-            return URLEncoder.encode(context, (String) options.params[0]);
-          }
-        });
+        (Helper<String>)
+            (context, options) -> URLEncoder.encode(context, (String) options.params[0]));
   }
 
   public static <H> Handlebars registerHelper(String name, Helper<H> helper) {
@@ -66,7 +56,6 @@ public class HandlebarsTemplateUtils {
    *
    * @param path 文件路径
    * @return Template
-   * @throws IOException
    */
   public static Template template(String path) throws IOException {
     return handlebars.compile(path);

@@ -34,7 +34,7 @@ dependencies {
 	implementation project(":jfantasy-core")
 	implementation project(":jfantasy-graphql")
 	implementation project(":jfantasy-search")
-	implementation "jakarta.json:jakarta.json-api:2.1.0"
+	implementation "jakarta.json:jakarta.json-api:${LIB_JAKARTA_VAR}"
 	implementation "org.springframework.boot:spring-boot-starter-data-redis"
 	implementation "org.mapstruct:mapstruct:${LIB_MAPSTRUCT_VER}"
 	annotationProcessor "org.mapstruct:mapstruct-processor:$LIB_MAPSTRUCT_VER"

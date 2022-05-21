@@ -12,7 +12,6 @@ import org.jfantasy.framework.dao.hibernate.generator.SequenceGenerator;
 import org.jfantasy.framework.dao.hibernate.generator.SerialNumberGenerator;
 import org.jfantasy.framework.dao.jpa.ComplexJpaRepository;
 import org.jfantasy.framework.spring.SpringBeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.*;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -30,7 +29,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement(proxyTargetClass = true)
 @EntityScan("org.jfantasy.framework.context.bean")
 @EnableJpaRepositories(
-    transactionManagerRef = "transactionManager",
     includeFilters = {
       @ComponentScan.Filter(
           type = FilterType.ASSIGNABLE_TYPE,
@@ -41,13 +39,18 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @Import({MyBatisConfig.class})
 public class DaoConfig {
 
-  @Autowired private EntityManagerFactory entityManagerFactory;
+  private final EntityManagerFactory entityManagerFactory;
+
+  public DaoConfig(EntityManagerFactory entityManagerFactory) {
+    this.entityManagerFactory = entityManagerFactory;
+  }
 
   @PostConstruct
   private void init() {
-    EventListenerRegistry registry = this.eventListenerRegistry();
     SessionFactoryImplementor sessionFactory =
         entityManagerFactory.unwrap(SessionFactoryImplementor.class);
+    EventListenerRegistry registry =
+        sessionFactory.getServiceRegistry().getService(EventListenerRegistry.class);
     MutableIdentifierGeneratorFactory identifierGeneratorFactory =
         sessionFactory.getServiceRegistry().getService(MutableIdentifierGeneratorFactory.class);
     // 自定义序列生成器

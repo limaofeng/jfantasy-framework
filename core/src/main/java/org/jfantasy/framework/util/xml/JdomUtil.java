@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -59,15 +58,14 @@ public class JdomUtil {
     each(root, parser);
   }
 
-  @SuppressWarnings("unchecked")
   private static void each(Element ele, Parser parser) {
-    for (Element element : (List<Element>) ele.getChildren()) {
+    for (Element element : ele.getChildren()) {
       parser.callBack(element.getName(), element);
       each(element, parser);
     }
   }
 
-  public abstract static interface Parser {
-    public abstract void callBack(String paramString, Element paramElement);
+  public interface Parser {
+    void callBack(String paramString, Element paramElement);
   }
 }

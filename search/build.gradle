@@ -15,8 +15,8 @@ dependencies {
 	compileOnly "org.springframework:spring-context"
 	compileOnly "org.springframework.boot:spring-boot-autoconfigure"
 	compileOnly "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
-	testImplementation "us.codecraft:webmagic-core:0.7.5"
-	testImplementation "us.codecraft:webmagic-extension:0.7.5"
+	testImplementation "us.codecraft:webmagic-core:${LIB_WEBMAGIC_VER}"
+	testImplementation "us.codecraft:webmagic-extension:${LIB_WEBMAGIC_VER}"
 	testImplementation libs['springBoot']
 	testImplementation libs['orm']
 	annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"

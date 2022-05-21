@@ -16,13 +16,11 @@ public abstract class AbstractChangedListener<T>
         PostCommitInsertEventListener,
         PostCommitDeleteEventListener {
 
-  private static final long serialVersionUID = -3358937507937580406L;
-
-  private Class<T> entityClass;
+  private final Class<T> entityClass;
 
   protected transient ApplicationContext applicationContext;
   private transient EventListenerRegistry eventListenerRegistry;
-  private transient EventType[] types = new EventType[0];
+  private transient EventType[] types;
 
   protected AbstractChangedListener(EventType... types) {
     this.types = types;
@@ -30,7 +28,6 @@ public abstract class AbstractChangedListener<T>
   }
 
   @PostConstruct
-  @SuppressWarnings("unchecked")
   public void postConstruct() {
     for (EventType type : types) {
       this.eventListenerRegistry.appendListeners(type, this);
@@ -123,13 +120,11 @@ public abstract class AbstractChangedListener<T>
     return false;
   }
 
-  @Autowired
-  public void setApplicationContext(ApplicationContext applicationContext) {
+  public void setApplicationContext(@Autowired ApplicationContext applicationContext) {
     this.applicationContext = applicationContext;
   }
 
-  @Autowired
-  public void setEventListenerRegistry(EventListenerRegistry eventListenerRegistry) {
+  public void setEventListenerRegistry(@Autowired EventListenerRegistry eventListenerRegistry) {
     this.eventListenerRegistry = eventListenerRegistry;
   }
 }
