@@ -7,6 +7,8 @@ configurations {
 apply plugin: 'java-library'
 apply plugin: 'jacoco'
 
+tasks.withType(Test) { enabled = false }
+
 dependencies {
 	api project(":jfantasy-commons")
 	implementation "co.elastic.clients:elasticsearch-java:${LIB_ELASTICSEARCH_VER}"
