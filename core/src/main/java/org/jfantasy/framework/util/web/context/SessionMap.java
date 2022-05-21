@@ -10,7 +10,6 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-@SuppressWarnings("unchecked")
 public class SessionMap<K, V extends Serializable> extends AbstractMap<K, V>
     implements Serializable {
   private static final long serialVersionUID = 4678843241638046854L;

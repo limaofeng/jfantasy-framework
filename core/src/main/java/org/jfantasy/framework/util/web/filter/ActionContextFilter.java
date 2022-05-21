@@ -9,10 +9,14 @@ import org.jfantasy.framework.util.web.context.ActionContext;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
+ * 禁用 Session 后, 将不可用，所以如果在 NoSession 的情况不要使用
+ *
+ * @see org.jfantasy.framework.util.web.context.ActionContext
  * @author 李茂峰
  * @version 1.0
  * @since 2013-6-25 上午12:30:42
  */
+@Deprecated
 public class ActionContextFilter extends OncePerRequestFilter {
 
   private String encoding = "UTF-8";

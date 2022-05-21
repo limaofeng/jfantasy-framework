@@ -18,7 +18,6 @@ import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.framework.util.ognl.OgnlUtil;
 import org.jfantasy.framework.util.regexp.RegexpUtil;
-import org.jfantasy.framework.util.web.context.ActionContext;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 /**
@@ -38,10 +37,6 @@ public class WebUtil {
   }
 
   private static final Logger LOG = LogManager.getLogger(WebUtil.class);
-
-  private static HttpServletRequest getRequest() {
-    return ActionContext.getContext().getHttpRequest();
-  }
 
   /**
    * 获取请求URL的后缀名
@@ -407,10 +402,6 @@ public class WebUtil {
     }
   }
 
-  public static String filename(String name) {
-    return filename(name, getRequest());
-  }
-
   public static String transformCoding(String str, String oldCharset, String charset) {
     try {
       return new String(str.getBytes(oldCharset), charset);
@@ -422,14 +413,6 @@ public class WebUtil {
 
   public static boolean isAjax(HttpServletRequest request) {
     return "XMLHttpRequest".equalsIgnoreCase(request.getHeader("X-Requested-With"));
-  }
-
-  public static boolean isAjax() {
-    return isAjax(getRequest());
-  }
-
-  public static String getSessionId() {
-    return getSessionId(getRequest());
   }
 
   public static String getSessionId(HttpServletRequest request) {

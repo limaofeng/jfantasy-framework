@@ -8,7 +8,12 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/** 应用的上下文 提供给Action使用 */
+/**
+ * 应用的上下文 提供给Action使用
+ *
+ * <p>使用较少, 由于依赖 Session, 禁用 Tomcat Session 后，不可用。所以标记过时
+ */
+@Deprecated
 public class ActionContext implements Serializable {
 
   private static final long serialVersionUID = 1L;
@@ -19,7 +24,7 @@ public class ActionContext implements Serializable {
 
   public static final String RESULT_INFO = "_RESULT_INFO";
 
-  private static ThreadLocal<ActionContext> threadLocal = new ThreadLocal<>();
+  private static final ThreadLocal<ActionContext> threadLocal = new ThreadLocal<>();
 
   private static final String LOCALE = "fantasy.locale";
 
@@ -39,7 +44,7 @@ public class ActionContext implements Serializable {
 
   private static final String CONVERSION_ERRORS = "fantasy.conversion.errors";
 
-  private transient Map<String, Object> context;
+  private final transient Map<String, Object> context;
 
   public ActionContext(Map context) {
     this.context = context;

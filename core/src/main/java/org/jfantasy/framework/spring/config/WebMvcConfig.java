@@ -16,7 +16,6 @@ import org.jfantasy.framework.spring.mvc.method.annotation.PropertyFilterModelAt
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.web.ServletUtils;
-import org.jfantasy.framework.util.web.filter.ActionContextFilter;
 import org.jfantasy.framework.web.filter.ConversionCharacterEncodingFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -25,18 +24,14 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.FilterType;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.stereotype.Controller;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -54,14 +49,6 @@ import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
  */
 @EnableWebMvc
 @Configuration
-@ComponentScan(
-    basePackages = {"org.jfantasy.*.rest"},
-    useDefaultFilters = false,
-    includeFilters = {
-      @ComponentScan.Filter(
-          type = FilterType.ANNOTATION,
-          value = {RestController.class, Controller.class})
-    })
 @Order(value = WebMvcConfig.ORDER)
 public class WebMvcConfig implements WebMvcConfigurer {
 
@@ -175,17 +162,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
     filterRegistrationBean.setFilter(new ConversionCharacterEncodingFilter());
     filterRegistrationBean.setEnabled(true);
     filterRegistrationBean.setOrder(200);
-    filterRegistrationBean.setDispatcherTypes(DispatcherType.REQUEST);
-    filterRegistrationBean.addUrlPatterns("/*");
-    return filterRegistrationBean;
-  }
-
-  @Bean
-  public FilterRegistrationBean actionContextFilter() {
-    FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean();
-    filterRegistrationBean.setFilter(new ActionContextFilter());
-    filterRegistrationBean.setEnabled(true);
-    filterRegistrationBean.setOrder(300);
     filterRegistrationBean.setDispatcherTypes(DispatcherType.REQUEST);
     filterRegistrationBean.addUrlPatterns("/*");
     return filterRegistrationBean;

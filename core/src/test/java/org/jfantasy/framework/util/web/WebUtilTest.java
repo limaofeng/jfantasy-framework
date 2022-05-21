@@ -8,7 +8,6 @@ import java.util.Map;
 import javax.servlet.http.Cookie;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jfantasy.framework.util.web.context.ActionContext;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,8 +39,6 @@ public class WebUtilTest {
     request.setCookies(new Cookie("username", "limaofeng"));
 
     response = new MockHttpServletResponse();
-
-    ActionContext.getContext(request, response);
   }
 
   @AfterEach
