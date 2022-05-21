@@ -1,7 +1,6 @@
 package cn.asany.example.demo.web;
 
 import cn.asany.example.demo.bean.User;
-
 import javax.validation.Valid;
 import org.jfantasy.framework.error.ErrorUtils;
 import org.jfantasy.framework.security.core.SecurityMessageSource;
