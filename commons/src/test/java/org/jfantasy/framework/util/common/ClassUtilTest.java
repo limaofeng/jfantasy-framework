@@ -1,15 +1,14 @@
 package org.jfantasy.framework.util.common;
 
+import java.lang.reflect.Array;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.demo.bean.Article;
 import org.jfantasy.demo.bean.User;
 import org.jfantasy.framework.util.reflect.Property;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.Assert;
-
-import java.lang.reflect.Array;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 
 @Slf4j
 public class ClassUtilTest {
