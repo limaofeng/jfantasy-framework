@@ -2,12 +2,11 @@ package org.jfantasy.framework.util;
 
 import org.jfantasy.framework.util.common.DateUtil;
 import org.jfantasy.framework.util.common.StringUtil;
-import org.jfantasy.framework.util.common.file.FileUtil;
 
 public class FFmpegUtil {
 
   public static String image2(String path, long location) {
-    String target = FileUtil.tmpdir() + StringUtil.uuid() + ".jpeg";
+    String target = ImageUtil.tmpdir() + StringUtil.uuid() + ".jpeg";
     String start = DateUtil.format(location);
     String command =
         String.format(

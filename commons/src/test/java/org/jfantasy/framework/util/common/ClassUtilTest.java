@@ -1,20 +1,18 @@
 package org.jfantasy.framework.util.common;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import javax.persistence.Id;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.jfantasy.framework.jackson.JSONTest;
-import org.jfantasy.framework.jackson.models.User;
+import lombok.extern.slf4j.Slf4j;
+import org.jfantasy.demo.bean.Article;
+import org.jfantasy.demo.bean.User;
 import org.jfantasy.framework.util.reflect.Property;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.Assert;
 
-public class ClassUtilTest {
+import java.lang.reflect.Array;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 
-  private static Log LOG = LogFactory.getLog(ClassUtilTest.class);
+@Slf4j
+public class ClassUtilTest {
 
   @Test
   public void testLoadClass() throws Exception {}
@@ -39,13 +37,9 @@ public class ClassUtilTest {
     // }
   }
 
-  public void testGetAnnotation() {
-    ClassUtil.getProperty(User.class, Id.class);
-  }
-
   @Test
   public void testGetProperty() throws Exception {
-    Property property = ClassUtil.getProperty(JSONTest.Article.class, "attributeValues");
+    Property property = ClassUtil.getProperty(Article.class, "attributeValues");
     ParameterizedType parameterizedType = property.getGenericType();
     for (Type type : parameterizedType.getActualTypeArguments()) {
       System.out.println(type);
@@ -58,7 +52,8 @@ public class ClassUtilTest {
 
     Class<?> clazz = ClassUtil.forName(className);
 
-    LOG.debug(clazz);
+    assert clazz != null;
+    log.debug(clazz.getName());
 
     Assert.isTrue(clazz == Array.newInstance(User.class, 0).getClass());
   }

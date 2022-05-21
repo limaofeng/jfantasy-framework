@@ -1,16 +1,17 @@
 package org.jfantasy.framework.util.common;
 
-import java.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jfantasy.framework.jackson.models.Article;
-import org.jfantasy.framework.jackson.models.User;
+import org.jfantasy.demo.bean.Article;
+import org.jfantasy.demo.bean.User;
 import org.jfantasy.framework.util.common.dto.TreeNode;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.Assert;
+
+import java.util.*;
 
 @Slf4j
 public class ObjectUtilTest {

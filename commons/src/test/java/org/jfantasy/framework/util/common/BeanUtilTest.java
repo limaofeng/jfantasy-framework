@@ -1,6 +1,6 @@
 package org.jfantasy.framework.util.common;
 
-import org.jfantasy.framework.jackson.models.User;
+import org.jfantasy.demo.bean.User;
 import org.jfantasy.framework.util.reflect.Property;
 import org.junit.jupiter.api.Test;
 

@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.util.common.StringUtil;
-import org.jfantasy.framework.util.common.file.FileUtil;
 import org.jfantasy.framework.util.ognl.OgnlUtil;
 import org.yaml.snakeyaml.Yaml;
 
@@ -17,15 +16,19 @@ public class ImageUtil {
   private static final Yaml YAML = new Yaml();
   private static final OgnlUtil OGNL_UTIL = OgnlUtil.getInstance();
 
+  protected static String tmpdir() {
+    return System.getProperty("java.io.tmpdir");
+  }
+
   public static String resize(String source, String size) {
-    String target = FileUtil.tmpdir() + StringUtil.uuid();
+    String target = tmpdir() + StringUtil.uuid();
     String command = String.format("magick %s -resize %s %s", source, size, target);
     CommandUtil.exec(command);
     return target;
   }
 
   public static String resize(String path, int width, int height) {
-    String target = FileUtil.tmpdir() + File.separator + StringUtil.uuid();
+    String target = tmpdir() + File.separator + StringUtil.uuid();
     String command = String.format("convert %s -resize %dx%d %s", path, width, height, target);
     resize(path, width + "x" + height);
     return target;

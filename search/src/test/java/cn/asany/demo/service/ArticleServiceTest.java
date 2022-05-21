@@ -11,6 +11,7 @@ import org.jfantasy.framework.search.query.Query;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -41,6 +42,7 @@ class ArticleServiceTest {
   }
 
   @Test
+  @Timeout(value = 30, unit = TimeUnit.SECONDS)
   void testSearch() {
     Query query = Query.match("title", "Java");
     List<Article> articles = articleService.search(query, 20);
@@ -48,6 +50,7 @@ class ArticleServiceTest {
   }
 
   @Test
+  @Timeout(value = 30, unit = TimeUnit.SECONDS)
   void testSearchPage() {
     Query query = Query.match("title", "Java");
     Page<Article> page = articleService.search(query, Pageable.ofSize(2).withPage(1));
@@ -56,6 +59,7 @@ class ArticleServiceTest {
   }
 
   @Test
+  @Timeout(value = 30, unit = TimeUnit.SECONDS)
   void testSearchPageAndSort() {
     Query query = Query.match("title", "Java");
     Pageable pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
@@ -65,6 +69,7 @@ class ArticleServiceTest {
   }
 
   @Test
+  @Timeout(value = 30, unit = TimeUnit.SECONDS)
   void testSearchAndHighlight() {
     Query query = Query.match("title", "思维导图");
     Pageable pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
@@ -84,12 +89,14 @@ class ArticleServiceTest {
   }
 
   @Test
+  @Timeout(value = 30, unit = TimeUnit.SECONDS)
   void findAll() {
     Page<Article> page = articleService.findAll(100);
     log.info("totalElements:" + page.getTotalElements());
   }
 
   @Test
+  @Timeout(value = 30, unit = TimeUnit.SECONDS)
   void save() {
     this.articleService.save(
         Article.builder()
@@ -101,6 +108,7 @@ class ArticleServiceTest {
   }
 
   @Test
+  @Timeout(value = 30, unit = TimeUnit.SECONDS)
   void update() {
     this.articleService.update(
         11606L,
@@ -154,11 +162,13 @@ class ArticleServiceTest {
   }
 
   @Test
+  @Timeout(value = 30, unit = TimeUnit.SECONDS)
   void deleteById() {
     this.articleService.deleteById(4L);
   }
 
   @Test
+  @Timeout(value = 30, unit = TimeUnit.SECONDS)
   void downloadArticles() {
     Spider.create(new WeiXinPageProcessor(this.articleService))
         .addUrl("https://mp.weixin.qq.com/s/mO7HCSsLCtCghBpCeY1OeQ")
