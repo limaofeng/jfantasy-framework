@@ -6,11 +6,9 @@ spring:
     url: jdbc:mysql://dev.local:3306/demo?autoReconnect=true&useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull
     username: root
     password: yV2jJxvNs8BD
-    druid:
-      maxActive: 20
-      initialSize: 10
-      maxWait: 60000
-      minIdle: 1
+    hikari:
+      minimum-idle: 5
+      maximum-pool-size: 20
   redis:
     host: dev.local
     port: 6379
@@ -22,6 +20,7 @@ spring:
         api-key: RWpsR3dvQUJINEtJY2FvWGJGMXg6QkNXZzJ0X01UY2VocFNBQUVXNGExQQ==
         ssl:
           certificate-path: /Users/limaofeng/Downloads/ca/ca.crt
+    enable: false
 
 graphql:
   servlet:

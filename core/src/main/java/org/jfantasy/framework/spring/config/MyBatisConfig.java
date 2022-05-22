@@ -1,6 +1,6 @@
 package org.jfantasy.framework.spring.config;
 
-import com.alibaba.druid.pool.DruidDataSource;
+import com.zaxxer.hikari.HikariDataSource;
 import java.beans.PropertyDescriptor;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,12 +31,15 @@ import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.PropertiesHelper;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
-import org.mybatis.spring.boot.autoconfigure.*;
+import org.mybatis.spring.boot.autoconfigure.ConfigurationCustomizer;
+import org.mybatis.spring.boot.autoconfigure.MybatisProperties;
+import org.mybatis.spring.boot.autoconfigure.SpringBootVFS;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -57,7 +60,7 @@ import org.springframework.util.StringUtils;
 @EnableConfigurationProperties(MybatisProperties.class)
 public class MyBatisConfig {
 
-  private final DruidDataSource dataSource;
+  private final HikariDataSource dataSource;
 
   private final MybatisProperties properties;
 
@@ -76,7 +79,7 @@ public class MyBatisConfig {
   @SneakyThrows
   @Autowired
   public MyBatisConfig(
-      DataSource dataSource,
+      DataSourceProperties dataSourceProperties,
       MybatisProperties properties,
       ObjectProvider<Interceptor[]> interceptorsProvider,
       ObjectProvider<TypeHandler[]> typeHandlersProvider,
@@ -101,8 +104,14 @@ public class MyBatisConfig {
     this.configurationCustomizers.add(0, mybatisConfigurationCustomizer());
 
     // Mybatis DataSource
-    this.dataSource = ((DruidDataSource) dataSource).cloneDruidDataSource();
-    this.dataSource.init();
+    this.dataSource =
+        dataSourceProperties.initializeDataSourceBuilder().type(HikariDataSource.class).build();
+    this.dataSource.setPoolName("hikari-myBatis");
+  }
+
+  protected static <T> T createDataSource(
+      DataSourceProperties properties, Class<? extends DataSource> type) {
+    return (T) properties.initializeDataSourceBuilder().type(type).build();
   }
 
   @PreDestroy

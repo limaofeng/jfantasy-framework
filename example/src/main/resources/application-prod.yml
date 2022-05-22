@@ -4,33 +4,9 @@ spring:
     url: jdbc:mysql://${DATABASE_HOST}/${DATABASE_INSTANCE_NAME}?autoReconnect=true&useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&useSSL=false
     username: ${DATABASE_USERNAME}
     password: ${DATABASE_PASSWORD}
-    druid:
-      maxActive: 500
-      initialSize: 20
-      maxWait: 60000
-      minIdle: 1
   data:
     mongodb:
       uri: mongodb://${MONGODB_USER}:${MONGODB_PASSWORD}@${MONGODB_HOST_PORT}
       database: ${MONGODB_DATABASE_NAME}
       repositories:
         type: none
-
-storage:
-  url: ${UPLOAD_SERVER_URL}
-
-es:
-  clustername:
-    cluster_elasticsearch
-  ip:
-    ${ELASTICSEARCH_HOST}
-  port:
-    ${ELASTICSEARCH_PORT}
-
-oa:
-  host: ${OA_HOST}
-  file:
-    url: ${OA_FILE_URL}
-  link: ${OA_LINK}
-role:
-  name: ${ROLE_NAME}

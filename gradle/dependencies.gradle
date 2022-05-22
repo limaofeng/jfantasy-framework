@@ -5,8 +5,12 @@ ext {
                     "com.mashape.unirest:unirest-java:${LIB_UNIREST_VER}"
             ],
             quartz       : [
-                    "org.quartz-scheduler:quartz",
-                    "org.springframework.boot:spring-boot-starter-quartz",
+                    dependencies.create("org.quartz-scheduler:quartz"){
+                        exclude group: "com.zaxxer", module: "HikariCP-java7"
+                    },
+                    dependencies.create("org.springframework.boot:spring-boot-starter-quartz"){
+                        exclude group: "com.zaxxer", module: "HikariCP-java7"
+                    },
             ],
             springBoot   : [
                     "org.springframework:spring-test",
@@ -15,7 +19,6 @@ ext {
                     "org.springframework.boot:spring-boot-starter-actuator"
             ],
             orm          : [
-                    "com.alibaba:druid-spring-boot-starter:${LIB_SPRING_DRUID_VER}",
                     "org.mybatis.spring.boot:mybatis-spring-boot-starter:${LIB_SPRING_MYBATIS_VER}",
                     "mysql:mysql-connector-java"
             ],
