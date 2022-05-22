@@ -1,9 +1,0 @@
-{
-  "properties": [
-    {
-      "name": "spring.jfantasy.sequence.pool-size",
-      "type": "java.lang.Long",
-      "description": "数据库序列池大小."
-    }
-  ]
-}

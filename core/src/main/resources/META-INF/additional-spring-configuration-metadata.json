@@ -1,0 +1,17 @@
+{
+  "groups": [
+    {
+      "name": "spring.sequence",
+      "description": "自定义序列.",
+      "type": "org.jfantasy.autoconfigure.properties.SequenceProperties",
+      "sourceType": "org.jfantasy.autoconfigure.properties.SequenceProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "spring.sequence.pool-size",
+      "type": "java.lang.Integer",
+      "description": "数据库自定义序列池大小."
+    }
+  ]
+}

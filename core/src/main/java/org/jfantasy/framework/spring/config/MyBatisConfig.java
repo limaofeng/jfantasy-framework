@@ -17,6 +17,7 @@ import org.apache.ibatis.scripting.LanguageDriver;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.type.TypeAliasRegistry;
 import org.apache.ibatis.type.TypeHandler;
+import org.jfantasy.autoconfigure.properties.SequenceProperties;
 import org.jfantasy.framework.dao.Page;
 import org.jfantasy.framework.dao.mybatis.binding.MyBatisMapperRegistry;
 import org.jfantasy.framework.dao.mybatis.dialect.MySQLDialect;
@@ -37,7 +38,6 @@ import org.mybatis.spring.boot.autoconfigure.SpringBootVFS;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -57,7 +57,7 @@ import org.springframework.util.StringUtils;
 @MapperScan(
     markerInterface = SqlMapper.class,
     basePackages = "org.jfantasy.framework.dao.mybatis.keygen.dao")
-@EnableConfigurationProperties(MybatisProperties.class)
+@EnableConfigurationProperties({MybatisProperties.class, SequenceProperties.class})
 public class MyBatisConfig {
 
   private final HikariDataSource dataSource;
@@ -182,9 +182,8 @@ public class MyBatisConfig {
   }
 
   @Bean
-  public DataBaseKeyGenerator dataBaseKeyGenerator(
-      @Value("${spring.jfantasy.sequence.pool-size:10}") Integer poolSize) {
-    return new DataBaseKeyGenerator(poolSize);
+  public DataBaseKeyGenerator dataBaseKeyGenerator(SequenceProperties properties) {
+    return new DataBaseKeyGenerator(properties.getPoolSize());
   }
 
   public ConfigurationCustomizer mybatisConfigurationCustomizer() {
