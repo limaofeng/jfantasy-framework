@@ -1,6 +1,5 @@
 package org.jfantasy.framework.dao.hibernate.listener;
 
-import java.util.Arrays;
 import javax.annotation.PostConstruct;
 import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.*;
@@ -8,19 +7,19 @@ import org.hibernate.persister.entity.EntityPersister;
 import org.jfantasy.framework.dao.hibernate.util.ReflectionUtils;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
 public abstract class AbstractChangedListener<T>
     implements PostCommitUpdateEventListener,
         PostCommitInsertEventListener,
-        PostCommitDeleteEventListener {
+        PostCommitDeleteEventListener,
+        ApplicationContextAware {
 
   private final Class<T> entityClass;
-
-  protected transient ApplicationContext applicationContext;
-  private transient EventListenerRegistry eventListenerRegistry;
-  private transient EventType[] types;
+  protected ApplicationContext applicationContext;
+  private final EventType[] types;
 
   protected AbstractChangedListener(EventType... types) {
     this.types = types;
@@ -29,8 +28,10 @@ public abstract class AbstractChangedListener<T>
 
   @PostConstruct
   public void postConstruct() {
+    EventListenerRegistry eventListenerRegistry =
+        applicationContext.getBean(EventListenerRegistry.class);
     for (EventType type : types) {
-      this.eventListenerRegistry.appendListeners(type, this);
+      eventListenerRegistry.appendListeners(type, this);
     }
   }
 
@@ -98,8 +99,8 @@ public abstract class AbstractChangedListener<T>
   }
 
   @Override
-  public boolean requiresPostCommitHanding(EntityPersister persister) {
-    Class<?> aClass = ClassUtil.forName(persister.getRootEntityName());
+  public boolean requiresPostCommitHanding(EntityPersister entityPersister) {
+    Class<?> aClass = ClassUtil.forName(entityPersister.getRootEntityName());
     assert aClass != null;
     return entityClass.isAssignableFrom(aClass);
   }
@@ -108,7 +109,6 @@ public abstract class AbstractChangedListener<T>
     if (event.getOldState() == null) {
       return false;
     }
-    Arrays.binarySearch(event.getPersister().getPropertyNames(), property);
     int index = ObjectUtil.indexOf(event.getPersister().getPropertyNames(), property);
     if (index != -1) {
       if (event.getState()[index] != null) {
@@ -120,11 +120,8 @@ public abstract class AbstractChangedListener<T>
     return false;
   }
 
-  public void setApplicationContext(@Autowired ApplicationContext applicationContext) {
+  @Override
+  public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
     this.applicationContext = applicationContext;
-  }
-
-  public void setEventListenerRegistry(@Autowired EventListenerRegistry eventListenerRegistry) {
-    this.eventListenerRegistry = eventListenerRegistry;
   }
 }
