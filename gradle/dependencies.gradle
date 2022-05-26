@@ -34,7 +34,6 @@ ext {
                     "commons-beanutils:commons-beanutils:${LIB_COMMONS_BEANUTILS_VER}",
                     "com.github.jknack:handlebars:${LIB_HANDLEBARS_VER}",
                     "commons-io:commons-io:${LIB_COMMONS_IO_VER}",
-                    "org.apache.commons:commons-email:${LIB_APACHE_COMMONS_EMAIL_VER}",
                     "commons-fileupload:commons-fileupload:${LIB_COMMONS_FILEUPLOAD_VER}",
                     "org.apache.commons:commons-lang3:${LIB_APACHE_COMMONS_LANG3_VER}"
             ],
@@ -48,7 +47,8 @@ ext {
                         exclude group: "javassist", module: "javassist"
                     },
                     "org.bouncycastle:bcprov-jdk16:${LIB_BCPROV_VER}",
-                    "com.github.stuxuhai:jpinyin:${LIB_JPINYIN_VER}"
+                    "com.github.stuxuhai:jpinyin:${LIB_JPINYIN_VER}",
+                    "net.ttddyy:datasource-proxy:${LIB_DATASOURCE_PROXY_VER}"
             ],
             test         : [
                     dependencies.create("org.springframework.boot:spring-boot-starter-test") {

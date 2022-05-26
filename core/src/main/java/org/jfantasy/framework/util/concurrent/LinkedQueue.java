@@ -6,17 +6,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.error.IgnoreException;
 
-@SuppressWarnings("unchecked")
+@Slf4j
 public class LinkedQueue<E> extends AbstractQueue<E>
     implements BlockingQueue<E>, java.io.Serializable {
 
   private static final long serialVersionUID = -4457362206741191196L;
-
-  private static final Logger LOGGER = LogManager.getLogger(LinkedQueue.class);
 
   static class Node<E> {
     volatile E item;
@@ -39,7 +36,7 @@ public class LinkedQueue<E> extends AbstractQueue<E>
   private final Condition notEmpty = takeLock.newCondition();
   private final ReentrantLock putLock = new ReentrantLock();
   private final Condition notFull = putLock.newCondition();
-  private List<E> list = new Li();
+  private final List<E> list = new Li();
 
   private void signalNotEmpty() {
     this.takeLock.lock();
@@ -60,7 +57,7 @@ public class LinkedQueue<E> extends AbstractQueue<E>
   }
 
   private void insert(E x) {
-    last = last.next = new Node<E>(x, null, last);
+    last = last.next = new Node<>(x, null, last);
     head.previous = last;
   }
 
@@ -92,14 +89,12 @@ public class LinkedQueue<E> extends AbstractQueue<E>
       throw new IllegalArgumentException();
     }
     this.capacity = capacity;
-    last = head = new Node<E>(null, null, null);
+    last = head = new Node<>(null, null, null);
   }
 
   public LinkedQueue(Collection<? extends E> c) {
     this(Integer.MAX_VALUE);
-    for (E e : c) {
-      add(e);
-    }
+    this.addAll(c);
   }
 
   @Override
@@ -117,7 +112,7 @@ public class LinkedQueue<E> extends AbstractQueue<E>
     if (o == null) {
       throw new NullPointerException();
     }
-    int c = -1;
+    int c;
     putLock.lockInterruptibly();
     try {
       try {
@@ -148,7 +143,7 @@ public class LinkedQueue<E> extends AbstractQueue<E>
       throw new NullPointerException();
     }
     long nanos = unit.toNanos(timeout);
-    int c = -1;
+    int c;
     final ReentrantLock putLock = this.putLock;
     final AtomicInteger count = this.count;
     putLock.lockInterruptibly();
@@ -213,7 +208,7 @@ public class LinkedQueue<E> extends AbstractQueue<E>
   @Override
   public E take() throws InterruptedException {
     E x;
-    int c = -1;
+    int c;
     final AtomicInteger count = this.count;
     final ReentrantLock takeLock = this.takeLock;
     takeLock.lockInterruptibly();
@@ -243,8 +238,8 @@ public class LinkedQueue<E> extends AbstractQueue<E>
 
   @Override
   public E poll(long timeout, TimeUnit unit) throws InterruptedException {
-    E x = null;
-    int c = -1;
+    E x;
+    int c;
     long nanos = unit.toNanos(timeout);
     final AtomicInteger count = this.count;
     final ReentrantLock takeLock = this.takeLock;
@@ -263,9 +258,9 @@ public class LinkedQueue<E> extends AbstractQueue<E>
           return null;
         }
         try {
-          LOGGER.debug("等待时间:" + nanos + "\t" + TimeUnit.NANOSECONDS.toMillis(nanos));
+          log.debug("等待时间:" + nanos + "\t" + TimeUnit.NANOSECONDS.toMillis(nanos));
           nanos = notEmpty.awaitNanos(nanos);
-          LOGGER.debug("剩余时间:" + nanos + "\t" + TimeUnit.NANOSECONDS.toMillis(nanos));
+          log.debug("剩余时间:" + nanos + "\t" + TimeUnit.NANOSECONDS.toMillis(nanos));
         } catch (InterruptedException ie) {
           notEmpty.signal();
           throw ie;
@@ -591,7 +586,7 @@ public class LinkedQueue<E> extends AbstractQueue<E>
       throws java.io.IOException, ClassNotFoundException {
     s.defaultReadObject();
     count.set(0);
-    last = head = new Node<E>(null, null, null);
+    last = head = new Node<>(null, null, null);
     for (; ; ) {
       E item = (E) s.readObject();
       if (item == null) {
@@ -640,7 +635,7 @@ public class LinkedQueue<E> extends AbstractQueue<E>
           this.insert(o);
         } else {
           Node<E> p = entry(index);
-          p.previous.next = p.previous = new Node<E>(o, p, p.previous);
+          p.previous.next = p.previous = new Node<>(o, p, p.previous);
         }
         c = count.getAndIncrement();
         if (c + 1 < capacity) {
@@ -685,8 +680,8 @@ public class LinkedQueue<E> extends AbstractQueue<E>
 
   public E remove(int index) {
     E oldVal = entry(index).item;
-    remove(oldVal);
-    return oldVal;
+    boolean removed = remove(oldVal);
+    return removed ? oldVal : null;
   }
 
   public void poll(long timeout, TimeUnit unit, PollCallBack<E> pollCallBack)
@@ -728,9 +723,9 @@ public class LinkedQueue<E> extends AbstractQueue<E>
     }
   }
 
-  public static interface PollCallBack<E> {
+  public interface PollCallBack<E> {
 
-    public boolean CallBack(E current, E next);
+    boolean CallBack(E current, E next);
   }
 
   public List<E> list() {
