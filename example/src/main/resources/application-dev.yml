@@ -9,6 +9,7 @@ spring:
     hikari:
       minimum-idle: 5
       maximum-pool-size: 20
+    proxy: true
   redis:
     host: dev.local
     port: 6379

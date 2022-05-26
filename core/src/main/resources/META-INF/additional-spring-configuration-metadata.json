@@ -12,6 +12,10 @@
       "name": "spring.sequence.pool-size",
       "type": "java.lang.Integer",
       "description": "数据库自定义序列池大小."
+    },{
+      "name": "spring.datasource.proxy",
+      "type": "java.lang.Boolean",
+      "description": "启用数据源代理."
     }
   ]
 }

@@ -1,11 +1,13 @@
 package cn.asany.example.demo.web;
 
 import cn.asany.example.demo.bean.User;
+import cn.asany.example.demo.service.UserService;
+import java.util.ArrayList;
 import javax.validation.Valid;
-import org.jfantasy.framework.error.ErrorUtils;
-import org.jfantasy.framework.security.core.SecurityMessageSource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
-import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +21,8 @@ public class UserController {
 
   private final MessageSource messageSource;
 
+  @Autowired private UserService userService;
+
   public UserController(MessageSource messageSource) {
     this.messageSource = messageSource;
   }
@@ -30,13 +34,9 @@ public class UserController {
   }
 
   @GetMapping("/users")
-  public String users() {
-    User user = User.builder().build();
-
-    ErrorUtils.validate(user);
-
-    MessageSourceAccessor accessor = SecurityMessageSource.getAccessor();
-    return accessor.getMessage("ax", "12313");
+  @ResponseBody
+  public Page<User> users() {
+    return userService.findPage(Pageable.ofSize(10), new ArrayList<>());
   }
 
   @PostMapping("/users")

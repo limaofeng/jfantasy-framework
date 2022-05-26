@@ -44,7 +44,7 @@ public class UserService {
   }
 
   public void delete(Long... ids) {
-    this.userDao.deleteInBatch(
+    this.userDao.deleteAllInBatch(
         Arrays.stream(ids).map(id -> User.builder().id(id).build()).collect(Collectors.toList()));
   }
 
