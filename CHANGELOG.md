@@ -2,6 +2,50 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.10.0](https://github.com/limaofeng/jfantasy-framework/compare/v2.9.10...v2.10.0) (2022-05-27)
+
+
+### Features
+
+* ES集成, 实现排序与分页及关键词高亮 ([e97dc13](https://github.com/limaofeng/jfantasy-framework/commit/e97dc136d64b35157de10b41bd174aac1843d7f6))
+* ES集成优化。更新时，如果文档不存在，则去创建文档 ([b245cee](https://github.com/limaofeng/jfantasy-framework/commit/b245cee460bc1cc1c9f8371a93c672fe84b0933b))
+* graphql 空排序实现 ([e5cbece](https://github.com/limaofeng/jfantasy-framework/commit/e5cbece7652a79547e229e5bbc3b8a7a5e5b1c4a))
+* jpa 分页查询使用默认的分页对象，不在使用自定义的 Pager 分页对象 ([08dc9f3](https://github.com/limaofeng/jfantasy-framework/commit/08dc9f34cfbaea0822c5b4e92d6bcd88f0e3fe4a))
+* search 重新索引功能 ([b44f36b](https://github.com/limaofeng/jfantasy-framework/commit/b44f36bf95b3e140415d30f036b6722f47ec8f80))
+* 为 ES 配置添加开关 ([52c42ad](https://github.com/limaofeng/jfantasy-framework/commit/52c42ad4cb2a8102678c930b48e7446a846513fe))
+* 使用 hikari 取代 druid 连接池 ([39cd5f2](https://github.com/limaofeng/jfantasy-framework/commit/39cd5f2205ba6b675717127505560f00b2632aa0))
+* 全文检索模块 Query 简单封装 ([cbb1aa4](https://github.com/limaofeng/jfantasy-framework/commit/cbb1aa421bd82389d40bef88a36e494ff3c53636))
+* 全文检索模块添加查询接口 ([f87810d](https://github.com/limaofeng/jfantasy-framework/commit/f87810dd8ca1e8c3ffc85ba384b80133378bcc54))
+* 分页对象重命名 ([3221f3a](https://github.com/limaofeng/jfantasy-framework/commit/3221f3aa865723b9474cd8bbacb83324d412e737))
+* 升级 SpringBoot 2.7.0 ([28cce8e](https://github.com/limaofeng/jfantasy-framework/commit/28cce8eb64f23700607a3512886c7329afe99be1))
+* 去掉 graphql 默认的 version 接口 ([6ffe29c](https://github.com/limaofeng/jfantasy-framework/commit/6ffe29c99a6ba449beb1f0a8289eae8617d462eb))
+* 完成查询模块的文档同步新增/修改/删除功能 ([5c920bb](https://github.com/limaofeng/jfantasy-framework/commit/5c920bbb1537d4a820bed259ffcd4b469f4756b1))
+* 将之前的 lucene 改为 search 模块 ([78dacca](https://github.com/limaofeng/jfantasy-framework/commit/78dacca5d225630ac12d0866b3ea5ea7fe187c8e))
+* 将注解还原成默认名称 ([4b453bd](https://github.com/limaofeng/jfantasy-framework/commit/4b453bd0d31d2eb4d5102d65f5969adf5308212b))
+* 查询模块写入 ES 逻辑优化 ([de5e29e](https://github.com/limaofeng/jfantasy-framework/commit/de5e29e5aae430c4e488bbc3bd548f332eea2acf))
+* 添加 Datasource Proxy 用于开发时查看数据源信息 ([e1aa265](https://github.com/limaofeng/jfantasy-framework/commit/e1aa265bb81c27240347752e73d9c1710ff8159b))
+* 添加批量提交实现 ([8bc3b53](https://github.com/limaofeng/jfantasy-framework/commit/8bc3b538e93a361630e56aaf9402110340434bab))
+* 禁用 SpringBoot 内置 Tomcat 的 Session ([88285fc](https://github.com/limaofeng/jfantasy-framework/commit/88285fc9c8c8f3ea6e95e92df901030067b15d79))
+
+
+### Bug Fixes
+
+* graphql orderby 排序字段直接解析到 Sort 对象 ([5ccc0f0](https://github.com/limaofeng/jfantasy-framework/commit/5ccc0f07e8914903c472bb30d3e72c9b02b4b0f1))
+* graphql 使用空对象表示 scalar 默认值的问题 ([e999ae9](https://github.com/limaofeng/jfantasy-framework/commit/e999ae90def553cb3d2b14a7c77c67849cb2f902))
+* 为 connection 对象设置分页信息 ([1ffd292](https://github.com/limaofeng/jfantasy-framework/commit/1ffd292b6121001b4f6423e1a554f2aadd8fd7f0))
+* 优化自定义序列缓存池大小的配置 ([c0c977f](https://github.com/limaofeng/jfantasy-framework/commit/c0c977f7d5da5275c6c1756052c21bacbd71791c))
+* 修复 search 模块的额 rebuild task ([fbb391a](https://github.com/limaofeng/jfantasy-framework/commit/fbb391aa7c15b8bc0c063f8a271e882f83c6dc2e))
+* 修复游标显示 ([ad04023](https://github.com/limaofeng/jfantasy-framework/commit/ad04023f188341bd4e530f9f2ab662d9768e5012))
+* 分页 limit 模式时 size 判断错误 ([8f700c3](https://github.com/limaofeng/jfantasy-framework/commit/8f700c3ee678979b59d2d85b448f5e6f8c7143ff))
+* 实现 copyProperties 逻辑 ([44db332](https://github.com/limaofeng/jfantasy-framework/commit/44db33270fa9ccc3c07165a79665aafd9ebb7b61))
+* 将注解改成与 spring-boot-data-elasticsearch 相似 ([4a56920](https://github.com/limaofeng/jfantasy-framework/commit/4a56920de037a0a86acc0d6025202ea2c145c9a5))
+* 由于 jpa 的分页是从 0 开始，返回时 +1 使其更容易理解 ([9bc2bca](https://github.com/limaofeng/jfantasy-framework/commit/9bc2bca167570bd20c7c908848af25264bdbf52d))
+* 解决 AbstractChangedListener 注入问题 ([415d177](https://github.com/limaofeng/jfantasy-framework/commit/415d17770bc208f87711792da4d5463f8f03e8f7))
+* 解决 Graphql 版本不匹配的问题 ([c821a5c](https://github.com/limaofeng/jfantasy-framework/commit/c821a5c20dbe5a75b6923a5cd6d294376fae56a9))
+* 解决 PropertyFilter toString 优化 ([f5d3957](https://github.com/limaofeng/jfantasy-framework/commit/f5d395705f7972484955802b90dcee3dcd6bb36f))
+* 解决编译问题 ([3601677](https://github.com/limaofeng/jfantasy-framework/commit/3601677a92da6ec79490e01a424f072ba062b33b))
+* 解决运行测试时的包冲突 ([d198036](https://github.com/limaofeng/jfantasy-framework/commit/d1980360782251268de391891640849c4013c3bc))
+
 ### [2.9.10](https://github.com/limaofeng/jfantasy-framework/compare/v2.9.9...v2.9.10) (2022-05-08)
 
 
