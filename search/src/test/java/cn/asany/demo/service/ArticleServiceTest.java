@@ -1,6 +1,6 @@
 package cn.asany.demo.service;
 
-import cn.asany.demo.bean.Article;
+import cn.asany.demo.domain.Article;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;

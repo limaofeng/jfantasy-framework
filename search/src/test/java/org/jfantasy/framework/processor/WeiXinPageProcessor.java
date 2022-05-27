@@ -1,6 +1,6 @@
 package org.jfantasy.framework.processor;
 
-import cn.asany.demo.bean.Article;
+import cn.asany.demo.domain.Article;
 import cn.asany.demo.service.ArticleService;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.AfterEach;

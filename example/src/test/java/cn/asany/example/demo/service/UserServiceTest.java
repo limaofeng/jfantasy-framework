@@ -1,7 +1,7 @@
 package cn.asany.example.demo.service;
 
 import cn.asany.example.TestApplication;
-import cn.asany.example.demo.bean.User;
+import cn.asany.example.demo.domain.User;
 import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.dao.jpa.PropertyFilter;
 import org.jfantasy.framework.dao.jpa.PropertyFilterBuilder;

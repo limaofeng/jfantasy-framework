@@ -1,4 +1,4 @@
-package cn.asany.demo.bean;
+package cn.asany.demo.domain;
 
 import org.jfantasy.framework.search.annotations.IndexRefBy;
 

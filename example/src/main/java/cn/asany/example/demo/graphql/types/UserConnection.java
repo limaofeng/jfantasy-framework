@@ -1,6 +1,6 @@
 package cn.asany.example.demo.graphql.types;
 
-import cn.asany.example.demo.bean.User;
+import cn.asany.example.demo.domain.User;
 import java.util.List;
 import lombok.*;
 import org.jfantasy.graphql.Edge;

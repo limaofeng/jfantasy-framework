@@ -1,6 +1,6 @@
 package cn.asany.example.demo.converter;
 
-import cn.asany.example.demo.bean.User;
+import cn.asany.example.demo.domain.User;
 import cn.asany.example.demo.graphql.inputs.UserCreateInput;
 import org.mapstruct.Mapper;
 import org.mapstruct.NullValueCheckStrategy;

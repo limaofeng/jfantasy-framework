@@ -1,6 +1,6 @@
 package cn.asany.example.demo.graphql.inputs;
 
-import cn.asany.example.demo.bean.User;
+import cn.asany.example.demo.domain.User;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

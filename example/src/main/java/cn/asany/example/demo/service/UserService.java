@@ -1,7 +1,7 @@
 package cn.asany.example.demo.service;
 
-import cn.asany.example.demo.bean.User;
 import cn.asany.example.demo.dao.UserDao;
+import cn.asany.example.demo.domain.User;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;

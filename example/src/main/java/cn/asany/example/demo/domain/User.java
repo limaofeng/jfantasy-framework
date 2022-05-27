@@ -1,4 +1,4 @@
-package cn.asany.example.demo.bean;
+package cn.asany.example.demo.domain;
 
 import cn.asany.example.demo.validator.CaseValidator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;

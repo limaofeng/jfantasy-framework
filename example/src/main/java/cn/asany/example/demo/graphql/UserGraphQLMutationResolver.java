@@ -1,7 +1,7 @@
 package cn.asany.example.demo.graphql;
 
-import cn.asany.example.demo.bean.User;
 import cn.asany.example.demo.converter.UserConverter;
+import cn.asany.example.demo.domain.User;
 import cn.asany.example.demo.graphql.inputs.UserCreateInput;
 import cn.asany.example.demo.service.UserService;
 import graphql.kickstart.tools.GraphQLMutationResolver;

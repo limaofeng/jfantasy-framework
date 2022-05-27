@@ -1,4 +1,4 @@
-package cn.asany.demo.bean;
+package cn.asany.demo.domain;
 
 import java.util.Date;
 import java.util.Objects;

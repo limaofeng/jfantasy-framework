@@ -1,6 +1,6 @@
 package cn.asany.example.demo.web;
 
-import cn.asany.example.demo.bean.User;
+import cn.asany.example.demo.domain.User;
 import cn.asany.example.demo.service.UserService;
 import java.util.ArrayList;
 import javax.validation.Valid;
