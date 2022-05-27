@@ -7,7 +7,6 @@ import graphql.kickstart.autoconfigure.web.servlet.GraphQLWebAutoConfiguration;
 import graphql.kickstart.tools.SchemaParserDictionary;
 import java.util.List;
 import org.jfantasy.graphql.SchemaParserDictionaryBuilder;
-import org.jfantasy.graphql.VersionGraphQLQueryResolver;
 import org.jfantasy.graphql.client.GraphQLClientBeanPostProcessor;
 import org.jfantasy.graphql.error.GraphQLResolverAdvice;
 import org.jfantasy.graphql.error.GraphQLStaticMethodMatcherPointcut;
@@ -74,11 +73,6 @@ public class GraphQLAutoConfiguration {
     beanFactory.setPointcut(new GraphQLStaticMethodMatcherPointcut());
     beanFactory.setAdvice(advice);
     return beanFactory;
-  }
-
-  @Bean
-  public VersionGraphQLQueryResolver versionGraphQLQueryResolver() {
-    return new VersionGraphQLQueryResolver();
   }
 
   @Bean

@@ -2,10 +2,6 @@ directive @dateFormat on FIELD_DEFINITION
 directive @dict on FIELD_DEFINITION
 directive @fileObjectFormat on FIELD_DEFINITION
 
-type Query {
-  vesion: String
-}
-
 enum UpdateMode {
   ADD
   REMOVE

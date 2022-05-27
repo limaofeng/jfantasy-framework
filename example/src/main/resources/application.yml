@@ -30,8 +30,6 @@ spring:
       naming:
         implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl
     properties:
-      hibernate:
-        open-in-view: true
         jdbc:
           time_zone: GMT+8
         current_session_context_class: org.springframework.orm.hibernate5.SpringSessionContext
@@ -40,8 +38,7 @@ spring:
           use_second_level_cache: false
           region:
             factory_class: org.hibernate.cache.ehcache.EhCacheRegionFactory
-        dialect: org.hibernate.dialect.MySQL55Dialect
-        show_sql: true
+        dialect: org.hibernate.dialect.MySQL8Dialect
     generate-ddl: false
     open-in-view: false
   quartz:
@@ -74,8 +71,6 @@ management:
 
 graphql:
   servlet:
-    websocket:
-      enabled: false
     exception-handlers-enabled: true
     cors-enabled: true
     cors:
@@ -89,7 +84,5 @@ graphql:
 
 logging:
   config: classpath:logback.xml
-  file:
-    path: ./log
 
 
