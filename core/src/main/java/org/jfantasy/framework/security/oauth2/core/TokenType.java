@@ -1,10 +1,21 @@
 package org.jfantasy.framework.security.oauth2.core;
 
 public enum TokenType {
+
   /** 个人 Token 不能续期，但可以设置有效期的 TOKEN */
-  PERSONAL,
+  PERSONAL(ClientSecretType.SESSION),
   /** 标准 OAUTH 的认证 */
-  TOKEN,
+  TOKEN(ClientSecretType.SESSION),
   /** SESSION 形式的授权 */
-  SESSION
+  SESSION(ClientSecretType.SESSION);
+
+  private final ClientSecretType clientSecretType;
+
+  TokenType(ClientSecretType clientSecretType) {
+    this.clientSecretType = clientSecretType;
+  }
+
+  public ClientSecretType getClientSecretType() {
+    return this.clientSecretType;
+  }
 }

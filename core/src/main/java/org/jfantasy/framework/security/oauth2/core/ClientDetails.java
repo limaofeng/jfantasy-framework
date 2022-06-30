@@ -1,9 +1,6 @@
 package org.jfantasy.framework.security.oauth2.core;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import org.jfantasy.framework.security.core.GrantedAuthority;
 
 /**
@@ -42,21 +39,21 @@ public interface ClientDetails {
   String getClientId();
 
   /**
+   * 客户端密钥（多个）
+   *
+   * @param type 密钥类型
+   * @return Set<String>
+   */
+  Set<String> getClientSecrets(ClientSecretType type);
+
+  /**
    * 客户端密钥
    *
    * @return String
    */
-  String getClientSecret();
-
-  /**
-   * 客户端密钥（多个）
-   *
-   * @return Set<String>
-   */
-  default Set<String> getClientSecrets() {
-    Set<String> secrets = new HashSet<>();
-    secrets.add(this.getClientSecret());
-    return secrets;
+  default String getClientSecret(ClientSecretType type) {
+    Set<String> secrets = this.getClientSecrets(type);
+    return secrets.stream().findFirst().orElse(null);
   }
 
   /**

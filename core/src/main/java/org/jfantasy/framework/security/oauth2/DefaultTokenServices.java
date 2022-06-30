@@ -8,6 +8,7 @@ import java.util.Set;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.jackson.JSON;
+import org.jfantasy.framework.security.AuthenticationException;
 import org.jfantasy.framework.security.LoginUser;
 import org.jfantasy.framework.security.oauth2.core.*;
 import org.jfantasy.framework.security.oauth2.core.token.AuthorizationServerTokenServices;
@@ -19,6 +20,7 @@ import org.jfantasy.framework.security.oauth2.jwt.JwtUtils;
 import org.jfantasy.framework.security.oauth2.server.BearerTokenAuthenticationToken;
 import org.jfantasy.framework.security.oauth2.server.authentication.BearerTokenAuthentication;
 import org.jfantasy.framework.util.common.StringUtil;
+import org.springframework.core.task.TaskExecutor;
 
 /**
  * Token 服务
@@ -34,10 +36,13 @@ public class DefaultTokenServices
   private TokenStore tokenStore;
   private ClientDetailsService clientDetailsService;
   private final JwtTokenService jwtTokenService = new JwtTokenServiceImpl();
+  private final TaskExecutor taskExecutor;
 
-  public DefaultTokenServices(TokenStore tokenStore, ClientDetailsService clientDetailsService) {
+  public DefaultTokenServices(
+      TokenStore tokenStore, ClientDetailsService clientDetailsService, TaskExecutor taskExecutor) {
     this.tokenStore = tokenStore;
     this.clientDetailsService = clientDetailsService;
+    this.taskExecutor = taskExecutor;
   }
 
   @SneakyThrows
@@ -48,21 +53,29 @@ public class DefaultTokenServices
     ClientDetails clientDetails =
         this.clientDetailsService.loadClientByClientId(details.getClientId());
 
-    int expires = clientDetails.getTokenExpires();
-    String secret = clientDetails.getClientSecret();
     TokenType tokenType = details.getTokenType();
+
+    int expires = clientDetails.getTokenExpires();
 
     boolean supportRefreshToken = false;
     Instant issuedAt = Instant.now();
     Instant expiresAt = null;
 
+    String secret = null;
+
     if (tokenType == TokenType.PERSONAL) {
+      secret = clientDetails.getClientSecret(tokenType.getClientSecretType());
       expiresAt = details.getExpiresAt();
     } else if (tokenType == TokenType.TOKEN) {
       supportRefreshToken = true;
       expiresAt = Instant.now().plus(expires, ChronoUnit.MINUTES);
     } else if (tokenType == TokenType.SESSION) {
+      secret = clientDetails.getClientSecret(tokenType.getClientSecretType());
       expiresAt = Instant.now().plus(expires, ChronoUnit.MINUTES);
+    }
+
+    if (secret == null) {
+      throw new AuthenticationException("无效的 client_secret");
     }
 
     JwtTokenPayload payload =
@@ -100,15 +113,19 @@ public class DefaultTokenServices
 
   private void refreshAccessToken(OAuth2AccessToken accessToken, long expires) {
     accessToken.setExpiresAt(accessToken.getExpiresAt().plus(expires, ChronoUnit.MINUTES));
-    this.tokenStore.storeAccessToken(
-        accessToken, this.tokenStore.readAuthentication(accessToken.getTokenValue()));
+    taskExecutor.execute(
+        () ->
+            this.tokenStore.storeAccessToken(
+                accessToken, this.tokenStore.readAuthentication(accessToken.getTokenValue())));
   }
 
   private void refreshAccessToken(
       OAuth2AccessToken accessToken, long expires, BearerTokenAuthenticationToken authentication) {
     accessToken.setExpiresAt(accessToken.getExpiresAt().plus(expires, ChronoUnit.MINUTES));
-    this.tokenStore.storeAccessToken(
-        accessToken, this.tokenStore.readAuthentication(authentication));
+    taskExecutor.execute(
+        () ->
+            this.tokenStore.storeAccessToken(
+                accessToken, this.tokenStore.readAuthentication(authentication)));
   }
 
   @Override
@@ -157,7 +174,9 @@ public class DefaultTokenServices
       // 获取客户端配置
       ClientDetails clientDetails =
           clientDetailsService.loadClientByClientId(payload.getClientId());
-      Set<String> secrets = clientDetails.getClientSecrets();
+
+      Set<String> secrets =
+          clientDetails.getClientSecrets(payload.getTokenType().getClientSecretType());
       int expires = clientDetails.getTokenExpires();
 
       // 验证 Token
@@ -191,7 +210,8 @@ public class DefaultTokenServices
       // 获取客户端配置
       ClientDetails clientDetails =
           clientDetailsService.loadClientByClientId(payload.getClientId());
-      Set<String> secrets = clientDetails.getClientSecrets();
+      Set<String> secrets =
+          clientDetails.getClientSecrets(payload.getTokenType().getClientSecretType());
       int expires = clientDetails.getTokenExpires();
 
       // 验证 Token

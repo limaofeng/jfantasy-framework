@@ -8,6 +8,7 @@ import org.jfantasy.framework.security.oauth2.server.authentication.BearerTokenA
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.TaskExecutor;
 
 /**
  * OAuth2 ResourceServer
@@ -20,8 +21,8 @@ public class OAuth2ResourceServerAutoConfiguration {
   @Bean
   @ConditionalOnBean({ClientDetailsService.class, TokenStore.class})
   public DefaultTokenServices tokenServices(
-      TokenStore tokenStore, ClientDetailsService clientDetailsService) {
-    return new DefaultTokenServices(tokenStore, clientDetailsService);
+      TokenStore tokenStore, ClientDetailsService clientDetailsService, TaskExecutor taskExecutor) {
+    return new DefaultTokenServices(tokenStore, clientDetailsService, taskExecutor);
   }
 
   @Bean
