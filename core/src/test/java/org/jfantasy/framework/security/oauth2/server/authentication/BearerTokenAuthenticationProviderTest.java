@@ -10,6 +10,7 @@ import org.jfantasy.framework.security.web.authentication.WebAuthenticationDetai
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 class BearerTokenAuthenticationProviderTest {
   private AuthenticationManager manager = new AuthenticationManager();
@@ -19,7 +20,10 @@ class BearerTokenAuthenticationProviderTest {
   @BeforeEach
   void setUp() {
     DefaultTokenServices defaultTokenServices =
-        new DefaultTokenServices(new InMemoryTokenStore(), new DefaultClientDetailsService());
+        new DefaultTokenServices(
+            new InMemoryTokenStore(),
+            new DefaultClientDetailsService(),
+            new ThreadPoolTaskExecutor());
     defaultTokenServices.setTokenStore(new InMemoryTokenStore());
     BearerTokenAuthenticationProvider provider =
         new BearerTokenAuthenticationProvider(defaultTokenServices);

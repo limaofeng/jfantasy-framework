@@ -55,6 +55,9 @@ public class OAuth2AuthenticationDetails {
   /** 过期时间 */
   @JsonProperty("expires_at")
   private Instant expiresAt;
+  /** 客户端密钥 */
+  @JsonProperty("client_secret")
+  private String clientSecret;
 
   @JsonIgnore private HttpServletRequest request;
 }

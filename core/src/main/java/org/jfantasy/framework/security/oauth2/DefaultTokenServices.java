@@ -78,6 +78,8 @@ public class DefaultTokenServices
       throw new AuthenticationException("无效的 client_secret");
     }
 
+    details.setClientSecret(secret);
+
     JwtTokenPayload payload =
         JwtTokenPayload.builder()
             .uid(principal.getUid())
