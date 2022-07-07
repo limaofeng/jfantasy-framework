@@ -607,7 +607,7 @@ public final class ObjectUtil {
       COMPARATOR_MAP.put(key, (o1, o2) -> compareField(o1, o2, orderBys));
     }
     list.addAll(collectoin);
-    Collections.sort(list, (Comparator<T>) COMPARATOR_MAP.get(key));
+    list.sort((Comparator<T>) COMPARATOR_MAP.get(key));
     if ("desc".equalsIgnoreCase(order)) {
       Collections.reverse(list);
     }
@@ -622,10 +622,9 @@ public final class ObjectUtil {
     if (ClassUtil.isList(collectoin)) {
       list = (List<T>) collectoin;
     } else {
-      list = new ArrayList<>();
-      list.addAll(collectoin);
+      list = new ArrayList<>(collectoin);
     }
-    Collections.sort(list, comparator);
+    list.sort(comparator);
     return ClassUtil.isList(collectoin)
         ? (C) list
         : packageResult(list.stream(), collectoin.getClass());
@@ -1006,5 +1005,108 @@ public final class ObjectUtil {
     }
     results.setExceptA(olds);
     return results;
+  }
+
+  public static <T extends SortNode> void resort(
+      T node, SortNodeLoader<T> loader, SortNodeUpdater<T> updater) {
+    T beforeNode = node.getId() == null ? null : loader.load(node.getId());
+
+    if (beforeNode == null) {
+      T parent = loader.load(node.getParentId());
+      locomotion(loader, updater, parent, node, node.getId() == null, false);
+      if (node.getId() == null) {
+        node.setLevel(parent == null ? 1 : parent.getLevel() + 1);
+      }
+      return;
+    }
+
+    if (hasModifyIndex(node, beforeNode)) {
+      List<T> nodes = loader.getAll(node.getParentId(), node);
+      // 计算 Index
+      List<T> siblings = ObjectUtil.sort(nodes, "index", "asc");
+
+      if (node.getIndex() >= siblings.size()) {
+        node.setIndex(siblings.size() - 1);
+      }
+
+      int oldIndex = beforeNode.getIndex();
+      int newIndex = node.getIndex();
+
+      int startIndex = Math.min(oldIndex, newIndex);
+      int endIndex = Math.min(Math.max(oldIndex, newIndex), siblings.size() - 1);
+
+      for (T item : siblings.subList(startIndex, endIndex + 1)) {
+        if (item.getId().equals(node.getId())) {
+          continue;
+        }
+        item.setIndex(item.getIndex() + (oldIndex > newIndex ? 1 : -1));
+        updater.update(item);
+      }
+    } else if (hasModifyParent(node, beforeNode)) {
+      Serializable parentId = node.getParentId();
+      Serializable beforeParentId = beforeNode.getParentId();
+      // 移入
+      locomotion(loader, updater, loader.load(parentId), node, true, true);
+      // 移出
+      locomotion(loader, updater, loader.load(beforeParentId), beforeNode, false, false);
+    }
+  }
+
+  public static <T extends SortNode> void updateLevel(
+      T node, SortNodeLoader<T> loader, SortNodeUpdater<T> updater) {
+    List<T> children = loader.getAll(node.getId(), node);
+    for (T item : children) {
+      item.setLevel(node.getLevel() + 1);
+      updater.update(item);
+      updateLevel(item, loader, updater);
+    }
+  }
+
+  private static <T extends SortNode> void locomotion(
+      SortNodeLoader<T> loader,
+      SortNodeUpdater<T> updater,
+      T parent,
+      T node,
+      boolean join,
+      boolean setAble) {
+    List<T> nodes = loader.getAll(parent != null ? parent.getId() : null, node);
+    List<T> siblings = ObjectUtil.sort(nodes, "index", "asc");
+
+    for (T item : siblings.subList(Math.min(node.getIndex(), siblings.size()), siblings.size())) {
+      if (item.getId().equals(node.getId())) {
+        continue;
+      }
+      item.setIndex(item.getIndex() + (join ? 1 : -1));
+      if (join && setAble) {
+        item.setLevel(parent == null ? 1 : parent.getLevel() + 1);
+        updateLevel(item, loader, updater);
+      }
+      updater.update(item);
+    }
+  }
+
+  private static boolean hasModifyIndex(SortNode node, SortNode beforeNode) {
+    if (hasModifyParent(node, beforeNode)) {
+      return false;
+    }
+
+    int oldIndex = beforeNode.getIndex();
+    int newIndex = node.getIndex();
+
+    return oldIndex != newIndex;
+  }
+
+  private static boolean hasModifyParent(SortNode node, SortNode beforeNode) {
+
+    Serializable oldParentId = beforeNode.getParentId();
+    Serializable newParentId = node.getParentId();
+
+    if (newParentId == null && oldParentId != null) {
+      return true;
+    }
+    if (newParentId != null && oldParentId == null) {
+      return true;
+    }
+    return !Objects.equals(newParentId, oldParentId);
   }
 }
