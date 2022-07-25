@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.10.1](https://github.com/limaofeng/jfantasy-framework/compare/v2.10.0...v2.10.1) (2022-07-25)
+
+
+### Features
+
+* 将 SecurityAutoConfiguration 改为 OAuth2SecurityAutoConfiguration ([527b733](https://github.com/limaofeng/jfantasy-framework/commit/527b733cef519cf06551c3712f1f606ee6c7935c))
+* 添加 ObjectUtil.resort 函数 ([74c65f3](https://github.com/limaofeng/jfantasy-framework/commit/74c65f3f52200054af7758d3deea44093d5fed34))
+* 认证密钥添加 ClientSecretType 字段，区分不同场景下的密钥 ([f10d7ff](https://github.com/limaofeng/jfantasy-framework/commit/f10d7ffda92165bcbe1dfc6e94ec40580b606012))
+* 记录 client_secret 方便存储到 access_token ([77cdb23](https://github.com/limaofeng/jfantasy-framework/commit/77cdb23606d9c12e85c39eba421fc14b99394109))
+
 ## [2.10.0](https://github.com/limaofeng/jfantasy-framework/compare/v2.9.10...v2.10.0) (2022-05-27)
 
 
