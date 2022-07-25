@@ -25,7 +25,7 @@ import org.springframework.context.support.MessageSourceAccessor;
 
 /** @author limaofeng */
 @Configuration
-public class SecurityAutoConfiguration {
+public class OAuth2SecurityAutoConfiguration {
 
   @Bean
   @ConditionalOnMissingBean({AuthenticationEventPublisher.class})
