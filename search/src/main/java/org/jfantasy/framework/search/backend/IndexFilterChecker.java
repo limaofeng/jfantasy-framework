@@ -7,7 +7,7 @@ import org.jfantasy.framework.util.reflect.Property;
 
 public class IndexFilterChecker {
 
-  private Object entity;
+  private final Object entity;
 
   public IndexFilterChecker(Object entity) {
     this.entity = entity;

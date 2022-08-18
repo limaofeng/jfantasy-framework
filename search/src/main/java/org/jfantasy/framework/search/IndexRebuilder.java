@@ -6,7 +6,7 @@ import org.springframework.core.task.TaskExecutor;
 public class IndexRebuilder {
   private final Class<?> clazz;
   private final TaskExecutor executor;
-  private int batchSize = 100;
+  private int batchSize;
 
   public IndexRebuilder(Class<?> clazz, TaskExecutor executor, int batchSize) {
     this.clazz = clazz;

@@ -20,6 +20,7 @@ import org.jfantasy.framework.security.SecurityContextHolder;
 import org.jfantasy.framework.security.authentication.Authentication;
 import org.jfantasy.framework.security.authentication.AuthenticationDetailsSource;
 import org.jfantasy.framework.security.authentication.AuthenticationManagerResolver;
+import org.jfantasy.framework.security.authentication.SimpleAuthenticationToken;
 import org.jfantasy.framework.security.oauth2.server.BearerTokenAuthenticationToken;
 import org.jfantasy.framework.security.oauth2.server.web.BearerTokenResolver;
 import org.jfantasy.framework.security.oauth2.server.web.DefaultBearerTokenResolver;
@@ -69,6 +70,8 @@ public class SecurityGraphQLContextBuilder extends DefaultGraphQLContextBuilder
 
     if (token == null) {
       log.trace("Did not process request since did not find bearer token");
+      SimpleAuthenticationToken authenticationRequest = new SimpleAuthenticationToken();
+      authenticationRequest.setDetails(this.authenticationDetailsSource.buildDetails(req));
       return context;
     }
 

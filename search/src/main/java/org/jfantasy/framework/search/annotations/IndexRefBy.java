@@ -19,26 +19,26 @@ public @interface IndexRefBy {
    *
    * @return Class<?>[]
    */
-  public abstract Class<?>[] value();
+  Class<?>[] value();
 
   /**
    * 是否为字段建立索引
    *
    * @return boolean[]
    */
-  public abstract boolean[] index() default false;
+  boolean[] index() default false;
 
   /**
    * store——boolean型，表示是否需要存储
    *
    * @return boolean[]
    */
-  public abstract boolean[] store() default true;
+  boolean[] store() default true;
 
   /**
    * boost——float型，表示该Field的权重
    *
    * @return double[]
    */
-  public abstract double[] boost() default 1.0f;
+  double[] boost() default 1.0f;
 }

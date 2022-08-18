@@ -16,28 +16,28 @@ public @interface Log {
   /**
    * 简要描述信息
    *
-   * @return
+   * @return String
    */
-  public abstract String text() default "";
+  String text() default "";
 
   /**
    * 判断是否记录日志
    *
-   * @return
+   * @return String
    */
-  public abstract String condition() default "";
+  String condition() default "";
 
   /**
    * 日志连接器类型
    *
-   * @return
+   * @return String
    */
-  public abstract String type() default "simple";
+  String type() default "simple";
 
   /**
    * 日志拦截器
    *
-   * @return
+   * @return Class<?>
    */
-  public abstract Class<?> using() default DefaultLogFilter.class;
+  Class<?> using() default DefaultLogFilter.class;
 }

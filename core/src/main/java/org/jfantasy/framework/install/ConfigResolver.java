@@ -62,9 +62,7 @@ public class ConfigResolver {
         for (int i = 0; i < packagesToScanNodes.getLength(); i++) {
           configuration.addPackagesToScan(packagesToScanNodes.item(i).getTextContent());
         }
-      } catch (SAXException e) {
-        LOG.error(e.getMessage(), e);
-      } catch (XPathExpressionException e) {
+      } catch (SAXException | XPathExpressionException e) {
         LOG.error(e.getMessage(), e);
       }
     }

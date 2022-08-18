@@ -17,8 +17,7 @@ import java.lang.annotation.Target;
 @Target({java.lang.annotation.ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface IndexFilter {
+  Compare compare();
 
-  public Compare compare();
-
-  public String value();
+  String value();
 }

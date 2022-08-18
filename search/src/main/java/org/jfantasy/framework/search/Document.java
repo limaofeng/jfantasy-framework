@@ -7,7 +7,6 @@ import lombok.Setter;
 
 public class Document {
   @Getter private final Map<String, Object> attrs = new HashMap<>();
-
   @Getter private final String indexName;
   @Getter @Setter private String id;
 

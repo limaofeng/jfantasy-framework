@@ -14,9 +14,9 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 /**
- * Description: <应用配置类>. <br>
+ * 应用配置类 <br>
  *
- * <p><负责注册除Controller等web层以外的所有bean，包括aop代理，service层，dao层，缓存，等等>
+ * <p>负责注册除Controller等web层以外的所有bean，包括aop代理，service层，dao层，缓存，等等
  */
 @Configuration
 @EnableAsync
@@ -25,7 +25,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 public class AppConfig {
 
   @Bean
-  public static PropertySourcesPlaceholderConfigurer placehodlerConfigurer() {
+  public static PropertySourcesPlaceholderConfigurer placeholderConfigurer() {
     return new PropertySourcesPlaceholderConfigurer();
   }
 

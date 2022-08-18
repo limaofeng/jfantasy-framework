@@ -5,7 +5,7 @@ import org.jfantasy.framework.search.mapper.DataType;
 import org.jfantasy.framework.util.reflect.Property;
 
 public class CompareChecker {
-  private Object obj;
+  private final Object obj;
 
   public CompareChecker(Object obj) {
     this.obj = obj;

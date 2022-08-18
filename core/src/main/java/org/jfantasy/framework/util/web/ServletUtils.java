@@ -40,7 +40,9 @@ public class ServletUtils {
         "Authorization",
         "Content-Type",
         "If-Modified-Since",
-        "If-None-Match"
+        "If-None-Match",
+        "X-Request-ID",
+        "X-Client-ID"
       };
   public static final String CORS_DEFAULT_ORIGIN_PATTERNS = "*";
   public static final String[] CORS_DEFAULT_ALLOWED_METHODS =

@@ -101,17 +101,4 @@ public class IndexRebuildTask implements Runnable {
       }
     }
   }
-
-  //  public abstract class ProcessCallback implements JdbcUtil.Callback<Void> {
-  //    protected int start;
-  //    protected int size;
-  //
-  //    ProcessCallback(int start, int size) {
-  //      this.start = start;
-  //      this.size = size;
-  //    }
-  //
-  //    @Override
-  //    public abstract Void run();
-  //  }
 }
