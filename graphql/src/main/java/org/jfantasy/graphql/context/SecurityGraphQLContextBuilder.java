@@ -72,6 +72,7 @@ public class SecurityGraphQLContextBuilder extends DefaultGraphQLContextBuilder
       log.trace("Did not process request since did not find bearer token");
       SimpleAuthenticationToken authenticationRequest = new SimpleAuthenticationToken();
       authenticationRequest.setDetails(this.authenticationDetailsSource.buildDetails(req));
+      context.setAuthentication(authenticationRequest);
       return context;
     }
 
