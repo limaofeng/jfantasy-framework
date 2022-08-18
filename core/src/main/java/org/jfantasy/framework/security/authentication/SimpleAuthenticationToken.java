@@ -3,9 +3,7 @@ package org.jfantasy.framework.security.authentication;
 import javax.security.auth.Subject;
 import org.jfantasy.framework.security.LoginUser;
 
-/**
- * @author limaofeng
- */
+/** @author limaofeng */
 public class SimpleAuthenticationToken<T extends Object> extends AbstractAuthenticationToken {
 
   private final LoginUser principal;
@@ -22,14 +20,14 @@ public class SimpleAuthenticationToken<T extends Object> extends AbstractAuthent
     super(user.getAuthorities());
     this.principal = user;
     this.credentials = (T) user.getPassword();
-    setAuthenticated(false);
+    setAuthenticated(true);
   }
 
   public SimpleAuthenticationToken(LoginUser user, T credentials) {
     super(user.getAuthorities());
     this.principal = user;
     this.credentials = credentials;
-    setAuthenticated(false);
+    setAuthenticated(true);
   }
 
   public SimpleAuthenticationToken(T credentials) {
