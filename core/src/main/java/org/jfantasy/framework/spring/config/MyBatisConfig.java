@@ -71,11 +71,14 @@ public class MyBatisConfig {
       }
     }
 
+    String[] mapperLocations = mybatisProperties.getMapperLocations();
     PropertiesHelper helper = PropertiesHelper.load("plugin.properties");
-    mybatisProperties.setMapperLocations(
-        ObjectUtil.merge(
-            mybatisProperties.getMapperLocations(),
-            helper.getMergeProperty("mybatis.mapper-locations")));
+    String[] extMapperLocations = helper.getMergeProperty("mybatis.mapper-locations");
+    for (String location : extMapperLocations) {
+      mapperLocations =
+          ObjectUtil.merge(mapperLocations, StringUtil.tokenizeToStringArray(location, ","));
+    }
+    mybatisProperties.setMapperLocations(mapperLocations);
 
     String[] typeAliasesPackage = helper.getMergeProperty("mybatis.type-aliases-package");
 
