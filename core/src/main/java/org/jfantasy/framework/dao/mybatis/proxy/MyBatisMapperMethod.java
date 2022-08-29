@@ -78,7 +78,7 @@ public class MyBatisMapperMethod {
 
   public Object execute(Object[] args) {
     Map<String, Object> param = getParam(args);
-    Page<Object> page = (Page<Object>) param.get("pager");
+    Page<Object> page = (Page<Object>) param.get("page");
     page.reset(this.sqlSession.selectList(this.commandName, param));
     return page;
   }
@@ -94,7 +94,7 @@ public class MyBatisMapperMethod {
     int paramCount = this.paramPositions.size();
     if (args == null || paramCount == 0) {
       if (args != null) {
-        param.put("pager", getPager((Page<Object>) args[this.pageIndex]));
+        param.put("page", getPager((Page<Object>) args[this.pageIndex]));
       }
       return param;
     }
@@ -105,13 +105,13 @@ public class MyBatisMapperMethod {
       } else {
         param.putAll(ObjectUtil.toMap(args[this.paramPositions.get(0)]));
       }
-      param.put("pager", getPager((Page<Object>) args[this.pageIndex]));
+      param.put("page", getPager((Page<Object>) args[this.pageIndex]));
       return param;
     }
     for (int i = 0; i < paramCount; i++) {
       param.put(this.paramNames.get(i), args[this.paramPositions.get(i)]);
     }
-    param.put("pager", getPager((Page<Object>) args[this.pageIndex]));
+    param.put("page", getPager((Page<Object>) args[this.pageIndex]));
     return param;
   }
 

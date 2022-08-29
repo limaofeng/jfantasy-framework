@@ -1,5 +1,6 @@
 package org.jfantasy.framework.dao;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -8,14 +9,14 @@ import lombok.Data;
 import org.springframework.data.domain.Sort;
 
 /**
- * 排序对象
+ * 排序对象 <br>
+ * 只在 Mybatis 中使用
  *
  * @author limaofeng
  * @version V1.0
  * @date 2019-04-03 14:01
  */
 @Data
-@Deprecated
 public class OrderBy {
   private String property;
   private Direction direction;
@@ -67,6 +68,20 @@ public class OrderBy {
 
   public static OrderBy by(List<OrderBy> orders) {
     return orders.isEmpty() ? OrderBy.unsorted() : new OrderBy(orders);
+  }
+
+  public static OrderBy sort(Sort sort) {
+    if (sort.isSorted()) {
+      return OrderBy.unsorted();
+    }
+    List<OrderBy> orderByList = new ArrayList<>();
+    sort.forEach(
+        item ->
+            orderByList.add(
+                OrderBy.newOrderBy(
+                    item.getProperty(),
+                    item.getDirection() == Sort.Direction.DESC ? Direction.DESC : Direction.ASC)));
+    return OrderBy.by(orderByList);
   }
 
   public Sort toSort() {

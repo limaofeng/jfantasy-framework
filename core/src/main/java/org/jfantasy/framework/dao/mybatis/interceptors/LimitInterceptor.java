@@ -104,7 +104,7 @@ public class LimitInterceptor implements Interceptor {
     if (ObjectUtil.isNotNull(parameterObject)
         && Map.class.isAssignableFrom(parameterObject.getClass())) {
       Map<String, Object> param = (Map<String, Object>) parameterObject;
-      page = param.containsKey("pager") ? (Page) param.get("pager") : null;
+      page = param.containsKey("page") ? (Page) param.get("page") : null;
     }
     return page;
   }
@@ -193,10 +193,7 @@ public class LimitInterceptor implements Interceptor {
       Class<?> parameterType = parameterObject.getClass();
       Page<?> page = getPager(parameterObject);
       assert page != null;
-      int pageSize =
-          page.getTotalCount() - page.getOffset() < page.getPageSize()
-              ? (page.getTotalCount() - page.getOffset())
-              : page.getPageSize();
+      int pageSize = Math.min(page.getTotalCount() - page.getOffset(), page.getPageSize());
       String newSql = this.dialect.getLimitString(mapperSQL, page.getOffset(), pageSize);
       return sqlSourceParser.parse(newSql, parameterType, parameterObject);
     }

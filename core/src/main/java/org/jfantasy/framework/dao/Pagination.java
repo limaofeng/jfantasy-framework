@@ -18,9 +18,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * @param <T>
  * @author limaofeng
  */
-@Deprecated
 @AllArgsConstructor
-@Alias("Pager")
+@Alias("Page")
 @JsonIgnoreProperties(value = {"orders", "first", "order_by_setted"})
 public class Pagination<T> implements Page<T>, Serializable {
 

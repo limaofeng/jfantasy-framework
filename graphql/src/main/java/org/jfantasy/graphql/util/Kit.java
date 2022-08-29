@@ -84,6 +84,58 @@ public class Kit {
     return (C) connection(page, connectionClass, new EdgeConverter(edgeClass));
   }
 
+  public static <C extends Connection, T> C connection(
+      org.jfantasy.framework.dao.Page<T> page, Class<C> connectionClass) {
+    Class edgeClass =
+        ClassUtil.forName(
+            ((ParameterizedType) connectionClass.getGenericSuperclass())
+                .getActualTypeArguments()[0].getTypeName());
+    return (C) connection(page, connectionClass, new EdgeConverter(edgeClass));
+  }
+
+  public static <C extends Connection, T, R extends Edge> C connection(
+      org.jfantasy.framework.dao.Page<T> page, Class<C> connectionClass, Function<T, R> mapper) {
+    C connection = ClassUtil.newInstance(connectionClass);
+    assert connection != null;
+
+    List<T> nodes = page.getPageItems();
+
+    PageInfo.PageInfoBuilder pageInfoBuilder =
+        PageInfo.builder()
+            .total(page.getTotalCount())
+            .totalPages(page.getTotalPage())
+            .current(page.getCurrentPage())
+            .pageSize(page.getPageSize())
+            .hasPreviousPage(page.getCurrentPage() > 1)
+            .hasNextPage(page.getCurrentPage() < page.getTotalPage());
+
+    if (mapper instanceof EdgeConverter && ((EdgeConverter) mapper).edgeClass == null) {
+      Class edgeClass =
+          ClassUtil.forName(
+              ((ParameterizedType) connectionClass.getGenericSuperclass())
+                  .getActualTypeArguments()[0].getTypeName());
+      ((EdgeConverter<T, R>) mapper).setEdgeClass(edgeClass);
+    }
+    connection.setEdges(nodes.stream().map(mapper).collect(Collectors.toList()));
+
+    if (!nodes.isEmpty()) {
+      List<R> edges = connection.getEdges();
+      pageInfoBuilder
+          .startCursor(edges.get(0).getCursor())
+          .endCursor(edges.get(nodes.size() - 1).getCursor());
+    }
+
+    connection.setPageInfo(pageInfoBuilder.build());
+
+    // 临时的兼容，后期会删除
+    connection.setTotalCount((int) page.getTotalCount());
+    connection.setTotalPage(page.getTotalPage());
+    connection.setCurrentPage(page.getCurrentPage());
+    connection.setPageSize(page.getPageSize());
+
+    return connection;
+  }
+
   public static class EdgeConverter<T, R> implements Function<T, R> {
     private Class edgeClass;
     private Function mapper;
