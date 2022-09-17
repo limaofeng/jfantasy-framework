@@ -128,6 +128,16 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
   }
 
   @Override
+  public List<T> findAll(List<PropertyFilter> filters, int offset, int limit, Sort sort) {
+    TypedQuery<T> query = super.getQuery(toSpecification(filters), sort);
+    query.setFirstResult(offset);
+    if (limit > 0) {
+      query.setMaxResults(limit);
+    }
+    return query.getResultList();
+  }
+
+  @Override
   public Page<T> findPage(Pageable pageable, List<PropertyFilter> filters) {
     return this.findPage(pageable, toSpecification(filters));
   }
