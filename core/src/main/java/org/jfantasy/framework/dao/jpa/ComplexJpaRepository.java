@@ -155,7 +155,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
   @Override
   public T update(T entity, boolean merge) {
     if (merge) {
-      T oldEntity = super.getById(getIdValue(entity));
+      T oldEntity = super.getReferenceById(getIdValue(entity));
       if (entity == oldEntity) {
         return this.save(entity);
       }
@@ -259,7 +259,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
         continue;
       }
       Serializable fkId = HibernateUtils.getIdValue(field.getType(), fk);
-      Object fkObj = fkId != null ? getJpaRepository(field.getType()).getById(fkId) : null;
+      Object fkObj = fkId != null ? getJpaRepository(field.getType()).getReferenceById(fkId) : null;
       ognlUtil.setValue(field.getName(), oldEntity == null ? entity : oldEntity, fkObj);
     }
   }
@@ -302,7 +302,8 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
         List<Object> addObjects = new ArrayList<>();
         for (Object fk : objects) {
           Serializable fkId = HibernateUtils.getIdValue(targetEntityClass, fk);
-          Object fkObj = fkId != null ? getJpaRepository(targetEntityClass).getById(fkId) : null;
+          Object fkObj =
+              fkId != null ? getJpaRepository(targetEntityClass).getReferenceById(fkId) : null;
           if (fkObj != null) {
             addObjects.add(fkObj);
           }
@@ -351,7 +352,8 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
         List<Object> addObjects = new ArrayList<>();
         for (Object fk : objects) {
           Serializable fkId = HibernateUtils.getIdValue(targetEntityClass, fk);
-          Object fkObj = fkId != null ? getJpaRepository(targetEntityClass).getById(fkId) : null;
+          Object fkObj =
+              fkId != null ? getJpaRepository(targetEntityClass).getReferenceById(fkId) : null;
           if (fkObj != null) {
             addObjects.add(BeanUtil.copyProperties(fkObj, fk));
           } else {
