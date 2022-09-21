@@ -19,7 +19,7 @@ public class SpringSecurityUtils {
 
   public static <T extends Authentication> T getAuthentication() {
     SecurityContext context = SecurityContextHolder.getContext();
-    if (context == null || !context.isAuthenticated()) {
+    if (context == null || context.getAuthentication() == null) {
       return null;
     }
     return (T) context.getAuthentication();
