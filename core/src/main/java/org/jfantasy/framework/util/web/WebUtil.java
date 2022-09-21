@@ -68,29 +68,34 @@ public class WebUtil {
   }
 
   public static String getServerUrl(HttpServletRequest request) {
-    return getServerUrl(
+    return getFullUrl(
         request.getScheme(),
         request.getServerName(),
         request.getServerPort(),
         request.getContextPath());
   }
 
-  public static String getServerUrl(HttpServletRequest request, String contextPath) {
-    return getServerUrl(
-        request.getScheme(), request.getServerName(), request.getServerPort(), contextPath);
+  public static String getFullUrl(HttpServletRequest request, String path) {
+    return getFullUrl(request.getScheme(), request.getServerName(), request.getServerPort(), path);
   }
 
-  public static String getServerUrl(
-      String scheme, String serverName, int serverPort, String contextPath) {
+  private static final Map<String, Integer> DEFAULT_SCHEME_PORTS =
+      new HashMap() {
+        {
+          this.put("http", 80);
+          this.put("https", 443);
+        }
+      };
+
+  public static String getFullUrl(String scheme, String serverName, int serverPort, String path) {
     scheme = scheme.toLowerCase();
     StringBuilder url = new StringBuilder();
     url.append(scheme).append("://").append(serverName);
-    if ("http".equals(scheme) && serverPort != 80) {
-      url.append(":").append(serverPort);
-    } else if ("https".equals(scheme) && serverPort != 443) {
+    if (!(DEFAULT_SCHEME_PORTS.containsKey(scheme)
+        && DEFAULT_SCHEME_PORTS.get(scheme).equals(serverPort))) {
       url.append(":").append(serverPort);
     }
-    url.append(contextPath);
+    url.append(path);
     return url.toString();
   }
 
