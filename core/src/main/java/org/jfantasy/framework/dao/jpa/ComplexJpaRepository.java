@@ -147,6 +147,10 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
     return this.findAll(spec, pageable);
   }
 
+  public EntityManager getEntityManager() {
+    return this.em;
+  }
+
   @Override
   public T update(T entity) {
     return super.save(entity);

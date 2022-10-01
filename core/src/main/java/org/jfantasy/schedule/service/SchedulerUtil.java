@@ -16,6 +16,7 @@ import org.quartz.impl.matchers.GroupMatcher;
 import org.quartz.impl.matchers.StringMatcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
@@ -39,16 +40,17 @@ public class SchedulerUtil {
     if ("".equals(cron) || cron == null) {
       return str;
     }
-    String[] crons = cron.split(" ");
-    for (int a = 0; a < crons.length; a++) {
+    String[] cronArray = cron.split(" ");
+    for (int a = 0; a < cronArray.length; a++) {
       if (i == a) {
-        str = crons[a];
+        str = cronArray[a];
         break;
       }
     }
     return str;
   }
 
+  @Transactional
   public List<String> getJobGroupNames() {
     try {
       return this.scheduler.getJobGroupNames();
@@ -58,6 +60,7 @@ public class SchedulerUtil {
     }
   }
 
+  @Transactional
   public List<String> getTriggerGroupNames() {
     try {
       return this.scheduler.getTriggerGroupNames();
@@ -70,8 +73,9 @@ public class SchedulerUtil {
   /**
    * 获取全部jobKey
    *
-   * @return list<jobkey>
+   * @return list<JobKey>
    */
+  @Transactional
   public List<JobKey> getJobKeys() {
     List<JobKey> jobKeys = new ArrayList<>();
     try {
@@ -87,6 +91,7 @@ public class SchedulerUtil {
     }
   }
 
+  @Transactional
   public List<Trigger> getTriggers(JobKey jobKey) {
     try {
       return (List<Trigger>) this.scheduler.getTriggersOfJob(jobKey);
@@ -96,6 +101,7 @@ public class SchedulerUtil {
     }
   }
 
+  @Transactional
   public List<TriggerKey> getTriggers() {
     List<TriggerKey> triggerKeys = new ArrayList<>();
     try {
@@ -111,6 +117,7 @@ public class SchedulerUtil {
     }
   }
 
+  @Transactional
   public List<TriggerKey> getTriggers(GroupMatcher<TriggerKey> matcher) {
     List<TriggerKey> triggerKeys = new ArrayList<>();
     try {
@@ -122,6 +129,7 @@ public class SchedulerUtil {
     }
   }
 
+  @Transactional
   public JobDetail getJobDetail(JobKey jobKey) {
     try {
       return this.scheduler.getJobDetail(jobKey);
@@ -131,6 +139,7 @@ public class SchedulerUtil {
     }
   }
 
+  @Transactional
   public boolean checkExists(JobKey jobKey) {
     try {
       return this.scheduler.checkExists(jobKey);
@@ -140,6 +149,7 @@ public class SchedulerUtil {
     }
   }
 
+  @Transactional
   public boolean checkExists(TriggerKey triggerKey) {
     try {
       return this.scheduler.checkExists(triggerKey);
@@ -155,6 +165,7 @@ public class SchedulerUtil {
    * @param jobKey key
    * @param jobClass JobClass
    */
+  @Transactional
   public JobDetail addJob(JobKey jobKey, Class<? extends Job> jobClass) {
     try {
       JobDetail job =
@@ -171,6 +182,7 @@ public class SchedulerUtil {
     }
   }
 
+  @Transactional
   public JobDetail addJob(JobKey jobKey, Class<? extends Job> jobClass, Map<String, String> data) {
     try {
       if (data == null) {
@@ -216,6 +228,7 @@ public class SchedulerUtil {
    * @param args 参数
    * @return Trigger
    */
+  @Transactional
   public Trigger addTrigger(
       JobKey jobKey,
       TriggerKey triggerKey,
@@ -259,6 +272,7 @@ public class SchedulerUtil {
     return this.addTrigger(jobKey, triggerKey, interval, repeatCount, emptyString, args);
   }
 
+  @Transactional
   public Trigger addTrigger(
       JobKey jobKey,
       TriggerKey triggerKey,
@@ -288,6 +302,7 @@ public class SchedulerUtil {
     }
   }
 
+  @Transactional
   public Trigger addTrigger(
       JobKey jobKey,
       TriggerKey triggerKey,
@@ -317,6 +332,7 @@ public class SchedulerUtil {
     }
   }
 
+  @Transactional
   public Trigger addTrigger(
       JobKey jobKey,
       TriggerKey triggerKey,
@@ -357,6 +373,7 @@ public class SchedulerUtil {
     return this.addTrigger(jobKey, triggerKey, interval, unit, emptyString, args);
   }
 
+  @Transactional
   public Trigger addTrigger(JobKey jobKey, TriggerKey triggerKey, Map<String, String> args) {
     try {
       Trigger trigger =
@@ -375,6 +392,7 @@ public class SchedulerUtil {
     }
   }
 
+  @Transactional
   public Trigger addTrigger(
       JobKey jobKey,
       TriggerKey triggerKey,
@@ -400,6 +418,7 @@ public class SchedulerUtil {
     }
   }
 
+  @Transactional
   public Trigger.TriggerState getTriggerState(TriggerKey triggerKey) {
     try {
       return this.scheduler.getTriggerState(triggerKey);
@@ -414,7 +433,8 @@ public class SchedulerUtil {
    *
    * @return boolean
    */
-  public boolean isStartTimerTisk() {
+  @Transactional
+  public boolean isStarted() {
     try {
       return this.scheduler != null && this.scheduler.isStarted();
     } catch (SchedulerException e) {
@@ -428,7 +448,8 @@ public class SchedulerUtil {
    *
    * @return boolean
    */
-  public boolean isShutDownTimerTisk() {
+  @Transactional
+  public boolean isShutdown() {
     try {
       return this.scheduler != null && this.scheduler.isShutdown();
     } catch (SchedulerException e) {
@@ -443,6 +464,7 @@ public class SchedulerUtil {
    * @param jobName 任务名称
    * @param groupName 组名称
    */
+  @Transactional
   public void pauseJob(String jobName, String groupName) {
     try {
       this.scheduler.pauseJob(JobKey.jobKey(jobName, groupName));
@@ -456,6 +478,7 @@ public class SchedulerUtil {
    *
    * @param jobKey 任务名称
    */
+  @Transactional
   public void resumeJob(JobKey jobKey) {
     try {
       this.scheduler.resumeJob(jobKey);
@@ -470,6 +493,7 @@ public class SchedulerUtil {
    * @param jobKey 任务名称
    * @return boolean
    */
+  @Transactional
   public boolean deleteJob(JobKey jobKey) {
     try {
       return this.scheduler.deleteJob(jobKey);
@@ -484,6 +508,7 @@ public class SchedulerUtil {
    *
    * @param triggerKey 触发器名称
    */
+  @Transactional
   public void pauseTrigger(TriggerKey triggerKey) {
     try {
       this.scheduler.pauseTrigger(triggerKey); // 停止触发器
@@ -497,6 +522,7 @@ public class SchedulerUtil {
    *
    * @param triggerKey 触发器名称
    */
+  @Transactional
   public void resumeTrigger(TriggerKey triggerKey) {
     try {
       this.scheduler.resumeTrigger(triggerKey); // 重启触发器
@@ -511,7 +537,8 @@ public class SchedulerUtil {
    * @param triggerKey 触发器名称
    * @return boolean
    */
-  public boolean removeTrigdger(TriggerKey triggerKey) {
+  @Transactional
+  public boolean removeTrigger(TriggerKey triggerKey) {
     try {
       this.scheduler.pauseTrigger(triggerKey); // 停止触发器
       return this.scheduler.unscheduleJob(triggerKey); // 移除触发器
@@ -522,6 +549,7 @@ public class SchedulerUtil {
   }
 
   /** 暂停调度中所有的job任务 */
+  @Transactional
   public void pauseAll() {
     try {
       scheduler.pauseAll();
@@ -531,6 +559,7 @@ public class SchedulerUtil {
   }
 
   /** 恢复调度中所有的job的任务 */
+  @Transactional
   public void resumeAll() {
     try {
       scheduler.resumeAll();
@@ -545,6 +574,7 @@ public class SchedulerUtil {
    * @param jobKey 触发器名称
    * @return boolean
    */
+  @Transactional
   public boolean interrupt(JobKey jobKey) {
     try {
       return scheduler.interrupt(jobKey);
@@ -557,8 +587,9 @@ public class SchedulerUtil {
   /**
    * 直接执行job
    *
-   * @param jobKey jobkey
+   * @param jobKey JobKey
    */
+  @Transactional
   public void triggerJob(JobKey jobKey) {
     try {
       this.scheduler.triggerJob(jobKey);
@@ -570,9 +601,10 @@ public class SchedulerUtil {
   /**
    * 直接触发job
    *
-   * @param jobKey jobkey
+   * @param jobKey JobKey
    * @param args 执行参数
    */
+  @Transactional
   public void triggerJob(JobKey jobKey, Map<String, String> args) {
     try {
       this.scheduler.triggerJob(jobKey, new JobDataMap(args));
@@ -581,6 +613,7 @@ public class SchedulerUtil {
     }
   }
 
+  @Transactional
   public void shutdown() {
     try {
       this.scheduler.shutdown();
@@ -589,6 +622,7 @@ public class SchedulerUtil {
     }
   }
 
+  @Transactional
   public void clear() {
     try {
       this.scheduler.clear();
@@ -597,6 +631,7 @@ public class SchedulerUtil {
     }
   }
 
+  @Transactional
   public List<JobDetail> jobs() {
     List<JobDetail> jobDetails = new ArrayList<>();
     for (JobKey jobKey : this.getJobKeys()) {
@@ -612,6 +647,7 @@ public class SchedulerUtil {
     return jobDetails;
   }
 
+  @Transactional
   public boolean isRunning(TriggerKey triggerKey) {
     try {
       List<JobExecutionContext> jobContexts = scheduler.getCurrentlyExecutingJobs();

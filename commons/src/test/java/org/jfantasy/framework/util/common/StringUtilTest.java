@@ -203,9 +203,6 @@ public class StringUtilTest {
   public void testGetBirthday() throws Exception {}
 
   @Test
-  public void testShortUrl() throws Exception {}
-
-  @Test
   public void shortUrl() throws Exception {
     LOG.debug(Arrays.toString(StringUtil.shortUrl("/articles/1230")));
   }
@@ -256,5 +253,17 @@ public class StringUtilTest {
     String uuid = StringUtil.uuid();
     System.out.println(uuid);
     System.out.println(uuid.length());
+  }
+
+  @Test
+  void testShortUrl() {
+    String[] arrays = StringUtil.shortUrl("123456789");
+    log.debug("shortUrl:" + StringUtil.join(arrays, ","));
+  }
+
+  @Test
+  void shortUUID() {
+    String uuid = StringUtil.shortUUID();
+    log.debug("uuid:" + uuid);
   }
 }

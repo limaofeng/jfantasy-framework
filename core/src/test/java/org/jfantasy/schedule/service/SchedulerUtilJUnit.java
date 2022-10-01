@@ -54,7 +54,7 @@ public class SchedulerUtilJUnit {
   @AfterEach
   public void tearDown() throws Exception {
     // 删除 触发器
-    scheduleService.removeTrigdger(TriggerKey.triggerKey("test"));
+    scheduleService.removeTrigger(TriggerKey.triggerKey("test"));
     // 删除 job
     scheduleService.deleteJob(JobKey.jobKey("junit", "test"));
   }

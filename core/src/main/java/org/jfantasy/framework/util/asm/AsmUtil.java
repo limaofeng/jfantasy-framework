@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -14,6 +15,7 @@ import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.error.IgnoreException;
 import org.jfantasy.framework.util.FantasyClassLoader;
 import org.jfantasy.framework.util.common.ClassUtil;
+import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.PathUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.framework.util.common.file.FileUtil;
@@ -52,7 +54,7 @@ public class AsmUtil implements Opcodes {
   }
 
   public static Class makeInterface(String className, AnnotationDescriptor descriptor) {
-    return makeInterface(className, new AnnotationDescriptor[] {descriptor}, new Class[0]);
+    return makeInterface(className, new AnnotationDescriptor[] {descriptor});
   }
 
   public static Class makeInterface(
@@ -86,6 +88,135 @@ public class AsmUtil implements Opcodes {
       }
       visitor.visitEnd();
     }
+
+    cw.visitEnd();
+
+    return loadClass(className, cw.toByteArray());
+  }
+
+  public static Class makeEnum(String className, String value, String... values) {
+    return makeEnum(
+        className,
+        EnumValue.builder().name(value).build(),
+        Arrays.stream(values)
+            .map(v -> EnumValue.builder().name(v).build())
+            .toArray(EnumValue[]::new));
+  }
+
+  public static Class makeEnum(String className, EnumValue value, EnumValue... values) {
+    String newClassInternalName = className.replace('.', '/');
+
+    ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+    MethodVisitor mv;
+
+    cw.visit(
+        V1_5,
+        ACC_PUBLIC + ACC_FINAL + ACC_SUPER + ACC_ENUM,
+        newClassInternalName,
+        "Ljava/lang/Enum<L" + newClassInternalName + ";>;",
+        "java/lang/Enum",
+        null);
+
+    EnumValue[] allEnumValue = ObjectUtil.merge(new EnumValue[] {value}, values);
+
+    for (EnumValue enumValue : allEnumValue) {
+      FieldVisitor fv =
+          cw.visitField(
+              ACC_PUBLIC + ACC_FINAL + ACC_STATIC + ACC_ENUM,
+              enumValue.getName(),
+              "L" + newClassInternalName + ";",
+              null,
+              null);
+      fv.visitEnd();
+    }
+
+    FieldVisitor fv =
+        cw.visitField(
+            ACC_PRIVATE + ACC_FINAL + ACC_STATIC + ACC_SYNTHETIC,
+            "$VALUES",
+            "[L" + newClassInternalName + ";",
+            null,
+            null);
+    fv.visitEnd();
+
+    mv =
+        cw.visitMethod(
+            ACC_PUBLIC + ACC_FINAL + ACC_STATIC,
+            "values",
+            "()[L" + newClassInternalName + ";",
+            null,
+            null);
+    mv.visitCode();
+    mv.visitFieldInsn(
+        GETSTATIC, newClassInternalName, "$VALUES", "[L" + newClassInternalName + ";");
+    mv.visitMethodInsn(
+        INVOKEVIRTUAL, "[L" + newClassInternalName + ";", "clone", "()Ljava/lang/Object;");
+    mv.visitTypeInsn(CHECKCAST, "[L" + newClassInternalName + ";");
+    mv.visitInsn(ARETURN);
+    mv.visitMaxs(0, 0);
+    mv.visitEnd();
+
+    mv =
+        cw.visitMethod(
+            ACC_PUBLIC + ACC_STATIC,
+            "valueOf",
+            "(Ljava/lang/String;)L" + newClassInternalName + ";",
+            null,
+            null);
+    mv.visitCode();
+    mv.visitLdcInsn(Type.getType("L" + newClassInternalName + ";"));
+    mv.visitVarInsn(ALOAD, 0);
+    mv.visitMethodInsn(
+        INVOKESTATIC,
+        "java/lang/Enum",
+        "valueOf",
+        "(Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/Enum;");
+    mv.visitTypeInsn(CHECKCAST, newClassInternalName);
+    mv.visitInsn(ARETURN);
+    mv.visitMaxs(0, 0);
+    mv.visitEnd();
+
+    mv = cw.visitMethod(ACC_PRIVATE, "<init>", "(Ljava/lang/String;I)V", "()V", null);
+    mv.visitCode();
+    mv.visitVarInsn(ALOAD, 0);
+    mv.visitVarInsn(ALOAD, 1);
+    mv.visitVarInsn(ILOAD, 2);
+    mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Enum", "<init>", "(Ljava/lang/String;I)V");
+    mv.visitInsn(RETURN);
+    mv.visitMaxs(0, 0);
+    mv.visitEnd();
+
+    mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
+    mv.visitCode();
+
+    for (int i = 0; i < allEnumValue.length; i++) {
+      EnumValue enumValue = allEnumValue[i];
+      mv.visitTypeInsn(NEW, newClassInternalName);
+      mv.visitInsn(DUP);
+      mv.visitLdcInsn(enumValue.getName());
+      mv.visitInsn(ICONST_0 + i);
+      mv.visitMethodInsn(INVOKESPECIAL, newClassInternalName, "<init>", "(Ljava/lang/String;I)V");
+      mv.visitFieldInsn(
+          PUTSTATIC, newClassInternalName, enumValue.getName(), "L" + newClassInternalName + ";");
+    }
+
+    mv.visitInsn(ICONST_0 + allEnumValue.length);
+    mv.visitTypeInsn(ANEWARRAY, newClassInternalName);
+
+    for (int i = 0; i < allEnumValue.length; i++) {
+      EnumValue enumValue = allEnumValue[i];
+      mv.visitInsn(DUP);
+      mv.visitInsn(ICONST_0 + i);
+      mv.visitFieldInsn(
+          GETSTATIC, newClassInternalName, enumValue.getName(), "L" + newClassInternalName + ";");
+      mv.visitInsn(AASTORE);
+    }
+
+    mv.visitFieldInsn(
+        PUTSTATIC, newClassInternalName, "$VALUES", "[L" + newClassInternalName + ";");
+    mv.visitInsn(RETURN);
+    mv.visitMaxs(0, 0);
+    mv.visitEnd();
 
     cw.visitEnd();
 

@@ -16,4 +16,11 @@ class AsmUtilTest {
             Property.builder().name("name").type(String.class).build());
     log.debug("newClass" + newClass.getName());
   }
+
+  @Test
+  void makeEnum() {
+    Class newClass = AsmUtil.makeEnum("org.jfantasy.framework.util.asm.DemoEnum", "Test1", "Test2");
+    log.debug("newClass" + newClass.getName());
+    Object eObj = Enum.valueOf(newClass, "Test1");
+  }
 }
