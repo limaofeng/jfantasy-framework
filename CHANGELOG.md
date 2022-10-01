@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.10.2](https://github.com/limaofeng/jfantasy-framework/compare/v2.10.1...v2.10.2) (2022-10-01)
+
+
+### Features
+
+* 为 JPA 添加支持 offset / limit 的 findAll 方法 ([dd64fb0](https://github.com/limaofeng/jfantasy-framework/commit/dd64fb04dd2e95285bae22b985bdcb9bbeb9e925))
+* 优化GraphQL授权 ([61a6f86](https://github.com/limaofeng/jfantasy-framework/commit/61a6f867936505f35bb76c1666e5a4ce4dfc7941))
+* 添加 asm 工具函数 makeEnum ([00c5200](https://github.com/limaofeng/jfantasy-framework/commit/00c52003504d168277ba3bc9d770f5f9bf0023f7))
+
+
+### Bug Fixes
+
+* mybatis.mapper-locations 配置多个 ([d75978c](https://github.com/limaofeng/jfantasy-framework/commit/d75978c1fe2010943df9f08df8e17760f5ecb4ca))
+* 优化 mybatis 集成 ([5ee7b6a](https://github.com/limaofeng/jfantasy-framework/commit/5ee7b6a49359e6081f341d0a4d0b4f0ba0bc2f48))
+* 优化GraphQL授权 ([d7403d6](https://github.com/limaofeng/jfantasy-framework/commit/d7403d6beadcce98addbd7020af23f779444e388))
+* 优化GraphQL授权 ([04c4255](https://github.com/limaofeng/jfantasy-framework/commit/04c42550332914d5bb1504f3d0cc0c4ad9d05c5b))
+* 修复一些过时的写法 ([08e01ed](https://github.com/limaofeng/jfantasy-framework/commit/08e01ed4d5e606d9f54d9ea7c86c7e94e1d1c8be))
+* 修复获取授权方法 ([b771fe3](https://github.com/limaofeng/jfantasy-framework/commit/b771fe3c3d6786a3a5f260f8ee7ea27e597e585d))
+* 添加工具函数 WebUtil.getFullUrl ([3212ea6](https://github.com/limaofeng/jfantasy-framework/commit/3212ea6a5a8d8d0889d42d4fbee1fb9292066fd7))
+
 ### [2.10.1](https://github.com/limaofeng/jfantasy-framework/compare/v2.10.0...v2.10.1) (2022-07-25)
 
 
