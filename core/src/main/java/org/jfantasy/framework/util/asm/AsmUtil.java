@@ -15,7 +15,6 @@ import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.error.IgnoreException;
 import org.jfantasy.framework.util.FantasyClassLoader;
 import org.jfantasy.framework.util.common.ClassUtil;
-import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.PathUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.framework.util.common.file.FileUtil;
@@ -94,16 +93,15 @@ public class AsmUtil implements Opcodes {
     return loadClass(className, cw.toByteArray());
   }
 
-  public static Class makeEnum(String className, String value, String... values) {
+  public static Class makeEnum(String className, String... values) {
     return makeEnum(
         className,
-        EnumValue.builder().name(value).build(),
         Arrays.stream(values)
             .map(v -> EnumValue.builder().name(v).build())
             .toArray(EnumValue[]::new));
   }
 
-  public static Class makeEnum(String className, EnumValue value, EnumValue... values) {
+  public static Class makeEnum(String className, EnumValue... values) {
     String newClassInternalName = className.replace('.', '/');
 
     ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
@@ -117,9 +115,7 @@ public class AsmUtil implements Opcodes {
         "java/lang/Enum",
         null);
 
-    EnumValue[] allEnumValue = ObjectUtil.merge(new EnumValue[] {value}, values);
-
-    for (EnumValue enumValue : allEnumValue) {
+    for (EnumValue enumValue : values) {
       FieldVisitor fv =
           cw.visitField(
               ACC_PUBLIC + ACC_FINAL + ACC_STATIC + ACC_ENUM,
@@ -189,8 +185,8 @@ public class AsmUtil implements Opcodes {
     mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
     mv.visitCode();
 
-    for (int i = 0; i < allEnumValue.length; i++) {
-      EnumValue enumValue = allEnumValue[i];
+    for (int i = 0; i < values.length; i++) {
+      EnumValue enumValue = values[i];
       mv.visitTypeInsn(NEW, newClassInternalName);
       mv.visitInsn(DUP);
       mv.visitLdcInsn(enumValue.getName());
@@ -200,11 +196,11 @@ public class AsmUtil implements Opcodes {
           PUTSTATIC, newClassInternalName, enumValue.getName(), "L" + newClassInternalName + ";");
     }
 
-    mv.visitInsn(ICONST_0 + allEnumValue.length);
+    mv.visitInsn(ICONST_0 + values.length);
     mv.visitTypeInsn(ANEWARRAY, newClassInternalName);
 
-    for (int i = 0; i < allEnumValue.length; i++) {
-      EnumValue enumValue = allEnumValue[i];
+    for (int i = 0; i < values.length; i++) {
+      EnumValue enumValue = values[i];
       mv.visitInsn(DUP);
       mv.visitInsn(ICONST_0 + i);
       mv.visitFieldInsn(
