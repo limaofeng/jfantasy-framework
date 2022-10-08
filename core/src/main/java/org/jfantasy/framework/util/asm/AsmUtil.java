@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.Lock;
@@ -244,12 +245,13 @@ public class AsmUtil implements Opcodes {
     ClassWriter cw = new ClassWriter(F_FULL);
 
     String newClassInternalName = className.replace('.', '/');
-    String superClassInternalName = Type.getInternalName(ClassUtil.forName(superClassName));
+    String superClassInternalName =
+        Type.getInternalName(Objects.requireNonNull(ClassUtil.forName(superClassName)));
 
-    String[] iters = new String[interfaces.length];
+    String[] iteRs = new String[interfaces.length];
     for (int i = 0, len = interfaces.length; i < len; i++) {
       Class inter = interfaces[i];
-      iters[i] = inter.getName().replace('.', '/');
+      iteRs[i] = inter.getName().replace('.', '/');
     }
 
     AsmContext.getContext().set("className", className);
@@ -258,7 +260,7 @@ public class AsmUtil implements Opcodes {
     Label l0 = new Label();
     Label l1 = new Label();
 
-    cw.visit(V1_6, ACC_PUBLIC, newClassInternalName, null, superClassInternalName, iters);
+    cw.visit(V1_6, ACC_PUBLIC, newClassInternalName, null, superClassInternalName, iteRs);
 
     cw.visitSource(RegexpUtil.parseGroup(className, "\\.([A-Za-z0-9_$]+)$", 1) + ".java", null);
 
@@ -359,7 +361,9 @@ public class AsmUtil implements Opcodes {
           "set" + StringUtil.upperCaseFirst(fieldName),
           Type.getMethodDescriptor(
               Type.getReturnType("()V"), Type.getType(property.getDescriptor())),
-          property.getGenericTypes().length != 0 ? "(" + property.getSignature() + ")V" : null,
+          StringUtil.isNotBlank(property.getSignature())
+              ? "(" + property.getSignature() + ")V"
+              : null,
           property.getSetMethodCreator());
     }
 
@@ -370,7 +374,7 @@ public class AsmUtil implements Opcodes {
           (boolean.class == property.getType() ? "is" : "get")
               + StringUtil.upperCaseFirst(fieldName),
           Type.getMethodDescriptor(Type.getType(property.getDescriptor())),
-          property.getGenericTypes().length != 0 ? "()" + property.getSignature() : null,
+          StringUtil.isNotBlank(property.getSignature()) ? "()" + property.getSignature() : null,
           property.getGetMethodCreator());
     }
   }
@@ -487,7 +491,9 @@ public class AsmUtil implements Opcodes {
         if (paramNames.length > 0) {
           final Class<?> clazz = m.getDeclaringClass();
           ClassReader cr =
-              new ClassReader(clazz.getResourceAsStream(clazz.getSimpleName() + ".class"));
+              new ClassReader(
+                  Objects.requireNonNull(
+                      clazz.getResourceAsStream(clazz.getSimpleName() + ".class")));
           cr.accept(
               new ClassVisitor(Opcodes.V1_8) {
                 @Override

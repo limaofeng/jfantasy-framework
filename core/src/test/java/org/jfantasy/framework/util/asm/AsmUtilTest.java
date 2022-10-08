@@ -17,7 +17,8 @@ class AsmUtilTest {
             "org.jfantasy.framework.util.asm.DemoBean",
             Property.builder()
                 .name("name")
-                .descriptor("Lorg/jfantasy/framework/util/asm/DemoBean;")
+                .descriptor("Ljava/util/List;")
+                .signature("Ljava/util/List<Lorg/jfantasy/framework/util/asm/DemoBean;>;")
                 .build(),
             Property.builder().type(boolean.class).name("flag").build(),
             Property.builder().type(String.class).name("sex").build());
