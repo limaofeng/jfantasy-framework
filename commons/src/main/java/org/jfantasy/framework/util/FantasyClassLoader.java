@@ -17,7 +17,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class FantasyClassLoader extends ClassLoader {
 
-  private Lock lock = new ReentrantLock();
+  private final Lock lock = new ReentrantLock();
 
   private static final FantasyClassLoader fantasyClassLoader =
       AccessController.doPrivileged(
@@ -94,7 +94,6 @@ public class FantasyClassLoader extends ClassLoader {
    *
    * @param classname 类路径
    * @return Class
-   * @throws ClassNotFoundException
    */
   @Override
   public Class loadClass(String classname) throws ClassNotFoundException {

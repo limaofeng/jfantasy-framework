@@ -31,9 +31,13 @@ public class AsmUtil implements Opcodes {
    * 创建一个java动态bean
    *
    * @param className 新生产className
-   * @param properties bean 属性
+   * @param methods 方法
    * @return 新生成的 class
    */
+  public static Class makeClass(String className, MethodInfo[] methods) {
+    return makeClass(className, Object.class.getName(), new Class[0], new Property[0], methods);
+  }
+
   public static Class makeClass(String className, Property... properties) {
     return makeClass(
         className, Object.class.getName(), new Class[0], properties, new MethodInfo[0]);
@@ -41,6 +45,18 @@ public class AsmUtil implements Opcodes {
 
   public static Class makeClass(String className, Class[] interfaces, Property... properties) {
     return makeClass(className, Object.class.getName(), interfaces, properties, new MethodInfo[0]);
+  }
+
+  /**
+   * 创建一个java动态bean
+   *
+   * @param className 新生产className
+   * @param superClassName 父类
+   * @param methods 方法
+   * @return 新生成的 class
+   */
+  public static Class makeClass(String className, String superClassName, MethodInfo... methods) {
+    return makeClass(className, superClassName, new Class[0], new Property[0], methods);
   }
 
   public static Class makeClass(String className, String superClassName, Property... properties) {
@@ -242,7 +258,6 @@ public class AsmUtil implements Opcodes {
     Label l0 = new Label();
     Label l1 = new Label();
 
-    /** 注：第一个参数为版本号 */
     cw.visit(V1_6, ACC_PUBLIC, newClassInternalName, null, superClassInternalName, iters);
 
     cw.visitSource(RegexpUtil.parseGroup(className, "\\.([A-Za-z0-9_$]+)$", 1) + ".java", null);
@@ -250,18 +265,14 @@ public class AsmUtil implements Opcodes {
     // 构造方法
     MethodVisitor mv =
         cw.visitMethod(
-            ACC_PUBLIC,
-            "<init>",
-            Type.getMethodDescriptor(Type.getReturnType("()V"), new Type[0]),
-            null,
-            null);
+            ACC_PUBLIC, "<init>", Type.getMethodDescriptor(Type.getReturnType("()V")), null, null);
     mv.visitLabel(l0);
     mv.visitVarInsn(ALOAD, 0);
     mv.visitMethodInsn(
         INVOKESPECIAL,
         superClassInternalName,
         "<init>",
-        Type.getMethodDescriptor(Type.getReturnType("()V"), new Type[0]));
+        Type.getMethodDescriptor(Type.getReturnType("()V")));
     mv.visitInsn(RETURN);
     mv.visitLabel(l1);
     mv.visitLocalVariable("this", getTypeDescriptor(className), null, l0, l1, 0);
@@ -286,7 +297,7 @@ public class AsmUtil implements Opcodes {
         cw.visitMethod(
             ACC_PUBLIC,
             "toString",
-            Type.getMethodDescriptor(Type.getType(String.class), new Type[0]),
+            Type.getMethodDescriptor(Type.getType(String.class)),
             null,
             null);
     mv.visitCode();
@@ -322,8 +333,8 @@ public class AsmUtil implements Opcodes {
   protected static void makeProperty(ClassWriter classWriter, Property property) {
 
     String fieldName = property.getName();
-    String descriptor = Type.getDescriptor(property.getType());
-    String signature = getSignature(property.getType(), property.getGenericTypes());
+    String descriptor = property.getDescriptor();
+    String signature = property.getSignature();
 
     // 属性
     FieldVisitor fieldVisitor =
@@ -347,10 +358,8 @@ public class AsmUtil implements Opcodes {
           classWriter,
           "set" + StringUtil.upperCaseFirst(fieldName),
           Type.getMethodDescriptor(
-              Type.getReturnType("()V"), new Type[] {Type.getType(property.getType())}),
-          property.getGenericTypes().length != 0
-              ? "(" + getSignature(property.getType(), property.getGenericTypes()) + ")V"
-              : null,
+              Type.getReturnType("()V"), Type.getType(property.getDescriptor())),
+          property.getGenericTypes().length != 0 ? "(" + property.getSignature() + ")V" : null,
           property.getSetMethodCreator());
     }
 
@@ -360,10 +369,8 @@ public class AsmUtil implements Opcodes {
           classWriter,
           (boolean.class == property.getType() ? "is" : "get")
               + StringUtil.upperCaseFirst(fieldName),
-          Type.getMethodDescriptor(Type.getType(property.getType()), new Type[0]),
-          property.getGenericTypes().length != 0
-              ? "()" + getSignature(property.getType(), property.getGenericTypes())
-              : null,
+          Type.getMethodDescriptor(Type.getType(property.getDescriptor())),
+          property.getGenericTypes().length != 0 ? "()" + property.getSignature() : null,
           property.getGetMethodCreator());
     }
   }
@@ -459,7 +466,7 @@ public class AsmUtil implements Opcodes {
   }
 
   private static final ConcurrentMap<Method, String[]> methodParamNameCache =
-      new ConcurrentHashMap<Method, String[]>();
+      new ConcurrentHashMap<>();
 
   private static final Lock methodParamNameLock = new ReentrantLock();
 

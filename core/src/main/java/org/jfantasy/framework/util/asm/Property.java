@@ -3,6 +3,7 @@ package org.jfantasy.framework.util.asm;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
+import org.jfantasy.framework.util.common.ObjectUtil;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -19,10 +20,15 @@ import org.objectweb.asm.Type;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Property {
+
   /** 属性名称 */
   private String name;
   /** 属性类型 */
   private Class type;
+  /** 类型描述 */
+  private String descriptor;
+
+  private String signature;
   /** 泛型 */
   @Builder.Default private Class[] genericTypes = new Class[0];
   /** 是否可以写入(set操作) */
@@ -45,7 +51,7 @@ public class Property {
           Label l1 = new Label();
 
           String fieldName = property.getName();
-          String descriptor = Type.getDescriptor(property.getType());
+          String descriptor = property.getDescriptor();
           int[] loadAndReturnOf = AsmUtil.loadAndReturnOf(descriptor);
 
           mv.visitLabel(l0);
@@ -72,7 +78,8 @@ public class Property {
           String newClassInternalName = className.replace('.', '/');
 
           String fieldName = property.getName();
-          String descriptor = Type.getDescriptor(property.getType());
+          String descriptor = property.getDescriptor();
+          String signature = property.getSignature();
           int[] loadAndReturnOf = AsmUtil.loadAndReturnOf(descriptor);
 
           Label l0 = new Label();
@@ -87,14 +94,7 @@ public class Property {
           mv.visitInsn(Opcodes.RETURN);
           mv.visitLabel(l2);
           mv.visitLocalVariable("this", AsmUtil.getTypeDescriptor(className), null, l0, l2, 0);
-          mv.visitLocalVariable(
-              fieldName,
-              descriptor,
-              AsmUtil.getSignature(property.getType(), property.getGenericTypes()),
-              l0,
-              l2,
-              1);
-          // mv.visitVarInsn(loadAndReturnOf[0], Opcodes.F_APPEND); ALOAD
+          mv.visitLocalVariable(fieldName, descriptor, signature, l0, l2, 1);
           mv.visitMaxs(2, 2);
         }
       };
@@ -127,6 +127,8 @@ public class Property {
     this.genericTypes = genericTypes;
     this.read = read;
     this.write = write;
+    this.descriptor = Type.getDescriptor(type);
+    this.signature = AsmUtil.getSignature(type, genericTypes);
   }
 
   public String getName() {
@@ -135,6 +137,16 @@ public class Property {
 
   public Class getType() {
     return type;
+  }
+
+  public String getSignature() {
+    return ObjectUtil.defaultValue(
+        signature,
+        () -> type != null ? signature = AsmUtil.getSignature(type, genericTypes) : null);
+  }
+
+  public String getDescriptor() {
+    return ObjectUtil.defaultValue(descriptor, () -> descriptor = Type.getDescriptor(type));
   }
 
   public boolean isWrite() {
