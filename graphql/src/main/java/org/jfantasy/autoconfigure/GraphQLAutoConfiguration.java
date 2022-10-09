@@ -16,6 +16,7 @@ import org.jfantasy.graphql.execution.GraphQLTransactionInstrumentation;
 import org.springframework.aop.support.DefaultBeanFactoryPointcutAdvisor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -44,11 +45,13 @@ public class GraphQLAutoConfiguration {
   }
 
   @Bean(GraphQLWebAutoConfiguration.QUERY_EXECUTION_STRATEGY)
+  @ConditionalOnMissingBean
   public ExecutionStrategy queryExecutionStrategy() {
     return new AsyncQueryExecutionStrategy();
   }
 
   @Bean(GraphQLWebAutoConfiguration.MUTATION_EXECUTION_STRATEGY)
+  @ConditionalOnMissingBean
   public ExecutionStrategy mutationExecutionStrategy() {
     return new AsyncMutationExecutionStrategy();
   }

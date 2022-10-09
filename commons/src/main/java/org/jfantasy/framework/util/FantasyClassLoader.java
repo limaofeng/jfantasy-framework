@@ -20,22 +20,12 @@ public class FantasyClassLoader extends ClassLoader {
   private final Lock lock = new ReentrantLock();
 
   private static final FantasyClassLoader fantasyClassLoader =
-      AccessController.doPrivileged(
-          new PrivilegedAction<FantasyClassLoader>() {
-            @Override
-            public FantasyClassLoader run() {
-              return new FantasyClassLoader();
-            }
-          });
+      AccessController.doPrivileged((PrivilegedAction<FantasyClassLoader>) FantasyClassLoader::new);
 
   private DynamicClassLoader classLoader =
       AccessController.doPrivileged(
-          new PrivilegedAction<DynamicClassLoader>() {
-            @Override
-            public DynamicClassLoader run() {
-              return new DynamicClassLoader(DynamicClassLoader.class.getClassLoader());
-            }
-          });
+          (PrivilegedAction<DynamicClassLoader>)
+              () -> new DynamicClassLoader(DynamicClassLoader.class.getClassLoader()));
 
   /** 已被加载的对象 */
   private static final List<String> loadClasses = new ArrayList<>();
@@ -55,7 +45,7 @@ public class FantasyClassLoader extends ClassLoader {
     try {
       lock.lock();
       if (loadClasses.contains(classname)) { // 如果对象已经被加载
-        classLoader = new DynamicClassLoader(classLoader); // 创建新的加载器
+        classLoader = new DynamicClassLoader(classLoader); // 创建新加载器
         loadClasses.clear();
       }
       loadClasses.add(classname);
@@ -69,21 +59,20 @@ public class FantasyClassLoader extends ClassLoader {
   /**
    * 通过字节码加载类
    *
-   * @param classdata classdata
+   * @param classData classData
    * @param classname classname
    * @return Class
-   * @throws ClassNotFoundException
    */
-  public Class loadClass(byte[] classdata, String classname) throws ClassNotFoundException {
+  public <T> Class<T> loadClass(byte[] classData, String classname) throws ClassNotFoundException {
     try {
       lock.lock();
       if (loadClasses.contains(classname)) { // 如果对象已经被加载
-        classLoader = new DynamicClassLoader(classLoader); // 创建新的加载器
+        classLoader = new DynamicClassLoader(classLoader); // 创建新加载器
         loadClasses.clear();
       }
       loadClasses.add(classname);
       unloadClasses.remove(classname);
-      return classLoader.loadClass(classdata, classname);
+      return classLoader.loadClass(classData, classname);
     } finally {
       lock.unlock();
     }

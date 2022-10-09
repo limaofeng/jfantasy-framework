@@ -207,19 +207,32 @@ public class AsmUtil implements Opcodes {
       mv.visitTypeInsn(NEW, newClassInternalName);
       mv.visitInsn(DUP);
       mv.visitLdcInsn(enumValue.getName());
-      mv.visitInsn(ICONST_0 + i);
-      mv.visitMethodInsn(INVOKESPECIAL, newClassInternalName, "<init>", "(Ljava/lang/String;I)V");
+      if (ICONST_0 + i > ICONST_5) {
+        mv.visitIntInsn(BIPUSH, i);
+      } else {
+        mv.visitInsn(ICONST_0 + i);
+      }
+      mv.visitMethodInsn(
+          INVOKESPECIAL, newClassInternalName, "<init>", "(Ljava/lang/String;I)V", false);
       mv.visitFieldInsn(
           PUTSTATIC, newClassInternalName, enumValue.getName(), "L" + newClassInternalName + ";");
     }
 
-    mv.visitInsn(ICONST_0 + values.length);
+    if (values.length < 6) {
+      mv.visitInsn(ICONST_0 + values.length);
+    } else {
+      mv.visitIntInsn(BIPUSH, values.length);
+    }
     mv.visitTypeInsn(ANEWARRAY, newClassInternalName);
 
     for (int i = 0; i < values.length; i++) {
       EnumValue enumValue = values[i];
       mv.visitInsn(DUP);
-      mv.visitInsn(ICONST_0 + i);
+      if (ICONST_0 + i > ICONST_5) {
+        mv.visitIntInsn(BIPUSH, i);
+      } else {
+        mv.visitInsn(ICONST_0 + i);
+      }
       mv.visitFieldInsn(
           GETSTATIC, newClassInternalName, enumValue.getName(), "L" + newClassInternalName + ";");
       mv.visitInsn(AASTORE);

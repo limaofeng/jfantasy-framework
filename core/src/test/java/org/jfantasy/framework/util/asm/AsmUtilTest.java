@@ -4,6 +4,7 @@ import static org.objectweb.asm.Opcodes.IADD;
 import static org.objectweb.asm.Opcodes.ILOAD;
 import static org.objectweb.asm.Opcodes.IRETURN;
 
+import java.lang.reflect.InvocationTargetException;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
@@ -26,10 +27,19 @@ class AsmUtilTest {
   }
 
   @Test
-  void makeEnum() {
-    Class newClass = AsmUtil.makeEnum("org.jfantasy.framework.util.asm.DemoEnum", "Test1", "Test2");
+  void makeEnum() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    Class newClass =
+        AsmUtil.makeEnum(
+            "cn.asany.test.CnAsanyTestAccountOrderBy",
+            "createdAt_ASC",
+            "createdAt_DESC",
+            "updatedAt_ASC",
+            "updatedAt_DESC",
+            "name_ASC",
+            "name_DESC");
     log.debug("newClass" + newClass.getName());
-    Object eObj = Enum.valueOf(newClass, "Test1");
+    newClass.getMethod("values").invoke(null);
+    Object eObj = Enum.valueOf(newClass, "updatedAt_DESC");
   }
 
   @Test
