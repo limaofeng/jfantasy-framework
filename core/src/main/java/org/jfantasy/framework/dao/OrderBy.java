@@ -31,13 +31,15 @@ public class OrderBy {
   public OrderBy(String property, Direction direction) {
     this.property = property;
     this.direction = direction;
-    this.orders = Collections.emptyList();
+    this.orders = new ArrayList<>();
+    this.orders.add(this);
   }
 
   public OrderBy(String property, Direction direction, Sort.NullHandling nullHandling) {
     this.property = property;
     this.direction = direction;
-    this.orders = Collections.emptyList();
+    this.orders = new ArrayList<>();
+    this.orders.add(this);
     this.nullHandling = nullHandling;
   }
 
@@ -89,33 +91,29 @@ public class OrderBy {
     if (this == UNSORTED || isEmpty) {
       return Sort.unsorted();
     }
-    if (this.isMulti()) {
-      return Sort.by(
-          this.getOrders().stream()
-              .map(
-                  item ->
-                      new Sort.Order(
-                          Sort.Direction.valueOf(item.getDirection().name()),
-                          item.getProperty(),
-                          item.getNullHandling()))
-              .collect(Collectors.toList()));
-    }
     return Sort.by(
-        new Sort.Order(
-            Sort.Direction.valueOf(this.getDirection().name()),
-            this.getProperty(),
-            this.getNullHandling()));
+        this.getOrders().stream()
+            .map(
+                item ->
+                    new Sort.Order(
+                        Sort.Direction.valueOf(item.getDirection().name()),
+                        item.getProperty(),
+                        item.getNullHandling()))
+            .collect(Collectors.toList()));
   }
 
   @Override
   public String toString() {
     if (this.orders.isEmpty()) {
+      return "not sort";
+    }
+    if (this.orders.size() == 1) {
       return property + "_" + this.direction.name();
     }
     return this.orders.stream().map(OrderBy::toString).collect(Collectors.joining(","));
   }
 
-  public boolean isMulti() {
+  public boolean isOrderBySeted() {
     return !this.orders.isEmpty();
   }
 

@@ -163,7 +163,7 @@ public class AsmUtil implements Opcodes {
     mv.visitFieldInsn(
         GETSTATIC, newClassInternalName, "$VALUES", "[L" + newClassInternalName + ";");
     mv.visitMethodInsn(
-        INVOKEVIRTUAL, "[L" + newClassInternalName + ";", "clone", "()Ljava/lang/Object;");
+        INVOKEVIRTUAL, "[L" + newClassInternalName + ";", "clone", "()Ljava/lang/Object;", false);
     mv.visitTypeInsn(CHECKCAST, "[L" + newClassInternalName + ";");
     mv.visitInsn(ARETURN);
     mv.visitMaxs(0, 0);
@@ -183,7 +183,8 @@ public class AsmUtil implements Opcodes {
         INVOKESTATIC,
         "java/lang/Enum",
         "valueOf",
-        "(Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/Enum;");
+        "(Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/Enum;",
+        false);
     mv.visitTypeInsn(CHECKCAST, newClassInternalName);
     mv.visitInsn(ARETURN);
     mv.visitMaxs(0, 0);
@@ -194,7 +195,7 @@ public class AsmUtil implements Opcodes {
     mv.visitVarInsn(ALOAD, 0);
     mv.visitVarInsn(ALOAD, 1);
     mv.visitVarInsn(ILOAD, 2);
-    mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Enum", "<init>", "(Ljava/lang/String;I)V");
+    mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Enum", "<init>", "(Ljava/lang/String;I)V", false);
     mv.visitInsn(RETURN);
     mv.visitMaxs(0, 0);
     mv.visitEnd();
@@ -297,7 +298,8 @@ public class AsmUtil implements Opcodes {
         INVOKESPECIAL,
         superClassInternalName,
         "<init>",
-        Type.getMethodDescriptor(Type.getReturnType("()V")));
+        Type.getMethodDescriptor(Type.getReturnType("()V")),
+        false);
     mv.visitInsn(RETURN);
     mv.visitLabel(l1);
     mv.visitLocalVariable("this", getTypeDescriptor(className), null, l0, l1, 0);
@@ -574,7 +576,8 @@ public class AsmUtil implements Opcodes {
                     public void visitFieldInsn(int arg0, String arg1, String arg2, String arg3) {}
 
                     @Override
-                    public void visitMethodInsn(int i, String s, String s2, String s3) {}
+                    public void visitMethodInsn(
+                        int i, String s, String s2, String s3, boolean is) {}
 
                     @Override
                     public void visitFrame(
