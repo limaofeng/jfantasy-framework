@@ -47,19 +47,20 @@ class AsmUtilTest {
     Class newClass =
         AsmUtil.makeClass(
             "org.jfantasy.framework.util.asm.DemoBean",
-            "graphql.kickstart.tools.GraphQLQueryResolver",
-            new MethodInfo(
-                "add",
-                "(II)I",
-                null,
-                (mv) -> {
-                  mv.visitCode();
-                  mv.visitVarInsn(ILOAD, 1);
-                  mv.visitVarInsn(ILOAD, 2);
-                  mv.visitInsn(IADD);
-                  mv.visitInsn(IRETURN);
-                  mv.visitMaxs(2, 3);
-                }));
+            Object.class.getName(),
+            MethodInfo.builder()
+                .methodName("add")
+                .methodDescriptor("(II)I")
+                .methodCreator(
+                    (mv) -> {
+                      mv.visitCode();
+                      mv.visitVarInsn(ILOAD, 1);
+                      mv.visitVarInsn(ILOAD, 2);
+                      mv.visitInsn(IADD);
+                      mv.visitInsn(IRETURN);
+                      mv.visitMaxs(2, 3);
+                    })
+                .build());
     log.debug("newClass" + newClass.getName());
   }
 }

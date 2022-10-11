@@ -1,8 +1,19 @@
 package org.jfantasy.framework.util.asm;
 
+import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+
+@Builder
+@Getter
+@AllArgsConstructor
 public class MethodInfo {
 
   private String methodName;
+
+  @Builder.Default private int symbolTable = ACC_PUBLIC;
   private String methodDescriptor;
   private String signature;
   MethodCreator methodCreator;
@@ -12,38 +23,6 @@ public class MethodInfo {
     this.methodName = methodName;
     this.methodDescriptor = methodDescriptor;
     this.signature = signature;
-    this.methodCreator = methodCreator;
-  }
-
-  public String getMethodName() {
-    return methodName;
-  }
-
-  public void setMethodName(String methodName) {
-    this.methodName = methodName;
-  }
-
-  public String getMethodDescriptor() {
-    return methodDescriptor;
-  }
-
-  public void setMethodDescriptor(String methodDescriptor) {
-    this.methodDescriptor = methodDescriptor;
-  }
-
-  public String getSignature() {
-    return signature;
-  }
-
-  public void setSignature(String signature) {
-    this.signature = signature;
-  }
-
-  public MethodCreator getMethodCreator() {
-    return methodCreator;
-  }
-
-  public void setMethodCreator(MethodCreator methodCreator) {
     this.methodCreator = methodCreator;
   }
 }

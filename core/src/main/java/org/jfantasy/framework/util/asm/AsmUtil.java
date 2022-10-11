@@ -313,6 +313,7 @@ public class AsmUtil implements Opcodes {
     for (MethodInfo methodInfo : methodInfos) {
       makeMethod(
           cw,
+          methodInfo.getSymbolTable(),
           methodInfo.getMethodName(),
           methodInfo.getMethodDescriptor(),
           methodInfo.getSignature(),
@@ -383,6 +384,7 @@ public class AsmUtil implements Opcodes {
     if (property.isWrite()) {
       makeMethod(
           classWriter,
+          ACC_PUBLIC,
           "set" + StringUtil.upperCaseFirst(fieldName),
           Type.getMethodDescriptor(
               Type.getReturnType("()V"), Type.getType(property.getDescriptor())),
@@ -396,6 +398,7 @@ public class AsmUtil implements Opcodes {
     if (property.isRead()) {
       makeMethod(
           classWriter,
+          ACC_PUBLIC,
           (boolean.class == property.getType() ? "is" : "get")
               + StringUtil.upperCaseFirst(fieldName),
           Type.getMethodDescriptor(Type.getType(property.getDescriptor())),
@@ -406,13 +409,14 @@ public class AsmUtil implements Opcodes {
 
   protected static void makeMethod(
       ClassWriter classWriter,
+      int symbolTable,
       String methodName,
       String methodDescriptor,
       String signature,
       MethodCreator methodCreator) {
     MethodVisitor mv =
         classWriter.visitMethod(
-            ACC_PUBLIC, methodName, methodDescriptor, signature, new String[] {});
+            symbolTable, methodName, methodDescriptor, signature, new String[] {});
 
     mv.visitCode();
 
