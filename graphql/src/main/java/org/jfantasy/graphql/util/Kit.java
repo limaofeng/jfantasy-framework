@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.persistence.Id;
+import lombok.SneakyThrows;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.reflect.Property;
 import org.jfantasy.graphql.Connection;
@@ -33,10 +34,10 @@ public class Kit {
     return input.getClass().getSimpleName();
   }
 
+  @SneakyThrows
   public static <C extends Connection, T, R extends Edge> C connection(
       Page<T> page, Class<C> connectionClass, Function<T, R> mapper) {
-    C connection = ClassUtil.newInstance(connectionClass);
-    assert connection != null;
+    C connection = connectionClass.newInstance();
 
     List<T> nodes = page.getContent();
 
@@ -93,10 +94,10 @@ public class Kit {
     return (C) connection(page, connectionClass, new EdgeConverter(edgeClass));
   }
 
+  @SneakyThrows
   public static <C extends Connection, T, R extends Edge> C connection(
       org.jfantasy.framework.dao.Page<T> page, Class<C> connectionClass, Function<T, R> mapper) {
-    C connection = ClassUtil.newInstance(connectionClass);
-    assert connection != null;
+    C connection = connectionClass.newInstance();
 
     List<T> nodes = page.getPageItems();
 
@@ -128,7 +129,7 @@ public class Kit {
     connection.setPageInfo(pageInfoBuilder.build());
 
     // 临时的兼容，后期会删除
-    connection.setTotalCount((int) page.getTotalCount());
+    connection.setTotalCount(page.getTotalCount());
     connection.setTotalPage(page.getTotalPage());
     connection.setCurrentPage(page.getCurrentPage());
     connection.setPageSize(page.getPageSize());
@@ -153,9 +154,9 @@ public class Kit {
     }
 
     @Override
+    @SneakyThrows
     public R apply(T value) {
-      Edge edge = (Edge) ClassUtil.newInstance(edgeClass);
-      assert edge != null;
+      Edge edge = (Edge) edgeClass.newInstance();
       if (mapper != null) {
         edge.setNode(mapper.apply(value));
       } else {

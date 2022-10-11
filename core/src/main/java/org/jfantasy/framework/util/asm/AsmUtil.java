@@ -341,7 +341,7 @@ public class AsmUtil implements Opcodes {
     return loadClass(className, cw.toByteArray());
   }
 
-  public static Class loadClass(String className, byte[] bytes) {
+  public static <T> Class<T> loadClass(String className, byte[] bytes) {
     try {
       FileUtil.writeFile(
           bytes, PathUtil.classes() + "/" + className.replace(".", File.separator) + ".class");
