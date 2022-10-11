@@ -255,6 +255,16 @@ public class AsmUtil implements Opcodes {
       Class[] interfaces,
       Property[] properties,
       MethodInfo[] methodInfos) {
+    return makeClass(className, null, superClassName, interfaces, properties, methodInfos);
+  }
+
+  public static Class makeClass(
+      String className,
+      String signature,
+      String superClassName,
+      Class[] interfaces,
+      Property[] properties,
+      MethodInfo[] methodInfos) {
     ClassWriter cw = new ClassWriter(F_FULL);
 
     String newClassInternalName = className.replace('.', '/');
@@ -273,7 +283,7 @@ public class AsmUtil implements Opcodes {
     Label l0 = new Label();
     Label l1 = new Label();
 
-    cw.visit(V1_6, ACC_PUBLIC, newClassInternalName, null, superClassInternalName, iteRs);
+    cw.visit(V1_6, ACC_PUBLIC, newClassInternalName, signature, superClassInternalName, iteRs);
 
     cw.visitSource(RegexpUtil.parseGroup(className, "\\.([A-Za-z0-9_$]+)$", 1) + ".java", null);
 
