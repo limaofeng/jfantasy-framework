@@ -14,8 +14,7 @@ import java.io.Reader;
 import java.util.Date;
 import java.util.List;
 import lombok.SneakyThrows;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.jackson.deserializer.DateDeserializer;
 import org.jfantasy.framework.jackson.serializer.DateSerializer;
 import org.jfantasy.framework.util.common.ClassUtil;
@@ -25,9 +24,8 @@ import org.jfantasy.framework.util.common.ClassUtil;
  *
  * @author limaofeng
  */
+@Slf4j
 public class JSON {
-
-  private static final Log LOG = LogFactory.getLog(JSON.class);
 
   private static ObjectMapper objectMapper;
   private static XmlMapper xmlMapper;
@@ -39,11 +37,11 @@ public class JSON {
 
   public static synchronized void initialize(ObjectMapper objectMapper) {
     if (JSON.objectMapper != null) {
-      LOG.warn("重置 JSON 工具类中的 ObjectMapper 对象.");
+      log.warn("重置 JSON 工具类中的 ObjectMapper 对象.");
     }
     JSON.objectMapper =
         objectMapper
-            .setPropertyNamingStrategy(PropertyNamingStrategy.LOWER_CAMEL_CASE)
+            .setPropertyNamingStrategy(PropertyNamingStrategies.LOWER_CAMEL_CASE)
             .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
             .enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES)
             .enable(JsonParser.Feature.ALLOW_SINGLE_QUOTES)
@@ -108,7 +106,7 @@ public class JSON {
     try {
       return objectMapper.readTree(json);
     } catch (IOException e) {
-      LOG.error(e.getMessage() + " source json string : " + json + " => readNode", e);
+      log.error(e.getMessage() + " source json string : " + json + " => readNode", e);
     }
     return null;
   }
@@ -125,7 +123,7 @@ public class JSON {
     try {
       return objectMapper.readValue(input, classed);
     } catch (IOException e) {
-      LOG.error(e.getMessage() + " source input stream => " + classed, e);
+      log.error(e.getMessage() + " source input stream => " + classed, e);
     }
     return null;
   }
@@ -134,7 +132,7 @@ public class JSON {
     try {
       return objectMapper.readValue(src, classed);
     } catch (IOException e) {
-      LOG.error(e.getMessage() + " source reader => " + classed, e);
+      log.error(e.getMessage() + " source reader => " + classed, e);
     }
     return null;
   }
@@ -143,7 +141,7 @@ public class JSON {
     try {
       return objectMapper.readValue(json, classed);
     } catch (IOException e) {
-      LOG.error(e.getMessage() + " source json string : " + json + " => " + classed, e);
+      log.error(e.getMessage() + " source json string : " + json + " => " + classed, e);
     }
     return null;
   }
@@ -152,16 +150,16 @@ public class JSON {
     try {
       return (T[]) objectMapper.readValue(json, classed.getClass());
     } catch (IOException e) {
-      LOG.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
       return null;
     }
   }
 
   public static <T> T deserialize(String json, TypeReference<T> typeReference) {
     try {
-      return (T) objectMapper.readValue(json, typeReference);
+      return objectMapper.readValue(json, typeReference);
     } catch (IOException e) {
-      LOG.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
       return null;
     }
   }
@@ -184,7 +182,7 @@ public class JSON {
   }
 
   public static class XmlUtil {
-    private XmlMapper xmlMapper;
+    private final XmlMapper xmlMapper;
 
     public XmlUtil(XmlMapper xmlMapper) {
       this.xmlMapper = xmlMapper;

@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.Assert;
 
@@ -38,15 +36,13 @@ public class StringUtilTest {
      */
   }
 
-  private static final Log LOG = LogFactory.getLog(StringUtilTest.class);
-
   @Test
   public void testEllipsis() throws Exception {
     String str = "iVBORw0KGgoAAAANSUhEUgAAATgAAAEaCAYAAACFG0tXAAAKQWlDQ1BJQ0MgUHJvZmlsZQAASA2d";
 
     String newStr = StringUtil.ellipsis(str, 20, "...");
 
-    LOG.debug(" StringUtil.ellipsis(str,20,\"...\") ==> " + newStr);
+    log.debug(" StringUtil.ellipsis(str,20,\"...\") ==> " + newStr);
 
     Assert.isTrue(str.substring(0, 17) + "..." == newStr);
   }
@@ -193,7 +189,7 @@ public class StringUtilTest {
   public void testTokenizeToStringArray() throws Exception {
     String name = "user.job.id";
     String[] names = StringUtil.tokenizeToStringArray(name, ".");
-    LOG.debug(names);
+    log.debug(Arrays.toString(names));
   }
 
   @Test
@@ -204,7 +200,7 @@ public class StringUtilTest {
 
   @Test
   public void shortUrl() throws Exception {
-    LOG.debug(Arrays.toString(StringUtil.shortUrl("/articles/1230")));
+    log.debug(Arrays.toString(StringUtil.shortUrl("/articles/1230")));
   }
 
   public static byte[] hexStr2bytes(String hexStr) {

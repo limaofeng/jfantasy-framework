@@ -1,16 +1,14 @@
 package org.jfantasy.framework.spring;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.jackson.models.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.util.Assert;
 
+@Slf4j
 public class SpELUtilTest {
-
-  private static final Log LOG = LogFactory.getLog(SpELUtilTest.class);
 
   @Test
   public void testCreateEvaluationContext() throws Exception {
@@ -22,7 +20,7 @@ public class SpELUtilTest {
 
     Boolean retVal = expression.getValue(context, Boolean.class);
 
-    LOG.debug("value = " + retVal);
+    log.debug("value = " + retVal);
 
     Assert.isTrue(retVal);
 
@@ -31,7 +29,7 @@ public class SpELUtilTest {
 
     retVal = expression.getValue(context, Boolean.class);
 
-    LOG.debug("value = " + retVal);
+    log.debug("value = " + retVal);
 
     Assert.isTrue(!retVal);
 
@@ -39,7 +37,7 @@ public class SpELUtilTest {
 
     retVal = expression.getValue(context, Boolean.class);
 
-    LOG.debug("value = " + retVal);
+    log.debug("value = " + retVal);
 
     Assert.isTrue(retVal);
   }
@@ -55,7 +53,7 @@ public class SpELUtilTest {
 
     Boolean retVal = expression.getValue(context, Boolean.class);
 
-    LOG.debug("value = " + retVal);
+    log.debug("value = " + retVal);
 
     Assert.isTrue(retVal);
   }
@@ -69,12 +67,12 @@ public class SpELUtilTest {
 
     String retVal = expression.getValue(context, String.class);
 
-    LOG.debug("value = " + retVal);
+    log.debug("value = " + retVal);
 
     expression =
         SpELUtil.getExpression(
             "'P' + (#systemProperties['spring.profiles.active'] == 'prod' ? '' : 'DEV')");
 
-    LOG.debug("value = " + expression.getValue(context, String.class));
+    log.debug("value = " + expression.getValue(context, String.class));
   }
 }

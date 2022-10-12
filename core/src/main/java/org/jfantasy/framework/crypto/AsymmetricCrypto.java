@@ -8,13 +8,11 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.ShortBufferException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
+@Slf4j
 public class AsymmetricCrypto implements SecurityInc {
-
-  private static final Log LOG = LogFactory.getLog(AsymmetricCrypto.class);
 
   private KeyPair keypair = null;
 
@@ -40,7 +38,7 @@ public class AsymmetricCrypto implements SecurityInc {
       this.privateKey = this.keypair.getPrivate();
       this.publicKey = this.keypair.getPublic();
 
-      if (LOG.isDebugEnabled()) {
+      if (log.isDebugEnabled()) {
         StringBuilder builder = new StringBuilder();
         builder.append("=====================").append("\r\n");
         builder.append(this.privateKey.getAlgorithm()).append("\r\n");
@@ -51,7 +49,7 @@ public class AsymmetricCrypto implements SecurityInc {
         builder.append(this.publicKey.getFormat()).append("\r\n");
         builder.append(Arrays.toString(this.publicKey.getEncoded())).append("\r\n");
         builder.append("=====================").append("\r\n");
-        LOG.debug(builder.toString());
+        log.debug(builder.toString());
       }
 
       this.ecipher = Cipher.getInstance(CRYPTO_FORM);

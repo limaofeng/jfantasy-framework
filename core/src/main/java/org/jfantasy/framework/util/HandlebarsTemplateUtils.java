@@ -6,17 +6,15 @@ import com.github.jknack.handlebars.Template;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.Date;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.output.ByteArrayOutputStream;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.util.common.DateUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 
+@Slf4j
 public class HandlebarsTemplateUtils {
 
   private static final Handlebars handlebars = new Handlebars();
-
-  private static final Log LOG = LogFactory.getLog(HandlebarsTemplateUtils.class);
 
   static {
     registerHelper(
@@ -39,7 +37,7 @@ public class HandlebarsTemplateUtils {
     try {
       return handlebars.compileInline(inputTemplate).apply(model);
     } catch (IOException e) {
-      LOG.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
       return null;
     }
   }

@@ -3,11 +3,9 @@ package org.jfantasy.framework.util;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 动态类加载器
@@ -16,17 +14,16 @@ import org.apache.commons.logging.LogFactory;
  * @version 1.0
  * @since 2012-11-30 下午05:12:44
  */
+@Slf4j
 public class DynamicClassLoader extends ClassLoader {
-  private static final Log LOGGER = LogFactory.getLog(DynamicClassLoader.class);
 
   public DynamicClassLoader(ClassLoader parent) {
     super(parent);
   }
 
-  public Class loadClass(String classPath, String className) throws ClassNotFoundException {
+  public Class loadClass(String classPath, String className) {
     try {
       String url = classPathParser(classPath) + classNameParser(className);
-      LOGGER.debug(url);
       URL myUrl = new URL(url);
       URLConnection connection = myUrl.openConnection();
       InputStream input = connection.getInputStream();
@@ -39,10 +36,8 @@ public class DynamicClassLoader extends ClassLoader {
       input.close();
       byte[] classData = buffer.toByteArray();
       return defineClass(noSuffix(className), classData, 0, classData.length);
-    } catch (MalformedURLException e) {
-      LOGGER.error(e.getMessage(), e);
     } catch (IOException e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     }
     return null;
   }

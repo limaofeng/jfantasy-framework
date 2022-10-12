@@ -1,12 +1,10 @@
 package org.jfantasy.framework.crypto;
 
 import java.security.MessageDigest;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class CipherUtil {
-
-  private static final Log LOG = LogFactory.getLog(CipherUtil.class);
 
   private static final String[] hexDigits = {
     "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"
@@ -38,7 +36,7 @@ public class CipherUtil {
       String resultString = byteArrayToHexString(results);
       return resultString.toUpperCase();
     } catch (Exception ex) {
-      LOG.error(ex.getMessage(), ex);
+      log.error(ex.getMessage(), ex);
       return null;
     }
   }

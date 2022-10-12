@@ -2,8 +2,7 @@ package org.jfantasy.framework.spring.mvc.http;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.error.ErrorUtils;
 import org.jfantasy.framework.error.ValidationException;
 import org.jfantasy.framework.spring.mvc.error.RestException;
@@ -16,10 +15,9 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+@Slf4j
 @ControllerAdvice
 public class ErrorHandler {
-
-  private static final Log LOG = LogFactory.getLog(ErrorHandler.class);
 
   protected ApplicationContext applicationContext;
 
@@ -46,7 +44,7 @@ public class ErrorHandler {
       ErrorUtils.fill(error, ((MethodArgumentNotValidException) exception));
       response.setStatus(HttpStatus.UNPROCESSABLE_ENTITY.value());
     } else {
-      LOG.error(exception.getMessage(), exception);
+      log.error(exception.getMessage(), exception);
       response.setStatus(HttpStatus.BAD_REQUEST.value());
     }
     applicationContext.publishEvent(new ErrorEvent(error, state));

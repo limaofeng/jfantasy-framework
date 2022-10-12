@@ -6,8 +6,7 @@ import eu.bitwalker.useragentutils.UserAgent;
 import java.util.Arrays;
 import java.util.Map;
 import javax.servlet.http.Cookie;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,9 +16,8 @@ import org.springframework.mock.web.MockHttpSession;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.util.Assert;
 
+@Slf4j
 public class WebUtilTest {
-
-  private static final Log LOG = LogFactory.getLog(WebUtilTest.class);
 
   protected MockHttpServletRequest request;
   protected MockHttpServletResponse response;
@@ -114,19 +112,19 @@ public class WebUtilTest {
 
   @Test
   public void testIsSelfIp() throws Exception {
-    LOG.debug("isSelfIp => " + WebUtil.isSelfIp("192.168.1.200"));
+    log.debug("isSelfIp => " + WebUtil.isSelfIp("192.168.1.200"));
   }
 
   @Test
   public void testGetServerIps() throws Exception {
     String[] serverIps = WebUtil.getServerIps();
-    LOG.debug("getServerIps => " + Arrays.toString(serverIps));
+    log.debug("getServerIps => " + Arrays.toString(serverIps));
   }
 
   @Test
   public void testBrowser() throws Exception {
     Browser browser = WebUtil.browser(request);
-    LOG.debug(browser);
+    log.debug(browser);
   }
 
   @Test
@@ -209,7 +207,7 @@ public class WebUtilTest {
 
     String queryUrl = WebUtil.getQueryString(params);
 
-    LOG.debug(queryUrl);
+    log.debug(queryUrl);
 
     Assert.isTrue(url == queryUrl);
   }
@@ -218,25 +216,25 @@ public class WebUtilTest {
   public void testSort() throws Exception {
     String queryUrl =
         WebUtil.sort("username=limaofeng&email=limaofeng@msn.com&arrays=1&arrays=2", "username");
-    LOG.debug(queryUrl);
+    log.debug(queryUrl);
     Assert.isTrue(queryUrl.contains("username-asc"));
 
     queryUrl = WebUtil.sort(queryUrl, "username");
-    LOG.debug(queryUrl);
+    log.debug(queryUrl);
     Assert.isTrue(queryUrl.contains("username-desc"));
   }
 
   @Test
   public void testFilename() throws Exception {
     String filename = WebUtil.filename(new String("测试文件名称".getBytes(), "iso8859-1"), request);
-    LOG.debug(filename);
+    log.debug(filename);
   }
 
   @Test
   public void testTransformCoding() throws Exception {
     String filename =
         WebUtil.transformCoding(new String("测试文件名称".getBytes(), "iso8859-1"), "iso8859-1", "uft-8");
-    LOG.debug(filename);
+    log.debug(filename);
   }
 
   @Test
@@ -252,7 +250,7 @@ public class WebUtilTest {
   public void testGetSessionId() throws Exception {
     request.setSession(new MockHttpSession(new MockServletContext(), "TESTSESSIONID"));
 
-    LOG.debug(WebUtil.getSessionId(request));
+    log.debug(WebUtil.getSessionId(request));
 
     Assert.isTrue("TESTSESSIONID" == WebUtil.getSessionId(request));
   }
@@ -264,7 +262,7 @@ public class WebUtilTest {
 
   @Test
   public void testGetRequestUrl() throws Exception {
-    LOG.debug(WebUtil.getServerUrl(request));
+    log.debug(WebUtil.getServerUrl(request));
     Assert.isTrue("http://www.jfantasy.org" == WebUtil.getServerUrl(request));
   }
 }

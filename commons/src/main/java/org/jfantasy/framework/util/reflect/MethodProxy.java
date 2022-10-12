@@ -4,19 +4,17 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import javassist.NotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import net.sf.cglib.reflect.FastMethod;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.util.common.JavassistUtil;
 
+@Slf4j
 public class MethodProxy {
 
-  private static final Log LOG = LogFactory.getLog(MethodProxy.class);
-
-  private Object method;
+  private final Object method;
   private Class<?>[] parameterTypes;
-  private Class<?> returnType;
-  private Class<?> declaringClass;
+  private final Class<?> returnType;
+  private final Class<?> declaringClass;
 
   public MethodProxy(Object method) {
     this.method = method;
@@ -60,7 +58,7 @@ public class MethodProxy {
       }
       return ((Method) this.method).invoke(object, params);
     } catch (IllegalAccessException | InvocationTargetException | RuntimeException e) {
-      LOG.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
       return null;
     }
   }
@@ -108,9 +106,9 @@ public class MethodProxy {
       }
       Class dclass = ((Method) this.method).getDeclaringClass();
       return JavassistUtil.getParamNames(
-          dclass.getName(), ((FastMethod) this.method).getName(), this.parameterTypes);
+          dclass.getName(), ((Method) this.method).getName(), this.parameterTypes);
     } catch (NotFoundException | JavassistUtil.MissingLVException e) {
-      LOG.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
       return new String[0];
     }
   }

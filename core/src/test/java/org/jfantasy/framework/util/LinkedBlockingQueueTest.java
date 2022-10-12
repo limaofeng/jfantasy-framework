@@ -1,18 +1,16 @@
 package org.jfantasy.framework.util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+@Slf4j
 public class LinkedBlockingQueueTest {
-
-  private static final Log LOG = LogFactory.getLog(LinkedBlockingQueueTest.class);
 
   @BeforeEach
   public void setUp() throws Exception {
-    LOG.debug("测试方法未实现!");
+    log.debug("测试方法未实现!");
   }
 
   @AfterEach

@@ -8,8 +8,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
@@ -18,11 +17,10 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 @Deprecated
+@Slf4j
 public class ConfigResolver {
 
   private ConfigResolver() {}
-
-  private static final Log LOG = LogFactory.getLog(ConfigResolver.class);
 
   private static Configuration configuration;
 
@@ -35,7 +33,7 @@ public class ConfigResolver {
     try {
       builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
     } catch (ParserConfigurationException e) {
-      LOG.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     }
   }
 
@@ -47,7 +45,7 @@ public class ConfigResolver {
     configuration = new Configuration();
     Resource[] resources = resourcePatternResolver.getResources("classpath*:/install.xml");
     for (Resource resource : resources) {
-      LOG.debug("加载:" + resource);
+      log.debug("加载:" + resource);
       try {
         Document document = builder.parse(resource.getInputStream());
         // 生成XPath对象
@@ -63,10 +61,10 @@ public class ConfigResolver {
           configuration.addPackagesToScan(packagesToScanNodes.item(i).getTextContent());
         }
       } catch (SAXException | XPathExpressionException e) {
-        LOG.error(e.getMessage(), e);
+        log.error(e.getMessage(), e);
       }
     }
-    LOG.debug(" 解析 install.xml 耗时 " + (System.currentTimeMillis() - time) + "ms");
+    log.debug(" 解析 install.xml 耗时 " + (System.currentTimeMillis() - time) + "ms");
     return configuration;
   }
 }

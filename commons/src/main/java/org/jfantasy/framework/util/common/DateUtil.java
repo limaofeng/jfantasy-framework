@@ -9,16 +9,14 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Matcher;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.util.error.UnsupportedException;
 import org.jfantasy.framework.util.regexp.RegexpConstant;
 import org.jfantasy.framework.util.regexp.RegexpUtil;
 
+@Slf4j
 public class DateUtil extends DateUtils {
-
-  private static final Log LOG = LogFactory.getLog(DateUtil.class);
 
   /** 缓存的 SimpleDateFormat */
   private static final ConcurrentMap<String, DateFormatCache> DATE_FORMAT_CACHE =
@@ -75,8 +73,8 @@ public class DateUtil extends DateUtils {
     locale = ObjectUtil.defaultValue(locale, Locale.getDefault());
     String key = zone.getID() + "->" + locale.toString() + "->" + format;
     if (!DATE_FORMAT_CACHE.containsKey(key)) {
-      if (LOG.isDebugEnabled()) {
-        LOG.debug("缓存日期格式:" + key);
+      if (log.isDebugEnabled()) {
+        log.debug("缓存日期格式:" + key);
       }
       SimpleDateFormat dateFormat = new SimpleDateFormat(format, locale);
       dateFormat.setTimeZone(zone);
@@ -225,7 +223,7 @@ public class DateUtil extends DateUtils {
   }
 
   /**
-   * 获取当前日期的下一天
+   * 获取当前日期下一天
    *
    * @param date 时间
    * @return date

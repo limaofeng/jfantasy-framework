@@ -4,8 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.error.IgnoreException;
 import org.springframework.beans.factory.config.TypedStringValue;
 import org.springframework.beans.factory.parsing.ReaderContext;
@@ -21,13 +20,14 @@ import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
 
+@Slf4j
 public class LogAdviceParser extends AbstractSingleBeanDefinitionParser {
-
-  private static final Log LOG = LogFactory.getLog(LogAdviceParser.class);
 
   private static class Props {
 
-    private String key, condition, method;
+    private final String key;
+    private final String condition;
+    private final String method;
     private String[] caches = null;
 
     Props(Element root) {
@@ -77,7 +77,7 @@ public class LogAdviceParser extends AbstractSingleBeanDefinitionParser {
           | IllegalAccessException
           | NoSuchMethodException
           | InvocationTargetException e) {
-        LOG.error(e);
+        log.error(e.getMessage(), e);
         throw new IgnoreException(e);
       }
     }
@@ -158,11 +158,8 @@ public class LogAdviceParser extends AbstractSingleBeanDefinitionParser {
           prop.merge(
               opElement, parserContext.getReaderContext(), builder, CacheableOperation.class);
 
-      Collection<CacheOperation> col = cacheOpMap.get(nameHolder);
-      if (col == null) {
-        col = new ArrayList<>(2);
-        cacheOpMap.put(nameHolder, col);
-      }
+      Collection<CacheOperation> col =
+          cacheOpMap.computeIfAbsent(nameHolder, k -> new ArrayList<>(2));
       col.add(op);
     }
 
@@ -176,17 +173,14 @@ public class LogAdviceParser extends AbstractSingleBeanDefinitionParser {
       CacheEvictOperation.Builder builder = new CacheEvictOperation.Builder();
       String wide = opElement.getAttribute("all-entries");
       if (StringUtils.hasText(wide)) {
-        builder.setCacheWide(Boolean.valueOf(wide.trim()));
+        builder.setCacheWide(Boolean.parseBoolean(wide.trim()));
       }
       String after = opElement.getAttribute("before-invocation");
       if (StringUtils.hasText(after)) {
-        builder.setBeforeInvocation(Boolean.valueOf(after.trim()));
+        builder.setBeforeInvocation(Boolean.parseBoolean(after.trim()));
       }
-      Collection<CacheOperation> col = cacheOpMap.get(nameHolder);
-      if (col == null) {
-        col = new ArrayList<>(2);
-        cacheOpMap.put(nameHolder, col);
-      }
+      Collection<CacheOperation> col =
+          cacheOpMap.computeIfAbsent(nameHolder, k -> new ArrayList<>(2));
       CacheEvictOperation op =
           prop.merge(
               opElement, parserContext.getReaderContext(), builder, CacheEvictOperation.class);
@@ -200,11 +194,8 @@ public class LogAdviceParser extends AbstractSingleBeanDefinitionParser {
       TypedStringValue nameHolder = new TypedStringValue(name);
       nameHolder.setSource(parserContext.extractSource(opElement));
       CachePutOperation.Builder builder = new CachePutOperation.Builder();
-      Collection<CacheOperation> col = cacheOpMap.get(nameHolder);
-      if (col == null) {
-        col = new ArrayList<>(2);
-        cacheOpMap.put(nameHolder, col);
-      }
+      Collection<CacheOperation> col =
+          cacheOpMap.computeIfAbsent(nameHolder, k -> new ArrayList<>(2));
       CacheOperation op =
           prop.merge(opElement, parserContext.getReaderContext(), builder, CachePutOperation.class);
       col.add(op);

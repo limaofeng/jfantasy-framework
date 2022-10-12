@@ -6,16 +6,14 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+@Slf4j
 public class TestXPath {
-
-  private static Log LOG = LogFactory.getLog(TestXPath.class);
 
   @Test
   public void read() {
@@ -31,16 +29,16 @@ public class TestXPath {
       XPathExpression expr = xpath.compile("//class/@name");
       NodeList nodes = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
       for (int i = 0; i < nodes.getLength(); i++) {
-        LOG.debug("name = " + nodes.item(i).getNodeValue());
+        log.debug("name = " + nodes.item(i).getNodeValue());
       }
     } catch (XPathExpressionException e) {
-      LOG.debug(e.getMessage(), e);
+      log.debug(e.getMessage(), e);
     } catch (ParserConfigurationException e) {
-      LOG.debug(e.getMessage(), e);
+      log.debug(e.getMessage(), e);
     } catch (SAXException e) {
-      LOG.debug(e.getMessage(), e);
+      log.debug(e.getMessage(), e);
     } catch (IOException e) {
-      LOG.debug(e.getMessage(), e);
+      log.debug(e.getMessage(), e);
     }
   }
 }

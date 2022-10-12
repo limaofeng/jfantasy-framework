@@ -4,16 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.util.common.file.FileUtil;
 import org.jfantasy.framework.util.ognl.OgnlUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.Base64Utils;
 
+@Slf4j
 public class FileUtilTest {
-
-  private static final Log LOG = LogFactory.getLog(FileUtilTest.class);
 
   @Test
   public void fileSize() {
@@ -39,7 +37,7 @@ public class FileUtilTest {
 
   @Test
   public void testGetMimeType() throws Exception {
-    LOG.debug(FileUtil.getMimeType(FileUtilTest.class.getResourceAsStream("FileUtilTest.class")));
+    log.debug(FileUtil.getMimeType(FileUtilTest.class.getResourceAsStream("FileUtilTest.class")));
   }
 
   @Test

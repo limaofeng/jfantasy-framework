@@ -2,8 +2,7 @@ package org.jfantasy.framework.spring.mvc.http;
 
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import java.lang.reflect.Method;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.jackson.JSON;
 import org.jfantasy.framework.jackson.JSONTest;
 import org.jfantasy.framework.jackson.annotation.BeanFilter;
@@ -11,11 +10,10 @@ import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.junit.jupiter.api.Test;
 
+@Slf4j
 public class JacksonResponseBodyAdviceTest {
 
-  private static final Log LOG = LogFactory.getLog(JacksonResponseBodyAdviceTest.class);
-
-  private JacksonResponseBodyAdvice advice = new JacksonResponseBodyAdvice();
+  private final JacksonResponseBodyAdvice advice = new JacksonResponseBodyAdvice();
 
   @Test
   @JsonResultFilter(
@@ -32,6 +30,6 @@ public class JacksonResponseBodyAdviceTest {
         ClassUtil.getDeclaredMethod(JacksonResponseBodyAdviceTest.class, "getFilterProvider");
     JsonResultFilter filter = ClassUtil.getMethodAnno(method, JsonResultFilter.class);
     FilterProvider provider = advice.getFilterProvider(filter);
-    LOG.debug(JSON.serialize(article, provider));
+    log.debug(JSON.serialize(article, provider));
   }
 }

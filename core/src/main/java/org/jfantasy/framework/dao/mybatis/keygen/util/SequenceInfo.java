@@ -4,8 +4,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.dao.mybatis.keygen.service.SequenceService;
 import org.jfantasy.framework.spring.SpringBeanUtils;
 
@@ -16,9 +15,8 @@ import org.jfantasy.framework.spring.SpringBeanUtils;
  * @version 1.0
  * @since 2013-8-24 上午10:40:58
  */
+@Slf4j
 public class SequenceInfo {
-
-  private static final Log LOG = LogFactory.getLog(SequenceInfo.class);
 
   private static DataBaseKeyGenerator keyGenerator;
 
@@ -120,8 +118,8 @@ public class SequenceInfo {
       if (this.nextKey > this.keyMax) {
         retrieveFromDB();
       }
-      if (LOG.isDebugEnabled()) {
-        LOG.debug(
+      if (log.isDebugEnabled()) {
+        log.debug(
             this.keyName
                 + " nextKey = "
                 + (this.nextKey)

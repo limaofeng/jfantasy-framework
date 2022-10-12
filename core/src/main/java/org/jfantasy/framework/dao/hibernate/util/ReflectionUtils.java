@@ -58,7 +58,7 @@ public final class ReflectionUtils {
     invokeMethod(target, setterMethodName, new Class[] {type}, new Object[] {value});
   }
 
-  public static Object getFieldValue(Object object, String fieldName) {
+  public static <T> T getFieldValue(Object object, String fieldName) {
     Field field = getDeclaredField(object, fieldName);
     if (field == null) {
       throw new IllegalArgumentException(
@@ -71,7 +71,7 @@ public final class ReflectionUtils {
     } catch (IllegalAccessException e) {
       log.error("不可能抛出的异常{}", e.getMessage(), e);
     }
-    return result;
+    return (T) result;
   }
 
   public static void setFieldValue(Object object, String fieldName, Object value) {

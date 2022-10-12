@@ -2,17 +2,15 @@ package org.jfantasy.framework.util.ognl;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import ognl.Ognl;
 import ognl.OgnlContext;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jfantasy.framework.jackson.models.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.Assert;
 
+@Slf4j
 public class OgnlUtilTest {
-
-  private static final Log LOG = LogFactory.getLog(OgnlUtilTest.class);
 
   @Test
   public void testSetValue() {
@@ -31,26 +29,26 @@ public class OgnlUtilTest {
     OgnlUtil.getInstance().setValue("number", ognlTest, "100");
     OgnlUtil.getInstance().setValue("name", ognlTest, "test");
 
-    LOG.debug(ognlTest);
+    log.debug(ognlTest);
 
     OgnlUtil.getInstance().setValue("names[0]", ognlTest, "test1");
     OgnlUtil.getInstance().setValue("names[1]", ognlTest, "test2");
 
-    LOG.debug(ognlTest);
+    log.debug(ognlTest);
 
     Assert.isTrue(ognlTest.getNames().length == 2);
 
     OgnlUtil.getInstance().setValue("listNames[0]", ognlTest, "test1");
     OgnlUtil.getInstance().setValue("listNames[1]", ognlTest, "test2");
 
-    LOG.debug(ognlTest);
+    log.debug(ognlTest);
 
     Assert.isTrue(ognlTest.getListNames().size() == 2);
 
     OgnlUtil.getInstance().setValue("list[0].number", ognlTest, "100");
     OgnlUtil.getInstance().setValue("list[0].name", ognlTest, "test");
 
-    LOG.debug(ognlTest);
+    log.debug(ognlTest);
 
     Assert.isTrue(ognlTest.getList().size() == 1);
 
@@ -60,7 +58,7 @@ public class OgnlUtilTest {
     OgnlUtil.getInstance().setValue("bean.array[1].number", ognlTest, "100");
     OgnlUtil.getInstance().setValue("bean.array[1].name", ognlTest, "test");
 
-    LOG.debug(ognlTest);
+    log.debug(ognlTest);
 
     Assert.isTrue(ognlTest.getBean().getArray().length == 2);
   }
@@ -72,7 +70,7 @@ public class OgnlUtilTest {
     OgnlUtil.getInstance().setValue("array[0].name", ognlTest, "test0");
     OgnlUtil.getInstance().setValue("array[1].number", ognlTest, "200");
     OgnlUtil.getInstance().setValue("array[1].name", ognlTest, "test1");
-    LOG.debug(ognlTest);
+    log.debug(ognlTest);
   }
 
   @Test
@@ -81,6 +79,6 @@ public class OgnlUtilTest {
     list.add(OgnlBean.builder().name("limaofeng").build());
     list.add(OgnlBean.builder().name("huangli").build());
     OgnlBean bean = OgnlUtil.getInstance().getValue("[0]", list);
-    LOG.debug(bean.getName());
+    log.debug(bean.getName());
   }
 }

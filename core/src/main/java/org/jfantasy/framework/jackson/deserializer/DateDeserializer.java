@@ -6,15 +6,13 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import java.io.IOException;
 import java.util.Date;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.dao.hibernate.util.ReflectionUtils;
 import org.jfantasy.framework.error.IgnoreException;
 import org.jfantasy.framework.util.common.StringUtil;
 
+@Slf4j
 public class DateDeserializer extends JsonDeserializer<Date> {
-
-  static final Log LOG = LogFactory.getLog(DateDeserializer.class);
 
   @Override
   public Date deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
@@ -29,7 +27,7 @@ public class DateDeserializer extends JsonDeserializer<Date> {
       try {
         return ReflectionUtils.convertStringToObject(value, Date.class);
       } catch (Exception e) {
-        LOG.debug("不能转换日期格式[" + value + "]", e);
+        log.debug("不能转换日期格式[" + value + "]", e);
         throw new IgnoreException(e.getMessage(), e);
       }
     }

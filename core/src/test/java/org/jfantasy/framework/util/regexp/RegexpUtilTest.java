@@ -2,16 +2,14 @@ package org.jfantasy.framework.util.regexp;
 
 import java.lang.reflect.Array;
 import java.util.Objects;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.jackson.models.User;
 import org.jfantasy.framework.util.web.WebUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.Assert;
 
+@Slf4j
 public class RegexpUtilTest {
-
-  private static final Log LOG = LogFactory.getLog(RegexpUtilTest.class);
 
   @Test
   public void testGetPattern() throws Exception {}
@@ -48,17 +46,17 @@ public class RegexpUtilTest {
 
   @Test
   public void testParseFirst() throws Exception {
-    LOG.debug(RegexpUtil.parseGroup("ddd/", "([^/]+)/$", 1));
+    log.debug(RegexpUtil.parseGroup("ddd/", "([^/]+)/$", 1));
 
-    LOG.debug(RegexpUtil.parseGroup("aaa/bbb/ccc/ddd/", "([^/]+)/$", 1));
+    log.debug(RegexpUtil.parseGroup("aaa/bbb/ccc/ddd/", "([^/]+)/$", 1));
 
-    LOG.debug(RegexpUtil.parseGroup("qqqq/", "([^/]+)/$", 1));
+    log.debug(RegexpUtil.parseGroup("qqqq/", "([^/]+)/$", 1));
 
     String fileName = "[电影天堂www.dytt89.com]美丽人生BD国意双语中英双字.mp4.part00001";
 
     String number = RegexpUtil.parseGroup(WebUtil.getExtension(fileName), "part(\\d+)$", 1);
 
-    LOG.debug(number);
+    log.debug(number);
   }
 
   @Test
@@ -76,9 +74,9 @@ public class RegexpUtilTest {
 
   @Test
   public void testReplaceFirst() throws Exception {
-    LOG.debug("member:15921884771".replaceAll("^[^:]+:", ""));
+    log.debug("member:15921884771".replaceAll("^[^:]+:", ""));
 
-    LOG.debug("/a/b/c/".replaceFirst("[^/]+/$", ""));
+    log.debug("/a/b/c/".replaceFirst("[^/]+/$", ""));
   }
 
   @Test
@@ -86,7 +84,7 @@ public class RegexpUtilTest {
     String newName =
         RegexpUtil.replace(
             "nameSpaceWat", "[A-Z]", (text, index, matcher) -> "_" + text.toLowerCase());
-    LOG.debug(newName);
+    log.debug(newName);
     Assert.isTrue(newName == "name_space_wat");
   }
 
@@ -96,8 +94,8 @@ public class RegexpUtilTest {
   @Test
   public void matches() {
     String regex = "[/].+";
-    LOG.debug("/".matches(regex));
-    LOG.debug("/error".matches(regex));
+    log.debug("/".matches(regex));
+    log.debug("/error".matches(regex));
   }
 
   public static void main(String[] args) {

@@ -7,19 +7,17 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.util.LinkedBlockingQueue;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+@Slf4j
 public class ConcurrentRequestFilter extends OncePerRequestFilter {
 
-  private static final Log LOG = LogFactory.getLog(ConcurrentRequestFilter.class);
-
-  private LinkedBlockingQueue<Lock> locks = new LinkedBlockingQueue<>();
+  private final LinkedBlockingQueue<Lock> locks = new LinkedBlockingQueue<>();
 
   public ConcurrentRequestFilter(int locksNumber) {
-    LOG.debug("初始化[" + locksNumber + "]把锁,用于限制请求并发");
+    log.debug("初始化[" + locksNumber + "]把锁,用于限制请求并发");
     for (int i = 0; i < locksNumber; i++) {
       try {
         locks.put(new ReentrantLock());

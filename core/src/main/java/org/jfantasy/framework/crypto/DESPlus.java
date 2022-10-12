@@ -8,13 +8,11 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.util.common.StringUtil;
 
+@Slf4j
 public class DESPlus {
-
-  private static final Log LOG = LogFactory.getLog(DESPlus.class);
 
   private static final String DEFAULT_KEY = "jfantasy.org";
   private static final String CIPHER_TYPE = "DES";
@@ -35,7 +33,7 @@ public class DESPlus {
       this.decryptCipher = Cipher.getInstance(CIPHER_TYPE);
       this.decryptCipher.init(2, key);
     } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException e) {
-      LOG.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     }
   }
 

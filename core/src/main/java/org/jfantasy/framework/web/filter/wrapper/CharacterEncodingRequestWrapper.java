@@ -6,14 +6,12 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.web.WebUtil;
 
+@Slf4j
 public class CharacterEncodingRequestWrapper extends HttpServletRequestWrapper {
-
-  protected static final Log LOG = LogFactory.getLog(CharacterEncodingRequestWrapper.class);
 
   private final Map<String, String[]> parameterMaps = new LinkedHashMap<>();
 
@@ -41,7 +39,7 @@ public class CharacterEncodingRequestWrapper extends HttpServletRequestWrapper {
       if (StandardCharsets.ISO_8859_1.newEncoder().canEncode(values[i])) {
         newValues[i] =
             WebUtil.transformCoding(values[i], "ISO-8859-1", getRequest().getCharacterEncoding());
-        LOG.debug(name + " 的原始编码为[ISO-8859-1]转编码:" + values[i] + "=>" + newValues[i]);
+        log.debug(name + " 的原始编码为[ISO-8859-1]转编码:" + values[i] + "=>" + newValues[i]);
       } else {
         newValues[i] = values[i];
       }

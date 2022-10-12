@@ -6,8 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.search.CuckooIndex;
 import org.jfantasy.framework.search.Document;
 import org.jfantasy.framework.search.cache.DaoCache;
@@ -16,8 +15,8 @@ import org.jfantasy.framework.search.dao.CuckooDao;
 import org.jfantasy.framework.search.elastic.IndexWriter;
 import org.jfantasy.framework.util.common.ClassUtil;
 
+@Slf4j
 public class IndexRebuildTask implements Runnable {
-  private static final Log LOG = LogFactory.getLog(IndexRebuildTask.class);
   private static final ConcurrentMap<Class<?>, ReentrantLock> rebuildLocks =
       new ConcurrentHashMap<>();
   private final Lock rebuildLock;
@@ -39,20 +38,20 @@ public class IndexRebuildTask implements Runnable {
   @Override
   public void run() {
     if (!rebuildLock.tryLock()) {
-      if (LOG.isErrorEnabled()) {
-        LOG.error("Another rebuilding task is running");
+      if (log.isErrorEnabled()) {
+        log.error("Another rebuilding task is running");
       }
       return;
     }
     try {
-      if (LOG.isInfoEnabled()) {
-        LOG.info("Index(" + this.clazz + ") rebuilding start...");
+      if (log.isInfoEnabled()) {
+        log.info("Index(" + this.clazz + ") rebuilding start...");
       }
       try {
         this.writer.deleteAll();
       } catch (IOException ex) {
-        if (LOG.isErrorEnabled()) {
-          LOG.error("Something is wrong when lucene IndexWriter doing deleteAll()", ex);
+        if (log.isErrorEnabled()) {
+          log.error("Something is wrong when lucene IndexWriter doing deleteAll()", ex);
         }
       }
       final CuckooDao luceneDao = DaoCache.getInstance().get(clazz);
@@ -73,7 +72,7 @@ public class IndexRebuildTask implements Runnable {
       try {
         this.writer.commit();
       } catch (IOException ex) {
-        LOG.error("Can not commit and close the index", ex);
+        log.error("Can not commit and close the index", ex);
       }
     } finally {
       rebuildLock.unlock();
@@ -97,7 +96,7 @@ public class IndexRebuildTask implements Runnable {
       try {
         this.writer.addDocument(doc);
       } catch (IOException ex) {
-        LOG.error("IndexWriter can not add a document to the lucene index", ex);
+        log.error("IndexWriter can not add a document to the lucene index", ex);
       }
     }
   }

@@ -2,24 +2,21 @@ package org.jfantasy.framework.dao;
 
 import java.sql.*;
 import javax.sql.DataSource;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.dao.util.JdbcUtil;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 
+@Slf4j
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @WebAppConfiguration
-@ContextConfiguration(locations = {"classpath:backup/testconfig/spring/applicationContext.xml"})
+// @ContextConfiguration(locations = {"classpath:backup/testconfig/spring/applicationContext.xml"})
 public class MysqlEngine {
-
-  private static final Log LOG = LogFactory.getLog(MysqlEngine.class);
 
   @Autowired private DataSource dataSource;
 
@@ -37,7 +34,7 @@ public class MysqlEngine {
                   + SCHEMA
                   + "' and ENGINE<>'InnoDB'");
       while (resultSet.next()) {
-        LOG.debug(resultSet.getString("TABLE_NAME") + " \t " + resultSet.getString("ENGINE"));
+        log.debug(resultSet.getString("TABLE_NAME") + " \t " + resultSet.getString("ENGINE"));
         Connection _connection = dataSource.getConnection();
         try {
           PreparedStatement preparedStatement =

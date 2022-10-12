@@ -3,14 +3,12 @@ package org.jfantasy.framework.jackson;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mashape.unirest.http.ObjectMapper;
 import java.io.IOException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class UnirestObjectMapper implements ObjectMapper {
 
-  private static final Log LOG = LogFactory.getLog(UnirestObjectMapper.class);
-
-  private com.fasterxml.jackson.databind.ObjectMapper objectMapper;
+  private final com.fasterxml.jackson.databind.ObjectMapper objectMapper;
 
   public UnirestObjectMapper(com.fasterxml.jackson.databind.ObjectMapper objectMapper) {
     this.objectMapper = objectMapper;
@@ -21,7 +19,7 @@ public class UnirestObjectMapper implements ObjectMapper {
     try {
       return this.objectMapper.readValue(value, valueType);
     } catch (IOException e) {
-      LOG.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
       return null;
     }
   }
@@ -31,7 +29,7 @@ public class UnirestObjectMapper implements ObjectMapper {
     try {
       return this.objectMapper.writeValueAsString(value);
     } catch (JsonProcessingException e) {
-      LOG.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
       return null;
     }
   }

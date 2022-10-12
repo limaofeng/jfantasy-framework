@@ -3,15 +3,13 @@ package org.jfantasy.framework.crypto;
 import java.security.KeyPair;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.DigestUtils;
 
+@Slf4j
 public class RSAUtilTest {
-
-  private static final Log LOG = LogFactory.getLog(RSAUtilTest.class);
 
   @Test
   public void testGenerateKeyPair() throws Exception {
@@ -23,9 +21,9 @@ public class RSAUtilTest {
     // 私钥
     RSAPrivateKey priKey = (RSAPrivateKey) keyPair.getPrivate();
 
-    LOG.debug("pubKey = " + pubKey.toString());
+    log.debug("pubKey = " + pubKey.toString());
 
-    LOG.debug("priKey = " + priKey.toString());
+    log.debug("priKey = " + priKey.toString());
   }
 
   @Test
@@ -33,16 +31,16 @@ public class RSAUtilTest {
     RSAPublicKey recoveryPubKey = RSAUtil.getRSAPublicKey(pubKey);
 
     String source = DigestUtils.md5DigestAsHex("加密的数据".getBytes());
-    LOG.debug("原始字符串:" + source);
+    log.debug("原始字符串:" + source);
 
     String enstr = RSAUtil.encrypt(recoveryPubKey, source);
 
-    LOG.debug("加密后的:" + enstr + "\n长度:" + enstr.length());
+    log.debug("加密后的:" + enstr + "\n长度:" + enstr.length());
 
     RSAPrivateKey recoveryPriKey = RSAUtil.getRSAPrivateKey(priKey);
 
     String destr = RSAUtil.decrypt(recoveryPriKey, enstr);
-    LOG.debug("解码字符:" + destr);
+    log.debug("解码字符:" + destr);
 
     assert destr.equals(source);
   }

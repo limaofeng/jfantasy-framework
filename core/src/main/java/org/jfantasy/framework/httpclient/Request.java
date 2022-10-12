@@ -5,8 +5,7 @@ import java.io.FileNotFoundException;
 import java.security.*;
 import java.util.*;
 import javax.net.ssl.SSLContext;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
@@ -30,9 +29,8 @@ import org.jfantasy.framework.util.common.StringUtil;
  * @version 1.0
  * @since 2012-11-30 下午04:45:33
  */
+@Slf4j
 public class Request {
-
-  private static final Log LOG = LogFactory.getLog(Request.class);
 
   private CookieStore cookieStore = new BasicCookieStore();;
   private List<Header> requestHeaders = new ArrayList<Header>();
@@ -178,13 +176,13 @@ public class Request {
               SSLConnectionSocketFactory
                   .BROWSER_COMPATIBLE_HOSTNAME_VERIFIER); // 设置httpclient的SSLSocketFactory
     } catch (NoSuchAlgorithmException e) {
-      LOG.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     } catch (KeyManagementException e) {
-      LOG.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     } catch (KeyStoreException e) {
-      LOG.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     } catch (UnrecoverableKeyException e) {
-      LOG.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     }
   }
 

@@ -2,29 +2,28 @@ package org.jfantasy.schedule.service;
 
 import java.util.Date;
 import java.util.Map;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.util.common.DateUtil;
 import org.quartz.*;
 
+@Slf4j
 public class HelloJob implements Job {
-
-  private static final Log LOG = LogFactory.getLog(HelloJob.class);
 
   public void execute(JobExecutionContext context) throws JobExecutionException {
     JobDataMap data = context.getMergedJobDataMap();
-    StringBuilder log = new StringBuilder();
-    LOG.debug("触发时间:" + DateUtil.format("yyyy-MM-dd HH:mm:ss"));
-    log.append("\n\n-===============Hello World! - ")
+    StringBuilder str = new StringBuilder();
+
+    str.append("触发时间:").append(DateUtil.format("yyyy-MM-dd HH:mm:ss"));
+    str.append("\n\n-===============Hello World! - ")
         .append(new Date())
         .append("==================-")
         .append("\n");
     for (Map.Entry<String, Object> entry : data.entrySet()) {
-      log.append(entry.getKey()).append("=").append(entry.getValue()).append("\n");
+      str.append(entry.getKey()).append("=").append(entry.getValue()).append("\n");
     }
-    log.append("-===============打印详细的job信息==================-").append("\n");
-    print(context.getJobDetail(), context.getTrigger(), log);
-    LOG.debug(log.toString());
+    str.append("-===============打印详细的job信息==================-").append("\n");
+    print(context.getJobDetail(), context.getTrigger(), str);
+    log.debug(str.toString());
   }
 
   public void print(JobDetail jobDetail, Trigger trigger, StringBuilder log) {

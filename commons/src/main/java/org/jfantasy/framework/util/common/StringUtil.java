@@ -10,8 +10,6 @@ import java.security.SecureRandom;
 import java.util.*;
 import java.util.function.Supplier;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.commons.text.StringEscapeUtils;
 import org.jfantasy.framework.util.regexp.RegexpUtil;
 import org.springframework.data.util.ParsingUtils;
@@ -52,8 +50,6 @@ public abstract class StringUtil {
     CHAR_MAP[62] = '_';
     CHAR_MAP[63] = '-';
   }
-
-  private static final Log LOG = LogFactory.getLog(StringUtil.class);
 
   private StringUtil() {}
 
@@ -337,7 +333,7 @@ public abstract class StringUtil {
     try {
       return isBlank(s) ? s : URLEncoder.encode(s, enc).replace("+", "%20");
     } catch (UnsupportedEncodingException e) {
-      LOG.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
       return s;
     }
   }
@@ -361,16 +357,16 @@ public abstract class StringUtil {
   public static String decodeURI(String s, String enc) {
     try {
       if (s.contains(" ") && s.contains("+")) {
-        LOG.error("同时存在 ' ' 与 '+' decodeURI 后 可能会出现问题,所以原串返回");
+        log.error("同时存在 ' ' 与 '+' decodeURI 后 可能会出现问题,所以原串返回");
         return s;
       }
       if (contains(s, /* "+", */ " ", "/", "?", /* "%", */ "#", "&", "=")) {
-        LOG.warn("存在 特殊字符 decodeURI 后 字符串可能已经 decodeURI 过.");
+        log.warn("存在 特殊字符 decodeURI 后 字符串可能已经 decodeURI 过.");
         return s;
       }
       return isBlank(s) ? s : URLDecoder.decode(s, enc);
     } catch (UnsupportedEncodingException | IllegalArgumentException e) {
-      LOG.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
       return s;
     }
   }
@@ -531,7 +527,7 @@ public abstract class StringUtil {
     try {
       return s.getBytes(charset);
     } catch (Exception e) {
-      LOG.warn(e);
+      log.warn(e.getMessage(), e);
     }
     return s.getBytes();
   }

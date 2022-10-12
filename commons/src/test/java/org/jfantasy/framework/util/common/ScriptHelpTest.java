@@ -1,12 +1,10 @@
 package org.jfantasy.framework.util.common;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
+@Slf4j
 public class ScriptHelpTest {
-
-  private static final Log LOG = LogFactory.getLog(ScriptHelpTest.class);
 
   @Test
   public void mainTest() {

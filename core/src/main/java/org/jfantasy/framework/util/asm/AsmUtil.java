@@ -11,8 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.error.IgnoreException;
 import org.jfantasy.framework.util.FantasyClassLoader;
 import org.jfantasy.framework.util.common.ClassUtil;
@@ -22,11 +21,10 @@ import org.jfantasy.framework.util.common.file.FileUtil;
 import org.jfantasy.framework.util.regexp.RegexpUtil;
 import org.objectweb.asm.*;
 
+@Slf4j
 public class AsmUtil implements Opcodes {
 
   private AsmUtil() {}
-
-  private static final Log LOG = LogFactory.getLog(AsmUtil.class);
 
   /**
    * 创建一个java动态bean
@@ -348,11 +346,11 @@ public class AsmUtil implements Opcodes {
           bytes, PathUtil.classes() + "/" + className.replace(".", File.separator) + ".class");
       return FantasyClassLoader.getClassLoader().loadClass(PathUtil.classes(), className);
     } catch (Exception e) {
-      LOG.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
       try {
         return FantasyClassLoader.getClassLoader().loadClass(bytes, className);
       } catch (ClassNotFoundException ex) {
-        LOG.error(e.getMessage(), ex);
+        log.error(e.getMessage(), ex);
         throw new IgnoreException(e.getMessage(), ex);
       }
     }
@@ -673,7 +671,7 @@ public class AsmUtil implements Opcodes {
         }
         methodParamNameCache.put(m, paramNames);
       } catch (IOException e) {
-        LOG.error(e.getMessage(), e);
+        log.error(e.getMessage(), e);
         throw new AsmException(e);
       } finally {
         methodParamNameLock.unlock();

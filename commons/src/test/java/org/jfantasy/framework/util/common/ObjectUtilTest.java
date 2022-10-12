@@ -2,8 +2,6 @@ package org.jfantasy.framework.util.common;
 
 import java.util.*;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jfantasy.demo.bean.Article;
 import org.jfantasy.demo.bean.User;
 import org.jfantasy.framework.util.common.dto.TreeNode;
@@ -175,8 +173,6 @@ public class ObjectUtilTest {
 
   @Test
   public void analyze() {}
-
-  private static final Log LOG = LogFactory.getLog(ObjectUtilTest.class);
 
   @BeforeEach
   public void setUp() {}

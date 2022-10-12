@@ -1,14 +1,12 @@
 package org.jfantasy.framework.dao.hibernate.converter;
 
 import javax.persistence.AttributeConverter;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.crypto.CryptoException;
 import org.jfantasy.framework.crypto.DESPlus;
 
+@Slf4j
 public class DESConverter implements AttributeConverter<String, String> {
-
-  private static final Log LOG = LogFactory.getLog(DESConverter.class);
 
   private static DESPlus desPlus;
 
@@ -25,7 +23,7 @@ public class DESConverter implements AttributeConverter<String, String> {
     try {
       return desPlus.encrypt(attribute);
     } catch (CryptoException e) {
-      LOG.debug(e.getMessage(), e);
+      log.debug(e.getMessage(), e);
       return attribute;
     }
   }
@@ -35,7 +33,7 @@ public class DESConverter implements AttributeConverter<String, String> {
     try {
       return desPlus.decrypt(dbData);
     } catch (CryptoException e) {
-      LOG.debug(e.getMessage(), e);
+      log.debug(e.getMessage(), e);
       return dbData;
     }
   }

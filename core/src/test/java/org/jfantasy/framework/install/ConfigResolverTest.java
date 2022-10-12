@@ -1,5 +1,6 @@
 package org.jfantasy.framework.install;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.jupiter.api.AfterEach;
@@ -9,11 +10,12 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 
+@Slf4j
 public class ConfigResolverTest {
 
   private static final Log LOG = LogFactory.getLog(ConfigResolverTest.class);
 
-  private ResourcePatternResolver resourcePatternResolver =
+  private final ResourcePatternResolver resourcePatternResolver =
       new PathMatchingResourcePatternResolver();
 
   @BeforeEach

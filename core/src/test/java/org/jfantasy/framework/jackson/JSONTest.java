@@ -14,8 +14,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.jackson.models.DefaultOutput;
 import org.jfantasy.framework.jackson.models.ListOutput;
 import org.jfantasy.framework.jackson.models.Output;
@@ -29,9 +28,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.Assert;
 
+@Slf4j
 public class JSONTest {
-
-  private static final Log LOG = LogFactory.getLog(JSONTest.class);
 
   private Article article;
   private ArticleCategory category;
@@ -54,16 +52,16 @@ public class JSONTest {
   public void serialize() throws Exception {
     // ThreadJacksonMixInHolder holder = ThreadJacksonMixInHolder.getMixInHolder();
     // holder.addIgnorePropertyNames(Article.class, "articles");
-    LOG.debug(JSON.serialize(category, builder -> builder.excludes("articles")));
+    log.debug(JSON.serialize(category, builder -> builder.excludes("articles")));
 
     // holder = ThreadJacksonMixInHolder.getMixInHolder();
     // holder.addIgnorePropertyNames(ArticleCategory.class, "articles");
-    LOG.debug(JSON.serialize(article, builder -> builder.excludes("category", "content")));
+    log.debug(JSON.serialize(article, builder -> builder.excludes("category", "content")));
   }
 
   @Test
   public void serializeWithFilter() throws Exception {
-    LOG.debug(JSON.serialize(category, builder -> builder.excludes("articles")));
+    log.debug(JSON.serialize(category, builder -> builder.excludes("articles")));
   }
 
   @Test
@@ -75,9 +73,9 @@ public class JSONTest {
     ObjectMapper objectMapper = JSON.getObjectMapper();
     objectMapper.addMixIn(Article.class, ArticleFilterMixIn.class);
 
-    LOG.debug("mixInCount = " + objectMapper.mixInCount());
+    log.debug("mixInCount = " + objectMapper.mixInCount());
 
-    LOG.debug("findMixInClassFor = " + objectMapper.findMixInClassFor(Article.class));
+    log.debug("findMixInClassFor = " + objectMapper.findMixInClassFor(Article.class));
 
     SimpleFilterProvider filter = new SimpleFilterProvider().setFailOnUnknownId(false);
     filter.addFilter("article", SimpleBeanPropertyFilter.serializeAllExcept("category"));
@@ -86,7 +84,7 @@ public class JSONTest {
 
     String json = objectWriter.writeValueAsString(category);
 
-    LOG.debug(json);
+    log.debug(json);
 
     if (objectMapper.findMixInClassFor(ArticleCategory.class) == null) {
       objectMapper = objectMapper.copy().addMixIn(ArticleCategory.class, CategoryFilterMixIn.class);
@@ -99,7 +97,7 @@ public class JSONTest {
 
     json = objectWriter.writeValueAsString(article);
 
-    LOG.debug(json);
+    log.debug(json);
   }
 
   @Test
@@ -130,9 +128,9 @@ public class JSONTest {
 
     objectMapper.addMixIn(Article.class, newInterface);
 
-    LOG.debug("mixInCount = " + objectMapper.mixInCount());
+    log.debug("mixInCount = " + objectMapper.mixInCount());
 
-    LOG.debug("findMixInClassFor = " + objectMapper.findMixInClassFor(Article.class));
+    log.debug("findMixInClassFor = " + objectMapper.findMixInClassFor(Article.class));
 
     SimpleFilterProvider filter = new SimpleFilterProvider().setFailOnUnknownId(false);
     filter.addFilter("x", SimpleBeanPropertyFilter.filterOutAllExcept("title"));
@@ -144,7 +142,7 @@ public class JSONTest {
 
     String json = output.toString("utf-8");
 
-    LOG.debug(json);
+    log.debug(json);
   }
 
   @Test
@@ -168,7 +166,7 @@ public class JSONTest {
     List<? extends GrantedAuthority> _authorities =
         mapper.convertValue(
             context.read("$.authorities"), new TypeReference<List<SimpleGrantedAuthority>>() {});
-    LOG.debug(_authorities);
+    log.debug(_authorities);
   }
 
   @Test
@@ -194,7 +192,7 @@ public class JSONTest {
     department.setUserName("limaofeng");
 
     String json = JSON.serialize(department);
-    LOG.debug(json);
+    log.debug(json);
 
     Assert.isTrue(
         "{\"name\":\"技术部\",\"user_name\":\"limaofeng\",\"project_manager\":\"test\",\"id\":\"1\",\"age\":1}"
