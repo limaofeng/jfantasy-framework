@@ -154,7 +154,7 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
   public static <T> Class<T> forName(String className) {
     try {
       return StringUtil.isNotBlank(className)
-          ? (Class<T>) forName(className, FantasyClassLoader.getClassLoader())
+          ? (Class<T>) FantasyClassLoader.getClassLoader().loadClass(className)
           : null;
     } catch (ClassNotFoundException e) {
       LOGGER.error(e.getMessage(), e);
