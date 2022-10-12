@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.builder.SqlSourceBuilder;
 import org.apache.ibatis.builder.StaticSqlSource;
 import org.apache.ibatis.executor.Executor;
@@ -23,8 +24,6 @@ import org.apache.ibatis.scripting.xmltags.DynamicSqlSource;
 import org.apache.ibatis.scripting.xmltags.SqlNode;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jfantasy.framework.dao.Page;
 import org.jfantasy.framework.dao.mybatis.MyBatisException;
 import org.jfantasy.framework.dao.mybatis.dialect.Dialect;
@@ -41,6 +40,7 @@ import org.springframework.jdbc.support.JdbcUtils;
  * @version 1.0
  * @since 2013-1-14 下午02:08:34
  */
+@Slf4j
 @Intercepts({
   @Signature(
       type = Executor.class,
@@ -48,8 +48,6 @@ import org.springframework.jdbc.support.JdbcUtils;
       args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class})
 })
 public class LimitInterceptor implements Interceptor {
-
-  private static final Logger LOGGER = LogManager.getLogger(LimitInterceptor.class);
 
   private static final int MAPPED_STATEMENT_INDEX = 0;
   private static final int PARAMETER_INDEX = 1;
@@ -70,7 +68,7 @@ public class LimitInterceptor implements Interceptor {
       }
       return invocation.proceed();
     } catch (Exception e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
       throw e;
     }
   }
@@ -136,7 +134,7 @@ public class LimitInterceptor implements Interceptor {
         count = rs.getInt(1);
       }
     } catch (SQLException e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     } finally {
       JdbcUtils.closeResultSet(rs);
       JdbcUtils.closeStatement(statement);

@@ -2,13 +2,12 @@ package org.jfantasy.framework.dao.mybatis.keygen;
 
 import java.sql.Statement;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import ognl.Ognl;
 import ognl.OgnlException;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.executor.keygen.KeyGenerator;
 import org.apache.ibatis.mapping.MappedStatement;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 
@@ -19,11 +18,10 @@ import org.jfantasy.framework.util.common.StringUtil;
  * @version 1.0
  * @since 2013-1-14 下午02:09:05
  */
+@Slf4j
 public class MultiKeyGenerator implements KeyGenerator {
 
-  private static final Logger LOG = LogManager.getLogger(MultiKeyGenerator.class);
-
-  private Map<String, KeyGenerator> targetKeyGenerators;
+  private final Map<String, KeyGenerator> targetKeyGenerators;
 
   public MultiKeyGenerator(Map<String, KeyGenerator> targetKeyGenerators) {
     this.targetKeyGenerators = targetKeyGenerators;
@@ -44,7 +42,7 @@ public class MultiKeyGenerator implements KeyGenerator {
               .processBefore(paramExecutor, paramMappedStatement, paramStatement, paramObject);
         }
       } catch (OgnlException e) {
-        LOG.error(e.getMessage(), e);
+        log.error(e.getMessage(), e);
       }
     }
   }

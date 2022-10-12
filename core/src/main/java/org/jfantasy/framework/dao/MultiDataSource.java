@@ -4,8 +4,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
 import javax.sql.DataSource;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.spring.SpringBeanUtils;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
@@ -13,9 +12,8 @@ import org.jfantasy.framework.util.common.StringUtil;
 import org.springframework.beans.BeansException;
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
 
+@Slf4j
 public class MultiDataSource extends AbstractRoutingDataSource {
-
-  private static final Logger LOGGER = LogManager.getLogger(MultiDataSource.class);
 
   private CatalogConverter catalogConverter;
 
@@ -32,7 +30,7 @@ public class MultiDataSource extends AbstractRoutingDataSource {
     Connection connection = super.getConnection();
     String catalog = getCatalog();
     if (ObjectUtil.isNull(getDataSource())) {
-      LOGGER.error("没有匹配到DataSource:" + connection);
+      log.error("没有匹配到DataSource:" + connection);
     }
     if (StringUtil.isNotBlank(catalog)) {
       setCatalog(connection, catalog);
@@ -48,7 +46,7 @@ public class MultiDataSource extends AbstractRoutingDataSource {
     try {
       connection.setCatalog(catalogConverter.convert(catalog));
     } catch (Exception e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     }
   }
 
@@ -61,11 +59,10 @@ public class MultiDataSource extends AbstractRoutingDataSource {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   protected Object determineCurrentLookupKey() {
     org.jfantasy.framework.dao.annotations.DataSource dataSource = getDataSource();
     if (ObjectUtil.isNull(dataSource)) {
-      LOGGER.error("没有匹配到DataSource,将使用默认数据源!");
+      log.error("没有匹配到DataSource,将使用默认数据源!");
       return null;
     }
     if (containsDataSource(dataSource.name())) {
@@ -79,15 +76,13 @@ public class MultiDataSource extends AbstractRoutingDataSource {
       resolvedDataSources.put(lookupKey, object);
       return dataSource.name();
     } catch (BeansException e) {
-      LOGGER.error("没有匹配到DataSource,将使用默认数据源!", e);
+      log.error("没有匹配到DataSource,将使用默认数据源!", e);
     }
     return null;
   }
 
-  @SuppressWarnings("unchecked")
   private boolean containsDataSource(String key) {
-    Map<Object, DataSource> resolvedDataSources =
-        (Map<Object, DataSource>) ClassUtil.getValue(this, "resolvedDataSources");
+    Map<Object, DataSource> resolvedDataSources = ClassUtil.getValue(this, "resolvedDataSources");
     return resolvedDataSources.containsKey(resolveSpecifiedLookupKey(key));
   }
 

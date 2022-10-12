@@ -1,12 +1,11 @@
 package org.jfantasy.framework.dao.mybatis.keygen;
 
 import java.sql.Statement;
+import lombok.extern.slf4j.Slf4j;
 import ognl.Ognl;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.executor.keygen.KeyGenerator;
 import org.apache.ibatis.mapping.MappedStatement;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jfantasy.framework.spring.SpringBeanUtils;
 import org.jfantasy.framework.util.common.StringUtil;
 
@@ -17,8 +16,8 @@ import org.jfantasy.framework.util.common.StringUtil;
  * @version 1.0
  * @since 2013-1-14 下午02:09:32
  */
+@Slf4j
 public class GUIDKeyGenerator implements KeyGenerator {
-  private static final Logger LOGGER = LogManager.getLogger(GUIDKeyGenerator.class);
   private static GUIDKeyGenerator instance;
 
   public static synchronized GUIDKeyGenerator getInstance() {
@@ -47,7 +46,7 @@ public class GUIDKeyGenerator implements KeyGenerator {
     try {
       Ognl.setValue(keyProperties[0], paramObject, getGUID());
     } catch (Exception e) {
-      LOGGER.error("自动设置ID失败", e);
+      log.error("自动设置ID失败", e);
     }
   }
 

@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import lombok.Setter;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.search.annotations.Indexed;
 import org.jfantasy.framework.search.cache.DaoCache;
 import org.jfantasy.framework.search.cache.IndexCache;
@@ -14,17 +15,15 @@ import org.jfantasy.framework.search.dao.CuckooDao;
 import org.jfantasy.framework.search.elastic.ElasticCuckooIndex;
 import org.jfantasy.framework.search.elastic.ElasticsearchConnection;
 import org.jfantasy.framework.search.exception.ElasticsearchConnectionException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.scheduling.SchedulingTaskExecutor;
 import org.springframework.util.StopWatch;
 
+@Slf4j
 public class CuckooIndexFactory implements ApplicationContextAware {
 
-  private static final Logger LOG = LoggerFactory.getLogger(CuckooIndexFactory.class);
   /** 线程池 */
   private SchedulingTaskExecutor executor;
 
@@ -45,7 +44,7 @@ public class CuckooIndexFactory implements ApplicationContextAware {
 
   @SneakyThrows
   public void initialize() {
-    LOG.info("Starting CuckooIndex");
+    log.info("Starting CuckooIndex");
     StopWatch watch = new StopWatch();
     watch.start();
 
@@ -76,7 +75,7 @@ public class CuckooIndexFactory implements ApplicationContextAware {
       executor.execute(CuckooIndexFactory.this::rebuild, 1000 * 30);
     }
 
-    LOG.info("Started CuckooIndex in {} ms", watch.getTotalTimeMillis());
+    log.info("Started CuckooIndex in {} ms", watch.getTotalTimeMillis());
   }
 
   private synchronized ElasticsearchConnection makeConnection() {

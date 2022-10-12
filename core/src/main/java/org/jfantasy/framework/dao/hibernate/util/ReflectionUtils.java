@@ -5,14 +5,13 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.ConvertUtilsBean;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jfantasy.framework.dao.hibernate.util.converters.DateConverter;
 import org.jfantasy.framework.util.common.ClassUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 /**
@@ -22,9 +21,8 @@ import org.springframework.util.Assert;
  * @version 1.0
  * @since 2013-9-12 下午5:03:33
  */
+@Slf4j
 public final class ReflectionUtils {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(ReflectionUtils.class);
 
   private static final ConvertUtilsBean CONVERT_UTILS =
       BeanUtilsBean.getInstance().getConvertUtils();
@@ -71,7 +69,7 @@ public final class ReflectionUtils {
     try {
       result = field.get(object);
     } catch (IllegalAccessException e) {
-      LOGGER.error("不可能抛出的异常{}", e.getMessage(), e);
+      log.error("不可能抛出的异常{}", e.getMessage(), e);
     }
     return result;
   }
@@ -86,7 +84,7 @@ public final class ReflectionUtils {
     try {
       field.set(object, value);
     } catch (IllegalAccessException e) {
-      LOGGER.error("不可能抛出的异常:{}", e.getMessage(), e);
+      log.error("不可能抛出的异常:{}", e.getMessage(), e);
     }
   }
 
@@ -112,7 +110,7 @@ public final class ReflectionUtils {
       try {
         return superClass.getDeclaredField(fieldName);
       } catch (NoSuchFieldException localNoSuchFieldException) {
-        LOGGER.debug(localNoSuchFieldException.getMessage());
+        log.debug(localNoSuchFieldException.getMessage());
         superClass = superClass.getSuperclass();
       }
     }
@@ -134,7 +132,7 @@ public final class ReflectionUtils {
       try {
         return superClass.getDeclaredMethod(methodName, parameterTypes);
       } catch (NoSuchMethodException localNoSuchMethodException) {
-        LOGGER.error(localNoSuchMethodException.getMessage(), localNoSuchMethodException);
+        log.error(localNoSuchMethodException.getMessage(), localNoSuchMethodException);
         superClass = superClass.getSuperclass();
       }
     }

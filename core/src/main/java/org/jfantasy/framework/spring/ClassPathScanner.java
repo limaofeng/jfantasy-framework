@@ -4,9 +4,8 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.util.common.ClassUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.io.Resource;
@@ -20,11 +19,11 @@ import org.springframework.core.type.classreading.MetadataReader;
 import org.springframework.core.type.classreading.MetadataReaderFactory;
 import org.springframework.util.StopWatch;
 
+@Slf4j
 public class ClassPathScanner implements ResourceLoaderAware {
-  private final Logger LOG = LoggerFactory.getLogger(ClassPathScanner.class);
   protected static final String DEFAULT_RESOURCE_PATTERN = "**/*.class";
 
-  private static ClassPathScanner instance = new ClassPathScanner();
+  private static final ClassPathScanner instance = new ClassPathScanner();
 
   private ResourcePatternResolver resourcePatternResolver =
       new PathMatchingResourcePatternResolver();
@@ -59,8 +58,8 @@ public class ClassPathScanner implements ResourceLoaderAware {
         MetadataReader metadataReader = this.metadataReaderFactory.getMetadataReader(resource);
         String clazzName = metadataReader.getClassMetadata().getClassName();
         candidates.add(clazzName);
-        if (LOG.isDebugEnabled()) {
-          LOG.debug("Find Class : " + clazzName);
+        if (log.isDebugEnabled()) {
+          log.debug("Find Class : " + clazzName);
         }
       }
     } catch (IOException ex) {
@@ -79,7 +78,7 @@ public class ClassPathScanner implements ResourceLoaderAware {
    */
   public <T extends Annotation> Set<Class> findAnnotationedClasses(
       String basepackage, Class<T> anno) {
-    LOG.debug("Scanning " + anno + " in " + basepackage);
+    log.debug("Scanning " + anno + " in " + basepackage);
     StopWatch watch = new StopWatch();
     watch.start();
     Set<Class> candidates = new LinkedHashSet<>();
@@ -98,9 +97,9 @@ public class ClassPathScanner implements ResourceLoaderAware {
         try {
           String clazzName = metadataReader.getClassMetadata().getClassName();
           candidates.add(Class.forName(clazzName));
-          LOG.debug("Find Annotationed Class " + clazzName + "(@" + anno.getName() + ")");
+          log.debug("Find Annotationed Class " + clazzName + "(@" + anno.getName() + ")");
         } catch (ClassNotFoundException ignored) {
-          LOG.error(ignored.getMessage(), ignored);
+          log.error(ignored.getMessage(), ignored);
         }
       }
     } catch (IOException ex) {
@@ -108,7 +107,7 @@ public class ClassPathScanner implements ResourceLoaderAware {
           "I/O failure during classpath scanning", ex); // NOSONAR
     }
     watch.stop();
-    LOG.debug("Scaned in {} ms", watch.getTotalTimeMillis());
+    log.debug("Scaned in {} ms", watch.getTotalTimeMillis());
     return candidates;
   }
 
@@ -126,7 +125,7 @@ public class ClassPathScanner implements ResourceLoaderAware {
    * @return class
    */
   public <T> Set<Class> findInterfaceClasses(String basepackage, Class<T> interfaceClass) {
-    LOG.debug("Scanning " + interfaceClass + " in " + basepackage);
+    log.debug("Scanning " + interfaceClass + " in " + basepackage);
     StopWatch watch = new StopWatch();
     watch.start();
     Set<Class> candidates = new LinkedHashSet<Class>();
@@ -150,14 +149,14 @@ public class ClassPathScanner implements ResourceLoaderAware {
             candidates.add(clazz);
           }
         } catch (ClassNotFoundException | NoClassDefFoundError localClassNotFoundException) {
-          LOG.error(localClassNotFoundException.getMessage(), localClassNotFoundException);
+          log.error(localClassNotFoundException.getMessage(), localClassNotFoundException);
         }
       }
     } catch (IOException ex) {
       throw new BeanDefinitionStoreException("I/O failure during classpath scanning", ex);
     }
     watch.stop();
-    LOG.debug("Scaned in {} ms", watch.getTotalTimeMillis());
+    log.debug("Scaned in {} ms", watch.getTotalTimeMillis());
     return candidates;
   }
 }

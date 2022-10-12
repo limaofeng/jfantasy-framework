@@ -11,8 +11,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
@@ -28,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
  * @version 1.0
  * @since 2013-9-10 上午9:16:01
  */
+@Slf4j
 public class WebUtil {
 
   public static final List<String> LOCAL_IP_ADDRESS = Arrays.asList("0:0:0:0:0:0:0:1", "127.0.0.1");
@@ -35,8 +35,6 @@ public class WebUtil {
   private WebUtil() {
     throw new IllegalStateException("Utility class");
   }
-
-  private static final Logger LOG = LogManager.getLogger(WebUtil.class);
 
   /**
    * 获取请求URL的后缀名
@@ -248,7 +246,7 @@ public class WebUtil {
         }
       }
     } catch (SocketException | UnknownHostException e) {
-      LOG.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     }
     return false;
   }
@@ -275,7 +273,7 @@ public class WebUtil {
         }
       }
     } catch (SocketException e) {
-      LOG.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     }
     return serverIps;
   }
@@ -309,10 +307,10 @@ public class WebUtil {
         String newVal = val;
         if (StandardCharsets.US_ASCII.newEncoder().canEncode(val)) {
           newVal = StringUtil.decodeURI(val, "utf-8");
-          LOG.debug(key + " 的原始编码为[ASCII]转编码:" + val + "=>" + newVal);
+          log.debug(key + " 的原始编码为[ASCII]转编码:" + val + "=>" + newVal);
         } else if (StandardCharsets.ISO_8859_1.newEncoder().canEncode(val)) {
           newVal = WebUtil.transformCoding(val, "ISO-8859-1", "utf-8");
-          LOG.debug(key + " 的原始编码为[ISO-8859-1]转编码:" + val + "=>" + newVal);
+          log.debug(key + " 的原始编码为[ISO-8859-1]转编码:" + val + "=>" + newVal);
         }
         val = newVal;
       }
@@ -405,7 +403,7 @@ public class WebUtil {
           ? new String(name.getBytes(StandardCharsets.UTF_8), "iso8859-1")
           : URLEncoder.encode(name, "UTF-8");
     } catch (UnsupportedEncodingException e) {
-      LOG.error(e);
+      log.error(e.getMessage(), e);
       return name;
     }
   }
@@ -414,7 +412,7 @@ public class WebUtil {
     try {
       return new String(str.getBytes(oldCharset), charset);
     } catch (UnsupportedEncodingException e) {
-      LOG.error(e);
+      log.error(e.getMessage(), e);
       return str;
     }
   }

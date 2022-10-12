@@ -1,12 +1,10 @@
 package org.jfantasy.framework.util.common;
 
 import java.io.*;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public abstract class StreamUtil {
-
-  private static final Logger LOGGER = LogManager.getLogger(StreamUtil.class);
 
   private static final int DEFAULT_BUFFER_SIZE = 8192;
 
@@ -66,7 +64,7 @@ public abstract class StreamUtil {
     try {
       input.close();
     } catch (IOException e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     }
   }
 
@@ -77,7 +75,7 @@ public abstract class StreamUtil {
     try {
       output.close();
     } catch (IOException e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     }
   }
 
@@ -88,7 +86,7 @@ public abstract class StreamUtil {
     try {
       writer.close();
     } catch (IOException e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     }
   }
 
@@ -96,7 +94,7 @@ public abstract class StreamUtil {
     try {
       in.close();
     } catch (IOException e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     }
   }
 }

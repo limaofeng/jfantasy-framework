@@ -22,7 +22,6 @@ target
 build
 classes
 
-log
 LOG_PATH_IS_UNDEFINED
 rebel.xml
 rebel-remote.xml

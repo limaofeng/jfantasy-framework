@@ -9,8 +9,7 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.SneakyThrows;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.util.FantasyClassLoader;
 import org.jfantasy.framework.util.error.InputDataException;
 import org.jfantasy.framework.util.reflect.ClassFactory;
@@ -22,8 +21,8 @@ import org.springframework.aop.framework.AopProxy;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.core.MethodParameter;
 
+@Slf4j
 public class ClassUtil extends org.springframework.util.ClassUtils {
-  private static final Logger LOGGER = LogManager.getLogger(ClassUtil.class);
 
   public static final IClassFactory classFactory = ClassFactory.getFastClassFactory();
   private static final ConcurrentHashMap<Class<?>, BeanInfo> beanInfoCache =
@@ -34,7 +33,7 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
       try {
         beanInfoCache.putIfAbsent(clazz, Introspector.getBeanInfo(clazz, Object.class));
       } catch (IntrospectionException e) {
-        LOGGER.error(e.getMessage(), e);
+        log.error(e.getMessage(), e);
       }
     }
     return beanInfoCache.get(clazz);
@@ -53,7 +52,7 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
     try {
       return classFactory.getClass(clazz).newInstance();
     } catch (Exception e) {
-      LOGGER.error("创建类:" + clazz + "\t时出现异常!", e);
+      log.error("创建类:" + clazz + "\t时出现异常!", e);
     }
     return null;
   }
@@ -117,7 +116,7 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
     try {
       return (T) newInstance(FantasyClassLoader.getClassLoader().loadClass(className));
     } catch (ClassNotFoundException e) {
-      LOGGER.error(e);
+      log.error(e.getMessage(), e);
     }
     return null;
   }
@@ -157,7 +156,7 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
           ? (Class<T>) FantasyClassLoader.getClassLoader().loadClass(className)
           : null;
     } catch (ClassNotFoundException e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     }
     return null;
   }
@@ -211,7 +210,7 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
     try {
       return classFactory.getClass(clazz).getMethod(method);
     } catch (Exception e) {
-      LOGGER.error(clazz + "." + method + "-" + e.getMessage(), e);
+      log.error(clazz + "." + method + "-" + e.getMessage(), e);
     }
     return null;
   }
@@ -220,7 +219,7 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
     try {
       return classFactory.getClass(clazz).getMethod(method, paramTypes);
     } catch (Exception e) {
-      LOGGER.error(clazz + "." + method + "-" + e.getMessage(), e);
+      log.error(clazz + "." + method + "-" + e.getMessage(), e);
     }
     return null;
   }
@@ -411,7 +410,7 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
     try {
       return JavassistUtil.getParameterName(clazz, method, parameter.getParameterIndex());
     } catch (Exception e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     }
     return null;
   }
@@ -421,7 +420,7 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
     try {
       return JavassistUtil.getParamNames(classname, methodname, parameterTypes);
     } catch (Exception e) {
-      LOGGER.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     }
     return new String[0];
   }
@@ -488,12 +487,12 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
   public static <T> Class<T> getSuperClassGenricType(Class<T> clazz, int index) {
     Type genType = clazz.getGenericSuperclass();
     if (!(genType instanceof ParameterizedType)) {
-      LOGGER.warn(clazz.getSimpleName() + "'s superclass not ParameterizedType");
+      log.warn(clazz.getSimpleName() + "'s superclass not ParameterizedType");
       return (Class<T>) Object.class;
     }
     Type[] params = ((ParameterizedType) genType).getActualTypeArguments();
     if ((index >= params.length) || (index < 0)) {
-      LOGGER.warn(
+      log.warn(
           "Index: "
               + index
               + ", Size of "
@@ -506,8 +505,7 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
       return (Class<T>) ((ParameterizedType) params[index]).getRawType();
     }
     if (!(params[index] instanceof Class<?>)) {
-      LOGGER.warn(
-          clazz.getSimpleName() + " not set the actual class on superclass generic parameter");
+      log.warn(clazz.getSimpleName() + " not set the actual class on superclass generic parameter");
       return (Class<T>) Object.class;
     }
     return (Class<T>) params[index];
@@ -527,7 +525,7 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
       if (interfaceClazz.equals(((ParameterizedType) genType).getRawType())) {
         Type[] params = ((ParameterizedType) genType).getActualTypeArguments();
         if ((index >= params.length) || (index < 0)) {
-          LOGGER.warn(
+          log.warn(
               "Index: "
                   + index
                   + ", Size of "
@@ -540,7 +538,7 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
           return (Class<T>) ((ParameterizedType) params[index]).getRawType();
         }
         if (!(params[index] instanceof Class<?>)) {
-          LOGGER.warn(
+          log.warn(
               clazz.getSimpleName() + " not set the actual class on superclass generic parameter");
           return (Class<T>) Object.class;
         }
@@ -556,7 +554,7 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
 
   public static Class getRealType(Class clazz) {
     if (clazz.isInterface()) {
-      LOGGER.error("The implementation of interface " + clazz + " is not specified.");
+      log.error("The implementation of interface " + clazz + " is not specified.");
     }
     return clazz;
   }

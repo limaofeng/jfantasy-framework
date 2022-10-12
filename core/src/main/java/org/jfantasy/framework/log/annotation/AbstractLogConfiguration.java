@@ -1,8 +1,7 @@
 package org.jfantasy.framework.log.annotation;
 
 import javax.annotation.PostConstruct;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportAware;
 import org.springframework.core.annotation.AnnotationAttributes;
@@ -10,11 +9,10 @@ import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.util.Assert;
 
 @Configuration
+@Slf4j
 public abstract class AbstractLogConfiguration implements ImportAware {
 
   protected AnnotationAttributes enableLog;
-
-  private static final Logger LOGGER = LogManager.getLogger(AbstractLogConfiguration.class);
 
   @Override
   public void setImportMetadata(AnnotationMetadata importMetadata) {
@@ -28,6 +26,6 @@ public abstract class AbstractLogConfiguration implements ImportAware {
 
   @PostConstruct
   protected void reconcileLogManager() {
-    LOGGER.debug("reconcileLogManager");
+    log.debug("reconcileLogManager");
   }
 }
