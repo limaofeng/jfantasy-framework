@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.10.3](https://github.com/limaofeng/jfantasy-framework/compare/v2.10.2...v2.10.3) (2022-10-13)
+
+
+### Features
+
+* 工具类 ObjectUtil 新增 merge 函数 ([e96d126](https://github.com/limaofeng/jfantasy-framework/commit/e96d1269b32c4cd51f737ed5a242e8b804f46b7c))
+
+
+### Bug Fixes
+
+* asm 函数 makeEnum 入参数优化 ([ec08285](https://github.com/limaofeng/jfantasy-framework/commit/ec082856453823a3d204a2f88fa292c7ccac0cde))
+* asm 函数引用类型 signature Bug 修复 ([a1d3611](https://github.com/limaofeng/jfantasy-framework/commit/a1d361102419e8af4af5d9c518a47a66063e9227))
+* asm 函数支持自引用类型 ([72a4114](https://github.com/limaofeng/jfantasy-framework/commit/72a411480ad75cccb55d91269d3137e8e766c70d))
+* asm 函数支持自引用类型 ([5378cd0](https://github.com/limaofeng/jfantasy-framework/commit/5378cd0d0535a1be54984227e587c034813fc465))
+* asm 工具类支持类 signature ([a27a65f](https://github.com/limaofeng/jfantasy-framework/commit/a27a65fc2d3b9152c3c80c29f6644355d6ecba4f))
+* asm 工具类自定义方法支持自定义 symbolTable ([9c92539](https://github.com/limaofeng/jfantasy-framework/commit/9c92539f4c39a937e9a9e3439c749d0f5e149a80))
+* asm 辅助对象重构 ([962c94a](https://github.com/limaofeng/jfantasy-framework/commit/962c94ae852414e5a496e50a561877092df1c37c))
+* 优化 GraphQL 事务方式 ([7b85057](https://github.com/limaofeng/jfantasy-framework/commit/7b85057e1551b18de0d65dc00dc3b7a4d9bdf494))
+* 修复 ClassUtil.newInstance 对于动态 class 存在 Bug ([a626bc6](https://github.com/limaofeng/jfantasy-framework/commit/a626bc688b1d110125ceee06a6a10f4ffee6ef6f))
+* 修复工具类 ObjectUtil.merge 错误 ([a34ab81](https://github.com/limaofeng/jfantasy-framework/commit/a34ab819d0da2a163fa052ff26e3a1e082841299))
+* 修复自定义 OrderBy 对象的 toString 方法错误 ([2a289b6](https://github.com/limaofeng/jfantasy-framework/commit/2a289b6884ebd6889db652c8928af2e9910b1f42))
+* 支持自定义 Instrumentation ([8fa1668](https://github.com/limaofeng/jfantasy-framework/commit/8fa166816b590299525a18d2975564dc601db446))
+* 暴露 AsmUtil 的 loadClass 函数 ([631ec5c](https://github.com/limaofeng/jfantasy-framework/commit/631ec5c7ab812e109ff6b10fce4066a29915c84d))
+* 解决 asm makeEnum 枚举个数大于 5 时的BUG ([54e96db](https://github.com/limaofeng/jfantasy-framework/commit/54e96db0bb4f3cf5e0c333f28ae9963b53eb83d0))
+* 解决 ClassUtil forName 函数Bug ([c012f2e](https://github.com/limaofeng/jfantasy-framework/commit/c012f2e1b82af4ecbd26ae5abc15c1ab46913727))
+
 ### [2.10.2](https://github.com/limaofeng/jfantasy-framework/compare/v2.10.1...v2.10.2) (2022-10-01)
 
 
