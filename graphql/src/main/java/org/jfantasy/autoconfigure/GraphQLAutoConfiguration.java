@@ -1,7 +1,6 @@
 package org.jfantasy.autoconfigure;
 
 import graphql.execution.ExecutionStrategy;
-import graphql.execution.instrumentation.Instrumentation;
 import graphql.kickstart.autoconfigure.tools.GraphQLJavaToolsAutoConfiguration;
 import graphql.kickstart.autoconfigure.web.servlet.GraphQLWebAutoConfiguration;
 import graphql.kickstart.tools.SchemaParserDictionary;
@@ -12,7 +11,6 @@ import org.jfantasy.graphql.error.GraphQLResolverAdvice;
 import org.jfantasy.graphql.error.GraphQLStaticMethodMatcherPointcut;
 import org.jfantasy.graphql.execution.AsyncMutationExecutionStrategy;
 import org.jfantasy.graphql.execution.AsyncQueryExecutionStrategy;
-import org.jfantasy.graphql.execution.GraphQLTransactionInstrumentation;
 import org.springframework.aop.support.DefaultBeanFactoryPointcutAdvisor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -23,7 +21,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -45,21 +42,15 @@ public class GraphQLAutoConfiguration {
   }
 
   @Bean(GraphQLWebAutoConfiguration.QUERY_EXECUTION_STRATEGY)
-  @ConditionalOnMissingBean
+  @ConditionalOnMissingBean(name = GraphQLWebAutoConfiguration.QUERY_EXECUTION_STRATEGY)
   public ExecutionStrategy queryExecutionStrategy() {
     return new AsyncQueryExecutionStrategy();
   }
 
   @Bean(GraphQLWebAutoConfiguration.MUTATION_EXECUTION_STRATEGY)
-  @ConditionalOnMissingBean
+  @ConditionalOnMissingBean(name = GraphQLWebAutoConfiguration.MUTATION_EXECUTION_STRATEGY)
   public ExecutionStrategy mutationExecutionStrategy() {
     return new AsyncMutationExecutionStrategy();
-  }
-
-  @Bean
-  @ConditionalOnMissingBean
-  public Instrumentation getInstrumentation(PlatformTransactionManager transactionManager) {
-    return new GraphQLTransactionInstrumentation(transactionManager);
   }
 
   @Bean
