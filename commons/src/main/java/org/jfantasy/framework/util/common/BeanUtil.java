@@ -34,7 +34,7 @@ public class BeanUtil {
       }
       Object value = _ognlUtil.getValue(property.getName(), orig);
       if (filter.accept(property, value, dest)) {
-        _ognlUtil.setValue(property.getName(), dest, value);
+        _ognlUtil.setValue(property.getName(), dest, filter.convertValue(property, value, dest));
       }
     }
     return dest;
@@ -82,6 +82,10 @@ public class BeanUtil {
 
   public static interface PropertyFilter {
     boolean accept(Property property, Object value, Object target);
+
+    default Object convertValue(Property property, Object value, Object target) {
+      return value;
+    }
   }
 
   private static class IgnorePropertyFilter implements PropertyFilter {

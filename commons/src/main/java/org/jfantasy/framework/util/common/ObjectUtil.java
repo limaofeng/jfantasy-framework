@@ -37,7 +37,7 @@ public final class ObjectUtil {
    * @param source 原对象
    * @param target 目标对象
    * @param ignoreProperties 忽略字段
-   * @param <T>
+   * @param <T> 类型
    * @return R 目标结果
    */
   public static <T, R> R copy(T source, R target, String... ignoreProperties) {
@@ -79,6 +79,7 @@ public final class ObjectUtil {
       return (T) cloneList;
     }
     T target = (T) ClassUtil.newInstance(ClassUtil.getRealClass(object.getClass()));
+    assert target != null;
     BeanUtils.copyProperties(object, target, ignoreProperties);
     return target;
   }
@@ -102,7 +103,7 @@ public final class ObjectUtil {
 
   public static <T, C extends Collection<T>> C tree(
       C original, String idKey, String pidKey, String childrenKey) {
-    return (C) tree(original, idKey, pidKey, childrenKey, null, null);
+    return tree(original, idKey, pidKey, childrenKey, null, null);
   }
 
   public static <T, C extends Collection<T>> C tree(
@@ -146,7 +147,7 @@ public final class ObjectUtil {
                   List<T> children = getValue(childrenKey, obj);
                   children.add(item);
                   if (comparator != null) {
-                    Collections.sort(children, comparator);
+                    children.sort(comparator);
                   }
                   return false;
                 });
@@ -241,7 +242,7 @@ public final class ObjectUtil {
       return recursive(treeData, converter, context);
     }
 
-    return packageResult((Stream<R>) list.stream().filter(item -> item != null), listClass);
+    return packageResult((Stream<R>) list.stream().filter(Objects::nonNull), listClass);
   }
 
   @Data
@@ -537,7 +538,7 @@ public final class ObjectUtil {
   }
 
   public static <T, C extends Collection<T>> int indexOf(C objs, T o) {
-    return indexOf(objs.toArray(new Object[objs.size()]), o);
+    return indexOf(objs.toArray(new Object[0]), o);
   }
 
   public static <T, C extends Collection<T>> int indexOf(C collection, T obj, String property) {
@@ -591,27 +592,27 @@ public final class ObjectUtil {
    * 对集合进行排序
    *
    * @param <T> 泛型
-   * @param collectoin 要排序的集合
+   * @param collection 要排序的集合
    * @param orderBy 排序字段 支持ognl表达式
    * @param order 排序方向 只能是 asc 与 desc
    * @return T
    */
-  public static <T, C extends Collection<T>> C sort(C collectoin, String orderBy, String order) {
+  public static <T, C extends Collection<T>> C sort(C collection, String orderBy, String order) {
     List<T> list = new ArrayList<>();
-    if ((collectoin == null) || (collectoin.isEmpty())) {
-      return packageResult(list.stream(), collectoin.getClass());
+    if (collection.isEmpty()) {
+      return packageResult(list.stream(), collection.getClass());
     }
-    String key = collectoin.iterator().next().getClass().toString().concat("|").concat(orderBy);
+    String key = collection.iterator().next().getClass().toString().concat("|").concat(orderBy);
     if (!COMPARATOR_MAP.containsKey(key)) {
       final String orderBys = orderBy;
       COMPARATOR_MAP.put(key, (o1, o2) -> compareField(o1, o2, orderBys));
     }
-    list.addAll(collectoin);
+    list.addAll(collection);
     list.sort((Comparator<T>) COMPARATOR_MAP.get(key));
     if ("desc".equalsIgnoreCase(order)) {
       Collections.reverse(list);
     }
-    return packageResult(list.stream(), collectoin.getClass());
+    return packageResult(list.stream(), collection.getClass());
   }
 
   public static <T, C extends Collection<T>> C sort(C collectoin, Comparator<T> comparator) {
@@ -696,6 +697,14 @@ public final class ObjectUtil {
       }
     }
     return rootMap;
+  }
+
+  public static <T> T merge(T dest, T input) {
+    return BeanUtil.copyProperties(dest, input);
+  }
+
+  public static <T> T merge(T dest, T input, BeanUtil.PropertyFilter filter) {
+    return BeanUtil.copyProperties(dest, input, filter);
   }
 
   /**
