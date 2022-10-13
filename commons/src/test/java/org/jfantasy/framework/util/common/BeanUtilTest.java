@@ -1,7 +1,6 @@
 package org.jfantasy.framework.util.common;
 
 import org.jfantasy.demo.bean.User;
-import org.jfantasy.framework.util.reflect.Property;
 import org.junit.jupiter.api.Test;
 
 public class BeanUtilTest {
@@ -23,8 +22,7 @@ public class BeanUtilTest {
     User user2 = new User();
     user2.setEnabled(true);
 
-    BeanUtil.copyProperties(
-        user1, user2, (Property property, Object value, Object _dest) -> value != null);
+    BeanUtil.copyProperties(user1, user2);
 
     assert user1.isEnabled();
   }

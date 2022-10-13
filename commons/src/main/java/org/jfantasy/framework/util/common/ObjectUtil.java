@@ -700,7 +700,7 @@ public final class ObjectUtil {
   }
 
   public static <T> T merge(T dest, T input) {
-    return BeanUtil.copyProperties(dest, input);
+    return BeanUtil.copyProperties(dest, input, (property, value, target) -> value != null);
   }
 
   public static <T> T merge(T dest, T input, BeanUtil.PropertyFilter filter) {

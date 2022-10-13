@@ -98,7 +98,7 @@ public class BeanUtil {
 
     @Override
     public boolean accept(Property property, Object value, Object target) {
-      return !Arrays.stream(propertyNames).allMatch(item -> item.equals(property.getName()));
+      return Arrays.stream(propertyNames).noneMatch(item -> item.equals(property.getName()));
     }
   }
 
