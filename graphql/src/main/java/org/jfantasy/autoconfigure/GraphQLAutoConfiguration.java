@@ -57,6 +57,7 @@ public class GraphQLAutoConfiguration {
   }
 
   @Bean
+  @ConditionalOnMissingBean
   public Instrumentation getInstrumentation(PlatformTransactionManager transactionManager) {
     return new GraphQLTransactionInstrumentation(transactionManager);
   }
