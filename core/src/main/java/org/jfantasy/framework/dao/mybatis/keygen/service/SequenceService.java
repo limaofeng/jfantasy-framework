@@ -79,4 +79,12 @@ public class SequenceService {
     }
     return index + poolSize;
   }
+
+  @Transactional(
+      value = "dataSourceTransactionManager",
+      rollbackFor = Exception.class,
+      propagation = Propagation.REQUIRES_NEW)
+  public void delete(String key) {
+    this.sequenceDao.delete(key);
+  }
 }

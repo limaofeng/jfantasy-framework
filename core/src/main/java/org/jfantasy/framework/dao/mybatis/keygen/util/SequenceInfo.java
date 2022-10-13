@@ -20,7 +20,7 @@ public class SequenceInfo {
 
   private static DataBaseKeyGenerator keyGenerator;
 
-  private static final ConcurrentMap<String, SequenceInfo> keys = new ConcurrentHashMap<>(10);
+  protected static final ConcurrentMap<String, SequenceInfo> keys = new ConcurrentHashMap<>(10);
   private static final Lock RETRIEVE_LOCK = new ReentrantLock();
 
   private final Lock lock = new ReentrantLock();

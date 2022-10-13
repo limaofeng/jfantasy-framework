@@ -34,6 +34,14 @@ public interface SequenceDao extends SqlMapper {
   int update(Sequence sequence);
 
   /**
+   * 删除序列
+   *
+   * @param key 序列 Key
+   * @return 影响行数
+   */
+  int delete(String key);
+
+  /**
    * 获取表中数据的max(id)
    *
    * @param table 表明

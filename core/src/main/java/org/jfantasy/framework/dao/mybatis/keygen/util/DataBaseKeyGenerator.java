@@ -32,4 +32,9 @@ public class DataBaseKeyGenerator {
   public long nextValue(String key) {
     return SequenceInfo.retrieve(this.sequenceService, this.poolSize, key).nextValue();
   }
+
+  public void reset(String key) {
+    SequenceInfo.keys.remove(key);
+    this.sequenceService.delete(key);
+  }
 }

@@ -24,6 +24,10 @@
            ,#{value})
 	</insert>
 
+    <delete id="delete" parameterType="java.lang.String">
+        DELETE FROM sys_sequence WHERE GEN_NAME=#{value}
+    </delete>
+
     <update id="update" parameterType="org.jfantasy.framework.dao.mybatis.keygen.bean.Sequence">
         UPDATE sys_sequence
         <set>
