@@ -18,8 +18,6 @@ dependencies {
 	api "com.graphql-java:graphql-java-extended-scalars:$LIB_GRAPHQL_SCALARS_VER"
 	api "com.jayway.jsonpath:json-path"
 	api 'org.springframework.boot:spring-boot-starter-websocket'
-	api "io.reactivex.rxjava2:rxjava"
-	api "io.projectreactor:reactor-core"
 	compileOnly "org.springframework:spring-orm"
 	compileOnly "org.springframework.data:spring-data-jpa"
 	compileOnly 'org.aspectj:aspectjweaver'
