@@ -1,6 +1,5 @@
 package cn.asany.example;
 
-import cn.asany.example.demo.BeanInitCostTimeBeanPostProcessor;
 import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.dao.jpa.ComplexJpaRepository;
 import org.springframework.boot.SpringApplication;
@@ -10,7 +9,6 @@ import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.boot.autoconfigure.quartz.QuartzAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
@@ -47,10 +45,10 @@ public class Application extends SpringBootServletInitializer {
     SpringApplication.run(Application.class, args);
   }
 
-  @Bean
-  public BeanInitCostTimeBeanPostProcessor beanInitCostTimeBeanPostProcessor() {
-    return new BeanInitCostTimeBeanPostProcessor();
-  }
+  //  @Bean
+  //  public BeanInitCostTimeBeanPostProcessor beanInitCostTimeBeanPostProcessor() {
+  //    return new BeanInitCostTimeBeanPostProcessor();
+  //  }
 
   @Override
   protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {

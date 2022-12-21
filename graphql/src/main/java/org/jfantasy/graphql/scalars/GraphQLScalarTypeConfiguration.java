@@ -21,6 +21,16 @@ public class GraphQLScalarTypeConfiguration {
   }
 
   @Bean
+  public GraphQLScalarType dateTimeScalar() {
+    return ExtendedScalars.DateTime;
+  }
+
+  @Bean
+  public GraphQLScalarType graphQLBigDecimalScalar() {
+    return ExtendedScalars.GraphQLBigDecimal;
+  }
+
+  @Bean
   public GraphQLScalarType orderByScalar() {
     return GraphQLScalarType.newScalar()
         .name("OrderBy")

@@ -12,6 +12,17 @@ type Mutation {
   createUser(input: UserCreateInput!): User
 }
 
+type StockPriceUpdate {
+  stockCode: String
+  dateTime: String
+  stockPrice: BigDecimal
+  stockPriceChange: BigDecimal
+}
+
+type Subscription {
+  stockQuotes(stockCodes: [String!]!): StockPriceUpdate
+}
+
 input UserCreateInput {
   #登录名
   username: String
@@ -66,3 +77,4 @@ type User {
 
 scalar Date
 scalar OrderBy
+scalar BigDecimal

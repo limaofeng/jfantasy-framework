@@ -81,6 +81,12 @@ graphql:
       max-age: 3600
   tools:
     introspection-enabled: true
+  graphiql:
+    subscriptions:
+      reconnect: true
+      timeout: 30
+    endpoint:
+      subscriptions: /subscriptions
 
 logging:
   config: classpath:logback.xml

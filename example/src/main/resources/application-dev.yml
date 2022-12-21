@@ -1,4 +1,6 @@
 spring:
+  tomcat:
+    disableSession: false
   application:
     name: server
   datasource:
@@ -27,3 +29,10 @@ graphql:
   servlet:
     mapping: /graphql
     enabled: true
+    cors-enabled: true
+    cors:
+      allowed-origins:
+        - "*"
+      allowed-methods: GET, HEAD, POST
+      allow-credentials: false
+    exception-handlers-enabled: true

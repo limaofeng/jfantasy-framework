@@ -2,7 +2,6 @@ package org.jfantasy.autoconfigure;
 
 import org.jfantasy.framework.spring.config.WebMvcConfig;
 import org.jfantasy.framework.web.tomcat.CustomTomcatContextCustomizer;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -22,7 +21,7 @@ public class WebStarterAutoConfiguration {
    *
    * @return TomcatServletWebServerFactory
    */
-  @Bean
+  //  @Bean
   public CustomTomcatContextCustomizer customTomcatContextCustomizer() {
     return new CustomTomcatContextCustomizer();
   }
