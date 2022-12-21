@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.11.0](https://github.com/limaofeng/jfantasy-framework/compare/v2.10.3...v2.11.0) (2022-12-21)
+
+
+### Features
+
+* graphql websocket 支持 ([f6ccc18](https://github.com/limaofeng/jfantasy-framework/commit/f6ccc18e0ac58d475104366b038ddf5e8a72578f))
+* 自定义序列添加删除序列方法 ([3f0771f](https://github.com/limaofeng/jfantasy-framework/commit/3f0771fa07f22c0ba42cb83a200bfb46b790584d))
+
 ### [2.10.3](https://github.com/limaofeng/jfantasy-framework/compare/v2.10.2...v2.10.3) (2022-10-13)
 
 
