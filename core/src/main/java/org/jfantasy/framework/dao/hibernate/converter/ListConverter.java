@@ -1,24 +1,25 @@
 package org.jfantasy.framework.dao.hibernate.converter;
 
-import java.lang.reflect.Array;
+import com.fasterxml.jackson.core.type.TypeReference;
+import java.util.List;
 import javax.persistence.AttributeConverter;
 import org.jfantasy.framework.dao.hibernate.util.ReflectionUtils;
 import org.jfantasy.framework.jackson.JSON;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 
-public class ArrayConverter<T> implements AttributeConverter<T[], String> {
+public class ListConverter<T> implements AttributeConverter<List<T>, String> {
 
   protected Class entityClass;
 
-  public ArrayConverter() {
+  public ListConverter() {
     this.entityClass =
         ReflectionUtils.getSuperClassGenricType(ClassUtil.getRealClass(getClass()))
             .getComponentType();
   }
 
   @Override
-  public String convertToDatabaseColumn(T[] attribute) {
+  public String convertToDatabaseColumn(List<T> attribute) {
     if (attribute == null) {
       return null;
     }
@@ -26,10 +27,10 @@ public class ArrayConverter<T> implements AttributeConverter<T[], String> {
   }
 
   @Override
-  public T[] convertToEntityAttribute(String dbData) {
+  public List<T> convertToEntityAttribute(String dbData) {
     if (StringUtil.isBlank(dbData)) {
       return null;
     }
-    return (T[]) JSON.deserialize(dbData, Array.newInstance(entityClass, 0).getClass());
+    return JSON.deserialize(dbData, new TypeReference<List<T>>() {});
   }
 }
