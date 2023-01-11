@@ -1,7 +1,7 @@
 package org.jfantasy.framework.dao.mybatis.keygen.bean;
 
+import jakarta.persistence.*;
 import java.io.Serializable;
-import javax.persistence.*;
 
 /**
  * 序列

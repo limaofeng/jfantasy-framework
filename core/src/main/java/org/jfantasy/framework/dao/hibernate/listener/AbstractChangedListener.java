@@ -1,6 +1,6 @@
 package org.jfantasy.framework.dao.hibernate.listener;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.*;
 import org.hibernate.persister.entity.EntityPersister;
@@ -99,7 +99,7 @@ public abstract class AbstractChangedListener<T>
   }
 
   @Override
-  public boolean requiresPostCommitHanding(EntityPersister entityPersister) {
+  public boolean requiresPostCommitHandling(EntityPersister entityPersister) {
     Class<?> aClass = ClassUtil.forName(entityPersister.getRootEntityName());
     assert aClass != null;
     return entityClass.isAssignableFrom(aClass);

@@ -5,7 +5,9 @@ import org.jfantasy.framework.spring.SpringBeanUtils;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/** @author limaofeng */
+/**
+ * @author limaofeng
+ */
 public class DataBaseKeyGenerator {
 
   private static DataBaseKeyGenerator dataBaseKeyGenerator;

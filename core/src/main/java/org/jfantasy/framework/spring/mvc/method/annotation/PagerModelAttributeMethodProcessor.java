@@ -1,9 +1,9 @@
 package org.jfantasy.framework.spring.mvc.method.annotation;
 
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
 import org.jfantasy.framework.dao.OrderBy;
 import org.jfantasy.framework.dao.Page;
 import org.jfantasy.framework.dao.Pagination;

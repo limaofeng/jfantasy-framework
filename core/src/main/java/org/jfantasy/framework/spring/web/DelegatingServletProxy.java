@@ -1,7 +1,7 @@
 package org.jfantasy.framework.spring.web;
 
+import jakarta.servlet.*;
 import java.io.IOException;
-import javax.servlet.*;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 

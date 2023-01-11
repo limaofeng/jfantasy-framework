@@ -1,8 +1,8 @@
 package cn.asany.demo.domain;
 
+import jakarta.persistence.*;
 import java.util.Date;
 import java.util.Objects;
-import javax.persistence.*;
 import lombok.*;
 import org.jfantasy.framework.search.annotations.FieldType;
 import org.jfantasy.framework.search.annotations.IndexProperty;

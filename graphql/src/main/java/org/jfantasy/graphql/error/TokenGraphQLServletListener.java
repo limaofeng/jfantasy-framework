@@ -1,9 +1,9 @@
 package org.jfantasy.graphql.error;
 
 import graphql.kickstart.servlet.core.GraphQLServletListener;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
 import org.jfantasy.framework.error.ErrorResponse;
 import org.jfantasy.framework.error.ErrorUtils;

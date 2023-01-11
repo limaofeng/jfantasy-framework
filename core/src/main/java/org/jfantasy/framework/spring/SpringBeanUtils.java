@@ -71,7 +71,9 @@ public class SpringBeanUtils
     }
   }
 
-  /** @return ApplicationContext */
+  /**
+   * @return ApplicationContext
+   */
   public static ApplicationContext getApplicationContext() {
     return applicationContext;
   }

@@ -1,9 +1,9 @@
 package org.jfantasy.framework.search.backend;
 
+import jakarta.persistence.Id;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import javax.persistence.Id;
 import org.jfantasy.framework.search.annotations.IndexRefBy;
 import org.jfantasy.framework.search.cache.PropertysCache;
 import org.jfantasy.framework.util.reflect.Property;

@@ -25,7 +25,8 @@ public class EntityChangedEventListener
   }
 
   @Override
-  public boolean requiresPostCommitHanding(EntityPersister entityPersister) {
+  public boolean requiresPostCommitHandling(EntityPersister persister) {
+    // TODO: 评估 requiresPostCommitHandling 对逻辑的影响
     return false;
   }
 

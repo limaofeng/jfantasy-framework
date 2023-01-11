@@ -1,8 +1,8 @@
 package org.jfantasy.framework.dao.hibernate.util;
 
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.lang.reflect.Field;
-import javax.persistence.*;
 import org.jfantasy.framework.error.ValidationException;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.StringUtil;

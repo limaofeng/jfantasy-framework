@@ -1,12 +1,12 @@
 package org.jfantasy.framework.spring.mvc.method.annotation;
 
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.Map.Entry;
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
 import org.jfantasy.framework.spring.mvc.bind.annotation.FormModel;
 import org.jfantasy.framework.spring.mvc.util.MapWapper;
 import org.jfantasy.framework.util.common.StringUtil;

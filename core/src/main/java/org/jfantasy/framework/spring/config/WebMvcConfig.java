@@ -2,11 +2,11 @@ package org.jfantasy.framework.spring.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.Unirest;
+import jakarta.annotation.PostConstruct;
+import jakarta.servlet.DispatcherType;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
-import javax.annotation.PostConstruct;
-import javax.servlet.DispatcherType;
 import org.hibernate.validator.HibernateValidator;
 import org.jfantasy.framework.jackson.JSON;
 import org.jfantasy.framework.jackson.UnirestObjectMapper;

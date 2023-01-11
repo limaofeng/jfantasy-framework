@@ -1,11 +1,13 @@
 package org.jfantasy.framework.dao;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import javax.persistence.Column;
-import javax.persistence.MappedSuperclass;
+import jakarta.persistence.Column;
+import jakarta.persistence.MappedSuperclass;
 import lombok.*;
 
-/** @author limaofeng */
+/**
+ * @author limaofeng
+ */
 @Getter
 @Setter
 @ToString

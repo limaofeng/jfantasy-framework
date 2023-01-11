@@ -5,7 +5,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.util.LinkedMultiValueMap;
 
-/** @author limaofeng */
+/**
+ * @author limaofeng
+ */
 public class RequestFactory {
 
   private RequestFactory() {}

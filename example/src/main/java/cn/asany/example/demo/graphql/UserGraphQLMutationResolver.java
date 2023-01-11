@@ -8,7 +8,9 @@ import graphql.kickstart.tools.GraphQLMutationResolver;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
-/** @author limaofeng */
+/**
+ * @author limaofeng
+ */
 @Component
 public class UserGraphQLMutationResolver implements GraphQLMutationResolver {
 

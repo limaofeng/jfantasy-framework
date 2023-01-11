@@ -22,12 +22,12 @@ public class LogOperation {
   }
 
   public void setCondition(String condition) {
-    Assert.notNull(condition);
+    Assert.notNull(condition, "condition is null");
     this.condition = condition;
   }
 
   public void setType(String type) {
-    Assert.notNull(type);
+    Assert.notNull(type, "type is null");
     this.type = type;
   }
 

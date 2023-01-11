@@ -2,10 +2,10 @@ package org.jfantasy.framework.jackson.models;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.Id;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
-import javax.persistence.Id;
 
 @JsonFilter("myFilter")
 public class User {

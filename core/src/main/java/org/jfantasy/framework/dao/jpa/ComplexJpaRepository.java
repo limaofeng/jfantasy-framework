@@ -1,14 +1,14 @@
 package org.jfantasy.framework.dao.jpa;
 
+import jakarta.persistence.*;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
-import javax.persistence.*;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

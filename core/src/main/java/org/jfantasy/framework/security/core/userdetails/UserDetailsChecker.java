@@ -1,6 +1,8 @@
 package org.jfantasy.framework.security.core.userdetails;
 
-/** @author limaofeng */
+/**
+ * @author limaofeng
+ */
 public interface UserDetailsChecker {
 
   /**

@@ -5,7 +5,7 @@ configurations {
 }
 
 dependencies {
-	compileOnly "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
-	annotationProcessor "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
+	compileOnly "org.projectlombok:lombok"
+	annotationProcessor "org.projectlombok:lombok"
 	testImplementation libs['test']
 }

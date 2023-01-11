@@ -55,7 +55,9 @@ public enum DateFormat {
     this.pattern = pattern;
   }
 
-  /** @since 4.2 */
+  /**
+   * @since 4.2
+   */
   public String getPattern() {
     return pattern;
   }

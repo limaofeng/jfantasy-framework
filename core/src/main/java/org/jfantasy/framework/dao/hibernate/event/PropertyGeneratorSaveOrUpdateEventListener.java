@@ -1,6 +1,5 @@
 package org.jfantasy.framework.dao.hibernate.event;
 
-import java.io.Serializable;
 import org.hibernate.engine.spi.EntityEntry;
 import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.event.internal.DefaultSaveOrUpdateEventListener;
@@ -19,7 +18,7 @@ import org.jfantasy.framework.dao.hibernate.spi.IdentifierGeneratorUtil;
  */
 public class PropertyGeneratorSaveOrUpdateEventListener extends DefaultSaveOrUpdateEventListener {
 
-  private transient IdentifierGeneratorFactory identifierGeneratorFactory;
+  private final transient IdentifierGeneratorFactory identifierGeneratorFactory;
 
   public PropertyGeneratorSaveOrUpdateEventListener(
       IdentifierGeneratorFactory identifierGeneratorFactory) {
@@ -30,7 +29,7 @@ public class PropertyGeneratorSaveOrUpdateEventListener extends DefaultSaveOrUpd
   public void onSaveOrUpdate(SaveOrUpdateEvent event) {
     final SessionImplementor source = event.getSession();
     final Object object = event.getObject();
-    final Serializable requestedId = event.getRequestedId();
+    final Object requestedId = event.getRequestedId();
     if (requestedId != null && object instanceof HibernateProxy) {
       ((HibernateProxy) object).getHibernateLazyInitializer().setIdentifier(requestedId);
     }

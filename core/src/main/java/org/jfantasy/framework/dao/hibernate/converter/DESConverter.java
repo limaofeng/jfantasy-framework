@@ -1,6 +1,6 @@
 package org.jfantasy.framework.dao.hibernate.converter;
 
-import javax.persistence.AttributeConverter;
+import jakarta.persistence.AttributeConverter;
 import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.crypto.CryptoException;
 import org.jfantasy.framework.crypto.DESPlus;

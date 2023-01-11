@@ -1,6 +1,6 @@
 package org.jfantasy.framework.context.bean;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

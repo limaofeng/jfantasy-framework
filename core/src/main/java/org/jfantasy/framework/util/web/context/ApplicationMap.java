@@ -1,11 +1,11 @@
 package org.jfantasy.framework.util.web.context;
 
+import jakarta.servlet.ServletContext;
 import java.util.AbstractMap;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import javax.servlet.ServletContext;
 
 @SuppressWarnings("rawtypes")
 public class ApplicationMap extends AbstractMap {

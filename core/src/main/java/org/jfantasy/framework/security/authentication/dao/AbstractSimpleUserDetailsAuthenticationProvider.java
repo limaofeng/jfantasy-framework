@@ -8,7 +8,9 @@ import org.jfantasy.framework.security.core.userdetails.UserDetails;
 import org.jfantasy.framework.security.core.userdetails.UserDetailsChecker;
 import org.jfantasy.framework.security.core.userdetails.UsernameNotFoundException;
 
-/** @author limaofeng */
+/**
+ * @author limaofeng
+ */
 @Slf4j
 public abstract class AbstractSimpleUserDetailsAuthenticationProvider<
         T extends SimpleAuthenticationToken>

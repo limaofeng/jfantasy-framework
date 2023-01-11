@@ -1,17 +1,17 @@
 package org.jfantasy.framework.dao.hibernate.event;
 
-import java.util.Map;
 import org.hibernate.engine.spi.EntityEntry;
 import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.event.internal.DefaultPersistEventListener;
 import org.hibernate.event.internal.EntityState;
+import org.hibernate.event.spi.PersistContext;
 import org.hibernate.event.spi.PersistEvent;
 import org.hibernate.id.factory.IdentifierGeneratorFactory;
 import org.jfantasy.framework.dao.hibernate.spi.IdentifierGeneratorUtil;
 
 public class PropertyGeneratorPersistEventListener extends DefaultPersistEventListener {
 
-  private transient IdentifierGeneratorFactory identifierGeneratorFactory;
+  private final transient IdentifierGeneratorFactory identifierGeneratorFactory;
 
   public PropertyGeneratorPersistEventListener(
       IdentifierGeneratorFactory identifierGeneratorFactory) {
@@ -19,7 +19,7 @@ public class PropertyGeneratorPersistEventListener extends DefaultPersistEventLi
   }
 
   @Override
-  public void onPersist(PersistEvent event, Map createCache) {
+  public void onPersist(PersistEvent event, PersistContext createCache) {
     final SessionImplementor source = event.getSession();
     final Object object = event.getObject();
     if (!IdentifierGeneratorUtil.reassociateIfUninitializedProxy(object, source)) {

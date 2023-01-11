@@ -1,7 +1,5 @@
 package org.jfantasy.framework.util;
 
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
@@ -19,13 +17,15 @@ public class FantasyClassLoader extends ClassLoader {
 
   private final Lock lock = new ReentrantLock();
 
-  private static final FantasyClassLoader fantasyClassLoader =
-      AccessController.doPrivileged((PrivilegedAction<FantasyClassLoader>) FantasyClassLoader::new);
+  private static final FantasyClassLoader fantasyClassLoader = new FantasyClassLoader();
+  //      AccessController.doPrivileged((PrivilegedAction<FantasyClassLoader>)
+  // FantasyClassLoader::new);
 
   private DynamicClassLoader classLoader =
-      AccessController.doPrivileged(
-          (PrivilegedAction<DynamicClassLoader>)
-              () -> new DynamicClassLoader(DynamicClassLoader.class.getClassLoader()));
+      new DynamicClassLoader(DynamicClassLoader.class.getClassLoader());
+  //      AccessController.doPrivileged(
+  //          (PrivilegedAction<DynamicClassLoader>)
+  //              () -> new DynamicClassLoader(DynamicClassLoader.class.getClassLoader()));
 
   /** 已被加载的对象 */
   private static final List<String> loadClasses = new ArrayList<>();

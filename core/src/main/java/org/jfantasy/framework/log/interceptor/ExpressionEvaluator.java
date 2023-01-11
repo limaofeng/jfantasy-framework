@@ -3,7 +3,7 @@ package org.jfantasy.framework.log.interceptor;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
+import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
@@ -13,8 +13,8 @@ public class ExpressionEvaluator {
 
   private final SpelExpressionParser parser = new SpelExpressionParser();
 
-  private final ParameterNameDiscoverer paramNameDiscoverer =
-      new LocalVariableTableParameterNameDiscoverer();
+  // TODO: LocalVariableTableParameterNameDiscoverer 改为 DefaultParameterNameDiscoverer 待测试
+  private final ParameterNameDiscoverer paramNameDiscoverer = new DefaultParameterNameDiscoverer();
 
   private final Map<String, Expression> conditionCache = new ConcurrentHashMap<>();
 

@@ -1,9 +1,9 @@
 package org.jfantasy.framework.search.handler;
 
+import jakarta.persistence.Id;
 import java.lang.reflect.Array;
 import java.sql.Timestamp;
 import java.util.Date;
-import javax.persistence.Id;
 import org.jfantasy.framework.search.annotations.FieldType;
 import org.jfantasy.framework.search.annotations.IndexProperty;
 import org.jfantasy.framework.search.mapper.DataType;

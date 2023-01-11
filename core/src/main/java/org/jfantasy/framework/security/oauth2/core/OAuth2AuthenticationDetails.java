@@ -2,9 +2,9 @@ package org.jfantasy.framework.security.oauth2.core;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.servlet.http.HttpServletRequest;
 import java.time.Instant;
 import java.util.Set;
-import javax.servlet.http.HttpServletRequest;
 import lombok.*;
 
 /**

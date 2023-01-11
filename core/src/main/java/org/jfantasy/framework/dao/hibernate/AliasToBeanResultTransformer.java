@@ -1,14 +1,13 @@
 package org.jfantasy.framework.dao.hibernate;
 
 import com.github.jknack.handlebars.internal.lang3.StringUtils;
+import jakarta.persistence.Column;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
-import javax.persistence.Column;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.SQLQuery;
 import org.hibernate.transform.ResultTransformer;
 import org.hibernate.type.Type;
 import org.jfantasy.framework.dao.hibernate.util.TypeFactory;
@@ -80,9 +79,9 @@ public class AliasToBeanResultTransformer implements ResultTransformer {
     return collection;
   }
 
-  protected void custom(SQLQuery query) {
-    for (Map.Entry<String, Type> entry : propertyTypes.entrySet()) {
-      query.addScalar(entry.getKey(), entry.getValue());
-    }
-  }
+  //  protected void custom(SQLQuery query) {
+  //    for (Map.Entry<String, Type> entry : propertyTypes.entrySet()) {
+  //      query.addScalar(entry.getKey(), entry.getValue());
+  //    }
+  //  }
 }

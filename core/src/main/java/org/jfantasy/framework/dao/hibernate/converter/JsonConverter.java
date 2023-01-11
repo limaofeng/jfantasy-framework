@@ -1,6 +1,6 @@
 package org.jfantasy.framework.dao.hibernate.converter;
 
-import javax.persistence.AttributeConverter;
+import jakarta.persistence.AttributeConverter;
 import org.jfantasy.framework.dao.hibernate.util.ReflectionUtils;
 import org.jfantasy.framework.jackson.JSON;
 import org.jfantasy.framework.util.common.ClassUtil;

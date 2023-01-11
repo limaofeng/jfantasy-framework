@@ -6,7 +6,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.jfantasy.graphql.inputs.QueryFilter;
 
-/** @author limaofeng */
+/**
+ * @author limaofeng
+ */
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class UserFilter extends QueryFilter<UserFilter, User> {

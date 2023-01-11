@@ -1,7 +1,7 @@
 package org.jfantasy.autoconfigure;
 
-import javax.annotation.PostConstruct;
-import javax.persistence.EntityManagerFactory;
+import jakarta.annotation.PostConstruct;
+import jakarta.persistence.EntityManagerFactory;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.EventType;

@@ -6,7 +6,9 @@ import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
 import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
 
-/** @author limaofeng */
+/**
+ * @author limaofeng
+ */
 public class LogNamespaceHandler extends NamespaceHandlerSupport {
 
   static final String LOG_MANAGER_ATTRIBUTE = "log-manager";

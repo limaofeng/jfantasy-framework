@@ -6,7 +6,9 @@ import lombok.*;
 import org.jfantasy.graphql.Edge;
 import org.jfantasy.graphql.types.BaseConnection;
 
-/** @author limaofeng */
+/**
+ * @author limaofeng
+ */
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class UserConnection extends BaseConnection<UserConnection.UserEdge, User> {

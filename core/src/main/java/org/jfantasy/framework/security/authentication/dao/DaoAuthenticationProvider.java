@@ -10,7 +10,9 @@ import org.jfantasy.framework.security.core.userdetails.UserDetailsService;
 import org.jfantasy.framework.security.core.userdetails.UsernameNotFoundException;
 import org.jfantasy.framework.security.crypto.password.PasswordEncoder;
 
-/** @author limaofeng */
+/**
+ * @author limaofeng
+ */
 public class DaoAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
 
   private UserDetailsService userDetailsService;

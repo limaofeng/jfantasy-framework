@@ -1,6 +1,6 @@
 package org.jfantasy.framework.search.handler;
 
-import javax.persistence.Id;
+import jakarta.persistence.Id;
 import org.jfantasy.framework.search.annotations.*;
 import org.jfantasy.framework.util.reflect.Property;
 

@@ -1,10 +1,12 @@
 package org.jfantasy.framework.security.web;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.jfantasy.framework.security.authentication.AuthenticationDetailsSource;
 import org.jfantasy.framework.security.web.authentication.WebAuthenticationDetails;
 
-/** @author limaofeng */
+/**
+ * @author limaofeng
+ */
 public class WebAuthenticationDetailsSource
     implements AuthenticationDetailsSource<HttpServletRequest, WebAuthenticationDetails> {
 

@@ -5,7 +5,9 @@ import lombok.Data;
 import org.jfantasy.framework.spring.mvc.http.Error;
 import org.jfantasy.framework.util.common.DateUtil;
 
-/** @author limaofeng */
+/**
+ * @author limaofeng
+ */
 @Data
 public class ErrorResponse {
   /** 错误发生时间 */

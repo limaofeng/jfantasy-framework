@@ -32,7 +32,8 @@ import org.jfantasy.framework.util.common.StringUtil;
 @Slf4j
 public class Request {
 
-  private CookieStore cookieStore = new BasicCookieStore();;
+  private CookieStore cookieStore = new BasicCookieStore();
+  ;
   private List<Header> requestHeaders = new ArrayList<Header>();
   private Map<String, String> params = new HashMap<String, String>();
   private Part[] upLoadFiles = new Part[0];

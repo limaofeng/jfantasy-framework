@@ -1,7 +1,7 @@
 package org.jfantasy.framework.spring.mvc.http;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.jfantasy.framework.error.ErrorResponse;

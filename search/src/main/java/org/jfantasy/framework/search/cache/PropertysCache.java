@@ -1,11 +1,11 @@
 package org.jfantasy.framework.search.cache;
 
+import jakarta.persistence.Id;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.persistence.Id;
 import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.search.annotations.IndexProperty;
 import org.jfantasy.framework.search.exception.IdException;

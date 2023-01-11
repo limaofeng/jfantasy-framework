@@ -1,12 +1,12 @@
 package org.jfantasy.framework.spring.mvc.method.annotation;
 
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.URLDecoder;
 import java.util.*;
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
 import org.jfantasy.framework.dao.jpa.PropertyFilter;
 import org.jfantasy.framework.error.IgnoreException;
 import org.jfantasy.framework.util.common.ObjectUtil;

@@ -11,7 +11,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
-/** @author limaofeng */
+/**
+ * @author limaofeng
+ */
 @Component
 public class UserGraphQLQueryResolver implements GraphQLQueryResolver {
 

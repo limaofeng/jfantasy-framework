@@ -1,9 +1,9 @@
 package org.jfantasy.framework.dao.jpa;
 
+import jakarta.persistence.EntityManager;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
-import javax.persistence.EntityManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;

@@ -3,7 +3,9 @@ package org.jfantasy.framework.security.authentication;
 import javax.security.auth.Subject;
 import org.jfantasy.framework.security.LoginUser;
 
-/** @author limaofeng */
+/**
+ * @author limaofeng
+ */
 public class SimpleAuthenticationToken<T extends Object> extends AbstractAuthenticationToken {
 
   private final LoginUser principal;

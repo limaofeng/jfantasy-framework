@@ -1,11 +1,11 @@
 package org.jfantasy.framework.web.filter.wrapper;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.web.WebUtil;

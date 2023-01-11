@@ -1,8 +1,8 @@
 package org.jfantasy.framework.dao.hibernate.converter;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import jakarta.persistence.AttributeConverter;
 import java.util.List;
-import javax.persistence.AttributeConverter;
 import org.jfantasy.framework.dao.hibernate.util.ReflectionUtils;
 import org.jfantasy.framework.jackson.JSON;
 import org.jfantasy.framework.util.common.ClassUtil;

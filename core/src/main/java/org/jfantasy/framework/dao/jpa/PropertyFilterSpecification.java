@@ -2,9 +2,9 @@ package org.jfantasy.framework.dao.jpa;
 
 import static org.jfantasy.framework.util.common.ObjectUtil.multipleValuesObjectsObjects;
 
+import jakarta.persistence.criteria.*;
 import java.lang.reflect.Array;
 import java.util.*;
-import javax.persistence.criteria.*;
 import org.jfantasy.framework.dao.jpa.PropertyFilter.MatchType;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.StringUtil;

@@ -2,8 +2,8 @@ package cn.asany.example.demo.domain;
 
 import cn.asany.example.demo.validator.CaseValidator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.jfantasy.framework.dao.BaseBusEntity;

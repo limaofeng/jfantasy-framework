@@ -5,9 +5,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import org.hibernate.CallbackException;
-import org.hibernate.EntityMode;
 import org.hibernate.Interceptor;
 import org.hibernate.Transaction;
+import org.hibernate.metamodel.spi.EntityRepresentationStrategy;
 import org.hibernate.type.Type;
 
 /**
@@ -80,11 +80,12 @@ public class MultiEntityInterceptor implements Interceptor {
   }
 
   @Override
-  public Object instantiate(String entityName, EntityMode entityMode, Serializable id)
+  public Object instantiate(
+      String entityName, EntityRepresentationStrategy representationStrategy, Object id)
       throws CallbackException {
     Object retVal = null;
     for (Interceptor interceptor : this.interceptors) {
-      retVal = interceptor.instantiate(entityName, entityMode, id);
+      retVal = interceptor.instantiate(entityName, representationStrategy, id);
     }
     return retVal;
   }
@@ -156,14 +157,15 @@ public class MultiEntityInterceptor implements Interceptor {
     return retVal;
   }
 
-  @Override
-  public String onPrepareStatement(String entityName) {
-    String retVal = "";
-    for (Interceptor interceptor : this.interceptors) {
-      retVal = interceptor.onPrepareStatement(entityName);
-    }
-    return retVal;
-  }
+  // TODO: onPrepareStatement 被移除
+  //  @Override
+  //  public String onPrepareStatement(String entityName) {
+  //    String retVal = "";
+  //    for (Interceptor interceptor : this.interceptors) {
+  //      retVal = interceptor.onPrepareStatement(entityName);
+  //    }
+  //    return retVal;
+  //  }
 
   @Override
   public boolean onSave(

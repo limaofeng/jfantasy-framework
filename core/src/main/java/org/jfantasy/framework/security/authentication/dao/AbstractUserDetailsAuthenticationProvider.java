@@ -8,7 +8,9 @@ import org.jfantasy.framework.security.core.userdetails.UserDetailsChecker;
 import org.jfantasy.framework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.context.support.MessageSourceAccessor;
 
-/** @author limaofeng */
+/**
+ * @author limaofeng
+ */
 @Slf4j
 public abstract class AbstractUserDetailsAuthenticationProvider
     implements AuthenticationProvider<UsernamePasswordAuthenticationToken> {

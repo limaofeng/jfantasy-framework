@@ -1,6 +1,5 @@
 package org.jfantasy.framework.dao.hibernate.generator;
 
-import java.io.Serializable;
 import java.util.Properties;
 import org.hibernate.HibernateException;
 import org.hibernate.MappingException;
@@ -45,11 +44,11 @@ public class SequenceGenerator implements IdentifierGenerator, Configurable {
   }
 
   @Override
-  public Serializable generate(SharedSessionContractImplementor session, Object object)
+  public Object generate(SharedSessionContractImplementor session, Object object)
       throws HibernateException {
     final EntityPersister persister =
         session.getFactory().getMetamodel().entityPersister(entityName);
-    Serializable id = persister.getIdentifier(object, session);
+    Object id = persister.getIdentifier(object, session);
     if (id != null) {
       return id;
     }

@@ -3,12 +3,12 @@ package org.jfantasy.framework.search.dao.jpa;
 import static org.springframework.data.jpa.repository.query.QueryUtils.COUNT_QUERY_STRING;
 import static org.springframework.data.jpa.repository.query.QueryUtils.getQueryString;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import java.io.Serializable;
 import java.util.List;
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 import org.jfantasy.framework.search.backend.EntityChangedListener;
 import org.jfantasy.framework.search.dao.CuckooDao;
 import org.springframework.context.ApplicationContext;

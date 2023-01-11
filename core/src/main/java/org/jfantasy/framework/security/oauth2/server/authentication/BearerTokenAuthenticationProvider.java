@@ -9,7 +9,9 @@ import org.jfantasy.framework.security.oauth2.core.InvalidTokenException;
 import org.jfantasy.framework.security.oauth2.core.token.ResourceServerTokenServices;
 import org.jfantasy.framework.security.oauth2.server.BearerTokenAuthenticationToken;
 
-/** @author limaofeng */
+/**
+ * @author limaofeng
+ */
 @Slf4j
 public class BearerTokenAuthenticationProvider
     implements AuthenticationProvider<BearerTokenAuthenticationToken> {

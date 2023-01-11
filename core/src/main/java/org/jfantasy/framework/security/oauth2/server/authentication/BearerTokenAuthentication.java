@@ -8,7 +8,9 @@ import org.jfantasy.framework.security.core.GrantedAuthority;
 import org.jfantasy.framework.security.oauth2.core.OAuth2AccessToken;
 import org.jfantasy.framework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 
-/** @author limaofeng */
+/**
+ * @author limaofeng
+ */
 public class BearerTokenAuthentication
     extends AbstractOAuth2TokenAuthenticationToken<OAuth2AccessToken> {
 

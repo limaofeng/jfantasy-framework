@@ -1,8 +1,8 @@
 package org.jfantasy.framework.security.oauth2.server.web;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.servlet.http.HttpServletRequest;
 import org.jfantasy.framework.security.oauth2.core.OAuth2AuthenticationException;
 import org.jfantasy.framework.security.oauth2.server.BearerTokenError;
 import org.jfantasy.framework.security.oauth2.server.BearerTokenErrors;

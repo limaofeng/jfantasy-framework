@@ -18,7 +18,9 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.client.RestTemplate;
 
-/** @author limaofeng */
+/**
+ * @author limaofeng
+ */
 public class GraphQLClientBeanPostProcessor implements BeanPostProcessor {
 
   private final ResourceLoader resourceLoader;

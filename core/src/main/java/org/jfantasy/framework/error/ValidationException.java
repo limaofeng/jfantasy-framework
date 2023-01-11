@@ -3,7 +3,9 @@ package org.jfantasy.framework.error;
 import java.util.Map;
 import org.springframework.validation.BindingResult;
 
-/** @author limaofeng */
+/**
+ * @author limaofeng
+ */
 public class ValidationException extends RuntimeException {
 
   private String code;

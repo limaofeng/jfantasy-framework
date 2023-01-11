@@ -1,5 +1,6 @@
 package org.jfantasy.graphql.util;
 
+import jakarta.persistence.Id;
 import java.lang.reflect.ParameterizedType;
 import java.util.Arrays;
 import java.util.List;
@@ -7,7 +8,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import javax.persistence.Id;
 import lombok.SneakyThrows;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.reflect.Property;

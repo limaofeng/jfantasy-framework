@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/** @author limaofeng */
+/**
+ * @author limaofeng
+ */
 public class DefaultAuthenticationChecks implements UserDetailsChecker {
 
   private final List<UserDetailsChecker> checkers = new ArrayList<>();

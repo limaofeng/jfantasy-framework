@@ -1,10 +1,10 @@
 package org.jfantasy.framework.web.util.gzip;
 
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.WriteListener;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.zip.GZIPOutputStream;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.WriteListener;
 
 public class GZipStream extends ServletOutputStream {
 

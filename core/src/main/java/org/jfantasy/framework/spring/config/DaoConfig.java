@@ -1,15 +1,12 @@
 package org.jfantasy.framework.spring.config;
 
-import javax.annotation.PostConstruct;
-import javax.persistence.EntityManagerFactory;
+import jakarta.annotation.PostConstruct;
+import jakarta.persistence.EntityManagerFactory;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.EventType;
-import org.hibernate.id.factory.spi.MutableIdentifierGeneratorFactory;
 import org.jfantasy.framework.dao.hibernate.event.PropertyGeneratorPersistEventListener;
 import org.jfantasy.framework.dao.hibernate.event.PropertyGeneratorSaveOrUpdateEventListener;
-import org.jfantasy.framework.dao.hibernate.generator.SequenceGenerator;
-import org.jfantasy.framework.dao.hibernate.generator.SerialNumberGenerator;
 import org.jfantasy.framework.dao.jpa.ComplexJpaRepository;
 import org.jfantasy.framework.spring.SpringBeanUtils;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -51,20 +48,18 @@ public class DaoConfig {
         entityManagerFactory.unwrap(SessionFactoryImplementor.class);
     EventListenerRegistry registry =
         sessionFactory.getServiceRegistry().getService(EventListenerRegistry.class);
-    MutableIdentifierGeneratorFactory identifierGeneratorFactory =
-        sessionFactory.getServiceRegistry().getService(MutableIdentifierGeneratorFactory.class);
+    // TODO MutableIdentifierGeneratorFactory 被移除，如何解决
+    //    MutableIdentifierGeneratorFactory identifierGeneratorFactory =
+    //        sessionFactory.getServiceRegistry().getService(IdentifierGeneratorFactory.class);
     // 自定义序列生成器
-    identifierGeneratorFactory.register("fantasy-sequence", SequenceGenerator.class);
-    identifierGeneratorFactory.register("serialnumber", SerialNumberGenerator.class);
+    //    identifierGeneratorFactory.register("fantasy-sequence", SequenceGenerator.class);
+    //    identifierGeneratorFactory.register("serialnumber", SerialNumberGenerator.class);
     // 默认监听器
     registry.prependListeners(
         EventType.SAVE_UPDATE,
-        createListenerInstance(
-            new PropertyGeneratorSaveOrUpdateEventListener(identifierGeneratorFactory)));
+        createListenerInstance(new PropertyGeneratorSaveOrUpdateEventListener(null)));
     registry.prependListeners(
-        EventType.PERSIST,
-        createListenerInstance(
-            new PropertyGeneratorPersistEventListener(identifierGeneratorFactory)));
+        EventType.PERSIST, createListenerInstance(new PropertyGeneratorPersistEventListener(null)));
   }
 
   /**

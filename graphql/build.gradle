@@ -22,9 +22,9 @@ dependencies {
 	compileOnly "org.springframework.data:spring-data-jpa"
 	compileOnly 'org.aspectj:aspectjweaver'
 	compileOnly "org.springframework.boot:spring-boot-starter-data-redis"
-	compileOnly "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
-	annotationProcessor "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
-	testCompileOnly "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
-	testAnnotationProcessor "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
+	compileOnly "org.projectlombok:lombok"
+	annotationProcessor "org.projectlombok:lombok"
+	testCompileOnly "org.projectlombok:lombok"
+	testAnnotationProcessor "org.projectlombok:lombok"
 	testImplementation libs['test']
 }

@@ -1,13 +1,13 @@
 package org.jfantasy.framework.util.web;
 
 import eu.bitwalker.useragentutils.Browser;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.util.common.EncodeUtil;
 import org.jfantasy.framework.util.common.StringUtil;

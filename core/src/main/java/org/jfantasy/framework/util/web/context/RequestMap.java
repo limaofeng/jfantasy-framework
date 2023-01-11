@@ -1,11 +1,11 @@
 package org.jfantasy.framework.util.web.context;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.Serializable;
 import java.util.AbstractMap;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
-import javax.servlet.http.HttpServletRequest;
 
 @SuppressWarnings({"rawtypes"})
 public class RequestMap extends AbstractMap implements Serializable {

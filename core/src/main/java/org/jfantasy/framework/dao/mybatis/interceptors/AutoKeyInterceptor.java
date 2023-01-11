@@ -1,8 +1,8 @@
 package org.jfantasy.framework.dao.mybatis.interceptors;
 
+import jakarta.persistence.GeneratedValue;
 import java.lang.reflect.Field;
 import java.util.*;
-import javax.persistence.GeneratedValue;
 import org.apache.ibatis.executor.keygen.KeyGenerator;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlCommandType;

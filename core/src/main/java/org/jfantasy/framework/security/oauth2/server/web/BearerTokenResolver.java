@@ -1,6 +1,6 @@
 package org.jfantasy.framework.security.oauth2.server.web;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * BearerToken 解析器

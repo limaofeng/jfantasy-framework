@@ -1,7 +1,7 @@
 package org.jfantasy.framework.util.web.context;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.*;
-import javax.servlet.http.HttpServletRequest;
 import org.jfantasy.framework.util.common.StringUtil;
 
 public class ParameterMap extends HashMap<String, String[]> {

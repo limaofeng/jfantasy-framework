@@ -1,5 +1,8 @@
 package org.jfantasy.framework.dao.hibernate.spi;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
@@ -7,9 +10,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import javax.persistence.Column;
-import javax.persistence.Id;
-import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 import org.hibernate.engine.spi.SessionImplementor;
