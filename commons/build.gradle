@@ -24,6 +24,7 @@ dependencies {
 	testCompileOnly "org.projectlombok:lombok"
 	testAnnotationProcessor "org.projectlombok:lombok"
 	testImplementation libs['test']
+    testCompileOnly 'jakarta.servlet:jakarta.servlet-api'
 }
 
 repositories {
