@@ -11,10 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+/** @author limaofeng */
 @Slf4j
 @ControllerAdvice
 public class ErrorHandler {
@@ -25,6 +27,7 @@ public class ErrorHandler {
       value = {
         ValidationException.class,
         MethodArgumentNotValidException.class,
+        MissingServletRequestParameterException.class
       })
   @ResponseBody
   public WebError errorAttributes(
@@ -42,6 +45,9 @@ public class ErrorHandler {
       response.setStatus(HttpStatus.UNPROCESSABLE_ENTITY.value());
     } else if (exception instanceof MethodArgumentNotValidException) {
       ErrorUtils.fill(error, ((MethodArgumentNotValidException) exception));
+      response.setStatus(HttpStatus.UNPROCESSABLE_ENTITY.value());
+    } else if (exception instanceof MissingServletRequestParameterException) {
+      ErrorUtils.fill(error, ((MissingServletRequestParameterException) exception));
       response.setStatus(HttpStatus.UNPROCESSABLE_ENTITY.value());
     } else {
       log.error(exception.getMessage(), exception);
