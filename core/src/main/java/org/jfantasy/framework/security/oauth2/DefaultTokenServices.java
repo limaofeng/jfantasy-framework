@@ -67,7 +67,16 @@ public class DefaultTokenServices
       secret = clientDetails.getClientSecret(tokenType.getClientSecretType());
       expiresAt = details.getExpiresAt();
     } else if (tokenType == TokenType.TOKEN) {
-      supportRefreshToken = true;
+      if (details.getGrantType() == AuthorizationGrantType.CLIENT_CREDENTIALS) {
+        if (clientDetails.getClientSecrets(ClientSecretType.OAUTH).stream()
+            .noneMatch(s -> s.equals(details.getClientSecret()))) {
+          throw new AuthenticationException("无效的 client_secret");
+        }
+        secret = details.getClientSecret();
+      } else {
+        secret = clientDetails.getClientSecret(tokenType.getClientSecretType());
+        supportRefreshToken = true;
+      }
       expiresAt = Instant.now().plus(expires, ChronoUnit.MINUTES);
     } else if (tokenType == TokenType.SESSION) {
       secret = clientDetails.getClientSecret(tokenType.getClientSecretType());
