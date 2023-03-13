@@ -89,14 +89,18 @@ public class DefaultTokenServices
 
     details.setClientSecret(secret);
 
-    JwtTokenPayload payload =
+    JwtTokenPayload.JwtTokenPayloadBuilder jwtTokenPayloadBuilder =
         JwtTokenPayload.builder()
-            .uid(principal.getUid())
             .name(authentication.getName())
             .clientId(clientDetails.getClientId())
             .tokenType(tokenType)
-            .expiresAt(expiresAt)
-            .build();
+            .expiresAt(expiresAt);
+
+    if (principal != null) {
+      jwtTokenPayloadBuilder.uid(principal.getUid());
+    }
+
+    JwtTokenPayload payload = jwtTokenPayloadBuilder.build();
 
     String tokenValue = generateTokenValue(payload, secret);
 

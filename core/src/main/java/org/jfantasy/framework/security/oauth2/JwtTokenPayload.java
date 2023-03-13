@@ -1,5 +1,6 @@
 package org.jfantasy.framework.security.oauth2;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
@@ -19,6 +20,7 @@ import org.jfantasy.framework.security.oauth2.core.TokenType;
 @AllArgsConstructor
 public class JwtTokenPayload {
   /** 用户 ID */
+  @JsonInclude(JsonInclude.Include.NON_NULL)
   private Long uid;
   /** 随机串 */
   private String nonce;
