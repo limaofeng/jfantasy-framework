@@ -33,6 +33,7 @@ public class JwtTokenPayload {
   @JsonProperty("client_id")
   private String clientId;
   /** 过期时间 */
+  @JsonInclude(JsonInclude.Include.NON_NULL)
   @JsonProperty("expires_at")
   private Instant expiresAt;
 }

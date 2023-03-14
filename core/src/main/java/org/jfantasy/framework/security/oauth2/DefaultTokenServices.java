@@ -73,11 +73,12 @@ public class DefaultTokenServices
           throw new AuthenticationException("无效的 client_secret");
         }
         secret = details.getClientSecret();
+        expiresAt = details.getExpiresAt();
       } else {
-        secret = clientDetails.getClientSecret(tokenType.getClientSecretType());
         supportRefreshToken = true;
+        secret = clientDetails.getClientSecret(tokenType.getClientSecretType());
+        expiresAt = Instant.now().plus(expires, ChronoUnit.MINUTES);
       }
-      expiresAt = Instant.now().plus(expires, ChronoUnit.MINUTES);
     } else if (tokenType == TokenType.SESSION) {
       secret = clientDetails.getClientSecret(tokenType.getClientSecretType());
       expiresAt = Instant.now().plus(expires, ChronoUnit.MINUTES);
