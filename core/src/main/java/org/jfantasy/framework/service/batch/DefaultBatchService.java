@@ -16,6 +16,7 @@ public class DefaultBatchService<T, R> implements BatchService<T, R> {
   public ConcurrentHashMap<Integer, Worker<T, R>> cache = new ConcurrentHashMap<>();
 
   private final int workerNumber;
+  private final int batchSize;
 
   public Executor asyncServiceExecutor() {
     ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
@@ -30,7 +31,17 @@ public class DefaultBatchService<T, R> implements BatchService<T, R> {
   }
 
   public DefaultBatchService(Function<List<T>, List<R>> saver, int batchSize, int works) {
-    workerNumber = works;
+    this.workerNumber = works;
+    this.batchSize = batchSize;
+    this.init(saver);
+  }
+
+  public DefaultBatchService(int batchSize, int works) {
+    this.workerNumber = works;
+    this.batchSize = batchSize;
+  }
+
+  public void init(Function<List<T>, List<R>> saver) {
     for (int i = 0; i < workerNumber; i++) {
       Worker<T, R> task = new Worker<>(saver, batchSize);
       cache.put(i, task);
