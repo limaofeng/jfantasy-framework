@@ -8,7 +8,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
-import org.springframework.scheduling.SchedulingTaskExecutor;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -27,22 +26,6 @@ public class AppConfig {
   @Bean
   public static PropertySourcesPlaceholderConfigurer placeholderConfigurer() {
     return new PropertySourcesPlaceholderConfigurer();
-  }
-
-  @Bean(name = "taskExecutor")
-  public SchedulingTaskExecutor taskExecutor() {
-    ThreadPoolTaskExecutor pool = new ThreadPoolTaskExecutor();
-    // 线程池所使用的缓冲队列
-    pool.setQueueCapacity(200);
-    // 线程池维护线程的最少数量
-    pool.setCorePoolSize(5);
-    // 线程池维护线程的最大数量
-    pool.setMaxPoolSize(1000);
-    // 线程池维护线程所允许的空闲时间
-    pool.setKeepAliveSeconds(30000);
-    pool.setThreadNamePrefix("Task-");
-    pool.initialize();
-    return pool;
   }
 
   @Configuration
