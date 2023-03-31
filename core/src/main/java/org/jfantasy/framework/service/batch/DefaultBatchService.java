@@ -18,11 +18,13 @@ public class DefaultBatchService<T, R> implements BatchService<T, R> {
   private final int workerNumber;
   private final int batchSize;
 
-  public Executor asyncServiceExecutor() {
+  private final Executor executor;
+
+  public Executor asyncServiceExecutor(int poolSize) {
     ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-    executor.setCorePoolSize(50);
-    executor.setMaxPoolSize(50);
-    executor.setQueueCapacity(999);
+    executor.setCorePoolSize(poolSize);
+    executor.setMaxPoolSize(poolSize);
+    executor.setQueueCapacity(poolSize);
     executor.setKeepAliveSeconds(30);
     executor.setThreadNamePrefix("bath_service");
     executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
@@ -33,19 +35,34 @@ public class DefaultBatchService<T, R> implements BatchService<T, R> {
   public DefaultBatchService(Function<List<T>, List<R>> saver, int batchSize, int works) {
     this.workerNumber = works;
     this.batchSize = batchSize;
+    this.executor = asyncServiceExecutor(this.workerNumber);
+    this.init(saver);
+  }
+
+  public DefaultBatchService(
+      Function<List<T>, List<R>> saver, int batchSize, int works, Executor executor) {
+    this.workerNumber = works;
+    this.batchSize = batchSize;
+    this.executor = executor;
     this.init(saver);
   }
 
   public DefaultBatchService(int batchSize, int works) {
     this.workerNumber = works;
     this.batchSize = batchSize;
+    this.executor = asyncServiceExecutor(this.workerNumber);
+  }
+
+  public DefaultBatchService(int batchSize, int works, Executor executor) {
+    this.workerNumber = works;
+    this.batchSize = batchSize;
+    this.executor = executor;
   }
 
   public void init(Function<List<T>, List<R>> saver) {
     for (int i = 0; i < workerNumber; i++) {
       Worker<T, R> task = new Worker<>(saver, batchSize);
       cache.put(i, task);
-      Executor executor = asyncServiceExecutor();
       executor.execute(task);
     }
   }
