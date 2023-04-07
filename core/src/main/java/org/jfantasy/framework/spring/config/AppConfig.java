@@ -1,10 +1,12 @@
 package org.jfantasy.framework.spring.config;
 
 import java.util.concurrent.Executor;
+import org.jfantasy.schedule.service.QuartzScheduler;
+import org.quartz.Scheduler;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.aop.interceptor.SimpleAsyncUncaughtExceptionHandler;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
@@ -16,16 +18,23 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
  * 应用配置类 <br>
  *
  * <p>负责注册除Controller等web层以外的所有bean，包括aop代理，service层，dao层，缓存，等等
+ *
+ * @author limaofeng
  */
 @Configuration
 @EnableAsync
 @EnableAspectJAutoProxy(proxyTargetClass = true)
-@ComponentScan("org.jfantasy.schedule.service")
 public class AppConfig {
 
   @Bean
   public static PropertySourcesPlaceholderConfigurer placeholderConfigurer() {
     return new PropertySourcesPlaceholderConfigurer();
+  }
+
+  @Bean
+  @ConditionalOnBean(Scheduler.class)
+  public QuartzScheduler quartzScheduler(Scheduler scheduler) {
+    return new QuartzScheduler(scheduler);
   }
 
   @Configuration
