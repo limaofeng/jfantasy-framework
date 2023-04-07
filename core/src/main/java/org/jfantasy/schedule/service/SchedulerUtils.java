@@ -14,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.quartz.impl.matchers.StringMatcher;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -27,7 +26,7 @@ public class SchedulerUtils {
 
   private final Scheduler scheduler;
 
-  public SchedulerUtils(@Autowired(required = false) Scheduler scheduler) {
+  public SchedulerUtils(Scheduler scheduler) {
     this.scheduler = scheduler;
   }
 

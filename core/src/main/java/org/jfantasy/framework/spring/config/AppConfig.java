@@ -5,7 +5,7 @@ import org.jfantasy.schedule.service.SchedulerUtils;
 import org.quartz.Scheduler;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.aop.interceptor.SimpleAsyncUncaughtExceptionHandler;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
@@ -32,8 +32,7 @@ public class AppConfig {
   }
 
   @Bean
-  @ConditionalOnBean(Scheduler.class)
-  public SchedulerUtils schedulerUtils(Scheduler scheduler) {
+  public SchedulerUtils schedulerUtils(@Autowired(required = false) Scheduler scheduler) {
     return new SchedulerUtils(scheduler);
   }
 
