@@ -166,7 +166,7 @@ public class JSONTest {
     List<? extends GrantedAuthority> _authorities =
         mapper.convertValue(
             context.read("$.authorities"), new TypeReference<List<SimpleGrantedAuthority>>() {});
-    log.debug(_authorities);
+    log.debug(_authorities.toString());
   }
 
   @Test

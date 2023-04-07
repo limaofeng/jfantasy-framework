@@ -7,10 +7,16 @@ import net.ttddyy.dsproxy.support.ProxyDataSource;
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.jfantasy.framework.util.common.ObjectUtil;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.util.ReflectionUtils;
 
+/**
+ * 数据源代理
+ *
+ * @author limaofeng
+ */
 public class DatasourceProxyBeanPostProcessor implements BeanPostProcessor {
 
   @Override
@@ -33,9 +39,10 @@ public class DatasourceProxyBeanPostProcessor implements BeanPostProcessor {
     private final DataSource dataSource;
 
     public ProxyDataSourceInterceptor(final DataSource dataSource) {
+      String name = ObjectUtil.getValue("poolName", dataSource);
       this.dataSource =
           ProxyDataSourceBuilder.create(dataSource)
-              .name("MyDS")
+              .name(name + "_proxy")
               .multiline()
               .logQueryBySlf4j(SLF4JLogLevel.INFO)
               .build();

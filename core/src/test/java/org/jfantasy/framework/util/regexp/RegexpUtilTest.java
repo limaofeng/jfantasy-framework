@@ -94,8 +94,8 @@ public class RegexpUtilTest {
   @Test
   public void matches() {
     String regex = "[/].+";
-    log.debug("/".matches(regex));
-    log.debug("/error".matches(regex));
+    log.debug(":" + "/".matches(regex));
+    log.debug(":" + "/error".matches(regex));
   }
 
   public static void main(String[] args) {

@@ -18,13 +18,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * 定时任务管理
+ *
+ * @author limaofeng
+ */
 @Service
 @Slf4j
-public class SchedulerUtil {
+public class QuartzScheduler {
 
   private final Scheduler scheduler;
 
-  public SchedulerUtil(@Autowired(required = false) Scheduler scheduler) {
+  public QuartzScheduler(@Autowired(required = false) Scheduler scheduler) {
     this.scheduler = scheduler;
   }
 
@@ -156,6 +161,33 @@ public class SchedulerUtil {
     } catch (SchedulerException e) {
       log.error(e.getMessage(), e);
       return false;
+    }
+  }
+
+  @Transactional(rollbackFor = Exception.class)
+  public void scheduleJob(JobDetail jobDetail, Trigger trigger) {
+    try {
+      this.scheduler.scheduleJob(jobDetail, trigger);
+    } catch (SchedulerException e) {
+      log.error(e.getMessage(), e);
+    }
+  }
+
+  @Transactional(rollbackFor = Exception.class)
+  public void scheduleJob(Trigger trigger) {
+    try {
+      this.scheduler.scheduleJob(trigger);
+    } catch (SchedulerException e) {
+      log.error(e.getMessage(), e);
+    }
+  }
+
+  @Transactional(rollbackFor = Exception.class)
+  public void addJob(JobDetail jobDetail, boolean replace) {
+    try {
+      this.scheduler.addJob(jobDetail, replace);
+    } catch (SchedulerException e) {
+      log.error(e.getMessage(), e);
     }
   }
 
