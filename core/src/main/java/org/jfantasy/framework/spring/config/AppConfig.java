@@ -1,7 +1,7 @@
 package org.jfantasy.framework.spring.config;
 
 import java.util.concurrent.Executor;
-import org.jfantasy.schedule.service.QuartzScheduler;
+import org.jfantasy.schedule.service.SchedulerUtils;
 import org.quartz.Scheduler;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.aop.interceptor.SimpleAsyncUncaughtExceptionHandler;
@@ -33,8 +33,8 @@ public class AppConfig {
 
   @Bean
   @ConditionalOnBean(Scheduler.class)
-  public QuartzScheduler quartzScheduler(Scheduler scheduler) {
-    return new QuartzScheduler(scheduler);
+  public SchedulerUtils schedulerUtils(Scheduler scheduler) {
+    return new SchedulerUtils(scheduler);
   }
 
   @Configuration

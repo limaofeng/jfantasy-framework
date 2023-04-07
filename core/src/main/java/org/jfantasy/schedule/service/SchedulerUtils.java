@@ -23,11 +23,11 @@ import org.springframework.transaction.annotation.Transactional;
  * @author limaofeng
  */
 @Slf4j
-public class QuartzScheduler {
+public class SchedulerUtils {
 
   private final Scheduler scheduler;
 
-  public QuartzScheduler(@Autowired(required = false) Scheduler scheduler) {
+  public SchedulerUtils(@Autowired(required = false) Scheduler scheduler) {
     this.scheduler = scheduler;
   }
 
