@@ -3,9 +3,7 @@ package org.jfantasy.framework.service.loadbalance;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -34,23 +32,17 @@ public class LoadBalanceMetrics {
     return totalRequests.get();
   }
 
-  private AtomicLong addServer(String key) {
-    return serverConnectionsMap.putIfAbsent(key, new AtomicLong());
-  }
-
   public void removeServer(String key) {
     serverConnectionsMap.remove(key);
   }
 
   private AtomicLong getServer(String key) {
-    return serverConnectionsMap.computeIfAbsent(key, k -> this.addServer(key));
+    return serverConnectionsMap.computeIfAbsent(key, k -> new AtomicLong());
   }
 
   public void incrementRequest(String key) {
     totalRequests.incrementAndGet();
-    if(getServer(key).incrementAndGet() == Integer.MAX_VALUE)  {
-        getServer(key).compareAndSet(Integer.MAX_VALUE, 0);
-    }
+    getServer(key).incrementAndGet();
   }
 
   public void incrementSuccess(String key) {

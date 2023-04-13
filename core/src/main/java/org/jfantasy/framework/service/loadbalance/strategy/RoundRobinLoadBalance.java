@@ -1,9 +1,8 @@
 package org.jfantasy.framework.service.loadbalance.strategy;
 
+import java.util.List;
 import org.jfantasy.framework.service.loadbalance.LoadBalance;
 import org.jfantasy.framework.service.loadbalance.LoadBalanceMetrics;
-
-import java.util.List;
 
 /**
  * 轮询策略
@@ -12,16 +11,16 @@ import java.util.List;
  */
 public class RoundRobinLoadBalance implements LoadBalance {
 
-    private final LoadBalanceMetrics metrics;
+  private final LoadBalanceMetrics metrics;
 
-    public RoundRobinLoadBalance(LoadBalanceMetrics metrics) {
-        this.metrics = metrics;
-    }
+  public RoundRobinLoadBalance(LoadBalanceMetrics metrics) {
+    this.metrics = metrics;
+  }
 
-    @Override
+  @Override
   public String select(List<String> servers) {
     long totalRequests = metrics.getTotalRequests();
-        long index = totalRequests % servers.size();
+    long index = totalRequests % servers.size();
     return servers.get(Long.valueOf(index).intValue());
   }
 }
