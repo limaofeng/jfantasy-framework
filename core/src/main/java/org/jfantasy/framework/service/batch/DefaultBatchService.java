@@ -97,7 +97,7 @@ public class DefaultBatchService<T, R> implements BatchService<T, R> {
       }
     }
     if (this.workerNumber > workerNumber) {
-      for (int i = this.workerNumber - 1; i > workerNumber; i--) {
+      for (int i = this.workerNumber - 1; i >= workerNumber; i--) {
         Worker<T, R> task = cache.remove(String.valueOf(i));
         log.debug("shutdown worker " + i);
         metrics.removeServer(String.valueOf(i));
