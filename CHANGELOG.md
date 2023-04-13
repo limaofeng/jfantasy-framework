@@ -2,6 +2,35 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.11.1](https://github.com/limaofeng/jfantasy-framework/compare/v2.11.0...v2.11.1) (2023-04-13)
+
+
+### Features
+
+* token 序列化调整 uid 为 null 不序列化 ([a16496c](https://github.com/limaofeng/jfantasy-framework/commit/a16496cac8b74f14dafe40fd974526f604f2bf33))
+* 任务调度优化 ([7a090b2](https://github.com/limaofeng/jfantasy-framework/commit/7a090b2bfb9717714556cdaed8e1acbb85dd057d))
+* 任务调度初始化调整 ([4e0c7bf](https://github.com/limaofeng/jfantasy-framework/commit/4e0c7bf6fb345c4e60deb6cadb678a09718cee38))
+* 任务调度初始化调整，避免命名冲突 ([6d67db7](https://github.com/limaofeng/jfantasy-framework/commit/6d67db7b77a43e06753db4796dc7dc7dfd21ef96))
+* 任务调度初始化调整，避免命名冲突 ([372bf04](https://github.com/limaofeng/jfantasy-framework/commit/372bf04addadec7fddb5058f8de0669799fc4b46))
+* 优化 DefaultBatchService ([8ca1d71](https://github.com/limaofeng/jfantasy-framework/commit/8ca1d71604876573351bdd1cdf2b0360ff54360d))
+* 优化 DefaultBatchService 的线程池 ([6b385e2](https://github.com/limaofeng/jfantasy-framework/commit/6b385e2bb33dd120010e0826224235b470f44d54))
+* 优化 error handler ([e9919ee](https://github.com/limaofeng/jfantasy-framework/commit/e9919ee37cb0fc600b34596ae4dfc7b8084a42de))
+* 修复 CLIENT_CREDENTIALS 授权逻辑 ([f76b475](https://github.com/limaofeng/jfantasy-framework/commit/f76b475b601dfa53f0f845838ef3c9675e3150b4))
+* 升级 springboot 版本 2.7.0 > 2.7.7 ([234be62](https://github.com/limaofeng/jfantasy-framework/commit/234be62a332051922df034f3bbb2769d38adf319))
+* 去掉显示的 taskExecutor 改为 spring 配置 ([ad21e5c](https://github.com/limaofeng/jfantasy-framework/commit/ad21e5cd8a2a748321bb0acd628daae7d46cbc51))
+* 可以设置 expiresAt ([cd1be81](https://github.com/limaofeng/jfantasy-framework/commit/cd1be812e607ca446bd71386fcec0e4283f00337))
+* 批量处理服务支持运行时设置工作线程 ([e3e563c](https://github.com/limaofeng/jfantasy-framework/commit/e3e563c79484bfa638c16e0058acb69b9b0d4d57))
+* 提供一个 BasePublisher 基类 ([cda7b56](https://github.com/limaofeng/jfantasy-framework/commit/cda7b5616211f86775c5b1f5c1102e599da0722f))
+* 添加 defaultContentType APPLICATION_JSON_UTF8 ([4558139](https://github.com/limaofeng/jfantasy-framework/commit/45581396452145562cf1e78296b5062f94e25885))
+* 添加 ListConverter 简化 hibernate convert 过程 ([e148c47](https://github.com/limaofeng/jfantasy-framework/commit/e148c479fa9f2d8ea0f2d23af6f32d9b057ef34e))
+
+
+### Bug Fixes
+
+* 修复批量处理 setWorkerNumber bug ([c7a97f4](https://github.com/limaofeng/jfantasy-framework/commit/c7a97f49340d7bea670cd0c2c5d527a94e9906a4))
+* 解决 incrementRequest 冲突问题 ([45629ef](https://github.com/limaofeng/jfantasy-framework/commit/45629efa84a25616ddaa336de13e68236721498e))
+* 解决 setWorkerNumber 错误 ([f6aa197](https://github.com/limaofeng/jfantasy-framework/commit/f6aa1972e2af800bf84d516bc0ce0ada365221a3))
+
 ## [2.11.0](https://github.com/limaofeng/jfantasy-framework/compare/v2.10.3...v2.11.0) (2022-12-21)
 
 
