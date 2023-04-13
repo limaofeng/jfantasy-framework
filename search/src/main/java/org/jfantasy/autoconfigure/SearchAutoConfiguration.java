@@ -20,6 +20,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.SchedulingTaskExecutor;
 
+/**
+ * 搜索配置类
+ *
+ * @author limaofeng
+ */
 @AutoConfigureAfter(JpaRepositoriesAutoConfiguration.class)
 @Configuration
 @EnableConfigurationProperties({CuckooProperties.class, ElasticsearchClientProperties.class})

@@ -1,26 +1,43 @@
 package org.jfantasy.framework.service.batch;
 
+import org.jfantasy.framework.service.BatchService;
+import org.jfantasy.framework.service.loadbalance.LoadBalance;
+import org.jfantasy.framework.service.loadbalance.LoadBalanceMetrics;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
-import org.jfantasy.framework.service.BatchService;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+/**
+ * 批量提交服务
+ *
+ * @author limaofeng
+ * @param <T>
+ * @param <R>
+ */
 public class DefaultBatchService<T, R> implements BatchService<T, R> {
 
-  public AtomicInteger atomicInteger = new AtomicInteger(0);
-  public ConcurrentHashMap<Integer, Worker<T, R>> cache = new ConcurrentHashMap<>();
+  public ConcurrentHashMap<String, Worker<T, R>> cache = new ConcurrentHashMap<>();
 
-  private final int workerNumber;
-  private final int batchSize;
+  /** 工人数量 */
+  private int workerNumber;
+  /** 批处理大小 */
+  private int batchSize;
 
+  /** 线程池 */
   private final Executor executor;
 
-  public Executor asyncServiceExecutor(int poolSize) {
+  private final LoadBalance loadBalance;
+
+  private final LoadBalanceMetrics metrics;
+  private Function<List<T>, List<R>> saver;
+
+  public static Executor asyncServiceExecutor(int poolSize) {
     ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
     executor.setCorePoolSize(poolSize);
     executor.setMaxPoolSize(poolSize);
@@ -33,55 +50,86 @@ public class DefaultBatchService<T, R> implements BatchService<T, R> {
   }
 
   public DefaultBatchService(Function<List<T>, List<R>> saver, int batchSize, int works) {
-    this.workerNumber = works;
-    this.batchSize = batchSize;
-    this.executor = asyncServiceExecutor(this.workerNumber);
-    this.init(saver);
+    this(saver, batchSize, works, asyncServiceExecutor(works), null, null);
   }
 
   public DefaultBatchService(
-      Function<List<T>, List<R>> saver, int batchSize, int works, Executor executor) {
+      Function<List<T>, List<R>> saver,
+      int batchSize,
+      int works,
+      Executor executor,
+      LoadBalance loadBalance,
+      LoadBalanceMetrics metrics) {
     this.workerNumber = works;
     this.batchSize = batchSize;
     this.executor = executor;
-    this.init(saver);
+    this.metrics = metrics == null ? new LoadBalanceMetrics() : metrics;
+    this.loadBalance = loadBalance == null ? LoadBalance.roundRobin(this.metrics) : loadBalance;
+    if (saver != null) {
+      this.init(saver);
+    }
   }
 
   public DefaultBatchService(int batchSize, int works) {
-    this.workerNumber = works;
-    this.batchSize = batchSize;
-    this.executor = asyncServiceExecutor(this.workerNumber);
+    this(batchSize, works, asyncServiceExecutor(works));
   }
 
   public DefaultBatchService(int batchSize, int works, Executor executor) {
-    this.workerNumber = works;
+    this(null, batchSize, works, executor, null, null);
+  }
+
+  public void setBatchSize(int batchSize) {
     this.batchSize = batchSize;
-    this.executor = executor;
+    this.cache.forEach((k, v) -> v.setBatchSize(batchSize));
+  }
+
+  public void setWorkerNumber(int workerNumber) {
+    if (this.workerNumber == workerNumber) {
+      return;
+    }
+    if (this.workerNumber < workerNumber) {
+      for (int i = this.workerNumber; i < workerNumber; i++) {
+        Worker<T, R> task = new Worker<>(saver, batchSize);
+        cache.put(String.valueOf(i), task);
+        executor.execute(task);
+      }
+    }
+    if (this.workerNumber > workerNumber) {
+      for (int i = this.workerNumber; i > workerNumber; i--) {
+        Worker<T, R> task = cache.remove(String.valueOf(i));
+        metrics.removeServer(String.valueOf(i));
+        task.shutdown();
+      }
+    }
+    this.workerNumber = workerNumber;
   }
 
   public void init(Function<List<T>, List<R>> saver) {
     for (int i = 0; i < workerNumber; i++) {
       Worker<T, R> task = new Worker<>(saver, batchSize);
-      cache.put(i, task);
+      cache.put(String.valueOf(i), task);
       executor.execute(task);
     }
-  }
-
-  public final int getAndIncrement() {
-    int current;
-    int next;
-    do {
-      current = this.atomicInteger.get();
-      next = current >= 214748364 ? 0 : current + 1;
-    } while (!this.atomicInteger.compareAndSet(current, next));
-    return next;
+    this.saver = saver;
   }
 
   @Override
   public CompletableFuture<R> submit(T entity) {
-    int count = getAndIncrement();
-    int position = count % workerNumber;
-    Worker<T, R> queue = cache.get(position);
-    return queue.add(entity);
+    List<String> keys = new ArrayList<>(cache.keySet());
+    String key = loadBalance.select(keys);
+    Worker<T, R> queue = cache.get(key);
+    metrics.incrementRequest(key);
+    return queue
+        .add(entity)
+        .thenApply(
+            r -> {
+              metrics.incrementSuccess(key);
+              return r;
+            })
+        .exceptionally(
+            e -> {
+              metrics.incrementError(key, e);
+              return null;
+            });
   }
 }

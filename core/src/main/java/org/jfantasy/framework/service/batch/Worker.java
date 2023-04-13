@@ -9,11 +9,19 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.util.concurrent.LinkedQueue;
 
+/**
+ *  工人
+ * @author limaofeng
+ * */
 @Slf4j
 public class Worker<T, R> implements Runnable {
+
+  private String state = "ready";
   private final LinkedQueue<Cargo<T, R>> queue = new LinkedQueue<>();
-  private final int batchSize;
+  private int batchSize;
   private final Function<List<T>, List<R>> saver;
+
+  private Thread thread;
 
   public Worker(Function<List<T>, List<R>> saver, int batchSize) {
     this.saver = saver;
@@ -50,10 +58,11 @@ public class Worker<T, R> implements Runnable {
 
   @Override
   public void run() {
-    do {
+    this.thread = Thread.currentThread();
+    while (!"shutdown".equals(state)) {
       List<Cargo<T, R>> items = getItems();
       save(items);
-    } while (true);
+    }
   }
 
   private void save(List<Cargo<T, R>> items) {
@@ -75,5 +84,25 @@ public class Worker<T, R> implements Runnable {
       log.error(e.getMessage(), e);
       items.forEach(item -> item.getHearthstone().obtrudeException(e));
     }
+  }
+
+  public void setBatchSize(int batchSize) {
+    this.batchSize = batchSize;
+  }
+
+  public String getState() {
+    return state;
+  }
+
+  public void shutdown() {
+    this.state = "shutdown";
+    while (!queue.isEmpty()) {
+      try {
+        Thread.sleep(1000);
+      } catch (InterruptedException e) {
+        log.error(e.getMessage(), e);
+      }
+    }
+    thread.interrupt();
   }
 }

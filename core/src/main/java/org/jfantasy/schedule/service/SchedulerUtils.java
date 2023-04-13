@@ -52,24 +52,14 @@ public class SchedulerUtils {
     return str;
   }
 
-  @Transactional
-  public List<String> getJobGroupNames() {
-    try {
-      return this.scheduler.getJobGroupNames();
-    } catch (SchedulerException e) {
-      log.error(e.getMessage(), e);
-      return new ArrayList<>();
-    }
+  @Transactional(readOnly = true)
+  public List<String> getJobGroupNames() throws SchedulerException {
+    return this.scheduler.getJobGroupNames();
   }
 
-  @Transactional
-  public List<String> getTriggerGroupNames() {
-    try {
-      return this.scheduler.getTriggerGroupNames();
-    } catch (SchedulerException e) {
-      log.error(e.getMessage(), e);
-      return new ArrayList<>();
-    }
+  @Transactional(readOnly = true)
+  public List<String> getTriggerGroupNames() throws SchedulerException {
+    return this.scheduler.getTriggerGroupNames();
   }
 
   /**
@@ -77,115 +67,76 @@ public class SchedulerUtils {
    *
    * @return list<JobKey>
    */
-  @Transactional
-  public List<JobKey> getJobKeys() {
+  @Transactional(readOnly = true)
+  public List<JobKey> getJobKeys() throws SchedulerException {
     List<JobKey> jobKeys = new ArrayList<>();
-    try {
-      for (String group : this.scheduler.getJobGroupNames()) {
-        jobKeys.addAll(
-            this.scheduler.getJobKeys(
-                new GroupMatcher<JobKey>(group, StringMatcher.StringOperatorName.EQUALS) {}));
-      }
-      return jobKeys;
-    } catch (SchedulerException e) {
-      log.error(e.getMessage(), e);
-      return jobKeys;
+    for (String group : this.scheduler.getJobGroupNames()) {
+      jobKeys.addAll(
+          this.scheduler.getJobKeys(
+              new GroupMatcher<JobKey>(group, StringMatcher.StringOperatorName.EQUALS) {}));
     }
+    return jobKeys;
   }
 
-  @Transactional
-  public List<Trigger> getTriggers(JobKey jobKey) {
-    try {
-      return (List<Trigger>) this.scheduler.getTriggersOfJob(jobKey);
-    } catch (SchedulerException e) {
-      log.error(e.getMessage(), e);
-      return new ArrayList<>();
-    }
+  @Transactional(readOnly = true)
+  public List<? extends Trigger> getTriggers(JobKey jobKey) throws SchedulerException {
+    return this.scheduler.getTriggersOfJob(jobKey);
   }
 
-  @Transactional
-  public List<TriggerKey> getTriggers() {
+  @Transactional(readOnly = true)
+  public List<TriggerKey> getTriggers() throws SchedulerException {
     List<TriggerKey> triggerKeys = new ArrayList<>();
-    try {
-      for (String group : this.scheduler.getTriggerGroupNames()) {
-        triggerKeys.addAll(
-            this.scheduler.getTriggerKeys(
-                new GroupMatcher<TriggerKey>(group, StringMatcher.StringOperatorName.EQUALS) {}));
-      }
-      return triggerKeys;
-    } catch (SchedulerException e) {
-      log.error(e.getMessage(), e);
-      return triggerKeys;
+    for (String group : this.scheduler.getTriggerGroupNames()) {
+      triggerKeys.addAll(
+          this.scheduler.getTriggerKeys(
+              new GroupMatcher<TriggerKey>(group, StringMatcher.StringOperatorName.EQUALS) {}));
     }
+    return triggerKeys;
   }
 
-  @Transactional
-  public List<TriggerKey> getTriggers(GroupMatcher<TriggerKey> matcher) {
-    List<TriggerKey> triggerKeys = new ArrayList<>();
-    try {
-      triggerKeys.addAll(this.scheduler.getTriggerKeys(matcher));
-      return triggerKeys;
-    } catch (SchedulerException e) {
-      log.error(e.getMessage(), e);
-      return triggerKeys;
-    }
+  @Transactional(readOnly = true)
+  public List<TriggerKey> getTriggers(GroupMatcher<TriggerKey> matcher) throws SchedulerException {
+    return new ArrayList<>(this.scheduler.getTriggerKeys(matcher));
   }
 
-  @Transactional
-  public JobDetail getJobDetail(JobKey jobKey) {
-    try {
-      return this.scheduler.getJobDetail(jobKey);
-    } catch (SchedulerException e) {
-      log.error(e.getMessage(), e);
-      return null;
-    }
+  @Transactional(readOnly = true)
+  public JobDetail getJobDetail(JobKey jobKey) throws SchedulerException {
+    return this.scheduler.getJobDetail(jobKey);
   }
 
-  @Transactional
-  public boolean checkExists(JobKey jobKey) {
-    try {
-      return this.scheduler.checkExists(jobKey);
-    } catch (SchedulerException e) {
-      log.error(e.getMessage(), e);
-      return true;
-    }
+  @Transactional(readOnly = true)
+  public boolean checkExists(JobKey jobKey) throws SchedulerException {
+    return this.scheduler.checkExists(jobKey);
   }
 
-  @Transactional
-  public boolean checkExists(TriggerKey triggerKey) {
-    try {
-      return this.scheduler.checkExists(triggerKey);
-    } catch (SchedulerException e) {
-      log.error(e.getMessage(), e);
-      return false;
-    }
+  @Transactional(readOnly = true)
+  public boolean checkExists(TriggerKey triggerKey) throws SchedulerException {
+    return this.scheduler.checkExists(triggerKey);
   }
 
   @Transactional(rollbackFor = Exception.class)
-  public void scheduleJob(JobDetail jobDetail, Trigger trigger) {
-    try {
-      this.scheduler.scheduleJob(jobDetail, trigger);
-    } catch (SchedulerException e) {
-      log.error(e.getMessage(), e);
-    }
+  public void scheduleJob(JobDetail jobDetail, Trigger trigger) throws SchedulerException {
+    this.scheduler.scheduleJob(jobDetail, trigger);
   }
 
   @Transactional(rollbackFor = Exception.class)
-  public void scheduleJob(Trigger trigger) {
-    try {
-      this.scheduler.scheduleJob(trigger);
-    } catch (SchedulerException e) {
-      log.error(e.getMessage(), e);
-    }
+  public void scheduleJob(Trigger trigger) throws SchedulerException {
+    this.scheduler.scheduleJob(trigger);
   }
 
   @Transactional(rollbackFor = Exception.class)
-  public void addJob(JobDetail jobDetail, boolean replace) {
-    try {
-      this.scheduler.addJob(jobDetail, replace);
-    } catch (SchedulerException e) {
-      log.error(e.getMessage(), e);
-    }
+  public void rescheduleJob(Trigger trigger) throws SchedulerException {
+    this.scheduler.rescheduleJob(trigger.getKey(), trigger);
+  }
+
+  @Transactional(rollbackFor = Exception.class)
+  public void rescheduleJob(TriggerKey triggerKey, Trigger newTrigger) throws SchedulerException {
+    scheduler.rescheduleJob(triggerKey, newTrigger);
+  }
+
+  @Transactional(rollbackFor = Exception.class)
+  public void addJob(JobDetail jobDetail, boolean replace) throws SchedulerException {
+    this.scheduler.addJob(jobDetail, replace);
   }
 
   /**
@@ -195,56 +146,50 @@ public class SchedulerUtils {
    * @param jobClass JobClass
    */
   @Transactional
-  public JobDetail addJob(JobKey jobKey, Class<? extends Job> jobClass) {
-    try {
-      JobDetail job =
-          newJob(jobClass)
-              .withIdentity(jobKey.getName(), jobKey.getGroup())
-              .storeDurably(true)
-              .build();
-      scheduler.addJob(job, true);
-      scheduler.resumeJob(jobKey);
-      return job;
-    } catch (SchedulerException e) {
-      log.error(e.getMessage(), e);
-      return null;
-    }
+  public JobDetail addJob(JobKey jobKey, Class<? extends Job> jobClass) throws SchedulerException {
+    JobDetail job =
+        newJob(jobClass)
+            .withIdentity(jobKey.getName(), jobKey.getGroup())
+            .storeDurably(true)
+            .build();
+    scheduler.addJob(job, true);
+    scheduler.resumeJob(jobKey);
+    return job;
   }
 
   @Transactional
-  public JobDetail addJob(JobKey jobKey, Class<? extends Job> jobClass, Map<String, String> data) {
-    try {
-      if (data == null) {
-        data = new HashMap<>();
-      }
-      JobDetail job =
-          newJob(jobClass)
-              .withIdentity(jobKey.getName(), jobKey.getGroup())
-              .storeDurably(true)
-              .setJobData(new JobDataMap(data))
-              .build();
-      scheduler.addJob(job, true);
-      scheduler.resumeJob(jobKey);
-      return job;
-    } catch (SchedulerException e) {
-      log.error(e.getMessage(), e);
-      return null;
+  public JobDetail addJob(JobKey jobKey, Class<? extends Job> jobClass, Map<String, String> data)
+      throws SchedulerException {
+    if (data == null) {
+      data = new HashMap<>();
     }
+    JobDetail job =
+        newJob(jobClass)
+            .withIdentity(jobKey.getName(), jobKey.getGroup())
+            .storeDurably(true)
+            .setJobData(new JobDataMap(data))
+            .build();
+    scheduler.addJob(job, true);
+    scheduler.resumeJob(jobKey);
+    return job;
   }
 
   private static final String emptyString = "";
 
-  public Trigger addTrigger(JobKey jobKey, TriggerKey triggerKey, String cron) {
+  public Trigger addTrigger(JobKey jobKey, TriggerKey triggerKey, String cron)
+      throws SchedulerException {
     return addTrigger(jobKey, triggerKey, cron, emptyString, new HashMap<>());
   }
 
   public Trigger addTrigger(
-      JobKey jobKey, TriggerKey triggerKey, String cron, String triggerDescription) {
+      JobKey jobKey, TriggerKey triggerKey, String cron, String triggerDescription)
+      throws SchedulerException {
     return addTrigger(jobKey, triggerKey, cron, triggerDescription, new HashMap<>());
   }
 
   public Trigger addTrigger(
-      JobKey jobKey, TriggerKey triggerKey, String cron, Map<String, String> args) {
+      JobKey jobKey, TriggerKey triggerKey, String cron, Map<String, String> args)
+      throws SchedulerException {
     return this.addTrigger(jobKey, triggerKey, cron, emptyString, args);
   }
 
@@ -263,23 +208,19 @@ public class SchedulerUtils {
       TriggerKey triggerKey,
       String cron,
       String triggerDescription,
-      Map<String, String> args) {
-    try {
-      Trigger trigger =
-          TriggerBuilder.newTrigger()
-              .forJob(jobKey)
-              .withIdentity(triggerKey)
-              .usingJobData(new JobDataMap(args))
-              .withDescription(triggerDescription)
-              .withSchedule(cronSchedule(cron).withMisfireHandlingInstructionFireAndProceed())
-              .build();
-      this.scheduler.scheduleJob(trigger);
-      this.scheduler.resumeTrigger(trigger.getKey());
-      return trigger;
-    } catch (SchedulerException e) {
-      log.error(e.getMessage(), e);
-      return null;
-    }
+      Map<String, String> args)
+      throws SchedulerException {
+    Trigger trigger =
+        TriggerBuilder.newTrigger()
+            .forJob(jobKey)
+            .withIdentity(triggerKey)
+            .usingJobData(new JobDataMap(args))
+            .withDescription(triggerDescription)
+            .withSchedule(cronSchedule(cron).withMisfireHandlingInstructionFireAndProceed())
+            .build();
+    this.scheduler.scheduleJob(trigger);
+    this.scheduler.resumeTrigger(trigger.getKey());
+    return trigger;
   }
 
   /**
@@ -297,7 +238,8 @@ public class SchedulerUtils {
       TriggerKey triggerKey,
       long interval,
       int repeatCount,
-      Map<String, String> args) {
+      Map<String, String> args)
+      throws SchedulerException {
     return this.addTrigger(jobKey, triggerKey, interval, repeatCount, emptyString, args);
   }
 
@@ -308,27 +250,23 @@ public class SchedulerUtils {
       long interval,
       int repeatCount,
       String triggerDescription,
-      Map<String, String> args) {
-    try {
-      Trigger trigger =
-          TriggerBuilder.newTrigger()
-              .forJob(jobKey)
-              .withIdentity(triggerKey)
-              .usingJobData(new JobDataMap(args))
-              .withDescription(triggerDescription)
-              .withSchedule(
-                  simpleSchedule()
-                      .withIntervalInMilliseconds(interval)
-                      .withRepeatCount(repeatCount)
-                      .withMisfireHandlingInstructionFireNow())
-              .build();
-      this.scheduler.scheduleJob(trigger);
-      this.scheduler.resumeTrigger(triggerKey);
-      return trigger;
-    } catch (SchedulerException e) {
-      log.error(e.getMessage(), e);
-      return null;
-    }
+      Map<String, String> args)
+      throws SchedulerException {
+    Trigger trigger =
+        TriggerBuilder.newTrigger()
+            .forJob(jobKey)
+            .withIdentity(triggerKey)
+            .usingJobData(new JobDataMap(args))
+            .withDescription(triggerDescription)
+            .withSchedule(
+                simpleSchedule()
+                    .withIntervalInMilliseconds(interval)
+                    .withRepeatCount(repeatCount)
+                    .withMisfireHandlingInstructionFireNow())
+            .build();
+    this.scheduler.scheduleJob(trigger);
+    this.scheduler.resumeTrigger(triggerKey);
+    return trigger;
   }
 
   @Transactional
@@ -339,26 +277,22 @@ public class SchedulerUtils {
       DateBuilder.IntervalUnit unit,
       int repeatCount,
       String triggerDescription,
-      Map<String, String> args) {
-    try {
-      Trigger trigger =
-          TriggerBuilder.newTrigger()
-              .forJob(jobKey)
-              .withIdentity(triggerKey)
-              .usingJobData(new JobDataMap(args))
-              .withDescription(triggerDescription)
-              .withSchedule(
-                  dailyTimeIntervalSchedule()
-                      .withInterval(interval, unit)
-                      .withRepeatCount(repeatCount))
-              .build();
-      this.scheduler.scheduleJob(trigger);
-      this.scheduler.resumeTrigger(triggerKey);
-      return trigger;
-    } catch (SchedulerException e) {
-      log.error(e.getMessage(), e);
-      return null;
-    }
+      Map<String, String> args)
+      throws SchedulerException {
+    Trigger trigger =
+        TriggerBuilder.newTrigger()
+            .forJob(jobKey)
+            .withIdentity(triggerKey)
+            .usingJobData(new JobDataMap(args))
+            .withDescription(triggerDescription)
+            .withSchedule(
+                dailyTimeIntervalSchedule()
+                    .withInterval(interval, unit)
+                    .withRepeatCount(repeatCount))
+            .build();
+    this.scheduler.scheduleJob(trigger);
+    this.scheduler.resumeTrigger(triggerKey);
+    return trigger;
   }
 
   @Transactional
@@ -370,27 +304,23 @@ public class SchedulerUtils {
       TimeOfDay timeOfDay,
       int repeatCount,
       String triggerDescription,
-      Map<String, String> args) {
-    try {
-      Trigger trigger =
-          TriggerBuilder.newTrigger()
-              .forJob(jobKey)
-              .withIdentity(triggerKey)
-              .usingJobData(new JobDataMap(args))
-              .withDescription(triggerDescription)
-              .withSchedule(
-                  dailyTimeIntervalSchedule()
-                      .withInterval(interval, unit)
-                      .startingDailyAt(timeOfDay)
-                      .withRepeatCount(repeatCount))
-              .build();
-      this.scheduler.scheduleJob(trigger);
-      this.scheduler.resumeTrigger(triggerKey);
-      return trigger;
-    } catch (SchedulerException e) {
-      log.error(e.getMessage(), e);
-      return null;
-    }
+      Map<String, String> args)
+      throws SchedulerException {
+    Trigger trigger =
+        TriggerBuilder.newTrigger()
+            .forJob(jobKey)
+            .withIdentity(triggerKey)
+            .usingJobData(new JobDataMap(args))
+            .withDescription(triggerDescription)
+            .withSchedule(
+                dailyTimeIntervalSchedule()
+                    .withInterval(interval, unit)
+                    .startingDailyAt(timeOfDay)
+                    .withRepeatCount(repeatCount))
+            .build();
+    this.scheduler.scheduleJob(trigger);
+    this.scheduler.resumeTrigger(triggerKey);
+    return trigger;
   }
 
   public Trigger addTrigger(
@@ -398,27 +328,24 @@ public class SchedulerUtils {
       TriggerKey triggerKey,
       int interval,
       DateBuilder.IntervalUnit unit,
-      Map<String, String> args) {
+      Map<String, String> args)
+      throws SchedulerException {
     return this.addTrigger(jobKey, triggerKey, interval, unit, emptyString, args);
   }
 
   @Transactional
-  public Trigger addTrigger(JobKey jobKey, TriggerKey triggerKey, Map<String, String> args) {
-    try {
-      Trigger trigger =
-          TriggerBuilder.newTrigger()
-              .forJob(jobKey)
-              .withIdentity(triggerKey)
-              .usingJobData(new JobDataMap(args))
-              .startNow()
-              .build();
-      this.scheduler.scheduleJob(trigger);
-      this.scheduler.resumeTrigger(triggerKey);
-      return trigger;
-    } catch (SchedulerException e) {
-      log.error(e.getMessage(), e);
-      return null;
-    }
+  public Trigger addTrigger(JobKey jobKey, TriggerKey triggerKey, Map<String, String> args)
+      throws SchedulerException {
+    Trigger trigger =
+        TriggerBuilder.newTrigger()
+            .forJob(jobKey)
+            .withIdentity(triggerKey)
+            .usingJobData(new JobDataMap(args))
+            .startNow()
+            .build();
+    this.scheduler.scheduleJob(trigger);
+    this.scheduler.resumeTrigger(triggerKey);
+    return trigger;
   }
 
   @Transactional
@@ -428,33 +355,24 @@ public class SchedulerUtils {
       int interval,
       DateBuilder.IntervalUnit unit,
       String triggerDescription,
-      Map<String, String> args) {
-    try {
-      Trigger trigger =
-          TriggerBuilder.newTrigger()
-              .forJob(jobKey)
-              .withIdentity(triggerKey)
-              .usingJobData(new JobDataMap(args))
-              .withDescription(triggerDescription)
-              .withSchedule(calendarIntervalSchedule().withInterval(interval, unit))
-              .build();
-      this.scheduler.scheduleJob(trigger);
-      this.scheduler.resumeTrigger(triggerKey);
-      return trigger;
-    } catch (SchedulerException e) {
-      log.error(e.getMessage(), e);
-      return null;
-    }
+      Map<String, String> args)
+      throws SchedulerException {
+    Trigger trigger =
+        TriggerBuilder.newTrigger()
+            .forJob(jobKey)
+            .withIdentity(triggerKey)
+            .usingJobData(new JobDataMap(args))
+            .withDescription(triggerDescription)
+            .withSchedule(calendarIntervalSchedule().withInterval(interval, unit))
+            .build();
+    this.scheduler.scheduleJob(trigger);
+    this.scheduler.resumeTrigger(triggerKey);
+    return trigger;
   }
 
   @Transactional
-  public Trigger.TriggerState getTriggerState(TriggerKey triggerKey) {
-    try {
-      return this.scheduler.getTriggerState(triggerKey);
-    } catch (SchedulerException e) {
-      log.error(e.getMessage(), e);
-      return null;
-    }
+  public Trigger.TriggerState getTriggerState(TriggerKey triggerKey) throws SchedulerException {
+    return this.scheduler.getTriggerState(triggerKey);
   }
 
   /**
@@ -463,13 +381,8 @@ public class SchedulerUtils {
    * @return boolean
    */
   @Transactional
-  public boolean isStarted() {
-    try {
-      return this.scheduler != null && this.scheduler.isStarted();
-    } catch (SchedulerException e) {
-      log.error(e.getMessage(), e);
-      return false;
-    }
+  public boolean isStarted() throws SchedulerException {
+    return this.scheduler != null && this.scheduler.isStarted();
   }
 
   /**
@@ -478,13 +391,8 @@ public class SchedulerUtils {
    * @return boolean
    */
   @Transactional
-  public boolean isShutdown() {
-    try {
-      return this.scheduler != null && this.scheduler.isShutdown();
-    } catch (SchedulerException e) {
-      log.error(e.getMessage(), e);
-      return false;
-    }
+  public boolean isShutdown() throws SchedulerException {
+    return this.scheduler != null && this.scheduler.isShutdown();
   }
 
   /**
@@ -494,12 +402,8 @@ public class SchedulerUtils {
    * @param groupName 组名称
    */
   @Transactional
-  public void pauseJob(String jobName, String groupName) {
-    try {
-      this.scheduler.pauseJob(JobKey.jobKey(jobName, groupName));
-    } catch (SchedulerException e) {
-      log.error(e.getMessage(), e);
-    }
+  public void pauseJob(String jobName, String groupName) throws SchedulerException {
+    this.scheduler.pauseJob(JobKey.jobKey(jobName, groupName));
   }
 
   /**
@@ -508,12 +412,8 @@ public class SchedulerUtils {
    * @param jobKey 任务名称
    */
   @Transactional
-  public void resumeJob(JobKey jobKey) {
-    try {
-      this.scheduler.resumeJob(jobKey);
-    } catch (SchedulerException e) {
-      log.error(e.getMessage(), e);
-    }
+  public void resumeJob(JobKey jobKey) throws SchedulerException {
+    this.scheduler.resumeJob(jobKey);
   }
 
   /**
@@ -523,13 +423,8 @@ public class SchedulerUtils {
    * @return boolean
    */
   @Transactional
-  public boolean deleteJob(JobKey jobKey) {
-    try {
-      return this.scheduler.deleteJob(jobKey);
-    } catch (SchedulerException e) {
-      log.error(e.getMessage(), e);
-      return false;
-    }
+  public boolean deleteJob(JobKey jobKey) throws SchedulerException {
+    return this.scheduler.deleteJob(jobKey);
   }
 
   /**
@@ -538,12 +433,8 @@ public class SchedulerUtils {
    * @param triggerKey 触发器名称
    */
   @Transactional
-  public void pauseTrigger(TriggerKey triggerKey) {
-    try {
-      this.scheduler.pauseTrigger(triggerKey); // 停止触发器
-    } catch (SchedulerException e) {
-      log.error(e.getMessage(), e);
-    }
+  public void pauseTrigger(TriggerKey triggerKey) throws SchedulerException {
+    this.scheduler.pauseTrigger(triggerKey);
   }
 
   /**
@@ -552,12 +443,8 @@ public class SchedulerUtils {
    * @param triggerKey 触发器名称
    */
   @Transactional
-  public void resumeTrigger(TriggerKey triggerKey) {
-    try {
-      this.scheduler.resumeTrigger(triggerKey); // 重启触发器
-    } catch (SchedulerException e) {
-      log.error(e.getMessage(), e);
-    }
+  public void resumeTrigger(TriggerKey triggerKey) throws SchedulerException {
+    this.scheduler.resumeTrigger(triggerKey); // 重启触发器
   }
 
   /**
@@ -567,34 +454,21 @@ public class SchedulerUtils {
    * @return boolean
    */
   @Transactional
-  public boolean removeTrigger(TriggerKey triggerKey) {
-    try {
-      this.scheduler.pauseTrigger(triggerKey); // 停止触发器
-      return this.scheduler.unscheduleJob(triggerKey); // 移除触发器
-    } catch (SchedulerException e) {
-      log.error(e.getMessage(), e);
-      return false;
-    }
+  public boolean removeTrigger(TriggerKey triggerKey) throws SchedulerException {
+    this.scheduler.pauseTrigger(triggerKey); // 停止触发器
+    return this.scheduler.unscheduleJob(triggerKey); // 移除触发器
   }
 
   /** 暂停调度中所有的job任务 */
   @Transactional
-  public void pauseAll() {
-    try {
-      scheduler.pauseAll();
-    } catch (SchedulerException e) {
-      log.error(e.getMessage(), e);
-    }
+  public void pauseAll() throws SchedulerException {
+    scheduler.pauseAll();
   }
 
   /** 恢复调度中所有的job的任务 */
   @Transactional
-  public void resumeAll() {
-    try {
-      scheduler.resumeAll();
-    } catch (SchedulerException e) {
-      log.error(e.getMessage(), e);
-    }
+  public void resumeAll() throws SchedulerException {
+    scheduler.resumeAll();
   }
 
   /**
@@ -604,13 +478,8 @@ public class SchedulerUtils {
    * @return boolean
    */
   @Transactional
-  public boolean interrupt(JobKey jobKey) {
-    try {
-      return scheduler.interrupt(jobKey);
-    } catch (SchedulerException e) {
-      log.error(e.getMessage(), e);
-      return false;
-    }
+  public boolean interrupt(JobKey jobKey) throws UnableToInterruptJobException {
+    return scheduler.interrupt(jobKey);
   }
 
   /**
@@ -619,12 +488,8 @@ public class SchedulerUtils {
    * @param jobKey JobKey
    */
   @Transactional
-  public void triggerJob(JobKey jobKey) {
-    try {
-      this.scheduler.triggerJob(jobKey);
-    } catch (SchedulerException e) {
-      log.error(e.getMessage(), e);
-    }
+  public void triggerJob(JobKey jobKey) throws SchedulerException {
+    this.scheduler.triggerJob(jobKey);
   }
 
   /**
@@ -634,34 +499,22 @@ public class SchedulerUtils {
    * @param args 执行参数
    */
   @Transactional
-  public void triggerJob(JobKey jobKey, Map<String, String> args) {
-    try {
-      this.scheduler.triggerJob(jobKey, new JobDataMap(args));
-    } catch (SchedulerException e) {
-      log.error(e.getMessage(), e);
-    }
+  public void triggerJob(JobKey jobKey, Map<String, String> args) throws SchedulerException {
+    this.scheduler.triggerJob(jobKey, new JobDataMap(args));
   }
 
   @Transactional
-  public void shutdown() {
-    try {
-      this.scheduler.shutdown();
-    } catch (SchedulerException e) {
-      log.error(e.getMessage(), e);
-    }
+  public void shutdown() throws SchedulerException {
+    this.scheduler.shutdown();
   }
 
   @Transactional
-  public void clear() {
-    try {
-      this.scheduler.clear();
-    } catch (SchedulerException e) {
-      log.error(e.getMessage(), e);
-    }
+  public void clear() throws SchedulerException {
+    this.scheduler.clear();
   }
 
   @Transactional
-  public List<JobDetail> jobs() {
+  public List<JobDetail> jobs() throws SchedulerException {
     List<JobDetail> jobDetails = new ArrayList<>();
     for (JobKey jobKey : this.getJobKeys()) {
       try {
@@ -677,15 +530,10 @@ public class SchedulerUtils {
   }
 
   @Transactional
-  public boolean isRunning(TriggerKey triggerKey) {
-    try {
-      List<JobExecutionContext> jobContexts = scheduler.getCurrentlyExecutingJobs();
-      return jobContexts.stream()
-          .anyMatch(context -> triggerKey.equals(context.getTrigger().getKey()));
-    } catch (SchedulerException e) {
-      log.debug(e.getMessage(), e);
-      return false;
-    }
+  public boolean isRunning(TriggerKey triggerKey) throws SchedulerException {
+    List<JobExecutionContext> jobContexts = scheduler.getCurrentlyExecutingJobs();
+    return jobContexts.stream()
+        .anyMatch(context -> triggerKey.equals(context.getTrigger().getKey()));
   }
 
   public ListenerManager getListenerManager() throws SchedulerException {

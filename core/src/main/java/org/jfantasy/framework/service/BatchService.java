@@ -5,6 +5,11 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import org.jfantasy.framework.service.batch.DefaultBatchService;
 
+/**
+ * 批量提交服务
+ *
+ * @author limaofeng
+ */
 public interface BatchService<T, R> {
 
   /**
@@ -21,5 +26,11 @@ public interface BatchService<T, R> {
     return new DefaultBatchService<>(saver, batchSize, works);
   }
 
+  /**
+   * 提交
+   *
+   * @param entity 实体
+   * @return CompletableFuture<R>
+   */
   CompletableFuture<R> submit(T entity);
 }
