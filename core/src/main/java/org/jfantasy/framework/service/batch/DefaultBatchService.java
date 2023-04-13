@@ -1,10 +1,5 @@
 package org.jfantasy.framework.service.batch;
 
-import org.jfantasy.framework.service.BatchService;
-import org.jfantasy.framework.service.loadbalance.LoadBalance;
-import org.jfantasy.framework.service.loadbalance.LoadBalanceMetrics;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -12,6 +7,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.function.Function;
+import lombok.extern.slf4j.Slf4j;
+import org.jfantasy.framework.service.BatchService;
+import org.jfantasy.framework.service.loadbalance.LoadBalance;
+import org.jfantasy.framework.service.loadbalance.LoadBalanceMetrics;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 /**
  * 批量提交服务
@@ -20,6 +20,7 @@ import java.util.function.Function;
  * @param <T>
  * @param <R>
  */
+@Slf4j
 public class DefaultBatchService<T, R> implements BatchService<T, R> {
 
   public ConcurrentHashMap<String, Worker<T, R>> cache = new ConcurrentHashMap<>();
@@ -91,17 +92,27 @@ public class DefaultBatchService<T, R> implements BatchService<T, R> {
       for (int i = this.workerNumber; i < workerNumber; i++) {
         Worker<T, R> task = new Worker<>(saver, batchSize);
         cache.put(String.valueOf(i), task);
+        log.debug("start worker " + i);
         executor.execute(task);
       }
     }
     if (this.workerNumber > workerNumber) {
-      for (int i = this.workerNumber; i > workerNumber; i--) {
+      for (int i = this.workerNumber - 1; i > workerNumber; i--) {
         Worker<T, R> task = cache.remove(String.valueOf(i));
+        log.debug("shutdown worker " + i);
         metrics.removeServer(String.valueOf(i));
         task.shutdown();
       }
     }
     this.workerNumber = workerNumber;
+  }
+
+  public int getWorkerNumber() {
+    return workerNumber;
+  }
+
+  public int getBatchSize() {
+    return batchSize;
   }
 
   public void init(Function<List<T>, List<R>> saver) {

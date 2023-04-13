@@ -10,9 +10,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.util.concurrent.LinkedQueue;
 
 /**
- *  工人
+ * 工人
+ *
  * @author limaofeng
- * */
+ */
 @Slf4j
 public class Worker<T, R> implements Runnable {
 
