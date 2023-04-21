@@ -99,7 +99,10 @@ public class Worker<T, R> implements Runnable {
               + ",耗时:"
               + (end - start)
               + "毫秒,批次大小:"
-              + batchSize);
+              + batchSize
+              + "条"
+              + ",队列大小:"
+              + queue.size());
     }
   }
 
