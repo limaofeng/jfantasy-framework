@@ -9,7 +9,7 @@ apply plugin: 'jacoco'
 
 dependencies {
 	implementation project(":jfantasy-core")
-	api dependencies.create("com.graphql-java-kickstart:graphql-spring-boot-starter:${LIB_GRAPHQL_BOOT_VER}"){
+	api("com.graphql-java-kickstart:graphql-spring-boot-starter:${LIB_GRAPHQL_BOOT_VER}"){
 		exclude group: "com.graphql-java-kickstart", module: "graphql-java-tools"
 		exclude group: "com.graphql-java", module: "graphql-java"
 	}

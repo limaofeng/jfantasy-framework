@@ -10,6 +10,11 @@ import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.framework.util.ognl.OgnlUtil;
 import org.yaml.snakeyaml.Yaml;
 
+/**
+ * 图片处理工具类
+ *
+ * @author limaofeng
+ */
 @Slf4j
 public class ImageUtil {
 
@@ -36,7 +41,7 @@ public class ImageUtil {
 
   public static ImageMetadata identify(String path) {
     String info = CommandUtil.exec(String.format("magick identify -verbose %s", path));
-    Map<String, Object> loadData = YAML.loadAs(info, Map.class);
+    Map loadData = YAML.loadAs(info, Map.class);
     String[] size =
         StringUtil.tokenizeToStringArray(OGNL_UTIL.getValue("Image.Geometry", loadData), "x+");
     return ImageMetadata.builder()
@@ -44,7 +49,7 @@ public class ImageUtil {
         .mimeType(OGNL_UTIL.getValue("Image[\"Mime type\"]", loadData))
         .size(size[0] + "x" + size[1])
         .fileSize(OGNL_UTIL.getValue("Image.Filesize", loadData))
-        .ChannelStatistics(
+        .channelStatistics(
             ChannelStatistics.builder()
                 .blue(
                     ColorChannel.builder()
@@ -72,7 +77,7 @@ public class ImageUtil {
     private String mimeType;
     private String size;
     private String fileSize;
-    private ChannelStatistics ChannelStatistics;
+    private ChannelStatistics channelStatistics;
   }
 
   @Getter

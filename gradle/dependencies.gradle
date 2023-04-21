@@ -23,6 +23,7 @@ ext {
                     "mysql:mysql-connector-java"
             ],
             commons      : [
+                    "org.ow2.asm:asm:${LIB_ASM_VER}",
                     "eu.bitwalker:UserAgentUtils:1.21",
                     "com.nimbusds:nimbus-jose-jwt:8.16",
                     'org.aspectj:aspectjweaver:1.9.6',
@@ -34,11 +35,12 @@ ext {
                     "commons-beanutils:commons-beanutils:${LIB_COMMONS_BEANUTILS_VER}",
                     "com.github.jknack:handlebars:${LIB_HANDLEBARS_VER}",
                     "commons-io:commons-io:${LIB_COMMONS_IO_VER}",
+                    "commons-logging:commons-logging:${LIB_COMMONS_LOGGING_VER}",
                     "commons-fileupload:commons-fileupload:${LIB_COMMONS_FILEUPLOAD_VER}",
                     "org.apache.commons:commons-lang3:${LIB_APACHE_COMMONS_LANG3_VER}"
             ],
             'third-party': [
-                    "org.javassist:javassist:3.27.0-GA",
+                    "org.javassist:javassist:${LIB_JAVASSIST_VER}",
                     "org.projectlombok:lombok:${LIB_LOMBOK_VER}",
                     "cglib:cglib:${LIB_CGLIB_VER}",
                     "net.sourceforge.htmlcleaner:htmlcleaner:${LIB_HTMLCLEANER_VER}",

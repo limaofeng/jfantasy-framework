@@ -53,9 +53,7 @@ public class FastClasses<T> implements IClass<T> {
             this.methodProxies.put(
                 name.toString(), new MethodProxy(fastClass.getMethod(method), parameters));
           } else {
-            if (!method.isAccessible()) {
-              method.setAccessible(true);
-            }
+            method.setAccessible(true);
             this.methodProxies.put(name.toString(), new MethodProxy(method, parameters));
           }
         } catch (Exception e) {

@@ -6,7 +6,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.function.Function;
 import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.service.BatchService;
 import org.jfantasy.framework.service.loadbalance.LoadBalance;
@@ -21,7 +20,9 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
  * @param <R>
  */
 @Slf4j
-public class DefaultBatchService<T, R> implements BatchService<T, R> {
+public abstract class DefaultBatchService<T, R> implements BatchService<T, R> {
+
+  private final String taskName;
 
   public ConcurrentHashMap<String, Worker<T, R>> cache = new ConcurrentHashMap<>();
 
@@ -36,7 +37,6 @@ public class DefaultBatchService<T, R> implements BatchService<T, R> {
   private final LoadBalance loadBalance;
 
   private final LoadBalanceMetrics metrics;
-  private Function<List<T>, List<R>> saver;
 
   public static Executor asyncServiceExecutor(int poolSize) {
     ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
@@ -50,34 +50,37 @@ public class DefaultBatchService<T, R> implements BatchService<T, R> {
     return executor;
   }
 
-  public DefaultBatchService(Function<List<T>, List<R>> saver, int batchSize, int works) {
-    this(saver, batchSize, works, asyncServiceExecutor(works), null, null);
+  public DefaultBatchService(String taskName, int batchSize, int works) {
+    this(taskName, batchSize, works, asyncServiceExecutor(works), null, null);
   }
 
   public DefaultBatchService(
-      Function<List<T>, List<R>> saver,
+      String taskName,
       int batchSize,
       int works,
       Executor executor,
       LoadBalance loadBalance,
       LoadBalanceMetrics metrics) {
+    this.taskName = taskName;
     this.workerNumber = works;
     this.batchSize = batchSize;
     this.executor = executor;
     this.metrics = metrics == null ? new LoadBalanceMetrics() : metrics;
     this.loadBalance = loadBalance == null ? LoadBalance.roundRobin(this.metrics) : loadBalance;
-    if (saver != null) {
-      this.init(saver);
-    }
+    this.init();
   }
 
-  public DefaultBatchService(int batchSize, int works) {
-    this(batchSize, works, asyncServiceExecutor(works));
+  public DefaultBatchService(String taskName, int batchSize, int works, Executor executor) {
+    this(taskName, batchSize, works, executor, null, null);
   }
 
-  public DefaultBatchService(int batchSize, int works, Executor executor) {
-    this(null, batchSize, works, executor, null, null);
-  }
+  /**
+   * 执行任务
+   *
+   * @param entities 数据
+   * @return 返回结果
+   */
+  protected abstract List<R> run(List<T> entities);
 
   public void setBatchSize(int batchSize) {
     this.batchSize = batchSize;
@@ -90,7 +93,7 @@ public class DefaultBatchService<T, R> implements BatchService<T, R> {
     }
     if (this.workerNumber < workerNumber) {
       for (int i = this.workerNumber; i < workerNumber; i++) {
-        Worker<T, R> task = new Worker<>(saver, batchSize);
+        Worker<T, R> task = new Worker<>(this.taskName + "(" + i + ")", this::run, batchSize);
         cache.put(String.valueOf(i), task);
         log.debug("start worker " + i);
         executor.execute(task);
@@ -115,13 +118,12 @@ public class DefaultBatchService<T, R> implements BatchService<T, R> {
     return batchSize;
   }
 
-  public void init(Function<List<T>, List<R>> saver) {
+  public void init() {
     for (int i = 0; i < workerNumber; i++) {
-      Worker<T, R> task = new Worker<>(saver, batchSize);
+      Worker<T, R> task = new Worker<>(taskName + "(" + i + ")", this::run, batchSize);
       cache.put(String.valueOf(i), task);
       executor.execute(task);
     }
-    this.saver = saver;
   }
 
   @Override
@@ -130,17 +132,20 @@ public class DefaultBatchService<T, R> implements BatchService<T, R> {
     String key = loadBalance.select(keys);
     Worker<T, R> queue = cache.get(key);
     metrics.incrementRequest(key);
-    return queue
+    CompletableFuture<R> value = new CompletableFuture<>();
+    queue
         .add(entity)
-        .thenApply(
-            r -> {
-              metrics.incrementSuccess(key);
-              return r;
-            })
         .exceptionally(
             e -> {
               metrics.incrementError(key, e);
+              value.obtrudeException(e);
               return null;
+            })
+        .thenAccept(
+            (r) -> {
+              metrics.incrementSuccess(key);
+              value.complete(r);
             });
+    return value;
   }
 }
