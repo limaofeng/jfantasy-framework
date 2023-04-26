@@ -3,15 +3,9 @@ package org.jfantasy.framework.util.common.file;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.nio.channels.SeekableByteChannel;
 import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.nio.file.attribute.FileAttribute;
-import java.nio.file.attribute.FileAttributeView;
-import java.nio.file.attribute.UserPrincipalLookupService;
-import java.nio.file.spi.FileSystemProvider;
+import java.util.Collections;
 import java.util.Map;
-import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -84,156 +78,14 @@ public class FileUtilTest {
 
   @Test
   void fileSystem() throws IOException {
-    FileSystem fileSystem = FileSystems.newFileSystem(Paths.get("/123123"), null);
-    log.info(fileSystem.toString());
-  }
 
-  static class MyFileSystemProvider extends FileSystemProvider {
+    MyFileSystemProvider provider = new MyFileSystemProvider();
+    URI uri = URI.create("myfs:///"); // 自定义文件系统的 URI
+    Map<String, ?> env = Collections.emptyMap(); // 可选的环境参数
 
-    @Override
-    public String getScheme() {
-      return null;
-    }
+    FileSystem fs = provider.newFileSystem(uri, env);
 
-    @Override
-    public FileSystem newFileSystem(URI uri, Map<String, ?> env) throws IOException {
-      return null;
-    }
-
-    @Override
-    public FileSystem getFileSystem(URI uri) {
-      return null;
-    }
-
-    @Override
-    public Path getPath(URI uri) {
-      return null;
-    }
-
-    @Override
-    public SeekableByteChannel newByteChannel(
-        Path path, Set<? extends OpenOption> options, FileAttribute<?>... attrs)
-        throws IOException {
-      return null;
-    }
-
-    @Override
-    public DirectoryStream<Path> newDirectoryStream(
-        Path dir, DirectoryStream.Filter<? super Path> filter) throws IOException {
-      return null;
-    }
-
-    @Override
-    public void createDirectory(Path dir, FileAttribute<?>... attrs) throws IOException {}
-
-    @Override
-    public void delete(Path path) throws IOException {}
-
-    @Override
-    public void copy(Path source, Path target, CopyOption... options) throws IOException {}
-
-    @Override
-    public void move(Path source, Path target, CopyOption... options) throws IOException {}
-
-    @Override
-    public boolean isSameFile(Path path, Path path2) throws IOException {
-      return false;
-    }
-
-    @Override
-    public boolean isHidden(Path path) throws IOException {
-      return false;
-    }
-
-    @Override
-    public FileStore getFileStore(Path path) throws IOException {
-      return null;
-    }
-
-    @Override
-    public void checkAccess(Path path, AccessMode... modes) throws IOException {}
-
-    @Override
-    public <V extends FileAttributeView> V getFileAttributeView(
-        Path path, Class<V> type, LinkOption... options) {
-      return null;
-    }
-
-    @Override
-    public <A extends BasicFileAttributes> A readAttributes(
-        Path path, Class<A> type, LinkOption... options) throws IOException {
-      return null;
-    }
-
-    @Override
-    public Map<String, Object> readAttributes(Path path, String attributes, LinkOption... options)
-        throws IOException {
-      return null;
-    }
-
-    @Override
-    public void setAttribute(Path path, String attribute, Object value, LinkOption... options)
-        throws IOException {}
-  }
-
-  static class MyFileSystem extends FileSystem {
-
-    @Override
-    public FileSystemProvider provider() {
-      return null;
-    }
-
-    @Override
-    public void close() throws IOException {}
-
-    @Override
-    public boolean isOpen() {
-      return false;
-    }
-
-    @Override
-    public boolean isReadOnly() {
-      return false;
-    }
-
-    @Override
-    public String getSeparator() {
-      return "/";
-    }
-
-    @Override
-    public Iterable<Path> getRootDirectories() {
-      return null;
-    }
-
-    @Override
-    public Iterable<FileStore> getFileStores() {
-      return null;
-    }
-
-    @Override
-    public Set<String> supportedFileAttributeViews() {
-      return null;
-    }
-
-    @Override
-    public Path getPath(String first, String... more) {
-      return null;
-    }
-
-    @Override
-    public PathMatcher getPathMatcher(String syntaxAndPattern) {
-      return null;
-    }
-
-    @Override
-    public UserPrincipalLookupService getUserPrincipalLookupService() {
-      return null;
-    }
-
-    @Override
-    public WatchService newWatchService() throws IOException {
-      return null;
-    }
+    Path file = fs.getPath("test.txt");
+    Files.createFile(file);
   }
 }
