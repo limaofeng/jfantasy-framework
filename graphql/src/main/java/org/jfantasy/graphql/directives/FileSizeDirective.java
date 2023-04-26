@@ -6,6 +6,7 @@ import graphql.language.StringValue;
 import graphql.schema.*;
 import graphql.schema.idl.SchemaDirectiveWiring;
 import graphql.schema.idl.SchemaDirectiveWiringEnvironment;
+import java.util.Arrays;
 import java.util.Objects;
 import org.jfantasy.framework.util.common.file.FileUtil;
 
@@ -45,9 +46,13 @@ public class FileSizeDirective implements SchemaDirectiveWiring {
               if (format == null || value == null || !format) {
                 return value;
               }
-              return FileUtil.fileSize(
-                  FileUtil.fileSize(
-                      value, ((StringValue) Objects.requireNonNull(unit.getValue())).getValue()));
+              double unitMultiplier =
+                  Math.pow(
+                      1024,
+                      Arrays.binarySearch(
+                          FileUtil.UNITS,
+                          ((StringValue) Objects.requireNonNull(unit.getValue())).getValue()));
+              return FileUtil.bytesToSize(value * Long.getLong(unitMultiplier + ""));
             });
 
     environment.getCodeRegistry().dataFetcher(parentType, field, dataFetcher);

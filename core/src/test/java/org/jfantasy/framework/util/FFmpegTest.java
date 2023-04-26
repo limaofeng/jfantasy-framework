@@ -1,18 +1,19 @@
 package org.jfantasy.framework.util;
 
-import static org.junit.jupiter.api.Assertions.*;
-
+import java.util.concurrent.TimeoutException;
 import lombok.extern.slf4j.Slf4j;
+import org.jfantasy.framework.error.ExecuteCommandException;
+import org.jfantasy.framework.error.ImageProcessingException;
 import org.junit.jupiter.api.Test;
 
 @Slf4j
-class FFmpegUtilTest {
+class FFmpegTest {
 
   @Test
-  void image2() {
-    String path = "/Users/limaofeng/Downloads/[电影天堂www.dytt89.com]美丽人生BD国意双语中英双字.mp4";
+  void image2() throws ExecuteCommandException, TimeoutException, ImageProcessingException {
+    String path = "/Users/limaofeng/Downloads/测试影片2.mp4";
 
-    long length = FFmpegUtil.duration(path);
+    long length = FFmpeg.duration(path);
 
     log.debug(" 视频长度: " + length);
 
@@ -20,9 +21,9 @@ class FFmpegUtilTest {
 
     do {
 
-      String imagPath = FFmpegUtil.image2(path, location);
+      String imagPath = FFmpeg.image2(path, location);
 
-      ImageUtil.ImageMetadata metadata = ImageUtil.identify(imagPath);
+      Images.ImageMetadata metadata = Images.identify(imagPath);
 
       int r = metadata.getChannelStatistics().getRed().getMean();
       int g = metadata.getChannelStatistics().getGreen().getMean();
