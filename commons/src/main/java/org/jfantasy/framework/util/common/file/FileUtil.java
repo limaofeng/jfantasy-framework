@@ -83,10 +83,16 @@ public class FileUtil {
   }
 
   public static Path write(Path path, String content) throws IOException {
+    if (Files.notExists(path.getParent())) {
+      mkdirs(path.getParent());
+    }
     return Files.write(path, content.getBytes(DEFAULT_CHARSET), StandardOpenOption.CREATE);
   }
 
   public static Path write(Path path, byte[] content) throws IOException {
+    if (Files.notExists(path.getParent())) {
+      mkdirs(path.getParent());
+    }
     return Files.write(path, content, StandardOpenOption.CREATE);
   }
 
@@ -311,14 +317,12 @@ public class FileUtil {
     return System.getProperty("java.io.tmpdir");
   }
 
-  public static File tmp() throws IOException {
-    return createFile(
-            Paths.get(System.getProperty("java.io.tmpdir") + File.separator + StringUtil.guid()))
-        .toFile();
+  public static Path tmp() {
+    return Paths.get(System.getProperty("java.io.tmpdir") + File.separator + StringUtil.guid());
   }
 
   public static File tmp(InputStream in) throws IOException {
-    File file = tmp();
+    File file = tmp().toFile();
     FileOutputStream out = new FileOutputStream(file);
     StreamUtil.copyThenClose(in, out);
     return file;

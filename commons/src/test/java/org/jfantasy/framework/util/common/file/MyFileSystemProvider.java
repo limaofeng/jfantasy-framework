@@ -36,7 +36,7 @@ public class MyFileSystemProvider extends FileSystemProvider {
   @Override
   public SeekableByteChannel newByteChannel(
       Path path, Set<? extends OpenOption> options, FileAttribute<?>... attrs) throws IOException {
-    return null;
+    return new MySeekableByteChannel();
   }
 
   @Override
@@ -49,31 +49,42 @@ public class MyFileSystemProvider extends FileSystemProvider {
   public void createDirectory(Path dir, FileAttribute<?>... attrs) throws IOException {}
 
   @Override
-  public void delete(Path path) throws IOException {}
+  public void delete(Path path) throws IOException {
+    System.out.println("delete");
+  }
 
   @Override
-  public void copy(Path source, Path target, CopyOption... options) throws IOException {}
+  public void copy(Path source, Path target, CopyOption... options) throws IOException {
+    System.out.println("copy");
+  }
 
   @Override
-  public void move(Path source, Path target, CopyOption... options) throws IOException {}
+  public void move(Path source, Path target, CopyOption... options) throws IOException {
+    System.out.println("move");
+  }
 
   @Override
   public boolean isSameFile(Path path, Path path2) throws IOException {
+    System.out.println("isSameFile");
     return false;
   }
 
   @Override
   public boolean isHidden(Path path) throws IOException {
+    System.out.println("isHidden");
     return false;
   }
 
   @Override
   public FileStore getFileStore(Path path) throws IOException {
+    System.out.println("getFileStore");
     return null;
   }
 
   @Override
-  public void checkAccess(Path path, AccessMode... modes) throws IOException {}
+  public void checkAccess(Path path, AccessMode... modes) throws IOException {
+    System.out.println("checkAccess");
+  }
 
   @Override
   public <V extends FileAttributeView> V getFileAttributeView(

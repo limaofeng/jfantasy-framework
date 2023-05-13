@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.*;
-import java.util.Collections;
-import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -54,6 +52,12 @@ public class FileUtilTest {
   }
 
   @Test
+  void fileInfo() {
+    Path path = Paths.get("/tmp/a/b/c/d.txt");
+    log.info(path.getRoot().toString());
+  }
+
+  @Test
   void createDel() throws IOException {
     Path path1 = Paths.get("/tmp/a/b/c/d.txt");
     Path path = FileUtil.createFile(path1);
@@ -80,12 +84,13 @@ public class FileUtilTest {
   void fileSystem() throws IOException {
 
     MyFileSystemProvider provider = new MyFileSystemProvider();
-    URI uri = URI.create("myfs:///"); // 自定义文件系统的 URI
-    Map<String, ?> env = Collections.emptyMap(); // 可选的环境参数
+    URI uri = URI.create("myfs://test.txt"); // 自定义文件系统的 URI
+    //    Map<String, ?> env = Collections.emptyMap(); // 可选的环境参数
 
-    FileSystem fs = provider.newFileSystem(uri, env);
+    //    FileSystem fs = provider.newFileSystem(uri, env);
 
-    Path file = fs.getPath("test.txt");
-    Files.createFile(file);
+    Path file = Paths.get(uri); // 通过 URI 获取文件
+    //    Files.createFile(file);
+    Files.write(file, "".getBytes());
   }
 }

@@ -2,7 +2,7 @@
 <configuration scan="true" scanPeriod="10 seconds">
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
 
-    <property name="LOG_PATH" value="${LOGFILE_PATH:-/logs}"/>
+    <property name="LOG_PATH" value="${LOGFILE_PATH:-/logs/framework}"/>
 
     <appender name="INFO_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <File>${LOG_PATH}/info.log</File>
@@ -48,7 +48,9 @@
     <logger name="org.hibernate.engine.query.HQLQueryPlan" level="DEBUG" />
     <logger name="org.jfantasy.framework" level="DEBUG"/>
 
-    <root level="DEBUG">
+    <logger name="org.jfantasy.chatgpt" level="INFO"/>
+
+    <root level="info">
         <appender-ref ref="CONSOLE" />
         <appender-ref ref="INFO_FILE" />
         <appender-ref ref="ERROR_FILE" />

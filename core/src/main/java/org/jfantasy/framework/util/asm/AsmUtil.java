@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
@@ -19,6 +18,7 @@ import org.jfantasy.framework.util.FantasyClassLoader;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.PathUtil;
 import org.jfantasy.framework.util.common.StringUtil;
+import org.jfantasy.framework.util.common.file.FileUtil;
 import org.jfantasy.framework.util.regexp.RegexpUtil;
 import org.objectweb.asm.*;
 
@@ -345,7 +345,7 @@ public class AsmUtil implements Opcodes {
 
   public static <T> Class<T> loadClass(String className, byte[] bytes) {
     try {
-      Files.write(
+      FileUtil.write(
           Paths.get(PathUtil.classes() + "/" + className.replace(".", File.separator) + ".class"),
           bytes);
       //noinspection unchecked
