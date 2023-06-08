@@ -76,42 +76,42 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
   }
 
   @Override
-  public List<T> findAll(List<PropertyFilter> filters) {
+  public List<T> findAll(PropertyFilter filters) {
     return this.findAll(toSpecification(filters));
   }
 
   @Override
-  public Optional<T> findOne(List<PropertyFilter> filters) {
-    return this.findOne(toSpecification(filters));
+  public Optional<T> findOne(PropertyFilter filter) {
+    return this.findOne(toSpecification(filter));
   }
 
   @Override
-  public boolean exists(List<PropertyFilter> filters) {
-    return count(filters) > 0;
+  public boolean exists(PropertyFilter filter) {
+    return count(filter) > 0;
   }
 
   @Override
   public Optional<T> findOneBy(String name, Object value) {
-    return this.findOne(PropertyFilter.builder().equal(name, value).build());
+    return this.findOne(PropertyFilter.newFilter().equal(name, value));
   }
 
-  protected Specification<T> toSpecification(List<PropertyFilter> filters) {
-    return new PropertyFilterSpecification<>(this.getDomainClass(), filters);
-  }
-
-  @Override
-  public long count(List<PropertyFilter> filters) {
-    return this.count(toSpecification(filters));
+  protected Specification<T> toSpecification(PropertyFilter filter) {
+    return new PropertyFilterSpecification<>(this.getDomainClass(), filter.build());
   }
 
   @Override
-  public List<T> findAll(List<PropertyFilter> filters, Sort sort) {
-    return this.findAll(toSpecification(filters), sort);
+  public long count(PropertyFilter filter) {
+    return this.count(toSpecification(filter));
   }
 
   @Override
-  public List<T> findAll(List<PropertyFilter> filters, int size) {
-    TypedQuery<T> query = super.getQuery(toSpecification(filters), Sort.unsorted());
+  public List<T> findAll(PropertyFilter filter, Sort sort) {
+    return this.findAll(toSpecification(filter), sort);
+  }
+
+  @Override
+  public List<T> findAll(PropertyFilter filter, int size) {
+    TypedQuery<T> query = super.getQuery(toSpecification(filter), Sort.unsorted());
     if (size > 0) {
       query.setMaxResults(size);
     }
@@ -119,8 +119,8 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
   }
 
   @Override
-  public List<T> findAll(List<PropertyFilter> filters, int size, Sort sort) {
-    TypedQuery<T> query = super.getQuery(toSpecification(filters), sort);
+  public List<T> findAll(PropertyFilter filter, int size, Sort sort) {
+    TypedQuery<T> query = super.getQuery(toSpecification(filter), sort);
     if (size > 0) {
       query.setMaxResults(size);
     }
@@ -128,8 +128,8 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
   }
 
   @Override
-  public List<T> findAll(List<PropertyFilter> filters, int offset, int limit, Sort sort) {
-    TypedQuery<T> query = super.getQuery(toSpecification(filters), sort);
+  public List<T> findAll(PropertyFilter filter, int offset, int limit, Sort sort) {
+    TypedQuery<T> query = super.getQuery(toSpecification(filter), sort);
     query.setFirstResult(offset);
     if (limit > 0) {
       query.setMaxResults(limit);
@@ -138,8 +138,8 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
   }
 
   @Override
-  public Page<T> findPage(Pageable pageable, List<PropertyFilter> filters) {
-    return this.findPage(pageable, toSpecification(filters));
+  public Page<T> findPage(Pageable pageable, PropertyFilter filter) {
+    return this.findPage(pageable, toSpecification(filter));
   }
 
   @Override
@@ -147,6 +147,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
     return this.findAll(spec, pageable);
   }
 
+  @Override
   public EntityManager getEntityManager() {
     return this.em;
   }

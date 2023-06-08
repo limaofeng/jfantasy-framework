@@ -3,7 +3,6 @@ package cn.asany.example.demo.service;
 import cn.asany.example.demo.dao.UserDao;
 import cn.asany.example.demo.domain.User;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.jfantasy.framework.dao.jpa.PropertyFilter;
@@ -39,8 +38,8 @@ public class UserService {
     return this.userDao.update(user, merge);
   }
 
-  public Page<User> findPage(Pageable pageable, List<PropertyFilter> filters) {
-    return this.userDao.findPage(pageable, filters);
+  public Page<User> findPage(Pageable pageable, PropertyFilter filter) {
+    return this.userDao.findPage(pageable, filter);
   }
 
   public void delete(Long... ids) {

@@ -5,7 +5,7 @@ import static org.jfantasy.framework.util.common.ObjectUtil.multipleValuesObject
 import java.lang.reflect.Array;
 import java.util.*;
 import javax.persistence.criteria.*;
-import org.jfantasy.framework.dao.jpa.PropertyFilter.MatchType;
+import org.jfantasy.framework.dao.MatchType;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.springframework.data.jpa.domain.Specification;
@@ -18,11 +18,11 @@ import org.springframework.util.Assert;
  */
 public class PropertyFilterSpecification<T> implements Specification<T> {
 
-  private final List<PropertyFilter> filters;
+  private final List<PropertyPredicate> filters;
   private final Class<?> entityClass;
   private final PropertyFilterSpecificationContext context;
 
-  public PropertyFilterSpecification(Class<T> entityClass, List<PropertyFilter> filters) {
+  public PropertyFilterSpecification(Class<T> entityClass, List<PropertyPredicate> filters) {
     this.entityClass = entityClass;
     this.filters = filters;
     this.context = new PropertyFilterSpecificationContext();
@@ -30,7 +30,7 @@ public class PropertyFilterSpecification<T> implements Specification<T> {
 
   private PropertyFilterSpecification(
       Class<?> entityClass,
-      List<PropertyFilter> filters,
+      List<PropertyPredicate> filters,
       PropertyFilterSpecificationContext context) {
     this.entityClass = entityClass;
     this.filters = filters;
@@ -44,7 +44,7 @@ public class PropertyFilterSpecification<T> implements Specification<T> {
     }
 
     List<Predicate> predicates = new ArrayList<>();
-    for (PropertyFilter filter : filters) {
+    for (PropertyPredicate filter : filters) {
       if (filter.isSpecification()) {
         join(
             predicates,
@@ -87,14 +87,17 @@ public class PropertyFilterSpecification<T> implements Specification<T> {
   }
 
   private Predicate[] buildPropertyFilterPredicate(
-      List<List<PropertyFilter>> filters, Root root, CriteriaQuery query, CriteriaBuilder builder) {
+      List<List<PropertyPredicate>> filters,
+      Root root,
+      CriteriaQuery query,
+      CriteriaBuilder builder) {
     return filters.stream()
         .map(item -> buildMultiplePropertyFilterPredicate(item, root, query, builder))
         .toArray(Predicate[]::new);
   }
 
   private Predicate buildMultiplePropertyFilterPredicate(
-      List<PropertyFilter> filters, Root root, CriteriaQuery query, CriteriaBuilder builder) {
+      List<PropertyPredicate> filters, Root root, CriteriaQuery query, CriteriaBuilder builder) {
     Specification specification =
         new PropertyFilterSpecification(this.entityClass, filters, this.context);
     return specification.toPredicate(root, query, builder);
@@ -108,7 +111,7 @@ public class PropertyFilterSpecification<T> implements Specification<T> {
     return predicates;
   }
 
-  public Object getPropertyValue(PropertyFilter filter) {
+  public Object getPropertyValue(PropertyPredicate filter) {
     return filter.getPropertyValue(
         ClassUtil.getPropertyType(this.entityClass, filter.getPropertyName()));
   }

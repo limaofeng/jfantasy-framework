@@ -1,235 +1,249 @@
 package org.jfantasy.framework.dao.jpa;
 
-import static org.jfantasy.framework.util.common.ObjectUtil.multipleValuesObjectsObjects;
-
-import java.lang.reflect.Array;
-import org.apache.commons.lang3.StringUtils;
-import org.jfantasy.framework.jackson.JSON;
-import org.jfantasy.framework.util.common.ClassUtil;
-import org.jfantasy.framework.util.common.ObjectUtil;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.util.Assert;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * 通用过滤器
+ * 属性过滤器
  *
  * @author limaofeng
  */
-public class PropertyFilter {
+public interface PropertyFilter {
 
-  /** 完整表达式 */
-  private String key;
-  /** 名称 */
-  private String propertyName;
-  /** 值 */
-  private Object propertyValue;
-  /** 过滤类型 */
-  private MatchType matchType;
-
-  public <T> PropertyFilter(MatchType matchType, T value) {
-    this.matchType = matchType;
-    this.propertyValue = value;
+  /**
+   * 构造器
+   *
+   * @return PropertyFilter
+   */
+  static PropertyFilter newFilter() {
+    return newFilter(new ArrayList<>());
   }
 
-  @Deprecated
-  public <T> PropertyFilter(String filterName, T value) {
-    String errorTemplate = "filter名称 %s 没有按规则编写,无法得到属性比较类型.";
-    String matchTypeStr = StringUtils.substringBefore(filterName, "_");
-    this.matchType = MatchType.get(matchTypeStr);
-    Assert.notNull(this.matchType, String.format(errorTemplate, filterName));
-    this.propertyName = StringUtils.substringAfter(filterName, "_");
-    this.propertyValue = value;
+  /**
+   * 构造器
+   *
+   * <p>使用的是 JpaDefaultPropertyFilterBuilder
+   *
+   * @param predicates 预设筛选条件
+   * @return PropertyFilter
+   */
+  static PropertyFilter newFilter(List<PropertyPredicate> predicates) {
+    return new JpaDefaultPropertyFilter(predicates);
   }
 
-  @Deprecated
-  public <T> PropertyFilter(String filterName) {
-    String errorTemplate = "filter名称 %s 没有按规则编写,无法得到属性比较类型.";
-    String matchTypeStr = StringUtils.substringBefore(filterName, "_");
-    this.matchType = MatchType.get(matchTypeStr);
-    Assert.notNull(this.matchType, String.format(errorTemplate, filterName));
-    this.propertyName = StringUtils.substringAfter(filterName, "_");
-  }
+  /**
+   * 等于
+   *
+   * @param name 字段名
+   * @param value 值
+   * @param <T> 泛型
+   * @return PropertyFilter
+   */
+  <T> PropertyFilter equal(String name, T value);
 
-  @SafeVarargs
-  @Deprecated
-  public <T> PropertyFilter(String filterName, T... value) {
-    String errorTemplate = "filter名称 %s 没有按规则编写,无法得到属性比较类型.";
-    String matchTypeStr = StringUtils.substringBefore(filterName, "_");
-    this.matchType = MatchType.get(matchTypeStr);
-    Assert.notNull(this.matchType, String.format(errorTemplate, filterName));
-    this.propertyName = StringUtils.substringAfter(filterName, "_");
-    this.propertyValue = value;
-  }
+  /**
+   * 模糊查询
+   *
+   * @param name 字段名
+   * @param value 值
+   * @return PropertyFilter
+   */
+  PropertyFilter contains(String name, String value);
 
-  public <T> PropertyFilter(MatchType matchType, String propertyName) {
-    this.initialize(matchType, propertyName);
-  }
+  /**
+   * 模糊查询 (不包含)
+   *
+   * @param name 字段名
+   * @param value 值
+   * @return PropertyFilter
+   */
+  PropertyFilter notContains(String name, String value);
 
-  public <T> PropertyFilter(MatchType matchType, String propertyName, T value) {
-    this.initialize(matchType, propertyName);
-    this.propertyValue = value;
-  }
+  /**
+   * 模糊查询 (匹配开始)
+   *
+   * @param name 字段名
+   * @param value 值
+   * @return PropertyFilter
+   */
+  PropertyFilter startsWith(String name, String value);
 
-  @SafeVarargs
-  public <T> PropertyFilter(MatchType matchType, String propertyName, T... value) {
-    this.initialize(matchType, propertyName);
-    this.propertyValue = value;
-  }
+  /**
+   * 模糊查询 (不匹配开始)
+   *
+   * @param name 字段名
+   * @param value 值
+   * @return PropertyFilter
+   */
+  PropertyFilter notStartsWith(String name, String value);
 
-  public static PropertyFilterBuilder builder() {
-    return new PropertyFilterBuilder();
-  }
+  /**
+   * 模糊查询 (匹配结束)
+   *
+   * @param name 字段名
+   * @param value 值
+   * @return PropertyFilter
+   */
+  PropertyFilter endsWith(String name, String value);
 
-  private void initialize(MatchType matchType, String propertyName) {
-    this.matchType = matchType;
-    this.propertyName = propertyName;
-  }
+  /**
+   * 模糊查询 (不匹配结束)
+   *
+   * @param name 字段名
+   * @param value 值
+   * @return PropertyFilter
+   */
+  PropertyFilter notEndsWith(String name, String value);
 
-  public String getKey() {
-    return this.matchType + "_" + propertyName;
-  }
+  /**
+   * 小于
+   *
+   * @param name 字段名
+   * @param value 值
+   * @param <T> 泛型
+   * @return PropertyFilter
+   */
+  <T> PropertyFilter lessThan(String name, T value);
 
-  public String getPropertyName() {
-    return this.propertyName;
-  }
+  /**
+   * 大于
+   *
+   * @param name 字段名
+   * @param value 值
+   * @return PropertyFilter
+   */
+  PropertyFilter greaterThan(String name, Object value);
 
-  public <T> T getPropertyValue() {
-    return (T) this.propertyValue;
-  }
+  /**
+   * 小于等于
+   *
+   * @param name 字段名
+   * @param value 值
+   * @return PropertyFilter
+   */
+  PropertyFilter lessThanOrEqual(String name, Object value);
 
-  public <T> T getPropertyValue(Class<T> clazz) {
-    return (T) this.propertyValue;
-  }
+  /**
+   * 大于等于
+   *
+   * @param name 字段名
+   * @param value 值
+   * @return PropertyFilter
+   */
+  PropertyFilter greaterThanOrEqual(String name, Object value);
 
-  public String getFilterName() {
-    return this.matchType + "_" + this.propertyName;
-  }
+  /**
+   * in
+   *
+   * @param name 名称
+   * @param value 值
+   * @param <T> 泛型
+   * @return PropertyFilter
+   */
+  <T> PropertyFilter in(String name, T... value);
 
-  public boolean isPropertyFilter() {
-    return ClassUtil.isList(this.propertyValue);
-  }
+  /**
+   * in
+   *
+   * @param name 名称
+   * @param value 值
+   * @param <T> 泛型
+   * @return PropertyFilter
+   */
+  <T> PropertyFilter in(String name, List<T> value);
 
-  public boolean isSpecification() {
-    return this.propertyValue instanceof Specification;
-  }
+  /**
+   * not in
+   *
+   * @param name 名称
+   * @param value 值
+   * @param <T> 泛型
+   * @return PropertyFilter
+   */
+  <T> PropertyFilter notIn(String name, T... value);
 
-  public boolean isExpression() {
-    return isPropertyFilter() || isSpecification();
-  }
+  /**
+   * 不等于
+   *
+   * @param name 名称
+   * @param value 值
+   * @param <T> 泛型
+   * @return PropertyFilter
+   */
+  <T> PropertyFilter notEqual(String name, T value);
 
-  public MatchType getMatchType() {
-    return this.matchType;
-  }
+  /**
+   * is null
+   *
+   * @param name 字段名
+   * @return PropertyFilter
+   */
+  PropertyFilter isNull(String name);
 
-  public enum MatchType {
-    /** 添加 and 链接符 */
-    AND(
-        "and",
-        (builder, name, value) ->
-            builder.and((PropertyFilterBuilder[]) multipleValuesObjectsObjects(value))),
-    /** 添加 or 链接符 */
-    OR(
-        "or",
-        (builder, name, value) ->
-            builder.or((PropertyFilterBuilder[]) multipleValuesObjectsObjects(value))),
-    /** 不等于 */
-    NOT(
-        "not",
-        (builder, name, value) ->
-            builder.not((PropertyFilterBuilder[]) multipleValuesObjectsObjects(value))),
-    /** 等于 */
-    EQ("equal", (builder, name, value) -> builder.equal(name, value)),
-    /** 不等于 */
-    NOT_EQUAL("notEqual", (builder, name, value) -> builder.notEqual(name, value)),
+  /**
+   * not null
+   *
+   * @param name 字段名
+   * @return PropertyFilter
+   */
+  PropertyFilter isNotNull(String name);
 
-    CONTAINS("contains", (builder, name, value) -> builder.contains(name, (String) value)),
+  /**
+   * is empty
+   *
+   * @param name 字段名
+   * @return PropertyFilter
+   */
+  PropertyFilter isEmpty(String name);
 
-    NOT_CONTAINS(
-        "notContains", (builder, name, value) -> builder.notContains(name, (String) value)),
+  /**
+   * is not empty
+   *
+   * @param name 字段名
+   * @return PropertyFilter
+   */
+  PropertyFilter isNotEmpty(String name);
 
-    STARTS_WITH("startsWith", (builder, name, value) -> builder.startsWith(name, (String) value)),
+  /**
+   * between
+   *
+   * @param name 字段名
+   * @param x 开始值
+   * @param y 结束值
+   * @param <Y> 泛型
+   * @return PropertyFilter
+   */
+  <Y extends Comparable<? super Y>> PropertyFilter between(String name, Y x, Y y);
 
-    NOT_STARTS_WITH(
-        "notStartsWith", (builder, name, value) -> builder.notStartsWith(name, (String) value)),
+  /**
+   * and 连接
+   *
+   * @param builders PropertyFilter
+   * @return PropertyFilter
+   */
+  PropertyFilter and(PropertyFilter... builders);
 
-    ENDS_WITH("endsWith", (builder, name, value) -> builder.endsWith(name, (String) value)),
+  /**
+   * or 连接
+   *
+   * @param filters PropertyFilter
+   * @return PropertyFilter
+   */
+  PropertyFilter or(PropertyFilter... filters);
 
-    NOT_ENDS_WITH(
-        "notEndsWith", (builder, name, value) -> builder.notEndsWith(name, (String) value)),
-    /** 小于 */
-    LT("lt", (builder, name, value) -> builder.lessThan(name, value)),
-    /** 大于 */
-    GT("gt", (builder, name, value) -> builder.greaterThan(name, value)),
-    /** 小于等于 */
-    LTE("lte", (builder, name, value) -> builder.lessThanOrEqual(name, value)),
-    /** 大于等于 */
-    GTE("gte", (builder, name, value) -> builder.lessThanOrEqual(name, value)),
-    /** in */
-    IN("in", (builder, name, value) -> builder.in(name, multipleValuesObjectsObjects(value))),
-    /** not in */
-    NOT_IN(
-        "notIn",
-        (builder, name, value) -> builder.notIn(name, multipleValuesObjectsObjects(value))),
-    /** is null */
-    NULL("null", (builder, name, value) -> builder.isNull(name)),
-    /** not null */
-    NOT_NULL("notNull", (builder, name, value) -> builder.isNotNull(name)),
-    /** */
-    EMPTY("empty", (builder, name, value) -> builder.isEmpty(name)),
-    /** */
-    NOT_EMPTY("notEmpty", (builder, name, value) -> builder.isNotEmpty(name)),
+  /**
+   * not 连接
+   *
+   * @param filters PropertyFilter
+   * @return PropertyFilter
+   */
+  PropertyFilter not(PropertyFilter... filters);
 
-    BETWEEN(
-        "between",
-        (builder, name, value) -> {
-          Comparable x = (Comparable) Array.get(value, 0);
-          Comparable y = (Comparable) Array.get(value, 1);
-          return builder.between(name, x, y);
-        });
-
-    private final String slug;
-    private final MatchBuilder builder;
-
-    MatchType(String slug, MatchBuilder builder) {
-      this.slug = slug;
-      this.builder = builder;
-    }
-
-    public String getSlug() {
-      return slug;
-    }
-
-    public static MatchType get(String str) {
-      str = ObjectUtil.exists(new String[] {"AND", "OR", "NOT"}, str) ? str.toLowerCase() : str;
-      for (MatchType matchType : MatchType.values()) {
-        if (matchType.slug.equals(str)) {
-          return matchType;
-        }
-      }
-      return null;
-    }
-
-    public static boolean is(String str) {
-      return get(str) != null;
-    }
-
-    public <T> void build(PropertyFilterBuilder builder, String name, Object value) {
-      this.builder.exec(builder, name, value);
-    }
-  }
-
-  @Override
-  public String toString() {
-    return "PropertyFilter [matchType="
-        + matchType
-        + ", propertyName="
-        + propertyName
-        + ", propertyValue="
-        + JSON.serialize(propertyValue)
-        + "]";
-  }
-
-  interface MatchBuilder {
-    PropertyFilterBuilder exec(PropertyFilterBuilder builder, String name, Object value);
-  }
+  /**
+   * 构建
+   *
+   * @param <T> 泛型
+   * @return T
+   */
+  <T> T build();
 }

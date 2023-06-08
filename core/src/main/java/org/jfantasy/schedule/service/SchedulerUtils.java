@@ -505,6 +505,10 @@ public class SchedulerUtils {
 
   @Transactional
   public void shutdown() throws SchedulerException {
+    if (this.scheduler == null) {
+      log.warn("scheduler is null");
+      return;
+    }
     this.scheduler.shutdown();
   }
 
