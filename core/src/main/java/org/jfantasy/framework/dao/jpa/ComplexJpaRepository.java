@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jfantasy.framework.dao.LogicalDeletion;
 import org.jfantasy.framework.dao.hibernate.util.HibernateUtils;
+import org.jfantasy.framework.error.ValidationException;
 import org.jfantasy.framework.spring.SpringBeanUtils;
 import org.jfantasy.framework.util.common.BeanUtil;
 import org.jfantasy.framework.util.common.ClassUtil;
@@ -96,6 +97,9 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
   }
 
   protected Specification<T> toSpecification(PropertyFilter filter) {
+    if (!JpaDefaultPropertyFilter.class.isAssignableFrom(filter.getClass())) {
+      throw new ValidationException("不支持的过滤器类型");
+    }
     return new PropertyFilterSpecification<>(this.getDomainClass(), filter.build());
   }
 

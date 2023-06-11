@@ -14,12 +14,12 @@ import org.springframework.util.Assert;
 @Slf4j
 public class AuthenticationManager {
 
-  private List<AuthenticationProvider> providers = new ArrayList<>();
+  private List<AuthenticationProvider<?>> providers = new ArrayList<>();
   private AuthenticationEventPublisher eventPublisher = new NullEventPublisher();
 
   public AuthenticationManager() {}
 
-  public AuthenticationManager(List<AuthenticationProvider> providers) {
+  public AuthenticationManager(List<AuthenticationProvider<?>> providers) {
     this.providers = providers;
   }
 

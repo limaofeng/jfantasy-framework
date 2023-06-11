@@ -4,15 +4,15 @@ import cn.asany.example.demo.domain.User;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.jfantasy.graphql.inputs.QueryFilter;
+import org.jfantasy.graphql.inputs.WhereInput;
 
 /** @author limaofeng */
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class UserFilter extends QueryFilter<UserFilter, User> {
+public class UserWhereInput extends WhereInput<UserWhereInput, User> {
 
   @JsonProperty("username_contains")
   public void setUsernameContains(String value) {
-    builder.contains("username", value);
+    filter.contains("username", value);
   }
 }

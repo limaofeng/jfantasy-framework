@@ -36,7 +36,7 @@ public class OAuth2SecurityAutoConfiguration {
 
   @Bean
   public AuthenticationManager authenticationManager(
-      List<AuthenticationProvider> providers,
+      List<AuthenticationProvider<?>> providers,
       @Autowired(required = false) AuthenticationEventPublisher publisher) {
     AuthenticationManager authenticationManager = new AuthenticationManager(providers);
     if (publisher != null) {

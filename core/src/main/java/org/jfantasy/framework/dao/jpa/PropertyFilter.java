@@ -15,7 +15,7 @@ public interface PropertyFilter {
    *
    * @return PropertyFilter
    */
-  static PropertyFilter newFilter() {
+  static JpaDefaultPropertyFilter newFilter() {
     return newFilter(new ArrayList<>());
   }
 
@@ -27,7 +27,7 @@ public interface PropertyFilter {
    * @param predicates 预设筛选条件
    * @return PropertyFilter
    */
-  static PropertyFilter newFilter(List<PropertyPredicate> predicates) {
+  static JpaDefaultPropertyFilter newFilter(List<PropertyPredicate> predicates) {
     return new JpaDefaultPropertyFilter(predicates);
   }
 

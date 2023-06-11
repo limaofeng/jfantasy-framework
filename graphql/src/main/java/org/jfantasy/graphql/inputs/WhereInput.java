@@ -8,10 +8,10 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import org.jfantasy.framework.dao.MatchType;
 import org.jfantasy.framework.dao.hibernate.util.ReflectionUtils;
 import org.jfantasy.framework.dao.jpa.PropertyFilter;
-import org.jfantasy.framework.dao.jpa.PropertyFilterBuilder;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
@@ -23,28 +23,28 @@ import org.jfantasy.framework.util.common.StringUtil;
  * @version V1.0
  * @date 2020/4/14 10:07 上午
  */
-public abstract class QueryFilter<F extends QueryFilter, T> {
+public abstract class WhereInput<F extends WhereInput<?, ?>, T> {
 
-  private final Class<T> entityClass;
-  private final Map<String, TypeConverter> fields = new HashMap<>();
+  protected final Class<T> entityClass;
+  private final Map<String, TypeConverter<?>> fields = new HashMap<>();
 
   protected static String[] MULTI_VALUE = new String[] {"in", "notIn"};
 
-  protected PropertyFilter builder = initPropertyFilter();
+  protected PropertyFilter filter = initPropertyFilter();
 
-  public QueryFilter() {
+  public WhereInput() {
     this.entityClass = ReflectionUtils.getSuperClassGenricType(getClass(), 1);
     if (this.entityClass == Object.class) {
       return;
     }
     for (Field field : ClassUtil.getDeclaredFields(this.entityClass)) {
       if (ClassUtil.isBasicType(field.getType())) {
-        fields.put(field.getName(), new DefaultTypeConverter(field.getType()));
+        fields.put(field.getName(), new DefaultTypeConverter<>(field.getType()));
       }
     }
   }
 
-  protected void register(String name, TypeConverter converter) {
+  protected void register(String name, TypeConverter<?> converter) {
     this.fields.put(name, converter);
   }
 
@@ -54,20 +54,17 @@ public abstract class QueryFilter<F extends QueryFilter, T> {
 
   @JsonProperty("AND")
   public void setAnd(F[] filters) {
-    builder.and(
-        Arrays.stream(filters).map(item -> item.builder).toArray(PropertyFilterBuilder[]::new));
+    filter.and(Arrays.stream(filters).map(item -> item.filter).toArray(PropertyFilter[]::new));
   }
 
   @JsonProperty("OR")
   public void setOr(F[] filters) {
-    builder.or(
-        Arrays.stream(filters).map(item -> item.builder).toArray(PropertyFilterBuilder[]::new));
+    filter.or(Arrays.stream(filters).map(item -> item.filter).toArray(PropertyFilter[]::new));
   }
 
   @JsonProperty("NOT")
   public void setNot(F[] filters) {
-    builder.not(
-        Arrays.stream(filters).map(item -> item.builder).toArray(PropertyFilterBuilder[]::new));
+    filter.not(Arrays.stream(filters).map(item -> item.filter).toArray(PropertyFilter[]::new));
   }
 
   @JsonAnySetter
@@ -83,17 +80,13 @@ public abstract class QueryFilter<F extends QueryFilter, T> {
       newValue = this.fields.get(slugs[0]).convert(value);
     }
     if (slugs.length == 1) {
-      builder.equal(name, newValue);
+      filter.equal(name, newValue);
       return;
     }
-    MatchType.get(slugs[1]).build(this.builder, slugs[0], newValue);
+    Objects.requireNonNull(MatchType.get(slugs[1])).build(this.filter, slugs[0], newValue);
   }
 
-  public PropertyFilter getBuilder() {
-    return this.builder;
-  }
-
-  public <T> T build() {
-    return this.builder.build();
+  public <P extends PropertyFilter> P toFilter() {
+    return (P) this.filter;
   }
 }
