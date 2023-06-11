@@ -91,18 +91,22 @@ public enum MatchType {
     return get(str) != null;
   }
 
-  public <T> void build(PropertyFilter builder, String name, Object value) {
-    this.builder.exec(builder, name, value);
+  public static boolean isMultipleValues(MatchType matchType) {
+    return matchType == AND || matchType == OR || matchType == NOT;
+  }
+
+  public <T> PropertyFilter build(PropertyFilter builder, String name, Object value) {
+    return this.builder.exec(builder, name, value);
   }
 
   interface MatchBuilder {
     /**
      * 生成 PropertyFilter
      *
-     * @param builder
-     * @param name
-     * @param value
-     * @return
+     * @param builder PropertyFilter
+     * @param name 属性名称
+     * @param value 属性值
+     * @return PropertyFilter
      */
     PropertyFilter exec(PropertyFilter builder, String name, Object value);
   }
