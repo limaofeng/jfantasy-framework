@@ -3,6 +3,7 @@ package org.jfantasy.framework.dao.jpa;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.Data;
 import org.jfantasy.framework.dao.MatchType;
@@ -235,7 +236,7 @@ public abstract class PropertyFilterBuilder<P extends PropertyFilter, C> impleme
   @Override
   public <Y extends Comparable<? super Y>> P between(String name, Y x, Y y) {
     this.predicate(name, MatchType.BETWEEN)
-        .apply(name, MatchType.BETWEEN, new BetweenValue(x, y), context);
+        .apply(name, MatchType.BETWEEN, new BetweenValue<>(x, y), context);
     return (P) this;
   }
 
@@ -255,6 +256,12 @@ public abstract class PropertyFilterBuilder<P extends PropertyFilter, C> impleme
   public P not(PropertyFilter... filters) {
     this.junction(MatchType.NOT).apply(context, MatchType.NOT, filters);
     return (P) this;
+  }
+
+  public List<String> getPropertyNames() {
+    return this.properties.keySet().stream()
+        .filter(name -> !"*".equals(name))
+        .collect(Collectors.toList());
   }
 
   @Data
