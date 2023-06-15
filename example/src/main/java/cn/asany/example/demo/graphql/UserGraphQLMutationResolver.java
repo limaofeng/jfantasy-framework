@@ -15,13 +15,23 @@ public class UserGraphQLMutationResolver implements GraphQLMutationResolver {
   private final UserService userService;
   private final UserConverter userConverter;
 
-  public UserGraphQLMutationResolver(UserService userService, UserConverter userConverter) {
+  private final UserChangePublisher userChangePublisher;
+
+  public UserGraphQLMutationResolver(
+      UserChangePublisher userChangePublisher,
+      UserService userService,
+      UserConverter userConverter) {
     this.userService = userService;
     this.userConverter = userConverter;
+    this.userChangePublisher = userChangePublisher;
   }
 
   public User createUser(@Validated UserCreateInput input) {
     User user = userConverter.toUser(input);
-    return userService.save(user);
+    try {
+      return userService.save(user);
+    } finally {
+      userChangePublisher.emit(user);
+    }
   }
 }

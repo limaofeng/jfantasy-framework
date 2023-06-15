@@ -21,6 +21,7 @@ type StockPriceUpdate {
 
 type Subscription {
   stockQuotes(stockCodes: [String!]!): StockPriceUpdate
+  userChange: User
 }
 
 input UserCreateInput {

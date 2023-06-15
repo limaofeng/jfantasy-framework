@@ -12,15 +12,15 @@ public interface AuthenticationEventPublisher {
   /**
    * 认证成功
    *
-   * @param authentication
+   * @param authentication 认证信息
    */
   void publishAuthenticationSuccess(Authentication authentication);
 
   /**
    * 认证失败
    *
-   * @param exception
-   * @param authentication
+   * @param exception 异常信息
+   * @param authentication 认证信息
    */
   void publishAuthenticationFailure(
       AuthenticationException exception, Authentication authentication);

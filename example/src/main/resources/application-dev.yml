@@ -1,21 +1,23 @@
 spring:
   tomcat:
     disableSession: false
+  config:
+    import: optional:file:.env[.properties]
   application:
     name: server
   datasource:
     name: datasource
-    url: jdbc:mysql://dev.local:3306/demo?autoReconnect=true&useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull
-    username: root
-    password: yV2jJxvNs8BD
+    url: jdbc:mysql://${DATABASE_HOST}/${DATABASE_INSTANCE_NAME}?autoReconnect=true&useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
     hikari:
       minimum-idle: 5
       maximum-pool-size: 20
     proxy: true
   redis:
-    host: dev.local
+    host: ${REDIS_HOST}
     port: 6379
-    password: sOmE_sEcUrE_pAsS
+    password: ${REDIS_PASSWORD}
   cuckoo:
     elasticsearch:
       client:
