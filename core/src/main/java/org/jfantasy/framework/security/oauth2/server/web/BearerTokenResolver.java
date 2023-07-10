@@ -1,12 +1,17 @@
 package org.jfantasy.framework.security.oauth2.server.web;
 
-import javax.servlet.http.HttpServletRequest;
-
 /**
  * BearerToken 解析器
  *
  * @author limaofeng
  */
-public interface BearerTokenResolver {
-  String resolve(HttpServletRequest request);
+public interface BearerTokenResolver<T> {
+
+  /**
+   * 解析
+   *
+   * @param request T
+   * @return token
+   */
+  String resolve(T request);
 }

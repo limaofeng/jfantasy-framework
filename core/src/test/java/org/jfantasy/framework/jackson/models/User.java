@@ -6,12 +6,22 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Id;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @JsonFilter("myFilter")
 public class User {
 
   @Id private String id;
   private String name;
+
+  private Integer age;
   private Date createDate;
   private Set<Article> articles = new HashSet<>();
   private String username;

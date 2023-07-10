@@ -17,18 +17,23 @@ import org.springframework.data.jpa.provider.PersistenceProvider;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.JpaEntityInformationSupport;
 
+/**
+ * JPA 实现
+ *
+ * @author limaofeng
+ */
 public class JpaDefaultCuckooDao implements CuckooDao {
 
   private final EntityChangedListener changedListener;
   protected EntityManager em;
 
-  protected JpaEntityInformation entityInformation;
-  private final Class domainClass;
+  protected JpaEntityInformation<?, ?> entityInformation;
+  private final Class<?> domainClass;
   protected final ApplicationContext applicationContext;
   private final PersistenceProvider provider;
 
   public JpaDefaultCuckooDao(
-      ApplicationContext applicationContext, Class domainClass, TaskExecutor executor) {
+      ApplicationContext applicationContext, Class<?> domainClass, TaskExecutor executor) {
     this.domainClass = domainClass;
     this.applicationContext = applicationContext;
     this.em = this.applicationContext.getBean(EntityManager.class);
@@ -49,9 +54,9 @@ public class JpaDefaultCuckooDao implements CuckooDao {
   public <T> List<T> find(int start, int size) {
 
     CriteriaBuilder builder = em.getCriteriaBuilder();
-    CriteriaQuery<T> query = builder.createQuery(domainClass);
+    CriteriaQuery<T> query = builder.createQuery((Class<T>) domainClass);
 
-    Root<T> root = query.from(domainClass);
+    Root<T> root = (Root<T>) query.from(domainClass);
     query.select(root);
 
     return this.em.createQuery(query).setFirstResult(start).setMaxResults(size).getResultList();
@@ -68,7 +73,7 @@ public class JpaDefaultCuckooDao implements CuckooDao {
   }
 
   protected <T> Class<T> getDomainClass() {
-    return entityInformation.getJavaType();
+    return (Class<T>) entityInformation.getJavaType();
   }
 
   @Override

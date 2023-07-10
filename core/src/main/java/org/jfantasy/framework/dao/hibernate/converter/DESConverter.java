@@ -5,6 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.crypto.CryptoException;
 import org.jfantasy.framework.crypto.DESPlus;
 
+/**
+ * DES加密转换器
+ *
+ * @author limaofeng
+ */
 @Slf4j
 public class DESConverter implements AttributeConverter<String, String> {
 

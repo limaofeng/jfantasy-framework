@@ -3,6 +3,7 @@ package org.jfantasy.framework.search.query;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.elasticsearch.core.search.HitsMetadata;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,12 +66,10 @@ public class CuckooIndexSearcher<T> {
    * @param size 返回条数
    * @return List<T>
    */
-  @SneakyThrows
+  @SneakyThrows(IOException.class)
   public List<T> search(Query query, int size) {
-    List<T> data = new ArrayList<>();
     SearchResponse<T> response = searcher(query).withSize(size).search();
-
-    return data;
+    return buildResults(response);
   }
 
   /**
@@ -81,12 +80,10 @@ public class CuckooIndexSearcher<T> {
    * @param sort 排序设置
    * @return List<T>
    */
-  @SneakyThrows
+  @SneakyThrows(IOException.class)
   public List<T> search(Query query, int size, Sort sort) {
-    List<T> data = new ArrayList<>();
     SearchResponse<T> response = searcher(query).withSize(size).withSort(sort).search();
-
-    return data;
+    return buildResults(response);
   }
 
   /**
@@ -98,7 +95,7 @@ public class CuckooIndexSearcher<T> {
    * @param highlighter 关键字高亮
    * @return List<T>
    */
-  @SneakyThrows
+  @SneakyThrows(IOException.class)
   public List<T> search(Query query, int size, Sort sort, Highlighter highlighter) {
     SearchResponse<T> response =
         searcher(query).withSize(size).withSort(sort).withHighlight(highlighter).search();
@@ -113,7 +110,7 @@ public class CuckooIndexSearcher<T> {
    * @param highlighter 关键字高亮
    * @return List<T>
    */
-  @SneakyThrows
+  @SneakyThrows(IOException.class)
   public List<T> search(Query query, int size, Highlighter highlighter) {
     SearchResponse<T> response = searcher(query).withSize(size).withHighlight(highlighter).search();
     return buildResults(response);

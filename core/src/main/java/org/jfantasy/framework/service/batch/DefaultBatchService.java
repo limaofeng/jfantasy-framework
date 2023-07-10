@@ -43,7 +43,7 @@ public abstract class DefaultBatchService<T, R> implements BatchService<T, R> {
     executor.setCorePoolSize(poolSize);
     executor.setMaxPoolSize(poolSize);
     executor.setQueueCapacity(poolSize);
-    executor.setKeepAliveSeconds(30);
+    executor.setKeepAliveSeconds(180);
     executor.setThreadNamePrefix("bath_service");
     executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
     executor.initialize();

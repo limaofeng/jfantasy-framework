@@ -1,9 +1,15 @@
 package org.jfantasy.framework.security;
 
+import javax.servlet.http.HttpServletRequest;
 import org.jfantasy.framework.security.authentication.AuthenticationManagerResolver;
 
-/** @author limaofeng */
-public class DefaultAuthenticationManagerResolver implements AuthenticationManagerResolver {
+/**
+ * AuthenticationManagerResolver
+ *
+ * @author limaofeng
+ */
+public class DefaultAuthenticationManagerResolver
+    implements AuthenticationManagerResolver<HttpServletRequest> {
 
   private final AuthenticationManager authenticationManager;
 
@@ -12,7 +18,7 @@ public class DefaultAuthenticationManagerResolver implements AuthenticationManag
   }
 
   @Override
-  public AuthenticationManager resolve(Object context) {
+  public AuthenticationManager resolve(HttpServletRequest context) {
     return this.authenticationManager;
   }
 }

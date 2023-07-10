@@ -3,8 +3,13 @@ package org.jfantasy.desensitize.search.tree;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 节点
+ *
+ * @author limaofeng
+ */
 public class Node {
-  private Map<String, Node> children = new HashMap(0);
+  private final Map<String, Node> children = new HashMap<>(0);
   private boolean isEnd = false;
   private String word;
   private double level = 0.0D;

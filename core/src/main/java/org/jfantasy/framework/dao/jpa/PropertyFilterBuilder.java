@@ -13,7 +13,6 @@ import org.jfantasy.framework.dao.MatchType;
  *
  * @author limaofeng
  * @version V1.0
- * @date 2019-04-22 17:55
  */
 public abstract class PropertyFilterBuilder<P extends PropertyFilter, C> implements PropertyFilter {
 
@@ -166,6 +165,7 @@ public abstract class PropertyFilterBuilder<P extends PropertyFilter, C> impleme
   }
 
   /** in */
+  @SafeVarargs
   @Override
   public final <T> P in(String name, T... value) {
     this.predicate(name, MatchType.IN).apply(name, MatchType.IN, value, context);

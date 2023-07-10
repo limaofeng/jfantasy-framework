@@ -86,7 +86,7 @@ public class WordsFilterUtil {
   private static WordsFilterUtil.PunctuationOrHtmlFilteredResult filterPunctationAndHtml(
       String originalString) {
     StringBuilder filteredString = new StringBuilder();
-    ArrayList<Integer> charOffsets = new ArrayList();
+    ArrayList<Integer> charOffsets = new ArrayList<>();
     int i = 0;
 
     for (boolean var4 = false; i < originalString.length(); ++i) {
