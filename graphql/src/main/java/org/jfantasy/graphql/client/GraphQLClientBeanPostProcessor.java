@@ -18,13 +18,17 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.client.RestTemplate;
 
-/** @author limaofeng */
+/**
+ * GraphQL 客户端 BeanPostProcessor
+ *
+ * @author limaofeng
+ */
 public class GraphQLClientBeanPostProcessor implements BeanPostProcessor {
 
   private final ResourceLoader resourceLoader;
   private final ApplicationContext applicationContext;
 
-  private Map<String, GraphQLTemplate> clientMap = new HashMap<>();
+  private final Map<String, GraphQLTemplate> clientMap = new HashMap<>();
 
   public GraphQLClientBeanPostProcessor(
       final ApplicationContext applicationContext, ResourceLoader resourceLoader) {

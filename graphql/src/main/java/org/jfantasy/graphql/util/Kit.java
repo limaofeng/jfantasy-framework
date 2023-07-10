@@ -24,7 +24,7 @@ import org.springframework.data.domain.Page;
  */
 public class Kit {
 
-  private static final Map<Class, Property> cache = new ConcurrentHashMap<>();
+  private static final Map<Class<?>, Property> CACHE = new ConcurrentHashMap<>();
 
   public static String typeName(Object input) {
     if (input == null) {
@@ -33,8 +33,8 @@ public class Kit {
     return input.getClass().getSimpleName();
   }
 
-  @SneakyThrows
-  public static <C extends Connection, T, R extends Edge> C connection(
+  @SneakyThrows({InstantiationException.class, IllegalAccessException.class})
+  public static <C extends Connection<R, S>, S, T, R extends Edge<S>> C connection(
       Page<T> page, Class<C> connectionClass, Function<T, R> mapper) {
     C connection = connectionClass.newInstance();
 
@@ -49,23 +49,7 @@ public class Kit {
             .hasPreviousPage(page.hasPrevious())
             .hasNextPage(page.hasNext());
 
-    if (mapper instanceof EdgeConverter && ((EdgeConverter) mapper).edgeClass == null) {
-      Class edgeClass =
-          ClassUtil.forName(
-              ((ParameterizedType) connectionClass.getGenericSuperclass())
-                  .getActualTypeArguments()[0].getTypeName());
-      ((EdgeConverter<T, R>) mapper).setEdgeClass(edgeClass);
-    }
-    connection.setEdges(nodes.stream().map(mapper).collect(Collectors.toList()));
-
-    if (!nodes.isEmpty()) {
-      List<R> edges = connection.getEdges();
-      pageInfoBuilder
-          .startCursor(edges.get(0).getCursor())
-          .endCursor(edges.get(nodes.size() - 1).getCursor());
-    }
-
-    connection.setPageInfo(pageInfoBuilder.build());
+    buildConnection(connection, nodes, pageInfoBuilder, mapper, connectionClass);
 
     // 临时的兼容，后期会删除
     connection.setTotalCount((int) page.getTotalElements());
@@ -76,25 +60,26 @@ public class Kit {
     return connection;
   }
 
-  public static <C extends Connection, T> C connection(Page<T> page, Class<C> connectionClass) {
-    Class edgeClass =
+  public static <C extends Connection<R, T>, T, R extends Edge<T>> C connection(
+      Page<T> page, Class<C> connectionClass) {
+    Class<?> edgeClass =
         ClassUtil.forName(
             ((ParameterizedType) connectionClass.getGenericSuperclass())
                 .getActualTypeArguments()[0].getTypeName());
-    return (C) connection(page, connectionClass, new EdgeConverter(edgeClass));
+    return connection(page, connectionClass, new EdgeConverter<>(edgeClass));
   }
 
-  public static <C extends Connection, T> C connection(
+  public static <C extends Connection<R, S>, S, T, R extends Edge<S>> C connection(
       org.jfantasy.framework.dao.Page<T> page, Class<C> connectionClass) {
-    Class edgeClass =
+    Class<?> edgeClass =
         ClassUtil.forName(
             ((ParameterizedType) connectionClass.getGenericSuperclass())
                 .getActualTypeArguments()[0].getTypeName());
-    return (C) connection(page, connectionClass, new EdgeConverter(edgeClass));
+    return connection(page, connectionClass, new EdgeConverter<>(edgeClass));
   }
 
-  @SneakyThrows
-  public static <C extends Connection, T, R extends Edge> C connection(
+  @SneakyThrows({InstantiationException.class, IllegalAccessException.class})
+  public static <C extends Connection<R, S>, S, T, R extends Edge<S>> C connection(
       org.jfantasy.framework.dao.Page<T> page, Class<C> connectionClass, Function<T, R> mapper) {
     C connection = connectionClass.newInstance();
 
@@ -109,8 +94,25 @@ public class Kit {
             .hasPreviousPage(page.getCurrentPage() > 1)
             .hasNextPage(page.getCurrentPage() < page.getTotalPage());
 
-    if (mapper instanceof EdgeConverter && ((EdgeConverter) mapper).edgeClass == null) {
-      Class edgeClass =
+    buildConnection(connection, nodes, pageInfoBuilder, mapper, connectionClass);
+
+    // 临时的兼容，后期会删除
+    connection.setTotalCount(page.getTotalCount());
+    connection.setTotalPage(page.getTotalPage());
+    connection.setCurrentPage(page.getCurrentPage());
+    connection.setPageSize(page.getPageSize());
+
+    return connection;
+  }
+
+  private static <C extends Connection<R, S>, S, T, R extends Edge<S>> void buildConnection(
+      C connection,
+      List<T> nodes,
+      PageInfo.PageInfoBuilder pageInfoBuilder,
+      Function<T, R> mapper,
+      Class<C> connectionClass) {
+    if (mapper instanceof EdgeConverter && ((EdgeConverter<?, ?>) mapper).edgeClass == null) {
+      Class<?> edgeClass =
           ClassUtil.forName(
               ((ParameterizedType) connectionClass.getGenericSuperclass())
                   .getActualTypeArguments()[0].getTypeName());
@@ -126,38 +128,30 @@ public class Kit {
     }
 
     connection.setPageInfo(pageInfoBuilder.build());
-
-    // 临时的兼容，后期会删除
-    connection.setTotalCount(page.getTotalCount());
-    connection.setTotalPage(page.getTotalPage());
-    connection.setCurrentPage(page.getCurrentPage());
-    connection.setPageSize(page.getPageSize());
-
-    return connection;
   }
 
   public static class EdgeConverter<T, R> implements Function<T, R> {
-    private Class edgeClass;
-    private Function mapper;
+    private Class<?> edgeClass;
+    private Function<T, R> mapper;
 
-    public EdgeConverter(Class edgeClass) {
+    public EdgeConverter(Class<?> edgeClass) {
       this.edgeClass = edgeClass;
     }
 
-    public EdgeConverter(Function<? super T, ? extends T> mapper) {
+    public EdgeConverter(Function<T, R> mapper) {
       this.mapper = mapper;
     }
 
-    public void setEdgeClass(Class edgeClass) {
+    public void setEdgeClass(Class<?> edgeClass) {
       this.edgeClass = edgeClass;
     }
 
     @Override
-    @SneakyThrows
+    @SneakyThrows(ReflectiveOperationException.class)
     public R apply(T value) {
-      Edge edge = (Edge) edgeClass.newInstance();
+      Edge<T> edge = (Edge<T>) edgeClass.newInstance();
       if (mapper != null) {
-        edge.setNode(mapper.apply(value));
+        edge.setNode((T) mapper.apply(value));
       } else {
         edge.setNode(value);
       }
@@ -165,9 +159,9 @@ public class Kit {
       return (R) edge;
     }
 
-    public static Property getIdProperty(Class clazz) {
-      if (cache.containsKey(clazz)) {
-        return cache.get(clazz);
+    public static Property getIdProperty(Class<?> clazz) {
+      if (CACHE.containsKey(clazz)) {
+        return CACHE.get(clazz);
       }
       Property[] properties = ClassUtil.getProperties(clazz);
       List<Property> propertyList =
@@ -185,12 +179,12 @@ public class Kit {
       if (property == null) {
         return null;
       }
-      cache.put(clazz, property);
+      CACHE.put(clazz, property);
       return property;
     }
 
     public static <T> String getCursor(T value) {
-      Class clazz = ClassUtil.getRealClass(value);
+      Class<?> clazz = ClassUtil.getRealClass(value);
       Property idProperty = getIdProperty(clazz);
       if (idProperty != null) {
         Object id = idProperty.getValue(value);

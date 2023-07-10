@@ -23,8 +23,8 @@ import org.jfantasy.framework.util.common.ObjectUtil;
 public class DefaultGraphQLError extends ErrorResponse implements GraphQLError {
 
   private List<Object> path;
-  private List<SourceLocation> locations;
-  private ErrorClassification errorType;
+  private final List<SourceLocation> locations;
+  private final ErrorClassification errorType;
 
   public DefaultGraphQLError(ErrorContext errorContext) {
     this.path = errorContext.getPath();
