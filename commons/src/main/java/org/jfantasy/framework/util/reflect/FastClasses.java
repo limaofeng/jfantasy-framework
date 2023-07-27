@@ -3,10 +3,7 @@ package org.jfantasy.framework.util.reflect;
 import java.beans.BeanInfo;
 import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,12 +14,17 @@ import net.sf.cglib.reflect.FastClass;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
 
+/**
+ * FastClass 实现
+ *
+ * @author limaofeng
+ */
 @Slf4j
 public class FastClasses<T> implements IClass<T> {
   private final Class<T> clazz;
   private final Map<String, Property> properties = new HashMap<>();
   private final Map<String, MethodProxy> methodProxies = new HashMap<>();
-  private final Map<Class<?>, Constructor<T>> constructors = new HashMap<>();
+  private final Map<Class<?>, Constructor<?>> constructors = new HashMap<>();
   private final Map<String, Field> fields = new HashMap<>();
   private final Map<String, Field> staticFields = new HashMap<>();
 
@@ -63,7 +65,7 @@ public class FastClasses<T> implements IClass<T> {
       for (Constructor<?> constructor : clazz.getConstructors()) {
         Class<?>[] parameterTypes = constructor.getParameterTypes();
         if (parameterTypes.length == 1) {
-          this.constructors.put(parameterTypes[0], (Constructor<T>) constructor);
+          this.constructors.put(parameterTypes[0], constructor);
         }
       }
     } else {
@@ -105,13 +107,12 @@ public class FastClasses<T> implements IClass<T> {
   }
 
   @Override
-  @SneakyThrows
+  @SneakyThrows({InstantiationException.class, IllegalAccessException.class})
   public T newInstance() {
     return this.clazz.newInstance();
   }
 
   @Override
-  @SneakyThrows
   public T newInstance(Object object) {
     if (object == null) {
       return newInstance();
@@ -120,9 +121,13 @@ public class FastClasses<T> implements IClass<T> {
   }
 
   @Override
-  @SneakyThrows
+  @SneakyThrows({
+    InstantiationException.class,
+    IllegalAccessException.class,
+    InvocationTargetException.class
+  })
   public T newInstance(Class<?> type, Object object) {
-    return this.constructors.get(type).newInstance(object);
+    return (T) this.constructors.get(type).newInstance(object);
   }
 
   @Override
@@ -157,22 +162,22 @@ public class FastClasses<T> implements IClass<T> {
 
   @Override
   public MethodProxy getMethod(String methodName, Class<?>... parameterTypes) {
-    StringBuilder methodname = new StringBuilder(methodName);
+    StringBuilder methodNameFull = new StringBuilder(methodName);
     if (parameterTypes.length != 0) {
       for (int i = 0; i < parameterTypes.length; i++) {
-        methodname
+        methodNameFull
             .append(i == 0 ? "(" : "")
             .append(parameterTypes[i].getName())
             .append(i + 1 == parameterTypes.length ? ")" : ",");
       }
     } else {
-      methodname.append("()");
+      methodNameFull.append("()");
     }
-    return this.methodProxies.get(methodname.toString());
+    return this.methodProxies.get(methodNameFull.toString());
   }
 
   @Override
-  @SneakyThrows
+  @SneakyThrows({IllegalAccessException.class, NoSuchFieldException.class})
   public void setValue(Object target, String name, Object value) {
     Field field = this.fields.get(name);
     if (field != null) {
@@ -183,7 +188,7 @@ public class FastClasses<T> implements IClass<T> {
   }
 
   @Override
-  @SneakyThrows
+  @SneakyThrows({IllegalAccessException.class, NoSuchFieldException.class})
   public <V> V getValue(Object target, String name) {
     return getValue(target, this.fields.get(name));
   }
@@ -197,7 +202,12 @@ public class FastClasses<T> implements IClass<T> {
   }
 
   @Override
-  @SneakyThrows
+  @SneakyThrows({
+    InstantiationException.class,
+    IllegalAccessException.class,
+    InvocationTargetException.class,
+    NoSuchMethodException.class
+  })
   public T newInstance(Class<?>[] parameterTypes, Object[] parameters) {
     if (parameterTypes.length == 0) {
       return newInstance();
@@ -230,7 +240,7 @@ public class FastClasses<T> implements IClass<T> {
   }
 
   @Override
-  @SneakyThrows
+  @SneakyThrows({IllegalAccessException.class, NoSuchFieldException.class})
   public <V> V getValue(String name) {
     return this.getValue(null, this.staticFields.get(name));
   }

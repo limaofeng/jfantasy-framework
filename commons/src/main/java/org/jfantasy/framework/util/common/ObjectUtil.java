@@ -632,7 +632,8 @@ public final class ObjectUtil {
   }
 
   public static <T> List<T> sort(List<T> collection, String[] customSort, String idFieldName) {
-    Class persistentBagClass = ClassUtil.forName("org.hibernate.collection.internal.PersistentBag");
+    Class<?> persistentBagClass =
+        ClassUtil.forName("org.hibernate.collection.internal.PersistentBag");
     assert persistentBagClass != null;
     boolean isPersistentBag = persistentBagClass.isAssignableFrom(collection.getClass());
 
@@ -1002,7 +1003,7 @@ public final class ObjectUtil {
    */
   public static <T> CompareResults<T> compare(
       Collection<T> first, Collection<T> second, Comparator<T> comparator) {
-    CompareResults<T> results = new CompareResults();
+    CompareResults<T> results = new CompareResults<>();
     List<T> olds = new ArrayList<>(first);
     for (T obj : second) {
       if (exists(olds, (Predicate<T>) item -> comparator.compare(item, obj) == 0)) {

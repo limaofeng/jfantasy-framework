@@ -13,9 +13,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.HttpStatus;
 import org.jfantasy.framework.search.CuckooIndex;
 import org.jfantasy.framework.search.Document;
 
+/**
+ * Elastic Index Writer
+ *
+ * @author limaofeng
+ */
 @Slf4j
 public class ElasticIndexWriter implements IndexWriter {
 
@@ -33,7 +39,7 @@ public class ElasticIndexWriter implements IndexWriter {
     this.cuckooIndex = cuckooIndex;
     this.connection = connection;
     this.batchSize = batchSize;
-    this.cachedDataList = new ArrayList(batchSize);
+    this.cachedDataList = new ArrayList<>(batchSize);
   }
 
   @Override
@@ -126,7 +132,7 @@ public class ElasticIndexWriter implements IndexWriter {
       UpdateResponse updateResponse = connection.getClient().update(request, Map.class);
       log.debug("updated response id: " + updateResponse.id());
     } catch (ElasticsearchException e) {
-      if (e.response().status() == 404) {
+      if (e.response().status() == HttpStatus.SC_NOT_FOUND) {
         log.info(
             String.format(
                 "document %s (%s) not exist, will switch to the create.", doc.getIndexName(), id));
@@ -210,7 +216,7 @@ public class ElasticIndexWriter implements IndexWriter {
     timer = new Timer();
     timer.schedule(
         new TimerTask() {
-          @SneakyThrows
+          @SneakyThrows(IOException.class)
           @Override
           public void run() {
             ElasticIndexWriter.this.commit();
@@ -220,8 +226,11 @@ public class ElasticIndexWriter implements IndexWriter {
   }
 
   private enum Operation {
+    /** 创建 */
     create,
+    /** 更新 */
     update,
+    /** 删除 */
     delete
   }
 

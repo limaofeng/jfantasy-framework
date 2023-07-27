@@ -36,6 +36,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
     },
     basePackages = {"org.jfantasy.framework.context.dao"},
     repositoryBaseClass = ComplexJpaRepository.class)
+@ComponentScan("org.jfantasy.framework.context.service")
 @Import({MyBatisConfig.class})
 public class DaoConfig {
 

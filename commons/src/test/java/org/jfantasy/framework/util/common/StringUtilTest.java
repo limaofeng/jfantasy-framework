@@ -3,6 +3,7 @@ package org.jfantasy.framework.util.common;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
@@ -261,5 +262,12 @@ public class StringUtilTest {
   void shortUUID() {
     String uuid = StringUtil.shortUUID();
     log.debug("uuid:" + uuid);
+  }
+
+  @Test
+  void testOptionalString() {
+    Optional<String> optionalString = Optional.empty();
+    Optional<String> result = Optional.of(optionalString.orElseGet(() -> "111"));
+    log.debug(result.get());
   }
 }

@@ -13,7 +13,6 @@ public class CglibUtil {
   private static final ConcurrentHashMap<Class<?>, Enhancer> enhancerCache =
       new ConcurrentHashMap<Class<?>, Enhancer>();
 
-  @SuppressWarnings("unchecked")
   public static <T> T newInstance(Class<T> classType, MethodInterceptor interceptor) {
     if (!enhancerCache.containsKey(classType)) {
       enhancerCache.putIfAbsent(classType, newEnhancer(classType, interceptor));

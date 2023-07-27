@@ -1,6 +1,9 @@
 package org.jfantasy.desensitize;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -8,31 +11,34 @@ import org.jfantasy.desensitize.result.FilteredResult;
 import org.jfantasy.desensitize.result.Word;
 import org.jfantasy.desensitize.search.tree.Node;
 
+/**
+ * 单词过滤
+ *
+ * @author limaofeng
+ */
 public class WordsFilterUtil {
-  private static Node tree = new Node();
-  private static Node positiveTree;
-  private static Pattern p;
+  private static final Node TREE = new Node();
+  private static final Node POSITIVE_TREE;
+  private static final Pattern p;
 
   public WordsFilterUtil() {}
 
   public static void addWords(WordsType type, InputStream input) {
     try {
-      InputStreamReader reader = new InputStreamReader(input, "UTF-8");
+      InputStreamReader reader = new InputStreamReader(input, StandardCharsets.UTF_8);
       Properties prop = new Properties();
       prop.load(reader);
-      Enumeration en = prop.propertyNames();
+      Enumeration<?> en = prop.propertyNames();
 
       while (en.hasMoreElements()) {
         String word = (String) en.nextElement();
         insertWord(
-            type == WordsType.SENSITIVE ? tree : positiveTree,
+            type == WordsType.SENSITIVE ? TREE : POSITIVE_TREE,
             word,
-            Double.valueOf(prop.getProperty(word)));
+            Double.parseDouble(prop.getProperty(word)));
       }
-    } catch (UnsupportedEncodingException var36) {
-      var36.printStackTrace();
-    } catch (IOException var37) {
-      var37.printStackTrace();
+    } catch (IOException e) {
+      throw new RuntimeException(e.getMessage());
     } finally {
       if (input != null) {
         try {
@@ -65,7 +71,7 @@ public class WordsFilterUtil {
   private static WordsFilterUtil.PunctuationOrHtmlFilteredResult filterPunctation(
       String originalString) {
     StringBuilder filteredString = new StringBuilder();
-    ArrayList<Integer> charOffsets = new ArrayList();
+    ArrayList<Integer> charOffsets = new ArrayList<>();
 
     for (int i = 0; i < originalString.length(); ++i) {
       String c = String.valueOf(originalString.charAt(i));
@@ -126,25 +132,25 @@ public class WordsFilterUtil {
     StringBuilder sentence = pohResult.getFilteredString();
     StringBuilder sb = new StringBuilder(pohResult.getOriginalString());
     ArrayList<Integer> charOffsets = pohResult.getCharOffsets();
-    List<Word> positiveWords = simpleFilter2DictFindWords(sentence, positiveTree);
-    List<Word> sensitiveWords = simpleFilter2DictFindWords(sentence, tree);
-    Iterator sIt = sensitiveWords.iterator();
+    List<Word> positiveWords = simpleFilter2DictFindWords(sentence, POSITIVE_TREE);
+    List<Word> sensitiveWords = simpleFilter2DictFindWords(sentence, TREE);
+    Iterator<Word> sIt = sensitiveWords.iterator();
 
     while (true) {
       while (sIt.hasNext()) {
-        Word sWord = (Word) sIt.next();
+        Word sWord = sIt.next();
 
         int i;
         Word pWord;
         for (i = 0; i < positiveWords.size(); ++i) {
-          pWord = (Word) positiveWords.get(i);
+          pWord = positiveWords.get(i);
           if (pWord.getEndPos() >= sWord.getStartPos()) {
             break;
           }
         }
 
         while (i < positiveWords.size()) {
-          pWord = (Word) positiveWords.get(i);
+          pWord = positiveWords.get(i);
           if (pWord.getStartPos() > sWord.getEndPos()) {
             break;
           }
@@ -221,8 +227,8 @@ public class WordsFilterUtil {
 
   public static FilteredResult simpleFilter(String sentence, char replacement) {
     StringBuilder sb = new StringBuilder(sentence);
-    List<Word> positiveWords = simpleFilter2DictFindWords(sb, positiveTree);
-    List<Word> sensitiveWords = simpleFilter2DictFindWords(sb, tree);
+    List<Word> positiveWords = simpleFilter2DictFindWords(sb, POSITIVE_TREE);
+    List<Word> sensitiveWords = simpleFilter2DictFindWords(sb, TREE);
     Iterator sIt = sensitiveWords.iterator();
 
     while (true) {
@@ -312,7 +318,7 @@ public class WordsFilterUtil {
   }
 
   private static List<Word> simpleFilter2DictFindWords(StringBuilder sentence, Node dictTree) {
-    List<Word> foundWords = new LinkedList();
+    List<Word> foundWords = new LinkedList<>();
     int start = 0;
     int end = 0;
 
@@ -443,7 +449,7 @@ public class WordsFilterUtil {
 
     String regex = "[\\pP\\pZ\\pS\\pM\\pC]";
     p = Pattern.compile(regex, 2);
-    positiveTree = new Node();
+    POSITIVE_TREE = new Node();
     is = WordsFilterUtil.class.getResourceAsStream("/positive-words.dict");
     if (is == null) {
       is = WordsFilterUtil.class.getClassLoader().getResourceAsStream("/positive-words.dict");

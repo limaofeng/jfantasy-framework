@@ -19,7 +19,6 @@ import org.jfantasy.framework.security.authentication.Authentication;
  *
  * @author limaofeng
  * @version V1.0
- * @date 2020/4/26 11:33 上午
  */
 public class AuthorizationGraphQLServletContext implements GraphQLContext {
 

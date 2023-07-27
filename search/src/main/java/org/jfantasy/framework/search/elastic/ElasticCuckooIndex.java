@@ -19,10 +19,15 @@ import org.jfantasy.framework.search.handler.FieldHandlerFactory;
 import org.jfantasy.framework.search.query.Query;
 import org.jfantasy.framework.util.common.StringUtil;
 
+/**
+ * ElasticCuckooIndex
+ *
+ * @author limaofeng
+ */
 public class ElasticCuckooIndex implements CuckooIndex {
 
   private final Indexed indexed;
-  private final Class indexClass;
+  private final Class<?> indexClass;
   private final ElasticsearchConnection connection;
   private final IndexWriter indexWriter;
 
@@ -81,7 +86,7 @@ public class ElasticCuckooIndex implements CuckooIndex {
   }
 
   @Override
-  public Class getIndexClass() {
+  public Class<?> getIndexClass() {
     return this.indexClass;
   }
 

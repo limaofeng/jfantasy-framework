@@ -20,7 +20,9 @@ import org.springframework.util.ReflectionUtils;
 public class DatasourceProxyBeanPostProcessor implements BeanPostProcessor {
 
   @Override
-  public Object postProcessAfterInitialization(Object bean, String beanName) {
+  public Object postProcessAfterInitialization(
+      @SuppressWarnings("NullableProblems") Object bean,
+      @SuppressWarnings("NullableProblems") String beanName) {
     if (bean instanceof DataSource && !(bean instanceof ProxyDataSource)) {
       final ProxyFactory factory = new ProxyFactory(bean);
       factory.setProxyTargetClass(true);
@@ -31,7 +33,9 @@ public class DatasourceProxyBeanPostProcessor implements BeanPostProcessor {
   }
 
   @Override
-  public Object postProcessBeforeInitialization(Object bean, String beanName) {
+  public Object postProcessBeforeInitialization(
+      @SuppressWarnings("NullableProblems") Object bean,
+      @SuppressWarnings("NullableProblems") String beanName) {
     return bean;
   }
 

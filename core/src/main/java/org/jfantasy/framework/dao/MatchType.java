@@ -60,8 +60,8 @@ public enum MatchType {
   BETWEEN(
       "between",
       (builder, name, value) -> {
-        Comparable x = (Comparable) Array.get(value, 0);
-        Comparable y = (Comparable) Array.get(value, 1);
+        Comparable<Object> x = (Comparable<Object>) Array.get(value, 0);
+        Comparable<Object> y = (Comparable<Object>) Array.get(value, 1);
         return builder.between(name, x, y);
       });
 
@@ -95,7 +95,7 @@ public enum MatchType {
     return matchType == AND || matchType == OR || matchType == NOT;
   }
 
-  public <T> PropertyFilter build(PropertyFilter builder, String name, Object value) {
+  public PropertyFilter build(PropertyFilter builder, String name, Object value) {
     return this.builder.exec(builder, name, value);
   }
 

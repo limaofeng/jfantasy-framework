@@ -4,13 +4,11 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.websocket.server.HandshakeRequest;
 import org.jfantasy.framework.context.DatabaseMessageSource;
+import org.jfantasy.framework.context.service.LanguageService;
 import org.jfantasy.framework.security.AuthenticationManager;
 import org.jfantasy.framework.security.DefaultAuthenticationManagerResolver;
 import org.jfantasy.framework.security.WebSocketAuthenticationManagerResolver;
-import org.jfantasy.framework.security.authentication.AuthenticationEventPublisher;
-import org.jfantasy.framework.security.authentication.AuthenticationManagerResolver;
-import org.jfantasy.framework.security.authentication.AuthenticationProvider;
-import org.jfantasy.framework.security.authentication.DefaultAuthenticationEventPublisher;
+import org.jfantasy.framework.security.authentication.*;
 import org.jfantasy.framework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider.DefaultPostAuthenticationChecks;
 import org.jfantasy.framework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider.DefaultPreAuthenticationChecks;
 import org.jfantasy.framework.security.authentication.dao.DaoAuthenticationProvider;
@@ -22,6 +20,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -43,7 +42,7 @@ public class OAuth2SecurityAutoConfiguration {
 
   @Bean
   public AuthenticationManager authenticationManager(
-      List<AuthenticationProvider<?>> providers,
+      @SuppressWarnings("rawtypes") List<AuthenticationProvider> providers,
       @Autowired(required = false) AuthenticationEventPublisher publisher) {
     AuthenticationManager authenticationManager = new AuthenticationManager(providers);
     if (publisher != null) {
@@ -65,31 +64,33 @@ public class OAuth2SecurityAutoConfiguration {
   }
 
   @Bean
-  public DatabaseMessageSource messageSource() {
-    return new DatabaseMessageSource();
+  public DatabaseMessageSource messageSource(LanguageService languageService) {
+    return new DatabaseMessageSource(languageService);
   }
 
   @Bean("securityMessageSource")
-  public MessageSourceAccessor securityMessageSource() {
-    MessageSourceAccessor messages = new MessageSourceAccessor(messageSource());
+  public MessageSourceAccessor securityMessageSource(MessageSource messageSource) {
+    MessageSourceAccessor messages = new MessageSourceAccessor(messageSource);
     SecurityMessageSource.setAccessor(messages);
     return messages;
   }
 
+  @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
   @Bean("pre.preUserDetailsCheckers")
-  public UserDetailsChecker preUserDetailsCheckers(PreUserDetailsChecker[] checkers) {
+  public UserDetailsChecker preUserDetailsCheckers(
+      MessageSourceAccessor securityMessageSource, PreUserDetailsChecker[] checkers) {
     DefaultAuthenticationChecks checker =
-        new DefaultAuthenticationChecks(
-            new DefaultPreAuthenticationChecks(securityMessageSource()));
+        new DefaultAuthenticationChecks(new DefaultPreAuthenticationChecks(securityMessageSource));
     checker.addCheckers(checkers);
     return checker;
   }
 
+  @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
   @Bean("post.preUserDetailsCheckers")
-  public UserDetailsChecker postUserDetailsCheckers(PostUserDetailsChecker[] checkers) {
+  public UserDetailsChecker postUserDetailsCheckers(
+      MessageSourceAccessor securityMessageSource, PostUserDetailsChecker[] checkers) {
     DefaultAuthenticationChecks checker =
-        new DefaultAuthenticationChecks(
-            new DefaultPostAuthenticationChecks(securityMessageSource()));
+        new DefaultAuthenticationChecks(new DefaultPostAuthenticationChecks(securityMessageSource));
     checker.addCheckers(checkers);
     return checker;
   }
@@ -101,10 +102,11 @@ public class OAuth2SecurityAutoConfiguration {
       UserDetailsService<UserDetails> userDetailsService,
       PasswordEncoder passwordEncoder,
       @Qualifier("pre.preUserDetailsCheckers") UserDetailsChecker preUserDetailsCheckers,
-      @Qualifier("post.preUserDetailsCheckers") UserDetailsChecker postUserDetailsCheckers) {
+      @Qualifier("post.preUserDetailsCheckers") UserDetailsChecker postUserDetailsCheckers,
+      MessageSourceAccessor securityMessageSource) {
     DaoAuthenticationProvider provider =
         new DaoAuthenticationProvider(userDetailsService, passwordEncoder);
-    provider.setMessages(securityMessageSource());
+    provider.setMessages(securityMessageSource);
     provider.setPreAuthenticationChecks(preUserDetailsCheckers);
     provider.setPostAuthenticationChecks(postUserDetailsCheckers);
     return provider;

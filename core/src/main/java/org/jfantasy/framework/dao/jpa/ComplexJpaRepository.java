@@ -15,7 +15,7 @@ import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.jfantasy.framework.dao.LogicalDeletion;
+import org.jfantasy.framework.dao.SoftDeletable;
 import org.jfantasy.framework.dao.hibernate.util.HibernateUtils;
 import org.jfantasy.framework.error.ValidationException;
 import org.jfantasy.framework.spring.SpringBeanUtils;
@@ -277,7 +277,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
       Object entity, Object oldEntity, Field[] manyToManyFields, OgnlUtil ognlUtil) {
     for (Field field : manyToManyFields) {
       ManyToMany manyToMany = field.getAnnotation(ManyToMany.class);
-      Class targetEntityClass = manyToMany.targetEntity();
+      Class<?> targetEntityClass = manyToMany.targetEntity();
       if (void.class == targetEntityClass) {
         targetEntityClass = ClassUtil.getFieldGenericType(field);
       }
@@ -294,15 +294,15 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
       }
 
       if (source != null && !source.isEmpty()) {
-        Class finalTargetEntityClass = targetEntityClass;
-        CompareResults results =
+        Class<?> finalTargetEntityClass = targetEntityClass;
+        CompareResults<?> results =
             ObjectUtil.compare(
                 source,
                 objects,
-                (Object o1, Object o2) -> {
+                (o1, o2) -> {
                   Serializable fkId1 = HibernateUtils.getIdValue(finalTargetEntityClass, o1);
                   Serializable fkId2 = HibernateUtils.getIdValue(finalTargetEntityClass, o2);
-                  return (fkId1 == fkId2) ? 0 : -1;
+                  return fkId1 != null && fkId1.equals(fkId2) ? 0 : -1;
                 });
 
         ObjectUtil.remove(source, (item) -> results.getExceptA().contains(item));
@@ -346,7 +346,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
       Object entity, Object oldEntity, Field[] oneToManyFields, OgnlUtil ognlUtil) {
     for (Field field : oneToManyFields) {
       OneToMany oneToMany = field.getAnnotation(OneToMany.class);
-      Class targetEntityClass = oneToMany.targetEntity();
+      Class<?> targetEntityClass = oneToMany.targetEntity();
       if (void.class == targetEntityClass) {
         targetEntityClass = ClassUtil.getFieldGenericType(field);
       }
@@ -414,8 +414,8 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
 
   @Override
   public void delete(T entity) {
-    if (LogicalDeletion.class.isAssignableFrom(this.getDomainClass())) {
-      ((LogicalDeletion) entity).setDeleted(true);
+    if (SoftDeletable.class.isAssignableFrom(this.getDomainClass())) {
+      ((SoftDeletable) entity).setDeleted(true);
       List<FieldWarp> fields =
           Arrays.stream(ClassUtil.getDeclaredFields(this.getDomainClass()))
               .filter(
@@ -449,7 +449,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
       for (FieldWarp field : fields) {
         field.delete(entity);
       }
-      ((LogicalDeletion) entity).setDeleted(true);
+      ((SoftDeletable) entity).setDeleted(true);
       this.save(entity);
     } else {
       super.delete(entity);
@@ -469,8 +469,8 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
   }
 
   protected <S extends T> Specification<S> defaultSpecification(Specification<S> spec) {
-    if (LogicalDeletion.class.isAssignableFrom(this.getDomainClass())) {
-      String fieldName = LogicalDeletion.getDeletedFieldName(this.getDomainClass());
+    if (SoftDeletable.class.isAssignableFrom(this.getDomainClass())) {
+      String fieldName = SoftDeletable.getDeletedFieldName(this.getDomainClass());
       if (spec == null) {
         spec = new ExcludeDeletedSpecification(fieldName);
       } else {

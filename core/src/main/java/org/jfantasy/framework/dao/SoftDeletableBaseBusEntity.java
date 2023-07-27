@@ -3,15 +3,22 @@ package org.jfantasy.framework.dao;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
-import lombok.*;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
-/** @author limaofeng */
+/**
+ * 可软删除的实体基类
+ *
+ * @author limaofeng
+ */
 @Getter
 @Setter
 @ToString
 @RequiredArgsConstructor
 @MappedSuperclass
-public class BaseBusBusinessEntity extends BaseBusEntity implements LogicalDeletion {
+public class SoftDeletableBaseBusEntity extends BaseBusEntity implements SoftDeletable {
 
   public static final String DELETED_BY_FIELD_NAME = "deleted";
 
@@ -22,5 +29,10 @@ public class BaseBusBusinessEntity extends BaseBusEntity implements LogicalDelet
   @Override
   public void setDeleted(boolean deleted) {
     this.deleted = deleted;
+  }
+
+  @Override
+  public boolean isDeleted() {
+    return Boolean.TRUE.equals(deleted);
   }
 }

@@ -3,7 +3,11 @@ package org.jfantasy.framework.util;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.error.ExecuteCommandException;
 
@@ -14,8 +18,6 @@ import org.jfantasy.framework.error.ExecuteCommandException;
  */
 @Slf4j
 public class CommandUtil {
-
-  private static final String SYSTEM_PATH = "PATH";
 
   /**
    * 执行命令
@@ -85,15 +87,22 @@ public class CommandUtil {
       // 获取输出流
       stream = new RuntimeStream(proc.getErrorStream(), proc.getInputStream());
       // 等待执行完成
-      int exitCode = waitFor(proc, timeout);
+      long start = System.currentTimeMillis();
+      boolean exitCode = waitFor(proc, timeout);
+      long executionTime = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - start);
+
       // 获取执行结果
       String error = stream.getError();
       String result = stream.getResult();
+
       // 执行失败
-      if (exitCode != 0) {
-        log.error(error);
+      if (!exitCode) {
+        if (executionTime >= timeout) {
+          throw new TimeoutException("Timeout waiting for process");
+        }
         throw new IOException(error);
       }
+
       // 执行成功
       return result;
     } catch (IOException | InterruptedException e) {
@@ -104,41 +113,6 @@ public class CommandUtil {
       }
       if (stream != null) {
         stream.close();
-      }
-    }
-  }
-
-  private static int waitFor(Process proc, long timeout)
-      throws TimeoutException, InterruptedException {
-    Worker worker = new Worker(proc);
-    worker.start();
-    try {
-      worker.join(timeout * 1000);
-      if (worker.exit == null) {
-        throw new TimeoutException("Timeout waiting for process");
-      }
-      return worker.exit;
-    } catch (InterruptedException ex) {
-      worker.interrupt();
-      Thread.currentThread().interrupt();
-      throw ex;
-    }
-  }
-
-  private static class Worker extends Thread {
-    private final Process process;
-    private Integer exit;
-
-    private Worker(Process process) {
-      this.process = process;
-    }
-
-    @Override
-    public void run() {
-      try {
-        exit = process.waitFor();
-      } catch (InterruptedException e) {
-        log.error(e.getMessage());
       }
     }
   }
@@ -175,8 +149,23 @@ public class CommandUtil {
     private final StringBuilder result = new StringBuilder();
     private final InputStream is;
 
+    private final ReentrantLock takeLock = new ReentrantLock();
+
+    private final Condition notEmpty = takeLock.newCondition();
+
+    private boolean isDone = false;
+
     GobblerThread(InputStream is) {
       this.is = is;
+    }
+
+    private void signalNotEmpty() {
+      this.takeLock.lock();
+      try {
+        this.notEmpty.signal();
+      } finally {
+        this.takeLock.unlock();
+      }
     }
 
     @Override
@@ -188,15 +177,28 @@ public class CommandUtil {
         while ((line = br.readLine()) != null) {
           result.append(line).append("\n");
         }
+        isDone = true;
+        signalNotEmpty();
       } catch (IOException e) {
         log.error(e.getMessage());
       }
     }
 
+    @SneakyThrows(InterruptedException.class)
     public String getResult() {
+      takeLock.lockInterruptibly();
       try {
+        try {
+          while (!isDone) {
+            notEmpty.await();
+          }
+        } catch (InterruptedException ie) {
+          notEmpty.signal();
+          throw ie;
+        }
         return this.result.toString();
       } finally {
+        takeLock.unlock();
         this.shutoff();
       }
     }
@@ -204,6 +206,41 @@ public class CommandUtil {
     public void shutoff() {
       if (this.isAlive()) {
         this.interrupt();
+      }
+    }
+  }
+
+  private static boolean waitFor(Process proc, long timeout)
+      throws TimeoutException, InterruptedException {
+    Worker worker = new Worker(proc);
+    worker.start();
+    try {
+      worker.join(timeout * 1000);
+      if (worker.exit == null) {
+        throw new TimeoutException("Timeout waiting for process");
+      }
+      return worker.exit == 0;
+    } catch (InterruptedException ex) {
+      worker.interrupt();
+      Thread.currentThread().interrupt();
+      throw ex;
+    }
+  }
+
+  private static class Worker extends Thread {
+    private final Process process;
+    private Integer exit;
+
+    private Worker(Process process) {
+      this.process = process;
+    }
+
+    @Override
+    public void run() {
+      try {
+        exit = process.waitFor();
+      } catch (InterruptedException e) {
+        log.error(e.getMessage());
       }
     }
   }

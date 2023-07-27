@@ -123,7 +123,7 @@ public class CuckooIndexSearcher<T> {
    * @param pageable 翻页对象
    * @return Pager<T>
    */
-  @SneakyThrows
+  @SneakyThrows(IOException.class)
   public Page<T> search(Query query, Pageable pageable) {
     SearchResponse<T> response =
         searcher(query)
@@ -151,7 +151,7 @@ public class CuckooIndexSearcher<T> {
    * @param highlighter 关键字高亮
    * @return Pager<T>
    */
-  @SneakyThrows
+  @SneakyThrows(IOException.class)
   public Page<T> search(Query query, Pageable pageable, Highlighter highlighter) {
     SearchResponse<T> response =
         searcher(query)

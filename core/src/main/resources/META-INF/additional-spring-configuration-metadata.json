@@ -5,6 +5,12 @@
       "description": "自定义序列.",
       "type": "org.jfantasy.autoconfigure.properties.SequenceProperties",
       "sourceType": "org.jfantasy.autoconfigure.properties.SequenceProperties"
+    },
+    {
+      "name": "spring.cache.advance",
+      "description": "缓存提前初始化.",
+      "type": "org.jfantasy.autoconfigure.properties.CacheAdvanceProperties",
+      "sourceType": "org.jfantasy.autoconfigure.properties.CacheAdvanceProperties"
     }
   ],
   "properties": [
@@ -12,10 +18,16 @@
       "name": "spring.sequence.pool-size",
       "type": "java.lang.Integer",
       "description": "数据库自定义序列池大小."
-    },{
+    },
+    {
       "name": "spring.datasource.proxy",
       "type": "java.lang.Boolean",
       "description": "启用数据源代理."
+    },
+    {
+      "name": "spring.cache.advance.bean-names",
+      "type": "java.lang.String",
+      "description": "Bean Names."
     }
   ]
 }

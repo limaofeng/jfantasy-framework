@@ -1,3 +1,73 @@
+"""
+授权信息
+"""
+#directive @auth(rules: [AuthRule!]!) on FIELD_DEFINITION
+
+input AuthRule {
+  """
+  授权策略
+  """
+  allow: AuthStrategy!
+  """
+  授权提供者
+  """
+  provider: AuthProvider
+  """
+  所有者字段的名称（默认为 "owner"）
+  """
+  ownerField: String
+  """
+  标识声明字段的名称（默认为 "username"）
+  """
+  identityClaim: String
+  """
+  组声明字段的名称（默认为 "cognito:groups"）
+  """
+  groupClaim: String
+  """
+  静态组授权时要求的组列表
+  """
+  groups: [String]
+  """
+  动态组授权时组字段的名称（默认为 "groups"）
+  """
+  groupsField: String
+  """
+  操作列表（ModelOperation 枚举类型的数组），用于更精细地控制授权。
+  """
+  operations: [ModelOperation]
+}
+
+"""
+授权策略的枚举类型
+"""
+enum AuthStrategy {
+  """
+  授权所有者
+  """
+  owner
+  """
+  授权指定组的用户
+  """
+  groups
+  """
+  允许所有经过身份验证的用户
+  """
+  private
+  """
+  允许所有访客用户（未经身份验证）
+  """
+  public
+}
+"""
+授权提供者的枚举类型
+"""
+enum AuthProvider { apiKey iam oidc userPools }
+"""
+模型操作的枚举类型
+"""
+enum ModelOperation { create update delete read }
+
 type Query {
   # 用户列表
   users(
@@ -75,7 +145,3 @@ type User {
   # 修改时间
   updatedAt: Date
 }
-
-scalar Date
-scalar OrderBy
-scalar BigDecimal

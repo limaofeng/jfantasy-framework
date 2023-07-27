@@ -23,7 +23,8 @@ public class User {
 
   private Integer age;
   private Date createDate;
-  private Set<Article> articles = new HashSet<>();
+
+  @Builder.Default private Set<Article> articles = new HashSet<>();
   private String username;
   private boolean enabled;
   private String nickName;

@@ -1,10 +1,9 @@
 package org.jfantasy.framework.util;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import lombok.extern.slf4j.Slf4j;
@@ -22,43 +21,48 @@ class CommandUtilTest {
 
   @Test
   void test() throws IOException, InterruptedException {
-    ProcessBuilder builder = new ProcessBuilder("curl", "http://admin.asany.cn/umi.e89bb902.js");
+    String command = "curl https://admin.app.asany.cn/umi.ac2b3b25.js";
+    ProcessBuilder builder = new ProcessBuilder(command.split(" "));
     Process proc = builder.start();
 
-    //      Process proc = Runtime.getRuntime().exec("curl http://admin.asany.cn/umi.e89bb902.js");
+    GobblerThread gobblerThread = new GobblerThread(proc.getInputStream(), "input");
+    GobblerThread err = new GobblerThread(proc.getErrorStream(), "error");
+    gobblerThread.start();
+    err.start();
 
-    // 启动读取子进程输出的线程
-    Thread thread =
-        new Thread(
-            () -> {
-              BufferedReader reader =
-                  new BufferedReader(new InputStreamReader(proc.getInputStream()));
-              String line;
-              try {
-                while ((line = reader.readLine()) != null) {
-                  System.out.println(line);
-                }
-              } catch (IOException e) {
-                e.printStackTrace();
-              }
-            });
-
-    // 启动线程
-    thread.start();
-    //
-    //      BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-    //      BufferedReader stdError = new BufferedReader(new
-    // InputStreamReader(proc.getErrorStream()));
-
+    long start = System.currentTimeMillis();
     // 等待子进程执行结束
-    boolean exit = proc.waitFor(10, TimeUnit.SECONDS);
+    boolean exit = proc.waitFor(20, TimeUnit.SECONDS);
+    log.info(exit + "\t" + "time:" + (System.currentTimeMillis() - start));
 
-    //      String line;
-    //      while ((line = in.readLine()) != null) {
-    //          System.out.println("xxx:" + line);
-    //      }
-
-    log.info(exit + "");
+    start = System.currentTimeMillis();
+    log.info("length:" + gobblerThread.getResult().length());
+    //    log.info("error stream:" + err.getResult().length());
+    log.info("time:" + (System.currentTimeMillis() - start));
+    Thread.sleep(200);
+    start = System.currentTimeMillis();
+    log.info("length:" + gobblerThread.getResult().length());
+    log.info("time:" + (System.currentTimeMillis() - start));
     // 销毁子进程
+  }
+
+  @Test
+  void runPython() throws ExecuteCommandException, TimeoutException {
+    String bin = "/usr/local/bin/python3";
+    String workspace = "/Users/limaofeng/PycharmProjects/java-runtime";
+
+    Map<String, String> env = new HashMap<>(2);
+    env.put("input_path", "/Users/limaofeng/Downloads/data.json");
+    env.put("PATH", System.getenv("PATH"));
+
+    String result =
+        CommandUtil.executeCommand(
+            new String[] {bin, "Runtime.py"}, env, Paths.get(workspace).toFile(), 30);
+
+    log.info(result);
+
+    if (!result.contains("python_callback_result:")) {
+      throw new RuntimeException("返回数据格式错误:" + result);
+    }
   }
 }

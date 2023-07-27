@@ -11,9 +11,10 @@ import java.util.Date;
 import org.jfantasy.framework.util.common.StringUtil;
 
 /**
+ * 日期格式化
+ *
  * @author limaofeng
  * @version V1.0
- * @date 2019-04-14 12:40
  */
 public class DateFormatDirective implements SchemaDirectiveWiring {
 

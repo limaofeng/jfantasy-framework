@@ -28,8 +28,8 @@ import org.springframework.scheduling.SchedulingTaskExecutor;
 @AutoConfigureAfter(JpaRepositoriesAutoConfiguration.class)
 @Configuration
 @EnableConfigurationProperties({CuckooProperties.class, ElasticsearchClientProperties.class})
-@ConditionalOnProperty(prefix = "spring.cuckoo.elasticsearch.client", name = "url")
-@ConditionalOnExpression("${spring.cuckoo.enable:true}")
+@ConditionalOnProperty(prefix = "cuckoo.elasticsearch.client", name = "url")
+@ConditionalOnExpression("${cuckoo.enable:true}")
 public class SearchAutoConfiguration {
 
   private final EntityManagerFactory entityManagerFactory;

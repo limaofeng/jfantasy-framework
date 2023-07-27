@@ -194,9 +194,11 @@ public abstract class AbstractTokenStore implements TokenStore {
     ReadContext context = JsonPath.parse(data);
 
     LoginUser principal = mapper.convertValue(context.read("$.principal"), LoginUser.class);
-    List<? extends GrantedAuthority> authorities =
-        mapper.convertValue(
-            context.read("$.authorities"), new TypeReference<List<SimpleGrantedAuthority>>() {});
+    List<GrantedAuthority> authorities =
+        new ArrayList<>(
+            mapper.convertValue(
+                context.read("$.authorities"),
+                new TypeReference<List<SimpleGrantedAuthority>>() {}));
     BearerTokenAuthentication bearerTokenAuthentication =
         new BearerTokenAuthentication(principal, accessToken, authorities);
     if (details != null) {

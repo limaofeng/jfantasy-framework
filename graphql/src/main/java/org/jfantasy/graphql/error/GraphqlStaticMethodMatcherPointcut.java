@@ -4,30 +4,35 @@ import graphql.kickstart.tools.GraphQLMutationResolver;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.aop.ClassFilter;
 import org.springframework.aop.support.StaticMethodMatcherPointcut;
 import org.springframework.validation.annotation.Validated;
 
 /**
+ * 静态方法匹配器切入点
+ *
  * @author limaofeng
  * @version V1.0
- * @date 2020/3/22 8:16 下午
  */
-public class GraphQLStaticMethodMatcherPointcut extends StaticMethodMatcherPointcut {
+@Slf4j
+public class GraphqlStaticMethodMatcherPointcut extends StaticMethodMatcherPointcut {
 
-  private ClassFilter classFilter;
+  private final ClassFilter classFilter;
 
-  public GraphQLStaticMethodMatcherPointcut() {
+  public GraphqlStaticMethodMatcherPointcut() {
     classFilter = new GraphQLClassFilter(new Class[] {GraphQLMutationResolver.class});
   }
 
+  @NotNull
   @Override
   public ClassFilter getClassFilter() {
     return this.classFilter;
   }
 
   @Override
-  public boolean matches(Method method, Class<?> targetClass) {
+  public boolean matches(Method method, @NotNull Class<?> targetClass) {
     Annotation[][] annotations = method.getParameterAnnotations();
     return Arrays.stream(annotations)
         .anyMatch(

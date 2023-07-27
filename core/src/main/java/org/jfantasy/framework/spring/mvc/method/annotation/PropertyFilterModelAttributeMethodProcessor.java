@@ -67,7 +67,6 @@ public class PropertyFilterModelAttributeMethodProcessor extends MethodArgumentR
     return BeanUtils.instantiateClass(parameter.getParameterType());
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   protected final Map<String, String> getUriTemplateVariables(NativeWebRequest request) {
     Map<String, String> variables =
@@ -116,7 +115,7 @@ public class PropertyFilterModelAttributeMethodProcessor extends MethodArgumentR
       MethodParameter parameter)
       throws Exception {
     ServletRequest servletRequest = prepareServletRequest(binder.getTarget(), request, parameter);
-    @SuppressWarnings("unchecked")
+
     List<Object> target = (List<Object>) binder.getTarget();
     for (String paramName : servletRequest.getParameterMap().keySet()) {
       String[] values = request.getParameterValues(paramName);

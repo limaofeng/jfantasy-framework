@@ -4,7 +4,7 @@ import java.io.Serializable;
 import org.hibernate.EmptyInterceptor;
 import org.hibernate.type.Type;
 import org.jfantasy.framework.dao.BaseBusEntity;
-import org.jfantasy.framework.dao.LogicalDeletion;
+import org.jfantasy.framework.dao.SoftDeletable;
 import org.jfantasy.framework.security.LoginUser;
 import org.jfantasy.framework.security.SpringSecurityUtils;
 import org.jfantasy.framework.util.common.DateUtil;
@@ -62,8 +62,8 @@ public class BusEntityInterceptor extends EmptyInterceptor {
       int maxCount = 4;
       String deletedFieldName = "";
 
-      if (entity instanceof LogicalDeletion) {
-        deletedFieldName = LogicalDeletion.getDeletedFieldName(entity.getClass());
+      if (entity instanceof SoftDeletable) {
+        deletedFieldName = SoftDeletable.getDeletedFieldName(entity.getClass());
         maxCount++;
       }
       for (int i = 0; i < propertyNames.length; i++) {
@@ -77,8 +77,8 @@ public class BusEntityInterceptor extends EmptyInterceptor {
           count++;
         } else if (deletedFieldName.equals(propertyNames[i])) {
           state[i] = false;
-          assert entity instanceof LogicalDeletion;
-          ((LogicalDeletion) entity).setDeleted(false);
+          assert entity instanceof SoftDeletable;
+          ((SoftDeletable) entity).setDeleted(false);
         }
         if (count >= maxCount) {
           return true;

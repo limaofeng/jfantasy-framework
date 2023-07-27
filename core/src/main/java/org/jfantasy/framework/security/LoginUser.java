@@ -62,7 +62,7 @@ public class LoginUser implements UserDetails, Principal, OAuth2User {
   /** 权限 */
   @JsonSerialize(using = GrantedAuthority.GrantedAuthoritiesSerializer.class)
   @JsonDeserialize(using = GrantedAuthority.GrantedAuthoritiesDeserializer.class)
-  private Set<? extends GrantedAuthority> authorities;
+  private Set<GrantedAuthority> authorities;
 
   @JsonAnySetter
   public void setAttribute(String key, Object value) {
@@ -86,7 +86,7 @@ public class LoginUser implements UserDetails, Principal, OAuth2User {
     return ObjectUtil.defaultValue(this.data, Collections.emptyMap());
   }
 
-  public void setAuthorities(Set<? extends GrantedAuthority> authorities) {
+  public void setAuthorities(Set<GrantedAuthority> authorities) {
     this.authorities = authorities;
   }
 }

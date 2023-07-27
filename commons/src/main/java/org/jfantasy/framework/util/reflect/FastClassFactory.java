@@ -9,7 +9,7 @@ public class FastClassFactory implements IClassFactory {
   @Override
   public <T> IClass<T> getClass(Class<T> cla) {
     if (!this.classes.containsKey(cla)) {
-      this.classes.put(cla, new FastClasses(cla));
+      this.classes.put(cla, new FastClasses<>(cla));
     }
     return (IClass<T>) this.classes.get(cla);
   }

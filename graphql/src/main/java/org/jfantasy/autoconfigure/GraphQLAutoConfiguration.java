@@ -10,7 +10,7 @@ import org.jfantasy.graphql.SchemaParserDictionaryBuilder;
 import org.jfantasy.graphql.client.GraphQLClientBeanPostProcessor;
 import org.jfantasy.graphql.context.DataLoaderRegistryCustomizer;
 import org.jfantasy.graphql.error.GraphQLResolverAdvice;
-import org.jfantasy.graphql.error.GraphQLStaticMethodMatcherPointcut;
+import org.jfantasy.graphql.error.GraphqlStaticMethodMatcherPointcut;
 import org.jfantasy.graphql.execution.AsyncMutationExecutionStrategy;
 import org.jfantasy.graphql.execution.AsyncQueryExecutionStrategy;
 import org.springframework.aop.support.DefaultBeanFactoryPointcutAdvisor;
@@ -30,7 +30,6 @@ import org.springframework.web.client.RestTemplate;
  *
  * @author limaofeng
  * @version V1.0
- * @date 2019/8/23 6:18 下午
  */
 @Configuration
 @AutoConfigureBefore(GraphQLJavaToolsAutoConfiguration.class)
@@ -64,10 +63,10 @@ public class GraphQLAutoConfiguration {
   }
 
   @Bean
-  public DefaultBeanFactoryPointcutAdvisor graphQLErrorPointcutAdvisor(
+  public DefaultBeanFactoryPointcutAdvisor graphqlErrorPointcutAdvisor(
       @Autowired GraphQLResolverAdvice advice) {
     DefaultBeanFactoryPointcutAdvisor beanFactory = new DefaultBeanFactoryPointcutAdvisor();
-    beanFactory.setPointcut(new GraphQLStaticMethodMatcherPointcut());
+    beanFactory.setPointcut(new GraphqlStaticMethodMatcherPointcut());
     beanFactory.setAdvice(advice);
     return beanFactory;
   }

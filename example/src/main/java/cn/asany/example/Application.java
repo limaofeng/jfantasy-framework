@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.boot.autoconfigure.quartz.QuartzAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
@@ -23,6 +24,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
  * @date 2019/2/13 4:04 PM
  */
 @Slf4j
+@EnableCaching
 @Configuration
 @ComponentScan("cn.asany.example.demo")
 @EntityScan({
@@ -44,11 +46,6 @@ public class Application extends SpringBootServletInitializer {
   public static void main(String[] args) {
     SpringApplication.run(Application.class, args);
   }
-
-  //  @Bean
-  //  public BeanInitCostTimeBeanPostProcessor beanInitCostTimeBeanPostProcessor() {
-  //    return new BeanInitCostTimeBeanPostProcessor();
-  //  }
 
   @Override
   protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
