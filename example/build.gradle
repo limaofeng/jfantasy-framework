@@ -48,4 +48,5 @@ dependencies {
 	testAnnotationProcessor "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
 	testAnnotationProcessor "org.mapstruct:mapstruct-processor:$LIB_MAPSTRUCT_VER"
 	testImplementation libs['test']
+	implementation("org.apache.shardingsphere:sharding-jdbc-core:4.1.1")
 }

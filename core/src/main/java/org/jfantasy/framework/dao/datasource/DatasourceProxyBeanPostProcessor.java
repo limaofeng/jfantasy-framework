@@ -1,4 +1,4 @@
-package org.jfantasy.framework.dao;
+package org.jfantasy.framework.dao.datasource;
 
 import java.lang.reflect.Method;
 import javax.sql.DataSource;

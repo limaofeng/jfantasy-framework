@@ -1,8 +1,8 @@
 package org.jfantasy.autoconfigure;
 
 import org.jfantasy.autoconfigure.properties.CacheAdvanceProperties;
-import org.jfantasy.autoconfigure.properties.DataSourceProxyProperties;
-import org.jfantasy.framework.dao.DatasourceProxyBeanPostProcessor;
+import org.jfantasy.autoconfigure.properties.DataSourceExtendedProperties;
+import org.jfantasy.framework.dao.datasource.DatasourceProxyBeanPostProcessor;
 import org.jfantasy.framework.dao.hibernate.InterceptorRegistration;
 import org.jfantasy.framework.dao.hibernate.interceptors.BusEntityInterceptor;
 import org.jfantasy.framework.spring.CacheBeanPostProcessor;
@@ -14,6 +14,7 @@ import org.mybatis.spring.boot.autoconfigure.MybatisLanguageDriverAutoConfigurat
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,7 +31,11 @@ import org.springframework.context.annotation.Import;
   MybatisLanguageDriverAutoConfiguration.class
 })
 @Import({AppConfig.class, DaoConfig.class})
-@EnableConfigurationProperties({DataSourceProxyProperties.class, CacheAdvanceProperties.class})
+@EnableConfigurationProperties({
+  DataSourceExtendedProperties.class,
+  DataSourceProperties.class,
+  CacheAdvanceProperties.class
+})
 public class CoreAutoConfiguration {
 
   @Bean

@@ -13,19 +13,23 @@ spring:
     hikari:
       minimum-idle: 5
       maximum-pool-size: 20
-    proxy: true
+#    proxy: true
+    sharding: true
   redis:
     host: ${REDIS_HOST}
     port: 6379
     password: ${REDIS_PASSWORD}
-  cuckoo:
-    elasticsearch:
-      client:
-        url: https://es.thuni-h.com:9200
-        api-key: RWpsR3dvQUJINEtJY2FvWGJGMXg6QkNXZzJ0X01UY2VocFNBQUVXNGExQQ==
-        ssl:
-          certificate-path: /Users/limaofeng/Downloads/ca/ca.crt
-    enable: false
+#  shardingsphere:
+#    datasource:
+#      names: dynamicDataSource
+#    sharding:
+#      tables:
+#        sys_user:
+#          database-strategy:
+#            inline:
+#              sharding-column: tenant_id
+#              algorithmExpression: myDatabaseShardingAlgorithm
+
 
 graphql:
   servlet:
@@ -38,3 +42,12 @@ graphql:
       allowed-methods: GET, HEAD, POST
       allow-credentials: false
     exception-handlers-enabled: true
+
+cuckoo:
+  elasticsearch:
+    client:
+      url: https://es.thuni-h.com:9200
+      api-key: RWpsR3dvQUJINEtJY2FvWGJGMXg6QkNXZzJ0X01UY2VocFNBQUVXNGExQQ==
+      ssl:
+        certificate-path: /Users/limaofeng/Downloads/ca/ca.crt
+  enable: false

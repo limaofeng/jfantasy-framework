@@ -1,8 +1,6 @@
 """
 授权信息
-"""
-#directive @auth(rules: [AuthRule!]!) on FIELD_DEFINITION
-
+""" #directive @auth(rules: [AuthRule!]!) on FIELD_DEFINITION
 input AuthRule {
   """
   授权策略
@@ -62,11 +60,21 @@ enum AuthStrategy {
 """
 授权提供者的枚举类型
 """
-enum AuthProvider { apiKey iam oidc userPools }
+enum AuthProvider {
+  apiKey
+  iam
+  oidc
+  userPools
+}
 """
 模型操作的枚举类型
 """
-enum ModelOperation { create update delete read }
+enum ModelOperation {
+  create
+  update
+  delete
+  read
+}
 
 type Query {
   # 用户列表
@@ -79,6 +87,7 @@ type Query {
 }
 
 type Mutation {
+  createTenant(name: String): Boolean
   createUser(input: UserCreateInput!): User
 }
 

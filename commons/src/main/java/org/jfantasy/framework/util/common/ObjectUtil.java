@@ -154,7 +154,8 @@ public final class ObjectUtil {
     return packageResult(stream, original.getClass());
   }
 
-  private static <T, C extends Collection<T>> C packageResult(Stream<T> stream, Class resultClass) {
+  private static <T, C extends Collection<T>> C packageResult(
+      Stream<T> stream, Class<?> resultClass) {
     if (ClassUtil.isList(resultClass)) {
       return (C) stream.collect(Collectors.toList());
     }
@@ -209,7 +210,7 @@ public final class ObjectUtil {
 
   private static <T, R, C extends Collection<T>, CR extends Collection<R>> CR recursive(
       C treeData, NestedConverter<T, R> converter, NestedContext<R> context) {
-    Class listClass = treeData.getClass();
+    Class<?> listClass = treeData.getClass();
     List<Object> list = packageResult((Stream<Object>) treeData.stream(), List.class);
 
     int level = context.level;
@@ -249,7 +250,7 @@ public final class ObjectUtil {
   @Builder
   public static class NestedContext<R> {
     @Builder.Default private String childrenKey = "children";
-    private Collection treeData;
+    private Collection<?> treeData;
     private R parent;
     private int index;
     @Builder.Default private int level = 1;
@@ -281,8 +282,8 @@ public final class ObjectUtil {
     return stringBuffer.get().toString().replaceFirst(sign, "");
   }
 
-  public static <T> String toString(T[] objs, String sign) {
-    return toString(objs, null, sign);
+  public static <T> String toString(T[] obs, String sign) {
+    return toString(obs, null, sign);
   }
 
   public static <T, C extends Collection<T>> C filter(C list, String fieldName, Object... values) {
@@ -690,7 +691,7 @@ public final class ObjectUtil {
     if (ClassUtil.isMap(data)) {
       return (Map<String, Object>) data;
     }
-    Map<String, Object> rootMap = new HashMap();
+    Map<String, Object> rootMap = new HashMap<>();
     Property[] properties = ClassUtil.getProperties(data);
     for (Property property : properties) {
       if (property.isRead()) {

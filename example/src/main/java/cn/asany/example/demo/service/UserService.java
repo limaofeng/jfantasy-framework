@@ -5,6 +5,7 @@ import cn.asany.example.demo.domain.User;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.jfantasy.framework.dao.datasource.DataSourceContextHolder;
 import org.jfantasy.framework.dao.jpa.PropertyFilter;
 import org.jfantasy.framework.log.annotation.Log;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,12 @@ public class UserService {
    */
   @Log(text = "保存用户: {name}")
   public User save(User user) {
-    return this.userDao.save(user);
+    try {
+      DataSourceContextHolder.addDataSourceRoute("test1");
+      return this.userDao.save(user);
+    } finally {
+      DataSourceContextHolder.removeDataSourceRoute();
+    }
   }
 
   public User update(Long id, boolean merge, User user) {

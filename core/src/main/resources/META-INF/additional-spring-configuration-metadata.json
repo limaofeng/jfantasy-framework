@@ -22,7 +22,8 @@
     {
       "name": "spring.datasource.proxy",
       "type": "java.lang.Boolean",
-      "description": "启用数据源代理."
+      "description": "启用数据源代理.",
+      "sourceType": "org.jfantasy.autoconfigure.properties.DataSourceExtendedProperties"
     },
     {
       "name": "spring.cache.advance.bean-names",
