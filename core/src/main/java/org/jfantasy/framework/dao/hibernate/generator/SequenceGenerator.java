@@ -12,9 +12,7 @@ import org.hibernate.type.Type;
 import org.jfantasy.framework.dao.mybatis.keygen.util.DataBaseKeyGenerator;
 import org.jfantasy.framework.spring.SpringBeanUtils;
 import org.jfantasy.framework.util.common.ClassUtil;
-import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * 自定义序列生成器
@@ -41,6 +39,7 @@ public class SequenceGenerator implements IdentifierGenerator {
                 params.getProperty(KEY_NAME),
                 params.getProperty("target_table") + ":" + params.getProperty("target_column"))
             .toLowerCase();
+    this.baseKeyGenerator = SpringBeanUtils.getBean(DataBaseKeyGenerator.class);
   }
 
   @Override
@@ -52,14 +51,7 @@ public class SequenceGenerator implements IdentifierGenerator {
     if (id != null) {
       return id;
     }
-    if (ObjectUtil.isNull(this.baseKeyGenerator)) {
-      SpringBeanUtils.autowireBean(this);
-    }
     return this.baseKeyGenerator.nextValue(
         StringUtil.defaultValue(keyName, ClassUtil.getRealClass(object).getName()));
-  }
-
-  public void setBaseKeyGenerator(@Autowired DataBaseKeyGenerator baseKeyGenerator) {
-    this.baseKeyGenerator = baseKeyGenerator;
   }
 }
