@@ -5,7 +5,6 @@ import java.util.Properties;
 import org.hibernate.HibernateException;
 import org.hibernate.MappingException;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
-import org.hibernate.id.Configurable;
 import org.hibernate.id.IdentifierGenerator;
 import org.hibernate.persister.entity.EntityPersister;
 import org.hibernate.service.ServiceRegistry;
@@ -24,9 +23,9 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @version 1.0
  * @since 2013-1-14 下午02:07:25
  */
-public class SequenceGenerator implements IdentifierGenerator, Configurable {
+public class SequenceGenerator implements IdentifierGenerator {
 
-  @Autowired private DataBaseKeyGenerator baseKeyGenerator;
+  private DataBaseKeyGenerator baseKeyGenerator;
 
   public static final String KEY_NAME = "keyName";
 
@@ -58,5 +57,9 @@ public class SequenceGenerator implements IdentifierGenerator, Configurable {
     }
     return this.baseKeyGenerator.nextValue(
         StringUtil.defaultValue(keyName, ClassUtil.getRealClass(object).getName()));
+  }
+
+  public void setBaseKeyGenerator(@Autowired DataBaseKeyGenerator baseKeyGenerator) {
+    this.baseKeyGenerator = baseKeyGenerator;
   }
 }

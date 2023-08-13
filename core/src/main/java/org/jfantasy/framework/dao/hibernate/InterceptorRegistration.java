@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.orm.jpa.HibernatePropertiesCustomi
 
 public class InterceptorRegistration implements HibernatePropertiesCustomizer {
 
-  private Interceptor interceptor;
+  private final Interceptor interceptor;
 
   public InterceptorRegistration(Interceptor interceptor) {
     this.interceptor = interceptor;

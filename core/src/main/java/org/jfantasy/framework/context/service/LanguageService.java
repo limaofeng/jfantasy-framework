@@ -27,6 +27,6 @@ public class LanguageService {
       key = "targetClass + '.' + methodName + '#' + #key + ','+ #locale.language",
       value = CACHE_KEY)
   public Optional<Language> getMessage(String key, Locale locale) {
-    return Optional.of(languageRepository.findByKeyAndLocale(key, locale.getLanguage()));
+    return languageRepository.findByKeyAndLocale(key, locale.getLanguage());
   }
 }

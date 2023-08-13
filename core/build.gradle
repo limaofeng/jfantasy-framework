@@ -29,6 +29,7 @@ dependencies {
 	api libs['third-party']
 	api 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
 	api "com.jayway.jsonpath:json-path"
+	compileOnly "cn.hutool:hutool-all:5.8.11"
 	compileOnly "org.springframework.boot:spring-boot-starter-data-redis"
 	compileOnly "org.apache.shardingsphere:sharding-jdbc-core:4.1.1"
 	compileOnly "org.projectlombok:lombok:${LIB_LOMBOK_VER}"

@@ -17,8 +17,9 @@ spring:
     sharding: true
   redis:
     host: ${REDIS_HOST}
-    port: 6379
     password: ${REDIS_PASSWORD}
+    port: 6379
+    database: 0
 #  shardingsphere:
 #    datasource:
 #      names: dynamicDataSource

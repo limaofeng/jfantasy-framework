@@ -13,6 +13,7 @@ import org.apache.ibatis.plugin.Plugin;
 import org.jfantasy.framework.dao.mybatis.keygen.GUIDKeyGenerator;
 import org.jfantasy.framework.dao.mybatis.keygen.MultiKeyGenerator;
 import org.jfantasy.framework.dao.mybatis.keygen.SequenceKeyGenerator;
+import org.jfantasy.framework.dao.mybatis.keygen.SnowflakeKeyGenerator;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
 
@@ -42,6 +43,7 @@ public class AutoKeyInterceptor implements Interceptor {
     }
     keyGenerators.put("system-uuid", GUIDKeyGenerator.getInstance());
     keyGenerators.put("fantasy-sequence", new SequenceKeyGenerator());
+    keyGenerators.put("snowflake", new SnowflakeKeyGenerator());
   }
 
   @Override
