@@ -176,17 +176,20 @@ public class SchedulerUtils {
 
   private static final String emptyString = "";
 
+  @Transactional
   public Trigger addTrigger(JobKey jobKey, TriggerKey triggerKey, String cron)
       throws SchedulerException {
     return addTrigger(jobKey, triggerKey, cron, emptyString, new HashMap<>());
   }
 
+  @Transactional
   public Trigger addTrigger(
       JobKey jobKey, TriggerKey triggerKey, String cron, String triggerDescription)
       throws SchedulerException {
     return addTrigger(jobKey, triggerKey, cron, triggerDescription, new HashMap<>());
   }
 
+  @Transactional
   public Trigger addTrigger(
       JobKey jobKey, TriggerKey triggerKey, String cron, Map<String, String> args)
       throws SchedulerException {
@@ -233,6 +236,7 @@ public class SchedulerUtils {
    * @param args 每次触发附带的额外数据
    * @return Trigger
    */
+  @Transactional
   public Trigger addTrigger(
       JobKey jobKey,
       TriggerKey triggerKey,
@@ -323,6 +327,7 @@ public class SchedulerUtils {
     return trigger;
   }
 
+  @Transactional
   public Trigger addTrigger(
       JobKey jobKey,
       TriggerKey triggerKey,
