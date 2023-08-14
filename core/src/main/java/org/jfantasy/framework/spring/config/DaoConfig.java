@@ -36,7 +36,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
     },
     basePackages = {"org.jfantasy.framework.context.dao"},
     repositoryBaseClass = ComplexJpaRepository.class)
-@ComponentScan("org.jfantasy.framework.context.service")
+@ComponentScan({"org.jfantasy.framework.context.service", "org.jfantasy.framework.context.dao"})
 @Import({MyBatisConfig.class})
 public class DaoConfig {
 
@@ -56,7 +56,7 @@ public class DaoConfig {
         sessionFactory.getServiceRegistry().getService(MutableIdentifierGeneratorFactory.class);
     // 自定义序列生成器
     identifierGeneratorFactory.register("fantasy-sequence", SequenceGenerator.class);
-    identifierGeneratorFactory.register("serialnumber", SerialNumberGenerator.class);
+    identifierGeneratorFactory.register("serial-number", SerialNumberGenerator.class);
     // 默认监听器
     registry.prependListeners(
         EventType.SAVE_UPDATE,

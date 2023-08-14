@@ -27,7 +27,7 @@ public interface JpaRepository<T, PK extends Serializable>
    *
    * @return JpaEntityInformation
    */
-  JpaEntityInformation getJpaEntityInformation();
+  JpaEntityInformation<T, PK> getJpaEntityInformation();
 
   /**
    * 查询数据集
