@@ -1,7 +1,5 @@
 package org.jfantasy.graphql.error;
 
-import static graphql.ErrorType.ValidationError;
-
 import graphql.ErrorClassification;
 import graphql.GraphQLError;
 import graphql.GraphqlErrorHelper;
@@ -27,9 +25,13 @@ public class DefaultGraphQLError extends ErrorResponse implements GraphQLError {
   private final ErrorClassification errorType;
 
   public DefaultGraphQLError(ErrorContext errorContext) {
+    this(errorContext, errorContext.getErrorType());
+  }
+
+  public DefaultGraphQLError(ErrorContext errorContext, ErrorClassification errorType) {
     this.path = errorContext.getPath();
     this.locations = errorContext.getLocations();
-    this.errorType = ValidationError;
+    this.errorType = errorType;
     this.setData(ObjectUtil.defaultValue(errorContext.getExtensions(), new HashMap<>()));
   }
 

@@ -22,7 +22,6 @@ public class UserGraphQLMutationResolver implements GraphQLMutationResolver {
   private final MultiDataSourceManager multiDataSourceManager;
 
   public UserGraphQLMutationResolver(
-      DataSourceProperties dataSourceProperties,
       UserChangePublisher userChangePublisher,
       UserService userService,
       UserConverter userConverter,

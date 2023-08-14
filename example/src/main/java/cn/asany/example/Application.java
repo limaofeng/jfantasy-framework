@@ -1,9 +1,7 @@
 package cn.asany.example;
 
 import cn.asany.example.autoconfigure.MyDatabaseShardingAlgorithm;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shardingsphere.api.config.sharding.TableRuleConfiguration;
 import org.apache.shardingsphere.api.config.sharding.strategy.ShardingStrategyConfiguration;
@@ -12,6 +10,18 @@ import org.jfantasy.framework.dao.datasource.AbstractMultiDataSourceManager;
 import org.jfantasy.framework.dao.datasource.MultiDataSourceManager;
 import org.jfantasy.framework.dao.datasource.sharding.ShardingStrategyCustomizer;
 import org.jfantasy.framework.dao.jpa.ComplexJpaRepository;
+import org.jfantasy.framework.security.LoginUser;
+import org.jfantasy.framework.security.authentication.Authentication;
+import org.jfantasy.framework.security.core.GrantedAuthority;
+import org.jfantasy.framework.security.core.userdetails.UserDetails;
+import org.jfantasy.framework.security.core.userdetails.UserDetailsService;
+import org.jfantasy.framework.security.core.userdetails.UsernameNotFoundException;
+import org.jfantasy.framework.security.crypto.password.PasswordEncoder;
+import org.jfantasy.framework.security.crypto.password.PlaintextPasswordEncoder;
+import org.jfantasy.framework.security.oauth2.DefaultTokenServices;
+import org.jfantasy.framework.security.oauth2.core.*;
+import org.jfantasy.framework.security.oauth2.server.BearerTokenAuthenticationToken;
+import org.jfantasy.framework.security.oauth2.server.authentication.BearerTokenAuthentication;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -24,6 +34,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
@@ -59,6 +70,135 @@ public class Application extends SpringBootServletInitializer {
   @Override
   protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
     return builder.sources(Application.class);
+  }
+
+  @Bean
+  public UserDetailsService userDetailsService() {
+    return new UserDetailsService() {
+
+      @Override
+      public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return LoginUser.builder().build();
+      }
+    };
+  }
+
+  @Bean
+  public DefaultTokenServices defaultTokenServices(TaskExecutor taskExecutor) {
+    return new DefaultTokenServices(
+        new TokenStore() {
+          @Override
+          public BearerTokenAuthentication readAuthentication(
+              BearerTokenAuthenticationToken token) {
+            return null;
+          }
+
+          @Override
+          public BearerTokenAuthentication readAuthentication(String token) {
+            return null;
+          }
+
+          @Override
+          public void storeAccessToken(OAuth2AccessToken token, Authentication authentication) {}
+
+          @Override
+          public OAuth2AccessToken readAccessToken(String tokenValue) {
+            return null;
+          }
+
+          @Override
+          public void removeAccessToken(OAuth2AccessToken token) {}
+
+          @Override
+          public void storeRefreshToken(
+              OAuth2RefreshToken refreshToken, Authentication authentication) {}
+
+          @Override
+          public OAuth2RefreshToken readRefreshToken(String tokenValue) {
+            return null;
+          }
+
+          @Override
+          public BearerTokenAuthentication readAuthenticationForRefreshToken(
+              OAuth2RefreshToken token) {
+            return null;
+          }
+
+          @Override
+          public void removeRefreshToken(OAuth2RefreshToken token) {}
+
+          @Override
+          public void removeAccessTokenUsingRefreshToken(OAuth2RefreshToken refreshToken) {}
+
+          @Override
+          public OAuth2AccessToken getAccessToken(BearerTokenAuthentication authentication) {
+            return null;
+          }
+
+          @Override
+          public Collection<OAuth2AccessToken> findTokensByClientIdAndUserName(
+              String clientId, String userName) {
+            return null;
+          }
+
+          @Override
+          public Collection<OAuth2AccessToken> findTokensByClientId(String clientId) {
+            return null;
+          }
+        },
+        new ClientDetailsService() {
+          @Override
+          public ClientDetails loadClientByClientId(String clientId)
+              throws ClientRegistrationException {
+            return new ClientDetails() {
+              @Override
+              public Map<String, Object> getAdditionalInformation() {
+                return new HashMap<>();
+              }
+
+              @Override
+              public Collection<GrantedAuthority> getAuthorities() {
+                return new ArrayList<>();
+              }
+
+              @Override
+              public Set<String> getAuthorizedGrantTypes() {
+                return null;
+              }
+
+              @Override
+              public String getClientId() {
+                return "111";
+              }
+
+              @Override
+              public Set<String> getClientSecrets(ClientSecretType type) {
+                return new HashSet<>();
+              }
+
+              @Override
+              public String getRedirectUri() {
+                return null;
+              }
+
+              @Override
+              public Set<String> getScope() {
+                return null;
+              }
+
+              @Override
+              public int getTokenExpires() {
+                return 0;
+              }
+            };
+          }
+        },
+        taskExecutor);
+  }
+
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    return new PlaintextPasswordEncoder();
   }
 
   @Bean
