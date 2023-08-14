@@ -117,6 +117,7 @@ public class SecurityGraphQLContextBuilder extends DefaultGraphQLContextBuilder
       context.setAuthentication(authenticationResult);
     } catch (AuthenticationException failed) {
       log.info("Failed to process authentication request", failed);
+      throw failed;
     }
     return context;
   }
