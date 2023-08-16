@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.jfantasy.framework.dao.Tenantable;
 import org.jfantasy.framework.security.core.GrantedAuthority;
 import org.jfantasy.framework.security.core.user.OAuth2User;
 import org.jfantasy.framework.security.core.userdetails.UserDetails;
@@ -26,7 +27,7 @@ import org.jfantasy.framework.util.common.ObjectUtil;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class LoginUser implements UserDetails, Principal, OAuth2User {
+public class LoginUser implements UserDetails, Principal, OAuth2User, Tenantable {
   /** 用户名 */
   private String username;
   /** 密码 */
@@ -63,6 +64,8 @@ public class LoginUser implements UserDetails, Principal, OAuth2User {
   @JsonSerialize(using = GrantedAuthority.GrantedAuthoritiesSerializer.class)
   @JsonDeserialize(using = GrantedAuthority.GrantedAuthoritiesDeserializer.class)
   private Set<GrantedAuthority> authorities;
+  /** 租户ID */
+  private String tenantId;
 
   @JsonAnySetter
   public void setAttribute(String key, Object value) {
