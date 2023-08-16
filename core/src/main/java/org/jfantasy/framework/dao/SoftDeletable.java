@@ -1,5 +1,7 @@
 package org.jfantasy.framework.dao;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.jfantasy.framework.error.IgnoreException;
 import org.jfantasy.framework.util.common.ClassUtil;
 
@@ -10,6 +12,7 @@ import org.jfantasy.framework.util.common.ClassUtil;
  */
 public interface SoftDeletable {
 
+  Map<Class<?>, String> filedNameCache = new ConcurrentHashMap<>();
   String DELETED_BY_FIELD_NAME = "deleted";
 
   /**
@@ -33,10 +36,14 @@ public interface SoftDeletable {
    * @return 是否已经删除
    */
   static String getDeletedFieldName(Class<?> domainClass) {
-    try {
-      return ClassUtil.getFieldValue(domainClass, "DELETED_BY_FIELD_NAME");
-    } catch (IgnoreException e) {
-      return DELETED_BY_FIELD_NAME;
-    }
+    return filedNameCache.computeIfAbsent(
+        domainClass,
+        key -> {
+          try {
+            return ClassUtil.getFieldValue(domainClass, "DELETED_BY_FIELD_NAME");
+          } catch (IgnoreException e) {
+            return DELETED_BY_FIELD_NAME;
+          }
+        });
   }
 }
