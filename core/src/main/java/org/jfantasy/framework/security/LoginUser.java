@@ -2,10 +2,14 @@ package org.jfantasy.framework.security;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.security.Principal;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -50,8 +54,8 @@ public class LoginUser implements UserDetails, Principal, OAuth2User, Tenantable
   private String group;
   /** 电话 */
   private String phone;
-  /** */
-  private Map<String, Object> data;
+  /** 扩展属性 */
+  @JsonIgnore private Map<String, Object> data;
   /** 启用状态 */
   @Builder.Default private boolean enabled = true;
   /** 账户过期状态 */
