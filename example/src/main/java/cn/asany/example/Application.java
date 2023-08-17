@@ -187,7 +187,7 @@ public class Application extends SpringBootServletInitializer {
               }
 
               @Override
-              public int getTokenExpires() {
+              public Integer getTokenExpires() {
                 return 0;
               }
             };

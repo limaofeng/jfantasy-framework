@@ -1,5 +1,7 @@
 package org.jfantasy.schedule.service;
 
+import static org.jfantasy.schedule.service.ScheduleHelper.*;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -17,9 +19,9 @@ import org.springframework.util.Assert;
 
 @WebAppConfiguration
 @ContextConfiguration(locations = {"classpath:spring/applicationContext.xml"})
-public class SchedulerUtilsJUnit {
+public class TaskSchedulerJUnit {
 
-  @Autowired private SchedulerUtils scheduleService;
+  @Autowired private TaskScheduler scheduleService;
 
   @BeforeEach
   public void setUp() throws Exception {
@@ -27,17 +29,17 @@ public class SchedulerUtilsJUnit {
     data.put("name", "limaofeng");
     data.put("time", DateUtil.format("yyyy-MM-dd HH:mm:ss"));
     // 添加 job
-    scheduleService.addJob(JobKey.jobKey("junit", "test"), HelloJob.class, data);
+    scheduleService.addJob(job(HelloJob.class, "junit", "test", data).build(), false);
     // 添加触发器
     Map<String, String> _data = new HashMap<String, String>();
     _data.put("name", "limaofeng-1");
     System.out.println("添加触发器:" + DateUtil.format("yyyy-MM-dd HH:mm:ss"));
-    scheduleService.addTrigger(
-        JobKey.jobKey("junit", "test"),
-        TriggerKey.triggerKey("test"),
-        TimeUnit.SECONDS.toMillis(10),
-        0,
-        _data);
+    scheduleService.scheduleJob(
+        trigger(
+                JobKey.jobKey("junit", "test"),
+                TriggerKey.triggerKey("test"),
+                simple(TimeUnit.SECONDS.toMillis(10), 0))
+            .build());
 
     /*
      * Date date = DateUtil.now(); String expression =

@@ -1,7 +1,7 @@
 package org.jfantasy.framework.spring.config;
 
 import java.util.concurrent.Executor;
-import org.jfantasy.schedule.service.SchedulerUtils;
+import org.jfantasy.schedule.service.TaskScheduler;
 import org.quartz.Scheduler;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.aop.interceptor.SimpleAsyncUncaughtExceptionHandler;
@@ -32,8 +32,8 @@ public class AppConfig {
   }
 
   @Bean
-  public SchedulerUtils schedulerUtils(@Autowired(required = false) Scheduler scheduler) {
-    return new SchedulerUtils(scheduler);
+  public TaskScheduler taskScheduler(@Autowired(required = false) Scheduler scheduler) {
+    return new TaskScheduler(scheduler);
   }
 
   @Configuration
