@@ -1,11 +1,7 @@
 package org.jfantasy.framework.dao.datasource.sharding;
 
 import com.google.common.collect.Lists;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import javax.sql.DataSource;
+import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shardingsphere.api.config.sharding.ShardingRuleConfiguration;
@@ -13,6 +9,12 @@ import org.apache.shardingsphere.shardingjdbc.api.ShardingDataSourceFactory;
 import org.apache.shardingsphere.shardingjdbc.jdbc.core.datasource.ShardingDataSource;
 import org.jfantasy.framework.dao.datasource.MultiDataSourceManager;
 import org.jfantasy.framework.dao.datasource.MultiDataSourceOperations;
+
+import javax.sql.DataSource;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * 分片数据源配置
@@ -22,6 +24,7 @@ import org.jfantasy.framework.dao.datasource.MultiDataSourceOperations;
 @Slf4j
 public class ShardingConfiguration {
 
+  @Getter
   private final DataSource primaryDataSource;
   private final List<ShardingStrategyCustomizer> customizers;
 
@@ -64,10 +67,6 @@ public class ShardingConfiguration {
     conf.setDefaultDataSourceName("primary");
 
     return ShardingDataSourceFactory.createDataSource(dataSourceMap, conf, props);
-  }
-
-  public DataSource getPrimaryDataSource() {
-    return primaryDataSource;
   }
 
   public void destroy() {

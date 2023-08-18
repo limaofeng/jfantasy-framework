@@ -1,14 +1,14 @@
 package org.jfantasy.schedule.service;
 
-import static org.quartz.CalendarIntervalScheduleBuilder.calendarIntervalSchedule;
-import static org.quartz.CronScheduleBuilder.cronSchedule;
-import static org.quartz.DailyTimeIntervalScheduleBuilder.dailyTimeIntervalSchedule;
-import static org.quartz.JobBuilder.newJob;
-import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
+import org.quartz.*;
 
 import java.util.Map;
 import java.util.TimeZone;
-import org.quartz.*;
+
+import static org.quartz.CalendarIntervalScheduleBuilder.calendarIntervalSchedule;
+import static org.quartz.CronScheduleBuilder.cronSchedule;
+import static org.quartz.DailyTimeIntervalScheduleBuilder.dailyTimeIntervalSchedule;
+import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 
 public class ScheduleHelper {
 
@@ -19,13 +19,13 @@ public class ScheduleHelper {
    * @param jobName key
    * @param group key
    */
-  public static JobBuilder job(Class<? extends Job> jobClass, String jobName, String group) {
-    return newJob(jobClass).withIdentity(jobName, group).storeDurably(true);
+  public static JobBuilder newJob(Class<? extends Job> jobClass, String jobName, String group) {
+    return JobBuilder.newJob(jobClass).withIdentity(jobName, group).storeDurably(true);
   }
 
-  public static JobBuilder job(
+  public static JobBuilder newJob(
       Class<? extends Job> jobClass, String jobName, String group, Map<String, String> data) {
-    return newJob(jobClass)
+    return JobBuilder.newJob(jobClass)
         .withIdentity(jobName, group)
         .storeDurably(true)
         .setJobData(jobData(data));
@@ -38,7 +38,7 @@ public class ScheduleHelper {
     return new JobDataMap(data);
   }
 
-  public static TriggerBuilder<Trigger> trigger(
+  public static TriggerBuilder<Trigger> newTrigger(
       JobKey jobKey,
       TriggerKey triggerKey,
       @SuppressWarnings("rawtypes") ScheduleBuilder schedule) {
@@ -48,29 +48,37 @@ public class ScheduleHelper {
         .withSchedule(schedule);
   }
 
-  public static TriggerBuilder<Trigger> trigger(
+  public static TriggerBuilder<Trigger> newTrigger(
       JobKey jobKey,
       TriggerKey triggerKey,
       @SuppressWarnings("rawtypes") ScheduleBuilder schedule,
       String description) {
-    return trigger(jobKey, triggerKey, schedule).withDescription(description);
+    return newTrigger(jobKey, triggerKey, schedule).withDescription(description);
   }
 
-  public static TriggerBuilder<Trigger> trigger(
+  public static TriggerBuilder<Trigger> newTrigger(
       JobKey jobKey,
       TriggerKey triggerKey,
-      ScheduleBuilder<Trigger> schedule,
+      @SuppressWarnings("rawtypes") ScheduleBuilder schedule,
       Map<String, String> args) {
-    return trigger(jobKey, triggerKey, schedule).usingJobData(jobData(args));
+    return newTrigger(jobKey, triggerKey, schedule).usingJobData(jobData(args));
   }
 
-  public static TriggerBuilder<Trigger> trigger(
+  public static TriggerBuilder<Trigger> newTrigger(
+    JobKey jobKey, TriggerKey triggerKey, Map<String, String> args) {
+    return TriggerBuilder.newTrigger()
+      .forJob(jobKey)
+      .withIdentity(triggerKey)
+      .usingJobData(jobData(args));
+  }
+
+  public static TriggerBuilder<Trigger> newTrigger(
       JobKey jobKey,
       TriggerKey triggerKey,
       ScheduleBuilder<Trigger> schedule,
       String description,
       Map<String, String> args) {
-    return trigger(jobKey, triggerKey, schedule)
+    return newTrigger(jobKey, triggerKey, schedule)
         .withDescription(description)
         .usingJobData(jobData(args));
   }
@@ -117,5 +125,27 @@ public class ScheduleHelper {
   public static CalendarIntervalScheduleBuilder calendarInterval(
       int interval, DateBuilder.IntervalUnit unit) {
     return calendarIntervalSchedule().withInterval(interval, unit);
+  }
+
+  /**
+   * 返回 各时段的表达式
+   *
+   * @param cron 表达式
+   * @param i    下标
+   * @return string
+   */
+  public static String cron(String cron, int i) {
+    String str = "";
+    if ("".equals(cron) || cron == null) {
+      return str;
+    }
+    String[] cronArray = cron.split(" ");
+    for (int a = 0; a < cronArray.length; a++) {
+      if (i == a) {
+        str = cronArray[a];
+        break;
+      }
+    }
+    return str;
   }
 }
