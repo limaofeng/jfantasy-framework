@@ -188,13 +188,13 @@ public class FastClasses<T> implements IClass<T> {
   }
 
   @Override
-  @SneakyThrows({IllegalAccessException.class, NoSuchFieldException.class})
+  @SneakyThrows({NoSuchFieldException.class})
   public <V> V getValue(Object target, String name) {
     return getValue(target, this.fields.get(name));
   }
 
-  public <V> V getValue(Object target, Field field)
-      throws IllegalAccessException, NoSuchFieldException {
+  @SneakyThrows({IllegalAccessException.class, NoSuchFieldException.class})
+  public <V> V getValue(Object target, Field field) throws NoSuchFieldException {
     if (field == null) {
       throw new NoSuchFieldException("字段不存在");
     }
@@ -240,7 +240,7 @@ public class FastClasses<T> implements IClass<T> {
   }
 
   @Override
-  @SneakyThrows({IllegalAccessException.class, NoSuchFieldException.class})
+  @SneakyThrows({NoSuchFieldException.class})
   public <V> V getValue(String name) {
     return this.getValue(null, this.staticFields.get(name));
   }

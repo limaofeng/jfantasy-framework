@@ -91,7 +91,7 @@ public class BusEntityInterceptor extends EmptyInterceptor {
           assert entity instanceof SoftDeletable;
           ((SoftDeletable) entity).setDeleted(false);
         } else if (tenantFieldName.equals(propertyNames[i])) {
-          state[i] = false;
+          state[i] = tenantId;
           assert entity instanceof Tenantable;
           ((Tenantable) entity).setTenantId(tenantId);
         }

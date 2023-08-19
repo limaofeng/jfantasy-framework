@@ -2,7 +2,6 @@ package org.jfantasy.framework.dao;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.jfantasy.framework.error.IgnoreException;
 import org.jfantasy.framework.util.common.ClassUtil;
 
 /**
@@ -21,7 +20,7 @@ public interface Tenantable {
         key -> {
           try {
             return ClassUtil.getFieldValue(domainClass, "TENANT_BY_FIELD_NAME");
-          } catch (IgnoreException e) {
+          } catch (Exception e) {
             return TENANT_BY_FIELD_NAME;
           }
         });

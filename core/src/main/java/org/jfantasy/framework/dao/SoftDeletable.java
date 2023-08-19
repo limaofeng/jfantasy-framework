@@ -2,7 +2,6 @@ package org.jfantasy.framework.dao;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.jfantasy.framework.error.IgnoreException;
 import org.jfantasy.framework.util.common.ClassUtil;
 
 /**
@@ -41,7 +40,7 @@ public interface SoftDeletable {
         key -> {
           try {
             return ClassUtil.getFieldValue(domainClass, "DELETED_BY_FIELD_NAME");
-          } catch (IgnoreException e) {
+          } catch (Exception e) {
             return DELETED_BY_FIELD_NAME;
           }
         });

@@ -14,6 +14,7 @@ import org.jfantasy.framework.util.reflect.Property;
 import org.jfantasy.graphql.Connection;
 import org.jfantasy.graphql.Edge;
 import org.jfantasy.graphql.PageInfo;
+import org.jfantasy.graphql.PageInfo.PageInfoBuilder;
 import org.springframework.data.domain.Page;
 
 /**
@@ -40,7 +41,7 @@ public class Kit {
 
     List<T> nodes = page.getContent();
 
-    PageInfo.PageInfoBuilder pageInfoBuilder =
+    PageInfoBuilder pageInfoBuilder =
         PageInfo.builder()
             .total(page.getTotalElements())
             .totalPages(page.getTotalPages())
@@ -85,7 +86,7 @@ public class Kit {
 
     List<T> nodes = page.getPageItems();
 
-    PageInfo.PageInfoBuilder pageInfoBuilder =
+    PageInfoBuilder pageInfoBuilder =
         PageInfo.builder()
             .total(page.getTotalCount())
             .totalPages(page.getTotalPage())
@@ -108,7 +109,7 @@ public class Kit {
   private static <C extends Connection<R, S>, S, T, R extends Edge<S>> void buildConnection(
       C connection,
       List<T> nodes,
-      PageInfo.PageInfoBuilder pageInfoBuilder,
+      PageInfoBuilder pageInfoBuilder,
       Function<T, R> mapper,
       Class<C> connectionClass) {
     if (mapper instanceof EdgeConverter && ((EdgeConverter<?, ?>) mapper).edgeClass == null) {
