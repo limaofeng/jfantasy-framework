@@ -64,6 +64,16 @@ public class JpaDefaultPropertyFilter
             }
           };
 
+  public JpaDefaultPropertyFilter(Class<?> entityClass, List<PropertyPredicate> context) {
+    super(entityClass, context);
+    PropertyFilterBuilder.initDefaultConverters(entityClass);
+    this.property(DEFAULT_PROPERTY_PREDICATE_CALLBACK);
+    this.junction(MatchType.AND, DEFAULT_JUNCTION_PREDICATE_CALLBACK);
+    this.junction(MatchType.OR, DEFAULT_JUNCTION_PREDICATE_CALLBACK);
+    this.junction(MatchType.NOT, DEFAULT_JUNCTION_PREDICATE_CALLBACK);
+    // TODO: 通过 entityClass 动态分配 property 与 junction，比如非字符串就不应该有 STARTS_WITH 条件
+  }
+
   public JpaDefaultPropertyFilter(List<PropertyPredicate> context) {
     super(context);
     this.property(DEFAULT_PROPERTY_PREDICATE_CALLBACK);

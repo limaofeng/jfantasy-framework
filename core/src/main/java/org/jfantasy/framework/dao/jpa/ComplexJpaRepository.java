@@ -16,6 +16,8 @@ import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.jfantasy.framework.dao.DataQueryContext;
+import org.jfantasy.framework.dao.DataQueryContextHolder;
 import org.jfantasy.framework.dao.SoftDeletable;
 import org.jfantasy.framework.dao.hibernate.util.HibernateUtils;
 import org.jfantasy.framework.error.ValidationException;
@@ -101,6 +103,13 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
   protected Specification<T> toSpecification(PropertyFilter filter) {
     if (!JpaDefaultPropertyFilter.class.isAssignableFrom(filter.getClass())) {
       throw new ValidationException("不支持的过滤器类型");
+    }
+    DataQueryContext dataQueryContext = DataQueryContextHolder.getContext();
+    if (dataQueryContext != null) {
+      PropertyFilter contextFilter = dataQueryContext.getFilter(this.getDomainClass());
+      if (contextFilter != null) {
+        filter.and(contextFilter);
+      }
     }
     return new PropertyFilterSpecification<>(this.getDomainClass(), filter.build());
   }
@@ -310,7 +319,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
                 });
 
         ObjectUtil.remove(source, (item) -> results.getExceptA().contains(item));
-        source.addAll((Collection<?>) results.getExceptB());
+        source.addAll(results.getExceptB());
       } else {
         List<Object> addObjects = new ArrayList<>();
         for (Object fk : objects) {
@@ -633,6 +642,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
 
   protected Query createQuery(String hql, Object... values) {
     Assert.hasText("hql 不能为空", hql);
+    @SuppressWarnings("SqlSourceToSinkFlow")
     Query query = em.createQuery(hql, entityInformation.getJavaType());
     for (int i = 0; i < values.length; i++) {
       query.setParameter(i, values[i]);
@@ -642,6 +652,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
 
   protected Query createQuery(String hql, Map<String, ?> values) {
     Assert.hasText(hql, "hql 不能为空");
+    @SuppressWarnings("SqlSourceToSinkFlow")
     Query query = em.createQuery(hql, entityInformation.getJavaType());
     for (Map.Entry<String, ?> entry : values.entrySet()) {
       query.setParameter(entry.getKey(), entry.getValue());
@@ -651,6 +662,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
 
   protected Query createSQLQuery(String sql, Object... values) {
     Assert.hasText(sql, "sql 不能为空");
+    @SuppressWarnings("SqlSourceToSinkFlow")
     Query query = em.createNativeQuery(sql, entityInformation.getJavaType());
     for (int i = 0; i < values.length; i++) {
       query.setParameter(i, values[i]);
@@ -660,6 +672,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
 
   protected Query createSQLQuery(String sql, Map<String, ?> values) {
     Assert.hasText(sql, "sql 不能为空");
+    @SuppressWarnings("SqlSourceToSinkFlow")
     Query query = em.createNativeQuery(sql, entityInformation.getJavaType());
     for (Map.Entry<String, ?> entry : values.entrySet()) {
       query.setParameter(entry.getKey(), entry.getValue());

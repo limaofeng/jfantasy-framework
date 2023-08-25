@@ -91,8 +91,12 @@ public enum MatchType {
     return get(str) != null;
   }
 
-  public static boolean isMultipleValues(MatchType matchType) {
+  public static boolean isLogicOperator(MatchType matchType) {
     return matchType == AND || matchType == OR || matchType == NOT;
+  }
+
+  public static boolean isMultipleValues(MatchType matchType) {
+    return matchType == IN || matchType == NOT_IN;
   }
 
   public PropertyFilter build(PropertyFilter builder, String name, Object value) {

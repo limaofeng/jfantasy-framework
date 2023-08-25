@@ -1,12 +1,10 @@
 package org.jfantasy.framework.dao.jpa;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.Field;
+import java.util.*;
 import java.util.stream.Collectors;
-import lombok.Builder;
-import lombok.Data;
 import org.jfantasy.framework.dao.MatchType;
+import org.jfantasy.framework.util.common.ClassUtil;
 
 /**
  * 属性过滤器 构造器
@@ -17,8 +15,41 @@ import org.jfantasy.framework.dao.MatchType;
 public abstract class PropertyFilterBuilder<P extends PropertyFilter, C> implements PropertyFilter {
 
   protected C context;
+  protected Class<?> entityClass;
   protected final Map<String, PropertyDefinition<C>> properties = new HashMap<>();
   protected final Map<String, JunctionPredicateCallback<C>> junctions = new HashMap<>();
+  protected static Map<Class<?>, Class<? extends PropertyFilter>> FILTERS = new HashMap<>();
+  protected static final Map<Class<?>, Map<String, TypeConverter<?>>> CUSTOM_CONVERTERS =
+      new HashMap<>();
+  protected static final Map<Class<?>, Map<String, PropertyDefinition<?>>> CUSTOM_PROPERTIES =
+      new HashMap<>();
+
+  protected PropertyFilterBuilder(Class<?> entityClass, C context) {
+    this.context = context;
+    this.entityClass = entityClass;
+  }
+
+  protected PropertyFilterBuilder(C context) {
+    this.context = context;
+  }
+
+  protected static Map<String, TypeConverter<?>> initDefaultConverters(Class<?> entityClass) {
+    return PropertyFilterBuilder.CUSTOM_CONVERTERS.computeIfAbsent(
+        entityClass,
+        (clazz) -> {
+          Map<String, TypeConverter<?>> fields = new HashMap<>();
+          for (Field field : ClassUtil.getDeclaredFields(clazz)) {
+            if (ClassUtil.isBasicType(field.getType())) {
+              fields.put(field.getName(), new DefaultTypeConverter<>(field.getType()));
+            }
+          }
+          return fields;
+        });
+  }
+
+  protected void junction(MatchType matchType, JunctionPredicateCallback<C> junction) {
+    junctions.put(matchType.name(), junction);
+  }
 
   protected void property(PropertyPredicateCallback<C> property) {
     PropertyDefinition<C> definition = PropertyDefinition.<C>builder().name("*").build();
@@ -26,17 +57,13 @@ public abstract class PropertyFilterBuilder<P extends PropertyFilter, C> impleme
     properties.put("*", definition);
   }
 
-  protected void junction(MatchType matchType, JunctionPredicateCallback<C> junction) {
-    junctions.put(matchType.name(), junction);
-  }
-
-  protected void property(String name, PropertyPredicateCallback<C> callback) {
+  protected void custom(String name, PropertyPredicateCallback<C> callback) {
     PropertyDefinition<C> definition = PropertyDefinition.<C>builder().name(name).build();
     definition.getPredicates().put("*", callback);
     properties.put(name, definition);
   }
 
-  protected void property(
+  protected void custom(
       String name, MatchType[] matchTypes, PropertyPredicateCallback<C> callback) {
     PropertyDefinition<C> definition = PropertyDefinition.<C>builder().name(name).build();
     for (MatchType matchType : matchTypes) {
@@ -67,10 +94,6 @@ public abstract class PropertyFilterBuilder<P extends PropertyFilter, C> impleme
     return this.junctions.get(matchType.name());
   }
 
-  protected PropertyFilterBuilder(C context) {
-    this.context = context;
-  }
-
   @Override
   public abstract <T> T build();
 
@@ -84,7 +107,8 @@ public abstract class PropertyFilterBuilder<P extends PropertyFilter, C> impleme
    */
   @Override
   public <T> P equal(String name, T value) {
-    this.predicate(name, MatchType.EQ).apply(name, MatchType.EQ, value, context);
+    this.predicate(name, MatchType.EQ)
+        .apply(name, MatchType.EQ, convert(name, MatchType.EQ, value), context);
     return (P) this;
   }
 
@@ -139,28 +163,32 @@ public abstract class PropertyFilterBuilder<P extends PropertyFilter, C> impleme
   /** 小于 */
   @Override
   public <T> P lessThan(String name, T value) {
-    this.predicate(name, MatchType.LT).apply(name, MatchType.LT, value, context);
+    this.predicate(name, MatchType.LT)
+        .apply(name, MatchType.LT, convert(name, MatchType.LT, value), context);
     return (P) this;
   }
 
   /** 大于 */
   @Override
   public P greaterThan(String name, Object value) {
-    this.predicate(name, MatchType.GT).apply(name, MatchType.GT, value, context);
+    this.predicate(name, MatchType.GT)
+        .apply(name, MatchType.GT, convert(name, MatchType.GT, value), context);
     return (P) this;
   }
 
   /** 小于等于 */
   @Override
   public P lessThanOrEqual(String name, Object value) {
-    this.predicate(name, MatchType.LTE).apply(name, MatchType.LTE, value, context);
+    this.predicate(name, MatchType.LTE)
+        .apply(name, MatchType.LTE, convert(name, MatchType.LTE, value), context);
     return (P) this;
   }
 
   /** 大于等于 */
   @Override
   public P greaterThanOrEqual(String name, Object value) {
-    this.predicate(name, MatchType.GTE).apply(name, MatchType.GTE, value, context);
+    this.predicate(name, MatchType.GTE)
+        .apply(name, MatchType.GTE, convert(name, MatchType.GTE, value), context);
     return (P) this;
   }
 
@@ -168,7 +196,8 @@ public abstract class PropertyFilterBuilder<P extends PropertyFilter, C> impleme
   @SafeVarargs
   @Override
   public final <T> P in(String name, T... value) {
-    this.predicate(name, MatchType.IN).apply(name, MatchType.IN, value, context);
+    this.predicate(name, MatchType.IN)
+        .apply(name, MatchType.IN, convert(name, MatchType.IN, value), context);
     return (P) this;
   }
 
@@ -180,7 +209,8 @@ public abstract class PropertyFilterBuilder<P extends PropertyFilter, C> impleme
    */
   @Override
   public <T> P in(String name, List<T> value) {
-    this.predicate(name, MatchType.IN).apply(name, MatchType.IN, value, context);
+    this.predicate(name, MatchType.IN)
+        .apply(name, MatchType.IN, convert(name, MatchType.IN, value), context);
     return (P) this;
   }
 
@@ -192,16 +222,19 @@ public abstract class PropertyFilterBuilder<P extends PropertyFilter, C> impleme
    * @param <T> 泛型
    * @return PropertyFilter
    */
+  @SafeVarargs
   @Override
   public final <T> P notIn(String name, T... value) {
-    this.predicate(name, MatchType.NOT_IN).apply(name, MatchType.NOT_IN, value, context);
+    this.predicate(name, MatchType.NOT_IN)
+        .apply(name, MatchType.NOT_IN, convert(name, MatchType.NOT_IN, value), context);
     return (P) this;
   }
 
   /** 不等于 */
   @Override
   public <T> P notEqual(String name, T value) {
-    this.predicate(name, MatchType.NOT_EQUAL).apply(name, MatchType.NOT_EQUAL, value, context);
+    this.predicate(name, MatchType.NOT_EQUAL)
+        .apply(name, MatchType.NOT_EQUAL, convert(name, MatchType.NOT_EQUAL, value), context);
     return (P) this;
   }
 
@@ -264,13 +297,6 @@ public abstract class PropertyFilterBuilder<P extends PropertyFilter, C> impleme
         .collect(Collectors.toList());
   }
 
-  @Data
-  @Builder
-  private static class PropertyDefinition<C> {
-    private String name;
-    @Builder.Default private Map<String, PropertyPredicateCallback<C>> predicates = new HashMap<>();
-  }
-
   protected interface PropertyPredicateCallback<C> {
     /**
      * 应用
@@ -283,7 +309,12 @@ public abstract class PropertyFilterBuilder<P extends PropertyFilter, C> impleme
     void apply(String name, MatchType matchType, Object value, C context);
   }
 
-  interface JunctionPredicateCallback<C> {
+  /**
+   * 复杂条件连接器
+   *
+   * @param <C>
+   */
+  protected interface JunctionPredicateCallback<C> {
     /**
      * 应用
      *
@@ -292,5 +323,33 @@ public abstract class PropertyFilterBuilder<P extends PropertyFilter, C> impleme
      * @param filters 过滤器
      */
     void apply(C context, MatchType matchType, PropertyFilter... filters);
+  }
+
+  protected <IV, OV> OV convert(String name, MatchType matchType, IV value) {
+    if (entityClass == null || !CUSTOM_CONVERTERS.containsKey(entityClass)) {
+      return (OV) value;
+    }
+    Map<String, TypeConverter<?>> typeConverterMap = CUSTOM_CONVERTERS.get(entityClass);
+    if (!typeConverterMap.containsKey(name)) {
+      return (OV) value;
+    }
+    TypeConverter<?> converter = typeConverterMap.get(name);
+    if (MatchType.isMultipleValues(matchType)) {
+      return (OV)
+          Arrays.stream(multipleValuesObjectsObjects(value))
+              .map(converter::convert)
+              .toArray(Object[]::new);
+    }
+    return (OV) converter.convert(value);
+  }
+
+  public static <T> T[] multipleValuesObjectsObjects(Object value) {
+    if (ClassUtil.isArray(value)) {
+      return (T[]) value;
+    }
+    if (ClassUtil.isList(value)) {
+      return (T[]) ((Collection<?>) value).toArray();
+    }
+    return (T[]) new Object[] {value};
   }
 }

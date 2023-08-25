@@ -93,7 +93,7 @@ public class PropertyPredicate {
   }
 
   public <T> T getPropertyValue(Class<T> clazz) {
-    if (this.isPropertyFilter() && MatchType.isMultipleValues(this.matchType)) {
+    if (this.isPropertyFilter() && MatchType.isLogicOperator(this.matchType)) {
       List<PropertyFilter> filters = (List<PropertyFilter>) this.propertyValue;
       return (T) filters.stream().map(PropertyFilter::build).collect(Collectors.toList());
     }
@@ -108,7 +108,7 @@ public class PropertyPredicate {
     if (this.propertyValue instanceof PropertyFilter) {
       return true;
     }
-    if (!MatchType.isMultipleValues(this.matchType)) {
+    if (!MatchType.isLogicOperator(this.matchType)) {
       return false;
     }
     if (!ClassUtil.isList(this.propertyValue) || ((List<?>) this.propertyValue).isEmpty()) {

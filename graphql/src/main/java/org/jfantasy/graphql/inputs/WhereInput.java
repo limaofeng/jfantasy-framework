@@ -4,15 +4,11 @@ import static org.jfantasy.framework.util.common.ObjectUtil.multipleValuesObject
 
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.lang.reflect.Field;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 import org.jfantasy.framework.dao.MatchType;
 import org.jfantasy.framework.dao.hibernate.util.ReflectionUtils;
 import org.jfantasy.framework.dao.jpa.PropertyFilter;
-import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 
@@ -26,30 +22,17 @@ import org.jfantasy.framework.util.common.StringUtil;
 public abstract class WhereInput<F extends WhereInput<?, ?>, T> {
 
   protected final Class<T> entityClass;
-  private final Map<String, TypeConverter<?>> fields = new HashMap<>();
-
   protected static String[] MULTI_VALUE = new String[] {"in", "notIn"};
 
-  protected PropertyFilter filter = initPropertyFilter();
+  protected PropertyFilter filter;
 
   public WhereInput() {
     this.entityClass = ReflectionUtils.getSuperClassGenricType(getClass(), 1);
-    if (this.entityClass == Object.class) {
-      return;
-    }
-    for (Field field : ClassUtil.getDeclaredFields(this.entityClass)) {
-      if (ClassUtil.isBasicType(field.getType())) {
-        fields.put(field.getName(), new DefaultTypeConverter<>(field.getType()));
-      }
-    }
-  }
-
-  protected void register(String name, TypeConverter<?> converter) {
-    this.fields.put(name, converter);
+    this.filter = initPropertyFilter();
   }
 
   protected PropertyFilter initPropertyFilter() {
-    return PropertyFilter.newFilter();
+    return PropertyFilter.newFilter(this.entityClass);
   }
 
   @JsonProperty("AND")
@@ -72,12 +55,9 @@ public abstract class WhereInput<F extends WhereInput<?, ?>, T> {
     String[] slugs = StringUtil.tokenizeToStringArray(name, "_");
     Object newValue;
     if (slugs.length > 1 && ObjectUtil.exists(MULTI_VALUE, slugs[1])) {
-      newValue =
-          Arrays.stream(multipleValuesObjectsObjects(value))
-              .map(item -> this.fields.get(slugs[0]).convert(item))
-              .toArray(Object[]::new);
+      newValue = Arrays.stream(multipleValuesObjectsObjects(value)).toArray(Object[]::new);
     } else {
-      newValue = this.fields.get(slugs[0]).convert(value);
+      newValue = value;
     }
     if (slugs.length == 1) {
       filter.equal(name, newValue);

@@ -1,14 +1,13 @@
 package org.jfantasy.schedule.service;
 
-import org.quartz.*;
-
-import java.util.Map;
-import java.util.TimeZone;
-
 import static org.quartz.CalendarIntervalScheduleBuilder.calendarIntervalSchedule;
 import static org.quartz.CronScheduleBuilder.cronSchedule;
 import static org.quartz.DailyTimeIntervalScheduleBuilder.dailyTimeIntervalSchedule;
 import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
+
+import java.util.Map;
+import java.util.TimeZone;
+import org.quartz.*;
 
 public class ScheduleHelper {
 
@@ -65,11 +64,11 @@ public class ScheduleHelper {
   }
 
   public static TriggerBuilder<Trigger> newTrigger(
-    JobKey jobKey, TriggerKey triggerKey, Map<String, String> args) {
+      JobKey jobKey, TriggerKey triggerKey, Map<String, String> args) {
     return TriggerBuilder.newTrigger()
-      .forJob(jobKey)
-      .withIdentity(triggerKey)
-      .usingJobData(jobData(args));
+        .forJob(jobKey)
+        .withIdentity(triggerKey)
+        .usingJobData(jobData(args));
   }
 
   public static TriggerBuilder<Trigger> newTrigger(
@@ -131,7 +130,7 @@ public class ScheduleHelper {
    * 返回 各时段的表达式
    *
    * @param cron 表达式
-   * @param i    下标
+   * @param i 下标
    * @return string
    */
   public static String cron(String cron, int i) {

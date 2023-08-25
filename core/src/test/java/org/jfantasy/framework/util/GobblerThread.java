@@ -23,7 +23,7 @@ public class GobblerThread extends Thread {
     try {
       InputStreamReader isr = new InputStreamReader(is);
       BufferedReader br = new BufferedReader(isr);
-      String line = null;
+      String line;
       while ((line = br.readLine()) != null) {
         result.append(line);
       }

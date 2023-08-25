@@ -1,7 +1,11 @@
 package org.jfantasy.framework.dao.jpa;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import org.jfantasy.framework.dao.hibernate.util.ReflectionUtils;
+import org.jfantasy.framework.util.common.ClassUtil;
 
 /**
  * 属性过滤器
@@ -9,6 +13,20 @@ import java.util.List;
  * @author limaofeng
  */
 public interface PropertyFilter {
+
+  /**
+   * 通过 entityClass 创建 PropertyFilter
+   *
+   * @param entityClass 实体类型
+   * @return PropertyFilter
+   */
+  static PropertyFilter newFilter(Class<?> entityClass) {
+    Class<? extends PropertyFilter> filterClass = PropertyFilterBuilder.FILTERS.get(entityClass);
+    if (filterClass == null) {
+      return new JpaDefaultPropertyFilter(entityClass, new ArrayList<>());
+    }
+    return ClassUtil.newInstance(filterClass);
+  }
 
   /**
    * 构造器
@@ -140,6 +158,7 @@ public interface PropertyFilter {
    * @param <T> 泛型
    * @return PropertyFilter
    */
+  @SuppressWarnings("unchecked")
   <T> PropertyFilter in(String name, T... value);
 
   /**
@@ -160,6 +179,7 @@ public interface PropertyFilter {
    * @param <T> 泛型
    * @return PropertyFilter
    */
+  @SuppressWarnings("unchecked")
   <T> PropertyFilter notIn(String name, T... value);
 
   /**
@@ -246,4 +266,29 @@ public interface PropertyFilter {
    * @return T
    */
   <T> T build();
+
+  /**
+   * 注册一个自定义的 PropertyFilter 并与 entityClass 绑定
+   *
+   * @param entityClass 实体类型
+   * @param filterClass PropertyFilter 类型
+   */
+  static void register(Class<?> entityClass, Class<? extends PropertyFilter> filterClass) {
+    PropertyFilterBuilder.FILTERS.put(entityClass, filterClass);
+  }
+
+  /**
+   * 自定义 Entity 对应的 属性及 value 转换器
+   *
+   * @param customizer 定制器
+   */
+  static void custom(PropertyFilterCustomizer<Class<?>> customizer) {
+    Class<?> entityClass = ReflectionUtils.getSuperClassGenricType(customizer.getClass(), 0);
+    Map<String, TypeConverter<?>> typeConverterMap =
+        PropertyFilterBuilder.initDefaultConverters(entityClass);
+    Map<String, PropertyDefinition<?>> propertyDefinitionMap =
+        PropertyFilterBuilder.CUSTOM_PROPERTIES.computeIfAbsent(
+            entityClass, (clazz) -> new HashMap<>());
+    customizer.customize(typeConverterMap, propertyDefinitionMap);
+  }
 }

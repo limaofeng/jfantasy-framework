@@ -1,14 +1,13 @@
 package org.jfantasy.schedule.service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.quartz.impl.matchers.StringMatcher;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * 定时任务管理
@@ -40,7 +39,8 @@ public class TaskScheduler {
   }
 
   @Transactional(rollbackFor = SchedulerException.class)
-  public void scheduleTask(JobKey jobKey, TriggerKey triggerKey, Map<String, String> data) throws SchedulerException {
+  public void scheduleTask(JobKey jobKey, TriggerKey triggerKey, Map<String, String> data)
+      throws SchedulerException {
     Trigger trigger = ScheduleHelper.newTrigger(jobKey, triggerKey, data).build();
     this.scheduler.scheduleJob(trigger);
   }
@@ -106,7 +106,6 @@ public class TaskScheduler {
   }
 
   @Transactional(readOnly = true)
-
   public List<TriggerKey> getTriggers(GroupMatcher<TriggerKey> matcher) throws SchedulerException {
     return new ArrayList<>(this.scheduler.getTriggerKeys(matcher));
   }
@@ -153,12 +152,15 @@ public class TaskScheduler {
 
   @Transactional(rollbackFor = SchedulerException.class)
   public void addJob(JobKey jobKey, Class<? extends Job> jobClass) throws SchedulerException {
-    this.scheduler.addJob(ScheduleHelper.newJob(jobClass, jobKey.getName(), jobKey.getGroup()).build(), false);
+    this.scheduler.addJob(
+        ScheduleHelper.newJob(jobClass, jobKey.getName(), jobKey.getGroup()).build(), false);
   }
 
   @Transactional(rollbackFor = SchedulerException.class)
-  public void addJob(JobKey jobKey, Class<? extends Job> jobClass, boolean replace) throws SchedulerException {
-    this.scheduler.addJob(ScheduleHelper.newJob(jobClass, jobKey.getName(), jobKey.getGroup()).build(), replace);
+  public void addJob(JobKey jobKey, Class<? extends Job> jobClass, boolean replace)
+      throws SchedulerException {
+    this.scheduler.addJob(
+        ScheduleHelper.newJob(jobClass, jobKey.getName(), jobKey.getGroup()).build(), replace);
   }
 
   @Transactional(readOnly = true)
