@@ -25,7 +25,7 @@ import org.jfantasy.framework.util.ognl.OgnlUtil;
 public class IdentifierGeneratorUtil {
 
   private static final ConcurrentMap<Class<?>, Map<String, IdentifierGenerator>> generatorCache =
-      new ConcurrentHashMap<Class<?>, Map<String, IdentifierGenerator>>();
+      new ConcurrentHashMap<>();
 
   public static boolean contains(Class<?> entityClass) {
     if (generatorCache.containsKey(entityClass)) {
@@ -76,10 +76,11 @@ public class IdentifierGeneratorUtil {
         for (Parameter parameter : annotGenerator.parameters()) {
           properties.put(parameter.name(), parameter.value());
           IdentifierGenerator generator =
-              identifierGeneratorFactory.createIdentifierGenerator(
-                  annotGenerator.strategy(),
-                  TypeFactory.basic(field.getType().getName()),
-                  properties);
+              (IdentifierGenerator)
+                  identifierGeneratorFactory.createIdentifierGenerator(
+                      annotGenerator.strategy(),
+                      TypeFactory.basic(field.getType().getName()),
+                      properties);
           generatorCache.get(entityClass).put(field.getName(), generator);
         }
       }
