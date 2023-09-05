@@ -42,7 +42,7 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
   private final Condition notFull = this.putLock.newCondition();
 
   /** 提供List接口的访问方式 */
-  private List<E> list = new InternalList<>(this);
+  private final List<E> list = new InternalList<>(this);
 
   public LinkedBlockingQueue() {
     this(Integer.MAX_VALUE);
@@ -53,14 +53,13 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
       throw new IllegalArgumentException();
     }
     this.capacity = capacity;
-    this.last = this.head = new Node<>(); // 初始化链表
+    // 初始化链表
+    this.last = this.head = new Node<>();
   }
 
   public LinkedBlockingQueue(Collection<? extends E> c) {
     this();
-    for (E e : c) {
-      add(e);
-    }
+    this.addAll(c);
   }
 
   /**
@@ -95,7 +94,8 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
    */
   private void insert(E x) {
     this.last = this.last.next = new Node<>(x, null, this.last);
-    this.head.previous = this.last; // 让链表首尾相连 --> 链表头会链接链表尾 但链表尾并没有链接到链表头
+    // 让链表首尾相连 --> 链表头会链接链表尾 但链表尾并没有链接到链表头
+    this.head.previous = this.last;
   }
 
   /**
@@ -142,10 +142,10 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
    * <p>如果链表容量已满，会持续等待
    *
    * @param o E
-   * @throws InterruptedException
+   * @throws InterruptedException 线程中断异常
    */
   @Override
-  public void put(E o) throws InterruptedException {
+  public void put(@SuppressWarnings("NullableProblems") E o) throws InterruptedException {
     if (o == null) {
       throw new NullPointerException();
     }
@@ -163,8 +163,10 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
         this.notFull.signal();
         throw ie;
       }
-      insert(o); // 添加
-      c = tcount.getAndIncrement(); // 获取当前链表数量
+      // 添加
+      insert(o);
+      // 获取当前链表数量
+      c = tcount.getAndIncrement();
       if (c + 1 < this.capacity) {
         this.notFull.signal();
         // 判断是否可以继续输入
@@ -185,10 +187,11 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
    * @param timeout 超时时间
    * @param unit 时间单位
    * @return boolean
-   * @throws InterruptedException
+   * @throws InterruptedException 线程中断异常
    */
   @Override
-  public boolean offer(E o, long timeout, TimeUnit unit) throws InterruptedException {
+  public boolean offer(E o, long timeout, @SuppressWarnings("NullableProblems") TimeUnit unit)
+      throws InterruptedException {
     if (o == null) {
       throw new NullPointerException();
     }
@@ -222,7 +225,7 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
    * @return bookean
    */
   @Override
-  public boolean offer(E o) {
+  public boolean offer(@SuppressWarnings("NullableProblems") E o) {
     if (o == null) {
       throw new NullPointerException();
     }
@@ -254,15 +257,15 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
    * 获取队列的元素
    *
    * @return E
-   * @throws InterruptedException
+   * @throws InterruptedException 线程中断异常
    */
   @Override
   public E take() throws InterruptedException {
     int c = -1;
     AtomicInteger tcount = this.count;
     ReentrantLock ttakeLock = this.takeLock;
-    ttakeLock.lockInterruptibly();
     E x;
+    ttakeLock.lockInterruptibly();
     try {
       try {
         // 如果容量为0,持续等待获取元素
@@ -293,7 +296,7 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
    * @param timeout 操作超时时间
    * @param unit 时间单位
    * @return 队列为空返回 null
-   * @throws InterruptedException
+   * @throws InterruptedException 线程中断异常
    */
   @Override
   public E poll(long timeout, TimeUnit unit) throws InterruptedException {
@@ -301,16 +304,19 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
     long nanos = unit.toNanos(timeout);
     AtomicInteger tcount = this.count;
     ReentrantLock ttakeLock = this.takeLock;
-    ttakeLock.lockInterruptibly();
     E x;
+    ttakeLock.lockInterruptibly();
     try {
       if (waiting(nanos, tcount, 0)) {
         return null;
       }
-      x = extract(); // 获取元素
-      c = tcount.getAndDecrement(); // 计数器减1
+      // 获取元素
+      x = extract();
+      // 计数器减1
+      c = tcount.getAndDecrement();
       if (c > 1) {
-        this.notEmpty.signal(); // 判断是否可以继续输出
+        // 判断是否可以继续输出
+        this.notEmpty.signal();
       }
     } finally {
       ttakeLock.unlock();
@@ -417,8 +423,7 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
   }
 
   @Override
-  @SuppressWarnings("unchecked")
-  public <T> T[] toArray(T[] a) {
+  public <T> T[] toArray(@SuppressWarnings("NullableProblems") T[] a) {
     T[] array = a;
     fullyLock();
     try {
@@ -463,7 +468,7 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
   }
 
   @Override
-  public int drainTo(Collection<? super E> c) {
+  public int drainTo(@SuppressWarnings("NullableProblems") Collection<? super E> c) {
     if (c == null) {
       throw new NullPointerException();
     }
@@ -494,7 +499,8 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
   }
 
   @Override
-  public int drainTo(Collection<? super E> c, int maxElements) {
+  public int drainTo(
+      @SuppressWarnings("NullableProblems") Collection<? super E> c, int maxElements) {
     if (c == null) {
       throw new NullPointerException();
     }
@@ -549,8 +555,8 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
    * readObject
    *
    * @param s ObjectInputStream
-   * @throws IOException
-   * @throws ClassNotFoundException
+   * @throws IOException IO 异常
+   * @throws ClassNotFoundException 类未发现异常
    */
   private void readObject(ObjectInputStream s) throws IOException, ClassNotFoundException {
     s.defaultReadObject();
@@ -604,7 +610,7 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
   }
 
   @Override
-  public boolean add(E e) {
+  public boolean add(@SuppressWarnings("NullableProblems") E e) {
     return offer(e);
   }
 
@@ -689,8 +695,10 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
       Node<E> p = e.previous;
       E item = e.item;
       e.item = null;
-      p.next = e.next; // 上个节点的下一个指向当前节点的下一个节点
-      e.next.previous = p; // 当前节点的下一节点的上节点指向当前节点的上一个节点
+      // 上个节点的下一个指向当前节点的下一个节点
+      p.next = e.next;
+      // 当前节点的 下一节 点的上节点指向当前节点的上一个节点
+      e.next.previous = p;
       if (this.count.getAndDecrement() != this.capacity) {
         this.notFull.signalAll();
       }
@@ -812,13 +820,11 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
         if (p == null) {
           return;
         }
-        if (p == node) {
-          p.item = null;
-          trail.next = p.next;
-          int c = LinkedBlockingQueue.this.count.getAndDecrement();
-          if (c == LinkedBlockingQueue.this.capacity) {
-            LinkedBlockingQueue.this.notFull.signalAll();
-          }
+        p.item = null;
+        trail.next = p.next;
+        int c = LinkedBlockingQueue.this.count.getAndDecrement();
+        if (c == LinkedBlockingQueue.this.capacity) {
+          LinkedBlockingQueue.this.notFull.signalAll();
         }
       } finally {
         ttakeLock.unlock();
@@ -854,7 +860,7 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
 
   static class InternalList<E> implements List<E> {
 
-    private LinkedBlockingQueue<E> queue;
+    private final LinkedBlockingQueue<E> queue;
 
     InternalList(LinkedBlockingQueue<E> queue) {
       this.queue = queue;
@@ -871,12 +877,13 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
     }
 
     @Override
-    public boolean addAll(Collection<? extends E> c) {
+    public boolean addAll(@SuppressWarnings("NullableProblems") Collection<? extends E> c) {
       return this.queue.addAll(c);
     }
 
     @Override
-    public boolean addAll(int index, Collection<? extends E> c) {
+    public boolean addAll(
+        int index, @SuppressWarnings("NullableProblems") Collection<? extends E> c) {
       throw new UnsupportedOperationException();
     }
 
@@ -891,7 +898,7 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
     }
 
     @Override
-    public boolean containsAll(Collection<?> c) {
+    public boolean containsAll(@SuppressWarnings("NullableProblems") Collection<?> c) {
       return this.queue.containsAll(c);
     }
 
@@ -936,18 +943,17 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
     }
 
     @Override
-    public boolean removeAll(Collection<?> c) {
+    public boolean removeAll(@SuppressWarnings("NullableProblems") Collection<?> c) {
       return this.queue.removeAll(c);
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public int indexOf(Object o) {
       return this.queue.indexOf((E) o);
     }
 
     @Override
-    public boolean retainAll(Collection<?> c) {
+    public boolean retainAll(@SuppressWarnings("NullableProblems") Collection<?> c) {
       return this.queue.retainAll(c);
     }
 
@@ -972,7 +978,7 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
     }
 
     @Override
-    public <T> T[] toArray(T[] a) {
+    public <T> T[] toArray(@SuppressWarnings("NullableProblems") T[] a) {
       return this.queue.toArray(a);
     }
   }

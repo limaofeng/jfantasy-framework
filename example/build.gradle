@@ -13,7 +13,7 @@ jar {
 
 tasks.publish.enabled = false
 
-tasks.withType(Test) { enabled = false }
+tasks.withType(Test).configureEach { enabled = false }
 
 tasks.withType(PublishToMavenRepository).configureEach { it.enabled = false }
 
@@ -48,4 +48,5 @@ dependencies {
 	testAnnotationProcessor "org.projectlombok:lombok"
 	testAnnotationProcessor "org.mapstruct:mapstruct-processor:$LIB_MAPSTRUCT_VER"
 	testImplementation libs['test']
+    implementation("org.apache.shardingsphere:sharding-jdbc-core:4.1.1")
 }

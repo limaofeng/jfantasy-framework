@@ -1,14 +1,15 @@
 package org.jfantasy.framework.spring.config;
 
 import java.util.concurrent.Executor;
+import org.jfantasy.schedule.service.TaskScheduler;
+import org.quartz.Scheduler;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.aop.interceptor.SimpleAsyncUncaughtExceptionHandler;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
-import org.springframework.scheduling.SchedulingTaskExecutor;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -17,11 +18,12 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
  * 应用配置类 <br>
  *
  * <p>负责注册除Controller等web层以外的所有bean，包括aop代理，service层，dao层，缓存，等等
+ *
+ * @author limaofeng
  */
 @Configuration
 @EnableAsync
 @EnableAspectJAutoProxy(proxyTargetClass = true)
-@ComponentScan("org.jfantasy.schedule.service")
 public class AppConfig {
 
   @Bean
@@ -29,20 +31,9 @@ public class AppConfig {
     return new PropertySourcesPlaceholderConfigurer();
   }
 
-  @Bean(name = "taskExecutor")
-  public SchedulingTaskExecutor taskExecutor() {
-    ThreadPoolTaskExecutor pool = new ThreadPoolTaskExecutor();
-    // 线程池所使用的缓冲队列
-    pool.setQueueCapacity(200);
-    // 线程池维护线程的最少数量
-    pool.setCorePoolSize(5);
-    // 线程池维护线程的最大数量
-    pool.setMaxPoolSize(1000);
-    // 线程池维护线程所允许的空闲时间
-    pool.setKeepAliveSeconds(30000);
-    pool.setThreadNamePrefix("Task-");
-    pool.initialize();
-    return pool;
+  @Bean
+  public TaskScheduler taskScheduler(@Autowired(required = false) Scheduler scheduler) {
+    return new TaskScheduler(scheduler);
   }
 
   @Configuration

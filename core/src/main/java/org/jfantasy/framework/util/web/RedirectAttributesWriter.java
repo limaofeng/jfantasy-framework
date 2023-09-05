@@ -1,7 +1,7 @@
 package org.jfantasy.framework.util.web;
 
 import java.util.List;
-import org.jfantasy.framework.dao.jpa.PropertyFilter;
+import org.jfantasy.framework.dao.jpa.PropertyPredicate;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 public class RedirectAttributesWriter {
@@ -12,8 +12,8 @@ public class RedirectAttributesWriter {
     this.attrs = attrs;
   }
 
-  public RedirectAttributesWriter write(List<PropertyFilter> filters) {
-    for (PropertyFilter filter : filters) {
+  public RedirectAttributesWriter write(List<PropertyPredicate> filters) {
+    for (PropertyPredicate filter : filters) {
       this.attrs.addAttribute(filter.getFilterName(), filter.getPropertyValue());
     }
     return this;

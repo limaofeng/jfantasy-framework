@@ -9,13 +9,24 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.util.concurrent.LinkedQueue;
 
+/**
+ * 工人
+ *
+ * @author limaofeng
+ */
 @Slf4j
 public class Worker<T, R> implements Runnable {
+
+  private String state = "ready";
   private final LinkedQueue<Cargo<T, R>> queue = new LinkedQueue<>();
-  private final int batchSize;
+  private int batchSize;
   private final Function<List<T>, List<R>> saver;
 
-  public Worker(Function<List<T>, List<R>> saver, int batchSize) {
+  private Thread thread;
+  private final String actionName;
+
+  public Worker(String actionName, Function<List<T>, List<R>> saver, int batchSize) {
+    this.actionName = actionName;
     this.saver = saver;
     this.batchSize = batchSize;
   }
@@ -43,21 +54,26 @@ public class Worker<T, R> implements Runnable {
       }
       return items;
     } catch (InterruptedException e) {
-      log.error(e.getMessage());
-      throw new RuntimeException(e.getMessage());
+      log.error("thread " + thread.getName() + " interrupted");
+      return new ArrayList<>();
     }
   }
 
   @Override
   public void run() {
-    do {
+    this.thread = Thread.currentThread();
+    //noinspection AlibabaUndefineMagicConstant
+    while (!"shutdown".equals(state)) {
       List<Cargo<T, R>> items = getItems();
+      if (items.isEmpty()) {
+        continue;
+      }
       save(items);
-    } while (true);
+    }
   }
 
   private void save(List<Cargo<T, R>> items) {
-    System.out.println("批量保存:" + items.size() + "\tbatchSize:" + batchSize);
+    long start = System.currentTimeMillis();
     try {
       List<R> results =
           saver.apply(items.stream().map(Cargo::getContent).collect(Collectors.toList()));
@@ -70,10 +86,44 @@ public class Worker<T, R> implements Runnable {
           cargoIterator.next().getHearthstone().complete(resultIterator.next());
         }
       }
-
     } catch (Exception e) {
       log.error(e.getMessage(), e);
       items.forEach(item -> item.getHearthstone().obtrudeException(e));
+    } finally {
+      long end = System.currentTimeMillis();
+      log.info(
+          "执行批量操作:"
+              + actionName
+              + ",数量:"
+              + items.size()
+              + ",耗时:"
+              + (end - start)
+              + "毫秒,批次大小:"
+              + batchSize
+              + "条"
+              + ",队列大小:"
+              + queue.size());
     }
+  }
+
+  public void setBatchSize(int batchSize) {
+    this.batchSize = batchSize;
+  }
+
+  public String getState() {
+    return state;
+  }
+
+  public void shutdown() {
+    this.state = "shutdown";
+    while (!queue.isEmpty()) {
+      try {
+        //noinspection BusyWait
+        Thread.sleep(1000);
+      } catch (InterruptedException e) {
+        log.error(e.getMessage(), e);
+      }
+    }
+    thread.interrupt();
   }
 }

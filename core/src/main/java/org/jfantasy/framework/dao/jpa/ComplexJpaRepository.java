@@ -8,6 +8,7 @@ import jakarta.persistence.criteria.Root;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.function.LongSupplier;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,8 +16,11 @@ import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.jfantasy.framework.dao.LogicalDeletion;
+import org.jfantasy.framework.dao.DataQueryContext;
+import org.jfantasy.framework.dao.DataQueryContextHolder;
+import org.jfantasy.framework.dao.SoftDeletable;
 import org.jfantasy.framework.dao.hibernate.util.HibernateUtils;
+import org.jfantasy.framework.error.ValidationException;
 import org.jfantasy.framework.spring.SpringBeanUtils;
 import org.jfantasy.framework.util.common.BeanUtil;
 import org.jfantasy.framework.util.common.ClassUtil;
@@ -53,7 +57,8 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
 
   protected EntityManager em;
   protected JpaEntityInformation<T, ?> entityInformation;
-  private static final Map<Class, JpaRepository> REPOSITORIES = new HashMap<>();
+  private static final Map<Class<?>, JpaRepository<Object, Serializable>> REPOSITORIES =
+      new HashMap<>();
 
   public ComplexJpaRepository(Class<T> domainClass, EntityManager entityManager) {
     this(
@@ -71,47 +76,57 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
   }
 
   @Override
-  public JpaEntityInformation getJpaEntityInformation() {
+  public JpaEntityInformation<T, ID> getJpaEntityInformation() {
     return ClassUtil.getFieldValue(this, this.getClass(), "entityInformation");
   }
 
   @Override
-  public List<T> findAll(List<PropertyFilter> filters) {
+  public List<T> findAll(PropertyFilter filters) {
     return this.findAll(toSpecification(filters));
   }
 
   @Override
-  public Optional<T> findOne(List<PropertyFilter> filters) {
-    return this.findOne(toSpecification(filters));
+  public Optional<T> findOne(PropertyFilter filter) {
+    return this.findOne(toSpecification(filter));
   }
 
   @Override
-  public boolean exists(List<PropertyFilter> filters) {
-    return count(filters) > 0;
+  public boolean exists(PropertyFilter filter) {
+    return count(filter) > 0;
   }
 
   @Override
   public Optional<T> findOneBy(String name, Object value) {
-    return this.findOne(PropertyFilter.builder().equal(name, value).build());
+    return this.findOne(PropertyFilter.newFilter().equal(name, value));
   }
 
-  protected Specification<T> toSpecification(List<PropertyFilter> filters) {
-    return new PropertyFilterSpecification<>(this.getDomainClass(), filters);
+  protected Specification<T> toSpecification(PropertyFilter filter) {
+    if (!JpaDefaultPropertyFilter.class.isAssignableFrom(filter.getClass())) {
+      throw new ValidationException("不支持的过滤器类型");
+    }
+    DataQueryContext dataQueryContext = DataQueryContextHolder.getContext();
+    if (dataQueryContext != null) {
+      PropertyFilter contextFilter = dataQueryContext.getFilter(this.getDomainClass());
+      if (contextFilter != null) {
+        filter.and(contextFilter);
+      }
+    }
+    return new PropertyFilterSpecification<>(this.getDomainClass(), filter.build());
   }
 
   @Override
-  public long count(List<PropertyFilter> filters) {
-    return this.count(toSpecification(filters));
+  public long count(PropertyFilter filter) {
+    return this.count(toSpecification(filter));
   }
 
   @Override
-  public List<T> findAll(List<PropertyFilter> filters, Sort sort) {
-    return this.findAll(toSpecification(filters), sort);
+  public List<T> findAll(PropertyFilter filter, Sort sort) {
+    return this.findAll(toSpecification(filter), sort);
   }
 
   @Override
-  public List<T> findAll(List<PropertyFilter> filters, int size) {
-    TypedQuery<T> query = super.getQuery(toSpecification(filters), Sort.unsorted());
+  public List<T> findAll(PropertyFilter filter, int size) {
+    TypedQuery<T> query = super.getQuery(toSpecification(filter), Sort.unsorted());
     if (size > 0) {
       query.setMaxResults(size);
     }
@@ -119,8 +134,8 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
   }
 
   @Override
-  public List<T> findAll(List<PropertyFilter> filters, int size, Sort sort) {
-    TypedQuery<T> query = super.getQuery(toSpecification(filters), sort);
+  public List<T> findAll(PropertyFilter filter, int size, Sort sort) {
+    TypedQuery<T> query = super.getQuery(toSpecification(filter), sort);
     if (size > 0) {
       query.setMaxResults(size);
     }
@@ -128,8 +143,8 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
   }
 
   @Override
-  public List<T> findAll(List<PropertyFilter> filters, int offset, int limit, Sort sort) {
-    TypedQuery<T> query = super.getQuery(toSpecification(filters), sort);
+  public List<T> findAll(PropertyFilter filter, int offset, int limit, Sort sort) {
+    TypedQuery<T> query = super.getQuery(toSpecification(filter), sort);
     query.setFirstResult(offset);
     if (limit > 0) {
       query.setMaxResults(limit);
@@ -138,8 +153,8 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
   }
 
   @Override
-  public Page<T> findPage(Pageable pageable, List<PropertyFilter> filters) {
-    return this.findPage(pageable, toSpecification(filters));
+  public Page<T> findPage(Pageable pageable, PropertyFilter filter) {
+    return this.findPage(pageable, toSpecification(filter));
   }
 
   @Override
@@ -147,6 +162,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
     return this.findAll(spec, pageable);
   }
 
+  @Override
   public EntityManager getEntityManager() {
     return this.em;
   }
@@ -161,6 +177,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
     if (merge) {
       T oldEntity = super.getReferenceById(getIdValue(entity));
       if (entity == oldEntity) {
+        //noinspection SpringTransactionalMethodCallsInspection
         return this.save(entity);
       }
       return super.save(merge(entity, oldEntity, this.getDomainClass(), OgnlUtil.getInstance()));
@@ -213,7 +230,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
     return entities;
   }
 
-  private <O> O merge(Object entity, Object oldEntity, Class entityClass, OgnlUtil ognlUtil) {
+  private <O> O merge(Object entity, Object oldEntity, Class<?> entityClass, OgnlUtil ognlUtil) {
     // 为普通字段做值转换操作
     this.cleanColumn(
         entity, oldEntity, ClassUtil.getDeclaredFields(entityClass, Column.class), ognlUtil);
@@ -272,7 +289,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
       Object entity, Object oldEntity, Field[] manyToManyFields, OgnlUtil ognlUtil) {
     for (Field field : manyToManyFields) {
       ManyToMany manyToMany = field.getAnnotation(ManyToMany.class);
-      Class targetEntityClass = manyToMany.targetEntity();
+      Class<?> targetEntityClass = manyToMany.targetEntity();
       if (void.class == targetEntityClass) {
         targetEntityClass = ClassUtil.getFieldGenericType(field);
       }
@@ -289,19 +306,20 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
       }
 
       if (source != null && !source.isEmpty()) {
-        Class finalTargetEntityClass = targetEntityClass;
-        CompareResults results =
+        Class<?> finalTargetEntityClass = targetEntityClass;
+        @SuppressWarnings("ComparatorMethodParameterNotUsed")
+        CompareResults<?> results =
             ObjectUtil.compare(
                 source,
                 objects,
-                (Object o1, Object o2) -> {
+                (o1, o2) -> {
                   Serializable fkId1 = HibernateUtils.getIdValue(finalTargetEntityClass, o1);
                   Serializable fkId2 = HibernateUtils.getIdValue(finalTargetEntityClass, o2);
-                  return (fkId1 == fkId2) ? 0 : -1;
+                  return fkId1 != null && fkId1.equals(fkId2) ? 0 : -1;
                 });
 
         ObjectUtil.remove(source, (item) -> results.getExceptA().contains(item));
-        source.addAll((Collection<?>) results.getExceptB());
+        source.addAll(results.getExceptB());
       } else {
         List<Object> addObjects = new ArrayList<>();
         for (Object fk : objects) {
@@ -341,7 +359,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
       Object entity, Object oldEntity, Field[] oneToManyFields, OgnlUtil ognlUtil) {
     for (Field field : oneToManyFields) {
       OneToMany oneToMany = field.getAnnotation(OneToMany.class);
-      Class targetEntityClass = oneToMany.targetEntity();
+      Class<?> targetEntityClass = oneToMany.targetEntity();
       if (void.class == targetEntityClass) {
         targetEntityClass = ClassUtil.getFieldGenericType(field);
       }
@@ -384,13 +402,14 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
     }
   }
 
-  public String getIdName(Class entityClass) {
-    JpaRepository repository = getJpaRepository(entityClass);
-    JpaEntityInformation<T, ?> entityInformation = repository.getJpaEntityInformation();
+  public String getIdName(Class<?> entityClass) {
+    JpaRepository<Object, Serializable> repository = getJpaRepository(entityClass);
+    JpaEntityInformation<Object, Serializable> entityInformation =
+        repository.getJpaEntityInformation();
     return Objects.requireNonNull(entityInformation.getIdAttribute()).getName();
   }
 
-  public JpaRepository getJpaRepository(Class domainClass) {
+  public JpaRepository<Object, Serializable> getJpaRepository(Class<?> domainClass) {
     if (REPOSITORIES.isEmpty()) {
       Arrays.stream(
               SpringBeanUtils.getApplicationContext().getBeanNamesForType(JpaRepository.class))
@@ -398,7 +417,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
           .filter(Objects::nonNull)
           .forEach(
               repository -> {
-                Class entityType =
+                Class<?> entityType =
                     ClassUtil.getInterfaceGenricType(
                         repository.getClass().getInterfaces()[0], JpaRepository.class);
                 REPOSITORIES.put(entityType, repository);
@@ -408,9 +427,9 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
   }
 
   @Override
-  public void delete(T entity) {
-    if (LogicalDeletion.class.isAssignableFrom(this.getDomainClass())) {
-      ((LogicalDeletion) entity).setDeleted(true);
+  public void delete(@SuppressWarnings("NullableProblems") T entity) {
+    if (SoftDeletable.class.isAssignableFrom(this.getDomainClass())) {
+      ((SoftDeletable) entity).setDeleted(true);
       List<FieldWarp> fields =
           Arrays.stream(ClassUtil.getDeclaredFields(this.getDomainClass()))
               .filter(
@@ -429,11 +448,11 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
                   })
               .map(
                   field -> {
-                    Class entityType =
+                    Class<?> entityType =
                         ClassUtil.forName(
                             RegexpUtil.parseGroup(
                                 field.getGenericType().getTypeName(), "<([^>]+)>", 1));
-                    JpaRepository repository = getJpaRepository(entityType);
+                    JpaRepository<Object, Serializable> repository = getJpaRepository(entityType);
                     return FieldWarp.builder()
                         .field(field)
                         .domainClass(entityType)
@@ -444,7 +463,8 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
       for (FieldWarp field : fields) {
         field.delete(entity);
       }
-      ((LogicalDeletion) entity).setDeleted(true);
+      ((SoftDeletable) entity).setDeleted(true);
+      //noinspection SpringTransactionalMethodCallsInspection
       this.save(entity);
     } else {
       super.delete(entity);
@@ -452,24 +472,28 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
   }
 
   @Override
+  @SuppressWarnings("NullableProblems")
   protected <S extends T> TypedQuery<S> getQuery(
-      @Nullable Specification<S> spec, Class<S> domainClass, Sort sort) {
+      @Nullable Specification<S> spec,
+      @SuppressWarnings("NullableProblems") Class<S> domainClass,
+      @SuppressWarnings("NullableProblems") Sort sort) {
     return super.getQuery(defaultSpecification(spec), domainClass, sort);
   }
 
+  @SuppressWarnings("NullableProblems")
   @Override
   protected <S extends T> TypedQuery<Long> getCountQuery(
-      @Nullable Specification<S> spec, Class<S> domainClass) {
+      @Nullable Specification<S> spec, @SuppressWarnings("NullableProblems") Class<S> domainClass) {
     return super.getCountQuery(defaultSpecification(spec), domainClass);
   }
 
   protected <S extends T> Specification<S> defaultSpecification(Specification<S> spec) {
-    if (LogicalDeletion.class.isAssignableFrom(this.getDomainClass())) {
-      String fieldName = LogicalDeletion.getDeletedFieldName(this.getDomainClass());
+    if (SoftDeletable.class.isAssignableFrom(this.getDomainClass())) {
+      String fieldName = SoftDeletable.getDeletedFieldName(this.getDomainClass());
       if (spec == null) {
-        spec = new ExcludeDeletedSpecification(fieldName);
+        spec = new ExcludeDeletedSpecification<>(fieldName);
       } else {
-        spec = spec.and(new ExcludeDeletedSpecification(fieldName));
+        spec = spec.and(new ExcludeDeletedSpecification<>(fieldName));
       }
     }
     return spec;
@@ -480,7 +504,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
   @AllArgsConstructor
   static class FieldWarp {
     private Field field;
-    private Class domainClass;
+    private Class<?> domainClass;
     private JpaRepository<Object, Serializable> repository;
 
     public Object getValue(Object entity) {
@@ -490,14 +514,14 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
 
     public void delete(Object entity) {
       if (ClassUtil.isList(field.getType())) {
-        repository.deleteAll(((List) this.getValue(entity)));
+        repository.deleteAll(((List<?>) this.getValue(entity)));
       } else {
         repository.delete(this.getValue(entity));
       }
     }
   }
 
-  public static class ExcludeDeletedSpecification implements Specification {
+  public static class ExcludeDeletedSpecification<T> implements Specification<T> {
 
     private final String fieldName;
 
@@ -506,30 +530,39 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
     }
 
     @Override
-    public Predicate toPredicate(Root root, CriteriaQuery query, CriteriaBuilder builder) {
+    public Predicate toPredicate(
+        Root root,
+        @SuppressWarnings("NullableProblems") CriteriaQuery query,
+        CriteriaBuilder builder) {
       return builder.notEqual(root.get(this.fieldName), true);
     }
   }
 
+  /**
+   * 分页查询
+   *
+   * @param pageable 分页对象
+   * @param hql hql语句
+   * @param values 参数
+   * @return Pager<T>
+   */
   public Page<T> findPage(Pageable pageable, String hql, Object... values) {
-    Query query = createQuery(hql, values);
-
-    if (pageable.isUnpaged()) {
-      return new PageImpl<T>(query.getResultList());
-    }
-
-    if (pageable.isPaged()) {
-      query.setFirstResult((int) pageable.getOffset());
-      query.setMaxResults(pageable.getPageSize());
-    }
-
-    return PageableExecutionUtils.getPage(
-        query.getResultList(), pageable, () -> countHqlResult(hql, values));
+    return loadPage(pageable, createQuery(hql, values), () -> countHqlResult(hql, values));
   }
 
+  /**
+   * 分页查询
+   *
+   * @param pageable 分页对象
+   * @param hql hql语句
+   * @param values 参数
+   * @return Pager<T>
+   */
   public Page<T> findPage(Pageable pageable, String hql, Map<String, ?> values) {
-    Query query = createQuery(hql, values);
+    return loadPage(pageable, createQuery(hql, values), () -> countHqlResult(hql, values));
+  }
 
+  public Page<T> loadPage(Pageable pageable, Query query, LongSupplier supplier) {
     if (pageable.isUnpaged()) {
       return new PageImpl<T>(query.getResultList());
     }
@@ -538,8 +571,8 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
       query.setFirstResult((int) pageable.getOffset());
       query.setMaxResults(pageable.getPageSize());
     }
-    return PageableExecutionUtils.getPage(
-        query.getResultList(), pageable, () -> countHqlResult(hql, values));
+
+    return PageableExecutionUtils.getPage(query.getResultList(), pageable, supplier);
   }
 
   protected String createCountHQL(String hql) {
@@ -609,6 +642,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
 
   protected Query createQuery(String hql, Object... values) {
     Assert.hasText("hql 不能为空", hql);
+    @SuppressWarnings("SqlSourceToSinkFlow")
     Query query = em.createQuery(hql, entityInformation.getJavaType());
     for (int i = 0; i < values.length; i++) {
       query.setParameter(i, values[i]);
@@ -618,6 +652,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
 
   protected Query createQuery(String hql, Map<String, ?> values) {
     Assert.hasText(hql, "hql 不能为空");
+    @SuppressWarnings("SqlSourceToSinkFlow")
     Query query = em.createQuery(hql, entityInformation.getJavaType());
     for (Map.Entry<String, ?> entry : values.entrySet()) {
       query.setParameter(entry.getKey(), entry.getValue());
@@ -627,6 +662,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
 
   protected Query createSQLQuery(String sql, Object... values) {
     Assert.hasText(sql, "sql 不能为空");
+    @SuppressWarnings("SqlSourceToSinkFlow")
     Query query = em.createNativeQuery(sql, entityInformation.getJavaType());
     for (int i = 0; i < values.length; i++) {
       query.setParameter(i, values[i]);
@@ -636,6 +672,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
 
   protected Query createSQLQuery(String sql, Map<String, ?> values) {
     Assert.hasText(sql, "sql 不能为空");
+    @SuppressWarnings("SqlSourceToSinkFlow")
     Query query = em.createNativeQuery(sql, entityInformation.getJavaType());
     for (Map.Entry<String, ?> entry : values.entrySet()) {
       query.setParameter(entry.getKey(), entry.getValue());

@@ -21,7 +21,6 @@ public class ParameterMap extends HashMap<String, String[]> {
     return request.getParameterValues(StringUtil.nullValue(key));
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public Set<Map.Entry<String, String[]>> entrySet() {
     if (entries == null) {

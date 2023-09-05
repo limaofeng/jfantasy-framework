@@ -9,6 +9,8 @@ import org.jfantasy.framework.security.core.userdetails.UsernameNotFoundExceptio
 import org.springframework.context.support.MessageSourceAccessor;
 
 /**
+ * 用户详细信息认证提供程序
+ *
  * @author limaofeng
  */
 @Slf4j
@@ -77,9 +79,9 @@ public abstract class AbstractUserDetailsAuthenticationProvider
   /**
    * 验证密码
    *
-   * @param userDetails
-   * @param authentication
-   * @throws AuthenticationException
+   * @param userDetails 用户详细信息
+   * @param authentication 认证信息
+   * @throws AuthenticationException 认证异常
    */
   protected abstract void additionalAuthenticationChecks(
       UserDetails userDetails, UsernamePasswordAuthenticationToken authentication)

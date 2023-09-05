@@ -115,17 +115,17 @@ subprojects {
         ignoreFailures = true
     }
 
-    task javadocJar(type: Jar) {
+    tasks.register('javadocJar', Jar) {
         archiveClassifier.set("javadoc")
         from javadoc
     }
 
-    task sourceJar(type: Jar) {
+    tasks.register('sourceJar', Jar) {
         archiveClassifier.set("sources")
         from sourceSets.main.allSource
     }
 
-    task copyDependencies(type: Sync) {
+    tasks.register('copyDependencies', Sync) {
         from configurations.compileClasspath
         from configurations.testCompileClasspath
         into 'build/dependencies'
@@ -192,6 +192,7 @@ tasks.register("codeCoverageReport", JacocoReport) {
             subproject.tasks.matching({ t -> t.extensions.findByType(JacocoTaskExtension) }).configureEach { testTask ->
                 //noinspection GroovyAssignabilityCheck
                 sourceSets subproject.sourceSets.main
+                //noinspection GroovyAssignabilityCheck
                 executionData(testTask)
             }
             subproject.tasks.matching({ t -> t.extensions.findByType(JacocoTaskExtension) }).forEach {

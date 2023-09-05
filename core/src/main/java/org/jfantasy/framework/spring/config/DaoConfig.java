@@ -1,12 +1,14 @@
 package org.jfantasy.framework.spring.config;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.persistence.EntityManagerFactory;
+import javax.annotation.PostConstruct;
+import javax.persistence.EntityManagerFactory;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.EventType;
 import org.jfantasy.framework.dao.hibernate.event.PropertyGeneratorPersistEventListener;
 import org.jfantasy.framework.dao.hibernate.event.PropertyGeneratorSaveOrUpdateEventListener;
+import org.jfantasy.framework.dao.hibernate.generator.SequenceGenerator;
+import org.jfantasy.framework.dao.hibernate.generator.SerialNumberGenerator;
 import org.jfantasy.framework.dao.jpa.ComplexJpaRepository;
 import org.jfantasy.framework.spring.SpringBeanUtils;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -33,6 +35,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
     },
     basePackages = {"org.jfantasy.framework.context.dao"},
     repositoryBaseClass = ComplexJpaRepository.class)
+@ComponentScan({"org.jfantasy.framework.context.service", "org.jfantasy.framework.context.dao"})
 @Import({MyBatisConfig.class})
 public class DaoConfig {
 
@@ -52,8 +55,8 @@ public class DaoConfig {
     //    MutableIdentifierGeneratorFactory identifierGeneratorFactory =
     //        sessionFactory.getServiceRegistry().getService(IdentifierGeneratorFactory.class);
     // 自定义序列生成器
-    //    identifierGeneratorFactory.register("fantasy-sequence", SequenceGenerator.class);
-    //    identifierGeneratorFactory.register("serialnumber", SerialNumberGenerator.class);
+    identifierGeneratorFactory.register("fantasy-sequence", SequenceGenerator.class);
+    identifierGeneratorFactory.register("serial-number", SerialNumberGenerator.class);
     // 默认监听器
     registry.prependListeners(
         EventType.SAVE_UPDATE,

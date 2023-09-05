@@ -3,8 +3,13 @@ package org.jfantasy.autoconfigure.properties;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+/**
+ * Cuckoo 配置
+ *
+ * @author limaofeng
+ */
 @Data
-@ConfigurationProperties(prefix = "spring.cuckoo")
+@ConfigurationProperties(prefix = "cuckoo")
 public class CuckooProperties {
 
   private boolean rebuild;

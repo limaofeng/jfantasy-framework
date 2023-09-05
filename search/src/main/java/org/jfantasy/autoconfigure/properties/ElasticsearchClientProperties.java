@@ -3,8 +3,13 @@ package org.jfantasy.autoconfigure.properties;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+/**
+ * Elasticsearch Client Properties
+ *
+ * @author limaofeng
+ */
 @Data
-@ConfigurationProperties(prefix = "spring.cuckoo.elasticsearch.client")
+@ConfigurationProperties(prefix = "cuckoo.elasticsearch.client")
 public class ElasticsearchClientProperties {
 
   private String url;

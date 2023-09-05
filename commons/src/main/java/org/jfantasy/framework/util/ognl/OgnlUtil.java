@@ -31,11 +31,11 @@ public class OgnlUtil {
 
   private Map<Class<?>, TypeConverter> typeConverters = new HashMap<Class<?>, TypeConverter>();
 
-  private TypeConverter defaultTypeConverter =
+  private final TypeConverter defaultTypeConverter =
       new DefaultTypeConverter() {
 
         @Override
-        @SuppressWarnings("rawtypes")
+        @SuppressWarnings({"rawtypes", "unchecked"})
         public Object convertValue(
             Map context, Object root, Member member, String name, Object value, Class toType) {
           if (OgnlUtil.this.typeConverters.containsKey(toType)) {
@@ -189,7 +189,6 @@ public class OgnlUtil {
     return getValue(name, createDefaultContext(root), root, resultType);
   }
 
-  @SuppressWarnings("unchecked")
   public <T> T getValue(
       String name, Map<String, Object> context, Object root, Class<T> resultType) {
     try {
@@ -221,7 +220,7 @@ public class OgnlUtil {
 
   public Map<String, Object> getBeanMap(Object source, String... excludeProperties)
       throws IntrospectionException, OgnlException {
-    Map<String, Object> beanMap = new HashMap<String, Object>();
+    Map<String, Object> beanMap = new HashMap<>();
     Map<String, ?> sourceMap = Ognl.createDefaultContext(source);
     PropertyDescriptor[] propertyDescriptors = getPropertyDescriptors(source);
     for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {

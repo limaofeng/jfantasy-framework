@@ -1,5 +1,6 @@
 package org.jfantasy.framework.context.dao;
 
+import java.util.Optional;
 import org.jfantasy.framework.context.bean.Language;
 import org.jfantasy.framework.dao.jpa.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -18,5 +19,5 @@ public interface LanguageRepository extends JpaRepository<Language, Long> {
    * @param locale 地区
    * @return Language 语音
    */
-  Language findByKeyAndLocale(String key, String locale);
+  Optional<Language> findByKeyAndLocale(String key, String locale);
 }

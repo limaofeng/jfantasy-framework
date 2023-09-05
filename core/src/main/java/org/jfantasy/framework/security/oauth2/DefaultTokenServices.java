@@ -67,8 +67,18 @@ public class DefaultTokenServices
       secret = clientDetails.getClientSecret(tokenType.getClientSecretType());
       expiresAt = details.getExpiresAt();
     } else if (tokenType == TokenType.TOKEN) {
-      supportRefreshToken = true;
-      expiresAt = Instant.now().plus(expires, ChronoUnit.MINUTES);
+      if (details.getGrantType() == AuthorizationGrantType.CLIENT_CREDENTIALS) {
+        if (clientDetails.getClientSecrets(ClientSecretType.OAUTH).stream()
+            .noneMatch(s -> s.equals(details.getClientSecret()))) {
+          throw new AuthenticationException("无效的 client_secret");
+        }
+        secret = details.getClientSecret();
+        expiresAt = details.getExpiresAt();
+      } else {
+        supportRefreshToken = true;
+        secret = clientDetails.getClientSecret(tokenType.getClientSecretType());
+        expiresAt = Instant.now().plus(expires, ChronoUnit.MINUTES);
+      }
     } else if (tokenType == TokenType.SESSION) {
       secret = clientDetails.getClientSecret(tokenType.getClientSecretType());
       expiresAt = Instant.now().plus(expires, ChronoUnit.MINUTES);
@@ -80,14 +90,18 @@ public class DefaultTokenServices
 
     details.setClientSecret(secret);
 
-    JwtTokenPayload payload =
+    JwtTokenPayload.JwtTokenPayloadBuilder jwtTokenPayloadBuilder =
         JwtTokenPayload.builder()
-            .uid(principal.getUid())
             .name(authentication.getName())
             .clientId(clientDetails.getClientId())
             .tokenType(tokenType)
-            .expiresAt(expiresAt)
-            .build();
+            .expiresAt(expiresAt);
+
+    if (principal != null) {
+      jwtTokenPayloadBuilder.uid(principal.getUid());
+    }
+
+    JwtTokenPayload payload = jwtTokenPayloadBuilder.build();
 
     String tokenValue = generateTokenValue(payload, secret);
 

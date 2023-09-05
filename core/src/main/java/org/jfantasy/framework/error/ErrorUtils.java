@@ -7,6 +7,7 @@ import org.springframework.validation.DataBinder;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.SmartValidator;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 
 /**
  * 异常工具类
@@ -67,6 +68,10 @@ public class ErrorUtils {
 
   public static void fill(ErrorResponse error, MethodArgumentNotValidException exception) {
     fill(error, new ValidationException(exception.getBindingResult()));
+  }
+
+  public static void fill(ErrorResponse error, MissingServletRequestParameterException exception) {
+    fill(error, new ValidationException(exception.getMessage()));
   }
 
   private static final DataBinder createBinder(Object target) {

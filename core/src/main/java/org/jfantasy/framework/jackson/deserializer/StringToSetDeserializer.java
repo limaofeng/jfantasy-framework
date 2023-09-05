@@ -3,6 +3,8 @@ package org.jfantasy.framework.jackson.deserializer;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
@@ -17,18 +19,19 @@ import org.jfantasy.framework.util.common.StringUtil;
 public abstract class StringToSetDeserializer<T> extends JsonDeserializer<Set<T>> {
   @Override
   public Set<T> deserialize(JsonParser jp, DeserializationContext context) throws IOException {
-    if (jp.isExpectedStartArrayToken()) {
-      Set objects = new HashSet();
-      String value = jp.nextTextValue();
-      do {
-        if (StringUtil.isNotBlank(value)) {
-          objects.add(itemDeserialize(value));
-        }
-        value = jp.nextTextValue();
-      } while (StringUtil.isNotBlank(value));
-      return objects;
+    JsonNode node = jp.readValueAsTree();
+    if (!node.isArray()) {
+      return null;
     }
-    return null;
+    Set<T> objects = new HashSet<>();
+    ArrayNode arrayNode = (ArrayNode) node;
+    for (JsonNode elementNode : arrayNode) {
+      String value = elementNode.toString();
+      if (StringUtil.isNotBlank(value)) {
+        objects.add(itemDeserialize(value));
+      }
+    }
+    return objects;
   }
 
   /**

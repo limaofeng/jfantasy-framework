@@ -2,6 +2,7 @@ package org.jfantasy.framework.spring.mvc.http;
 
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import lombok.extern.slf4j.Slf4j;
@@ -18,10 +19,15 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
+import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
-/** 支持 REST 接口的响应头设置 <br> */
+/**
+ * 支持 REST 接口的响应头设置 <br>
+ *
+ * @author limaofeng
+ */
 @Order(1)
 @Slf4j
 @ControllerAdvice
@@ -37,27 +43,34 @@ public class JacksonResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 
   @Override
   public boolean supports(
-      MethodParameter methodParameter, Class<? extends HttpMessageConverter<?>> converterType) {
-    Class returnType = methodParameter.getMethod().getReturnType();
+      MethodParameter methodParameter,
+      @Nullable Class<? extends HttpMessageConverter<?>> converterType) {
+    Class<?> returnType = Objects.requireNonNull(methodParameter.getMethod()).getReturnType();
     return Object.class.isAssignableFrom(returnType);
   }
 
   @Override
   public Object beforeBodyWrite(
       Object returnValue,
-      MethodParameter methodParameter,
-      MediaType mediaType,
-      Class<? extends HttpMessageConverter<?>> converterType,
-      ServerHttpRequest serverHttpRequest,
-      ServerHttpResponse serverHttpResponse) {
-    if (ClassUtil.isBasicType(methodParameter.getMethod().getReturnType())) {
+      @Nullable MethodParameter methodParameter,
+      @Nullable MediaType mediaType,
+      @Nullable Class<? extends HttpMessageConverter<?>> converterType,
+      @Nullable ServerHttpRequest serverHttpRequest,
+      @Nullable ServerHttpResponse serverHttpResponse) {
+    if (ClassUtil.isBasicType(
+        Objects.requireNonNull(Objects.requireNonNull(methodParameter).getMethod())
+            .getReturnType())) {
       return returnValue;
     }
-    if (returnValue == null && serverHttpRequest.getMethod() == HttpMethod.GET) {
+    if (returnValue == null
+        && Objects.requireNonNull(serverHttpRequest).getMethod() == HttpMethod.GET) {
       throw new NotFoundException("查询的对象不存在");
     }
-    if (mediaType.isCompatibleWith(MediaType.APPLICATION_JSON)) {
+    if (Objects.requireNonNull(mediaType).isCompatibleWith(MediaType.APPLICATION_JSON)) {
       log.debug("启用自定义 FilterProvider ");
+      if (returnValue == null) {
+        return null;
+      }
       MappingJacksonValue mappingJacksonValue = new MappingJacksonValue(returnValue);
       mappingJacksonValue.setFilters(getFilterProvider(methodParameter));
       return mappingJacksonValue;
@@ -85,7 +98,7 @@ public class JacksonResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 
   private FilterProvider getFilterProvider(MethodParameter methodParameter) {
     JsonResultFilter jsonResultFilter =
-        methodParameter.getMethod().getAnnotation(JsonResultFilter.class);
+        Objects.requireNonNull(methodParameter.getMethod()).getAnnotation(JsonResultFilter.class);
     if (jsonResultFilter == null) {
       return PROVIDERS.get(DEFAULT_PROVIDER_KEY);
     }

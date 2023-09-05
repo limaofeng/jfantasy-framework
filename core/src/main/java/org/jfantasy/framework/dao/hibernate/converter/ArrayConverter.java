@@ -7,9 +7,14 @@ import org.jfantasy.framework.jackson.JSON;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 
+/**
+ * 数组转换器
+ *
+ * @author limaofeng
+ */
 public class ArrayConverter<T> implements AttributeConverter<T[], String> {
 
-  protected Class entityClass;
+  protected Class<?> entityClass;
 
   public ArrayConverter() {
     this.entityClass =

@@ -13,7 +13,6 @@ public class ParameterMap extends HashMap<String, Object> {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public Object put(String key, Object value) {
     if (value instanceof String) {
       if (isArray(key)) {

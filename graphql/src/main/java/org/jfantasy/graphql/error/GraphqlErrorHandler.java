@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @Component
 public class GraphqlErrorHandler {
 
-  @ExceptionHandler(value = Exception.class)
+  @ExceptionHandler(value = {Exception.class, RuntimeException.class})
   public GraphQLError transform(Exception e, ErrorContext errorContext) {
     if (e instanceof GraphQLError) {
       return (GraphQLError) e;

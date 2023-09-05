@@ -2,9 +2,9 @@ package org.jfantasy.framework.context;
 
 import java.text.MessageFormat;
 import java.util.Locale;
+import java.util.Optional;
 import org.jfantasy.framework.context.bean.Language;
-import org.jfantasy.framework.context.dao.LanguageRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.jfantasy.framework.context.service.LanguageService;
 import org.springframework.context.support.AbstractMessageSource;
 
 /**
@@ -14,19 +14,22 @@ import org.springframework.context.support.AbstractMessageSource;
  */
 public class DatabaseMessageSource extends AbstractMessageSource {
 
-  @Autowired private LanguageRepository languageRepository;
+  private static final Locale DEFAULT_LOCALE = Locale.SIMPLIFIED_CHINESE;
 
-  private static final String DEFAULT_LOCALE_CODE = "zh";
+  private final LanguageService languageService;
+
+  public DatabaseMessageSource(LanguageService languageService) {
+    this.languageService = languageService;
+  }
 
   @Override
-  protected MessageFormat resolveCode(String key, Locale locale) {
-    Language message = languageRepository.findByKeyAndLocale(key, locale.getLanguage());
-    if (message == null) {
-      message = languageRepository.findByKeyAndLocale(key, DEFAULT_LOCALE_CODE);
-    }
-    if (message == null) {
-      return null;
-    }
-    return new MessageFormat(message.getContent(), locale);
+  protected MessageFormat resolveCode(
+      @SuppressWarnings("NullableProblems") String key,
+      @SuppressWarnings("NullableProblems") Locale locale) {
+    Optional<Language> optional = languageService.getMessage(key, locale);
+    Optional<Language> result =
+        Optional.ofNullable(
+            optional.orElseGet(() -> languageService.getMessage(key, DEFAULT_LOCALE).orElse(null)));
+    return result.map(language -> new MessageFormat(language.getContent(), locale)).orElse(null);
   }
 }

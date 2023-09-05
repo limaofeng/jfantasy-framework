@@ -15,7 +15,7 @@ import org.jfantasy.framework.util.common.StringUtil;
  */
 public class SetConverter<T> implements AttributeConverter<Set<T>, String> {
 
-  protected Class entityClass;
+  protected Class<?> entityClass;
 
   public SetConverter() {
     this.entityClass =

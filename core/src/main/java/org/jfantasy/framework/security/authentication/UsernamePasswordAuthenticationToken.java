@@ -6,9 +6,7 @@ import org.jfantasy.framework.security.LoginUser;
 import org.jfantasy.framework.security.core.AuthenticatedPrincipal;
 import org.jfantasy.framework.security.core.GrantedAuthority;
 
-/**
- * @author limaofeng
- */
+/** @author limaofeng */
 public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationToken {
 
   private final Object principal;
@@ -22,7 +20,7 @@ public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationT
   }
 
   public UsernamePasswordAuthenticationToken(
-      Object principal, Object credentials, Collection<? extends GrantedAuthority> authorities) {
+      Object principal, Object credentials, Collection<GrantedAuthority> authorities) {
     super(authorities);
     this.principal = principal;
     this.credentials = credentials;

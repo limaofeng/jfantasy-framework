@@ -1,13 +1,14 @@
 package org.jfantasy.framework.spring.mvc.method.annotation;
 
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.URLDecoder;
 import java.util.*;
-import org.jfantasy.framework.dao.jpa.PropertyFilter;
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
+import org.jfantasy.framework.dao.MatchType;
+import org.jfantasy.framework.dao.jpa.PropertyPredicate;
 import org.jfantasy.framework.error.IgnoreException;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
@@ -34,7 +35,7 @@ public class PropertyFilterModelAttributeMethodProcessor extends MethodArgumentR
   private static boolean isPropertyFilterParameter(Type type) {
     if (type instanceof ParameterizedType) {
       Type[] actualTypes = ((ParameterizedType) type).getActualTypeArguments();
-      return actualTypes.length == 1 && actualTypes[0] == PropertyFilter.class;
+      return actualTypes.length == 1 && actualTypes[0] == PropertyPredicate.class;
     }
     return false;
   }
@@ -66,7 +67,6 @@ public class PropertyFilterModelAttributeMethodProcessor extends MethodArgumentR
     return BeanUtils.instantiateClass(parameter.getParameterType());
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   protected final Map<String, String> getUriTemplateVariables(NativeWebRequest request) {
     Map<String, String> variables =
@@ -115,11 +115,11 @@ public class PropertyFilterModelAttributeMethodProcessor extends MethodArgumentR
       MethodParameter parameter)
       throws Exception {
     ServletRequest servletRequest = prepareServletRequest(binder.getTarget(), request, parameter);
-    @SuppressWarnings("unchecked")
+
     List<Object> target = (List<Object>) binder.getTarget();
     for (String paramName : servletRequest.getParameterMap().keySet()) {
       String[] values = request.getParameterValues(paramName);
-      PropertyFilter.MatchType matchType = PropertyFilter.MatchType.get(paramName);
+      MatchType matchType = MatchType.get(paramName);
       assert matchType != null;
       // if (matchType.isNone()) {
       // target.add(new PropertyFilter(paramName));
@@ -167,6 +167,6 @@ public class PropertyFilterModelAttributeMethodProcessor extends MethodArgumentR
   }
 
   private boolean isPropertyFilterModelAttribute(String parameterName) {
-    return PropertyFilter.MatchType.is(parameterName);
+    return MatchType.is(parameterName);
   }
 }

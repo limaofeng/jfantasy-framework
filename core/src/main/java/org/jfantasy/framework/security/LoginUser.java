@@ -2,14 +2,19 @@ package org.jfantasy.framework.security;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.security.Principal;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.jfantasy.framework.dao.Tenantable;
 import org.jfantasy.framework.security.core.GrantedAuthority;
 import org.jfantasy.framework.security.core.user.OAuth2User;
 import org.jfantasy.framework.security.core.userdetails.UserDetails;
@@ -26,7 +31,7 @@ import org.jfantasy.framework.util.common.ObjectUtil;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class LoginUser implements UserDetails, Principal, OAuth2User {
+public class LoginUser implements UserDetails, Principal, OAuth2User, Tenantable {
   /** 用户名 */
   private String username;
   /** 密码 */
@@ -49,8 +54,8 @@ public class LoginUser implements UserDetails, Principal, OAuth2User {
   private String group;
   /** 电话 */
   private String phone;
-  /** */
-  private Map<String, Object> data;
+  /** 扩展属性 */
+  @JsonIgnore private Map<String, Object> data;
   /** 启用状态 */
   @Builder.Default private boolean enabled = true;
   /** 账户过期状态 */
@@ -62,7 +67,9 @@ public class LoginUser implements UserDetails, Principal, OAuth2User {
   /** 权限 */
   @JsonSerialize(using = GrantedAuthority.GrantedAuthoritiesSerializer.class)
   @JsonDeserialize(using = GrantedAuthority.GrantedAuthoritiesDeserializer.class)
-  private Set<? extends GrantedAuthority> authorities;
+  private Set<GrantedAuthority> authorities;
+  /** 租户ID */
+  private String tenantId;
 
   @JsonAnySetter
   public void setAttribute(String key, Object value) {
@@ -86,7 +93,7 @@ public class LoginUser implements UserDetails, Principal, OAuth2User {
     return ObjectUtil.defaultValue(this.data, Collections.emptyMap());
   }
 
-  public void setAuthorities(Set<? extends GrantedAuthority> authorities) {
+  public void setAuthorities(Set<GrantedAuthority> authorities) {
     this.authorities = authorities;
   }
 }

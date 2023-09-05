@@ -2,8 +2,8 @@ package cn.asany.example.demo.web;
 
 import cn.asany.example.demo.domain.User;
 import cn.asany.example.demo.service.UserService;
-import jakarta.validation.Valid;
-import java.util.ArrayList;
+import javax.validation.Valid;
+import org.jfantasy.framework.dao.jpa.PropertyFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
@@ -36,7 +36,7 @@ public class UserController {
   @GetMapping("/users")
   @ResponseBody
   public Page<User> users() {
-    return userService.findPage(Pageable.ofSize(10), new ArrayList<>());
+    return userService.findPage(Pageable.ofSize(10), PropertyFilter.newFilter());
   }
 
   @PostMapping("/users")

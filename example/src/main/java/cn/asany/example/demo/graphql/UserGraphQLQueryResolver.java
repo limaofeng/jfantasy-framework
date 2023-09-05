@@ -1,6 +1,6 @@
 package cn.asany.example.demo.graphql;
 
-import cn.asany.example.demo.graphql.inputs.UserFilter;
+import cn.asany.example.demo.graphql.inputs.UserWhereInput;
 import cn.asany.example.demo.graphql.types.UserConnection;
 import cn.asany.example.demo.service.UserService;
 import graphql.kickstart.tools.GraphQLQueryResolver;
@@ -12,6 +12,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 /**
+ * 用户查询
+ *
  * @author limaofeng
  */
 @Component
@@ -23,9 +25,9 @@ public class UserGraphQLQueryResolver implements GraphQLQueryResolver {
     this.userService = userService;
   }
 
-  public UserConnection users(UserFilter filter, int page, int pageSize, Sort sort) {
+  public UserConnection users(UserWhereInput where, int page, int pageSize, Sort sort) {
     Pageable pageable = PageRequest.of(page, pageSize, sort);
-    filter = ObjectUtil.defaultValue(filter, new UserFilter());
-    return Kit.connection(userService.findPage(pageable, filter.build()), UserConnection.class);
+    where = ObjectUtil.defaultValue(where, new UserWhereInput());
+    return Kit.connection(userService.findPage(pageable, where.toFilter()), UserConnection.class);
   }
 }

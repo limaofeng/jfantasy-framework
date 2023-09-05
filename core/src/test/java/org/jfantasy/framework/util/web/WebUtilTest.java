@@ -124,7 +124,7 @@ public class WebUtilTest {
   @Test
   public void testBrowser() throws Exception {
     Browser browser = WebUtil.browser(request);
-    log.debug(browser);
+    log.debug(browser.toString());
   }
 
   @Test

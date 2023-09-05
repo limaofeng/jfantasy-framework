@@ -15,7 +15,7 @@ public class TokenGraphQLServletListener implements GraphQLServletListener {
     return new RequestCallback() {
 
       @Override
-      @SneakyThrows
+      @SneakyThrows(Exception.class)
       public void onError(
           HttpServletRequest request, HttpServletResponse response, Throwable throwable) {
         ErrorResponse errorResponse = new ErrorResponse();

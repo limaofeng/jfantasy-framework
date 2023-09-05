@@ -1,7 +1,7 @@
 package org.jfantasy.autoconfigure;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.persistence.EntityManagerFactory;
+import javax.annotation.PostConstruct;
+import javax.persistence.EntityManagerFactory;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.EventType;
@@ -20,16 +20,23 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.SchedulingTaskExecutor;
 
+/**
+ * 搜索配置类
+ *
+ * @author limaofeng
+ */
 @AutoConfigureAfter(JpaRepositoriesAutoConfiguration.class)
 @Configuration
 @EnableConfigurationProperties({CuckooProperties.class, ElasticsearchClientProperties.class})
-@ConditionalOnProperty(prefix = "spring.cuckoo.elasticsearch.client", name = "url")
-@ConditionalOnExpression("${spring.cuckoo.enable:true}")
+@ConditionalOnProperty(prefix = "cuckoo.elasticsearch.client", name = "url")
+@ConditionalOnExpression("${cuckoo.enable:true}")
 public class SearchAutoConfiguration {
 
   private final EntityManagerFactory entityManagerFactory;
 
-  public SearchAutoConfiguration(EntityManagerFactory entityManagerFactory) {
+  public SearchAutoConfiguration(
+      @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+          EntityManagerFactory entityManagerFactory) {
     this.entityManagerFactory = entityManagerFactory;
   }
 

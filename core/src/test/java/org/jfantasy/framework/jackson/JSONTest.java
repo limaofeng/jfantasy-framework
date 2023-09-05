@@ -5,13 +5,19 @@ import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+import com.github.jknack.handlebars.internal.Files;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.ReadContext;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +32,9 @@ import org.jfantasy.framework.util.asm.AsmUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.util.Assert;
 
 @Slf4j
@@ -166,7 +175,7 @@ public class JSONTest {
     List<? extends GrantedAuthority> _authorities =
         mapper.convertValue(
             context.read("$.authorities"), new TypeReference<List<SimpleGrantedAuthority>>() {});
-    log.debug(_authorities);
+    log.debug(_authorities.toString());
   }
 
   @Test
@@ -202,6 +211,24 @@ public class JSONTest {
 
     assert department != null;
     Assert.isTrue(department.get("id") == "1");
+  }
+
+  private final ResourceLoader RESOURCE_LOADER = new DefaultResourceLoader();
+
+  @Test
+  public void convertValue() throws IOException {
+    Resource resource = RESOURCE_LOADER.getResource("token.json");
+    InputStream inputStream = resource.getInputStream();
+
+    String data = Files.read(inputStream, StandardCharsets.UTF_8);
+
+    ObjectMapper mapper = JSON.getObjectMapper();
+    ReadContext context = JsonPath.parse(data);
+
+    LoginUser principal = mapper.convertValue(context.read("$.principal"), LoginUser.class);
+    log.info(principal.getTenantId());
+
+    log.info(JSON.serialize(principal));
   }
 
   public static class TestDataBuilder {

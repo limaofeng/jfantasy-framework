@@ -2,6 +2,7 @@ package org.jfantasy.framework.util.reflect;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 
 public interface IClass<T> {
   Property getProperty(String paramString);
@@ -12,7 +13,7 @@ public interface IClass<T> {
 
   T newInstance(Object paramObject);
 
-  T newInstance(Class<?> paramClass, Object paramObject);
+  T newInstance(Class<?> paramClass, Object paramObject) throws InvocationTargetException;
 
   MethodProxy getMethod(String paramString);
 

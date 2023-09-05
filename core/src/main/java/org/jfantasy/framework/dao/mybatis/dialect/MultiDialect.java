@@ -2,8 +2,8 @@ package org.jfantasy.framework.dao.mybatis.dialect;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.jfantasy.framework.dao.MultiDataSourceManager;
-import org.jfantasy.framework.dao.annotations.DataSource;
+import org.jfantasy.framework.dao.datasource.DataSourceContextHolder;
+import org.jfantasy.framework.dao.datasource.DataSourceRouteProperties;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
@@ -39,9 +39,9 @@ public class MultiDialect implements Dialect, InitializingBean {
   }
 
   private Dialect getDialect() {
-    DataSource dataSource = MultiDataSourceManager.getManager().peek();
+    DataSourceRouteProperties dataSource = DataSourceContextHolder.getDataSource();
     Assert.notNull(dataSource, "SqlMapper未指定@DataSource,无法确定翻页方言");
-    return targetDialects.get(dataSourceTypes.get(dataSource.name()));
+    return targetDialects.get(dataSourceTypes.get(dataSource.getName()));
   }
 
   @Override

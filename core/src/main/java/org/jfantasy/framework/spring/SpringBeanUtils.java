@@ -26,13 +26,14 @@ public class SpringBeanUtils
   private static ConfigurableListableBeanFactory beanFactory;
 
   @Override
-  public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry)
-      throws BeansException {
+  public void postProcessBeanDefinitionRegistry(
+      @SuppressWarnings("NullableProblems") BeanDefinitionRegistry registry) throws BeansException {
     SpringBeanUtils.registry = registry;
   }
 
   @Override
-  public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory)
+  public void postProcessBeanFactory(
+      @SuppressWarnings("NullableProblems") ConfigurableListableBeanFactory beanFactory)
       throws BeansException {
     SpringBeanUtils.beanFactory = beanFactory;
   }
@@ -43,7 +44,8 @@ public class SpringBeanUtils
    * @param applicationContext applicationContext
    */
   @Override
-  public void setApplicationContext(ApplicationContext applicationContext) {
+  public void setApplicationContext(
+      @SuppressWarnings("NullableProblems") ApplicationContext applicationContext) {
     if (ObjectUtil.isNull(SpringBeanUtils.applicationContext)) {
       SpringBeanUtils.applicationContext = applicationContext;
     }
@@ -54,13 +56,18 @@ public class SpringBeanUtils
   }
 
   public enum AutoType {
+    //  自动装配
     AUTOWIRE_NO(0),
+    // 根据名称自动装配
     AUTOWIRE_BY_NAME(1),
+    // 根据类型自动装配
     AUTOWIRE_BY_TYPE(2),
+    // 构造函数自动装配
     AUTOWIRE_CONSTRUCTOR(3),
+    // 自动检测
     AUTOWIRE_AUTODETECT(4);
 
-    private int value;
+    private final int value;
 
     AutoType(int value) {
       this.value = value;
@@ -71,9 +78,7 @@ public class SpringBeanUtils
     }
   }
 
-  /**
-   * @return ApplicationContext
-   */
+  /** @return ApplicationContext */
   public static ApplicationContext getApplicationContext() {
     return applicationContext;
   }
@@ -140,7 +145,6 @@ public class SpringBeanUtils
    * @return T 对象
    * @see AutoType
    */
-  @SuppressWarnings("unchecked")
   public static synchronized <T> T autowire(Class<T> beanClass, AutoType autoType) {
     return (T)
         applicationContext
@@ -157,7 +161,6 @@ public class SpringBeanUtils
    * @return T 对象
    * @see AutoType
    */
-  @SuppressWarnings("unchecked")
   public static synchronized <T> T createBean(Class<T> beanClass, AutoType autoType) {
     return (T)
         applicationContext
@@ -168,7 +171,7 @@ public class SpringBeanUtils
   /**
    * 如果BeanFactory包含一个与所给名称匹配的bean定义，则返回true
    *
-   * @param name beanname
+   * @param name Bean Name
    * @return boolean
    */
   public static synchronized boolean containsBean(String name) {

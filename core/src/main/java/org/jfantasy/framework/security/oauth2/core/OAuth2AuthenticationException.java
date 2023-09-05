@@ -1,8 +1,10 @@
 package org.jfantasy.framework.security.oauth2.core;
 
+import lombok.Getter;
 import org.jfantasy.framework.security.AuthenticationException;
 import org.springframework.util.Assert;
 
+@Getter
 public class OAuth2AuthenticationException extends AuthenticationException {
 
   private final OAuth2Error error;
@@ -27,9 +29,5 @@ public class OAuth2AuthenticationException extends AuthenticationException {
     super(message, cause);
     Assert.notNull(error, "error cannot be null");
     this.error = error;
-  }
-
-  public OAuth2Error getError() {
-    return this.error;
   }
 }

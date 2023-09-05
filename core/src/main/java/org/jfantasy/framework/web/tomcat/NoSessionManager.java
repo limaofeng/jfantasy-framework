@@ -7,6 +7,11 @@ import org.apache.catalina.LifecycleState;
 import org.apache.catalina.Session;
 import org.apache.catalina.session.ManagerBase;
 
+/**
+ * 禁用Session管理器
+ *
+ * @author limaofeng
+ */
 @Slf4j
 public class NoSessionManager extends ManagerBase implements Lifecycle {
   @Override

@@ -3,6 +3,7 @@ package org.jfantasy.framework.service;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.StringTokenizer;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.net.ftp.*;
@@ -515,7 +516,7 @@ public class FTPService {
    * @param localFolder 本地目录
    */
   public void downloadFolder(String remoteFolder, String localFolder) throws IOException {
-    File folder = FileUtil.createFile(localFolder);
+    File folder = FileUtil.createFile(Paths.get(localFolder)).toFile();
     if (folder.isDirectory() && !folder.exists()) {
       throw new FileNotFoundException("创建本地目录:" + localFolder + "失败");
     }
@@ -541,13 +542,17 @@ public class FTPService {
         continue;
       }
       if (file.isDirectory()) {
-        File folder = FileUtil.createFolder(localFolder, file.getName());
+        File folder =
+            FileUtil.mkdir(Paths.get(localFolder.getPath() + File.separator + file.getName()))
+                .toFile();
         if (!folder.exists()) {
           throw new IOException("创建本地目录:" + localFolder + "失败");
         }
         downloadFolder(remoteFolder + file.getName() + "/", folder, ftpClient);
       } else {
-        File localFile = FileUtil.createFile(localFolder, file.getName());
+        File localFile =
+            FileUtil.createFile(Paths.get(localFolder.getPath() + File.separator + file.getName()))
+                .toFile();
         String remote = remoteFolder + file.getName();
         if (log.isDebugEnabled()) {
           log.debug("创建文件[" + localFile.getAbsolutePath() + "]");
@@ -574,7 +579,7 @@ public class FTPService {
    * @param local 本地目录
    */
   public void download(String remote, String local) throws IOException {
-    download(remote, FileUtil.createFile(local));
+    download(remote, FileUtil.createFile(Paths.get(local)).toFile());
   }
 
   /**
@@ -594,7 +599,12 @@ public class FTPService {
     }
     if (argsLocalFile.isDirectory()) {
       argsLocalFile =
-          FileUtil.createFile(argsLocalFile, RegexpUtil.parseGroup(remote, "[^\\/]+$", 0));
+          FileUtil.createFile(
+                  Paths.get(
+                      argsLocalFile.getPath()
+                          + File.separator
+                          + RegexpUtil.parseGroup(remote, "[^\\/]+$", 0)))
+              .toFile();
     }
     if (log.isDebugEnabled()) {
       log.debug("开始下载文件:" + remote + " > " + argsLocalFile.getAbsolutePath());

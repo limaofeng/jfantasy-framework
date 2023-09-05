@@ -18,7 +18,9 @@ public class DateUtilTest {
   public void formatRfc822Date() throws Exception {}
 
   @Test
-  public void format() throws Exception {}
+  public void format() throws Exception {
+    log.info(new Date().toInstant().toString());
+  }
 
   @Test
   public void format1() throws Exception {}

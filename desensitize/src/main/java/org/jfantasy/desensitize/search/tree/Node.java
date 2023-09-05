@@ -4,6 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 import lombok.Getter;
 
+/**
+ * 节点
+ *
+ * @author limaofeng
+ */
 public class Node {
   private final Map<String, Node> children = new HashMap<>(0);
   private boolean isEnd = false;

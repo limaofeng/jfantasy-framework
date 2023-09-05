@@ -16,6 +16,7 @@ public class User {
   private Set<Article> articles = new HashSet<>();
   private String username;
   private boolean enabled;
+
   private String nickName;
 
   public String getName() {

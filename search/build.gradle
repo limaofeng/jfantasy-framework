@@ -10,7 +10,9 @@ tasks.withType(Test) { enabled = false }
 
 dependencies {
 	api project(":jfantasy-commons")
-	implementation "co.elastic.clients:elasticsearch-java:${LIB_ELASTICSEARCH_VER}"
+    implementation("co.elastic.clients:elasticsearch-java:${LIB_ELASTICSEARCH_VER}") {
+        exclude group: "commons-logging", module: "commons-logging"
+    }
 	implementation "jakarta.json:jakarta.json-api:${LIB_JAKARTA_VAR}"
 	compileOnly "javax.annotation:javax.annotation-api:1.3.2"
 	compileOnly 'jakarta.servlet:jakarta.servlet-api'
