@@ -21,8 +21,8 @@ public class DatasourceProxyBeanPostProcessor implements BeanPostProcessor {
 
   @Override
   public Object postProcessAfterInitialization(
-    @SuppressWarnings("NullableProblems") Object bean,
-    @SuppressWarnings("NullableProblems") String beanName) {
+      @SuppressWarnings("NullableProblems") Object bean,
+      @SuppressWarnings("NullableProblems") String beanName) {
     if (bean instanceof DataSource && !(bean instanceof ProxyDataSource)) {
       final ProxyFactory factory = new ProxyFactory(bean);
       factory.setProxyTargetClass(true);
@@ -34,8 +34,8 @@ public class DatasourceProxyBeanPostProcessor implements BeanPostProcessor {
 
   @Override
   public Object postProcessBeforeInitialization(
-    @SuppressWarnings("NullableProblems") Object bean,
-    @SuppressWarnings("NullableProblems") String beanName) {
+      @SuppressWarnings("NullableProblems") Object bean,
+      @SuppressWarnings("NullableProblems") String beanName) {
     return bean;
   }
 
@@ -46,7 +46,7 @@ public class DatasourceProxyBeanPostProcessor implements BeanPostProcessor {
       String name = ObjectUtil.getValue("poolName", dataSource);
       this.dataSource =
           ProxyDataSourceBuilder.create(dataSource)
-            .name(name + "_proxy")
+              .name(name + "_proxy")
               .multiline()
               .logQueryBySlf4j(SLF4JLogLevel.INFO)
               .build();

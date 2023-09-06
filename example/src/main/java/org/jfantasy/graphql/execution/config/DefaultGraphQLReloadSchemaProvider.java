@@ -2,9 +2,9 @@ package org.jfantasy.graphql.execution.config;
 
 import graphql.kickstart.execution.config.GraphQLSchemaProvider;
 import graphql.schema.GraphQLSchema;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.websocket.server.HandshakeRequest;
 import java.io.IOException;
-import javax.servlet.http.HttpServletRequest;
-import javax.websocket.server.HandshakeRequest;
 
 /**
  * 默认的 GraphQLReloadSchemaProvider

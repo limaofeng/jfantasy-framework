@@ -1,5 +1,10 @@
 package org.jfantasy.schedule.service;
 
+import static org.jfantasy.schedule.service.ScheduleHelper.*;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import org.jfantasy.framework.util.common.DateUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,18 +17,11 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.util.Assert;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
-import static org.jfantasy.schedule.service.ScheduleHelper.*;
-
 @WebAppConfiguration
 @ContextConfiguration(locations = {"classpath:spring/applicationContext.xml"})
 public class TaskSchedulerJUnit {
 
-  @Autowired
-  private TaskScheduler scheduleService;
+  @Autowired private TaskScheduler scheduleService;
 
   @BeforeEach
   public void setUp() throws Exception {
@@ -37,11 +35,11 @@ public class TaskSchedulerJUnit {
     _data.put("name", "limaofeng-1");
     System.out.println("添加触发器:" + DateUtil.format("yyyy-MM-dd HH:mm:ss"));
     scheduleService.scheduleJob(
-      newTrigger(
-        JobKey.jobKey("junit", "test"),
-        TriggerKey.triggerKey("test"),
-        simple(TimeUnit.SECONDS.toMillis(10), 0))
-        .build());
+        newTrigger(
+                JobKey.jobKey("junit", "test"),
+                TriggerKey.triggerKey("test"),
+                simple(TimeUnit.SECONDS.toMillis(10), 0))
+            .build());
 
     /*
      * Date date = DateUtil.now(); String expression =

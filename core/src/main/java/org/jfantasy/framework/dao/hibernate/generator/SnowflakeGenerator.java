@@ -9,7 +9,6 @@ import org.hibernate.MappingException;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.id.IdentifierGenerator;
 import org.hibernate.service.ServiceRegistry;
-import org.hibernate.type.StringType;
 import org.hibernate.type.Type;
 
 public class SnowflakeGenerator implements IdentifierGenerator {
@@ -25,7 +24,8 @@ public class SnowflakeGenerator implements IdentifierGenerator {
     String workerId = params.getProperty("workerId", "1");
     String dataCenterId = params.getProperty("dataCenterId", "1");
     this.snowflake = IdUtil.getSnowflake(Long.parseLong(workerId), Long.parseLong(dataCenterId));
-    this.toStr = type == StringType.INSTANCE;
+    // TODO: SpringBoot 升级遗留问题
+    //    this.toStr = type == StringType.INSTANCE;
   }
 
   @Override

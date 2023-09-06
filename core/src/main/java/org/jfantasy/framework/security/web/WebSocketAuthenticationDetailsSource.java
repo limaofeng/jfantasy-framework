@@ -1,7 +1,6 @@
 package org.jfantasy.framework.security.web;
 
-import javax.websocket.server.HandshakeRequest;
-
+import jakarta.websocket.server.HandshakeRequest;
 import org.jfantasy.framework.security.authentication.AuthenticationDetailsSource;
 import org.jfantasy.framework.security.web.authentication.WebSocketAuthenticationDetails;
 
@@ -11,7 +10,7 @@ import org.jfantasy.framework.security.web.authentication.WebSocketAuthenticatio
  * @author limaofeng
  */
 public class WebSocketAuthenticationDetailsSource
-  implements AuthenticationDetailsSource<HandshakeRequest, WebSocketAuthenticationDetails> {
+    implements AuthenticationDetailsSource<HandshakeRequest, WebSocketAuthenticationDetails> {
 
   @Override
   public WebSocketAuthenticationDetails buildDetails(HandshakeRequest handshakeRequest) {

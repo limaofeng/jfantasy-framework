@@ -8,11 +8,11 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
+import java.util.Base64;
 import javax.crypto.Cipher;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.EncryptionException;
 import org.jfantasy.framework.util.common.StringUtil;
-import org.springframework.util.Base64Utils;
 
 public class RSAUtil {
 
@@ -80,7 +80,7 @@ public class RSAUtil {
   }
 
   public static String encrypt(Key key, String data) throws EncryptionException {
-    return Base64Utils.encodeToString(encrypt(key, data.getBytes()));
+    return Base64.getEncoder().encodeToString(encrypt(key, data.getBytes()));
   }
 
   public static byte[] encrypt(Key key, byte[] data) throws EncryptionException {
@@ -118,7 +118,7 @@ public class RSAUtil {
   }
 
   public static String decrypt(Key key, String raw) throws EncryptionException {
-    return new String(decrypt(key, Base64Utils.decodeFromString(raw)));
+    return new String(decrypt(key, Base64.getDecoder().decode(raw.getBytes())));
   }
 
   public static byte[] decrypt(Key key, byte[] raw) throws EncryptionException {

@@ -1,6 +1,6 @@
 package org.jfantasy.framework.security;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.jfantasy.framework.security.authentication.AuthenticationManagerResolver;
 
 /**

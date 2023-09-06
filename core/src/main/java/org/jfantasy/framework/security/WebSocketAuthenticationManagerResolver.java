@@ -1,6 +1,6 @@
 package org.jfantasy.framework.security;
 
-import javax.websocket.server.HandshakeRequest;
+import jakarta.websocket.server.HandshakeRequest;
 import org.jfantasy.framework.security.authentication.AuthenticationManagerResolver;
 
 /**

@@ -1,14 +1,12 @@
 package org.jfantasy.graphql.context;
 
-import graphql.kickstart.execution.context.GraphQLContext;
+import graphql.kickstart.execution.context.GraphQLKickstartContext;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.websocket.Session;
+import jakarta.websocket.server.HandshakeRequest;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
-import javax.security.auth.Subject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.websocket.Session;
-import javax.websocket.server.HandshakeRequest;
 import org.dataloader.DataLoaderRegistry;
 import org.jetbrains.annotations.NotNull;
 import org.jfantasy.framework.security.SecurityContext;
@@ -20,7 +18,7 @@ import org.jfantasy.framework.security.authentication.Authentication;
  * @author limaofeng
  * @version V1.0
  */
-public class AuthorizationGraphQLServletContext implements GraphQLContext {
+public class AuthorizationGraphQLServletContext implements GraphQLKickstartContext {
 
   private HttpServletRequest request;
   private Session session;
@@ -45,15 +43,20 @@ public class AuthorizationGraphQLServletContext implements GraphQLContext {
     this.securityContext = securityContext;
   }
 
-  @Override
-  public Optional<Subject> getSubject() {
-    return Optional.empty();
-  }
+  //  @Override
+  //  public Optional<Subject> getSubject() {
+  //    return Optional.empty();
+  //  }
 
   @NotNull
   @Override
   public DataLoaderRegistry getDataLoaderRegistry() {
     return dataLoaderRegistry;
+  }
+
+  @Override
+  public Map<Object, Object> getMapOfContext() {
+    return null;
   }
 
   public void setDataLoaderRegistry(DataLoaderRegistry dataLoaderRegistry) {

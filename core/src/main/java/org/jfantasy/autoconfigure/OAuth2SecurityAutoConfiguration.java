@@ -1,8 +1,8 @@
 package org.jfantasy.autoconfigure;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.websocket.server.HandshakeRequest;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
-import javax.websocket.server.HandshakeRequest;
 import org.jfantasy.framework.context.DatabaseMessageSource;
 import org.jfantasy.framework.context.service.LanguageService;
 import org.jfantasy.framework.security.AuthenticationManager;

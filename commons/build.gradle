@@ -8,29 +8,29 @@ apply plugin: 'java-library'
 apply plugin: 'jacoco'
 
 dependencies {
-    // noinspection DependencyNotationArgument
+	// noinspection DependencyNotationArgument
 	api libs['unirest']
-    // noinspection DependencyNotationArgument
+	// noinspection DependencyNotationArgument
 	api libs['commons']
-    // noinspection DependencyNotationArgument
+	// noinspection DependencyNotationArgument
 	api libs['third-party']
 	api 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
 	api "com.jayway.jsonpath:json-path"
-    // noinspection DependencyNotationArgument
+	// noinspection DependencyNotationArgument
 	compileOnly libs['orm']
 	compileOnly "org.springframework.boot:spring-boot-starter-data-jpa"
 	compileOnly "org.springframework.boot:spring-boot-starter-data-redis"
-    compileOnly "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
-    annotationProcessor "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
-    testCompileOnly "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
-    testAnnotationProcessor "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
-    // noinspection DependencyNotationArgument
+	compileOnly "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
+	annotationProcessor "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
+	testCompileOnly "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
+	testAnnotationProcessor "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
+	// noinspection DependencyNotationArgument
 	compileOnly "org.projectlombok:lombok"
 	annotationProcessor "org.projectlombok:lombok"
 	testCompileOnly "org.projectlombok:lombok"
 	testAnnotationProcessor "org.projectlombok:lombok"
 	testImplementation libs['test']
-    testCompileOnly 'jakarta.servlet:jakarta.servlet-api'
+	testCompileOnly 'jakarta.servlet:jakarta.servlet-api'
 }
 
 repositories {

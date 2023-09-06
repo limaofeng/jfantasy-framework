@@ -1,9 +1,8 @@
 package org.jfantasy.framework.security.oauth2.server.web;
 
+import jakarta.websocket.Session;
 import java.util.Map;
 import java.util.regex.Matcher;
-import javax.websocket.Session;
-
 import org.jfantasy.framework.security.oauth2.core.OAuth2AuthenticationException;
 import org.jfantasy.framework.security.oauth2.server.BearerTokenError;
 import org.jfantasy.framework.security.oauth2.server.BearerTokenErrors;
@@ -23,7 +22,7 @@ public class WebSocketBearerTokenResolver implements BearerTokenResolver<Session
 
   private String resolveFromAuthorizationHeader(Session session) {
     Map<String, Object> connectionParams =
-      (Map<String, Object>) session.getUserProperties().get("connectionParams");
+        (Map<String, Object>) session.getUserProperties().get("connectionParams");
     String authorization = (String) connectionParams.get(HttpHeaders.AUTHORIZATION.toLowerCase());
     if (!StringUtils.startsWithIgnoreCase(authorization, "bearer")) {
       return null;

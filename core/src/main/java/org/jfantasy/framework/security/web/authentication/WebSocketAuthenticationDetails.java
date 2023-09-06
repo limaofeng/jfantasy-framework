@@ -1,22 +1,20 @@
 package org.jfantasy.framework.security.web.authentication;
 
-import javax.websocket.server.HandshakeRequest;
+import jakarta.websocket.server.HandshakeRequest;
+import lombok.Getter;
 
 /**
  * WebSocketAuthenticationDetails
  *
  * @author limaofeng
  */
+@Getter
 public class WebSocketAuthenticationDetails {
 
   private HandshakeRequest handshakeRequest;
 
   public WebSocketAuthenticationDetails(HandshakeRequest handshakeRequest) {
     this.handshakeRequest = handshakeRequest;
-  }
-
-  public HandshakeRequest getHandshakeRequest() {
-    return handshakeRequest;
   }
 
   public void setHandshakeRequest(HandshakeRequest handshakeRequest) {

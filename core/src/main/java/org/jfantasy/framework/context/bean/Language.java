@@ -1,7 +1,7 @@
 package org.jfantasy.framework.context.bean;
 
+import jakarta.persistence.*;
 import java.io.Serializable;
-import javax.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -29,9 +29,9 @@ public class Language implements Serializable {
   @Column(length = 2)
   private String locale;
 
-  @Column(name = "MESSAGE_KEY")
+  @Column(name = "MESSAGE_KEY", length = 100)
   private String key;
 
-  @Column(name = "MESSAGE_CONTENT")
+  @Column(name = "MESSAGE_CONTENT", length = 512)
   private String content;
 }

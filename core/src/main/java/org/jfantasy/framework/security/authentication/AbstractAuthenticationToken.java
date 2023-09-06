@@ -7,7 +7,9 @@ import lombok.Data;
 import org.jfantasy.framework.security.core.GrantedAuthority;
 import org.jfantasy.framework.security.core.authority.AuthorityUtils;
 
-/** @author limaofeng */
+/**
+ * @author limaofeng
+ */
 @Data
 public abstract class AbstractAuthenticationToken implements Authentication {
   private String name;

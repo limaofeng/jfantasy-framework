@@ -1,14 +1,14 @@
 package org.jfantasy.graphql.context;
 
 import graphql.kickstart.execution.context.DefaultGraphQLContextBuilder;
-import graphql.kickstart.execution.context.GraphQLContext;
+import graphql.kickstart.execution.context.GraphQLKickstartContext;
 import graphql.kickstart.servlet.context.GraphQLServletContextBuilder;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
+import jakarta.websocket.Session;
+import jakarta.websocket.server.HandshakeRequest;
 import java.util.function.Supplier;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.transaction.Transactional;
-import javax.websocket.Session;
-import javax.websocket.server.HandshakeRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.dataloader.DataLoaderRegistry;
 import org.jfantasy.framework.security.AuthenticationException;
@@ -67,7 +67,7 @@ public class SecurityGraphQLContextBuilder extends DefaultGraphQLContextBuilder
 
   @Override
   @Transactional(rollbackOn = Exception.class)
-  public GraphQLContext build(HttpServletRequest req, HttpServletResponse response) {
+  public GraphQLKickstartContext build(HttpServletRequest req, HttpServletResponse response) {
     GraphQLContextHolder.clear();
     SecurityContextHolder.clear();
 
@@ -123,7 +123,7 @@ public class SecurityGraphQLContextBuilder extends DefaultGraphQLContextBuilder
   }
 
   @Override
-  public GraphQLContext build(Session session, HandshakeRequest request) {
+  public GraphQLKickstartContext build(Session session, HandshakeRequest request) {
     GraphQLContextHolder.clear();
     SecurityContextHolder.clear();
 

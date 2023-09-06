@@ -1,6 +1,7 @@
 package cn.asany.example;
 
 import cn.asany.example.autoconfigure.MyDatabaseShardingAlgorithm;
+import java.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shardingsphere.api.config.sharding.TableRuleConfiguration;
 import org.apache.shardingsphere.api.config.sharding.strategy.ShardingStrategyConfiguration;
@@ -35,8 +36,6 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-
-import java.util.*;
 
 /**
  * 启动器
