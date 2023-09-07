@@ -26,7 +26,7 @@ public class UserGraphQLQueryResolver implements GraphQLQueryResolver {
   }
 
   public UserConnection users(UserWhereInput where, int page, int pageSize, Sort sort) {
-    Pageable pageable = PageRequest.of(page, pageSize, sort);
+    Pageable pageable = PageRequest.of(page - 1, pageSize, sort);
     where = ObjectUtil.defaultValue(where, new UserWhereInput());
     return Kit.connection(userService.findPage(pageable, where.toFilter()), UserConnection.class);
   }

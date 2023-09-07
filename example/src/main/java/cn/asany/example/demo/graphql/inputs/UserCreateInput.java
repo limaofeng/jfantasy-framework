@@ -1,7 +1,7 @@
 package cn.asany.example.demo.graphql.inputs;
 
 import cn.asany.example.demo.validator.CaseValidator;
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import org.jfantasy.framework.spring.validation.Use;
 

@@ -27,22 +27,29 @@ public class Pagination<T> implements Page<T>, Serializable {
 
   /** 排序 - 升序 */
   public static final String SORT_ASC = "asc";
+
   /** 排序 - 降序 */
   public static final String SORT_DESC = "desc";
+
   /** 最大数据条数 */
   @JsonProperty("count")
   private int totalCount = 0;
+
   /** 每页显示的数据条数 */
   @JsonProperty("per_page")
   private int pageSize;
+
   /** 总页数 */
   @JsonProperty("total")
   private int totalPage = 1;
+
   /** 当前页码 */
   @JsonProperty("page")
   private int currentPage = 1;
+
   /** 开始数据索引 */
   private int offset = 0;
+
   /** 排序字段 */
   @JsonProperty("sort")
   @JsonInclude(JsonInclude.Include.NON_NULL)

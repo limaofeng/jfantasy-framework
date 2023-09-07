@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import net.sf.cglib.reflect.FastClass;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
 
@@ -30,7 +29,6 @@ public class FastClasses<T> implements IClass<T> {
 
   public FastClasses(Class<T> clazz) {
     this.clazz = clazz;
-    FastClass fastClass = FastClass.create(clazz);
     if (!clazz.isInterface()) {
       BeanInfo beanInfo = ClassUtil.getBeanInfo(clazz);
       PropertyDescriptor[] propertyDescriptors = beanInfo.getPropertyDescriptors();
@@ -52,12 +50,9 @@ public class FastClasses<T> implements IClass<T> {
         }
         try {
           if (method.isAccessible()) {
-            this.methodProxies.put(
-                name.toString(), new MethodProxy(fastClass.getMethod(method), parameters));
-          } else {
             method.setAccessible(true);
-            this.methodProxies.put(name.toString(), new MethodProxy(method, parameters));
           }
+          this.methodProxies.put(name.toString(), new MethodProxy(method, parameters));
         } catch (Exception e) {
           log.error(e.getMessage(), e);
         }
@@ -78,8 +73,7 @@ public class FastClasses<T> implements IClass<T> {
               .append(parameterType.getName())
               .append(i + 1 == parameters.length ? ")" : ",");
         }
-        this.methodProxies.put(
-            name.toString(), new MethodProxy(fastClass.getMethod(method), parameters));
+        this.methodProxies.put(name.toString(), new MethodProxy(method, parameters));
       }
     }
     for (Class<?> superClass = clazz; superClass != null && superClass != Object.class; ) {
@@ -198,6 +192,7 @@ public class FastClasses<T> implements IClass<T> {
     if (field == null) {
       throw new NoSuchFieldException("字段不存在");
     }
+    //noinspection unchecked
     return (V) field.get(target);
   }
 

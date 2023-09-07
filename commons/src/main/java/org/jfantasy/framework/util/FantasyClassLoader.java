@@ -23,6 +23,7 @@ public class FantasyClassLoader extends ClassLoader {
 
   private DynamicClassLoader classLoader =
       new DynamicClassLoader(DynamicClassLoader.class.getClassLoader());
+
   //      AccessController.doPrivileged(
   //          (PrivilegedAction<DynamicClassLoader>)
   //              () -> new DynamicClassLoader(DynamicClassLoader.class.getClassLoader()));

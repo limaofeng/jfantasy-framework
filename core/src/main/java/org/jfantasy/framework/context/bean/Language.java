@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.GenericGenerator;
+import org.jfantasy.framework.dao.hibernate.annotations.TableGenerator;
 
 /**
  * 国际化
@@ -22,8 +22,7 @@ import org.hibernate.annotations.GenericGenerator;
 public class Language implements Serializable {
   @Id
   @Column(name = "ID", precision = 22)
-  @GeneratedValue(generator = "fantasy-sequence")
-  @GenericGenerator(name = "fantasy-sequence", strategy = "fantasy-sequence")
+  @TableGenerator
   private Long id;
 
   @Column(length = 2)

@@ -2,7 +2,7 @@ package cn.asany.example.demo.web;
 
 import cn.asany.example.demo.domain.User;
 import cn.asany.example.demo.service.UserService;
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import org.jfantasy.framework.dao.jpa.PropertyFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;

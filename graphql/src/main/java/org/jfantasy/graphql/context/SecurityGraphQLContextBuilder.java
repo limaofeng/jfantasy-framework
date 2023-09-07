@@ -75,8 +75,8 @@ public class SecurityGraphQLContextBuilder extends DefaultGraphQLContextBuilder
     SecurityContextHolder.setContext(securityContext);
 
     AuthorizationGraphQLServletContext context =
-        new AuthorizationGraphQLServletContext(req, response, securityContext);
-    context.setDataLoaderRegistry(this.dataLoaderRegistry);
+        new AuthorizationGraphQLServletContext(
+            this.dataLoaderRegistry, req, response, securityContext);
     GraphQLContextHolder.setContext(context);
 
     String token = bearerTokenResolver.resolve(req);
@@ -133,9 +133,9 @@ public class SecurityGraphQLContextBuilder extends DefaultGraphQLContextBuilder
     String token = webSocketBearerTokenResolver.resolve(session);
 
     AuthorizationGraphQLServletContext context =
-        new AuthorizationGraphQLServletContext(session, request, securityContext);
+        new AuthorizationGraphQLServletContext(
+            this.dataLoaderRegistry, session, request, securityContext);
 
-    context.setDataLoaderRegistry(this.dataLoaderRegistry);
     return buildContext(
         context,
         token,

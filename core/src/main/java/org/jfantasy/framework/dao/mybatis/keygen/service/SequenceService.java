@@ -31,6 +31,11 @@ public class SequenceService {
     return ObjectUtil.isNotNull(this.sequenceDao.findUniqueByKey(key));
   }
 
+  @Transactional(value = "dataSourceTransactionManager", readOnly = true)
+  public long getCurrentKeyValue(String key) {
+    return this.sequenceDao.findUniqueByKey(key).getValue();
+  }
+
   /**
    * 获取序列的下一个值
    *

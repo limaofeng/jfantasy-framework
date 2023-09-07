@@ -49,5 +49,8 @@ dependencies {
 	testAnnotationProcessor "org.projectlombok:lombok"
 	testAnnotationProcessor "org.mapstruct:mapstruct-processor:$LIB_MAPSTRUCT_VER"
 	testImplementation libs['test']
-	implementation("org.apache.shardingsphere:sharding-jdbc-core:4.1.1")
+//	implementation("org.apache.shardingsphere:sharding-jdbc-core:${LIB_SHARDING_SPHERE_VER}") {
+//        exclude group: "org.antlr", module: "antlr4-runtime"
+//    }
+//  TODO: shardingsphere 集成问题
 }

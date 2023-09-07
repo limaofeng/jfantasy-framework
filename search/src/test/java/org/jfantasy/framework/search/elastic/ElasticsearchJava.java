@@ -38,7 +38,10 @@ public class ElasticsearchJava {
   private static RestClient restClient;
 
   private static synchronized void makeConnection()
-      throws CertificateException, IOException, NoSuchAlgorithmException, KeyStoreException,
+      throws CertificateException,
+          IOException,
+          NoSuchAlgorithmException,
+          KeyStoreException,
           KeyManagementException {
     Path caCertificatePath = Paths.get("/Users/limaofeng/Downloads/ca/ca.crt");
     CertificateFactory factory = CertificateFactory.getInstance("X.509");
@@ -76,7 +79,10 @@ public class ElasticsearchJava {
   }
 
   public static void main(String[] args)
-      throws IOException, CertificateException, NoSuchAlgorithmException, KeyStoreException,
+      throws IOException,
+          CertificateException,
+          NoSuchAlgorithmException,
+          KeyStoreException,
           KeyManagementException {
     makeConnection();
 

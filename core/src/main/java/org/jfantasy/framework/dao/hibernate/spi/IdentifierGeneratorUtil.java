@@ -17,7 +17,7 @@ import org.hibernate.event.internal.EntityState;
 import org.hibernate.event.spi.EventSource;
 import org.hibernate.id.IdentifierGenerator;
 import org.hibernate.id.factory.IdentifierGeneratorFactory;
-import org.jfantasy.framework.dao.hibernate.generator.SequenceGenerator;
+import org.jfantasy.framework.dao.hibernate.generator.CustomTableGenerator;
 import org.jfantasy.framework.dao.hibernate.util.TypeFactory;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.ognl.OgnlUtil;
@@ -69,7 +69,7 @@ public class IdentifierGeneratorUtil {
         GenericGenerator annotGenerator = field.getAnnotation(GenericGenerator.class);
         Properties properties = new Properties();
         properties.put(
-            SequenceGenerator.KEY_NAME,
+            CustomTableGenerator.KEY_NAME,
             entityClass.getAnnotation(Table.class).name()
                 + ":"
                 + field.getAnnotation(Column.class).name());

@@ -6,6 +6,8 @@ import org.jfantasy.framework.util.common.ObjectUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
+ * 数据库序列生成器
+ *
  * @author limaofeng
  */
 public class DataBaseKeyGenerator {
@@ -32,11 +34,11 @@ public class DataBaseKeyGenerator {
   }
 
   public long nextValue(String key) {
-    return SequenceInfo.retrieve(this.sequenceService, this.poolSize, key).nextValue();
+    return DatabaseSequenceGenerator.nextValue(key);
   }
 
   public void reset(String key) {
-    SequenceInfo.keys.remove(key);
+    DatabaseSequenceGenerator.keys.remove(key);
     this.sequenceService.delete(key);
   }
 }

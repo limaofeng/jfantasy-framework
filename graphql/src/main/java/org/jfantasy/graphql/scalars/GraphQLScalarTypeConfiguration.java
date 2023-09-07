@@ -1,8 +1,10 @@
 package org.jfantasy.graphql.scalars;
 
+import graphql.kickstart.autoconfigure.tools.GraphQLJavaToolsAutoConfiguration;
 import graphql.scalars.ExtendedScalars;
 import graphql.schema.GraphQLScalarType;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.context.annotation.Bean;
 
 /**
@@ -13,6 +15,7 @@ import org.springframework.context.annotation.Bean;
  * @date 2019/8/23 6:06 下午
  */
 @Slf4j
+@AutoConfigureBefore(GraphQLJavaToolsAutoConfiguration.class)
 public class GraphQLScalarTypeConfiguration {
 
   @Bean

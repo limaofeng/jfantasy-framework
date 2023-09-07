@@ -34,20 +34,28 @@ public class FTPService {
 
   private int bufferSize = 1024 * 32;
   private int fileTransferMode = FTP.STREAM_TRANSFER_MODE;
+
   /** 超时毫秒数 */
   private int timeout = 0;
+
   /** FTP服务地址 */
   private String hostname;
+
   /** 登陆名称 */
   private String username;
+
   /** 登陆密码 */
   private String password;
+
   /** 控制台语言 */
   private String controlEncoding = "UTF-8";
+
   /** 服务器的语言 */
   private String serverLanguageCode = "zh";
+
   /** 系统标志 */
   private String systemKey = FTPClientConfig.SYST_NT;
+
   /** 默认目录 TODO 可以加载FTP内容 */
   private String defaultDir;
 

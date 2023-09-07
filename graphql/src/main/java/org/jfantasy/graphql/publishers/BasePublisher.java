@@ -18,6 +18,7 @@ public class BasePublisher<D> {
 
   /** 消费者 */
   private final FluxConsumer<D> consumer;
+
   /** 发布者 */
   private final Flux<D> publisher;
 

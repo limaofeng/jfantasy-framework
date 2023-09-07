@@ -267,20 +267,28 @@ public class JSONTest {
   public static class Article {
 
     private Long id;
+
     /** 文章标题 */
     private String title;
+
     /** 摘要 */
     private String summary;
+
     /** 关键词 */
     private String keywords;
+
     /** 文章正文 */
     private Content content;
+
     /** 作者 */
     private String author;
+
     /** 发布日期 */
     private String releaseDate;
+
     /** 文章对应的栏目 */
     private ArticleCategory category;
+
     /** 发布标志 */
     private Boolean issue;
 
@@ -395,20 +403,28 @@ public class JSONTest {
   public static class ArticleCategory {
 
     private String code;
+
     /** 栏目名称 */
     private String name;
+
     /** 层级 */
     private Integer layer;
+
     // 树路径
     private String path;
+
     /** 描述 */
     private String description;
+
     /** 排序字段 */
     private Integer sort;
+
     /** 上级栏目 */
     private ArticleCategory parent;
+
     /** 下级栏目 */
     private List<ArticleCategory> children;
+
     /** 文章 */
     private List<Article> articles;
 
@@ -545,6 +561,7 @@ public class JSONTest {
   public static class Content {
 
     private Long id;
+
     /** 正文内容 */
     private String text;
 

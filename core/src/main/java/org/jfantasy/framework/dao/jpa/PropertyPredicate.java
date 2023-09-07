@@ -18,10 +18,13 @@ public class PropertyPredicate {
 
   /** 完整表达式 */
   private String key;
+
   /** 名称 */
   private String propertyName;
+
   /** 值 */
   private Object propertyValue;
+
   /** 过滤类型 */
   private MatchType matchType;
 

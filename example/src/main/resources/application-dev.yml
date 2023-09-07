@@ -15,11 +15,12 @@ spring:
       maximum-pool-size: 20
     #    proxy: true
     sharding: true
-  redis:
-    host: ${REDIS_HOST}
-    password: ${REDIS_PASSWORD}
-    port: 6379
-    database: 0
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      password: ${REDIS_PASSWORD}
+      port: 6379
+      database: 0
 #  shardingsphere:
 #    datasource:
 #      names: dynamicDataSource

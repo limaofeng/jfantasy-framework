@@ -59,43 +59,60 @@ public class RegexpConstant {
 
   /** 整数 */
   public static final Pattern VALIDATOR_INTEGE = getPattern("^-?[1-9]\\d*$");
+
   /** 数字 */
   public static final Pattern VALIDATOR_NUMBER = getPattern("^([+-]?)\\d*\\.?\\d+$");
+
   /** 浮点数 */
   public static final Pattern VALIDATOR_DECMAL = getPattern("^([+-]?)\\d*\\.\\d+$");
+
   /** 电子邮箱 */
   public static final Pattern VALIDATOR_EMAIL =
       getPattern("^\\w+((-\\w+)|(\\.\\w+))*\\@[A-Za-z0-9]+((\\.|-)[A-Za-z0-9]+)*\\.[A-Za-z0-9]+$");
+
   /** URL地址 */
   public static final Pattern VALIDATOR_URL =
       getPattern("^http[s]?:\\/\\/([\\w-]+\\.)+[\\w-]+([\\w-./?%&=]*)?$");
+
   /** 仅中文 */
   public static final Pattern VALIDATOR_CHINESE = getPattern("^[\\u4E00-\\u9FA5\\uF900-\\uFA2D]+$");
+
   /** 仅ACSII字符 */
   public static final Pattern VALIDATOR_ASCII = getPattern("^[\\x00-\\xFF]+$");
+
   /** 邮编 */
   public static final Pattern VALIDATOR_ZIPCODE = getPattern("^\\d{6}$");
+
   /** 手机 */
   public static final Pattern VALIDATOR_MOBILE = getPattern("^(13|15|18|14|17)[0-9]{9}$");
+
   /** ip4 地址 */
   public static final Pattern VALIDATOR_IP4 =
       getPattern(
           "^(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)$");
+
   /** 非空 */
   public static final Pattern VALIDATOR_NOTEMPTY = getPattern("^\\S+$");
+
   /** 日期 */
   public static final Pattern VALIDATOR_DATE = getPattern("^\\d{4}(-|/|.)\\d{1,2}\\1\\d{1,2}$");
+
   /** QQ号码 */
   public static final Pattern VALIDATOR_QQ = getPattern("^[1-9]*[1-9][0-9]*$");
+
   /** 电话号码的函数(包括验证国内区号,国际区号,分机号) */
   public static final Pattern VALIDATOR_TEL =
       getPattern("^(([0\\+]\\d{2,3}-)?(0\\d{2,3})-)?(\\d{7,8})(-(\\d{3,}))?$");
+
   /** 用来用户注册。匹配由数字、26个英文字母或者下划线组成的字符串 */
   public static final Pattern VALIDATOR_USERNAME = getPattern("^\\w+$");
+
   /** 字母 */
   public static final Pattern VALIDATOR_LETTER = getPattern("^[A-Za-z]+$");
+
   /** 身份证 */
   public static final Pattern VALIDATOR_IDCARD = getPattern("^[1-9]([0-9]{14}|[0-9]{17})$");
+
   /** 匹配标签内容 如果内容中嵌套标签过多会出现异常 */
   public static final String htmlTag =
       "<HtmlTag [^>]*id=fontzoom[^>]*>(<HtmlTag[^>]*>(<HtmlTag[^>]*>(<HtmlTag[^>]*>.*?</HtmlTag>|.)*?</HtmlTag>|.)*?</HtmlTag>|.)*?</HtmlTag>";

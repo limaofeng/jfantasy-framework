@@ -2,7 +2,9 @@ ext {
 
     libs = [
             unirest      : [
-                    "com.mashape.unirest:unirest-java:${LIB_UNIREST_VER}"
+                    dependencies.create("com.mashape.unirest:unirest-java:${LIB_UNIREST_VER}"){
+                        exclude group: "commons-logging", module: "commons-logging"
+                    }
             ],
             quartz       : [
                     dependencies.create("org.quartz-scheduler:quartz"){
@@ -20,26 +22,25 @@ ext {
             ],
             orm          : [
                     "org.mybatis.spring.boot:mybatis-spring-boot-starter:${LIB_SPRING_MYBATIS_VER}",
+                    "mysql:mysql-connector-java:${LIB_MYSQL_CONNECTOR_VER}"
             ],
             commons      : [
                     "org.ow2.asm:asm:${LIB_ASM_VER}",
-                    "eu.bitwalker:UserAgentUtils:1.21",
-                    "com.nimbusds:nimbus-jose-jwt:8.16",
-                    'org.aspectj:aspectjweaver:1.9.6',
-//                    'javax.persistence:javax.persistence-api:2.2',
-                    "javax.validation:validation-api:2.0.0.Final",
-                    "org.hibernate:hibernate-validator:7.0.1.Final",
+                    "eu.bitwalker:UserAgentUtils:${LIB_BITWALKER_USER_AGENT_PARSER_VER}",
+                    "com.nimbusds:nimbus-jose-jwt:${LIB_NIMBUS_JOSE_JWT_VER}",
+                    "org.aspectj:aspectjweaver:${LIB_ASPECTJ_WEAVER_VER}",
+                    "org.hibernate:hibernate-validator:${LIB_HIBERNATE_VALIDATOR_VER}",
                     "org.apache.commons:commons-text:${LIB_APACHE_COMMONS_TEXT_VER}",
                     "commons-net:commons-net:${LIB_APACHE_COMMONS_NET_VER}",
-                    "commons-beanutils:commons-beanutils:${LIB_COMMONS_BEANUTILS_VER}",
+                    dependencies.create("commons-beanutils:commons-beanutils:${LIB_COMMONS_BEANUTILS_VER}"){
+                        exclude group: "commons-logging", module: "commons-logging"
+                    },
                     "com.github.jknack:handlebars:${LIB_HANDLEBARS_VER}",
                     "commons-io:commons-io:${LIB_COMMONS_IO_VER}",
-                    "commons-logging:commons-logging:${LIB_COMMONS_LOGGING_VER}",
                     "commons-fileupload:commons-fileupload:${LIB_COMMONS_FILEUPLOAD_VER}",
                     "org.apache.commons:commons-lang3:${LIB_APACHE_COMMONS_LANG3_VER}",
             ],
             'third-party': [
-                    "org.javassist:javassist:3.27.0-GA",
                     "org.projectlombok:lombok",
                     "org.javassist:javassist:${LIB_JAVASSIST_VER}",
                     "org.projectlombok:lombok:${LIB_LOMBOK_VER}",

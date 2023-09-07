@@ -28,6 +28,7 @@ public abstract class DefaultBatchService<T, R> implements BatchService<T, R> {
 
   /** 工人数量 */
   private int workerNumber;
+
   /** 批处理大小 */
   private int batchSize;
 

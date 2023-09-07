@@ -4,11 +4,11 @@ plugins {
     id 'java'
     id 'jacoco'
     id "io.spring.dependency-management" version "${PLUGIN_SPRING_DEPENDENCY_MANAGEMENT_VER}"
-    id 'com.github.kt3k.coveralls' version '2.12.0'
-    id "com.star-zero.gradle.githook" version "1.2.0"
-    id "ru.netris.commitlint" version "1.4.1"
-    id "com.diffplug.spotless" version "6.12.0"
-    id "com.diffplug.eclipse.apt" version "3.31.0"
+    id 'com.github.kt3k.coveralls' version "${PLUGIN_KT3K_COVERALLS_VER}"
+    id "com.star-zero.gradle.githook" version "${PLUGIN_GIT_HOOK_VER}"
+    id "ru.netris.commitlint" version "${PLUGIN_COMMITLINT_VER}"
+    id "com.diffplug.spotless" version "${PLUGIN_SPOTLESS_VER}"
+    id "com.diffplug.eclipse.apt" version "${PLUGIN_ECLIPSE_APT_VER}"
 }
 
 githook {
@@ -61,7 +61,7 @@ allprojects {
     }
 
     dependencies {
-        implementation 'javax.interceptor:javax.interceptor-api:1.2.2'
+        implementation "jakarta.interceptor:jakarta.interceptor-api:${LIB_JAKARTA_INTERCEPTOR_API_VER}"
     }
 }
 

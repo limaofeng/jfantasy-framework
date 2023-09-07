@@ -281,6 +281,7 @@ public class WebUtil {
   public static Browser browser(HttpServletRequest request) {
     return parseUserAgent(request).getBrowser();
   }
+
   /**
    * 将请求参数转换为Map
    *

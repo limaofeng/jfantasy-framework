@@ -1,7 +1,7 @@
 package org.jfantasy.framework.spring;
 
 import java.util.Map;
-import org.jfantasy.framework.dao.mybatis.keygen.util.SequenceInfo;
+import org.jfantasy.framework.dao.mybatis.keygen.util.DatabaseSequenceGenerator;
 import org.jfantasy.framework.util.common.DateUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.springframework.expression.EvaluationContext;
@@ -44,7 +44,7 @@ public class SpELUtil {
 
   private static EvaluationContext initialVariable(EvaluationContext context) {
     context.setVariable("DateUtil", DateUtil.class);
-    context.setVariable("SequenceInfo", SequenceInfo.class);
+    context.setVariable("SequenceInfo", DatabaseSequenceGenerator.class);
     context.setVariable("StringUtil", StringUtil.class);
     context.setVariable("systemProperties", System.getenv());
     return context;

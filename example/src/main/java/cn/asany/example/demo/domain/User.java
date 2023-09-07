@@ -3,8 +3,8 @@ package cn.asany.example.demo.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.GenericGenerator;
 import org.jfantasy.framework.dao.BaseBusEntity;
+import org.jfantasy.framework.dao.hibernate.annotations.TableGenerator;
 import org.jfantasy.framework.search.annotations.IndexProperty;
 import org.jfantasy.framework.search.annotations.Indexed;
 
@@ -25,8 +25,7 @@ import org.jfantasy.framework.search.annotations.Indexed;
 public class User extends BaseBusEntity {
   @Id
   @Column(name = "ID", nullable = false, updatable = false, precision = 22)
-  @GeneratedValue(generator = "fantasy-sequence")
-  @GenericGenerator(name = "fantasy-sequence", strategy = "fantasy-sequence")
+  @TableGenerator(allocationSize = 5)
   private Long id;
 
   @IndexProperty

@@ -110,7 +110,10 @@ public class ElasticsearchConnection {
   }
 
   private SSLContext sslContext()
-      throws CertificateException, KeyStoreException, IOException, NoSuchAlgorithmException,
+      throws CertificateException,
+          KeyStoreException,
+          IOException,
+          NoSuchAlgorithmException,
           KeyManagementException {
     if (this.sslCertificatePath == null) {
       return null;

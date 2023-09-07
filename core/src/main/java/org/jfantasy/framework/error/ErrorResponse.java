@@ -12,14 +12,19 @@ import org.jfantasy.framework.util.common.DateUtil;
 public class ErrorResponse {
   /** 错误发生时间 */
   private Date timestamp;
+
   /** 状态码错误说明 */
   private String error;
+
   /** 定义的具体错误码 */
   private String code;
+
   /** 错误消息 */
   private String message;
+
   /** 原始异常信息 */
   private String exception;
+
   /** 当验证错误时，各项具体的错误信息 */
   private List<Error> fields = new ArrayList<>();
 

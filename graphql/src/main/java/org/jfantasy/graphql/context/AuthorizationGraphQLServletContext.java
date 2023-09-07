@@ -1,5 +1,6 @@
 package org.jfantasy.graphql.context;
 
+import graphql.kickstart.execution.context.DefaultGraphQLContext;
 import graphql.kickstart.execution.context.GraphQLKickstartContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -18,85 +19,95 @@ import org.jfantasy.framework.security.authentication.Authentication;
  * @author limaofeng
  * @version V1.0
  */
-public class AuthorizationGraphQLServletContext implements GraphQLKickstartContext {
+public class AuthorizationGraphQLServletContext extends DefaultGraphQLContext
+    implements GraphQLKickstartContext {
 
-  private HttpServletRequest request;
-  private Session session;
-  private HttpServletResponse response;
-  private DataLoaderRegistry dataLoaderRegistry;
-  private HandshakeRequest handshakeRequest;
-  private Authentication authentication;
-  private final SecurityContext securityContext;
-  private final Map<String, Object> attributes = new HashMap<>();
+  private static final String DATA_HTTP_REQUEST = "http.request";
+  private static final String DATA_WEBSOCKET_SESSION = "websocket.session";
+  private static final String DATA_HTTP_RESPONSE = "http.response";
+  private static final String DATA_WEBSOCKET_HANDSHAKE_REQUEST = "websocket.handshake.request";
+  private static final String DATA_AUTHENTICATION = "authentication";
+  private static final String DATA_SECURITY_CONTEXT = "security.context";
 
   public AuthorizationGraphQLServletContext(
+      DataLoaderRegistry dataLoaderRegistry,
+      HttpServletRequest request,
+      HttpServletResponse response,
+      SecurityContext securityContext) {
+    super(dataLoaderRegistry, createGraphQLContextMap(request, response, securityContext));
+  }
+
+  public AuthorizationGraphQLServletContext(
+      DataLoaderRegistry dataLoaderRegistry,
+      Session session,
+      HandshakeRequest request,
+      SecurityContext securityContext) {
+    super(dataLoaderRegistry, createGraphQLContextMap(session, request, securityContext));
+  }
+
+  private static Map<Object, Object> createGraphQLContextMap(
       HttpServletRequest request, HttpServletResponse response, SecurityContext securityContext) {
-    this.request = request;
-    this.response = response;
-    this.securityContext = securityContext;
+    Map<Object, Object> map = new HashMap<>();
+    map.put(DATA_HTTP_REQUEST, request);
+    map.put(DATA_HTTP_RESPONSE, response);
+    map.put(DATA_SECURITY_CONTEXT, securityContext);
+    return map;
   }
 
-  public AuthorizationGraphQLServletContext(
+  private static Map<Object, Object> createGraphQLContextMap(
       Session session, HandshakeRequest request, SecurityContext securityContext) {
-    this.session = session;
-    this.handshakeRequest = request;
-    this.securityContext = securityContext;
+    Map<Object, Object> map = new HashMap<>();
+    map.put(DATA_WEBSOCKET_SESSION, session);
+    map.put(DATA_WEBSOCKET_HANDSHAKE_REQUEST, request);
+    map.put(DATA_SECURITY_CONTEXT, securityContext);
+    return map;
   }
-
-  //  @Override
-  //  public Optional<Subject> getSubject() {
-  //    return Optional.empty();
-  //  }
 
   @NotNull
   @Override
   public DataLoaderRegistry getDataLoaderRegistry() {
-    return dataLoaderRegistry;
+    return super.getDataLoaderRegistry();
   }
 
-  @Override
-  public Map<Object, Object> getMapOfContext() {
-    return null;
-  }
-
-  public void setDataLoaderRegistry(DataLoaderRegistry dataLoaderRegistry) {
-    this.dataLoaderRegistry = dataLoaderRegistry;
+  public <T> T getValue(String key, Class<T> valueType) {
+    return valueType.cast(super.getMapOfContext().get(key));
   }
 
   public HandshakeRequest getHandshakeRequest() {
-    return handshakeRequest;
+    return getValue(DATA_WEBSOCKET_HANDSHAKE_REQUEST, HandshakeRequest.class);
   }
 
   public HttpServletRequest getRequest() {
-    return request;
+    return getValue(DATA_HTTP_REQUEST, HttpServletRequest.class);
   }
 
   public Session getSession() {
-    return session;
+    return getValue(DATA_WEBSOCKET_SESSION, Session.class);
   }
 
   public HttpServletResponse getResponse() {
-    return response;
+    return getValue(DATA_HTTP_RESPONSE, HttpServletResponse.class);
   }
 
   public Authentication getAuthentication() {
-    return authentication;
+    return getValue(DATA_AUTHENTICATION, Authentication.class);
   }
 
   public <T> void setAttribute(String name, T o) {
-    attributes.put(name, o);
+    super.put(name, o);
   }
 
   public <T> T getAttribute(String name) {
-    return (T) attributes.get(name);
+    //noinspection unchecked
+    return (T) getMapOfContext().get(name);
   }
 
   public void setAuthentication(Authentication authentication) {
-    this.authentication = authentication;
-    securityContext.setAuthentication(authentication);
+    super.put(DATA_AUTHENTICATION, authentication);
+    getSecurityContext().setAuthentication(authentication);
   }
 
   public SecurityContext getSecurityContext() {
-    return securityContext;
+    return getValue(DATA_SECURITY_CONTEXT, SecurityContext.class);
   }
 }

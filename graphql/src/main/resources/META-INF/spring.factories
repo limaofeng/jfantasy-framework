@@ -1,4 +1,0 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-org.jfantasy.autoconfigure.GraphQLAutoConfiguration,\
-org.jfantasy.graphql.scalars.GraphQLScalarTypeConfiguration,\
-org.jfantasy.graphql.directives.GraphQLDirectiveConfiguration

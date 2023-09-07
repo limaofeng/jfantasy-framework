@@ -22,16 +22,21 @@ public class Property {
 
   /** 属性名称 */
   private String name;
+
   /** 属性类型 */
   private Class type;
+
   /** 类型描述 */
   private String descriptor;
 
   private String signature;
+
   /** 泛型 */
   @Builder.Default private Class[] genericTypes = new Class[0];
+
   /** 是否可以写入(set操作) */
   @Builder.Default private boolean write = true;
+
   /** 是否可以读取(get操作) */
   @Builder.Default private boolean read = true;
 

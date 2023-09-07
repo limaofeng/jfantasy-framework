@@ -24,18 +24,24 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
     implements BlockingQueue<E>, Serializable {
   /** */
   private static final long serialVersionUID = -6642633435807467698L;
+
   /** 容量 */
   private final int capacity;
+
   /** 计数器 */
   private final AtomicInteger count = new AtomicInteger(0);
+
   /** 链表头元素 */
   private transient Node<E> head;
+
   /** 链表尾元素 */
   private transient Node<E> last;
+
   /** 输出锁 */
   private final ReentrantLock takeLock = new ReentrantLock();
 
   private final Condition notEmpty = this.takeLock.newCondition();
+
   /** 输入锁 */
   private final ReentrantLock putLock = new ReentrantLock();
 
@@ -844,8 +850,10 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
   static class Node<E> {
     /** 当前节点对于的元素 */
     volatile E item;
+
     /** 下一个节点 */
     Node<E> next;
+
     /** 上一个节点 */
     Node<E> previous;
 
