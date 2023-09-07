@@ -1,7 +1,6 @@
 package org.jfantasy.graphql;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -13,7 +12,6 @@ import lombok.NoArgsConstructor;
  * @date 2019-04-02 18:24
  */
 @Getter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class PageInfo {
@@ -33,4 +31,8 @@ public class PageInfo {
 
   /** 总页数 */
   private int totalPages;
+
+  public static PageInfoBuilder builder() {
+    return new PageInfoBuilder();
+  }
 }

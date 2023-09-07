@@ -14,7 +14,7 @@ import org.jfantasy.framework.util.reflect.Property;
 import org.jfantasy.graphql.Connection;
 import org.jfantasy.graphql.Edge;
 import org.jfantasy.graphql.PageInfo;
-import org.jfantasy.graphql.PageInfo.PageInfoBuilder;
+import org.jfantasy.graphql.PageInfoBuilder;
 import org.springframework.data.domain.Page;
 
 /**
@@ -82,6 +82,7 @@ public class Kit {
   @SneakyThrows({InstantiationException.class, IllegalAccessException.class})
   public static <C extends Connection<R, S>, S, T, R extends Edge<S>> C connection(
       org.jfantasy.framework.dao.Page<T> page, Class<C> connectionClass, Function<T, R> mapper) {
+    @SuppressWarnings("deprecation")
     C connection = connectionClass.newInstance();
 
     List<T> nodes = page.getPageItems();
@@ -166,9 +167,7 @@ public class Kit {
       }
       Property[] properties = ClassUtil.getProperties(clazz);
       List<Property> propertyList =
-          Arrays.stream(properties)
-              .filter(item -> item.getAnnotation(Id.class) != null)
-              .collect(Collectors.toList());
+          Arrays.stream(properties).filter(item -> item.getAnnotation(Id.class) != null).toList();
       Property property;
       if (propertyList.isEmpty()) {
         property = ClassUtil.getProperty(clazz, "id");

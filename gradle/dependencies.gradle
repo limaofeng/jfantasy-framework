@@ -43,7 +43,6 @@ ext {
             'third-party': [
                     "org.projectlombok:lombok",
                     "org.javassist:javassist:${LIB_JAVASSIST_VER}",
-                    "org.projectlombok:lombok:${LIB_LOMBOK_VER}",
                     "cglib:cglib:${LIB_CGLIB_VER}",
                     "net.sourceforge.htmlcleaner:htmlcleaner:${LIB_HTMLCLEANER_VER}",
                     "org.apache.tika:tika-core:${LIB_TIKA_VER}",

@@ -15,6 +15,11 @@
   ],
   "properties": [
     {
+      "name": "spring.tomcat.disableSession",
+      "type": "java.lang.String",
+      "description": "禁用 Tomcat 的 Session."
+    },
+    {
       "name": "spring.sequence.pool-size",
       "type": "java.lang.Integer",
       "description": "数据库自定义序列池大小."

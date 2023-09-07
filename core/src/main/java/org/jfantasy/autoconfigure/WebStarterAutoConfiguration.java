@@ -17,9 +17,9 @@ import org.springframework.context.annotation.Import;
 public class WebStarterAutoConfiguration {
 
   /**
-   * TODO: 自定义 TomcatServletWebServerFactory 禁用自带的 Tomcat Session
+   * TODO: 禁用自带的 Tomcat Session, * 直接禁用，会导致 GraphQL 的 WebSocket 无法使用
    *
-   * @return TomcatServletWebServerFactory
+   * @return CustomTomcatContextCustomizer
    */
   public CustomTomcatContextCustomizer customTomcatContextCustomizer() {
     return new CustomTomcatContextCustomizer();
