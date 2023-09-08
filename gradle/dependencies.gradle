@@ -58,6 +58,8 @@ ext {
                         exclude group: "com.vaadin.external.google", module: "android-json"
 
                     },
+                    "org.springframework.boot:spring-boot-starter-web",
+                    "org.springframework.boot:spring-boot-starter-webflux",
                     "org.codehaus.groovy:groovy-all:${LIB_GROOVY_VER}",
                     "org.junit.jupiter:junit-jupiter",
                     "org.junit.jupiter:junit-jupiter-api"
