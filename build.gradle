@@ -3,12 +3,12 @@ import org.gradle.plugins.ide.eclipse.model.SourceFolder
 plugins {
     id 'java'
     id 'jacoco'
-    id "io.spring.dependency-management" version "${PLUGIN_SPRING_DEPENDENCY_MANAGEMENT_VER}"
-    id 'com.github.kt3k.coveralls' version "${PLUGIN_KT3K_COVERALLS_VER}"
-    id "com.star-zero.gradle.githook" version "${PLUGIN_GIT_HOOK_VER}"
-    id "ru.netris.commitlint" version "${PLUGIN_COMMITLINT_VER}"
     id "com.diffplug.spotless" version "${PLUGIN_SPOTLESS_VER}"
+    id "ru.netris.commitlint" version "${PLUGIN_COMMITLINT_VER}"
     id "com.diffplug.eclipse.apt" version "${PLUGIN_ECLIPSE_APT_VER}"
+    id "com.star-zero.gradle.githook" version "${PLUGIN_GIT_HOOK_VER}"
+    id 'com.github.kt3k.coveralls' version "${PLUGIN_KT3K_COVERALLS_VER}"
+    id "io.spring.dependency-management" version "${PLUGIN_SPRING_DEPENDENCY_MANAGEMENT_VER}"
 }
 
 githook {

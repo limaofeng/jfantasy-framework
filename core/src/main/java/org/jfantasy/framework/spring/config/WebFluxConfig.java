@@ -3,21 +3,14 @@ package org.jfantasy.framework.spring.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.Unirest;
 import jakarta.annotation.PostConstruct;
-import jakarta.servlet.DispatcherType;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.List;
 import org.jfantasy.framework.jackson.JSON;
 import org.jfantasy.framework.jackson.UnirestObjectMapper;
 import org.jfantasy.framework.spring.SpringBeanUtils;
-import org.jfantasy.framework.spring.mvc.method.annotation.PagerModelAttributeMethodProcessor;
-import org.jfantasy.framework.spring.mvc.method.annotation.PropertyFilterModelAttributeMethodProcessor;
+import org.jfantasy.framework.spring.mvc.reactive.WebFluxResponseBodyResultHandler;
 import org.jfantasy.framework.util.common.ClassUtil;
-import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.web.ServletUtils;
-import org.jfantasy.framework.web.filter.ConversionCharacterEncodingFilter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -25,28 +18,20 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.http.codec.ServerCodecConfigurer;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.validation.Validator;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
-import org.springframework.web.method.support.HandlerMethodArgumentResolver;
-import org.springframework.web.servlet.LocaleResolver;
-import org.springframework.web.servlet.config.annotation.*;
-import org.springframework.web.servlet.i18n.CookieLocaleResolver;
-import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
+import org.springframework.web.reactive.accept.RequestedContentTypeResolver;
+import org.springframework.web.reactive.config.CorsRegistry;
+import org.springframework.web.reactive.config.WebFluxConfigurer;
 
-/**
- * Web 配置
- *
- * @author limaofeng
- */
 @Configuration
-@Order(value = WebMvcConfig.ORDER)
-@ComponentScan({"org.jfantasy.framework.spring.mvc.servlet"})
-public class WebMvcConfig implements WebMvcConfigurer {
+@Order(value = WebFluxConfig.ORDER)
+@ComponentScan({"org.jfantasy.framework.spring.mvc.reactive"})
+public class WebFluxConfig implements WebFluxConfigurer {
 
   public static final int ORDER = Ordered.HIGHEST_PRECEDENCE + 32;
 
@@ -55,52 +40,15 @@ public class WebMvcConfig implements WebMvcConfigurer {
   private final ObjectMapper objectMapper;
 
   @Autowired
-  public WebMvcConfig(ApplicationContext applicationContext, ObjectMapper objectMapper) {
+  public WebFluxConfig(ApplicationContext applicationContext, ObjectMapper objectMapper) {
     this.applicationContext = applicationContext;
     this.objectMapper = objectMapper;
-  }
-
-  @Override
-  public void addResourceHandlers(ResourceHandlerRegistry registry) {
-    registry.addResourceHandler("*.html").addResourceLocations("/");
-  }
-
-  @Bean
-  public LocaleResolver localeResolver() {
-    return new CookieLocaleResolver();
-  }
-
-  @Override
-  public void addInterceptors(InterceptorRegistry registry) {
-    LocaleChangeInterceptor localeChangeInterceptor = new LocaleChangeInterceptor();
-    localeChangeInterceptor.setParamName("lang");
-    registry.addInterceptor(localeChangeInterceptor);
-  }
-
-  @Override
-  public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
-    configurer.defaultContentType(MediaType.APPLICATION_JSON);
   }
 
   @PostConstruct
   public void initObjectMapper() {
     JSON.initialize(objectMapper);
     Unirest.setObjectMapper(new UnirestObjectMapper(objectMapper));
-  }
-
-  @Override
-  public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-    Class<?>[] removeClazz =
-        new Class[] {StringHttpMessageConverter.class, MappingJackson2HttpMessageConverter.class};
-    converters.removeIf(converter -> ObjectUtil.exists(removeClazz, converter.getClass()));
-    converters.add(0, new MappingJackson2HttpMessageConverter(this.objectMapper));
-    converters.add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
-  }
-
-  @Override
-  public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
-    argumentResolvers.add(new PropertyFilterModelAttributeMethodProcessor());
-    argumentResolvers.add(new PagerModelAttributeMethodProcessor());
   }
 
   @Override
@@ -145,15 +93,19 @@ public class WebMvcConfig implements WebMvcConfigurer {
   }
 
   @Bean
-  public FilterRegistrationBean<ConversionCharacterEncodingFilter>
-      conversionCharacterEncodingFilter() {
-    FilterRegistrationBean<ConversionCharacterEncodingFilter> filterRegistrationBean =
-        new FilterRegistrationBean<>();
-    filterRegistrationBean.setFilter(new ConversionCharacterEncodingFilter());
-    filterRegistrationBean.setEnabled(true);
-    filterRegistrationBean.setOrder(200);
-    filterRegistrationBean.setDispatcherTypes(DispatcherType.REQUEST);
-    filterRegistrationBean.addUrlPatterns("/*");
-    return filterRegistrationBean;
+  public MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter() {
+    MappingJackson2HttpMessageConverter converter =
+        new MappingJackson2HttpMessageConverter(this.objectMapper);
+    converter.setSupportedMediaTypes(
+        Arrays.asList(MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML));
+    return converter;
+  }
+
+  @Bean
+  public WebFluxResponseBodyResultHandler webFluxResponseBodyResultHandler(
+      ServerCodecConfigurer serverCodecConfigurer,
+      RequestedContentTypeResolver requestedContentTypeResolver) {
+    return new WebFluxResponseBodyResultHandler(
+        serverCodecConfigurer.getWriters(), requestedContentTypeResolver);
   }
 }

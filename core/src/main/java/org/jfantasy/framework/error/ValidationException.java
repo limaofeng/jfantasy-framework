@@ -1,11 +1,15 @@
 package org.jfantasy.framework.error;
 
 import java.util.Map;
+import lombok.Getter;
 import org.springframework.validation.BindingResult;
 
 /**
+ * 验证异常
+ *
  * @author limaofeng
  */
+@Getter
 public class ValidationException extends RuntimeException {
 
   private String code;
@@ -35,18 +39,6 @@ public class ValidationException extends RuntimeException {
 
   public ValidationException(String message) {
     super(message);
-  }
-
-  public String getCode() {
-    return code;
-  }
-
-  public Map<String, Object> getData() {
-    return data;
-  }
-
-  public BindingResult getBindingResult() {
-    return bindingResult;
   }
 
   public boolean hasFieldErrors() {

@@ -1,15 +1,19 @@
 package org.jfantasy.framework.error;
 
+import java.io.Serializable;
 import java.util.*;
 import lombok.Data;
-import org.jfantasy.framework.spring.mvc.http.Error;
+import org.jfantasy.framework.spring.mvc.http.FieldValidationError;
 import org.jfantasy.framework.util.common.DateUtil;
 
 /**
  * @author limaofeng
  */
 @Data
-public class ErrorResponse {
+public class ErrorResponse implements Serializable {
+  /** HTTP 状态码 */
+  private int status;
+
   /** 错误发生时间 */
   private Date timestamp;
 
@@ -26,7 +30,7 @@ public class ErrorResponse {
   private String exception;
 
   /** 当验证错误时，各项具体的错误信息 */
-  private List<Error> fields = new ArrayList<>();
+  private List<FieldValidationError> fieldErrors = new ArrayList<>();
 
   /** 定义的返回数据 */
   private Map<String, Object> data = new HashMap<>();
@@ -35,11 +39,15 @@ public class ErrorResponse {
     this.timestamp = DateUtil.now();
   }
 
-  public void addFieldError(String name, String message) {
-    this.fields.add(new Error(name, message));
+  public void addFieldError(FieldValidationError error) {
+    this.fieldErrors.add(error);
   }
 
-  public void addData(String key, Object value) {
+  public void addDataValue(String key, Object value) {
     this.data.put(key, value);
+  }
+
+  public void addData(Map<String, Object> data) {
+    this.data.putAll(data);
   }
 }

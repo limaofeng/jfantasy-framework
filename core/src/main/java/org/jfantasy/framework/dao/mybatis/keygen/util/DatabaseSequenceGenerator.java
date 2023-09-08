@@ -26,6 +26,8 @@ public class DatabaseSequenceGenerator {
   private final Lock lock = new ReentrantLock();
   private final SequenceService service;
 
+  private boolean initialized = false;
+
   /** 获取缓存序列的最大值 */
   @Getter private long keyMax = 1L;
 
@@ -86,12 +88,8 @@ public class DatabaseSequenceGenerator {
     this.incrementSize = incrementSize;
     this.initialValue = initialValue;
     this.keyName = keyName;
-    try {
-      this.lock.lock();
-      initDB();
-    } finally {
-      this.lock.unlock();
-    }
+
+    initDB();
   }
 
   public static DatabaseSequenceGenerator create(String keyName) {
@@ -99,15 +97,23 @@ public class DatabaseSequenceGenerator {
   }
 
   private void initDB() {
-    long keyFromDB;
-    if (this.service.exists(this.keyName)) {
-      keyFromDB = getCurrentKeyValue(keyName);
-    } else {
-      keyFromDB = createKey(this.keyName, this.initialValue);
+    try {
+      this.lock.lock();
+      long keyFromDB;
+      if (this.service.exists(this.keyName)) {
+        keyFromDB = getCurrentKeyValue(keyName);
+      } else {
+        keyFromDB = createKey(this.keyName, this.initialValue);
+      }
+      this.keyMax = keyFromDB;
+      this.keyMin = keyFromDB;
+      this.currentValue.set(this.keyMin);
+      initialized = true;
+    } catch (Exception e) {
+      log.error(e.getMessage());
+    } finally {
+      this.lock.unlock();
     }
-    this.keyMax = keyFromDB;
-    this.keyMin = keyFromDB;
-    this.currentValue.set(this.keyMin);
   }
 
   /** 从数据库检索 */

@@ -1,9 +1,11 @@
 package org.jfantasy.framework.spring.mvc.error;
 
 import java.io.Serializable;
+import lombok.Getter;
 import org.jfantasy.framework.error.ValidationException;
 import org.springframework.http.HttpStatus;
 
+@Getter
 public class RestException extends ValidationException {
 
   private int statusCode = HttpStatus.BAD_REQUEST.value();
@@ -21,14 +23,6 @@ public class RestException extends ValidationException {
 
   public RestException(String message) {
     super(message);
-  }
-
-  public int getStatusCode() {
-    return statusCode;
-  }
-
-  public Serializable getState() {
-    return state;
   }
 
   public void setState(Serializable state) {

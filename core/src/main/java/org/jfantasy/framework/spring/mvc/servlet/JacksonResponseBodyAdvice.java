@@ -1,4 +1,4 @@
-package org.jfantasy.framework.spring.mvc.http;
+package org.jfantasy.framework.spring.mvc.servlet;
 
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;

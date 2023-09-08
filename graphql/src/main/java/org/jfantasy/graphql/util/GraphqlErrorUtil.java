@@ -20,7 +20,7 @@ public class GraphqlErrorUtil {
   public static DefaultGraphQLError buildGraphqlError(
       ErrorContext context, String errorCode, Exception e) {
     DefaultGraphQLError error = new DefaultGraphQLError(context);
-    ErrorUtils.fill(error, e);
+    ErrorUtils.populateErrorAttributesFromException(error, e);
     error.setCode(errorCode);
     return error;
   }
@@ -28,7 +28,7 @@ public class GraphqlErrorUtil {
   public static DefaultGraphQLError buildGraphqlError(
       ErrorContext context, String errorCode, String message) {
     DefaultGraphQLError error = new DefaultGraphQLError(context);
-    ErrorUtils.fill(error, new Exception(message));
+    ErrorUtils.populateErrorAttributesFromException(error, new Exception(message));
     error.setCode(errorCode);
     return error;
   }
@@ -36,7 +36,7 @@ public class GraphqlErrorUtil {
   public static DefaultGraphQLError buildGraphqlError(
       ErrorContext context, String errorCode, Exception e, Map<String, Object> extensions) {
     DefaultGraphQLError error = new DefaultGraphQLError(context);
-    ErrorUtils.fill(error, e);
+    ErrorUtils.populateErrorAttributesFromException(error, e);
     error.setCode(errorCode);
     error.setData(extensions);
     return error;
@@ -45,7 +45,7 @@ public class GraphqlErrorUtil {
   public static DefaultGraphQLError buildGraphqlError(
       ErrorContext context, String errorCode, String message, Map<String, Object> extensions) {
     DefaultGraphQLError error = new DefaultGraphQLError(context);
-    ErrorUtils.fill(error, new Exception(message));
+    ErrorUtils.populateErrorAttributesFromException(error, new Exception(message));
     error.setCode(errorCode);
     error.setData(extensions);
     return error;
@@ -57,14 +57,13 @@ public class GraphqlErrorUtil {
     }
     DefaultGraphQLError error;
     if (e instanceof MethodArgumentNotValidException) {
-      MethodArgumentNotValidException ex = ((MethodArgumentNotValidException) e);
-      ErrorUtils.fill(error = new DefaultGraphQLError(context, ErrorType.ValidationError), ex);
+      error = new DefaultGraphQLError(context, ErrorType.ValidationError);
     } else if (e instanceof AuthenticationException) {
-      ErrorUtils.fill(
-          error = new DefaultGraphQLError(context, AuthorizationErrorType.AuthenticatedError), e);
+      error = new DefaultGraphQLError(context, AuthorizationErrorType.AuthenticatedError);
     } else {
-      ErrorUtils.fill(error = new DefaultGraphQLError(context), e);
+      error = new DefaultGraphQLError(context);
     }
+    ErrorUtils.populateErrorAttributesFromException(error, e);
     return error;
   }
 }

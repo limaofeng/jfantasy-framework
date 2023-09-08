@@ -1,7 +1,7 @@
 package org.jfantasy.framework.spring.mvc.http;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.servlet.http.HttpServletRequest;
+import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.jfantasy.framework.error.ErrorResponse;
@@ -21,7 +21,7 @@ public class WebError extends ErrorResponse {
 
   private final String path;
 
-  public WebError(HttpServletRequest request) {
-    this.path = request.getRequestURI();
+  public WebError(Map<String, Object> error) {
+    this.path = "path";
   }
 }

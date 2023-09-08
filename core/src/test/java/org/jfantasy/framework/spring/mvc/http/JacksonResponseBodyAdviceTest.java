@@ -7,6 +7,7 @@ import org.jfantasy.framework.jackson.JSON;
 import org.jfantasy.framework.jackson.JSONTest;
 import org.jfantasy.framework.jackson.annotation.BeanFilter;
 import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
+import org.jfantasy.framework.spring.mvc.servlet.JacksonResponseBodyAdvice;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.junit.jupiter.api.Test;
 

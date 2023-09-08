@@ -1,12 +1,15 @@
 package cn.asany.example.demo.domain;
 
+import cn.asany.example.demo.validator.CaseValidator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.jfantasy.framework.dao.BaseBusEntity;
 import org.jfantasy.framework.dao.hibernate.annotations.TableGenerator;
 import org.jfantasy.framework.search.annotations.IndexProperty;
 import org.jfantasy.framework.search.annotations.Indexed;
+import org.jfantasy.framework.spring.validation.Use;
 
 /**
  * @author limaofeng
@@ -29,9 +32,12 @@ public class User extends BaseBusEntity {
   private Long id;
 
   @IndexProperty
+  @NotBlank(message = "用户名不能为空")
+  @Use(value = CaseValidator.class, message = "自定义的错误消息")
   @Column(name = "USERNAME", length = 18)
   private String username;
 
+  @NotBlank(message = "密码不能为空")
   @Column(name = "password", length = 21)
   private String password;
 }

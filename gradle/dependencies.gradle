@@ -16,7 +16,6 @@ ext {
             ],
             springBoot   : [
                     "org.springframework:spring-test",
-                    "org.springframework.boot:spring-boot-starter-web",
                     "org.springframework.boot:spring-boot-starter-data-jpa",
                     "org.springframework.boot:spring-boot-starter-actuator"
             ],
@@ -26,6 +25,7 @@ ext {
             ],
             commons      : [
                     "org.ow2.asm:asm:${LIB_ASM_VER}",
+                    "com.google.guava:guava:${LIB_GUAVA_VER}",
                     "eu.bitwalker:UserAgentUtils:${LIB_BITWALKER_USER_AGENT_PARSER_VER}",
                     "com.nimbusds:nimbus-jose-jwt:${LIB_NIMBUS_JOSE_JWT_VER}",
                     "org.aspectj:aspectjweaver:${LIB_ASPECTJ_WEAVER_VER}",

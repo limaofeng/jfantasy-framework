@@ -52,11 +52,12 @@ public class DefaultGraphQLError extends ErrorResponse implements GraphQLError {
   @Override
   public Map<String, Object> toSpecification() {
     Map<String, Object> result = GraphqlErrorHelper.toSpecification(this);
+    @SuppressWarnings("unchecked")
     Map<String, Object> extensions = (Map<String, Object>) result.get("extensions");
     extensions.put("code", this.getCode());
     extensions.put("timestamp", this.getTimestamp());
-    if (!this.getFields().isEmpty()) {
-      extensions.put("fields", this.getFields());
+    if (!this.getError().isEmpty()) {
+      extensions.put("errors", this.getFieldErrors());
     }
     if (!this.getData().isEmpty()) {
       extensions.put("data", this.getData());

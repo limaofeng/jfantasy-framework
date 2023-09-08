@@ -21,6 +21,9 @@ spring:
       password: ${REDIS_PASSWORD}
       port: 6379
       database: 0
+  quartz:
+    jdbc:
+      initialize-schema: always
 #  shardingsphere:
 #    datasource:
 #      names: dynamicDataSource

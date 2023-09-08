@@ -286,7 +286,7 @@ public class WebUtil {
    * 将请求参数转换为Map
    *
    * @param query 请求参数字符串
-   * @return {Map<String,String[]>}
+   * @return Map
    */
   public static Map<String, String[]> parseQuery(String query) {
     return parseQuery(query, false);

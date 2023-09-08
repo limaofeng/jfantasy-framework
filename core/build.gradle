@@ -31,8 +31,12 @@ dependencies {
 	api "com.jayway.jsonpath:json-path"
 	compileOnly 'jakarta.servlet:jakarta.servlet-api'
 	compileOnly "org.springframework.boot:spring-boot-starter-data-redis"
+	compileOnly "org.springframework.boot:spring-boot-starter-web"
+	compileOnly "org.springframework.boot:spring-boot-starter-webflux"
 	compileOnly "cn.hutool:hutool-all:${LIB_HUTOOL_VER}"
-	compileOnly "org.apache.shardingsphere:sharding-jdbc-core:${LIB_SHARDING_SPHERE_VER}"
+	compileOnly("org.apache.shardingsphere:sharding-jdbc-core:${LIB_SHARDING_SPHERE_VER}"){
+		exclude group: "com.google.guava", module: "guava"
+	}
 	compileOnly "org.projectlombok:lombok"
 	annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 	annotationProcessor "org.projectlombok:lombok"

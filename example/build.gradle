@@ -37,6 +37,8 @@ dependencies {
 	implementation project(":jfantasy-search")
 	implementation "jakarta.json:jakarta.json-api:${LIB_JAKARTA_VAR}"
 	implementation "org.springframework.boot:spring-boot-starter-data-redis"
+//	implementation "org.springframework.boot:spring-boot-starter-web"
+	implementation "org.springframework.boot:spring-boot-starter-webflux"
 	implementation "org.mapstruct:mapstruct:${LIB_MAPSTRUCT_VER}"
 	implementation "io.reactivex.rxjava2:rxjava:2.2.21"
 	annotationProcessor "org.mapstruct:mapstruct-processor:$LIB_MAPSTRUCT_VER"
@@ -47,7 +49,8 @@ dependencies {
 	annotationProcessor "org.projectlombok:lombok-mapstruct-binding:${LIB_LOMBOK_MAPSTRUCT_BINDING_VER}"
 	testCompileOnly "org.projectlombok:lombok"
 	testAnnotationProcessor "org.projectlombok:lombok"
-	testAnnotationProcessor "org.mapstruct:mapstruct-processor" // $LIB_MAPSTRUCT_VER
+	testAnnotationProcessor "org.mapstruct:mapstruct-processor"
+	//noinspection DependencyNotationArgument
 	testImplementation libs['test']
 //	implementation("org.apache.shardingsphere:sharding-jdbc-core:${LIB_SHARDING_SPHERE_VER}") {
 //        exclude group: "org.antlr", module: "antlr4-runtime"

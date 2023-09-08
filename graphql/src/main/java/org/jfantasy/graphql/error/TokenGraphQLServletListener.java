@@ -20,7 +20,7 @@ public class TokenGraphQLServletListener implements GraphQLServletListener {
           HttpServletRequest request, HttpServletResponse response, Throwable throwable) {
         ErrorResponse errorResponse = new ErrorResponse();
         if (Exception.class.isAssignableFrom(throwable.getClass())) {
-          ErrorUtils.fill(errorResponse, (Exception) throwable);
+          ErrorUtils.populateErrorAttributesFromException(errorResponse, throwable);
         }
         response.setHeader("Content-Type", "application/json;charset=utf-8");
         PrintWriter printWriter = response.getWriter();

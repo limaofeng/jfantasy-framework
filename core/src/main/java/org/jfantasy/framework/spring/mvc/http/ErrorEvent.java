@@ -5,7 +5,7 @@ import org.springframework.context.ApplicationEvent;
 
 public class ErrorEvent extends ApplicationEvent {
 
-  public ErrorEvent(ErrorResponse error, Object state) {
+  public ErrorEvent(WebError error, Object state) {
     super(new ErrorSource(error, state));
   }
 

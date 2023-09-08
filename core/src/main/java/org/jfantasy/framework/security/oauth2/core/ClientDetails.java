@@ -13,7 +13,7 @@ public interface ClientDetails {
   /**
    * 附加信息
    *
-   * @return Map<String, Object>
+   * @return Map
    */
   Map<String, Object> getAdditionalInformation();
 

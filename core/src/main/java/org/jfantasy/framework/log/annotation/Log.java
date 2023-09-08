@@ -37,7 +37,7 @@ public @interface Log {
   /**
    * 日志拦截器
    *
-   * @return Class<?>
+   * @return Class
    */
   Class<?> using() default DefaultLogFilter.class;
 }
