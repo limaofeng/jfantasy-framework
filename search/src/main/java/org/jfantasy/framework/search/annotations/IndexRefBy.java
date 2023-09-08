@@ -17,7 +17,7 @@ public @interface IndexRefBy {
   /**
    * value——Class类型，表示被引用的类
    *
-   * @return Class<?>[]
+   * @return Class[]
    */
   Class<?>[] value();
 

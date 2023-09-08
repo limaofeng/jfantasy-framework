@@ -26,7 +26,7 @@ public @interface Indexed {
   /**
    * 文档数据加载器
    *
-   * @return Class<? extends CuckooDao>
+   * @return Class
    */
   Class<? extends CuckooDao> dao() default JpaDefaultCuckooDao.class;
 }
