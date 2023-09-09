@@ -39,6 +39,7 @@ ext {
                     "commons-io:commons-io:${LIB_COMMONS_IO_VER}",
                     "commons-fileupload:commons-fileupload:${LIB_COMMONS_FILEUPLOAD_VER}",
                     "org.apache.commons:commons-lang3:${LIB_APACHE_COMMONS_LANG3_VER}",
+                    "cn.hutool:hutool-all:${LIB_HUTOOL_VER}"
             ],
             'third-party': [
                     "org.projectlombok:lombok",
