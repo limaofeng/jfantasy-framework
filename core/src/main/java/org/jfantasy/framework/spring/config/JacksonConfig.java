@@ -16,10 +16,15 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
+@Order(value = JacksonConfig.ORDER)
 @Configuration
 public class JacksonConfig {
+
+  public static final int ORDER = Ordered.HIGHEST_PRECEDENCE + 30;
 
   @PostConstruct
   public void initObjectMapper() {
