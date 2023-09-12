@@ -7,10 +7,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import lombok.Getter;
 import org.jfantasy.framework.util.asm.AnnotationDescriptor;
 import org.jfantasy.framework.util.asm.AsmUtil;
 
 /**
+ * MixInHolder
+ *
  * @author limaofeng
  * @version V1.0
  * @date 07/11/2017 8:38 PM
@@ -22,7 +25,7 @@ public class MixInHolder {
   public static MixInSource createMixInSource(Class<?> type) {
     if (!mixInSourceMap.containsKey(type)) {
       String uuid = UUID.randomUUID().toString().replaceAll("-", "");
-      Class mixIn =
+      Class<?> mixIn =
           AsmUtil.makeInterface(
               "org.jfantasy.framework.jackson.mixin." + type.getSimpleName() + "_" + uuid,
               AnnotationDescriptor.builder(JsonFilter.class).setValue("value", uuid).build());
@@ -48,22 +51,14 @@ public class MixInHolder {
   }
 
   public static class MixInSource {
-    private String id;
-    private Class<?> type;
-    private Class<?> mixIn;
+    @Getter private final String id;
+    @Getter private final Class<?> type;
+    private final Class<?> mixIn;
 
     MixInSource(String id, Class<?> type, Class<?> mixIn) {
       this.id = id;
       this.type = type;
       this.mixIn = mixIn;
-    }
-
-    public String getId() {
-      return id;
-    }
-
-    public Class<?> getType() {
-      return type;
     }
 
     Class<?> getMixIn() {

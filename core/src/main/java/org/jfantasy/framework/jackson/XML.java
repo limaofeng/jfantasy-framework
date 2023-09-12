@@ -1,34 +1,27 @@
 package org.jfantasy.framework.jackson;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.spring.config.JacksonConfig;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
-/**
- * JSON 工具类
- *
- * @author limaofeng
- */
 @Slf4j
-public class JSON {
+public class XML {
 
   private static final CustomObjectMapper wrapper = new CustomObjectMapper();
 
-  public static synchronized void initialize() {
-    Jackson2ObjectMapperBuilder jsonMapperBuilder = new Jackson2ObjectMapperBuilder();
-    new JacksonConfig.AnyJackson2ObjectMapperBuilderCustomizer().customize(jsonMapperBuilder);
-    wrapper.setObjectMapper(jsonMapperBuilder.build());
-  }
-
   public static synchronized void setObjectMapper(ObjectMapper objectMapper) {
     wrapper.setObjectMapper(objectMapper);
+  }
+
+  public static synchronized void initialize() {
+    Jackson2ObjectMapperBuilder xmlMapperBuilder = Jackson2ObjectMapperBuilder.xml();
+    new JacksonConfig.AnyJackson2XmlMapperBuilderCustomizer().customize(xmlMapperBuilder);
+    wrapper.setObjectMapper(xmlMapperBuilder.build());
   }
 
   public static String serialize(Object object, String... ignoreProperties) {
@@ -63,29 +56,16 @@ public class JSON {
     return wrapper.deserialize(json, typeReference);
   }
 
-  public static JsonNode deserialize(String json) {
-    try {
-      return wrapper.getObjectMapper().readTree(json);
-    } catch (IOException e) {
-      log.error(e.getMessage() + " source json string : " + json + " => readNode", e);
-    }
-    return null;
-  }
-
   private static boolean mixinLogWarning = true;
 
   public static void mixin(Class<?> type) {
     if (wrapper.getObjectMapper() == null) {
       if (mixinLogWarning) {
-        log.warn("JsonMapper 未初始化完成,无法进行混入操作");
+        log.warn("XmlMapper 未初始化完成,无法进行混入操作");
         mixinLogWarning = false;
       }
       return;
     }
     wrapper.mixin(type);
-  }
-
-  public static ObjectMapper getObjectMapper() {
-    return wrapper.getObjectMapper();
   }
 }

@@ -65,7 +65,7 @@ public class Application extends SpringBootServletInitializer {
   }
 
   @Bean
-  public UserDetailsService userDetailsService() {
+  public UserDetailsService<LoginUser> userDetailsService() {
     return new UserDetailsService() {
 
       @Override

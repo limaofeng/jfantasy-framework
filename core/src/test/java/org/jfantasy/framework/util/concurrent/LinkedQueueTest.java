@@ -1,9 +1,10 @@
 package org.jfantasy.framework.util.concurrent;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.jackson.models.User;
 import org.junit.jupiter.api.Test;
-import org.springframework.util.Assert;
 
 @Slf4j
 public class LinkedQueueTest {
@@ -15,9 +16,9 @@ public class LinkedQueueTest {
     // 添加数据
     queue.put(user);
 
-    Assert.isTrue(queue.remove(user));
+    assertTrue(queue.remove(user));
 
-    Assert.isTrue(queue.size() == 0);
+    assertTrue(queue.size() == 0);
   }
 
   @Test
@@ -53,7 +54,7 @@ public class LinkedQueueTest {
 
     for (User user : queue) {
       log.error(user.getNickName());
-      Assert.isTrue(user.getNickName() == "test-2");
+      assertTrue(user.getNickName() == "test-2");
     }
   }
 }

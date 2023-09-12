@@ -29,8 +29,8 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.reactive.config.EnableWebFlux;
-import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 /**
@@ -68,7 +68,7 @@ public class OAuth2SecurityAutoConfiguration {
 
   @Bean
   @ConditionalOnClass(EnableWebFlux.class)
-  public AuthenticationManagerResolver<ServerRequest> webFluxAuthenticationManagerResolver(
+  public AuthenticationManagerResolver<ServerHttpRequest> webFluxAuthenticationManagerResolver(
       AuthenticationManager authenticationManager) {
     return new WebFluxAuthenticationManagerResolver(authenticationManager);
   }
@@ -116,7 +116,7 @@ public class OAuth2SecurityAutoConfiguration {
   @ConditionalOnBean({UserDetailsService.class, PasswordEncoder.class})
   @ConditionalOnMissingBean({DaoAuthenticationProvider.class})
   public DaoAuthenticationProvider daoAuthenticationProvider(
-      UserDetailsService<UserDetails> userDetailsService,
+      UserDetailsService<? extends UserDetails> userDetailsService,
       PasswordEncoder passwordEncoder,
       @Qualifier("pre.preUserDetailsCheckers") UserDetailsChecker preUserDetailsCheckers,
       @Qualifier("post.preUserDetailsCheckers") UserDetailsChecker postUserDetailsCheckers,

@@ -9,24 +9,21 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import lombok.Getter;
 
 public class BeanPropertyFilter extends SimpleBeanPropertyFilter {
 
-  private Set<Class<?>> types = new HashSet<>();
+  @Getter private final Set<Class<?>> types = new HashSet<>();
 
-  private Map<Class<?>, Set<String>> includeMap = new ConcurrentHashMap<>();
+  private final Map<Class<?>, Set<String>> includeMap = new ConcurrentHashMap<>();
 
-  private Map<Class<?>, Set<String>> excludeMap = new ConcurrentHashMap<>();
-
-  public Set<Class<?>> getTypes() {
-    return types;
-  }
+  private final Map<Class<?>, Set<String>> excludeMap = new ConcurrentHashMap<>();
 
   /**
    * 只返回的字段
    *
-   * @param type
-   * @param fields
+   * @param type 类型
+   * @param fields 字段
    */
   public BeanPropertyFilter includes(Class<?> type, String... fields) {
     return addToMap(includeMap, type, fields);
@@ -35,8 +32,8 @@ public class BeanPropertyFilter extends SimpleBeanPropertyFilter {
   /**
    * 排除字段
    *
-   * @param type
-   * @param fields
+   * @param type 类型
+   * @param fields 字段
    */
   public BeanPropertyFilter excludes(Class<?> type, String... fields) {
     return addToMap(excludeMap, type, fields);
@@ -61,20 +58,17 @@ public class BeanPropertyFilter extends SimpleBeanPropertyFilter {
       return true;
     } else if (excludeFields != null && !excludeFields.contains(name)) {
       return true;
-    } else if (includeFields == null && excludeFields == null) {
-      return true;
-    }
-    return false;
+    } else return includeFields == null && excludeFields == null;
   }
 
   @Override
   public void serializeAsField(
-      Object pojo, JsonGenerator jgen, SerializerProvider prov, PropertyWriter writer)
+      Object pojo, JsonGenerator jGen, SerializerProvider prov, PropertyWriter writer)
       throws Exception {
     if (apply(pojo.getClass(), writer.getName())) {
-      writer.serializeAsField(pojo, jgen, prov);
-    } else if (!jgen.canOmitFields()) {
-      writer.serializeAsOmittedField(pojo, jgen, prov);
+      writer.serializeAsField(pojo, jGen, prov);
+    } else if (!jGen.canOmitFields()) {
+      writer.serializeAsOmittedField(pojo, jGen, prov);
     }
   }
 
@@ -82,20 +76,22 @@ public class BeanPropertyFilter extends SimpleBeanPropertyFilter {
     return new Builder(this, type);
   }
 
-  public static Builder newBuilder(Class type) {
+  public static Builder newBuilder(Class<?> type) {
     return new Builder(type);
   }
 
   public static class Builder {
-    private BeanPropertyFilter filter;
+    private final BeanPropertyFilter filter;
     private Class<?> current;
 
-    public Builder(BeanPropertyFilter filter, Class type) {
+    public Builder(BeanPropertyFilter filter, Class<?> type) {
       this.filter = filter;
-      this.current = JSON.mixin(type);
+      this.current = type;
+      JSON.mixin(type);
+      XML.mixin(type);
     }
 
-    public Builder(Class type) {
+    public Builder(Class<?> type) {
       this(new BeanPropertyFilter(), type);
     }
 
@@ -104,7 +100,8 @@ public class BeanPropertyFilter extends SimpleBeanPropertyFilter {
     }
 
     public Builder type(Class<?> type) {
-      this.current = JSON.mixin(type);
+      this.current = type;
+      JSON.mixin(type);
       return this;
     }
 

@@ -1,5 +1,7 @@
 package org.jfantasy.framework.util.web;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import eu.bitwalker.useragentutils.Browser;
 import eu.bitwalker.useragentutils.OperatingSystem;
 import eu.bitwalker.useragentutils.UserAgent;
@@ -14,7 +16,6 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.mock.web.MockServletContext;
-import org.springframework.util.Assert;
 
 @Slf4j
 public class WebUtilTest {
@@ -44,70 +45,70 @@ public class WebUtilTest {
 
   @Test
   public void testGetExtension() throws Exception {
-    Assert.isTrue("".equals(WebUtil.getExtension("12312312.jsg")));
+    assertEquals("", WebUtil.getExtension("12312312.jsg"));
 
-    Assert.isTrue("jsp".equals(WebUtil.getExtension(request)));
+    assertEquals("jsp", WebUtil.getExtension(request));
 
-    Assert.isTrue("do" == WebUtil.getExtension("/test/test.do"));
+    assertSame("do", WebUtil.getExtension("/test/test.do"));
   }
 
   @Test
   public void testGetServerName() throws Exception {
-    Assert.isTrue("www.jfantasy.org" == WebUtil.getServerName(request));
+    assertTrue("www.jfantasy.org" == WebUtil.getServerName(request));
 
-    Assert.isTrue("www.jfantasy.org" == WebUtil.getServerName("http://www.jfantasy.org/test.do"));
+    assertTrue("www.jfantasy.org" == WebUtil.getServerName("http://www.jfantasy.org/test.do"));
   }
 
   @Test
   public void testGetScheme() throws Exception {
-    Assert.isTrue("http" == WebUtil.getScheme("http://www.jfantasy.org/test.do"));
+    assertTrue("http" == WebUtil.getScheme("http://www.jfantasy.org/test.do"));
 
-    Assert.isTrue("https" == WebUtil.getScheme("https://www.jfantasy.org/test.do"));
+    assertTrue("https" == WebUtil.getScheme("https://www.jfantasy.org/test.do"));
   }
 
   @Test
   public void testGetPort() throws Exception {
-    Assert.isTrue(80 == WebUtil.getPort(request));
+    assertTrue(80 == WebUtil.getPort(request));
 
-    Assert.isTrue(80 == WebUtil.getPort("http://www.jfantasy.org/test.do"));
+    assertTrue(80 == WebUtil.getPort("http://www.jfantasy.org/test.do"));
 
-    Assert.isTrue(443 == WebUtil.getPort("https://www.jfantasy.org/test.do"));
+    assertTrue(443 == WebUtil.getPort("https://www.jfantasy.org/test.do"));
 
-    Assert.isTrue(8080 == WebUtil.getPort("https://www.jfantasy.org:8080/test.do"));
+    assertTrue(8080 == WebUtil.getPort("https://www.jfantasy.org:8080/test.do"));
   }
 
   @Test
   public void testAcceptEncoding() throws Exception {
-    Assert.isTrue("gzip" == WebUtil.getAcceptEncoding(request));
+    assertTrue("gzip" == WebUtil.getAcceptEncoding(request));
   }
 
   @Test
   public void testGetReferer() throws Exception {
-    Assert.isTrue("http://www.haoluesoft.com.cn" == WebUtil.getReferer(request));
+    assertTrue("http://www.haoluesoft.com.cn" == WebUtil.getReferer(request));
   }
 
   @Test
   public void testGetCookie() throws Exception {
     Cookie cookie = WebUtil.getCookie(request, "username");
-    Assert.isTrue("limaofeng" == cookie.getValue());
+    assertTrue("limaofeng" == cookie.getValue());
   }
 
   @Test
   public void testAddCookie() throws Exception {
     WebUtil.addCookie(response, "email", "limaofeng@msn.com", 100);
-    Assert.isTrue("limaofeng@msn.com" == response.getCookie("email").getValue());
+    assertTrue("limaofeng@msn.com" == response.getCookie("email").getValue());
   }
 
   @Test
   public void testRemoveCookie() throws Exception {
     WebUtil.removeCookie(request, response, "username");
     Cookie cookie = response.getCookie("username");
-    Assert.isTrue(0 == cookie.getMaxAge());
+    assertTrue(0 == cookie.getMaxAge());
   }
 
   @Test
   public void testGetRealIpAddress() throws Exception {
-    Assert.isTrue("127.0.0.1" == WebUtil.getRealIpAddress(request));
+    assertTrue("127.0.0.1" == WebUtil.getRealIpAddress(request));
   }
 
   @Test
@@ -132,21 +133,21 @@ public class WebUtilTest {
     Map<String, String[]> params =
         WebUtil.parseQuery("username=limaofeng&email=limaofeng@msn.com&arrays=1&arrays=2");
 
-    Assert.isTrue(params.get("username")[0] == "limaofeng");
-    Assert.isTrue(params.get("email")[0] == "limaofeng@msn.com");
-    Assert.isTrue(params.get("arrays").length == 2);
-    Assert.isTrue(params.get("arrays")[0] == "1");
-    Assert.isTrue(params.get("arrays")[1] == "2");
+    assertTrue(params.get("username")[0] == "limaofeng");
+    assertTrue(params.get("email")[0] == "limaofeng@msn.com");
+    assertTrue(params.get("arrays").length == 2);
+    assertTrue(params.get("arrays")[0] == "1");
+    assertTrue(params.get("arrays")[1] == "2");
 
     TUser tUser =
         WebUtil.parseQuery(
             "username=limaofeng&email=limaofeng@msn.com&arrays=1&arrays=2", TUser.class);
 
-    Assert.isTrue(tUser.getUsername() == "limaofeng");
-    Assert.isTrue(tUser.getEmail() == "limaofeng@msn.com");
-    Assert.isTrue(tUser.getArrays().length == 2);
-    Assert.isTrue(tUser.getArrays()[0] == 1);
-    Assert.isTrue(tUser.getArrays()[1] == 2);
+    assertTrue(tUser.getUsername() == "limaofeng");
+    assertTrue(tUser.getEmail() == "limaofeng@msn.com");
+    assertTrue(tUser.getArrays().length == 2);
+    assertTrue(tUser.getArrays()[0] == 1);
+    assertTrue(tUser.getArrays()[1] == 2);
   }
 
   @Test
@@ -209,7 +210,7 @@ public class WebUtilTest {
 
     log.debug(queryUrl);
 
-    Assert.isTrue(url == queryUrl);
+    assertTrue(url == queryUrl);
   }
 
   @Test
@@ -217,11 +218,11 @@ public class WebUtilTest {
     String queryUrl =
         WebUtil.sort("username=limaofeng&email=limaofeng@msn.com&arrays=1&arrays=2", "username");
     log.debug(queryUrl);
-    Assert.isTrue(queryUrl.contains("username-asc"));
+    assertTrue(queryUrl.contains("username-asc"));
 
     queryUrl = WebUtil.sort(queryUrl, "username");
     log.debug(queryUrl);
-    Assert.isTrue(queryUrl.contains("username-desc"));
+    assertTrue(queryUrl.contains("username-desc"));
   }
 
   @Test
@@ -239,11 +240,11 @@ public class WebUtilTest {
 
   @Test
   public void testIsAjax() throws Exception {
-    Assert.isTrue(!WebUtil.isAjax(request));
+    assertTrue(!WebUtil.isAjax(request));
 
     request.addHeader("X-Requested-With", "XMLHttpRequest");
 
-    Assert.isTrue(WebUtil.isAjax(request));
+    assertTrue(WebUtil.isAjax(request));
   }
 
   @Test
@@ -252,17 +253,17 @@ public class WebUtilTest {
 
     log.debug(WebUtil.getSessionId(request));
 
-    Assert.isTrue("TESTSESSIONID" == WebUtil.getSessionId(request));
+    assertTrue("TESTSESSIONID" == WebUtil.getSessionId(request));
   }
 
   @Test
   public void testGetMethod() throws Exception {
-    Assert.isTrue("get" == WebUtil.getMethod(request));
+    assertTrue("get" == WebUtil.getMethod(request));
   }
 
   @Test
   public void testGetRequestUrl() throws Exception {
     log.debug(WebUtil.getServerUrl(request));
-    Assert.isTrue("http://www.jfantasy.org" == WebUtil.getServerUrl(request));
+    assertTrue("http://www.jfantasy.org" == WebUtil.getServerUrl(request));
   }
 }

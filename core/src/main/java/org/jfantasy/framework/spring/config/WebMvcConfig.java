@@ -18,6 +18,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
@@ -42,6 +43,7 @@ import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 @Configuration
 @Order(value = WebMvcConfig.ORDER)
 @ComponentScan({"org.jfantasy.framework.spring.mvc.servlet"})
+@DependsOn("jacksonConfig")
 public class WebMvcConfig implements WebMvcConfigurer {
 
   public static final int ORDER = Ordered.HIGHEST_PRECEDENCE + 32;

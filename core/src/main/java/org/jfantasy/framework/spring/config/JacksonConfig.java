@@ -1,33 +1,83 @@
 package org.jfantasy.framework.spring.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
 import com.mashape.unirest.http.Unirest;
 import jakarta.annotation.PostConstruct;
-import org.jfantasy.framework.jackson.JSON;
-import org.jfantasy.framework.jackson.UnirestObjectMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.Date;
+import org.jfantasy.framework.jackson.*;
+import org.jfantasy.framework.jackson.deserializer.DateDeserializer;
+import org.jfantasy.framework.jackson.serializer.DateSerializer;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
 @Configuration
 public class JacksonConfig {
 
-  private final ObjectMapper objectMapper;
-
-  @Autowired
-  public JacksonConfig(ObjectMapper objectMapper) {
-    this.objectMapper = objectMapper;
-  }
-
   @PostConstruct
   public void initObjectMapper() {
-    JSON.initialize(objectMapper);
-    Unirest.setObjectMapper(new UnirestObjectMapper(objectMapper));
+    XML.initialize();
+  }
+
+  @Bean
+  public ObjectMapperBeanPostProcessor objectMapperBeanPostProcessor() {
+    return new ObjectMapperBeanPostProcessor();
   }
 
   @Bean
   public Jackson2ObjectMapperBuilderCustomizer defaultCustomizeJackson() {
-    return null;
+    return new AnyJackson2ObjectMapperBuilderCustomizer();
+  }
+
+  public static class AnyJackson2ObjectMapperBuilderCustomizer
+      implements Jackson2ObjectMapperBuilderCustomizer {
+
+    @Override
+    public void customize(Jackson2ObjectMapperBuilder builder) {
+      builder
+          .propertyNamingStrategy(PropertyNamingStrategies.LOWER_CAMEL_CASE)
+          .serializationInclusion(JsonInclude.Include.NON_NULL)
+          .featuresToDisable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+          .featuresToEnable(
+              JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, JsonParser.Feature.ALLOW_SINGLE_QUOTES)
+          .featuresToDisable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+          .modules(
+              new SimpleModule()
+                  .addSerializer(Date.class, new DateSerializer("yyyy-MM-dd HH:mm:ss"))
+                  .addDeserializer(Date.class, new DateDeserializer()))
+          .filters(MixInHolder.getDefaultFilterProvider());
+    }
+  }
+
+  public static class AnyJackson2XmlMapperBuilderCustomizer
+      implements Jackson2XmlMapperBuilderCustomizer {
+    @Override
+    public void customize(Jackson2ObjectMapperBuilder builder) {
+      JacksonXmlModule xmlModule = new JacksonXmlModule();
+      builder
+          .modulesToInstall(xmlModule)
+          .featuresToEnable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
+          .featuresToDisable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+    }
+  }
+
+  public static class ObjectMapperBeanPostProcessor implements BeanPostProcessor {
+
+    @Override
+    public Object postProcessAfterInitialization(Object bean, String beanName)
+        throws BeansException {
+      if (bean instanceof ObjectMapper) {
+        JSON.setObjectMapper((ObjectMapper) bean);
+        Unirest.setObjectMapper(new UnirestObjectMapper((ObjectMapper) bean));
+      }
+      return bean;
+    }
   }
 }

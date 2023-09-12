@@ -9,6 +9,7 @@ import org.jfantasy.framework.spring.CacheBeanPostProcessor;
 import org.jfantasy.framework.spring.SpringBeanUtils;
 import org.jfantasy.framework.spring.config.AppConfig;
 import org.jfantasy.framework.spring.config.DaoConfig;
+import org.jfantasy.framework.spring.config.JacksonConfig;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.mybatis.spring.boot.autoconfigure.MybatisLanguageDriverAutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -30,7 +31,7 @@ import org.springframework.context.annotation.Import;
   DataSourceAutoConfiguration.class,
   MybatisLanguageDriverAutoConfiguration.class
 })
-@Import({AppConfig.class, DaoConfig.class})
+@Import({AppConfig.class, DaoConfig.class, JacksonConfig.class})
 @EnableConfigurationProperties({
   DataSourceExtendedProperties.class,
   DataSourceProperties.class,
