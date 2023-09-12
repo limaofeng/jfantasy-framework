@@ -9,9 +9,7 @@ import org.jfantasy.framework.util.web.ServletUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
@@ -27,8 +25,6 @@ import org.springframework.web.reactive.config.WebFluxConfigurer;
 
 @Configuration
 @Order(value = WebFluxConfig.ORDER)
-@DependsOn("jacksonConfig")
-@ComponentScan({"org.jfantasy.framework.spring.mvc.reactive"})
 public class WebFluxConfig implements WebFluxConfigurer {
 
   public static final int ORDER = Ordered.HIGHEST_PRECEDENCE + 32;

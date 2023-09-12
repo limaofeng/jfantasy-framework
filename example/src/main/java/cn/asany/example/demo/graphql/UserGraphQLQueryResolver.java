@@ -4,6 +4,7 @@ import cn.asany.example.demo.graphql.inputs.UserWhereInput;
 import cn.asany.example.demo.graphql.types.UserConnection;
 import cn.asany.example.demo.service.UserService;
 import graphql.kickstart.tools.GraphQLQueryResolver;
+import graphql.schema.DataFetchingEnvironment;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.graphql.util.Kit;
 import org.springframework.data.domain.PageRequest;
@@ -25,7 +26,12 @@ public class UserGraphQLQueryResolver implements GraphQLQueryResolver {
     this.userService = userService;
   }
 
-  public UserConnection users(UserWhereInput where, int page, int pageSize, Sort sort) {
+  public UserConnection users(
+      UserWhereInput where,
+      int page,
+      int pageSize,
+      Sort sort,
+      DataFetchingEnvironment environment) {
     Pageable pageable = PageRequest.of(page - 1, pageSize, sort);
     where = ObjectUtil.defaultValue(where, new UserWhereInput());
     return Kit.connection(userService.findPage(pageable, where.toFilter()), UserConnection.class);

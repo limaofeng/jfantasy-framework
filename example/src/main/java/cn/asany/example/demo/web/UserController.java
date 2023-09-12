@@ -4,6 +4,7 @@ import cn.asany.example.demo.domain.User;
 import cn.asany.example.demo.service.UserService;
 import jakarta.validation.Valid;
 import org.jfantasy.framework.dao.jpa.PropertyFilter;
+import org.jfantasy.framework.error.ValidationException;
 import org.jfantasy.framework.jackson.annotation.BeanFilter;
 import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,11 +14,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 
 /**
+ * 用户接口
+ *
  * @author limaofeng
  * @version V1.0
- * @date 2020/3/21 11:18 下午
  */
 @RestController
 public class UserController {
@@ -25,6 +29,8 @@ public class UserController {
   private final MessageSource messageSource;
 
   @Autowired private UserService userService;
+
+  private final Scheduler elastic = Schedulers.newBoundedElastic(10, 100, "tenant-service");
 
   public UserController(MessageSource messageSource) {
     this.messageSource = messageSource;
@@ -41,10 +47,23 @@ public class UserController {
   @JsonResultFilter({
     @BeanFilter(
         type = User.class,
-        excludes = {"createdAt", "createdBy"}),
+        excludes = {"setting"}),
   })
   public Mono<Page<User>> users() {
-    return Mono.just(userService.findPage(Pageable.ofSize(10), PropertyFilter.newFilter()));
+    return Mono.fromCallable(
+            () -> userService.findPage(Pageable.ofSize(10), PropertyFilter.newFilter()))
+        .subscribeOn(elastic);
+  }
+
+  @GetMapping("/users/{id}")
+  @ResponseBody
+  @JsonResultFilter({
+    @BeanFilter(
+        type = User.class,
+        excludes = {"setting"}),
+  })
+  public User user(@PathVariable Long id) {
+    return userService.get(id).orElseThrow(() -> new ValidationException("user is null"));
   }
 
   @PostMapping("/users")

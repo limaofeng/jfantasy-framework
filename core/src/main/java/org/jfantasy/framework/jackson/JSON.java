@@ -19,12 +19,16 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 @Slf4j
 public class JSON {
 
-  private static final CustomObjectMapper wrapper = new CustomObjectMapper();
+  private static final ObjectMapperWrapper wrapper = new ObjectMapperWrapper();
 
-  public static synchronized void initialize() {
+  public static synchronized ObjectMapperWrapper initialize() {
+    if (wrapper.getObjectMapper() != null) {
+      log.warn("重置 JSON 工具类中的 ObjectMapper 对象.");
+    }
     Jackson2ObjectMapperBuilder jsonMapperBuilder = new Jackson2ObjectMapperBuilder();
     new JacksonConfig.AnyJackson2ObjectMapperBuilderCustomizer().customize(jsonMapperBuilder);
     wrapper.setObjectMapper(jsonMapperBuilder.build());
+    return wrapper;
   }
 
   public static synchronized void setObjectMapper(ObjectMapper objectMapper) {
@@ -82,7 +86,11 @@ public class JSON {
       }
       return;
     }
-    wrapper.mixin(type);
+    ObjectMapper objectMapper = wrapper.getObjectMapper();
+    if (objectMapper.findMixInClassFor(type) == null) {
+      FilteredMixinHolder.MixInSource mixInSource = FilteredMixinHolder.createMixInSource(type);
+      objectMapper.addMixIn(mixInSource.getType(), mixInSource.getMixIn());
+    }
   }
 
   public static ObjectMapper getObjectMapper() {

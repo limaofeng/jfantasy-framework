@@ -4,18 +4,24 @@ import graphql.execution.ExecutionStrategy;
 import graphql.kickstart.autoconfigure.tools.GraphQLJavaToolsAutoConfiguration;
 import graphql.kickstart.autoconfigure.web.servlet.GraphQLWebAutoConfiguration;
 import graphql.kickstart.tools.SchemaParserDictionary;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.websocket.server.HandshakeRequest;
 import java.util.List;
 import org.dataloader.DataLoaderRegistry;
+import org.jfantasy.framework.security.authentication.AuthenticationManagerResolver;
 import org.jfantasy.graphql.SchemaParserDictionaryBuilder;
 import org.jfantasy.graphql.client.GraphQLClientBeanPostProcessor;
 import org.jfantasy.graphql.context.DataLoaderRegistryCustomizer;
+import org.jfantasy.graphql.context.SecurityGraphQLContextBuilder;
 import org.jfantasy.graphql.error.GraphQLResolverAdvice;
 import org.jfantasy.graphql.error.GraphqlStaticMethodMatcherPointcut;
 import org.jfantasy.graphql.execution.AsyncMutationExecutionStrategy;
 import org.jfantasy.graphql.execution.AsyncQueryExecutionStrategy;
 import org.springframework.aop.support.DefaultBeanFactoryPointcutAdvisor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.ApplicationContext;
@@ -24,6 +30,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 /**
  * GraphQL 自动配置
@@ -33,6 +40,7 @@ import org.springframework.web.client.RestTemplate;
  */
 @Configuration
 @AutoConfigureBefore(GraphQLJavaToolsAutoConfiguration.class)
+@AutoConfigureAfter(OAuth2SecurityAutoConfiguration.class)
 @ComponentScan({"org.jfantasy.graphql.context", "org.jfantasy.graphql.error"})
 public class GraphQLAutoConfiguration {
 
@@ -40,6 +48,16 @@ public class GraphQLAutoConfiguration {
   static GraphQLClientBeanPostProcessor clientBeanPostProcessor(
       final ApplicationContext applicationContext, final ResourceLoader resourceLoader) {
     return new GraphQLClientBeanPostProcessor(applicationContext, resourceLoader);
+  }
+
+  @Bean
+  @ConditionalOnClass(EnableWebMvc.class)
+  public SecurityGraphQLContextBuilder securityGraphQLContextBuilder(
+      AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver,
+      AuthenticationManagerResolver<HandshakeRequest> websocketAuthenticationManagerResolver,
+      DataLoaderRegistry dataLoaderRegistry) {
+    return new SecurityGraphQLContextBuilder(
+        authenticationManagerResolver, websocketAuthenticationManagerResolver, dataLoaderRegistry);
   }
 
   @Bean(GraphQLWebAutoConfiguration.QUERY_EXECUTION_STRATEGY)

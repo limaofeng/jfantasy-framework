@@ -239,8 +239,9 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
     return !isBasicType(clazz);
   }
 
-  public static Object newInstance(Class<?> componentType, int length) {
-    return Array.newInstance(componentType, length);
+  public static <T> T[] newInstance(Class<T> componentType, int length) {
+    //noinspection unchecked
+    return (T[]) Array.newInstance(componentType, length);
   }
 
   public static boolean isArray(Field field) {

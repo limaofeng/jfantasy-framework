@@ -9,12 +9,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.util.List;
+import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.util.common.ClassUtil;
 
+@Getter
 @Slf4j
-public class CustomObjectMapper {
+public class ObjectMapperWrapper {
 
   private ObjectMapper objectMapper;
 
@@ -71,7 +73,7 @@ public class CustomObjectMapper {
       return this.objectMapper.writeValueAsString(object);
     }
     SimpleFilterProvider provider = new SimpleFilterProvider().setFailOnUnknownId(false);
-    provider.setDefaultFilter(filter.setup(BeanPropertyFilter.newBuilder(type)).build());
+    provider.setDefaultFilter(filter.setup(FilteredMixinFilter.newBuilder(type)).build());
     return this.objectMapper.writer(provider).writeValueAsString(object);
   }
 
@@ -137,46 +139,12 @@ public class CustomObjectMapper {
     }
   }
 
-  public void mixin(Class<?> type) {
-    if (this.objectMapper.findMixInClassFor(type) == null) {
-      MixInHolder.MixInSource mixInSource = MixInHolder.createMixInSource(type);
-      this.objectMapper.addMixIn(mixInSource.getType(), mixInSource.getMixIn());
-    }
-  }
-
   public ObjectMapper getObjectMapper() {
     return this.objectMapper;
   }
 
   public void setObjectMapper(ObjectMapper objectMapper) {
+    objectMapper.setMixInResolver(FilteredMixinHolder.getMixInResolver());
     this.objectMapper = objectMapper;
   }
-
-  //  public JSON.XmlUtil xml() {
-  //    return xmlUtil;
-  //  }
-
-  //  public static class XmlUtil {
-  //    private final XmlMapper xmlMapper;
-  //
-  //    public XmlUtil(XmlMapper xmlMapper) {
-  //      this.xmlMapper = xmlMapper;
-  //    }
-  //
-  //    @SneakyThrows
-  //    public String serialize(Object root, String rootName) {
-  //      return this.xmlMapper.writer().withRootName(rootName).writeValueAsString(root);
-  //    }
-  //
-  //    @SneakyThrows
-  //    public JsonNode deserialize(String xml) {
-  //      return this.xmlMapper.readTree(xml);
-  //    }
-  //
-  //    @SneakyThrows
-  //    public <T> T deserialize(String xml, Class<T> valueType) {
-  //      return this.xmlMapper.readValue(xml, valueType);
-  //    }
-  //  }
-
 }

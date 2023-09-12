@@ -1,17 +1,10 @@
 package org.jfantasy.framework.spring.mvc.reactive;
 
-import com.fasterxml.jackson.databind.ser.FilterProvider;
-import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.google.common.base.Preconditions;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
-import org.jfantasy.framework.jackson.BeanPropertyFilter;
-import org.jfantasy.framework.jackson.JSON;
-import org.jfantasy.framework.jackson.annotation.BeanFilter;
-import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
+import org.jfantasy.framework.jackson.FilteredMixinHolder;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.HttpMessageWriter;
@@ -57,10 +50,8 @@ public class WebFluxResponseBodyResultHandler extends ResponseBodyResultHandler 
             .map(
                 data -> {
                   MappingJacksonValue mappingJacksonValue = new MappingJacksonValue(data);
-                  mappingJacksonValue.setFilters(getFilterProvider(methodParameter));
-
-                  System.out.println(mappingJacksonValue);
-                  System.out.println(JSON.serialize(mappingJacksonValue));
+                  mappingJacksonValue.setFilters(
+                      FilteredMixinHolder.getFilterProvider(methodParameter));
                   return mappingJacksonValue;
                 });
     return writeBody(body, methodParameter, exchange);
@@ -98,35 +89,4 @@ public class WebFluxResponseBodyResultHandler extends ResponseBodyResultHandler 
     List<MediaType> acceptableMediaTypes = exchange.getRequest().getHeaders().getAccept();
     return new HashSet<>(acceptableMediaTypes);
   }
-
-  private static final ConcurrentMap<String, FilterProvider> PROVIDERS = new ConcurrentHashMap<>();
-
-  public FilterProvider getFilterProvider(JsonResultFilter jsonResultFilter) {
-    String key = jsonResultFilter.toString();
-    if (PROVIDERS.containsKey(key)) {
-      return PROVIDERS.get(key);
-    }
-    SimpleFilterProvider provider = new SimpleFilterProvider().setFailOnUnknownId(false);
-    BeanPropertyFilter propertyFilter = new BeanPropertyFilter();
-    for (BeanFilter filter : jsonResultFilter.value()) {
-      if (filter.type().isArray()) {
-        continue;
-      }
-      propertyFilter.mixin(filter.type()).includes(filter.includes()).excludes(filter.excludes());
-    }
-    provider.setDefaultFilter(propertyFilter);
-    PROVIDERS.putIfAbsent(key, provider);
-    return provider;
-  }
-
-  private FilterProvider getFilterProvider(MethodParameter methodParameter) {
-    JsonResultFilter jsonResultFilter =
-        Objects.requireNonNull(methodParameter.getMethod()).getAnnotation(JsonResultFilter.class);
-    if (jsonResultFilter == null) {
-      return PROVIDERS.get(DEFAULT_PROVIDER_KEY);
-    }
-    return getFilterProvider(jsonResultFilter);
-  }
-
-  private static final String DEFAULT_PROVIDER_KEY = "default_provider_key";
 }

@@ -3,6 +3,7 @@ package org.jfantasy.autoconfigure;
 import org.jfantasy.framework.spring.config.WebMvcConfig;
 import org.jfantasy.framework.web.tomcat.CustomTomcatContextCustomizer;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -15,6 +16,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @ConditionalOnClass(EnableWebMvc.class)
 @Configuration
 @Import(WebMvcConfig.class)
+@ComponentScan({"org.jfantasy.framework.spring.mvc.servlet"})
 public class WebStarterAutoConfiguration {
 
   /**

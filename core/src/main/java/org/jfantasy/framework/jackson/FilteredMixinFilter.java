@@ -11,7 +11,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.Getter;
 
-public class BeanPropertyFilter extends SimpleBeanPropertyFilter {
+public class FilteredMixinFilter extends SimpleBeanPropertyFilter {
 
   @Getter private final Set<Class<?>> types = new HashSet<>();
 
@@ -25,7 +25,7 @@ public class BeanPropertyFilter extends SimpleBeanPropertyFilter {
    * @param type 类型
    * @param fields 字段
    */
-  public BeanPropertyFilter includes(Class<?> type, String... fields) {
+  public FilteredMixinFilter includes(Class<?> type, String... fields) {
     return addToMap(includeMap, type, fields);
   }
 
@@ -35,11 +35,11 @@ public class BeanPropertyFilter extends SimpleBeanPropertyFilter {
    * @param type 类型
    * @param fields 字段
    */
-  public BeanPropertyFilter excludes(Class<?> type, String... fields) {
+  public FilteredMixinFilter excludes(Class<?> type, String... fields) {
     return addToMap(excludeMap, type, fields);
   }
 
-  private BeanPropertyFilter addToMap(
+  private FilteredMixinFilter addToMap(
       Map<Class<?>, Set<String>> map, Class<?> type, String[] fields) {
     if (fields.length == 0) {
       return this;
@@ -72,7 +72,7 @@ public class BeanPropertyFilter extends SimpleBeanPropertyFilter {
     }
   }
 
-  public Builder mixin(Class<?> type) {
+  public Builder addFilter(Class<?> type) {
     return new Builder(this, type);
   }
 
@@ -81,28 +81,20 @@ public class BeanPropertyFilter extends SimpleBeanPropertyFilter {
   }
 
   public static class Builder {
-    private final BeanPropertyFilter filter;
-    private Class<?> current;
+    private final FilteredMixinFilter filter;
+    private final Class<?> current;
 
-    public Builder(BeanPropertyFilter filter, Class<?> type) {
+    public Builder(FilteredMixinFilter filter, Class<?> type) {
       this.filter = filter;
       this.current = type;
-      JSON.mixin(type);
-      XML.mixin(type);
     }
 
     public Builder(Class<?> type) {
-      this(new BeanPropertyFilter(), type);
+      this(new FilteredMixinFilter(), type);
     }
 
-    public BeanPropertyFilter build() {
+    public FilteredMixinFilter build() {
       return filter;
-    }
-
-    public Builder type(Class<?> type) {
-      this.current = type;
-      JSON.mixin(type);
-      return this;
     }
 
     public Builder excludes(String... names) {

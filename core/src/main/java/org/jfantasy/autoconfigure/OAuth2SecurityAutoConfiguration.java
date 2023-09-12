@@ -59,14 +59,14 @@ public class OAuth2SecurityAutoConfiguration {
     return authenticationManager;
   }
 
-  @Bean
+  @Bean("authenticationManagerResolver")
   @ConditionalOnClass(EnableWebMvc.class)
   public AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver(
       AuthenticationManager authenticationManager) {
     return new DefaultAuthenticationManagerResolver(authenticationManager);
   }
 
-  @Bean
+  @Bean("webFluxAuthenticationManagerResolver")
   @ConditionalOnClass(EnableWebFlux.class)
   public AuthenticationManagerResolver<ServerHttpRequest> webFluxAuthenticationManagerResolver(
       AuthenticationManager authenticationManager) {

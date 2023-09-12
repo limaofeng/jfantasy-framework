@@ -6,8 +6,13 @@ import eu.bitwalker.useragentutils.Browser;
 import eu.bitwalker.useragentutils.OperatingSystem;
 import eu.bitwalker.useragentutils.UserAgent;
 import jakarta.servlet.http.Cookie;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,7 +29,7 @@ public class WebUtilTest {
   protected MockHttpServletResponse response;
 
   @BeforeEach
-  public void setUp() throws Exception {
+  public void setUp() {
     request = new MockHttpServletRequest("get", "/test/test.jsp");
     request.setServerName("www.jfantasy.org");
     request.addHeader("Referer", "http://www.haoluesoft.com.cn");
@@ -41,10 +46,10 @@ public class WebUtilTest {
   }
 
   @AfterEach
-  public void tearDown() throws Exception {}
+  public void tearDown() {}
 
   @Test
-  public void testGetExtension() throws Exception {
+  public void testGetExtension() {
     assertEquals("", WebUtil.getExtension("12312312.jsg"));
 
     assertEquals("jsp", WebUtil.getExtension(request));
@@ -53,101 +58,106 @@ public class WebUtilTest {
   }
 
   @Test
-  public void testGetServerName() throws Exception {
-    assertTrue("www.jfantasy.org" == WebUtil.getServerName(request));
+  public void testGetServerName() {
+    assertSame("www.jfantasy.org", WebUtil.getServerName(request));
 
-    assertTrue("www.jfantasy.org" == WebUtil.getServerName("http://www.jfantasy.org/test.do"));
+    assertSame("www.jfantasy.org", WebUtil.getServerName("http://www.jfantasy.org/test.do"));
   }
 
   @Test
-  public void testGetScheme() throws Exception {
-    assertTrue("http" == WebUtil.getScheme("http://www.jfantasy.org/test.do"));
+  public void testGetScheme() {
+    assertSame("http", WebUtil.getScheme("http://www.jfantasy.org/test.do"));
 
-    assertTrue("https" == WebUtil.getScheme("https://www.jfantasy.org/test.do"));
+    assertSame("https", WebUtil.getScheme("https://www.jfantasy.org/test.do"));
   }
 
   @Test
-  public void testGetPort() throws Exception {
-    assertTrue(80 == WebUtil.getPort(request));
+  public void testGetPort() {
+    assertEquals(80, WebUtil.getPort(request));
 
-    assertTrue(80 == WebUtil.getPort("http://www.jfantasy.org/test.do"));
+    assertEquals(80, WebUtil.getPort("http://www.jfantasy.org/test.do"));
 
-    assertTrue(443 == WebUtil.getPort("https://www.jfantasy.org/test.do"));
+    assertEquals(443, WebUtil.getPort("https://www.jfantasy.org/test.do"));
 
-    assertTrue(8080 == WebUtil.getPort("https://www.jfantasy.org:8080/test.do"));
+    assertEquals(8080, WebUtil.getPort("https://www.jfantasy.org:8080/test.do"));
   }
 
   @Test
-  public void testAcceptEncoding() throws Exception {
-    assertTrue("gzip" == WebUtil.getAcceptEncoding(request));
+  public void testAcceptEncoding() {
+    assertSame("gzip", WebUtil.getAcceptEncoding(request));
   }
 
   @Test
-  public void testGetReferer() throws Exception {
-    assertTrue("http://www.haoluesoft.com.cn" == WebUtil.getReferer(request));
+  public void testGetReferer() {
+    assertSame("http://www.haoluesoft.com.cn", WebUtil.getReferer(request));
   }
 
   @Test
-  public void testGetCookie() throws Exception {
+  public void testGetCookie() {
     Cookie cookie = WebUtil.getCookie(request, "username");
-    assertTrue("limaofeng" == cookie.getValue());
+    assertNotNull(cookie);
+    assertSame("limaofeng", cookie.getValue());
   }
 
   @Test
-  public void testAddCookie() throws Exception {
+  public void testAddCookie() {
     WebUtil.addCookie(response, "email", "limaofeng@msn.com", 100);
-    assertTrue("limaofeng@msn.com" == response.getCookie("email").getValue());
+    assertNotNull(response.getCookie("email"));
+    assertSame("limaofeng@msn.com", Objects.requireNonNull(response.getCookie("email")).getValue());
   }
 
   @Test
-  public void testRemoveCookie() throws Exception {
+  public void testRemoveCookie() {
     WebUtil.removeCookie(request, response, "username");
     Cookie cookie = response.getCookie("username");
-    assertTrue(0 == cookie.getMaxAge());
+    assertNotNull(cookie);
+    assertEquals(0, cookie.getMaxAge());
   }
 
   @Test
-  public void testGetRealIpAddress() throws Exception {
-    assertTrue("127.0.0.1" == WebUtil.getRealIpAddress(request));
+  public void testGetRealIpAddress() {
+    assertSame("127.0.0.1", WebUtil.getClientIP(request));
   }
 
   @Test
-  public void testIsSelfIp() throws Exception {
-    log.debug("isSelfIp => " + WebUtil.isSelfIp("192.168.1.200"));
+  public void testIsSelfIp() {
+    log.debug("isSelfIp => " + WebUtil.isLocalIP("192.168.1.200"));
   }
 
   @Test
-  public void testGetServerIps() throws Exception {
-    String[] serverIps = WebUtil.getServerIps();
-    log.debug("getServerIps => " + Arrays.toString(serverIps));
+  public void testGetServerIps() {
+    String[] serverIps = WebUtil.getLocalIPs();
+    log.info("getServerIps => " + Arrays.toString(serverIps));
   }
 
   @Test
-  public void testBrowser() throws Exception {
+  public void testBrowser() {
     Browser browser = WebUtil.browser(request);
     log.debug(browser.toString());
   }
 
   @Test
-  public void testParseQuery() throws Exception {
+  public void testParseQuery() {
     Map<String, String[]> params =
         WebUtil.parseQuery("username=limaofeng&email=limaofeng@msn.com&arrays=1&arrays=2");
 
-    assertTrue(params.get("username")[0] == "limaofeng");
-    assertTrue(params.get("email")[0] == "limaofeng@msn.com");
-    assertTrue(params.get("arrays").length == 2);
-    assertTrue(params.get("arrays")[0] == "1");
-    assertTrue(params.get("arrays")[1] == "2");
+    assertSame("limaofeng", params.get("username")[0]);
+    assertSame("limaofeng@msn.com", params.get("email")[0]);
+    assertEquals(2, params.get("arrays").length);
+    assertSame("1", params.get("arrays")[0]);
+    assertSame("2", params.get("arrays")[1]);
 
     TUser tUser =
         WebUtil.parseQuery(
             "username=limaofeng&email=limaofeng@msn.com&arrays=1&arrays=2", TUser.class);
 
-    assertTrue(tUser.getUsername() == "limaofeng");
-    assertTrue(tUser.getEmail() == "limaofeng@msn.com");
-    assertTrue(tUser.getArrays().length == 2);
-    assertTrue(tUser.getArrays()[0] == 1);
-    assertTrue(tUser.getArrays()[1] == 2);
+    assertNotNull(tUser);
+
+    assertSame("limaofeng", tUser.getUsername());
+    assertSame("limaofeng@msn.com", tUser.getEmail());
+    assertEquals(2, tUser.getArrays().length);
+    assertEquals(1, tUser.getArrays()[0]);
+    assertEquals(2, tUser.getArrays()[1]);
   }
 
   @Test
@@ -171,38 +181,16 @@ public class WebUtilTest {
     System.out.println("操作系统生产厂商:" + operatingSystem.getManufacturer());
   }
 
+  @Getter
+  @Setter
   public static class TUser {
     private String username;
     private String email;
     private int[] arrays;
-
-    public String getUsername() {
-      return username;
-    }
-
-    public void setUsername(String username) {
-      this.username = username;
-    }
-
-    public String getEmail() {
-      return email;
-    }
-
-    public void setEmail(String email) {
-      this.email = email;
-    }
-
-    public int[] getArrays() {
-      return arrays;
-    }
-
-    public void setArrays(int[] arrays) {
-      this.arrays = arrays;
-    }
   }
 
   @Test
-  public void testGetQueryString() throws Exception {
+  public void testGetQueryString() {
     String url = "username=limaofeng&email=limaofeng@msn.com&arrays=1&arrays=2";
     Map<String, String[]> params = WebUtil.parseQuery(url);
 
@@ -210,11 +198,11 @@ public class WebUtilTest {
 
     log.debug(queryUrl);
 
-    assertTrue(url == queryUrl);
+    assertSame(url, queryUrl);
   }
 
   @Test
-  public void testSort() throws Exception {
+  public void testSort() {
     String queryUrl =
         WebUtil.sort("username=limaofeng&email=limaofeng@msn.com&arrays=1&arrays=2", "username");
     log.debug(queryUrl);
@@ -226,21 +214,24 @@ public class WebUtilTest {
   }
 
   @Test
-  public void testFilename() throws Exception {
+  public void testFilename() throws UnsupportedEncodingException {
     String filename = WebUtil.filename(new String("测试文件名称".getBytes(), "iso8859-1"), request);
     log.debug(filename);
   }
 
   @Test
-  public void testTransformCoding() throws Exception {
+  public void testTransformCoding() throws UnsupportedEncodingException {
     String filename =
-        WebUtil.transformCoding(new String("测试文件名称".getBytes(), "iso8859-1"), "iso8859-1", "uft-8");
+        WebUtil.transformCoding(
+            new String("测试文件名称".getBytes(), "iso8859-1"),
+            StandardCharsets.ISO_8859_1,
+            StandardCharsets.UTF_8);
     log.debug(filename);
   }
 
   @Test
-  public void testIsAjax() throws Exception {
-    assertTrue(!WebUtil.isAjax(request));
+  public void testIsAjax() {
+    assertFalse(WebUtil.isAjax(request));
 
     request.addHeader("X-Requested-With", "XMLHttpRequest");
 
@@ -248,22 +239,22 @@ public class WebUtilTest {
   }
 
   @Test
-  public void testGetSessionId() throws Exception {
+  public void testGetSessionId() {
     request.setSession(new MockHttpSession(new MockServletContext(), "TESTSESSIONID"));
 
     log.debug(WebUtil.getSessionId(request));
 
-    assertTrue("TESTSESSIONID" == WebUtil.getSessionId(request));
+    assertSame("TESTSESSIONID", WebUtil.getSessionId(request));
   }
 
   @Test
-  public void testGetMethod() throws Exception {
-    assertTrue("get" == WebUtil.getMethod(request));
+  public void testGetMethod() {
+    assertSame("get", WebUtil.getMethod(request));
   }
 
   @Test
-  public void testGetRequestUrl() throws Exception {
+  public void testGetRequestUrl() {
     log.debug(WebUtil.getServerUrl(request));
-    assertTrue("http://www.jfantasy.org" == WebUtil.getServerUrl(request));
+    assertSame("http://www.jfantasy.org", WebUtil.getServerUrl(request));
   }
 }

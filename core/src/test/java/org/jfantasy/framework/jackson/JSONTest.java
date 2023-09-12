@@ -6,14 +6,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.github.jknack.handlebars.internal.Files;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.ReadContext;
@@ -24,9 +24,14 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.jfantasy.framework.jackson.deserializer.DateDeserializer;
+import org.jfantasy.framework.jackson.models.User;
+import org.jfantasy.framework.jackson.serializer.DateSerializer;
 import org.jfantasy.framework.security.LoginUser;
 import org.jfantasy.framework.security.core.GrantedAuthority;
 import org.jfantasy.framework.security.core.SimpleGrantedAuthority;
+import org.jfantasy.framework.security.oauth2.JwtTokenPayload;
+import org.jfantasy.framework.security.oauth2.core.TokenType;
 import org.jfantasy.framework.util.asm.AnnotationDescriptor;
 import org.jfantasy.framework.util.asm.AsmUtil;
 import org.junit.jupiter.api.AfterEach;
@@ -66,6 +71,43 @@ public class JSONTest {
     // holder = ThreadJacksonMixInHolder.getMixInHolder();
     // holder.addIgnorePropertyNames(ArticleCategory.class, "articles");
     log.debug(JSON.serialize(article, builder -> builder.excludes("category", "content")));
+  }
+
+  @Test
+  public void testSerializeDataTime() throws JsonProcessingException {
+    ObjectMapper objectMapper =
+        new ObjectMapper()
+            .setPropertyNamingStrategy(PropertyNamingStrategies.LOWER_CAMEL_CASE)
+            .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+            .enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES)
+            .enable(JsonParser.Feature.ALLOW_SINGLE_QUOTES)
+            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+            .registerModules(
+                new JavaTimeModule(),
+                new SimpleModule()
+                    .addSerializer(Date.class, new DateSerializer("yyyy-MM-dd HH:mm:ss"))
+                    .addDeserializer(Date.class, new DateDeserializer()))
+            .setFilterProvider(FilteredMixinHolder.getDefaultFilterProvider());
+
+    JwtTokenPayload payload =
+        JwtTokenPayload.builder()
+            .name("name")
+            .clientId("clientId")
+            .tokenType(TokenType.TOKEN)
+            .expiresAt(new Date().toInstant())
+            .uid(1L)
+            .build();
+
+    log.info(objectMapper.writeValueAsString(payload));
+
+    log.info(JSON.serialize(payload));
+  }
+
+  @Test
+  public void customFilters() {
+    User user = new User();
+    //    String jsonStr = JSON.getObjectMapper().setFilterProvider().writeValueAsString(user);
   }
 
   @Test
