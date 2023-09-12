@@ -1,14 +1,10 @@
 package org.jfantasy.framework.spring.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mashape.unirest.http.Unirest;
-import jakarta.annotation.PostConstruct;
 import jakarta.servlet.DispatcherType;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
-import org.jfantasy.framework.jackson.JSON;
-import org.jfantasy.framework.jackson.UnirestObjectMapper;
 import org.jfantasy.framework.spring.SpringBeanUtils;
 import org.jfantasy.framework.spring.mvc.method.annotation.PagerModelAttributeMethodProcessor;
 import org.jfantasy.framework.spring.mvc.method.annotation.PropertyFilterModelAttributeMethodProcessor;
@@ -80,12 +76,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
   @Override
   public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
     configurer.defaultContentType(MediaType.APPLICATION_JSON);
-  }
-
-  @PostConstruct
-  public void initObjectMapper() {
-    JSON.initialize(objectMapper);
-    Unirest.setObjectMapper(new UnirestObjectMapper(objectMapper));
   }
 
   @Override

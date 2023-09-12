@@ -2,7 +2,7 @@ package cn.asany.example;
 
 import java.util.*;
 import lombok.extern.slf4j.Slf4j;
-import org.jfantasy.framework.dao.jpa.ComplexJpaRepository;
+import org.jfantasy.framework.dao.jpa.SimpleAnyJpaRepository;
 import org.jfantasy.framework.security.LoginUser;
 import org.jfantasy.framework.security.authentication.Authentication;
 import org.jfantasy.framework.security.core.GrantedAuthority;
@@ -51,7 +51,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
     basePackages = {
       "cn.asany.example.*.dao",
     },
-    repositoryBaseClass = ComplexJpaRepository.class)
+    repositoryBaseClass = SimpleAnyJpaRepository.class)
 @EnableAutoConfiguration(exclude = {MongoAutoConfiguration.class})
 public class Application extends SpringBootServletInitializer {
 

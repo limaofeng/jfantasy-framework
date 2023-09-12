@@ -7,8 +7,12 @@ import org.jfantasy.framework.context.DatabaseMessageSource;
 import org.jfantasy.framework.context.service.LanguageService;
 import org.jfantasy.framework.security.AuthenticationManager;
 import org.jfantasy.framework.security.DefaultAuthenticationManagerResolver;
+import org.jfantasy.framework.security.WebFluxAuthenticationManagerResolver;
 import org.jfantasy.framework.security.WebSocketAuthenticationManagerResolver;
-import org.jfantasy.framework.security.authentication.*;
+import org.jfantasy.framework.security.authentication.AuthenticationEventPublisher;
+import org.jfantasy.framework.security.authentication.AuthenticationManagerResolver;
+import org.jfantasy.framework.security.authentication.AuthenticationProvider;
+import org.jfantasy.framework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.jfantasy.framework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider.DefaultPostAuthenticationChecks;
 import org.jfantasy.framework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider.DefaultPreAuthenticationChecks;
 import org.jfantasy.framework.security.authentication.dao.DaoAuthenticationProvider;
@@ -18,12 +22,16 @@ import org.jfantasy.framework.security.crypto.password.PasswordEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.web.reactive.config.EnableWebFlux;
+import org.springframework.web.reactive.function.server.ServerRequest;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 /**
  * OAuth2SecurityAutoConfiguration
@@ -52,12 +60,21 @@ public class OAuth2SecurityAutoConfiguration {
   }
 
   @Bean
+  @ConditionalOnClass(EnableWebMvc.class)
   public AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver(
       AuthenticationManager authenticationManager) {
     return new DefaultAuthenticationManagerResolver(authenticationManager);
   }
 
   @Bean
+  @ConditionalOnClass(EnableWebFlux.class)
+  public AuthenticationManagerResolver<ServerRequest> webFluxAuthenticationManagerResolver(
+      AuthenticationManager authenticationManager) {
+    return new WebFluxAuthenticationManagerResolver(authenticationManager);
+  }
+
+  @Bean
+  @ConditionalOnClass(HandshakeRequest.class)
   public AuthenticationManagerResolver<HandshakeRequest> webSocketAuthenticationManagerResolver(
       AuthenticationManager authenticationManager) {
     return new WebSocketAuthenticationManagerResolver(authenticationManager);

@@ -1,6 +1,5 @@
 package org.jfantasy.framework.util;
 
-import com.sun.tools.javac.processing.JavacProcessingEnvironment;
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -13,7 +12,6 @@ public class DynamicCompilerExample {
 
   @Test
   public void javac() throws Exception {
-    JavacProcessingEnvironment javacProcessingEnvironment = null;
     // 定义一个简单的 Java 类
     String className = "HelloWorld";
     String sourceCode =

@@ -2,7 +2,6 @@ package org.jfantasy.framework.security.oauth2.core;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.servlet.http.HttpServletRequest;
 import java.time.Instant;
 import java.util.Set;
 import lombok.*;
@@ -68,5 +67,5 @@ public class OAuth2AuthenticationDetails {
   @JsonProperty("client_secret")
   private String clientSecret;
 
-  @JsonIgnore private HttpServletRequest request;
+  @JsonIgnore private Object request;
 }

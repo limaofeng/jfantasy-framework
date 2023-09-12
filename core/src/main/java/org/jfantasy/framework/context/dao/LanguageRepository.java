@@ -2,7 +2,7 @@ package org.jfantasy.framework.context.dao;
 
 import java.util.Optional;
 import org.jfantasy.framework.context.bean.Language;
-import org.jfantasy.framework.dao.jpa.JpaRepository;
+import org.jfantasy.framework.dao.jpa.AnyJpaRepository;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
  * @author limaofeng
  */
 @Repository
-public interface LanguageRepository extends JpaRepository<Language, Long> {
+public interface LanguageRepository extends AnyJpaRepository<Language, Long> {
   /**
    * 获取语言信息
    *

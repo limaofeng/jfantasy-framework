@@ -7,7 +7,7 @@ import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.EventType;
 import org.jfantasy.framework.dao.hibernate.event.PropertyGeneratorPersistEventListener;
 import org.jfantasy.framework.dao.hibernate.event.PropertyGeneratorSaveOrUpdateEventListener;
-import org.jfantasy.framework.dao.jpa.ComplexJpaRepository;
+import org.jfantasy.framework.dao.jpa.SimpleAnyJpaRepository;
 import org.jfantasy.framework.spring.SpringBeanUtils;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.*;
@@ -32,7 +32,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
           value = {JpaRepository.class})
     },
     basePackages = {"org.jfantasy.framework.context.dao"},
-    repositoryBaseClass = ComplexJpaRepository.class)
+    repositoryBaseClass = SimpleAnyJpaRepository.class)
 @ComponentScan({"org.jfantasy.framework.context.service", "org.jfantasy.framework.context.dao"})
 @Import({MyBatisConfig.class})
 public class DaoConfig {

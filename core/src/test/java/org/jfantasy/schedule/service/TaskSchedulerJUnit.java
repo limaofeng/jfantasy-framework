@@ -1,6 +1,7 @@
 package org.jfantasy.schedule.service;
 
 import static org.jfantasy.schedule.service.ScheduleHelper.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,7 +16,6 @@ import org.quartz.TriggerKey;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.util.Assert;
 
 @WebAppConfiguration
 @ContextConfiguration(locations = {"classpath:spring/applicationContext.xml"})
@@ -64,7 +64,7 @@ public class TaskSchedulerJUnit {
   @Test
   public void testCron() {
     String expression = DateUtil.format("ss mm HH dd MM ? yyyy");
-    Assert.isTrue(CronExpression.isValidExpression(expression));
+    assertTrue(CronExpression.isValidExpression(expression));
   }
 
   @Test

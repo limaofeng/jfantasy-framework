@@ -2,10 +2,11 @@ package org.jfantasy.framework.jackson.models;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.Id;
+import jakarta.validation.constraints.NotBlank;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
-import javax.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,7 +20,7 @@ import lombok.NoArgsConstructor;
 public class User {
 
   @Id private String id;
-  private String name;
+  @NotBlank private String name;
 
   private Integer age;
   private Date createDate;

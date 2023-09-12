@@ -9,7 +9,6 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.function.LongSupplier;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -50,17 +49,17 @@ import org.springframework.util.Assert;
  * @date 14/11/2017 11:23 AM
  */
 @Slf4j
-public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaRepository<T, ID>
-    implements JpaRepository<T, ID> {
+public class SimpleAnyJpaRepository<T, ID extends Serializable> extends SimpleJpaRepository<T, ID>
+    implements AnyJpaRepository<T, ID> {
 
   public static int BATCH_SIZE = 500;
 
   protected EntityManager em;
   protected JpaEntityInformation<T, ?> entityInformation;
-  private static final Map<Class<?>, JpaRepository<Object, Serializable>> REPOSITORIES =
+  private static final Map<Class<?>, AnyJpaRepository<Object, Serializable>> REPOSITORIES =
       new HashMap<>();
 
-  public ComplexJpaRepository(Class<T> domainClass, EntityManager entityManager) {
+  public SimpleAnyJpaRepository(Class<T> domainClass, EntityManager entityManager) {
     this(
         JpaEntityInformationSupport.getEntityInformation(domainClass, entityManager),
         entityManager);
@@ -68,7 +67,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
   }
 
   @Autowired(required = false)
-  public ComplexJpaRepository(
+  public SimpleAnyJpaRepository(
       JpaEntityInformation<T, ?> entityInformation, EntityManager entityManager) {
     super(entityInformation, entityManager);
     this.em = entityManager;
@@ -248,6 +247,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
         entity, oldEntity, ClassUtil.getDeclaredFields(entityClass, OneToMany.class), ognlUtil);
     this.cleanEmbedded(
         entity, oldEntity, ClassUtil.getDeclaredFields(entityClass, Embedded.class), ognlUtil);
+    //noinspection unchecked
     return (O) oldEntity;
   }
 
@@ -403,23 +403,23 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
   }
 
   public String getIdName(Class<?> entityClass) {
-    JpaRepository<Object, Serializable> repository = getJpaRepository(entityClass);
+    AnyJpaRepository<Object, Serializable> repository = getJpaRepository(entityClass);
     JpaEntityInformation<Object, Serializable> entityInformation =
         repository.getJpaEntityInformation();
     return Objects.requireNonNull(entityInformation.getIdAttribute()).getName();
   }
 
-  public JpaRepository<Object, Serializable> getJpaRepository(Class<?> domainClass) {
+  public AnyJpaRepository<Object, Serializable> getJpaRepository(Class<?> domainClass) {
     if (REPOSITORIES.isEmpty()) {
       Arrays.stream(
-              SpringBeanUtils.getApplicationContext().getBeanNamesForType(JpaRepository.class))
-          .map(name -> SpringBeanUtils.getBean(name, JpaRepository.class))
+              SpringBeanUtils.getApplicationContext().getBeanNamesForType(AnyJpaRepository.class))
+          .map(name -> SpringBeanUtils.getBean(name, AnyJpaRepository.class))
           .filter(Objects::nonNull)
           .forEach(
               repository -> {
                 Class<?> entityType =
                     ClassUtil.getInterfaceGenricType(
-                        repository.getClass().getInterfaces()[0], JpaRepository.class);
+                        repository.getClass().getInterfaces()[0], AnyJpaRepository.class);
                 REPOSITORIES.put(entityType, repository);
               });
     }
@@ -452,14 +452,15 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
                         ClassUtil.forName(
                             RegexpUtil.parseGroup(
                                 field.getGenericType().getTypeName(), "<([^>]+)>", 1));
-                    JpaRepository<Object, Serializable> repository = getJpaRepository(entityType);
+                    AnyJpaRepository<Object, Serializable> repository =
+                        getJpaRepository(entityType);
                     return FieldWarp.builder()
                         .field(field)
                         .domainClass(entityType)
                         .repository(repository)
                         .build();
                   })
-              .collect(Collectors.toList());
+              .toList();
       for (FieldWarp field : fields) {
         field.delete(entity);
       }
@@ -505,7 +506,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
   static class FieldWarp {
     private Field field;
     private Class<?> domainClass;
-    private JpaRepository<Object, Serializable> repository;
+    private AnyJpaRepository<Object, Serializable> repository;
 
     public Object getValue(Object entity) {
       OgnlUtil ognlUtil = OgnlUtil.getInstance();

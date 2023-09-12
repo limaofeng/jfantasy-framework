@@ -2,7 +2,7 @@ package org.jfantasy.framework.dao.hibernate;
 
 import java.util.Map;
 import org.hibernate.Interceptor;
-import org.jfantasy.framework.dao.jpa.ComplexJpaRepository;
+import org.jfantasy.framework.dao.jpa.SimpleAnyJpaRepository;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernatePropertiesCustomizer;
 
 public class InterceptorRegistration implements HibernatePropertiesCustomizer {
@@ -16,9 +16,9 @@ public class InterceptorRegistration implements HibernatePropertiesCustomizer {
   @Override
   public void customize(Map<String, Object> hibernateProperties) {
     if (!hibernateProperties.containsKey("hibernate.jdbc.batch_size")) {
-      hibernateProperties.put("hibernate.jdbc.batch_size", ComplexJpaRepository.BATCH_SIZE);
+      hibernateProperties.put("hibernate.jdbc.batch_size", SimpleAnyJpaRepository.BATCH_SIZE);
     } else {
-      ComplexJpaRepository.BATCH_SIZE =
+      SimpleAnyJpaRepository.BATCH_SIZE =
           Integer.parseInt((String) hibernateProperties.get("hibernate.jdbc.batch_size"));
     }
     hibernateProperties.put("hibernate.order_inserts", true);

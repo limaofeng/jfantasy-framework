@@ -1,7 +1,7 @@
 package cn.asany.example;
 
 import lombok.extern.slf4j.Slf4j;
-import org.jfantasy.framework.dao.jpa.ComplexJpaRepository;
+import org.jfantasy.framework.dao.jpa.SimpleAnyJpaRepository;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
@@ -32,6 +32,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
     basePackages = {
       "cn.asany.example.*.dao",
     },
-    repositoryBaseClass = ComplexJpaRepository.class)
+    repositoryBaseClass = SimpleAnyJpaRepository.class)
 @EnableAutoConfiguration(exclude = {MongoAutoConfiguration.class, QuartzAutoConfiguration.class})
 public class TestApplication {}

@@ -9,7 +9,6 @@ import org.springframework.validation.DataBinder;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.SmartValidator;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.support.WebExchangeBindException;
 
 /**
@@ -28,6 +27,11 @@ public class ErrorUtils {
   private static final String ERROR_PROPERTY_FIELD_ERRORS = "errors";
   private static final String ERROR_PROPERTY_ERROR = "error";
   private static final String ERROR_PROPERTY_STATUS = "status";
+
+  private static final boolean WEB_CLASS_AVAILABLE =
+      isClassAvailable("org.springframework.web.servlet.config.annotation.EnableWebMvc");
+  private static final boolean WEB_FLUX_CLASS_AVAILABLE =
+      isClassAvailable("org.springframework.web.reactive.config.EnableWebFlux");
 
   public static String errorCode(Throwable exception) {
     Class<?> errorClass = exception.getClass();
@@ -62,13 +66,19 @@ public class ErrorUtils {
 
     if (throwable instanceof ValidationException e) {
       extractValidationExceptionAttributes(errorAttributes, e);
-    } else if (throwable instanceof MissingServletRequestParameterException e) {
-      extractValidationExceptionAttributes(
-          errorAttributes, new ValidationException(e.getMessage()));
-    } else if (throwable instanceof MethodArgumentNotValidException e) {
+    } else if (WEB_CLASS_AVAILABLE && throwable instanceof MethodArgumentNotValidException e) {
       addBindingResultErrorMessage(errorAttributes, e.getBindingResult());
-    } else if (throwable instanceof WebExchangeBindException e) {
+    } else if (WEB_FLUX_CLASS_AVAILABLE && throwable instanceof WebExchangeBindException e) {
       addBindingResultErrorMessage(errorAttributes, e.getBindingResult());
+    }
+  }
+
+  private static boolean isClassAvailable(String className) {
+    try {
+      Class.forName(className);
+      return true;
+    } catch (ClassNotFoundException e) {
+      return false;
     }
   }
 

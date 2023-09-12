@@ -34,6 +34,7 @@ public class AuthenticationManager {
     int size = this.providers.size();
 
     for (@SuppressWarnings("rawtypes") AuthenticationProvider provider : this.providers) {
+      //noinspection unchecked
       if (!provider.supports(toTest)) {
         continue;
       }
@@ -44,6 +45,7 @@ public class AuthenticationManager {
             provider.getClass().getSimpleName(), ++currentPosition, size);
       }
       try {
+        //noinspection unchecked
         result = provider.authenticate(authentication);
         if (result != null) {
           copyDetails(authentication, result);
@@ -73,8 +75,7 @@ public class AuthenticationManager {
   }
 
   private void copyDetails(Authentication source, Authentication dest) {
-    if ((dest instanceof AbstractAuthenticationToken) && (dest.getDetails() == null)) {
-      AbstractAuthenticationToken token = (AbstractAuthenticationToken) dest;
+    if ((dest instanceof AbstractAuthenticationToken token) && (dest.getDetails() == null)) {
       token.setDetails(source.getDetails());
     }
   }

@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.repository.NoRepositoryBean;
@@ -18,9 +19,8 @@ import org.springframework.data.repository.NoRepositoryBean;
  * @date 14/11/2017 12:55 PM
  */
 @NoRepositoryBean
-public interface JpaRepository<T, PK extends Serializable>
-    extends org.springframework.data.jpa.repository.JpaRepository<T, PK>,
-        JpaSpecificationExecutor<T> {
+public interface AnyJpaRepository<T, PK extends Serializable>
+    extends JpaRepository<T, PK>, JpaSpecificationExecutor<T> {
 
   /**
    * 实体信息

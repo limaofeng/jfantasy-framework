@@ -1,11 +1,7 @@
 package org.jfantasy.framework.spring.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mashape.unirest.http.Unirest;
-import jakarta.annotation.PostConstruct;
 import java.util.Arrays;
-import org.jfantasy.framework.jackson.JSON;
-import org.jfantasy.framework.jackson.UnirestObjectMapper;
 import org.jfantasy.framework.spring.SpringBeanUtils;
 import org.jfantasy.framework.spring.mvc.reactive.WebFluxResponseBodyResultHandler;
 import org.jfantasy.framework.util.common.ClassUtil;
@@ -22,8 +18,8 @@ import org.springframework.http.codec.ServerCodecConfigurer;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.validation.Validator;
 import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.cors.reactive.CorsWebFilter;
+import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 import org.springframework.web.reactive.accept.RequestedContentTypeResolver;
 import org.springframework.web.reactive.config.CorsRegistry;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
@@ -45,19 +41,13 @@ public class WebFluxConfig implements WebFluxConfigurer {
     this.objectMapper = objectMapper;
   }
 
-  @PostConstruct
-  public void initObjectMapper() {
-    JSON.initialize(objectMapper);
-    Unirest.setObjectMapper(new UnirestObjectMapper(objectMapper));
-  }
-
   @Override
   public Validator getValidator() {
     return BaseConfig.getValidator(applicationContext);
   }
 
   @Override
-  public void addCorsMappings(CorsRegistry registry) {
+  public void addCorsMappings(@SuppressWarnings("NullableProblems") CorsRegistry registry) {
     String path = "/**";
 
     boolean credentials = true;
@@ -67,8 +57,8 @@ public class WebFluxConfig implements WebFluxConfigurer {
     String[] exposeHeaders = ServletUtils.CORS_DEFAULT_EXPOSE_METHODS;
     long maxAge = ServletUtils.CORS_DEFAULT_MAX_AGE;
 
-    if (SpringBeanUtils.containsBean(CorsFilter.class)) {
-      CorsFilter corsFilter = SpringBeanUtils.getBean(CorsFilter.class);
+    if (SpringBeanUtils.containsBean(CorsWebFilter.class)) {
+      CorsWebFilter corsFilter = SpringBeanUtils.getBean(CorsWebFilter.class);
       UrlBasedCorsConfigurationSource configSource = ClassUtil.getValue(corsFilter, "configSource");
 
       CorsConfiguration corsConfiguration = new CorsConfiguration();
