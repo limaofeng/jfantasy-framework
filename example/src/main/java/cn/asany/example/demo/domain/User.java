@@ -40,4 +40,6 @@ public class User extends BaseBusEntity {
   @NotBlank(message = "密码不能为空")
   @Column(name = "password", length = 21)
   private String password;
+
+  private transient UserSetting setting = new UserSetting();
 }

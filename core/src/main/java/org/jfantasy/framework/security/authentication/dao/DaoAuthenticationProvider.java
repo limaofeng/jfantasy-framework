@@ -15,14 +15,15 @@ import org.jfantasy.framework.security.crypto.password.PasswordEncoder;
  */
 public class DaoAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
 
-  private UserDetailsService<UserDetails> userDetailsService;
+  private UserDetailsService<? extends UserDetails> userDetailsService;
 
   private PasswordEncoder passwordEncoder;
 
   public DaoAuthenticationProvider() {}
 
   public DaoAuthenticationProvider(
-      UserDetailsService<UserDetails> userDetailsService, PasswordEncoder passwordEncoder) {
+      UserDetailsService<? extends UserDetails> userDetailsService,
+      PasswordEncoder passwordEncoder) {
     this.userDetailsService = userDetailsService;
     this.passwordEncoder = passwordEncoder;
   }

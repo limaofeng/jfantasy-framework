@@ -1,5 +1,7 @@
 package org.jfantasy.framework.util.ognl;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -7,7 +9,6 @@ import ognl.Ognl;
 import ognl.OgnlContext;
 import org.jfantasy.framework.jackson.models.User;
 import org.junit.jupiter.api.Test;
-import org.springframework.util.Assert;
 
 @Slf4j
 public class OgnlUtilTest {
@@ -36,21 +37,21 @@ public class OgnlUtilTest {
 
     log.debug(ognlTest.toString());
 
-    Assert.isTrue(ognlTest.getNames().length == 2);
+    assertTrue(ognlTest.getNames().length == 2);
 
     OgnlUtil.getInstance().setValue("listNames[0]", ognlTest, "test1");
     OgnlUtil.getInstance().setValue("listNames[1]", ognlTest, "test2");
 
     log.debug(ognlTest.toString());
 
-    Assert.isTrue(ognlTest.getListNames().size() == 2);
+    assertTrue(ognlTest.getListNames().size() == 2);
 
     OgnlUtil.getInstance().setValue("list[0].number", ognlTest, "100");
     OgnlUtil.getInstance().setValue("list[0].name", ognlTest, "test");
 
     log.debug(ognlTest.toString());
 
-    Assert.isTrue(ognlTest.getList().size() == 1);
+    assertTrue(ognlTest.getList().size() == 1);
 
     OgnlUtil.getInstance().setValue("bean.array[0].number", ognlTest, "100");
     OgnlUtil.getInstance().setValue("bean.array[0].name", ognlTest, "test");
@@ -60,7 +61,7 @@ public class OgnlUtilTest {
 
     log.debug(ognlTest.toString());
 
-    Assert.isTrue(ognlTest.getBean().getArray().length == 2);
+    assertTrue(ognlTest.getBean().getArray().length == 2);
   }
 
   @Test

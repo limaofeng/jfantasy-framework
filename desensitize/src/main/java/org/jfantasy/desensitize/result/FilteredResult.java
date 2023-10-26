@@ -5,6 +5,9 @@ package org.jfantasy.desensitize.result;
 // (powered by FernFlower decompiler)
 //
 
+import lombok.Getter;
+
+@Getter
 public class FilteredResult {
   private Double level;
   private String filteredContent;
@@ -12,10 +15,6 @@ public class FilteredResult {
   private String goodWords;
   private String originalContent;
   private Boolean hasSensiviWords = false;
-
-  public String getBadWords() {
-    return this.badWords;
-  }
 
   public void setBadWords(String badWords) {
     this.badWords = badWords;
@@ -31,40 +30,20 @@ public class FilteredResult {
     this.badWords = badWords;
   }
 
-  public Double getLevel() {
-    return this.level;
-  }
-
   public void setLevel(Double level) {
     this.level = level;
-  }
-
-  public String getFilteredContent() {
-    return this.filteredContent;
   }
 
   public void setFilteredContent(String filteredContent) {
     this.filteredContent = filteredContent;
   }
 
-  public String getOriginalContent() {
-    return this.originalContent;
-  }
-
   public void setOriginalContent(String originalContent) {
     this.originalContent = originalContent;
   }
 
-  public String getGoodWords() {
-    return this.goodWords;
-  }
-
   public void setGoodWords(String goodWords) {
     this.goodWords = goodWords;
-  }
-
-  public Boolean getHasSensiviWords() {
-    return this.hasSensiviWords;
   }
 
   public void setHasSensiviWords(Boolean hasSensiviWords) {

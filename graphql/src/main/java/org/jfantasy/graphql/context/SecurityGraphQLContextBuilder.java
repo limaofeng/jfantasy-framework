@@ -34,7 +34,6 @@ import org.springframework.core.log.LogMessage;
  * @version V1.0
  */
 @Slf4j
-// @Component
 public class SecurityGraphQLContextBuilder extends DefaultGraphQLContextBuilder
     implements GraphQLServletContextBuilder {
 

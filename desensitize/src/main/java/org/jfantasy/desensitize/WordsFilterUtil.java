@@ -7,6 +7,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.desensitize.result.FilteredResult;
 import org.jfantasy.desensitize.result.Word;
 import org.jfantasy.desensitize.search.tree.Node;
@@ -16,6 +18,7 @@ import org.jfantasy.desensitize.search.tree.Node;
  *
  * @author limaofeng
  */
+@Slf4j
 public class WordsFilterUtil {
   private static final Node TREE = new Node();
   private static final Node POSITIVE_TREE;
@@ -391,6 +394,7 @@ public class WordsFilterUtil {
     addWords(WordsType.POSITIVE, is);
   }
 
+  @Getter
   private static class PunctuationOrHtmlFilteredResult {
     private String originalString;
     private StringBuilder filteredString;
@@ -398,24 +402,12 @@ public class WordsFilterUtil {
 
     private PunctuationOrHtmlFilteredResult() {}
 
-    public String getOriginalString() {
-      return this.originalString;
-    }
-
     public void setOriginalString(String originalString) {
       this.originalString = originalString;
     }
 
-    public StringBuilder getFilteredString() {
-      return this.filteredString;
-    }
-
     public void setFilteredString(StringBuilder filteredString) {
       this.filteredString = filteredString;
-    }
-
-    public ArrayList<Integer> getCharOffsets() {
-      return this.charOffsets;
     }
 
     public void setCharOffsets(ArrayList<Integer> charOffsets) {

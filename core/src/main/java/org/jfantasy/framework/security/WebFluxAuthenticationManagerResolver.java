@@ -1,10 +1,10 @@
 package org.jfantasy.framework.security;
 
 import org.jfantasy.framework.security.authentication.AuthenticationManagerResolver;
-import org.springframework.web.reactive.function.server.ServerRequest;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 
 public class WebFluxAuthenticationManagerResolver
-    implements AuthenticationManagerResolver<ServerRequest> {
+    implements AuthenticationManagerResolver<ServerHttpRequest> {
 
   private final AuthenticationManager authenticationManager;
 
@@ -13,7 +13,7 @@ public class WebFluxAuthenticationManagerResolver
   }
 
   @Override
-  public AuthenticationManager resolve(ServerRequest context) {
+  public AuthenticationManager resolve(ServerHttpRequest context) {
     return this.authenticationManager;
   }
 }

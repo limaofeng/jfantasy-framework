@@ -1,14 +1,8 @@
 package org.jfantasy.framework.spring.mvc.servlet;
 
-import com.fasterxml.jackson.databind.ser.FilterProvider;
-import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import lombok.extern.slf4j.Slf4j;
-import org.jfantasy.framework.jackson.BeanPropertyFilter;
-import org.jfantasy.framework.jackson.annotation.BeanFilter;
-import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
+import org.jfantasy.framework.jackson.FilteredMixinHolder;
 import org.jfantasy.framework.spring.mvc.error.NotFoundException;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.springframework.core.MethodParameter;
@@ -32,14 +26,6 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 @Slf4j
 @ControllerAdvice
 public class JacksonResponseBodyAdvice implements ResponseBodyAdvice<Object> {
-
-  private static final String DEFAULT_PROVIDER_KEY = "default_provider_key";
-
-  private static final ConcurrentMap<String, FilterProvider> PROVIDERS = new ConcurrentHashMap<>();
-
-  static {
-    PROVIDERS.put(DEFAULT_PROVIDER_KEY, new SimpleFilterProvider().setFailOnUnknownId(false));
-  }
 
   @Override
   public boolean supports(
@@ -72,36 +58,9 @@ public class JacksonResponseBodyAdvice implements ResponseBodyAdvice<Object> {
         return null;
       }
       MappingJacksonValue mappingJacksonValue = new MappingJacksonValue(returnValue);
-      mappingJacksonValue.setFilters(getFilterProvider(methodParameter));
+      mappingJacksonValue.setFilters(FilteredMixinHolder.getFilterProvider(methodParameter));
       return mappingJacksonValue;
     }
     return returnValue;
-  }
-
-  public FilterProvider getFilterProvider(JsonResultFilter jsonResultFilter) {
-    String key = jsonResultFilter.toString();
-    if (PROVIDERS.containsKey(key)) {
-      return PROVIDERS.get(key);
-    }
-    SimpleFilterProvider provider = new SimpleFilterProvider().setFailOnUnknownId(false);
-    BeanPropertyFilter propertyFilter = new BeanPropertyFilter();
-    for (BeanFilter filter : jsonResultFilter.value()) {
-      if (filter.type().isArray()) {
-        continue;
-      }
-      propertyFilter.mixin(filter.type()).includes(filter.includes()).excludes(filter.excludes());
-    }
-    provider.setDefaultFilter(propertyFilter);
-    PROVIDERS.putIfAbsent(key, provider);
-    return provider;
-  }
-
-  private FilterProvider getFilterProvider(MethodParameter methodParameter) {
-    JsonResultFilter jsonResultFilter =
-        Objects.requireNonNull(methodParameter.getMethod()).getAnnotation(JsonResultFilter.class);
-    if (jsonResultFilter == null) {
-      return PROVIDERS.get(DEFAULT_PROVIDER_KEY);
-    }
-    return getFilterProvider(jsonResultFilter);
   }
 }

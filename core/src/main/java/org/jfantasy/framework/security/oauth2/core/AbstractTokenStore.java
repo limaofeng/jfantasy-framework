@@ -1,12 +1,14 @@
 package org.jfantasy.framework.security.oauth2.core;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.ReadContext;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.jackson.JSON;
 import org.jfantasy.framework.security.LoginUser;
@@ -163,21 +165,26 @@ public abstract class AbstractTokenStore implements TokenStore {
     return JSON.serialize(data);
   }
 
+  @SneakyThrows
   private OAuth2AccessToken buildOauth2AccessToken(String data) {
     ObjectMapper mapper = JSON.getObjectMapper();
-    ReadContext context = JsonPath.parse(data);
-    TokenType tokenType =
-        mapper.convertValue(context.read("$.access_token.tokenType"), TokenType.class);
-    String tokenValue =
-        mapper.convertValue(context.read("$.access_token.tokenValue"), String.class);
+
+    JsonNode node = JSON.getObjectMapper().readTree(data);
+    JsonNode accessTokenNode = node.get("access_token");
+
+    TokenType tokenType = mapper.convertValue(accessTokenNode.get("tokenType"), TokenType.class);
+    String tokenValue = mapper.convertValue(accessTokenNode.get("tokenValue"), String.class);
+
     String refreshTokenValue =
-        mapper.convertValue(context.read("$.access_token.refreshTokenValue"), String.class);
+        accessTokenNode.has("refreshTokenValue")
+            ? mapper.convertValue(accessTokenNode.get("refreshTokenValue"), String.class)
+            : null;
+
     Set<String> scopes =
-        Arrays.stream(mapper.convertValue(context.read("$.access_token.scopes"), String[].class))
+        Arrays.stream(mapper.convertValue(accessTokenNode.get("scopes"), String[].class))
             .collect(Collectors.toSet());
-    Instant issuedAt = mapper.convertValue(context.read("$.access_token.issuedAt"), Instant.class);
-    Instant expiresAt =
-        mapper.convertValue(context.read("$.access_token.expiresAt"), Instant.class);
+    Instant issuedAt = mapper.convertValue(accessTokenNode.get("issuedAt"), Instant.class);
+    Instant expiresAt = mapper.convertValue(accessTokenNode.get("expiresAt"), Instant.class);
 
     return new OAuth2AccessToken(
         tokenType, tokenValue, refreshTokenValue, issuedAt, expiresAt, scopes);

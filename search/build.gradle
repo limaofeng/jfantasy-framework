@@ -21,13 +21,16 @@ dependencies {
 	compileOnly "org.projectlombok:lombok"
 	testImplementation "us.codecraft:webmagic-core:${LIB_WEBMAGIC_VER}"
 	testImplementation "us.codecraft:webmagic-extension:${LIB_WEBMAGIC_VER}"
-	testImplementation libs['springBoot']
-	testImplementation libs['orm']
+    //noinspection DependencyNotationArgument
+    testImplementation libs['springBoot']
+    //noinspection DependencyNotationArgument
+    testImplementation libs['orm']
 	annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 	annotationProcessor "org.projectlombok:lombok"
 	testCompileOnly "org.projectlombok:lombok"
 	testAnnotationProcessor "org.projectlombok:lombok"
-	testImplementation libs['test']
+    //noinspection DependencyNotationArgument
+    testImplementation libs['test']
 }
 
 repositories {
