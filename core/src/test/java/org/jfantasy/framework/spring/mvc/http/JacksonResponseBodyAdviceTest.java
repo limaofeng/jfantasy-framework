@@ -3,6 +3,7 @@ package org.jfantasy.framework.spring.mvc.http;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import java.lang.reflect.Method;
 import lombok.extern.slf4j.Slf4j;
+import org.jfantasy.framework.jackson.FilteredMixinHolder;
 import org.jfantasy.framework.jackson.JSON;
 import org.jfantasy.framework.jackson.JSONTest;
 import org.jfantasy.framework.jackson.annotation.BeanFilter;
@@ -25,12 +26,14 @@ public class JacksonResponseBodyAdviceTest {
         @BeanFilter(type = JSONTest.ArticleCategory.class, excludes = "articles")
       })
   public void getFilterProvider() throws Exception {
+    JSON.initialize();
+
     JSONTest.Article article = JSONTest.TestDataBuilder.build(JSONTest.Article.class, "JSONTest");
 
     Method method =
         ClassUtil.getDeclaredMethod(JacksonResponseBodyAdviceTest.class, "getFilterProvider");
     JsonResultFilter filter = ClassUtil.getMethodAnno(method, JsonResultFilter.class);
-    FilterProvider provider = advice.getFilterProvider(filter);
-    log.debug(JSON.serialize(article, provider));
+    FilterProvider provider = FilteredMixinHolder.getFilterProvider(filter);
+    log.info(JSON.serialize(article, provider));
   }
 }

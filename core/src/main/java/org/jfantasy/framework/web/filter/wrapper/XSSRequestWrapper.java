@@ -2,13 +2,12 @@ package org.jfantasy.framework.web.filter.wrapper;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
-import java.lang.reflect.Array;
-import java.util.Enumeration;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.util.common.Base64Util;
-import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.framework.util.regexp.RegexpUtil;
 import org.jfantasy.framework.util.web.WebUtil;
@@ -17,7 +16,7 @@ import org.springframework.web.util.HtmlUtils;
 @Slf4j
 public class XSSRequestWrapper extends HttpServletRequestWrapper {
 
-  private Map<String, String[]> parameterMaps = new LinkedHashMap<>();
+  private final Map<String, String[]> parameterMap = new LinkedHashMap<>();
 
   private boolean transform = false;
 
@@ -38,23 +37,7 @@ public class XSSRequestWrapper extends HttpServletRequestWrapper {
 
   @Override
   public String[] getParameterValues(String name) {
-    if (parameterMaps.containsKey(name)) {
-      return parameterMaps.get(name);
-    }
-    String[] values = super.getParameterValues(name);
-    if (StringUtil.isNull(values)) {
-      return values;
-    }
-    Object vals = ClassUtil.newInstance(String.class, values.length);
-    for (int i = 0; i < values.length; i++) {
-      String escapeStr = transform(values[i]);
-      if (log.isDebugEnabled()) {
-        log.debug(name + "[" + values[i] + "]" + " => htmlEscape => [" + escapeStr + "]");
-      }
-      Array.set(vals, i, escapeStr);
-    }
-    parameterMaps.put(name, (String[]) vals);
-    return parameterMaps.get(name);
+    return getParameterMap().get(name);
   }
 
   private String transform(String value) {
@@ -63,7 +46,10 @@ public class XSSRequestWrapper extends HttpServletRequestWrapper {
     if ("GET".equalsIgnoreCase(WebUtil.getMethod((HttpServletRequest) this.getRequest()))
         && isTransform()) {
       escapeStr =
-          WebUtil.transformCoding(value, "8859_1", this.getRequest().getCharacterEncoding());
+          WebUtil.transformCoding(
+              value,
+              StandardCharsets.ISO_8859_1,
+              Charset.forName(this.getRequest().getCharacterEncoding()));
       escapeStr = StringUtil.isNotBlank(escapeStr) ? HtmlUtils.htmlEscape(escapeStr) : escapeStr;
     } else {
       escapeStr = StringUtil.isNotBlank(value) ? HtmlUtils.htmlEscape(value) : value;
@@ -82,17 +68,10 @@ public class XSSRequestWrapper extends HttpServletRequestWrapper {
 
   @Override
   public Map<String, String[]> getParameterMap() {
-    Enumeration<String> enumeration = super.getParameterNames();
-    if (parameterMaps.size() == super.getParameterMap().size()) {
-      return parameterMaps;
+    if (!parameterMap.isEmpty() || super.getParameterMap().isEmpty()) {
+      return parameterMap;
     }
-    while (enumeration.hasMoreElements()) {
-      String key = enumeration.nextElement();
-      if (parameterMaps.containsKey(key)) {
-        continue;
-      }
-      parameterMaps.put(key, getParameterValues(key));
-    }
-    return parameterMaps;
+    parameterMap.putAll(WebUtil.getParameterMap(this, this::transform));
+    return parameterMap;
   }
 }

@@ -1,11 +1,12 @@
 package org.jfantasy.framework.spring;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.jackson.models.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
-import org.springframework.util.Assert;
 
 @Slf4j
 public class SpELUtilTest {
@@ -22,7 +23,7 @@ public class SpELUtilTest {
 
     log.debug("value = " + retVal);
 
-    Assert.isTrue(retVal);
+    assertTrue(retVal);
 
     user.setUsername("hebo");
     context = SpELUtil.createEvaluationContext(user);
@@ -31,7 +32,7 @@ public class SpELUtilTest {
 
     log.debug("value = " + retVal);
 
-    Assert.isTrue(!retVal);
+    assertTrue(!retVal);
 
     expression = SpELUtil.getExpression(" true ");
 
@@ -39,7 +40,7 @@ public class SpELUtilTest {
 
     log.debug("value = " + retVal);
 
-    Assert.isTrue(retVal);
+    assertTrue(retVal);
   }
 
   @Test
@@ -55,7 +56,7 @@ public class SpELUtilTest {
 
     log.debug("value = " + retVal);
 
-    Assert.isTrue(retVal);
+    assertTrue(retVal);
   }
 
   @Test

@@ -1,12 +1,14 @@
 package org.jfantasy.framework.util.regexp;
 
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.lang.reflect.Array;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.jackson.models.User;
 import org.jfantasy.framework.util.web.WebUtil;
 import org.junit.jupiter.api.Test;
-import org.springframework.util.Assert;
 
 @Slf4j
 public class RegexpUtilTest {
@@ -25,11 +27,11 @@ public class RegexpUtilTest {
 
     String className = Array.newInstance(User.class, 0).getClass().getName();
 
-    Assert.isTrue(RegexpUtil.isMatch(className, "^\\[L|;$"));
+    assertTrue(RegexpUtil.isMatch(className, "^\\[L|;$"));
 
-    Assert.isTrue(RegexpUtil.isMatch(className, "^\\[L[a-zA-Z._]+;$"));
+    assertTrue(RegexpUtil.isMatch(className, "^\\[L[a-zA-Z._]+;$"));
 
-    Assert.isTrue(
+    assertTrue(
         RegexpUtil.isMatch("[Lorg.jfantasy.security.bean.User$Test;", "^\\[L[a-zA-Z._$]+;$"));
   }
 
@@ -85,7 +87,7 @@ public class RegexpUtilTest {
         RegexpUtil.replace(
             "nameSpaceWat", "[A-Z]", (text, index, matcher) -> "_" + text.toLowerCase());
     log.debug(newName);
-    Assert.isTrue(newName == "name_space_wat");
+    assertSame("name_space_wat", newName);
   }
 
   @Test

@@ -6,11 +6,12 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
 import java.net.*;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.function.Function;
 import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
@@ -29,8 +30,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
  */
 @Slf4j
 public class WebUtil {
-
-  public static final List<String> LOCAL_IP_ADDRESS = Arrays.asList("0:0:0:0:0:0:0:1", "127.0.0.1");
 
   private WebUtil() {
     throw new IllegalStateException("Utility class");
@@ -78,7 +77,7 @@ public class WebUtil {
   }
 
   private static final Map<String, Integer> DEFAULT_SCHEME_PORTS =
-      new HashMap() {
+      new HashMap<>() {
         {
           this.put("http", 80);
           this.put("https", 443);
@@ -203,30 +202,38 @@ public class WebUtil {
     }
   }
 
-  public static String getRealIpAddress(HttpServletRequest request) {
+  public static String getClientIP(HttpServletRequest request) {
     String ip = request.getHeader("x-forwarded-for");
-    if ((ip == null) || (ip.length() == 0) || ("unknown".equalsIgnoreCase(ip))) {
+    if (!isValidIP(ip)) {
       ip = request.getHeader("Proxy-Client-IP");
     }
-    if ((ip == null) || (ip.length() == 0) || ("unknown".equalsIgnoreCase(ip))) {
+    if (!isValidIP(ip)) {
       ip = request.getHeader("WL-Proxy-Client-IP");
     }
-    if ((ip == null) || (ip.length() == 0) || ("unknown".equalsIgnoreCase(ip))) {
+    if (!isValidIP(ip)) {
       ip = request.getRemoteAddr();
     }
     if (ip == null) {
       return null;
     }
     if (ip.contains(",")) {
-      return ip.split(",")[0];
+      // 如果包含逗号分隔的多个地址，取第一个有效地址
+      String[] ipArray = ip.split(",");
+      for (String addr : ipArray) {
+        if (isValidIP(addr)) {
+          return addr.trim();
+        }
+      }
     }
-    if (LOCAL_IP_ADDRESS.contains(ip)) {
-      return null;
-    }
-    return ip;
+    return ip.trim();
   }
 
-  public static boolean isSelfIp(String ip) {
+  // 检查是否为有效的 IP 地址
+  private static boolean isValidIP(String ip) {
+    return ip != null && !ip.isEmpty() && !"unknown".equalsIgnoreCase(ip);
+  }
+
+  public static boolean isLocalIP(String ip) {
     try {
       if (InetAddress.getLocalHost().getHostAddress().equals(ip.trim())) {
         return true;
@@ -256,7 +263,7 @@ public class WebUtil {
    *
    * @return {String[]}
    */
-  public static String[] getServerIps() {
+  public static String[] getLocalIPs() {
     String[] serverIps = new String[0];
     Enumeration<NetworkInterface> netInterfaces;
     try {
@@ -310,14 +317,17 @@ public class WebUtil {
           newVal = StringUtil.decodeURI(val, "utf-8");
           log.debug(key + " 的原始编码为[ASCII]转编码:" + val + "=>" + newVal);
         } else if (StandardCharsets.ISO_8859_1.newEncoder().canEncode(val)) {
-          newVal = WebUtil.transformCoding(val, "ISO-8859-1", "utf-8");
+          newVal =
+              WebUtil.transformCoding(val, StandardCharsets.ISO_8859_1, StandardCharsets.UTF_8);
           log.debug(key + " 的原始编码为[ISO-8859-1]转编码:" + val + "=>" + newVal);
         }
         val = newVal;
       }
       if (!params.containsKey(key)) {
+        //noinspection unchecked
         params.put(key, (T) (single ? val : new String[] {val}));
       } else {
+        //noinspection unchecked
         params.put(key, (T) ObjectUtil.join((String[]) params.get(key), val));
       }
     }
@@ -376,13 +386,49 @@ public class WebUtil {
     return queryString.replace("&$", "").concat("&sort=" + orderBy + "-asc");
   }
 
-  public static Map<String, String> getParameterMap(HttpServletRequest request) {
+  public static Map<String, String> getParameterFirstValueMap(HttpServletRequest request) {
     Map<String, String> parameter = new LinkedHashMap<>();
     Set<Map.Entry<String, String[]>> entries = request.getParameterMap().entrySet();
     for (Map.Entry<String, String[]> entry : entries) {
       parameter.put(entry.getKey(), entry.getValue()[0]);
     }
     return parameter;
+  }
+
+  public static Map<String, String[]> getParameterMap(
+      HttpServletRequest request, Function<String, String> transform) {
+    Map<String, String[]> parameterMaps = new HashMap<>();
+    Enumeration<String> enumeration = request.getParameterNames();
+    while (enumeration.hasMoreElements()) {
+      String key = enumeration.nextElement();
+      if (parameterMaps.containsKey(key)) {
+        continue;
+      }
+      parameterMaps.put(key, getParameterValues(request, key, transform));
+    }
+    return parameterMaps;
+  }
+
+  public static String[] getParameterValues(
+      HttpServletRequest request, String name, Function<String, String> transform) {
+    return getParameterValues(request, name, transform, String.class);
+  }
+
+  public static <R> R[] getParameterValues(
+      HttpServletRequest request, String name, Function<String, R> transform, Class<R> returnType) {
+    String[] values = request.getParameterValues(name);
+    if (values == null || values.length == 0) {
+      return null;
+    }
+    R[] newValues = ClassUtil.newInstance(returnType, values.length);
+    for (int i = 0; i < values.length; i++) {
+      R retVal = transform.apply(values[i]);
+      if (log.isDebugEnabled()) {
+        log.debug(name + "[" + values[i] + "]" + " => [" + retVal + "]");
+      }
+      Array.set(newValues, i, retVal);
+    }
+    return newValues;
   }
 
   public static boolean has(HttpServletRequest request, RequestMethod method) {
@@ -398,24 +444,14 @@ public class WebUtil {
   }
 
   public static String filename(String name, HttpServletRequest request) {
-    try {
-      UserAgent userAgent = parseUserAgent(request);
-      return Browser.MOZILLA == userAgent.getBrowser()
-          ? new String(name.getBytes(StandardCharsets.UTF_8), "iso8859-1")
-          : URLEncoder.encode(name, "UTF-8");
-    } catch (UnsupportedEncodingException e) {
-      log.error(e.getMessage(), e);
-      return name;
-    }
+    UserAgent userAgent = parseUserAgent(request);
+    return Browser.MOZILLA == userAgent.getBrowser()
+        ? new String(name.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1)
+        : URLEncoder.encode(name, StandardCharsets.UTF_8);
   }
 
-  public static String transformCoding(String str, String oldCharset, String charset) {
-    try {
-      return new String(str.getBytes(oldCharset), charset);
-    } catch (UnsupportedEncodingException e) {
-      log.error(e.getMessage(), e);
-      return str;
-    }
+  public static String transformCoding(String str, Charset oldCharset, Charset charset) {
+    return new String(str.getBytes(oldCharset), charset);
   }
 
   public static boolean isAjax(HttpServletRequest request) {

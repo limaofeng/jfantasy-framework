@@ -7,5 +7,6 @@ configurations {
 dependencies {
 	compileOnly "org.projectlombok:lombok"
 	annotationProcessor "org.projectlombok:lombok"
-	testImplementation libs['test']
+    //noinspection DependencyNotationArgument
+    testImplementation libs['test']
 }

@@ -2,8 +2,8 @@ package org.jfantasy.framework.web.filter.wrapper;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ import org.jfantasy.framework.util.web.WebUtil;
 @Slf4j
 public class CharacterEncodingRequestWrapper extends HttpServletRequestWrapper {
 
-  private final Map<String, String[]> parameterMaps = new LinkedHashMap<>();
+  private final Map<String, String[]> parameterMap = new LinkedHashMap<>();
 
   public CharacterEncodingRequestWrapper(HttpServletRequest request) {
     super(request);
@@ -32,40 +32,25 @@ public class CharacterEncodingRequestWrapper extends HttpServletRequestWrapper {
 
   @Override
   public String[] getParameterValues(String name) {
-    String[] values = super.getParameterValues(name);
-    if (parameterMaps.containsKey(name)) {
-      return parameterMaps.get(name);
+    return getParameterMap().get(name);
+  }
+
+  private String transform(String value) {
+    if (StandardCharsets.ISO_8859_1.newEncoder().canEncode(value)) {
+      return WebUtil.transformCoding(
+          value,
+          StandardCharsets.ISO_8859_1,
+          Charset.forName(this.getRequest().getCharacterEncoding()));
     }
-    if (values == null || values.length == 0) {
-      return values;
-    }
-    String[] newValues = new String[values.length];
-    for (int i = 0; i < values.length; i++) {
-      if (StandardCharsets.ISO_8859_1.newEncoder().canEncode(values[i])) {
-        newValues[i] =
-            WebUtil.transformCoding(values[i], "ISO-8859-1", getRequest().getCharacterEncoding());
-        log.debug(name + " 的原始编码为[ISO-8859-1]转编码:" + values[i] + "=>" + newValues[i]);
-      } else {
-        newValues[i] = values[i];
-      }
-    }
-    parameterMaps.put(name, newValues);
-    return parameterMaps.get(name);
+    return value;
   }
 
   @Override
   public Map<String, String[]> getParameterMap() {
-    Enumeration<String> enumeration = super.getParameterNames();
-    if (parameterMaps.size() == super.getParameterMap().size()) {
-      return parameterMaps;
+    if (!parameterMap.isEmpty() || super.getParameterMap().isEmpty()) {
+      return parameterMap;
     }
-    while (enumeration.hasMoreElements()) {
-      String key = enumeration.nextElement();
-      if (parameterMaps.containsKey(key)) {
-        continue;
-      }
-      parameterMaps.put(key, getParameterValues(key));
-    }
-    return parameterMaps;
+    parameterMap.putAll(WebUtil.getParameterMap(this, this::transform));
+    return parameterMap;
   }
 }

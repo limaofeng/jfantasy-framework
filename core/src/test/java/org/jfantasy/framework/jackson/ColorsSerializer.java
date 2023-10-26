@@ -9,7 +9,7 @@ public class ColorsSerializer {
 
   private ThreadLocal<ObjectMapper> mapper = ThreadLocal.withInitial(ObjectMapper::new);
 
-  private BeanPropertyFilter propertyFilter = new BeanPropertyFilter();
+  private FilteredMixinFilter propertyFilter = new FilteredMixinFilter();
 
   public void filter(Class<?> clazz, String include, String filter) {
     if (clazz == null) {
@@ -21,7 +21,7 @@ public class ColorsSerializer {
     if (StringUtils.isNotBlank(filter)) {
       propertyFilter.excludes(clazz, filter.split(","));
     }
-    mapper.get().addMixIn(clazz, BeanPropertyFilter.class);
+    mapper.get().addMixIn(clazz, FilteredMixinFilter.class);
   }
 
   public String toJson(Object object) throws JsonProcessingException {
