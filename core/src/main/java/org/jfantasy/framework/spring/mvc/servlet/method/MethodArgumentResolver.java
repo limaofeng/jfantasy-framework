@@ -1,4 +1,4 @@
-package org.jfantasy.framework.spring.mvc.method.annotation;
+package org.jfantasy.framework.spring.mvc.servlet.method;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;

@@ -43,8 +43,8 @@ public class UserController {
         type = User.class,
         excludes = {"createdAt", "createdBy"}),
   })
-  public Mono<Page<User>> users() {
-    return Mono.just(userService.findPage(Pageable.ofSize(10), PropertyFilter.newFilter()));
+  public Mono<Page<User>> users(PropertyFilter filter) {
+    return Mono.just(userService.findPage(Pageable.ofSize(10), filter));
   }
 
   @PostMapping("/users")

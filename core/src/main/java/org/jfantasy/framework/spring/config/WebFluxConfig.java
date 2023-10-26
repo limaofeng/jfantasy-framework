@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Arrays;
 import org.jfantasy.framework.spring.SpringBeanUtils;
 import org.jfantasy.framework.spring.mvc.reactive.WebFluxResponseBodyResultHandler;
+import org.jfantasy.framework.spring.mvc.reactive.method.PropertyFilterModelAttributeMethodProcessor;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.web.ServletUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 import org.springframework.web.reactive.accept.RequestedContentTypeResolver;
 import org.springframework.web.reactive.config.CorsRegistry;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
+import org.springframework.web.reactive.result.method.annotation.ArgumentResolverConfigurer;
 
 @Configuration
 @Order(value = WebFluxConfig.ORDER)
@@ -39,6 +41,11 @@ public class WebFluxConfig implements WebFluxConfigurer {
   public WebFluxConfig(ApplicationContext applicationContext, ObjectMapper objectMapper) {
     this.applicationContext = applicationContext;
     this.objectMapper = objectMapper;
+  }
+
+  @Override
+  public void configureArgumentResolvers(ArgumentResolverConfigurer configurer) {
+    configurer.addCustomResolver(new PropertyFilterModelAttributeMethodProcessor());
   }
 
   @Override

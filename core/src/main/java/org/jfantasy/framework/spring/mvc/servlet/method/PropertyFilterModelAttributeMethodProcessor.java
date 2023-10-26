@@ -1,4 +1,4 @@
-package org.jfantasy.framework.spring.mvc.method.annotation;
+package org.jfantasy.framework.spring.mvc.servlet.method;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,7 +27,7 @@ public class PropertyFilterModelAttributeMethodProcessor extends MethodArgumentR
 
   @Override
   public boolean supportsParameter(MethodParameter parameter) {
-    return "filters".equals(parameter.getParameterName())
+    return "filter".equals(parameter.getParameterName())
         && List.class.isAssignableFrom(parameter.getParameterType())
         && isPropertyFilterParameter(parameter.getGenericParameterType());
   }

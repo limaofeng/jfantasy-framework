@@ -26,7 +26,6 @@ import org.jfantasy.framework.security.oauth2.server.web.WebSocketBearerTokenRes
 import org.jfantasy.framework.security.web.WebAuthenticationDetailsSource;
 import org.jfantasy.framework.security.web.WebSocketAuthenticationDetailsSource;
 import org.springframework.core.log.LogMessage;
-import org.springframework.stereotype.Component;
 
 /**
  * 从请求头中获取 Token 并转化未用户
@@ -35,7 +34,7 @@ import org.springframework.stereotype.Component;
  * @version V1.0
  */
 @Slf4j
-@Component
+// @Component
 public class SecurityGraphQLContextBuilder extends DefaultGraphQLContextBuilder
     implements GraphQLServletContextBuilder {
 

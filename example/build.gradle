@@ -43,7 +43,7 @@ dependencies {
 	implementation "io.reactivex.rxjava2:rxjava:2.2.21"
 	annotationProcessor "org.mapstruct:mapstruct-processor:$LIB_MAPSTRUCT_VER"
 	annotationProcessor "org.springframework.boot:spring-boot-configuration-processor:${LIB_SPRING_BOOT_VER}"
-	testImplementation "com.graphql-java-kickstart:graphql-spring-boot-starter-test:$LIB_GRAPHQL_BOOT_VER"
+//	testImplementation "com.graphql-java-kickstart:graphql-spring-boot-starter-test:$LIB_GRAPHQL_BOOT_VER"
 	compileOnly "org.projectlombok:lombok"
 	annotationProcessor "org.projectlombok:lombok"
 	annotationProcessor "org.projectlombok:lombok-mapstruct-binding:${LIB_LOMBOK_MAPSTRUCT_BINDING_VER}"
