@@ -985,11 +985,14 @@ public final class ObjectUtil {
 
   public static <T> T[] multipleValuesObjectsObjects(Object value) {
     if (ClassUtil.isArray(value)) {
+      //noinspection unchecked
       return (T[]) value;
     }
     if (ClassUtil.isList(value)) {
+      //noinspection unchecked
       return (T[]) ((Collection<?>) value).toArray();
     }
+    //noinspection unchecked
     return (T[]) new Object[] {value};
   }
 

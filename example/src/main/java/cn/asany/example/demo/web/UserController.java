@@ -3,7 +3,7 @@ package cn.asany.example.demo.web;
 import cn.asany.example.demo.domain.User;
 import cn.asany.example.demo.service.UserService;
 import jakarta.validation.Valid;
-import org.jfantasy.framework.dao.jpa.PropertyFilter;
+import org.jfantasy.framework.dao.jpa.WebPropertyFilter;
 import org.jfantasy.framework.error.ValidationException;
 import org.jfantasy.framework.jackson.annotation.BeanFilter;
 import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
@@ -49,7 +49,7 @@ public class UserController {
         type = User.class,
         excludes = {"setting"}),
   })
-  public Mono<Page<User>> users(PropertyFilter filter) {
+  public Mono<Page<User>> users(WebPropertyFilter<User> filter) {
     return Mono.fromCallable(() -> userService.findPage(Pageable.ofSize(10), filter))
         .subscribeOn(elastic);
   }

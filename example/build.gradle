@@ -37,8 +37,8 @@ dependencies {
 	implementation project(":jfantasy-search")
 	implementation "jakarta.json:jakarta.json-api:${LIB_JAKARTA_VAR}"
 	implementation "org.springframework.boot:spring-boot-starter-data-redis"
-	implementation "org.springframework.boot:spring-boot-starter-web"
-//	implementation "org.springframework.boot:spring-boot-starter-webflux"
+//	implementation "org.springframework.boot:spring-boot-starter-web"
+	implementation "org.springframework.boot:spring-boot-starter-webflux"
 	implementation "org.mapstruct:mapstruct:${LIB_MAPSTRUCT_VER}"
 	implementation "io.reactivex.rxjava2:rxjava:2.2.21"
 	annotationProcessor "org.mapstruct:mapstruct-processor:$LIB_MAPSTRUCT_VER"

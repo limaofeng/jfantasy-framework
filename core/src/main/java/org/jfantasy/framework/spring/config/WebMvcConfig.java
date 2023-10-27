@@ -97,7 +97,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
   }
 
   @Override
-  public void addCorsMappings(CorsRegistry registry) {
+  public void addCorsMappings(@SuppressWarnings("NullableProblems") CorsRegistry registry) {
+    //noinspection DuplicatedCode
     String path = "/**";
 
     boolean credentials = true;
@@ -109,6 +110,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     if (SpringBeanUtils.containsBean(CorsFilter.class)) {
       CorsFilter corsFilter = SpringBeanUtils.getBean(CorsFilter.class);
+      //noinspection DuplicatedCode
       UrlBasedCorsConfigurationSource configSource = ClassUtil.getValue(corsFilter, "configSource");
 
       CorsConfiguration corsConfiguration = new CorsConfiguration();

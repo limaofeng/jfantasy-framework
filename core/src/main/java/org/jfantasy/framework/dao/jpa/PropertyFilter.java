@@ -1,9 +1,6 @@
 package org.jfantasy.framework.dao.jpa;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import org.jfantasy.framework.dao.hibernate.util.ReflectionUtils;
 import org.jfantasy.framework.util.common.ClassUtil;
 
@@ -290,5 +287,17 @@ public interface PropertyFilter {
         PropertyFilterBuilder.CUSTOM_PROPERTIES.computeIfAbsent(
             entityClass, (clazz) -> new HashMap<>());
     customizer.customize(typeConverterMap, propertyDefinitionMap);
+  }
+
+  boolean hasProperty(String name);
+
+  static boolean hasProperty(Class<?> entityClass, String name) {
+    Map<String, TypeConverter<?>> typeConverterMap =
+        PropertyFilterBuilder.CUSTOM_CONVERTERS.get(entityClass);
+    if (typeConverterMap == null) {
+      return false;
+    }
+    Set<String> propertyNames = typeConverterMap.keySet();
+    return propertyNames.contains(name);
   }
 }

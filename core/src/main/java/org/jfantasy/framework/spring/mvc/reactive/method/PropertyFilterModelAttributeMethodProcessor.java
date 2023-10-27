@@ -1,39 +1,48 @@
 package org.jfantasy.framework.spring.mvc.reactive.method;
 
-import java.io.UnsupportedEncodingException;
+import static org.jfantasy.framework.util.common.ObjectUtil.multipleValuesObjectsObjects;
+
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.net.URLDecoder;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Objects;
+import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.dao.MatchType;
 import org.jfantasy.framework.dao.jpa.PropertyFilter;
-import org.jfantasy.framework.dao.jpa.PropertyPredicate;
-import org.jfantasy.framework.error.IgnoreException;
+import org.jfantasy.framework.dao.jpa.WebPropertyFilter;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.context.request.NativeWebRequest;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.reactive.BindingContext;
 import org.springframework.web.server.ServerWebExchange;
-import org.springframework.web.servlet.HandlerMapping;
 
+@Slf4j
 public class PropertyFilterModelAttributeMethodProcessor extends MethodArgumentResolver {
+
+  protected static String[] MULTI_VALUE = new String[] {"in", "notIn"};
 
   @Override
   public boolean supportsParameter(MethodParameter parameter) {
     return "filter".equals(parameter.getParameterName())
-        && PropertyFilter.class.isAssignableFrom(parameter.getParameterType());
+        && WebPropertyFilter.class.isAssignableFrom(parameter.getParameterType())
+        && isIncludeEntityType(parameter);
   }
 
-  private static boolean isPropertyFilterParameter(Type type) {
+  private static boolean isIncludeEntityType(MethodParameter parameter) {
+    Type type = parameter.getGenericParameterType();
+    if (parameter.getParameterType() != WebPropertyFilter.class) {
+      return true;
+    }
     if (type instanceof ParameterizedType) {
       Type[] actualTypes = ((ParameterizedType) type).getActualTypeArguments();
-      return actualTypes.length == 1 && actualTypes[0] == PropertyPredicate.class;
+      return actualTypes.length == 1;
     }
+    String location =
+        parameter.getMember().getDeclaringClass() + "." + parameter.getMember().getName();
+    log.error("{} filter 配置错误, 泛型必填，且应该对应 JPA 的 Entity 类型, 位置 : ", location);
     return false;
   }
 
@@ -57,97 +66,85 @@ public class PropertyFilterModelAttributeMethodProcessor extends MethodArgumentR
         return attribute;
       }
     }
-    //    Class<?> parameterType = parameter.getParameterType();
-    return PropertyFilter.newFilter();
-    //    return BeanUtils.instantiateClass(parameter.getParameterType());
+    ParameterizedType parameterType = (ParameterizedType) parameter.getGenericParameterType();
+    Class<?> entityClass = (Class<?>) parameterType.getActualTypeArguments()[0];
+    return PropertyFilter.newFilter(entityClass);
   }
 
-  @Override
-  protected final Map<String, String> getUriTemplateVariables(NativeWebRequest request) {
-    Map<String, String> variables =
-        (Map<String, String>)
-            request.getAttribute(
-                HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE, RequestAttributes.SCOPE_REQUEST);
-    return (variables != null) ? variables : Collections.<String, String>emptyMap();
-  }
+  //  protected final Map<String, String> getUriTemplateVariables(NativeWebRequest request) {
+  //    @SuppressWarnings("unchecked") Map<String, String> variables =
+  //        (Map<String, String>)
+  //            request.getAttribute(
+  //                HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE,
+  // RequestAttributes.SCOPE_REQUEST);
+  //    return (variables != null) ? variables : Collections.<String, String>emptyMap();
+  //  }
 
-  protected final Map<String, String> getUriQueryVariables(NativeWebRequest request) {
-    parseQuery(((ServletWebRequest) request).getRequest().getQueryString());
-    return new HashMap<>();
-  }
+  //  protected final Map<String, String> getUriQueryVariables(NativeWebRequest request) {
+  //    parseQuery(((ServletWebRequest) request).getRequest().getQueryString());
+  //    return new HashMap<>();
+  //  }
 
-  public static Map<String, String[]> parseQuery(String query) {
-    Map<String, String[]> params = new LinkedHashMap<>();
-    if (StringUtil.isBlank(query)) {
-      return params;
-    }
-    for (String pair : query.split("[;&]")) {
-      String[] vs = pair.split("=");
-      String key = vs[0];
-      String val = vs.length == 1 ? "" : vs[1];
-      if (StringUtil.isNotBlank(val)) {
-        try {
-          val = URLDecoder.decode(val, "utf-8");
-        } catch (UnsupportedEncodingException e) {
-          throw new IgnoreException(e.getMessage(), e);
-        }
-      }
-      if (!params.containsKey(key)) {
-        params.put(key, new String[] {val});
-      } else {
-        params.put(key, ObjectUtil.join(params.get(key), val));
-      }
-    }
-    return params;
-  }
+  //  public static Map<String, String[]> parseQuery(String query) {
+  //    Map<String, String[]> params = new LinkedHashMap<>();
+  //    if (StringUtil.isBlank(query)) {
+  //      return params;
+  //    }
+  //    for (String pair : query.split("[;&]")) {
+  //      String[] vs = pair.split("=");
+  //      String key = vs[0];
+  //      String val = vs.length == 1 ? "" : vs[1];
+  //      if (StringUtil.isNotBlank(val)) {
+  //        val = URLDecoder.decode(val, StandardCharsets.UTF_8);
+  //      }
+  //      if (!params.containsKey(key)) {
+  //        params.put(key, new String[] {val});
+  //      } else {
+  //        params.put(key, ObjectUtil.join(params.get(key), val));
+  //      }
+  //    }
+  //    return params;
+  //  }
 
   @Override
   protected void bindRequestParameters(
       WebDataBinder binder, ServerHttpRequest request, MethodParameter parameter) {
     PropertyFilter target = (PropertyFilter) binder.getTarget();
-    for (Map.Entry<String, List<String>> param : request.getQueryParams().entrySet()) {
-      String paramName = param.getKey();
-      List<String> values = param.getValue();
-      MatchType matchType = Objects.requireNonNullElse(MatchType.get(paramName), MatchType.EQ);
-
-      if (MatchType.isMultipleValues(matchType)) {
-        matchType.build(target, paramName, values.toArray(new String[0]));
-      } else {
-        matchType.build(target, paramName, values.get(0));
-      }
+    if (target == null) {
+      throw new IllegalStateException("target cannot be null");
     }
-  }
 
-  //  @Override
-  //  protected ServletRequest prepareServletRequest(Object target, ServerHttpRequest request,
-  // MethodParameter parameter) {
-  ////    MockHttpServletRequest mockRequest = withMockRequest(request);
-  ////
-  ////    for (Map.Entry<String, String> entry : getUriTemplateVariables(request).entrySet()) {
-  ////      String parameterName = entry.getKey();
-  ////      String value = entry.getValue();
-  ////      if (isPropertyFilterModelAttribute(parameterName)) {
-  ////        mockRequest.setParameter(parameterName, value);
-  ////      }
-  ////    }
-  ////    for (Map.Entry<String, String[]> entry : nativeRequest.getParameterMap().entrySet()) {
-  ////      String parameterName = entry.getKey();
-  ////      String[] value = entry.getValue();
-  ////      if (isPropertyFilterModelAttribute(parameterName)) {
-  ////        mockRequest.setParameter(parameterName, value);
-  ////      }
-  ////    }
-  ////    for (Map.Entry<String, String> entry : getUriQueryVariables(request).entrySet()) {
-  ////      String parameterName = entry.getKey();
-  ////      String value = entry.getValue();
-  ////      if (isPropertyFilterModelAttribute(parameterName)) {
-  ////        mockRequest.setParameter(parameterName, value);
-  ////      }
-  ////    }
-  ////    return mockRequest;
-  //  }
+    int parameterCount = Objects.requireNonNull(parameter.getMethod()).getParameterCount();
 
-  private boolean isPropertyFilterModelAttribute(String parameterName) {
-    return MatchType.is(parameterName);
+    MultiValueMap<String, String> queryParams = request.getQueryParams();
+
+    for (String paramName : queryParams.keySet()) {
+
+      if (parameterCount > 1) {
+        if (paramName.startsWith("filter.")) {
+          paramName = paramName.substring(paramName.indexOf(".") + 1);
+        }
+      }
+
+      String[] slugs = StringUtil.tokenizeToStringArray(paramName, "_");
+
+      String matchTypeStr = slugs.length > 1 ? slugs[0] : MatchType.EQ.getSlug();
+      String name = slugs.length > 1 ? slugs[1] : paramName;
+
+      if (!target.hasProperty(name)) {
+        continue;
+      }
+
+      Object newValue;
+      if (ObjectUtil.exists(MULTI_VALUE, matchTypeStr)) {
+        newValue =
+            Arrays.stream(multipleValuesObjectsObjects(queryParams.get(paramName)))
+                .toArray(Object[]::new);
+      } else {
+        newValue = queryParams.getFirst(name);
+      }
+
+      Objects.requireNonNull(MatchType.get(matchTypeStr)).build(target, name, newValue);
+    }
   }
 }

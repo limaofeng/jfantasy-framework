@@ -50,7 +50,7 @@ public class CharacterEncodingRequestWrapper extends HttpServletRequestWrapper {
     if (!parameterMap.isEmpty() || super.getParameterMap().isEmpty()) {
       return parameterMap;
     }
-    parameterMap.putAll(WebUtil.getParameterMap(this, this::transform));
+    parameterMap.putAll(WebUtil.getParameterMap(this.getRequest(), this::transform));
     return parameterMap;
   }
 }

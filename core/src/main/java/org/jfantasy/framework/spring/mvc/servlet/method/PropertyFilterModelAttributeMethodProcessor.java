@@ -8,6 +8,7 @@ import java.lang.reflect.Type;
 import java.net.URLDecoder;
 import java.util.*;
 import org.jfantasy.framework.dao.MatchType;
+import org.jfantasy.framework.dao.jpa.PropertyFilter;
 import org.jfantasy.framework.dao.jpa.PropertyPredicate;
 import org.jfantasy.framework.error.IgnoreException;
 import org.jfantasy.framework.util.common.ObjectUtil;
@@ -28,8 +29,7 @@ public class PropertyFilterModelAttributeMethodProcessor extends MethodArgumentR
   @Override
   public boolean supportsParameter(MethodParameter parameter) {
     return "filter".equals(parameter.getParameterName())
-        && List.class.isAssignableFrom(parameter.getParameterType())
-        && isPropertyFilterParameter(parameter.getGenericParameterType());
+        && PropertyFilter.class.isAssignableFrom(parameter.getParameterType());
   }
 
   private static boolean isPropertyFilterParameter(Type type) {

@@ -11,7 +11,8 @@ import org.springframework.data.jpa.domain.Specification;
  * @author limaofeng
  */
 public class JpaDefaultPropertyFilter
-    extends PropertyFilterBuilder<JpaDefaultPropertyFilter, List<PropertyPredicate>> {
+    extends PropertyFilterBuilder<JpaDefaultPropertyFilter, List<PropertyPredicate>>
+    implements WebPropertyFilter<Object> {
 
   private static final MatchType[] GENERAL_COMPARISON_CONDITION =
       new MatchType[] {
@@ -98,6 +99,7 @@ public class JpaDefaultPropertyFilter
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public List<PropertyPredicate> build() {
     return super.context;
   }

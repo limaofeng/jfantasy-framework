@@ -14,9 +14,10 @@ import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.repository.NoRepositoryBean;
 
 /**
+ * AnyJpaRepository
+ *
  * @author limaofeng
  * @version V1.0
- * @date 14/11/2017 12:55 PM
  */
 @NoRepositoryBean
 public interface AnyJpaRepository<T, PK extends Serializable>

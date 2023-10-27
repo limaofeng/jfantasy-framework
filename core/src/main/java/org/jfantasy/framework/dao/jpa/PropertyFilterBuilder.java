@@ -109,6 +109,7 @@ public abstract class PropertyFilterBuilder<P extends PropertyFilter, C> impleme
   public <T> P equal(String name, T value) {
     this.predicate(name, MatchType.EQ)
         .apply(name, MatchType.EQ, convert(name, MatchType.EQ, value), context);
+    //noinspection unchecked
     return (P) this;
   }
 
@@ -122,6 +123,7 @@ public abstract class PropertyFilterBuilder<P extends PropertyFilter, C> impleme
   @Override
   public P contains(String name, String value) {
     this.predicate(name, MatchType.CONTAINS).apply(name, MatchType.CONTAINS, value, context);
+    //noinspection unchecked
     return (P) this;
   }
 
@@ -129,6 +131,7 @@ public abstract class PropertyFilterBuilder<P extends PropertyFilter, C> impleme
   public P notContains(String name, String value) {
     this.predicate(name, MatchType.NOT_CONTAINS)
         .apply(name, MatchType.NOT_CONTAINS, value, context);
+    //noinspection unchecked
     return (P) this;
   }
 
@@ -136,6 +139,7 @@ public abstract class PropertyFilterBuilder<P extends PropertyFilter, C> impleme
   public P startsWith(String name, String value) {
     this.predicate(name, MatchType.STARTS_WITH)
         .apply(name, MatchType.STARTS_WITH, value + "%", context);
+    //noinspection unchecked
     return (P) this;
   }
 
@@ -143,6 +147,7 @@ public abstract class PropertyFilterBuilder<P extends PropertyFilter, C> impleme
   public P notStartsWith(String name, String value) {
     this.predicate(name, MatchType.NOT_STARTS_WITH)
         .apply(name, MatchType.NOT_STARTS_WITH, value + "%", context);
+    //noinspection unchecked
     return (P) this;
   }
 
@@ -150,6 +155,7 @@ public abstract class PropertyFilterBuilder<P extends PropertyFilter, C> impleme
   public P endsWith(String name, String value) {
     this.predicate(name, MatchType.ENDS_WITH)
         .apply(name, MatchType.ENDS_WITH, "%" + value, context);
+    //noinspection unchecked
     return (P) this;
   }
 
@@ -157,6 +163,7 @@ public abstract class PropertyFilterBuilder<P extends PropertyFilter, C> impleme
   public P notEndsWith(String name, String value) {
     this.predicate(name, MatchType.NOT_ENDS_WITH)
         .apply(name, MatchType.NOT_ENDS_WITH, "%" + value, context);
+    //noinspection unchecked
     return (P) this;
   }
 
@@ -165,6 +172,7 @@ public abstract class PropertyFilterBuilder<P extends PropertyFilter, C> impleme
   public <T> P lessThan(String name, T value) {
     this.predicate(name, MatchType.LT)
         .apply(name, MatchType.LT, convert(name, MatchType.LT, value), context);
+    //noinspection unchecked
     return (P) this;
   }
 
@@ -173,6 +181,7 @@ public abstract class PropertyFilterBuilder<P extends PropertyFilter, C> impleme
   public P greaterThan(String name, Object value) {
     this.predicate(name, MatchType.GT)
         .apply(name, MatchType.GT, convert(name, MatchType.GT, value), context);
+    //noinspection unchecked
     return (P) this;
   }
 
@@ -181,6 +190,7 @@ public abstract class PropertyFilterBuilder<P extends PropertyFilter, C> impleme
   public P lessThanOrEqual(String name, Object value) {
     this.predicate(name, MatchType.LTE)
         .apply(name, MatchType.LTE, convert(name, MatchType.LTE, value), context);
+    //noinspection unchecked
     return (P) this;
   }
 
@@ -189,6 +199,7 @@ public abstract class PropertyFilterBuilder<P extends PropertyFilter, C> impleme
   public P greaterThanOrEqual(String name, Object value) {
     this.predicate(name, MatchType.GTE)
         .apply(name, MatchType.GTE, convert(name, MatchType.GTE, value), context);
+    //noinspection unchecked
     return (P) this;
   }
 
@@ -198,6 +209,7 @@ public abstract class PropertyFilterBuilder<P extends PropertyFilter, C> impleme
   public final <T> P in(String name, T... value) {
     this.predicate(name, MatchType.IN)
         .apply(name, MatchType.IN, convert(name, MatchType.IN, value), context);
+    //noinspection unchecked
     return (P) this;
   }
 
@@ -211,6 +223,7 @@ public abstract class PropertyFilterBuilder<P extends PropertyFilter, C> impleme
   public <T> P in(String name, List<T> value) {
     this.predicate(name, MatchType.IN)
         .apply(name, MatchType.IN, convert(name, MatchType.IN, value), context);
+    //noinspection unchecked
     return (P) this;
   }
 
@@ -227,6 +240,7 @@ public abstract class PropertyFilterBuilder<P extends PropertyFilter, C> impleme
   public final <T> P notIn(String name, T... value) {
     this.predicate(name, MatchType.NOT_IN)
         .apply(name, MatchType.NOT_IN, convert(name, MatchType.NOT_IN, value), context);
+    //noinspection unchecked
     return (P) this;
   }
 
@@ -235,6 +249,7 @@ public abstract class PropertyFilterBuilder<P extends PropertyFilter, C> impleme
   public <T> P notEqual(String name, T value) {
     this.predicate(name, MatchType.NOT_EQUAL)
         .apply(name, MatchType.NOT_EQUAL, convert(name, MatchType.NOT_EQUAL, value), context);
+    //noinspection unchecked
     return (P) this;
   }
 
@@ -242,6 +257,7 @@ public abstract class PropertyFilterBuilder<P extends PropertyFilter, C> impleme
   @Override
   public P isNull(String name) {
     this.predicate(name, MatchType.NULL).apply(name, MatchType.NULL, null, context);
+    //noinspection unchecked
     return (P) this;
   }
 
@@ -249,6 +265,7 @@ public abstract class PropertyFilterBuilder<P extends PropertyFilter, C> impleme
   @Override
   public P isNotNull(String name) {
     this.predicate(name, MatchType.NOT_NULL).apply(name, MatchType.NOT_NULL, null, context);
+    //noinspection unchecked
     return (P) this;
   }
 
@@ -256,6 +273,7 @@ public abstract class PropertyFilterBuilder<P extends PropertyFilter, C> impleme
   @Override
   public P isEmpty(String name) {
     this.predicate(name, MatchType.EMPTY).apply(name, MatchType.EMPTY, null, context);
+    //noinspection unchecked
     return (P) this;
   }
 
@@ -263,6 +281,7 @@ public abstract class PropertyFilterBuilder<P extends PropertyFilter, C> impleme
   @Override
   public P isNotEmpty(String name) {
     this.predicate(name, MatchType.NOT_EMPTY).apply(name, MatchType.NOT_EMPTY, null, context);
+    //noinspection unchecked
     return (P) this;
   }
 
@@ -270,24 +289,28 @@ public abstract class PropertyFilterBuilder<P extends PropertyFilter, C> impleme
   public <Y extends Comparable<? super Y>> P between(String name, Y x, Y y) {
     this.predicate(name, MatchType.BETWEEN)
         .apply(name, MatchType.BETWEEN, new BetweenValue<>(x, y), context);
+    //noinspection unchecked
     return (P) this;
   }
 
   @Override
   public P and(PropertyFilter... filters) {
     this.junction(MatchType.AND).apply(context, MatchType.AND, filters);
+    //noinspection unchecked
     return (P) this;
   }
 
   @Override
   public P or(PropertyFilter... filters) {
     this.junction(MatchType.OR).apply(context, MatchType.OR, filters);
+    //noinspection unchecked
     return (P) this;
   }
 
   @Override
   public P not(PropertyFilter... filters) {
     this.junction(MatchType.NOT).apply(context, MatchType.NOT, filters);
+    //noinspection unchecked
     return (P) this;
   }
 
@@ -295,6 +318,10 @@ public abstract class PropertyFilterBuilder<P extends PropertyFilter, C> impleme
     return this.properties.keySet().stream()
         .filter(name -> !"*".equals(name))
         .collect(Collectors.toList());
+  }
+
+  public boolean hasProperty(String name) {
+    return PropertyFilter.hasProperty(this.entityClass, name);
   }
 
   protected interface PropertyPredicateCallback<C> {
@@ -327,29 +354,36 @@ public abstract class PropertyFilterBuilder<P extends PropertyFilter, C> impleme
 
   protected <IV, OV> OV convert(String name, MatchType matchType, IV value) {
     if (entityClass == null || !CUSTOM_CONVERTERS.containsKey(entityClass)) {
+      //noinspection unchecked
       return (OV) value;
     }
     Map<String, TypeConverter<?>> typeConverterMap = CUSTOM_CONVERTERS.get(entityClass);
     if (!typeConverterMap.containsKey(name)) {
+      //noinspection unchecked
       return (OV) value;
     }
     TypeConverter<?> converter = typeConverterMap.get(name);
     if (MatchType.isMultipleValues(matchType)) {
+      //noinspection unchecked
       return (OV)
           Arrays.stream(multipleValuesObjectsObjects(value))
               .map(converter::convert)
               .toArray(Object[]::new);
     }
+    //noinspection unchecked
     return (OV) converter.convert(value);
   }
 
   public static <T> T[] multipleValuesObjectsObjects(Object value) {
     if (ClassUtil.isArray(value)) {
+      //noinspection unchecked
       return (T[]) value;
     }
     if (ClassUtil.isList(value)) {
+      //noinspection unchecked
       return (T[]) ((Collection<?>) value).toArray();
     }
+    //noinspection unchecked
     return (T[]) new Object[] {value};
   }
 }

@@ -2,6 +2,7 @@ package org.jfantasy.framework.util.web;
 
 import eu.bitwalker.useragentutils.Browser;
 import eu.bitwalker.useragentutils.UserAgent;
+import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -396,7 +397,7 @@ public class WebUtil {
   }
 
   public static Map<String, String[]> getParameterMap(
-      HttpServletRequest request, Function<String, String> transform) {
+      ServletRequest request, Function<String, String> transform) {
     Map<String, String[]> parameterMaps = new HashMap<>();
     Enumeration<String> enumeration = request.getParameterNames();
     while (enumeration.hasMoreElements()) {
@@ -410,12 +411,12 @@ public class WebUtil {
   }
 
   public static String[] getParameterValues(
-      HttpServletRequest request, String name, Function<String, String> transform) {
+      ServletRequest request, String name, Function<String, String> transform) {
     return getParameterValues(request, name, transform, String.class);
   }
 
   public static <R> R[] getParameterValues(
-      HttpServletRequest request, String name, Function<String, R> transform, Class<R> returnType) {
+      ServletRequest request, String name, Function<String, R> transform, Class<R> returnType) {
     String[] values = request.getParameterValues(name);
     if (values == null || values.length == 0) {
       return null;

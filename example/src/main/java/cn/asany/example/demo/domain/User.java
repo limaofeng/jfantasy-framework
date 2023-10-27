@@ -41,5 +41,9 @@ public class User extends BaseBusEntity {
   @Column(name = "password", length = 21)
   private String password;
 
+  @Enumerated(EnumType.STRING)
+  @Column(name = "status", length = 10)
+  private UserStatus status;
+
   private transient UserSetting setting = new UserSetting();
 }

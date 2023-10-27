@@ -1,7 +1,5 @@
 package org.jfantasy.framework.spring.mvc.reactive.method;
 
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.http.HttpServletRequest;
 import java.lang.annotation.Annotation;
 import java.util.*;
 import org.jfantasy.framework.spring.mvc.bind.annotation.FormModel;
@@ -14,8 +12,6 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.http.server.reactive.ServerHttpRequest;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockMultipartHttpServletRequest;
 import org.springframework.ui.Model;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
@@ -25,12 +21,10 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.multipart.MultipartRequest;
 import org.springframework.web.reactive.BindingContext;
 import org.springframework.web.reactive.result.method.HandlerMethodArgumentResolver;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.servlet.HandlerMapping;
-import org.springframework.web.util.WebUtils;
 import reactor.core.publisher.Mono;
 
 public abstract class MethodArgumentResolver implements HandlerMethodArgumentResolver {
@@ -66,7 +60,7 @@ public abstract class MethodArgumentResolver implements HandlerMethodArgumentRes
     if (StringUtil.isNotBlank(name)) {
       model.addAttribute(name, target);
     }
-    return Mono.just(target);
+    return target == null ? Mono.empty() : Mono.just(target);
   }
 
   protected String getParameterName(MethodParameter parameter) {
@@ -268,11 +262,12 @@ public abstract class MethodArgumentResolver implements HandlerMethodArgumentRes
     return name.substring(begin, end);
   }
 
-  protected ServletRequest prepareServletRequest(
+  protected Map<String, String[]> prepareServletRequest(
       Object target, ServerHttpRequest request, MethodParameter parameter) {
 
-    String modelPrefixName =
-        Objects.requireNonNull(parameter.getParameterAnnotation(FormModel.class)).value();
+    //
+    //    String modelPrefixName =
+    //        Objects.requireNonNull(parameter.getParameterAnnotation(FormModel.class)).value();
 
     //    ServerHttpRequest nativeRequest = null; // (HttpServletRequest)
     // request.getNativeRequest();
@@ -294,9 +289,9 @@ public abstract class MethodArgumentResolver implements HandlerMethodArgumentRes
     //      if (isFormModelAttribute(parameterName, modelPrefixName)) {
     //        mockRequest.setParameter(getNewParameterName(parameterName, modelPrefixName), value);
     //      }
-    //    }
+    //        }
 
-    return null;
+    return new HashMap<>();
   }
 
   private String getNewParameterName(String parameterName, String modelPrefixName) {
@@ -377,17 +372,18 @@ public abstract class MethodArgumentResolver implements HandlerMethodArgumentRes
     return !hasBindingResult;
   }
 
-  protected MockHttpServletRequest withMockRequest(HttpServletRequest nativeRequest) {
-    MultipartRequest multipartRequest =
-        WebUtils.getNativeRequest(nativeRequest, MultipartRequest.class);
-    MockHttpServletRequest mockRequest;
-    if (multipartRequest != null) {
-      MockMultipartHttpServletRequest mockMultipartRequest = new MockMultipartHttpServletRequest();
-      mockMultipartRequest.getMultiFileMap().putAll(multipartRequest.getMultiFileMap());
-      mockRequest = mockMultipartRequest;
-    } else {
-      mockRequest = new MockHttpServletRequest();
-    }
-    return mockRequest;
-  }
+  //  protected MockHttpServletRequest withMockRequest(HttpServletRequest nativeRequest) {
+  //    MultipartRequest multipartRequest =
+  //        WebUtils.getNativeRequest(nativeRequest, MultipartRequest.class);
+  //    MockHttpServletRequest mockRequest;
+  //    if (multipartRequest != null) {
+  //      MockMultipartHttpServletRequest mockMultipartRequest = new
+  // MockMultipartHttpServletRequest();
+  //      mockMultipartRequest.getMultiFileMap().putAll(multipartRequest.getMultiFileMap());
+  //      mockRequest = mockMultipartRequest;
+  //    } else {
+  //      mockRequest = new MockHttpServletRequest();
+  //    }
+  //    return mockRequest;
+  //  }
 }
