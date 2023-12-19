@@ -78,17 +78,17 @@ enum ModelOperation {
 
 type Query {
   # 用户列表
-  users(
-    filter: UserFilter
+  demoUsers(
+    filter: DemoUserFilter
     page: Int = 1
     pageSize: Int = 15
     orderBy: OrderBy = "unsorted"
-  ): UserConnection
+  ): DemoUserConnection
 }
 
 type Mutation {
   createTenant(name: String): Boolean
-  createUser(input: UserCreateInput!): User
+  createUser(input: DemoUserCreateInput!): DemoUser
 }
 
 type StockPriceUpdate {
@@ -100,21 +100,21 @@ type StockPriceUpdate {
 
 type Subscription {
   stockQuotes(stockCodes: [String!]!): StockPriceUpdate
-  userChange: User
+  userChange: DemoUser
 }
 
-input UserCreateInput {
+input DemoUserCreateInput {
   #登录名
   username: String
   #登录密码
   password: String
 }
 
-input UserFilter {
+input DemoUserFilter {
   username_contains: String
 }
 
-type UserConnection implements Connection {
+type DemoUserConnection implements Connection {
   """
   每页显示条数
   """
@@ -131,15 +131,15 @@ type UserConnection implements Connection {
   当前页
   """
   currentPage: Int! @deprecated
-  edges: [UserEdge!]!
+  edges: [DemoUserEdge!]!
   pageInfo: PageInfo!
 }
-type UserEdge implements Edge {
+type DemoUserEdge implements Edge {
   cursor: String!
-  node: User
+  node: DemoUser
 }
 
-type User {
+type DemoUser {
   id: ID
   #登录名
   username: String

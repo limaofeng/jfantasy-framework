@@ -26,7 +26,7 @@ public class UserGraphQLQueryResolver implements GraphQLQueryResolver {
     this.userService = userService;
   }
 
-  public UserConnection users(
+  public UserConnection demoUsers(
       UserWhereInput where,
       int page,
       int pageSize,

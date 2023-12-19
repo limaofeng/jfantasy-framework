@@ -1,7 +1,9 @@
 package cn.asany.example;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import graphql.kickstart.execution.GraphQLObjectMapper;
 import graphql.kickstart.tools.SchemaParser;
+import java.io.IOException;
 import java.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.dao.jpa.SimpleAnyJpaRepository;
@@ -22,8 +24,6 @@ import org.jfantasy.graphql.gateway.GraphQLGatewayReloadSchemaProvider;
 import org.jfantasy.graphql.gateway.GraphQLReloadSchemaProvider;
 import org.jfantasy.graphql.gateway.GraphQLTemplateFactory;
 import org.jfantasy.graphql.gateway.service.DefaultGraphQLTemplateFactory;
-import org.jfantasy.graphql.gateway.service.LocalGraphQLService;
-import org.jfantasy.graphql.gateway.service.RemoteGraphQLService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -208,27 +208,22 @@ public class Application extends SpringBootServletInitializer {
   public GraphQLTemplateFactory graphQLTemplateFactory(
       ResourceLoader resourceLoader, RestTemplate restTemplate, GraphQLObjectMapper objectMapper) {
     return new DefaultGraphQLTemplateFactory(
-        resourceLoader, restTemplate, objectMapper.getJacksonMapper());
+        resourceLoader,
+        restTemplate,
+        objectMapper
+            .getJacksonMapper()
+            .copy()
+            .setSerializationInclusion(JsonInclude.Include.ALWAYS));
   }
 
   @Bean(initMethod = "init", destroyMethod = "destroy")
   public GraphQLGateway graphqlGateway(
-      SchemaParser schemaParser, GraphQLTemplateFactory templateFactory) {
-    RemoteGraphQLService service =
-        RemoteGraphQLService.builder()
-            .name("asany")
-            .url("https://api.asany.cn/graphql")
-            .ignoreField("Application", "layoutRoute")
-            .renameField("Application", "name", "appName")
-            .renameField("Query", "applications", "apps")
-            .renameFieldArgument("Query", "applications", "where", "filter")
-            .clientFactory(templateFactory)
-            .build();
-
-    LocalGraphQLService localService =
-        LocalGraphQLService.builder().schema(schemaParser.makeExecutableSchema()).build();
-
-    return new GraphQLGateway(Arrays.asList(service, localService));
+      SchemaParser schemaParser, GraphQLTemplateFactory templateFactory) throws IOException {
+    return GraphQLGateway.builder()
+        .schema(schemaParser.makeExecutableSchema())
+        .clientFactory(templateFactory)
+        .load("graphql-gateway.yaml")
+        .build();
   }
 
   @Bean
