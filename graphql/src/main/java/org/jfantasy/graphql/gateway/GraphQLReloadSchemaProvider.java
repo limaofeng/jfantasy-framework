@@ -1,4 +1,4 @@
-package org.jfantasy.graphql.execution.config;
+package org.jfantasy.graphql.gateway;
 
 import graphql.kickstart.servlet.config.GraphQLSchemaServletProvider;
 import java.io.IOException;

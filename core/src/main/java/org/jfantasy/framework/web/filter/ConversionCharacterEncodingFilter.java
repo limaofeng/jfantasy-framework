@@ -19,7 +19,9 @@ public class ConversionCharacterEncodingFilter extends OncePerRequestFilter {
 
   @Override
   protected void doFilterInternal(
-      HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+      HttpServletRequest request,
+      @SuppressWarnings("NullableProblems") HttpServletResponse response,
+      @SuppressWarnings("NullableProblems") FilterChain filterChain)
       throws ServletException, IOException {
     Boolean transform = (Boolean) request.getAttribute(TRANSFORM);
     if (transform == null) {

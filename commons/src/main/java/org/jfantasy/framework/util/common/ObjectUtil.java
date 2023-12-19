@@ -85,6 +85,7 @@ public final class ObjectUtil {
   }
 
   public static <T> T getValue(String key, Object root) {
+    //noinspection unchecked
     return (T)
         Arrays.stream((Object[]) key.split("\\."))
             .reduce(

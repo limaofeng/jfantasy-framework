@@ -8,12 +8,18 @@ apply plugin: 'java-library'
 
 tasks.withType(Test).configureEach { enabled = false }
 
+//configurations.configureEach {
+//    resolutionStrategy {
+//        exclude group: "co.elastic.clients", module: "elasticsearch-java"
+//    }
+//}
+
 dependencies {
 	api project(":jfantasy-commons")
-	implementation("co.elastic.clients:elasticsearch-java:${LIB_ELASTICSEARCH_VER}") {
+	implementation("co.elastic.clients:elasticsearch-java") {
 		exclude group: "commons-logging", module: "commons-logging"
 	}
-	implementation "jakarta.json:jakarta.json-api:${LIB_JAKARTA_VAR}"
+//	implementation "jakarta.json:jakarta.json-api:${LIB_JAKARTA_VAR}"
 	compileOnly 'jakarta.servlet:jakarta.servlet-api'
 	compileOnly "org.springframework.boot:spring-boot-starter-data-jpa"
 	compileOnly "org.springframework:spring-context"

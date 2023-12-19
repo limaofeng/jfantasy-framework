@@ -96,4 +96,12 @@ public class JSON {
   public static ObjectMapper getObjectMapper() {
     return wrapper.getObjectMapper();
   }
+
+  public static JsonNode findNode(JsonNode rootNode, String path) {
+    JsonNode foundNode = rootNode.at(path);
+    if (foundNode.isMissingNode()) {
+      return null;
+    }
+    return foundNode;
+  }
 }

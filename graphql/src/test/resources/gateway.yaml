@@ -1,0 +1,87 @@
+version: "1.0"
+endpoint: "/graphql"
+schema:
+  typeDefs: "./schema.graphql"
+  resolvers:
+    Query:
+      getUser: "./getUser.js"
+      getOrder: "./getOrder.js"
+    Mutation:
+      updateUser: "./updateUser.py"
+
+services:
+  - name: userService
+    url: "http://user-service/graphql"
+    override:
+      - type: "User"
+        rename: "EnhancedUser"
+        fields:
+          - name: "username"
+            rename: "name"
+            arguments:
+              - name: "oldArgument"
+                rename: "newArgument"
+          - name: "password"
+            ignore: true
+        addFields:
+          - name: "additionalField"
+            type: "String"
+            resolveWith: "path.to.resolver.Function"
+        # TODO：参数如何重命名 ？
+
+  - name: orderService
+    url: "http://order-service/graphql"
+    ignoreFields:
+      - "Order.customerId"
+
+rewriteFields:
+  - field: "User.addUser"
+    definition: "addUser(input: EnhancedUserInput): EnhancedUser"
+    delegate:
+      name: getUser
+      args:
+        id: "$.id"
+
+delegates:
+  - name: getUser
+    resolver: "./getUser.js"
+
+rewriteRules:
+  - match:
+      queryName: "getUser"
+    rewrite:
+      toService: "userService"
+      modifyQuery: "replaceUserIdWithUsername"
+
+  - match:
+      queryName: "getOrder"
+    rewrite:
+      toService: "orderService"
+      modifyQuery: "addOrderDetails"
+
+forwardingRules:
+  - match:
+      queryName: "getUser"
+    forwardTo: "userService"
+
+security:
+  authentication:
+    enabled: true
+    provider: jwt
+    secretKey: "your_secret_key"
+
+  authorization:
+    enabled: true
+    policy: "./auth-policy.yaml"
+
+logging:
+  level: INFO
+  format: json
+
+caching:
+  enabled: true
+  ttl: 300
+
+monitoring:
+  enabled: true
+  endpoint: "/metrics"

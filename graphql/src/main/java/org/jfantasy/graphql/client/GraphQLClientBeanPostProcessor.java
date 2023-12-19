@@ -37,7 +37,8 @@ public class GraphQLClientBeanPostProcessor implements BeanPostProcessor {
   }
 
   @Override
-  public Object postProcessBeforeInitialization(final Object bean, final String beanName)
+  public Object postProcessBeforeInitialization(
+      final Object bean, @SuppressWarnings("NullableProblems") final String beanName)
       throws BeansException {
     Class<?> clazz = bean.getClass();
     do {
@@ -69,6 +70,7 @@ public class GraphQLClientBeanPostProcessor implements BeanPostProcessor {
       final String name, final Member injectionTarget, final Class<T> injectionType)
       throws BeansException {
     if (clientMap.containsKey(name)) {
+      //noinspection unchecked
       return (T) clientMap.get(name);
     }
     Environment environment = this.applicationContext.getEnvironment();
@@ -79,6 +81,7 @@ public class GraphQLClientBeanPostProcessor implements BeanPostProcessor {
     }
     GraphQLTemplate graphQLTemplate = createGraphQLTemplate(url);
     clientMap.put(name, graphQLTemplate);
+    //noinspection unchecked
     return (T) graphQLTemplate;
   }
 

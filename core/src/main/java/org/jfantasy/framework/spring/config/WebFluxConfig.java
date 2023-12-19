@@ -20,6 +20,7 @@ import org.springframework.validation.Validator;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsWebFilter;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
+import org.springframework.web.reactive.accept.HeaderContentTypeResolver;
 import org.springframework.web.reactive.accept.RequestedContentTypeResolver;
 import org.springframework.web.reactive.config.CorsRegistry;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
@@ -53,6 +54,7 @@ public class WebFluxConfig implements WebFluxConfigurer {
 
   @Override
   public void addCorsMappings(@SuppressWarnings("NullableProblems") CorsRegistry registry) {
+    // noinspection DuplicatedCode
     String path = "/**";
 
     boolean credentials = true;
@@ -64,6 +66,7 @@ public class WebFluxConfig implements WebFluxConfigurer {
 
     if (SpringBeanUtils.containsBean(CorsWebFilter.class)) {
       CorsWebFilter corsFilter = SpringBeanUtils.getBean(CorsWebFilter.class);
+      // noinspection DuplicatedCode
       UrlBasedCorsConfigurationSource configSource = ClassUtil.getValue(corsFilter, "configSource");
 
       CorsConfiguration corsConfiguration = new CorsConfiguration();
@@ -94,6 +97,16 @@ public class WebFluxConfig implements WebFluxConfigurer {
     converter.setSupportedMediaTypes(
         Arrays.asList(MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML));
     return converter;
+  }
+
+  @Bean
+  public ServerCodecConfigurer serverCodecConfigurer() {
+    return ServerCodecConfigurer.create();
+  }
+
+  @Bean
+  public RequestedContentTypeResolver requestedContentTypeResolver() {
+    return new HeaderContentTypeResolver();
   }
 
   @Bean

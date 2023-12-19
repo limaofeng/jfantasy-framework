@@ -26,7 +26,7 @@ public class CharEnumTypeHandler<E extends Enum<E>> extends BaseTypeHandler<E> {
   private Enum[] enums = new Enum[0];
 
   public CharEnumTypeHandler() {
-    this.enumClass = ClassUtil.getSuperClassGenricType(getClass());
+    this.enumClass = (Class<E>) ClassUtil.getSuperClassGenricType(getClass());
     this.enums = (Enum[]) ClassUtil.getMethodProxy(this.enumClass, "values").invoke(null);
     ConvertUtils.register(
         new Converter() {
@@ -45,7 +45,7 @@ public class CharEnumTypeHandler<E extends Enum<E>> extends BaseTypeHandler<E> {
   }
 
   public CharEnumTypeHandler(Converter converter) {
-    this.enumClass = ClassUtil.getSuperClassGenricType(getClass());
+    this.enumClass = (Class<E>) ClassUtil.getSuperClassGenricType(getClass());
     ConvertUtils.register(converter, this.enumClass);
   }
 

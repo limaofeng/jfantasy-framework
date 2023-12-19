@@ -66,8 +66,10 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
    */
   public static <T> Class<T> getRealClass(T target) {
     if (target instanceof Class<?>) {
+      //noinspection unchecked
       return (Class<T>) target;
     }
+    //noinspection unchecked
     return (Class<T>) getRealClass(target.getClass());
   }
 
@@ -79,6 +81,7 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
    * @return real class
    */
   public static <T> Class<T> getRealClass(Class<T> clazz) {
+    //noinspection unchecked
     return (Class<T>) getUserClass(clazz);
   }
 
@@ -114,6 +117,7 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
    */
   public static <T> T newInstance(String className) {
     try {
+      //noinspection unchecked
       return (T) newInstance(FantasyClassLoader.getClassLoader().loadClass(className));
     } catch (ClassNotFoundException e) {
       log.error(e.getMessage(), e);
@@ -152,6 +156,7 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
 
   public static <T> Class<T> forName(String className) {
     try {
+      //noinspection unchecked
       return StringUtil.isNotBlank(className)
           ? (Class<T>) FantasyClassLoader.getClassLoader().loadClass(className)
           : null;
@@ -224,11 +229,11 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
     return null;
   }
 
-  public static boolean isBasicType(Class type) {
+  public static boolean isBasicType(Class<?> type) {
     return isPrimitiveOrWrapper(type) || isOther(type);
   }
 
-  private static boolean isOther(Class type) {
+  private static boolean isOther(Class<?> type) {
     return String.class.isAssignableFrom(type)
         || Date.class.isAssignableFrom(type)
         || BigDecimal.class.isAssignableFrom(type)
@@ -298,20 +303,21 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
     return clazz.isInterface();
   }
 
-  public static Class getSuperClassGenricType(Class clazz) {
+  public static Class<?> getSuperClassGenricType(Class<?> clazz) {
     return getSuperClassGenricType(clazz, 0);
   }
 
   public static <T> Class<T> getMethodGenericReturnType(Method method, int index) {
     Type returnType = method.getGenericReturnType();
-    if (returnType instanceof ParameterizedType) {
-      ParameterizedType type = (ParameterizedType) returnType;
+    if (returnType instanceof ParameterizedType type) {
       Type[] typeArguments = type.getActualTypeArguments();
       if ((index >= typeArguments.length) || (index < 0)) {
         throw new InputDataException(String.format("你输入的索引 %s", index < 0 ? "不能小于0" : "超出了参数的总数"));
       }
+      //noinspection unchecked
       return (Class<T>) typeArguments[index];
     }
+    //noinspection unchecked
     return (Class<T>) Object.class;
   }
 
@@ -326,15 +332,14 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
    * @param index 参数下标
    * @return 泛型类型集合
    */
-  public static List<Class> getMethodGenericParameterTypes(Method method, int index) {
-    List<Class> results = new ArrayList<>();
+  public static List<Class<?>> getMethodGenericParameterTypes(Method method, int index) {
+    List<Class<?>> results = new ArrayList<>();
     Type[] genericParameterTypes = method.getGenericParameterTypes();
     if ((index >= genericParameterTypes.length) || (index < 0)) {
       throw new InputDataException("你输入的索引" + (index < 0 ? "不能小于0" : "超出了参数的总数"));
     }
     Type genericParameterType = genericParameterTypes[index];
-    if (genericParameterType instanceof ParameterizedType) {
-      ParameterizedType aType = (ParameterizedType) genericParameterType;
+    if (genericParameterType instanceof ParameterizedType aType) {
       Type[] parameterArgTypes = aType.getActualTypeArguments();
       for (Type parameterArgType : parameterArgTypes) {
         Class<?> parameterArgClass =
@@ -352,8 +357,7 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
     Type[] genericParameterTypes = method.getGenericParameterTypes();
     for (int i = 0; i < genericParameterTypes.length; i++) {
       Type genericParameterType = genericParameterTypes[i];
-      if (genericParameterType instanceof ParameterizedType) {
-        ParameterizedType aType = (ParameterizedType) genericParameterType;
+      if (genericParameterType instanceof ParameterizedType aType) {
         Type[] parameterArgTypes = aType.getActualTypeArguments();
         for (Type parameterArgType : parameterArgTypes) {
           Class<?> parameterArgClass =
@@ -369,7 +373,7 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
     return -1;
   }
 
-  public static List<Class> getMethodGenericParameterTypes(Method method) {
+  public static List<Class<?>> getMethodGenericParameterTypes(Method method) {
     return getMethodGenericParameterTypes(method, 0);
   }
 
@@ -387,27 +391,28 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
 
   public static <T> Class<T> getFieldGenericType(Field field, int index) {
     Type genericFieldType = field.getGenericType();
-    if (genericFieldType instanceof ParameterizedType) {
-      ParameterizedType aType = (ParameterizedType) genericFieldType;
+    if (genericFieldType instanceof ParameterizedType aType) {
       Type[] fieldArgTypes = aType.getActualTypeArguments();
       if ((index >= fieldArgTypes.length) || (index < 0)) {
         throw new InputDataException("你输入的索引" + (index < 0 ? "不能小于0" : "超出了参数的总数"));
       }
+      //noinspection unchecked
       return (Class<T>) fieldArgTypes[index];
     }
+    //noinspection unchecked
     return (Class<T>) Object.class;
   }
 
   public static String[] getParamNames(
-      Class<?> clazz, String methodname, Class<?>[] parameterTypes) {
-    return getParamNames(clazz.getName(), methodname, parameterTypes);
+      Class<?> clazz, String methodName, Class<?>[] parameterTypes) {
+    return getParamNames(clazz.getName(), methodName, parameterTypes);
   }
 
   public static String getParameterName(Parameter param) {
     MethodParameter parameter = MethodParameter.forParameter(param);
     Method method = parameter.getMethod();
     assert method != null;
-    Class clazz = method.getDeclaringClass();
+    Class<?> clazz = method.getDeclaringClass();
     try {
       return JavassistUtil.getParameterName(clazz, method, parameter.getParameterIndex());
     } catch (Exception e) {
@@ -435,6 +440,7 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
     for (Annotation[] paramAnnots : annotations) {
       for (Annotation annot : paramAnnots) {
         if (annotClass.equals(annot.annotationType())) {
+          //noinspection unchecked
           return (T) annot;
         }
       }
@@ -468,10 +474,11 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
 
   public static Method getDeclaredMethod(Class<?> clazz, String methodName) {
     MethodProxy proxy = getMethodProxy(clazz, methodName);
-    return proxy != null ? proxy.getMethod() : null;
+    assert proxy != null;
+    return proxy.getMethod();
   }
 
-  public static <T extends Annotation> T getAnnotation(Class clazz, Class<T> annotClass) {
+  public static <T extends Annotation> T getAnnotation(Class<?> clazz, Class<T> annotClass) {
     return annotClass.cast(clazz.getAnnotation(annotClass));
   }
 
@@ -479,6 +486,7 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
       Annotation[] annotations, Class<T> annotClass) {
     for (Annotation annot : annotations) {
       if (annotClass.equals(annot.annotationType())) {
+        //noinspection unchecked
         return (T) annot;
       }
     }
@@ -489,6 +497,7 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
     Type genType = clazz.getGenericSuperclass();
     if (!(genType instanceof ParameterizedType)) {
       log.warn(clazz.getSimpleName() + "'s superclass not ParameterizedType");
+      //noinspection unchecked
       return (Class<T>) Object.class;
     }
     Type[] params = ((ParameterizedType) genType).getActualTypeArguments();
@@ -500,15 +509,19 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
               + clazz.getSimpleName()
               + "'s Parameterized Type: "
               + params.length);
+      //noinspection unchecked
       return (Class<T>) Object.class;
     }
     if (params[index] instanceof ParameterizedType) {
+      //noinspection unchecked
       return (Class<T>) ((ParameterizedType) params[index]).getRawType();
     }
     if (!(params[index] instanceof Class<?>)) {
       log.warn(clazz.getSimpleName() + " not set the actual class on superclass generic parameter");
+      //noinspection unchecked
       return (Class<T>) Object.class;
     }
+    //noinspection unchecked
     return (Class<T>) params[index];
   }
 
@@ -521,6 +534,7 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
     Type[] genTypes = clazz.getGenericInterfaces();
     for (Type genType : genTypes) {
       if (!(genType instanceof ParameterizedType)) {
+        //noinspection unchecked
         return (Class<T>) Object.class;
       }
       if (interfaceClazz.equals(((ParameterizedType) genType).getRawType())) {
@@ -533,27 +547,32 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
                   + clazz.getSimpleName()
                   + "'s Parameterized Type: "
                   + params.length);
+          //noinspection unchecked
           return (Class<T>) Object.class;
         }
         if (params[index] instanceof ParameterizedType) {
+          //noinspection unchecked
           return (Class<T>) ((ParameterizedType) params[index]).getRawType();
         }
         if (!(params[index] instanceof Class<?>)) {
           log.warn(
               clazz.getSimpleName() + " not set the actual class on superclass generic parameter");
+          //noinspection unchecked
           return (Class<T>) Object.class;
         }
+        //noinspection unchecked
         return (Class<T>) params[index];
       }
     }
+    //noinspection unchecked
     return (Class<T>) Object.class;
   }
 
-  public static Class getRealType(Property property) {
+  public static Class<?> getRealType(Property property) {
     return getRealType(property.getPropertyType());
   }
 
-  public static Class getRealType(Class clazz) {
+  public static Class<?> getRealType(Class<?> clazz) {
     if (clazz.isInterface()) {
       log.error("The implementation of interface " + clazz + " is not specified.");
     }
@@ -561,13 +580,23 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
   }
 
   @SneakyThrows
-  public static <T> T call(String methodName, Object obj) {
+  public static <T> T invoke(String methodName, Object obj) {
     MethodProxy method = ClassUtil.getMethodProxy(getRealClass(obj), methodName);
     assert method != null;
+    //noinspection unchecked
     return (T) method.invoke(obj);
   }
 
-  public static boolean hasInterface(Class<?> clazz, Class[] interfaces) {
+  @SneakyThrows
+  public static <T> T invoke(Method method, Object obj, Object... args) {
+    if (!method.canAccess(obj)) {
+      method.setAccessible(true);
+    }
+    //noinspection unchecked
+    return (T) method.invoke(obj, args);
+  }
+
+  public static boolean hasInterface(Class<?> clazz, Class<?>[] interfaces) {
     return Arrays.stream(interfaces).anyMatch(item -> item.isAssignableFrom(clazz));
   }
 
@@ -583,8 +612,10 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
       return proxy;
     }
     if (AopUtils.isJdkDynamicProxy(proxy)) {
+      //noinspection unchecked
       return (T) getJdkDynamicProxyTargetObject(proxy);
     } else { // cglib
+      //noinspection unchecked
       return (T) getCglibProxyTargetObject(proxy);
     }
   }
@@ -618,7 +649,7 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
    * @param name 属性
    * @return Boolean
    */
-  public static boolean hasProperty(Class clazz, String name) {
+  public static boolean hasProperty(Class<?> clazz, String name) {
     return getDeclaredField(clazz, name) != null;
   }
 }

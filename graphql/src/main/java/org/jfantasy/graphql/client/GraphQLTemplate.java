@@ -13,7 +13,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import lombok.Getter;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -33,7 +32,7 @@ public class GraphQLTemplate {
   private final RestTemplate restTemplate;
   private final String graphqlMapping;
   private final ObjectMapper objectMapper;
-  @Getter private final HttpHeaders headers = new HttpHeaders();
+  private final HttpHeaders headers = new HttpHeaders();
 
   public GraphQLTemplate(
       final ResourceLoader resourceLoader,
@@ -77,8 +76,9 @@ public class GraphQLTemplate {
    * @return self
    */
   public GraphQLTemplate withAdditionalHeader(final String name, final String... value) {
-    headers.addAll(name, Arrays.asList(value));
-    return this;
+    GraphQLTemplate newTemplate = this.newTemplate();
+    newTemplate.headers.addAll(name, Arrays.asList(value));
+    return newTemplate;
   }
 
   /**
@@ -89,8 +89,9 @@ public class GraphQLTemplate {
    */
   public GraphQLTemplate withAdditionalHeaders(
       final MultiValueMap<String, String> additionalHeaders) {
-    headers.addAll(additionalHeaders);
-    return this;
+    GraphQLTemplate newTemplate = this.newTemplate();
+    newTemplate.headers.addAll(additionalHeaders);
+    return newTemplate;
   }
 
   /**
@@ -100,8 +101,9 @@ public class GraphQLTemplate {
    * @return self
    */
   public GraphQLTemplate withBearerAuth(@NonNull final String token) {
-    headers.setBearerAuth(token);
-    return this;
+    GraphQLTemplate newTemplate = this.newTemplate();
+    newTemplate.headers.setBearerAuth(token);
+    return newTemplate;
   }
 
   /**
@@ -116,8 +118,9 @@ public class GraphQLTemplate {
       @NonNull final String username,
       @NonNull final String password,
       @Nullable final Charset charset) {
-    headers.setBasicAuth(username, password, charset);
-    return this;
+    GraphQLTemplate newTemplate = this.newTemplate();
+    newTemplate.headers.setBasicAuth(username, password, charset);
+    return newTemplate;
   }
 
   /**
@@ -129,8 +132,9 @@ public class GraphQLTemplate {
    */
   public GraphQLTemplate withBasicAuth(
       @NonNull final String username, @NonNull final String password) {
-    headers.setBasicAuth(username, password, null);
-    return this;
+    GraphQLTemplate newTemplate = this.newTemplate();
+    newTemplate.headers.setBasicAuth(username, password, null);
+    return newTemplate;
   }
 
   /**
@@ -140,8 +144,9 @@ public class GraphQLTemplate {
    * @return self
    */
   public GraphQLTemplate withBasicAuth(@NonNull final String encodedCredentials) {
-    headers.setBasicAuth(encodedCredentials);
-    return this;
+    GraphQLTemplate newTemplate = this.newTemplate();
+    newTemplate.headers.setBasicAuth(encodedCredentials);
+    return newTemplate;
   }
 
   /**
@@ -151,7 +156,21 @@ public class GraphQLTemplate {
    * @return self
    */
   public GraphQLTemplate withHeaders(final HttpHeaders newHeaders) {
-    return withClearHeaders().withAdditionalHeaders(newHeaders);
+    GraphQLTemplate newTemplate = withClearHeaders();
+    newTemplate.setDefaultHeaders(newHeaders);
+    return newTemplate;
+  }
+
+  private GraphQLTemplate newTemplate() {
+    GraphQLTemplate newTemplate =
+        new GraphQLTemplate(resourceLoader, restTemplate, graphqlMapping, objectMapper);
+    newTemplate.setDefaultHeaders(headers);
+    return newTemplate;
+  }
+
+  public void setDefaultHeaders(HttpHeaders headers) {
+    this.headers.clear();
+    this.headers.addAll(headers);
   }
 
   /**
@@ -160,8 +179,9 @@ public class GraphQLTemplate {
    * @return self
    */
   public GraphQLTemplate withClearHeaders() {
-    headers.clear();
-    return this;
+    GraphQLTemplate newTemplate = this.newTemplate();
+    newTemplate.headers.clear();
+    return newTemplate;
   }
 
   /**
@@ -253,7 +273,7 @@ public class GraphQLTemplate {
     return postRequest(RequestFactory.forJson(payload, headers));
   }
 
-  public GraphQLResponse post(String graphql, String operationName, Map<String, String> variables)
+  public GraphQLResponse post(String graphql, String operationName, Map<String, Object> variables)
       throws IOException {
     String payload =
         createJsonQuery(graphql, operationName, this.objectMapper.valueToTree(variables));

@@ -1,5 +1,7 @@
 package cn.asany.example;
 
+import graphql.kickstart.execution.GraphQLObjectMapper;
+import graphql.kickstart.tools.SchemaParser;
 import java.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.dao.jpa.SimpleAnyJpaRepository;
@@ -15,6 +17,13 @@ import org.jfantasy.framework.security.oauth2.DefaultTokenServices;
 import org.jfantasy.framework.security.oauth2.core.*;
 import org.jfantasy.framework.security.oauth2.server.BearerTokenAuthenticationToken;
 import org.jfantasy.framework.security.oauth2.server.authentication.BearerTokenAuthentication;
+import org.jfantasy.graphql.gateway.GraphQLGateway;
+import org.jfantasy.graphql.gateway.GraphQLGatewayReloadSchemaProvider;
+import org.jfantasy.graphql.gateway.GraphQLReloadSchemaProvider;
+import org.jfantasy.graphql.gateway.GraphQLTemplateFactory;
+import org.jfantasy.graphql.gateway.service.DefaultGraphQLTemplateFactory;
+import org.jfantasy.graphql.gateway.service.LocalGraphQLService;
+import org.jfantasy.graphql.gateway.service.RemoteGraphQLService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -26,9 +35,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * 启动器
@@ -191,6 +202,38 @@ public class Application extends SpringBootServletInitializer {
   @Bean
   public PasswordEncoder passwordEncoder() {
     return new PlaintextPasswordEncoder();
+  }
+
+  @Bean
+  public GraphQLTemplateFactory graphQLTemplateFactory(
+      ResourceLoader resourceLoader, RestTemplate restTemplate, GraphQLObjectMapper objectMapper) {
+    return new DefaultGraphQLTemplateFactory(
+        resourceLoader, restTemplate, objectMapper.getJacksonMapper());
+  }
+
+  @Bean(initMethod = "init", destroyMethod = "destroy")
+  public GraphQLGateway graphqlGateway(
+      SchemaParser schemaParser, GraphQLTemplateFactory templateFactory) {
+    RemoteGraphQLService service =
+        RemoteGraphQLService.builder()
+            .name("asany")
+            .url("https://api.asany.cn/graphql")
+            .ignoreField("Application", "layoutRoute")
+            .renameField("Application", "name", "appName")
+            .renameField("Query", "applications", "apps")
+            .renameFieldArgument("Query", "applications", "where", "filter")
+            .clientFactory(templateFactory)
+            .build();
+
+    LocalGraphQLService localService =
+        LocalGraphQLService.builder().schema(schemaParser.makeExecutableSchema()).build();
+
+    return new GraphQLGateway(Arrays.asList(service, localService));
+  }
+
+  @Bean
+  public GraphQLReloadSchemaProvider graphqlSchemaProvider(GraphQLGateway graphQLGateway) {
+    return new GraphQLGatewayReloadSchemaProvider(graphQLGateway);
   }
 
   //  @Bean

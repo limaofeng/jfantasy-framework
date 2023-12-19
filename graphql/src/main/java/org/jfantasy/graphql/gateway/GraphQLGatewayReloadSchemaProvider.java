@@ -1,4 +1,4 @@
-package org.jfantasy.graphql.execution.config;
+package org.jfantasy.graphql.gateway;
 
 import graphql.kickstart.execution.config.GraphQLSchemaProvider;
 import graphql.schema.GraphQLSchema;
@@ -11,16 +11,16 @@ import java.io.IOException;
  *
  * @author limaofeng
  */
-public class DefaultGraphQLReloadSchemaProvider implements GraphQLReloadSchemaProvider {
+public class GraphQLGatewayReloadSchemaProvider implements GraphQLReloadSchemaProvider {
 
-  private final SchemaParser schemaParser;
+  private final GraphQLGateway gateway;
   private GraphQLSchema graphQLSchema;
   private GraphQLSchema readOnlySchema;
 
-  public DefaultGraphQLReloadSchemaProvider(SchemaParser schemaParser) {
-    this.schemaParser = schemaParser;
+  public GraphQLGatewayReloadSchemaProvider(GraphQLGateway gateway) {
+    this.gateway = gateway;
 
-    this.graphQLSchema = schemaParser.makeExecutableSchema();
+    this.graphQLSchema = gateway.getSchema();
     this.readOnlySchema = GraphQLSchemaProvider.copyReadOnly(this.graphQLSchema);
   }
 
@@ -36,7 +36,7 @@ public class DefaultGraphQLReloadSchemaProvider implements GraphQLReloadSchemaPr
 
   @Override
   public void updateSchema() throws IOException {
-    this.graphQLSchema = schemaParser.makeExecutableSchema();
+    this.graphQLSchema = gateway.getSchema();
     this.readOnlySchema = GraphQLSchemaProvider.copyReadOnly(this.graphQLSchema);
   }
 

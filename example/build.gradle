@@ -35,6 +35,7 @@ dependencies {
 	implementation project(":jfantasy-core")
 	implementation project(":jfantasy-graphql")
 	implementation project(":jfantasy-search")
+	implementation "com.graphql-java:graphql-java:$LIB_GRAPHQL_JAVA_VER"
 	implementation "jakarta.json:jakarta.json-api:${LIB_JAKARTA_VAR}"
 	implementation "org.springframework.boot:spring-boot-starter-data-redis"
 //	implementation "org.springframework.boot:spring-boot-starter-web"
@@ -44,6 +45,8 @@ dependencies {
 	annotationProcessor "org.mapstruct:mapstruct-processor:$LIB_MAPSTRUCT_VER"
 	annotationProcessor "org.springframework.boot:spring-boot-configuration-processor:${LIB_SPRING_BOOT_VER}"
 //	testImplementation "com.graphql-java-kickstart:graphql-spring-boot-starter-test:$LIB_GRAPHQL_BOOT_VER"
+	compileOnly "jakarta.servlet:jakarta.servlet-api"
+	compileOnly "org.springframework.boot:spring-boot-starter-web"
 	compileOnly "org.projectlombok:lombok"
 	annotationProcessor "org.projectlombok:lombok"
 	annotationProcessor "org.projectlombok:lombok-mapstruct-binding:${LIB_LOMBOK_MAPSTRUCT_BINDING_VER}"
