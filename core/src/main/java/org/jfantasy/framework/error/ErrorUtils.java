@@ -16,7 +16,6 @@ import org.springframework.web.bind.support.WebExchangeBindException;
  *
  * @author limaofeng
  * @version V1.0
- * @date 2020/3/22 4:47 下午
  */
 public class ErrorUtils {
 
@@ -63,6 +62,7 @@ public class ErrorUtils {
     String errorCode = errorCode(throwable);
 
     errorAttributes.put(ERROR_PROPERTY_CODE, errorCode);
+    errorAttributes.put(ERROR_PROPERTY_STATUS, 400);
 
     if (throwable instanceof ValidationException e) {
       extractValidationExceptionAttributes(errorAttributes, e);

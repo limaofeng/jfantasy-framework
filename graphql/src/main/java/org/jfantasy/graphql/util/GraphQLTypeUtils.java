@@ -9,6 +9,7 @@ import java.util.*;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.graphql.gateway.config.GraphQLServiceOverride;
 import org.jfantasy.graphql.gateway.service.GraphQLService;
+import org.jfantasy.graphql.scalars.OrderCoercing;
 
 public class GraphQLTypeUtils {
 
@@ -38,7 +39,7 @@ public class GraphQLTypeUtils {
     DEFAULT_COERCINGS.put("RGBATransparency", ExtendedScalars.GraphQLChar.getCoercing());
     DEFAULT_COERCINGS.put("RichTextAST", ExtendedScalars.GraphQLChar.getCoercing());
     DEFAULT_COERCINGS.put("File", Scalars.GraphQLString.getCoercing());
-    DEFAULT_COERCINGS.put("OrderBy", Scalars.GraphQLString.getCoercing());
+    DEFAULT_COERCINGS.put("OrderBy", new OrderCoercing());
     DEFAULT_COERCINGS.put("Number", ExtendedScalars.GraphQLLong.getCoercing());
     DEFAULT_COERCINGS.put("Upload", Scalars.GraphQLString.getCoercing());
   }
@@ -232,6 +233,22 @@ public class GraphQLTypeUtils {
     }
   }
 
+  public static void buildDirective(DirectiveDefinition directive, GraphQLService service) {
+    //    GraphQLDirective myDirective =
+    //      .name("myDirective")
+    //      .description("A custom directive.")
+    //      .validLocations(DirectiveLocation.FIELD_DEFINITION)
+    //      .argument(GraphQLArgument.newArgument()
+    //        .name("arg")
+    //        .type(Scalars.GraphQLString)
+    //        .build())
+    //      .build();
+    GraphQLDirective.Builder builder =
+        GraphQLDirective.newDirective()
+            .name(directive.getName())
+            .description(getDescription(directive.getDescription()));
+  }
+
   public static void buildObjectType(ObjectTypeDefinition typeDefinition, GraphQLService service) {
     GraphQLObjectType.Builder typeBuilder =
         GraphQLObjectType.newObject()
@@ -242,6 +259,8 @@ public class GraphQLTypeUtils {
     for (Type<?> type : typeDefinition.getImplements()) {
       typeBuilder.withInterface(getInterfaceType(type, service));
     }
+
+    typeBuilder.withAppliedDirectives(buildDirectives(typeDefinition.getDirectives(), service));
 
     GraphQLObjectType objectType = typeBuilder.build();
 
@@ -258,31 +277,7 @@ public class GraphQLTypeUtils {
         continue;
       }
 
-      String fieldName =
-          override.getFieldRename(typeDefinition.getName(), fieldDefinition.getName());
-
-      GraphQLFieldDefinition.Builder fieldBuilder =
-          GraphQLFieldDefinition.newFieldDefinition()
-              .name(fieldName)
-              .type(GraphQLTypeUtils.getOutputType(fieldDefinition.getType(), service))
-              .definition(fieldDefinition);
-
-      for (InputValueDefinition inputValueDefinition : fieldDefinition.getInputValueDefinitions()) {
-        String argumentName =
-            override.getFieldArgumentRename(
-                typeDefinition.getName(),
-                fieldDefinition.getName(),
-                inputValueDefinition.getName());
-
-        GraphQLArgument.Builder argumentBuilder =
-            GraphQLArgument.newArgument()
-                .name(argumentName)
-                .type(GraphQLTypeUtils.getGraphQLInputType(inputValueDefinition.getType(), service))
-                .definition(inputValueDefinition);
-        fieldBuilder.argument(argumentBuilder.build());
-      }
-
-      fieldDefinitions.add(fieldBuilder.build());
+      fieldDefinitions.add(buildField(objectType, fieldDefinition, service));
     }
 
     if (!fieldDefinitions.isEmpty()) {
@@ -290,6 +285,56 @@ public class GraphQLTypeUtils {
           ClassUtil.invoke(OBJECT_TYPE_BUILD_DEFINITION_MAP, objectType, fieldDefinitions);
       ClassUtil.setFieldValue(objectType, "fieldDefinitionsByName", fieldDefinitionsByName);
     }
+  }
+
+  private static GraphQLAppliedDirective[] buildDirectives(
+      List<Directive> typeDefinition, GraphQLService service) {
+    return typeDefinition.stream()
+        .map(
+            (directive) -> {
+              GraphQLAppliedDirective.Builder directiveBuilder =
+                  GraphQLAppliedDirective.newDirective().name(directive.getName());
+
+              for (Argument argument : directive.getArguments()) {
+                directiveBuilder.argument(
+                    GraphQLAppliedDirectiveArgument.newArgument()
+                        .name(argument.getName())
+                        .type(Scalars.GraphQLString)
+                        .valueLiteral(argument.getValue())
+                        .build());
+              }
+              return directiveBuilder.build();
+            })
+        .toArray(GraphQLAppliedDirective[]::new);
+  }
+
+  private static GraphQLFieldDefinition buildField(
+      GraphQLObjectType objectType, FieldDefinition fieldDefinition, GraphQLService service) {
+    GraphQLServiceOverride override = service.getOverrideConfig();
+    String fieldName = override.getFieldRename(objectType.getName(), fieldDefinition.getName());
+
+    GraphQLFieldDefinition.Builder fieldBuilder =
+        GraphQLFieldDefinition.newFieldDefinition()
+            .name(fieldName)
+            .type(GraphQLTypeUtils.getOutputType(fieldDefinition.getType(), service))
+            .definition(fieldDefinition);
+
+    fieldBuilder.withAppliedDirectives(buildDirectives(fieldDefinition.getDirectives(), service));
+
+    for (InputValueDefinition inputValueDefinition : fieldDefinition.getInputValueDefinitions()) {
+      String argumentName =
+          override.getFieldArgumentRename(
+              objectType.getName(), fieldDefinition.getName(), inputValueDefinition.getName());
+
+      GraphQLArgument.Builder argumentBuilder =
+          GraphQLArgument.newArgument()
+              .name(argumentName)
+              .type(GraphQLTypeUtils.getGraphQLInputType(inputValueDefinition.getType(), service))
+              .definition(inputValueDefinition);
+      fieldBuilder.argument(argumentBuilder.build());
+    }
+
+    return fieldBuilder.build();
   }
 
   public static boolean isScalar(GraphQLType type) {

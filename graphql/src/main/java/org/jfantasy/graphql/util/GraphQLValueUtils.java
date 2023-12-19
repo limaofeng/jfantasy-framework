@@ -18,7 +18,7 @@ public class GraphQLValueUtils {
    * @return 转换后的 Java 对象。
    */
   public static Object convertToScalarType(JsonNode node, GraphQLScalarType scalarType) {
-    if (node == null) {
+    if (node == null || node.isNull()) {
       return null;
     }
     if (scalarType == GraphQLString) {
@@ -45,6 +45,9 @@ public class GraphQLValueUtils {
       JsonNode valueNode = JSON.findNode(node, "/" + name);
       if (outputType instanceof GraphQLScalarType scalarType) {
         return GraphQLValueUtils.convertToScalarType(valueNode, scalarType);
+      }
+      if (valueNode == null || valueNode.isNull()) {
+        return null;
       }
       return valueNode;
     }

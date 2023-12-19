@@ -2,13 +2,17 @@ package org.jfantasy.graphql.scalars;
 
 import static org.jfantasy.graphql.util.Kit.typeName;
 
+import graphql.GraphQLContext;
+import graphql.execution.CoercedVariables;
 import graphql.language.StringValue;
+import graphql.language.Value;
 import graphql.schema.Coercing;
 import graphql.schema.CoercingParseLiteralException;
 import graphql.schema.CoercingParseValueException;
 import graphql.schema.CoercingSerializeException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Locale;
 import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.springframework.data.domain.Sort;
@@ -16,18 +20,25 @@ import org.springframework.data.domain.Sort;
 /**
  * @author limaofeng
  * @version V1.0
- * @date 2019/10/8 1:53 下午
  */
 @Slf4j
 public class OrderCoercing implements Coercing<Sort, String> {
 
   @Override
-  public String serialize(Object input) throws CoercingSerializeException {
+  public String serialize(
+      Object input,
+      @SuppressWarnings("NullableProblems") GraphQLContext graphQLContext,
+      @SuppressWarnings("NullableProblems") Locale locale)
+      throws CoercingSerializeException {
     return input.toString();
   }
 
   @Override
-  public Sort parseValue(Object input) throws CoercingParseValueException {
+  public Sort parseValue(
+      Object input,
+      @SuppressWarnings("NullableProblems") GraphQLContext graphQLContext,
+      @SuppressWarnings("NullableProblems") Locale locale)
+      throws CoercingParseValueException {
     String inputString = input.toString();
     if ("unsorted".equals(inputString)) {
       return Sort.unsorted();
@@ -36,7 +47,7 @@ public class OrderCoercing implements Coercing<Sort, String> {
       return Sort.by(
           Arrays.stream(inputString.split(","))
               .filter(StringUtil::isNotBlank)
-              .map(this::parseValue)
+              .map(data -> parseValue(data, graphQLContext, locale))
               .reduce(
                   new ArrayList<Sort.Order>(),
                   (all, item) -> {
@@ -66,11 +77,16 @@ public class OrderCoercing implements Coercing<Sort, String> {
   }
 
   @Override
-  public Sort parseLiteral(Object input) throws CoercingParseLiteralException {
+  public Sort parseLiteral(
+      @SuppressWarnings("NullableProblems") Value<?> input,
+      @SuppressWarnings("NullableProblems") CoercedVariables variables,
+      @SuppressWarnings("NullableProblems") GraphQLContext graphQLContext,
+      @SuppressWarnings("NullableProblems") Locale locale)
+      throws CoercingParseLiteralException {
     if (!(input instanceof StringValue)) {
       throw new CoercingParseLiteralException(
           "Expected AST type 'StringValue' but was '" + typeName(input) + "'.");
     }
-    return this.parseValue(((StringValue) input).getValue());
+    return this.parseValue(((StringValue) input).getValue(), graphQLContext, locale);
   }
 }

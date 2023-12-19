@@ -59,22 +59,25 @@ class GraphQLGatewayTest {
       .renameField("Application", "name", "appName")
       .renameField("Query", "applications", "apps")
       .renameFieldArgument("Query", "applications", "where", "filter")
+      .clientFactory(GraphQLTemplateFactory.DEFAULT)
       .build();
 
     GraphQLSchema customSchema = GraphQLUtils.buildSchema("""
     type Query {
       hello: String
+      xuser(order: OrderBy): File
     }
+    scalar OrderBy
+    scalar File
     """);
 
     GraphQLCodeRegistry.Builder codeRegistryBuilder = GraphQLCodeRegistry.newCodeRegistry();
 
     codeRegistryBuilder.defaultDataFetcher(new GraphQLGatewayDataFetcherFactory());
 
-
     service.makeSchema();
 
-    GraphQLSchema schema = GraphQLUtils.mergeSchemas(Arrays.asList(customSchema, service.getSchema()), codeRegistryBuilder.build());
+    GraphQLSchema schema = GraphQLUtils.mergeSchemas(Arrays.asList(service.getSchema(), customSchema), codeRegistryBuilder.build());
 
     GraphQL graphQL = GraphQL.newGraphQL(schema).build();
 
@@ -118,5 +121,48 @@ class GraphQLGatewayTest {
 
     result = graphQL.execute(queryStr);
     System.out.println(Optional.ofNullable(result.getData()));
+  }
+
+  @Test
+  public void testLoad() throws IOException {
+    GraphQLGateway gateway = GraphQLGateway.builder().load("gateway.yaml").build();
+
+    gateway.init();
+
+    GraphQL graphQL = GraphQL.newGraphQL(gateway.getSchema()).build();
+
+    // 定义 GraphQL 查询字符串
+    String queryStr =
+      """
+      query app($where: ApplicationWhereInput) {
+        app1: apps(filter: $where) {
+          id
+          appName
+          xxx: appName
+#          layoutRoute(space: "web") {
+#            id
+#            path
+#          }
+        }
+        newField
+      }
+      """;
+
+    Map<String, Object> variables = new HashMap<>();
+    variables.put("where", Map.of("enabled", Boolean.TRUE));
+
+    // 执行查询
+    ExecutionResult result = graphQL.execute(ExecutionInput.newExecutionInput(queryStr)
+      .operationName("app")
+      .variables(variables));
+
+    if (!result.getErrors().isEmpty()) {
+      System.out.println(result.getErrors());
+    }
+
+    // 获取并输出查询结果
+    System.out.println(Optional.ofNullable(result.getData()));
+
+
   }
 }

@@ -1,9 +1,12 @@
 package org.jfantasy.graphql.util;
 
 import graphql.language.*;
+import graphql.scalars.ExtendedScalars;
 import graphql.schema.*;
 import graphql.schema.idl.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.jfantasy.framework.util.Stack;
 import org.jfantasy.framework.util.common.ObjectUtil;
@@ -11,6 +14,7 @@ import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.graphql.gateway.config.GraphQLServiceOverride;
 import org.jfantasy.graphql.gateway.service.GraphQLService;
 import org.jfantasy.graphql.gateway.service.GraphQLServiceTypeResolver;
+import org.jfantasy.graphql.scalars.OrderCoercing;
 
 /**
  * GraphQL 工具类
@@ -236,39 +240,81 @@ public class GraphQLUtils {
     // 在这里配置您的数据获取器（data fetchers）和类型解析器（type resolvers）
     return RuntimeWiring.newRuntimeWiring()
         .type("Query", builder -> builder.dataFetcher("hello", new StaticDataFetcher("world")))
+        .scalar(
+            GraphQLScalarType.newScalar()
+                .name("OrderBy")
+                .description("排序对象, 格式如：createdAt_ASC ")
+                .coercing(new OrderCoercing())
+                .build())
+        .scalar(
+            GraphQLScalarType.newScalar()
+                .name("File")
+                .coercing(ExtendedScalars.GraphQLShort.getCoercing())
+                .build())
         .build();
   }
 
   public static GraphQLSchema mergeSchemas(
       List<GraphQLSchema> schemas, GraphQLCodeRegistry codeRegistry) {
 
-    GraphQLObjectType queryType =
-        mergeRootTypes(
-            "Query",
-            schemas.stream().map(GraphQLSchema::getQueryType).toArray(GraphQLObjectType[]::new));
-    GraphQLObjectType mutationType =
-        mergeRootTypes(
-            "Mutation",
-            schemas.stream()
-                .map(GraphQLSchema::getMutationType)
-                .filter(Objects::nonNull)
-                .toArray(GraphQLObjectType[]::new));
+    // 使用SchemaPrinter获取现有模式的SDL表示
+    SchemaPrinter schemaPrinter =
+        new SchemaPrinter(
+            SchemaPrinter.Options.defaultOptions()
+                .includeScalarTypes(true) // 根据需要包括标量类型
+                .includeSchemaDefinition(false) // 包括模式定义
+                .includeDirectives(true) // 包括指令
+            );
+
+    // 解析现有模式的SDL表示
+    SchemaParser schemaParser = new SchemaParser();
 
     GraphQLCodeRegistry.Builder codeRegistryBuilder =
         GraphQLCodeRegistry.newCodeRegistry(codeRegistry);
 
-    // 合并类型解析器
-    schemas.stream()
-        .map(GraphQLSchema::getCodeRegistry)
-        .forEach(codeRegistryBuilder::typeResolvers);
+    // 创建 TypeDefinitionRegistry 并添加现有模式和扩展定义
+    TypeDefinitionRegistry mergedRegistry = new TypeDefinitionRegistry();
 
-    GraphQLSchema.Builder newSchemaBuilder = GraphQLSchema.newSchema();
-
-    if (!mutationType.getFields().isEmpty()) {
-      newSchemaBuilder.mutation(mutationType);
-    }
+    RuntimeWiring.Builder runtimeWiringBuilder = RuntimeWiring.newRuntimeWiring();
 
     for (GraphQLSchema schema : schemas) {
+      TypeDefinitionRegistry schemaRegistry = schemaParser.parse(schemaPrinter.print(schema));
+
+      // 处理根类型 Query, Mutation, Subscription
+      mergeRootTypes(mergedRegistry, schemaRegistry);
+
+      // 处理类型扩展
+      mergeIgnoreTypes(mergedRegistry, schemaRegistry, "PageInfo");
+
+      // 处理标量类型
+      List<ScalarTypeDefinition> scalarTypes = mergeScalarTypes(mergedRegistry, schemaRegistry);
+      for (ScalarTypeDefinition scalarType : scalarTypes) {
+        runtimeWiringBuilder.scalar((GraphQLScalarType) schema.getType(scalarType.getName()));
+      }
+
+      // 处理指令类型
+      mergeDirectiveTypes(mergedRegistry, schemaRegistry);
+
+      // 处理接口类型
+      List<InterfaceTypeDefinition> interfaceTypes =
+          schemaRegistry.getTypes(InterfaceTypeDefinition.class);
+      for (InterfaceTypeDefinition interfaceType : interfaceTypes) {
+        runtimeWiringBuilder.type(
+            TypeRuntimeWiring.newTypeWiring(interfaceType.getName())
+                .typeResolver(new GraphQLServiceTypeResolver(null)));
+      }
+
+      // 处理联合类型
+      List<UnionTypeDefinition> unionTypes = schemaRegistry.getTypes(UnionTypeDefinition.class);
+      for (UnionTypeDefinition unionType : unionTypes) {
+        runtimeWiringBuilder.type(
+            TypeRuntimeWiring.newTypeWiring(unionType.getName())
+                .typeResolver(new GraphQLServiceTypeResolver(null)));
+      }
+
+      mergedRegistry.merge(schemaRegistry);
+
+      // 处理数据获取器
       for (GraphQLFieldDefinition field : schema.getQueryType().getFields()) {
         FieldCoordinates coordinates =
             FieldCoordinates.coordinates(schema.getQueryType().getName(), field.getName());
@@ -277,34 +323,9 @@ public class GraphQLUtils {
       }
     }
 
-    // 构建新的 GraphQLSchema
-    GraphQLSchema mergedSchema =
-        newSchemaBuilder
-            .query(queryType)
-            .mutation(mutationType)
-            .codeRegistry(codeRegistryBuilder.build())
-            .build();
-
-    // 使用SchemaPrinter获取现有模式的SDL表示
-    SchemaPrinter schemaPrinter =
-        new SchemaPrinter(
-            SchemaPrinter.Options.defaultOptions()
-                .includeScalarTypes(true) // 根据需要包括标量类型
-                .includeSchemaDefinition(true) // 包括模式定义
-                .includeDirectives(true) // 包括指令
-            );
-
-    // 解析现有模式的SDL表示
-    SchemaParser schemaParser = new SchemaParser();
-
     // 构建新的GraphQL模式
     SchemaGenerator schemaGenerator = new SchemaGenerator();
-    RuntimeWiring.Builder runtimeWiringBuilder =
-        RuntimeWiring.newRuntimeWiring().codeRegistry(mergedSchema.getCodeRegistry());
-
-    // 创建 TypeDefinitionRegistry 并添加现有模式和扩展定义
-    TypeDefinitionRegistry mergedRegistry = new TypeDefinitionRegistry();
-    mergedRegistry.merge(schemaParser.parse(schemaPrinter.print(mergedSchema)));
+    runtimeWiringBuilder.codeRegistry(codeRegistryBuilder.build());
 
     // 用于扩展现有模式的SDL表示
     String extensionSchemaSDL = "extend type Query { newField: String }";
@@ -314,31 +335,85 @@ public class GraphQLUtils {
     runtimeWiringBuilder.type(
         "Query", builder -> builder.dataFetcher("newField", new StaticDataFetcher("newField")));
 
-    for (GraphQLNamedType type : mergedSchema.getAllTypesAsList()) {
-      if (type instanceof GraphQLScalarType scalarType) {
-        runtimeWiringBuilder.scalar(scalarType);
-      } else if (type instanceof GraphQLInterfaceType interfaceType) {
-        runtimeWiringBuilder.type(
-            TypeRuntimeWiring.newTypeWiring(interfaceType.getName())
-                .typeResolver(new GraphQLServiceTypeResolver(null)));
-      } else if (type instanceof GraphQLUnionType unionType) {
-        runtimeWiringBuilder.type(
-            TypeRuntimeWiring.newTypeWiring(unionType.getName())
-                .typeResolver(new GraphQLServiceTypeResolver(null)));
-      }
-    }
-
     RuntimeWiring runtimeWiring = runtimeWiringBuilder.build();
 
     return schemaGenerator.makeExecutableSchema(mergedRegistry, runtimeWiring);
   }
 
-  private static GraphQLObjectType mergeRootTypes(String name, GraphQLObjectType... objectTypes) {
-    // 合并字段
-    List<GraphQLFieldDefinition> fields =
-        Arrays.stream(objectTypes).flatMap(type -> type.getFieldDefinitions().stream()).toList();
+  private static void mergeDirectiveTypes(
+      TypeDefinitionRegistry mergedRegistry, TypeDefinitionRegistry schemaRegistry) {
+    Map<String, DirectiveDefinition> directiveTypes = schemaRegistry.getDirectiveDefinitions();
+    for (Map.Entry<String, DirectiveDefinition> entry : directiveTypes.entrySet()) {
+      if (mergedRegistry.getDirectiveDefinitions().containsKey(entry.getKey())) {
+        schemaRegistry.remove(entry.getValue());
+      }
+    }
+  }
 
-    // 创建新的 GraphQLObjectType
-    return GraphQLObjectType.newObject().name(name).fields(fields).build();
+  private static List<ScalarTypeDefinition> mergeScalarTypes(
+      TypeDefinitionRegistry mergedRegistry, TypeDefinitionRegistry schemaRegistry) {
+    Map<String, ScalarTypeDefinition> scalarTypes = schemaRegistry.scalars();
+    List<ScalarTypeDefinition> scalarTypeDefinitions = new ArrayList<>(scalarTypes.values());
+
+    for (Map.Entry<String, ScalarTypeDefinition> entry : scalarTypes.entrySet()) {
+      if (mergedRegistry.hasType(TypeName.newTypeName(entry.getKey()).build())) {
+        schemaRegistry.remove(entry.getValue());
+        scalarTypeDefinitions.remove(entry.getValue());
+      }
+    }
+
+    return scalarTypeDefinitions;
+  }
+
+  private static ObjectTypeExtensionDefinition transformObjectTypeExtensionDefinition(
+      ObjectTypeDefinition objectTypeDefinition) {
+    ObjectTypeExtensionDefinition.Builder extensionBuilder =
+        ObjectTypeExtensionDefinition.newObjectTypeExtensionDefinition();
+    extensionBuilder.name(objectTypeDefinition.getName());
+    // 复制字段
+    objectTypeDefinition.getFieldDefinitions().forEach(extensionBuilder::fieldDefinition);
+    // 复制指令（如果有）
+    objectTypeDefinition.getDirectives().forEach(extensionBuilder::directive);
+    return extensionBuilder.build();
+  }
+
+  private static void mergeRootType(
+      String name, TypeDefinitionRegistry mergedRegistry, TypeDefinitionRegistry schemaRegistry) {
+    TypeName typeName = TypeName.newTypeName(name).build();
+    if (!mergedRegistry.hasType(typeName) || !schemaRegistry.hasType(typeName)) {
+      return;
+    }
+    //noinspection OptionalGetWithoutIsPresent
+    ObjectTypeDefinition extendQuery =
+        schemaRegistry.getType(typeName, ObjectTypeDefinition.class).get();
+    schemaRegistry.remove(extendQuery);
+
+    // 创建一个新的 ObjectTypeExtensionDefinition Builder
+    ObjectTypeExtensionDefinition objectTypeExtensionDefinition =
+        transformObjectTypeExtensionDefinition(extendQuery);
+
+    schemaRegistry.add(objectTypeExtensionDefinition);
+  }
+
+  private static void mergeIgnoreTypes(
+      TypeDefinitionRegistry mergedRegistry,
+      TypeDefinitionRegistry schemaRegistry,
+      String... ignoreTypes) {
+    for (String name : ignoreTypes) {
+      TypeName typeName = TypeName.newTypeName(name).build();
+      if (!mergedRegistry.hasType(typeName) || !schemaRegistry.hasType(typeName)) {
+        return;
+      }
+      schemaRegistry.getType(typeName).ifPresent(schemaRegistry::remove);
+    }
+  }
+
+  private static void mergeRootTypes(
+      TypeDefinitionRegistry mergedRegistry, TypeDefinitionRegistry schemaRegistry) {
+    String[] rootTypes = new String[] {"Query", "Mutation", "Subscription"};
+
+    for (String rootType : rootTypes) {
+      mergeRootType(rootType, mergedRegistry, schemaRegistry);
+    }
   }
 }

@@ -2,10 +2,7 @@ package org.jfantasy.graphql.gateway.service;
 
 import graphql.introspection.IntrospectionQueryBuilder;
 import graphql.introspection.IntrospectionResultToSchema;
-import graphql.language.Definition;
-import graphql.language.Document;
-import graphql.language.ObjectTypeDefinition;
-import graphql.language.TypeDefinition;
+import graphql.language.*;
 import graphql.schema.*;
 import java.io.IOException;
 import java.util.HashMap;
@@ -23,6 +20,7 @@ import org.jfantasy.graphql.client.GraphQLTemplate;
 import org.jfantasy.graphql.gateway.GraphQLTemplateFactory;
 import org.jfantasy.graphql.gateway.config.GraphQLServiceOverride;
 import org.jfantasy.graphql.gateway.config.GraphQLServiceOverrideType;
+import org.jfantasy.graphql.gateway.data.GraphQLServiceDataFetcherFactory;
 import org.jfantasy.graphql.util.GraphQLTypeUtils;
 import org.springframework.http.HttpHeaders;
 
@@ -161,10 +159,10 @@ public class RemoteGraphQLService implements GraphQLService {
       if (this.hasType(name)) {
         continue;
       }
-      if (!(definition instanceof ObjectTypeDefinition)) {
-        continue;
+      if (definition instanceof ObjectTypeDefinition) {
+        GraphQLTypeUtils.buildObjectType((ObjectTypeDefinition) definition, this);
       }
-      GraphQLTypeUtils.buildObjectType((ObjectTypeDefinition) definition, this);
+      log.warn("未知类型: {}", definition);
     }
 
     List<?> missingTypes =

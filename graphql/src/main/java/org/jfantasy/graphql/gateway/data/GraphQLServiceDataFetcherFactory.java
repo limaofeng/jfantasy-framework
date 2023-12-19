@@ -1,4 +1,4 @@
-package org.jfantasy.graphql.gateway.service;
+package org.jfantasy.graphql.gateway.data;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import graphql.language.Field;
@@ -8,6 +8,7 @@ import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.graphql.client.GraphQLResponse;
 import org.jfantasy.graphql.client.GraphQLTemplate;
+import org.jfantasy.graphql.gateway.service.RemoteGraphQLService;
 import org.jfantasy.graphql.util.GraphQLUtils;
 import org.jfantasy.graphql.util.GraphQLValueUtils;
 
