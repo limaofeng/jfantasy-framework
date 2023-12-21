@@ -2,14 +2,13 @@ package org.jfantasy.graphql.util;
 
 import graphql.Scalars;
 import graphql.language.*;
-import graphql.scalars.ExtendedScalars;
 import graphql.schema.*;
 import java.lang.reflect.Method;
 import java.util.*;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.graphql.gateway.config.GraphQLServiceOverride;
-import org.jfantasy.graphql.gateway.service.GraphQLService;
-import org.jfantasy.graphql.scalars.OrderCoercing;
+import org.jfantasy.graphql.gateway.service.RemoteGraphQLService;
+import org.jfantasy.graphql.gateway.type.ScalarTypeResolver;
 
 public class GraphQLTypeUtils {
 
@@ -19,7 +18,7 @@ public class GraphQLTypeUtils {
       ClassUtil.getDeclaredMethod(GraphQLInputObjectType.class, "buildDefinitionMap");
   private static final Map<String, GraphQLScalarType> DEFAULT_SCALARS = new HashMap<>();
 
-  private static final Map<String, Coercing<?, ?>> DEFAULT_COERCINGS = new HashMap<>();
+  //  private static final Map<String, Coercing<?, ?>> DEFAULT_COERCINGS = new HashMap<>();
 
   static {
     DEFAULT_SCALARS.put(Scalars.GraphQLInt.getName(), Scalars.GraphQLInt);
@@ -27,21 +26,6 @@ public class GraphQLTypeUtils {
     DEFAULT_SCALARS.put(Scalars.GraphQLString.getName(), Scalars.GraphQLString);
     DEFAULT_SCALARS.put(Scalars.GraphQLBoolean.getName(), Scalars.GraphQLBoolean);
     DEFAULT_SCALARS.put(Scalars.GraphQLID.getName(), Scalars.GraphQLID);
-    // 自定义 Scalar
-    DEFAULT_COERCINGS.put("DateTime", ExtendedScalars.DateTime.getCoercing());
-    DEFAULT_COERCINGS.put("Date", ExtendedScalars.Date.getCoercing());
-    DEFAULT_COERCINGS.put("Json", ExtendedScalars.Json.getCoercing());
-    DEFAULT_COERCINGS.put("JSON", ExtendedScalars.Json.getCoercing());
-    DEFAULT_COERCINGS.put("Long", ExtendedScalars.GraphQLLong.getCoercing());
-    DEFAULT_COERCINGS.put("Hex", ExtendedScalars.GraphQLChar.getCoercing());
-    DEFAULT_COERCINGS.put("RGBA", ExtendedScalars.GraphQLChar.getCoercing());
-    DEFAULT_COERCINGS.put("RGBAHue", ExtendedScalars.GraphQLChar.getCoercing());
-    DEFAULT_COERCINGS.put("RGBATransparency", ExtendedScalars.GraphQLChar.getCoercing());
-    DEFAULT_COERCINGS.put("RichTextAST", ExtendedScalars.GraphQLChar.getCoercing());
-    DEFAULT_COERCINGS.put("File", Scalars.GraphQLString.getCoercing());
-    DEFAULT_COERCINGS.put("OrderBy", new OrderCoercing());
-    DEFAULT_COERCINGS.put("Number", ExtendedScalars.GraphQLLong.getCoercing());
-    DEFAULT_COERCINGS.put("Upload", Scalars.GraphQLString.getCoercing());
   }
 
   public static String getTypeName(Type<?> type) {
@@ -55,7 +39,7 @@ public class GraphQLTypeUtils {
     throw new RuntimeException("未知类型:" + type.toString());
   }
 
-  private static GraphQLInputType getGraphQLInputType(Type<?> type, GraphQLService service) {
+  private static GraphQLInputType getGraphQLInputType(Type<?> type, RemoteGraphQLService service) {
     if (type instanceof ListType) {
       return GraphQLList.list(getGraphQLInputType(((ListType) type).getType(), service));
     } else if (type instanceof NonNullType) {
@@ -87,14 +71,14 @@ public class GraphQLTypeUtils {
     throw new RuntimeException("未知类型:" + type.toString());
   }
 
-  public static GraphQLInterfaceType getInterfaceType(Type<?> type, GraphQLService service) {
+  public static GraphQLInterfaceType getInterfaceType(Type<?> type, RemoteGraphQLService service) {
     if (!(type instanceof TypeName)) {
       throw new RuntimeException("未知类型:" + type.toString());
     }
     return (GraphQLInterfaceType) getOutputType(type, service);
   }
 
-  public static GraphQLOutputType getOutputType(Type<?> type, GraphQLService service) {
+  public static GraphQLOutputType getOutputType(Type<?> type, RemoteGraphQLService service) {
     if (type instanceof ListType) {
       return GraphQLList.list(getOutputType(((ListType) type).getType(), service));
     } else if (type instanceof NonNullType) {
@@ -131,7 +115,7 @@ public class GraphQLTypeUtils {
   }
 
   private static void buildInterfaceType(
-      InterfaceTypeDefinition typeDefinition, GraphQLService service) {
+      InterfaceTypeDefinition typeDefinition, RemoteGraphQLService service) {
     GraphQLInterfaceType.Builder typeBuilder =
         GraphQLInterfaceType.newInterface()
             .name(typeDefinition.getName())
@@ -151,7 +135,8 @@ public class GraphQLTypeUtils {
     service.addType(typeDefinition.getName(), typeBuilder.build());
   }
 
-  private static void buildUnionType(UnionTypeDefinition typeDefinition, GraphQLService service) {
+  private static void buildUnionType(
+      UnionTypeDefinition typeDefinition, RemoteGraphQLService service) {
     GraphQLUnionType.Builder typeBuilder =
         GraphQLUnionType.newUnionType()
             .name(typeDefinition.getName())
@@ -165,21 +150,18 @@ public class GraphQLTypeUtils {
     service.addType(typeDefinition.getName(), typeBuilder.build());
   }
 
-  private static void buildScalarType(ScalarTypeDefinition typeDefinition, GraphQLService service) {
-    if (!DEFAULT_COERCINGS.containsKey(typeDefinition.getName())) {
-      throw new RuntimeException("未知类型:" + typeDefinition.getName());
+  private static void buildScalarType(
+      ScalarTypeDefinition typeDefinition, RemoteGraphQLService service) {
+    ScalarTypeResolver scalarTypeResolver = service.getScalarTypeResolver();
+    GraphQLScalarType scalarType = scalarTypeResolver.resolveScalarType(typeDefinition.getName());
+    if (scalarType == null) {
+      throw new RuntimeException("未找到:" + typeDefinition.getName() + " 对应的 ScalarType");
     }
-    GraphQLScalarType.Builder typeBuilder =
-        GraphQLScalarType.newScalar()
-            .name(typeDefinition.getName())
-            .description(getDescription(typeDefinition.getDescription()))
-            .coercing(DEFAULT_COERCINGS.get(typeDefinition.getName()))
-            .definition(typeDefinition);
-
-    service.addType(typeDefinition.getName(), typeBuilder.build());
+    service.addType(typeDefinition.getName(), scalarType);
   }
 
-  private static void buildEnumType(EnumTypeDefinition typeDefinition, GraphQLService service) {
+  private static void buildEnumType(
+      EnumTypeDefinition typeDefinition, RemoteGraphQLService service) {
     GraphQLEnumType.Builder typeBuilder =
         GraphQLEnumType.newEnum()
             .name(typeDefinition.getName())
@@ -203,7 +185,7 @@ public class GraphQLTypeUtils {
   }
 
   private static void buildInputObjectType(
-      InputObjectTypeDefinition typeDefinition, GraphQLService service) {
+      InputObjectTypeDefinition typeDefinition, RemoteGraphQLService service) {
     GraphQLInputObjectType.Builder typeBuilder =
         GraphQLInputObjectType.newInputObject()
             .name(typeDefinition.getName())
@@ -233,7 +215,7 @@ public class GraphQLTypeUtils {
     }
   }
 
-  public static void buildDirective(DirectiveDefinition directive, GraphQLService service) {
+  public static void buildDirective(DirectiveDefinition directive, RemoteGraphQLService service) {
     //    GraphQLDirective myDirective =
     //      .name("myDirective")
     //      .description("A custom directive.")
@@ -249,7 +231,8 @@ public class GraphQLTypeUtils {
             .description(getDescription(directive.getDescription()));
   }
 
-  public static void buildObjectType(ObjectTypeDefinition typeDefinition, GraphQLService service) {
+  public static void buildObjectType(
+      ObjectTypeDefinition typeDefinition, RemoteGraphQLService service) {
     GraphQLObjectType.Builder typeBuilder =
         GraphQLObjectType.newObject()
             .name(typeDefinition.getName())
@@ -288,7 +271,7 @@ public class GraphQLTypeUtils {
   }
 
   private static GraphQLAppliedDirective[] buildDirectives(
-      List<Directive> typeDefinition, GraphQLService service) {
+      List<Directive> typeDefinition, RemoteGraphQLService service) {
     return typeDefinition.stream()
         .map(
             (directive) -> {
@@ -309,7 +292,7 @@ public class GraphQLTypeUtils {
   }
 
   private static GraphQLFieldDefinition buildField(
-      GraphQLObjectType objectType, FieldDefinition fieldDefinition, GraphQLService service) {
+      GraphQLObjectType objectType, FieldDefinition fieldDefinition, RemoteGraphQLService service) {
     GraphQLServiceOverride override = service.getOverrideConfig();
     String fieldName = override.getFieldRename(objectType.getName(), fieldDefinition.getName());
 

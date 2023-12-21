@@ -124,8 +124,8 @@ class GraphQLGatewayTest {
   }
 
   @Test
-  public void testLoad() throws IOException {
-    GraphQLGateway gateway = GraphQLGateway.builder().load("gateway.yaml").build();
+  public void testLoadConfig() throws IOException {
+    GraphQLGateway gateway = GraphQLGateway.builder().config("graphql-gateway.yaml").build();
 
     gateway.init();
 

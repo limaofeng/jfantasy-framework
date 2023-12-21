@@ -3,9 +3,13 @@ package org.jfantasy.graphql.util;
 import static graphql.Scalars.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import graphql.GraphQLContext;
+import graphql.schema.Coercing;
 import graphql.schema.GraphQLOutputType;
 import graphql.schema.GraphQLScalarType;
 import graphql.schema.GraphQLType;
+import java.util.Locale;
+import lombok.SneakyThrows;
 import org.jfantasy.framework.jackson.JSON;
 import org.jfantasy.framework.util.common.ObjectUtil;
 
@@ -17,7 +21,8 @@ public class GraphQLValueUtils {
    * @param scalarType GraphQLScalarType 类型。
    * @return 转换后的 Java 对象。
    */
-  public static Object convertToScalarType(JsonNode node, GraphQLScalarType scalarType) {
+  public static Object convertToScalarType(
+      JsonNode node, GraphQLScalarType scalarType, GraphQLContext graphQLContext, Locale locale) {
     if (node == null || node.isNull()) {
       return null;
     }
@@ -35,16 +40,55 @@ public class GraphQLValueUtils {
       }
       return node.isTextual() ? node.asText() : null;
     }
-    throw new UnsupportedOperationException("不支持的类型:" + scalarType.getName());
+    Object nodeValue = getNodeValue(node);
+    Coercing<?, ?> coercing = scalarType.getCoercing();
+    return coercing.serialize(nodeValue, graphQLContext, locale);
   }
 
-  public static Object convert(Object root, String name, GraphQLOutputType type) {
+  @SneakyThrows
+  public static Object getNodeValue(JsonNode node) {
+    if (node.isTextual()) {
+      return node.asText();
+    } else if (node.isInt()) {
+      return node.asInt();
+    } else if (node.isBoolean()) {
+      return node.asBoolean();
+    } else if (node.isDouble()) {
+      return node.asDouble();
+    } else if (node.isLong()) {
+      return node.asLong();
+    } else if (node.isBigDecimal()) {
+      return node.decimalValue();
+    } else if (node.isBigInteger()) {
+      return node.bigIntegerValue();
+    } else if (node.isBinary()) {
+      return node.binaryValue();
+    } else if (node.isFloat()) {
+      return node.floatValue();
+    } else if (node.isShort()) {
+      return node.shortValue();
+    } else if (node.isNumber()) {
+      return node.numberValue();
+    } else if (node.isObject()) {
+      return node;
+    } else if (node.isArray()) {
+      return node;
+    }
+    return null;
+  }
+
+  public static Object convert(
+      Object root,
+      String name,
+      GraphQLOutputType type,
+      GraphQLContext graphQLContext,
+      Locale locale) {
     GraphQLType outputType = GraphQLTypeUtils.getSourceType(type);
 
     if (root instanceof JsonNode node) {
       JsonNode valueNode = JSON.findNode(node, "/" + name);
       if (outputType instanceof GraphQLScalarType scalarType) {
-        return GraphQLValueUtils.convertToScalarType(valueNode, scalarType);
+        return GraphQLValueUtils.convertToScalarType(valueNode, scalarType, graphQLContext, locale);
       }
       if (valueNode == null || valueNode.isNull()) {
         return null;

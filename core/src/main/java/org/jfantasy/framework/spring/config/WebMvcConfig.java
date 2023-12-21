@@ -5,6 +5,7 @@ import jakarta.servlet.DispatcherType;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
+import org.jetbrains.annotations.NotNull;
 import org.jfantasy.framework.spring.SpringBeanUtils;
 import org.jfantasy.framework.spring.mvc.servlet.method.PagerModelAttributeMethodProcessor;
 import org.jfantasy.framework.spring.mvc.servlet.method.PropertyFilterModelAttributeMethodProcessor;
@@ -97,7 +98,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
   }
 
   @Override
-  public void addCorsMappings(@SuppressWarnings("NullableProblems") CorsRegistry registry) {
+  public void addCorsMappings(@NotNull CorsRegistry registry) {
     //noinspection DuplicatedCode
     String path = "/**";
 

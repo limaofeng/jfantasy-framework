@@ -29,7 +29,9 @@ public class GraphQLGatewayDataFetcherFactory implements DataFetcherFactory<Obje
         return GraphQLValueUtils.convert(
             environment.getSource(),
             StringUtil.defaultValue(field.getAlias(), field.getName()),
-            environment.getFieldType());
+            environment.getFieldType(),
+            environment.getGraphQlContext(),
+            environment.getLocale());
       }
 
       throw new UnsupportedOperationException("Not supported yet.");

@@ -1,9 +1,6 @@
 package org.jfantasy.framework.util;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
+import java.io.*;
 import java.lang.reflect.Array;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
@@ -11,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * 线程安全的队列实现
@@ -23,7 +21,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class LinkedBlockingQueue<E> extends AbstractQueue<E>
     implements BlockingQueue<E>, Serializable {
   /** */
-  private static final long serialVersionUID = -6642633435807467698L;
+  @Serial private static final long serialVersionUID = -6642633435807467698L;
 
   /** 容量 */
   private final int capacity;
@@ -151,10 +149,7 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
    * @throws InterruptedException 线程中断异常
    */
   @Override
-  public void put(@SuppressWarnings("NullableProblems") E o) throws InterruptedException {
-    if (o == null) {
-      throw new NullPointerException();
-    }
+  public void put(@NotNull E o) throws InterruptedException {
     int c = -1;
     ReentrantLock tputLock = this.putLock;
     AtomicInteger tcount = this.count;
@@ -196,8 +191,7 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
    * @throws InterruptedException 线程中断异常
    */
   @Override
-  public boolean offer(E o, long timeout, @SuppressWarnings("NullableProblems") TimeUnit unit)
-      throws InterruptedException {
+  public boolean offer(E o, long timeout, @NotNull TimeUnit unit) throws InterruptedException {
     if (o == null) {
       throw new NullPointerException();
     }
@@ -231,10 +225,7 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
    * @return bookean
    */
   @Override
-  public boolean offer(@SuppressWarnings("NullableProblems") E o) {
-    if (o == null) {
-      throw new NullPointerException();
-    }
+  public boolean offer(@NotNull E o) {
     AtomicInteger tcount = this.count;
     if (tcount.get() == this.capacity) {
       return false;
@@ -266,7 +257,7 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
    * @throws InterruptedException 线程中断异常
    */
   @Override
-  public E take() throws InterruptedException {
+  public @NotNull E take() throws InterruptedException {
     int c = -1;
     AtomicInteger tcount = this.count;
     ReentrantLock ttakeLock = this.takeLock;
@@ -413,7 +404,7 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
    * @return Object[]
    */
   @Override
-  public Object[] toArray() {
+  public Object @NotNull [] toArray() {
     fullyLock();
     try {
       int size = this.count.get();
@@ -429,16 +420,18 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
   }
 
   @Override
-  public <T> T[] toArray(@SuppressWarnings("NullableProblems") T[] a) {
+  public <T> T @NotNull [] toArray(T @NotNull [] a) {
     T[] array = a;
     fullyLock();
     try {
       int size = this.count.get();
       if (array.length < size) {
+        //noinspection unchecked
         array = (T[]) Array.newInstance(a.getClass().getComponentType(), size);
       }
       int k = 0;
       for (Node<E> p = this.head.next; p != null; p = p.next) {
+        //noinspection unchecked
         array[k++] = (T) p.item;
       }
       return array;
@@ -474,10 +467,7 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
   }
 
   @Override
-  public int drainTo(@SuppressWarnings("NullableProblems") Collection<? super E> c) {
-    if (c == null) {
-      throw new NullPointerException();
-    }
+  public int drainTo(@NotNull Collection<? super E> c) {
     if (c == this) {
       throw new IllegalArgumentException();
     }
@@ -505,11 +495,7 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
   }
 
   @Override
-  public int drainTo(
-      @SuppressWarnings("NullableProblems") Collection<? super E> c, int maxElements) {
-    if (c == null) {
-      throw new NullPointerException();
-    }
+  public int drainTo(@NotNull Collection<? super E> c, int maxElements) {
     if (c == this) {
       throw new IllegalArgumentException();
     }
@@ -540,10 +526,11 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
   }
 
   @Override
-  public Iterator<E> iterator() {
+  public @NotNull Iterator<E> iterator() {
     return new Itr();
   }
 
+  @Serial
   private void writeObject(ObjectOutputStream s) throws IOException {
     fullyLock();
     try {
@@ -564,11 +551,13 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
    * @throws IOException IO 异常
    * @throws ClassNotFoundException 类未发现异常
    */
+  @Serial
   private void readObject(ObjectInputStream s) throws IOException, ClassNotFoundException {
     s.defaultReadObject();
     this.count.set(0);
     this.last = this.head = new Node<>();
     while (true) {
+      @SuppressWarnings("unchecked")
       E item = (E) s.readObject();
       if (item == null) {
         break;
@@ -616,7 +605,7 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
   }
 
   @Override
-  public boolean add(@SuppressWarnings("NullableProblems") E e) {
+  public boolean add(@NotNull E e) {
     return offer(e);
   }
 
@@ -885,13 +874,12 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
     }
 
     @Override
-    public boolean addAll(@SuppressWarnings("NullableProblems") Collection<? extends E> c) {
+    public boolean addAll(@NotNull Collection<? extends E> c) {
       return this.queue.addAll(c);
     }
 
     @Override
-    public boolean addAll(
-        int index, @SuppressWarnings("NullableProblems") Collection<? extends E> c) {
+    public boolean addAll(int index, @NotNull Collection<? extends E> c) {
       throw new UnsupportedOperationException();
     }
 
@@ -906,7 +894,7 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
     }
 
     @Override
-    public boolean containsAll(@SuppressWarnings("NullableProblems") Collection<?> c) {
+    public boolean containsAll(@NotNull Collection<?> c) {
       return this.queue.containsAll(c);
     }
 
@@ -921,7 +909,7 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
     }
 
     @Override
-    public Iterator<E> iterator() {
+    public @NotNull Iterator<E> iterator() {
       return this.queue.iterator();
     }
 
@@ -931,12 +919,12 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
     }
 
     @Override
-    public ListIterator<E> listIterator() {
+    public @NotNull ListIterator<E> listIterator() {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public ListIterator<E> listIterator(int index) {
+    public @NotNull ListIterator<E> listIterator(int index) {
       throw new UnsupportedOperationException();
     }
 
@@ -951,17 +939,18 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
     }
 
     @Override
-    public boolean removeAll(@SuppressWarnings("NullableProblems") Collection<?> c) {
+    public boolean removeAll(@NotNull Collection<?> c) {
       return this.queue.removeAll(c);
     }
 
     @Override
     public int indexOf(Object o) {
+      //noinspection unchecked
       return this.queue.indexOf((E) o);
     }
 
     @Override
-    public boolean retainAll(@SuppressWarnings("NullableProblems") Collection<?> c) {
+    public boolean retainAll(@NotNull Collection<?> c) {
       return this.queue.retainAll(c);
     }
 
@@ -976,17 +965,17 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
     }
 
     @Override
-    public List<E> subList(int fromIndex, int toIndex) {
+    public @NotNull List<E> subList(int fromIndex, int toIndex) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public Object[] toArray() {
+    public Object @NotNull [] toArray() {
       return this.queue.toArray();
     }
 
     @Override
-    public <T> T[] toArray(@SuppressWarnings("NullableProblems") T[] a) {
+    public <T> T @NotNull [] toArray(T @NotNull [] a) {
       return this.queue.toArray(a);
     }
   }

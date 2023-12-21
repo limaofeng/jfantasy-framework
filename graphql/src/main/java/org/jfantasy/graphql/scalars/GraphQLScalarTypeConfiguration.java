@@ -12,7 +12,6 @@ import org.springframework.context.annotation.Bean;
  *
  * @author limaofeng
  * @version V1.0
- * @date 2019/8/23 6:06 下午
  */
 @Slf4j
 @AutoConfigureBefore(GraphQLJavaToolsAutoConfiguration.class)

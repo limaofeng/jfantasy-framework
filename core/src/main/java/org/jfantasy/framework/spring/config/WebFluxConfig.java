@@ -2,6 +2,7 @@ package org.jfantasy.framework.spring.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Arrays;
+import org.jetbrains.annotations.NotNull;
 import org.jfantasy.framework.spring.SpringBeanUtils;
 import org.jfantasy.framework.spring.mvc.reactive.WebFluxResponseBodyResultHandler;
 import org.jfantasy.framework.spring.mvc.reactive.method.PropertyFilterModelAttributeMethodProcessor;
@@ -53,7 +54,7 @@ public class WebFluxConfig implements WebFluxConfigurer {
   }
 
   @Override
-  public void addCorsMappings(@SuppressWarnings("NullableProblems") CorsRegistry registry) {
+  public void addCorsMappings(@NotNull CorsRegistry registry) {
     // noinspection DuplicatedCode
     String path = "/**";
 

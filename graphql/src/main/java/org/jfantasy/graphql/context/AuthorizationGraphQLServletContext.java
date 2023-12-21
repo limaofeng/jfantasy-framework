@@ -9,6 +9,7 @@ import jakarta.websocket.server.HandshakeRequest;
 import java.util.HashMap;
 import java.util.Map;
 import org.dataloader.DataLoaderRegistry;
+import org.jetbrains.annotations.NotNull;
 import org.jfantasy.framework.security.SecurityContext;
 import org.jfantasy.framework.security.authentication.Authentication;
 
@@ -62,7 +63,7 @@ public class AuthorizationGraphQLServletContext extends DefaultGraphQLContext
     return map;
   }
 
-  @SuppressWarnings("NullableProblems")
+  @NotNull
   @Override
   public DataLoaderRegistry getDataLoaderRegistry() {
     return super.getDataLoaderRegistry();

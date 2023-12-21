@@ -28,7 +28,7 @@ class AsmUtilTest {
 
   @Test
   void makeEnum() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-    Class newClass =
+    Class<?> newClass =
         AsmUtil.makeEnum(
             "cn.asany.test.CnAsanyTestAccountOrderBy",
             "createdAt_ASC",
@@ -39,7 +39,8 @@ class AsmUtilTest {
             "name_DESC");
     log.debug("newClass" + newClass.getName());
     newClass.getMethod("values").invoke(null);
-    Object eObj = Enum.valueOf(newClass, "updatedAt_DESC");
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    Object eObj = Enum.valueOf((Class) newClass, "updatedAt_DESC");
   }
 
   @Test

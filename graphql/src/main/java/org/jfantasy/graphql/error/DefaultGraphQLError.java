@@ -16,11 +16,10 @@ import org.jfantasy.framework.util.common.ObjectUtil;
  *
  * @author limaofeng
  * @version V1.0
- * @date 2020/3/22 4:36 下午
  */
 public class DefaultGraphQLError extends ErrorResponse implements GraphQLError {
 
-  private List<Object> path;
+  private final List<Object> path;
   private final List<SourceLocation> locations;
   private final ErrorClassification errorType;
 
@@ -40,10 +39,6 @@ public class DefaultGraphQLError extends ErrorResponse implements GraphQLError {
     return this.locations;
   }
 
-  public void setPath(List<Object> path) {
-    this.path = path;
-  }
-
   @Override
   public List<Object> getPath() {
     return !this.path.isEmpty() ? this.path : null;
@@ -56,7 +51,7 @@ public class DefaultGraphQLError extends ErrorResponse implements GraphQLError {
     Map<String, Object> extensions = (Map<String, Object>) result.get("extensions");
     extensions.put("code", this.getCode());
     extensions.put("timestamp", this.getTimestamp());
-    if (!this.getError().isEmpty()) {
+    if (!this.getFieldErrors().isEmpty()) {
       extensions.put("errors", this.getFieldErrors());
     }
     if (!this.getData().isEmpty()) {

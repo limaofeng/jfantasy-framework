@@ -3,6 +3,7 @@ package org.jfantasy.framework.context;
 import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.Optional;
+import org.jetbrains.annotations.NotNull;
 import org.jfantasy.framework.context.bean.Language;
 import org.jfantasy.framework.context.service.LanguageService;
 import org.springframework.context.support.AbstractMessageSource;
@@ -23,9 +24,7 @@ public class DatabaseMessageSource extends AbstractMessageSource {
   }
 
   @Override
-  protected MessageFormat resolveCode(
-      @SuppressWarnings("NullableProblems") String key,
-      @SuppressWarnings("NullableProblems") Locale locale) {
+  protected MessageFormat resolveCode(@NotNull String key, @NotNull Locale locale) {
     Optional<Language> optional = languageService.getMessage(key, locale);
     Optional<Language> result =
         Optional.ofNullable(

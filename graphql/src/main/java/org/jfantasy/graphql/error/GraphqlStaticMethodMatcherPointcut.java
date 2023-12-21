@@ -5,6 +5,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.aop.ClassFilter;
 import org.springframework.aop.support.StaticMethodMatcherPointcut;
 import org.springframework.validation.annotation.Validated;
@@ -24,15 +25,14 @@ public class GraphqlStaticMethodMatcherPointcut extends StaticMethodMatcherPoint
     classFilter = new GraphQLClassFilter(new Class[] {GraphQLMutationResolver.class});
   }
 
-  @SuppressWarnings("NullableProblems")
+  @NotNull
   @Override
   public ClassFilter getClassFilter() {
     return this.classFilter;
   }
 
   @Override
-  public boolean matches(
-      Method method, @SuppressWarnings("NullableProblems") Class<?> targetClass) {
+  public boolean matches(Method method, @NotNull Class<?> targetClass) {
     Annotation[][] annotations = method.getParameterAnnotations();
     return Arrays.stream(annotations)
         .anyMatch(

@@ -18,6 +18,7 @@ import org.jfantasy.framework.search.exception.ElasticsearchConnectionException;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.lang.Nullable;
 import org.springframework.scheduling.SchedulingTaskExecutor;
 import org.springframework.util.StopWatch;
 
@@ -25,9 +26,9 @@ import org.springframework.util.StopWatch;
 public class CuckooIndexFactory implements ApplicationContextAware {
 
   /** 线程池 */
-  private SchedulingTaskExecutor executor;
+  @Setter private SchedulingTaskExecutor executor;
 
-  private boolean rebuild = false;
+  @Setter private boolean rebuild = false;
 
   private final Map<Class<?>, IndexRebuilder> indexRebuilds = new HashMap<>();
 
@@ -38,7 +39,7 @@ public class CuckooIndexFactory implements ApplicationContextAware {
   @Setter private String username;
   @Setter private String password;
 
-  private int batchSize;
+  @Setter private int batchSize;
   private ApplicationContext applicationContext;
   private ElasticsearchConnection connection;
 
@@ -108,20 +109,9 @@ public class CuckooIndexFactory implements ApplicationContextAware {
     this.connection.close();
   }
 
-  public void setBatchSize(int batchSize) {
-    this.batchSize = batchSize;
-  }
-
-  public void setRebuild(boolean rebuild) {
-    this.rebuild = rebuild;
-  }
-
-  public void setExecutor(SchedulingTaskExecutor executor) {
-    this.executor = executor;
-  }
-
   @Override
-  public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+  public void setApplicationContext(@Nullable ApplicationContext applicationContext)
+      throws BeansException {
     this.applicationContext = applicationContext;
   }
 }

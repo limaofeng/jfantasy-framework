@@ -24,6 +24,8 @@ import org.jfantasy.graphql.gateway.GraphQLGatewayReloadSchemaProvider;
 import org.jfantasy.graphql.gateway.GraphQLReloadSchemaProvider;
 import org.jfantasy.graphql.gateway.GraphQLTemplateFactory;
 import org.jfantasy.graphql.gateway.service.DefaultGraphQLTemplateFactory;
+import org.jfantasy.graphql.gateway.type.ScalarTypeProviderFactory;
+import org.jfantasy.graphql.gateway.type.ScalarTypeResolver;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -46,7 +48,6 @@ import org.springframework.web.client.RestTemplate;
  *
  * @author limaofeng
  * @version V1.0
- * @date 2019/2/13 4:04 PM
  */
 @Slf4j
 @EnableCaching
@@ -218,11 +219,15 @@ public class Application extends SpringBootServletInitializer {
 
   @Bean(initMethod = "init", destroyMethod = "destroy")
   public GraphQLGateway graphqlGateway(
-      SchemaParser schemaParser, GraphQLTemplateFactory templateFactory) throws IOException {
+      SchemaParser schemaParser,
+      GraphQLTemplateFactory templateFactory,
+      ScalarTypeProviderFactory scalarFactory)
+      throws IOException {
     return GraphQLGateway.builder()
         .schema(schemaParser.makeExecutableSchema())
         .clientFactory(templateFactory)
-        .load("graphql-gateway.yaml")
+        .scalarResolver(new ScalarTypeResolver(scalarFactory))
+        .config("graphql-gateway.yaml")
         .build();
   }
 

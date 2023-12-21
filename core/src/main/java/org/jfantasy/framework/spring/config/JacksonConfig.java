@@ -14,6 +14,7 @@ import jakarta.annotation.PostConstruct;
 import java.lang.reflect.Method;
 import java.util.*;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.jfantasy.framework.jackson.*;
 import org.jfantasy.framework.jackson.annotation.JsonResultFilter;
 import org.jfantasy.framework.jackson.deserializer.DateDeserializer;
@@ -186,9 +187,7 @@ public class JacksonConfig {
   public static class ObjectMapperBeanPostProcessor implements BeanPostProcessor {
 
     @Override
-    public Object postProcessAfterInitialization(
-        @SuppressWarnings("NullableProblems") Object bean,
-        @SuppressWarnings("NullableProblems") String beanName)
+    public Object postProcessAfterInitialization(@NotNull Object bean, @NotNull String beanName)
         throws BeansException {
       if (bean instanceof ObjectMapper objectMapper) {
         JSON.setObjectMapper(objectMapper);

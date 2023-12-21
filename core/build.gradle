@@ -36,13 +36,6 @@ dependencies {
 	compileOnly("org.apache.shardingsphere:sharding-jdbc-core:${LIB_SHARDING_SPHERE_VER}"){
 		exclude group: "com.google.guava", module: "guava"
 	}
-	compileOnly "org.projectlombok:lombok"
-	annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
-	annotationProcessor "org.projectlombok:lombok"
-	testCompileOnly "org.projectlombok:lombok"
-	testAnnotationProcessor "org.projectlombok:lombok"
-	// noinspection DependencyNotationArgument
-	testImplementation libs['test']
 }
 
 repositories {

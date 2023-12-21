@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -26,14 +27,13 @@ public class SpringBeanUtils
   private static ConfigurableListableBeanFactory beanFactory;
 
   @Override
-  public void postProcessBeanDefinitionRegistry(
-      @SuppressWarnings("NullableProblems") BeanDefinitionRegistry registry) throws BeansException {
+  public void postProcessBeanDefinitionRegistry(@NotNull BeanDefinitionRegistry registry)
+      throws BeansException {
     SpringBeanUtils.registry = registry;
   }
 
   @Override
-  public void postProcessBeanFactory(
-      @SuppressWarnings("NullableProblems") ConfigurableListableBeanFactory beanFactory)
+  public void postProcessBeanFactory(@NotNull ConfigurableListableBeanFactory beanFactory)
       throws BeansException {
     SpringBeanUtils.beanFactory = beanFactory;
   }
@@ -44,8 +44,7 @@ public class SpringBeanUtils
    * @param applicationContext applicationContext
    */
   @Override
-  public void setApplicationContext(
-      @SuppressWarnings("NullableProblems") ApplicationContext applicationContext) {
+  public void setApplicationContext(@NotNull ApplicationContext applicationContext) {
     if (ObjectUtil.isNull(SpringBeanUtils.applicationContext)) {
       SpringBeanUtils.applicationContext = applicationContext;
     }
@@ -93,6 +92,7 @@ public class SpringBeanUtils
    */
   public static synchronized <T> T getBean(String name) {
     try {
+      //noinspection unchecked
       return (T) applicationContext.getBean(name);
     } catch (NoSuchBeanDefinitionException e) {
       if (log.isErrorEnabled()) {
@@ -184,7 +184,7 @@ public class SpringBeanUtils
    * 判断以给定名字注册的bean定义是一个singleton还是一个prototype。
    * 如果与给定名字相应的bean定义没有被找到，将会抛出一个异常（NoSuchBeanDefinitionException）
    *
-   * @param name beanname
+   * @param name BeanName
    * @return boolean
    */
   public static synchronized boolean isSingleton(String name) {

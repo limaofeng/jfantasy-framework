@@ -7,6 +7,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.util.HashMap;
 import java.util.Map;
+import org.jetbrains.annotations.NotNull;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.springframework.beans.BeanInstantiationException;
 import org.springframework.beans.BeansException;
@@ -37,8 +38,7 @@ public class GraphQLClientBeanPostProcessor implements BeanPostProcessor {
   }
 
   @Override
-  public Object postProcessBeforeInitialization(
-      final Object bean, @SuppressWarnings("NullableProblems") final String beanName)
+  public Object postProcessBeforeInitialization(final Object bean, @NotNull final String beanName)
       throws BeansException {
     Class<?> clazz = bean.getClass();
     do {

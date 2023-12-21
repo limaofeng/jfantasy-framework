@@ -15,8 +15,12 @@ import org.jfantasy.graphql.context.DataLoaderRegistryCustomizer;
 import org.jfantasy.graphql.context.SecurityGraphQLContextBuilder;
 import org.jfantasy.graphql.error.GraphQLResolverAdvice;
 import org.jfantasy.graphql.error.GraphqlStaticMethodMatcherPointcut;
+import org.jfantasy.graphql.error.TokenGraphQLServletListener;
 import org.jfantasy.graphql.execution.AsyncMutationExecutionStrategy;
 import org.jfantasy.graphql.execution.AsyncQueryExecutionStrategy;
+import org.jfantasy.graphql.gateway.type.ScalarTypeProvider;
+import org.jfantasy.graphql.gateway.type.ScalarTypeProviderFactory;
+import org.jfantasy.graphql.gateway.type.SpringScalarTypeProvider;
 import org.springframework.aop.support.DefaultBeanFactoryPointcutAdvisor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -58,6 +62,11 @@ public class GraphQLAutoConfiguration {
       DataLoaderRegistry dataLoaderRegistry) {
     return new SecurityGraphQLContextBuilder(
         authenticationManagerResolver, websocketAuthenticationManagerResolver, dataLoaderRegistry);
+  }
+
+  @Bean
+  public TokenGraphQLServletListener tokenGraphQLServletListener() {
+    return new TokenGraphQLServletListener();
   }
 
   @Bean(GraphQLWebAutoConfiguration.QUERY_EXECUTION_STRATEGY)
@@ -102,5 +111,19 @@ public class GraphQLAutoConfiguration {
       customizer.customize(registry);
     }
     return registry;
+  }
+
+  @Bean
+  public ScalarTypeProviderFactory scalarTypeProviderFactory(List<ScalarTypeProvider> providers) {
+    ScalarTypeProviderFactory providerFactory = new ScalarTypeProviderFactory();
+    for (ScalarTypeProvider provider : providers) {
+      providerFactory.registerProvider(provider.getName(), provider);
+    }
+    return providerFactory;
+  }
+
+  @Bean
+  public ScalarTypeProvider springScalarTypeProvider() {
+    return new SpringScalarTypeProvider();
   }
 }

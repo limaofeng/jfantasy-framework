@@ -7,6 +7,7 @@ import net.ttddyy.dsproxy.support.ProxyDataSource;
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.jetbrains.annotations.NotNull;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -20,9 +21,7 @@ import org.springframework.util.ReflectionUtils;
 public class DatasourceProxyBeanPostProcessor implements BeanPostProcessor {
 
   @Override
-  public Object postProcessAfterInitialization(
-      @SuppressWarnings("NullableProblems") Object bean,
-      @SuppressWarnings("NullableProblems") String beanName) {
+  public Object postProcessAfterInitialization(@NotNull Object bean, @NotNull String beanName) {
     if (bean instanceof DataSource && !(bean instanceof ProxyDataSource)) {
       final ProxyFactory factory = new ProxyFactory(bean);
       factory.setProxyTargetClass(true);
@@ -33,16 +32,12 @@ public class DatasourceProxyBeanPostProcessor implements BeanPostProcessor {
   }
 
   @Override
-  public Object postProcessBeforeInitialization(
-      @SuppressWarnings("NullableProblems") Object bean,
-      @SuppressWarnings("NullableProblems") String beanName) {
+  public Object postProcessBeforeInitialization(@NotNull Object bean, @NotNull String beanName) {
     return bean;
   }
 
-  private static class ProxyDataSourceInterceptor implements MethodInterceptor {
-    private final DataSource dataSource;
-
-    public ProxyDataSourceInterceptor(final DataSource dataSource) {
+  private record ProxyDataSourceInterceptor(DataSource dataSource) implements MethodInterceptor {
+    private ProxyDataSourceInterceptor(final DataSource dataSource) {
       String name = ObjectUtil.getValue("poolName", dataSource);
       this.dataSource =
           ProxyDataSourceBuilder.create(dataSource)

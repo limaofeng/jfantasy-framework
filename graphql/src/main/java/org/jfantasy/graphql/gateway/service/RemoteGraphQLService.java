@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.util.common.ClassUtil;
@@ -21,6 +22,7 @@ import org.jfantasy.graphql.gateway.GraphQLTemplateFactory;
 import org.jfantasy.graphql.gateway.config.GraphQLServiceOverride;
 import org.jfantasy.graphql.gateway.config.GraphQLServiceOverrideType;
 import org.jfantasy.graphql.gateway.data.GraphQLServiceDataFetcherFactory;
+import org.jfantasy.graphql.gateway.type.ScalarTypeResolver;
 import org.jfantasy.graphql.util.GraphQLTypeUtils;
 import org.springframework.http.HttpHeaders;
 
@@ -43,6 +45,7 @@ public class RemoteGraphQLService implements GraphQLService {
   private TypeResolver defaultTypeResolver;
 
   private DataFetcherFactory<?> defaultDataFetcher;
+  @Getter private ScalarTypeResolver scalarTypeResolver;
 
   private GraphQLTemplateFactory clientFactory;
   private GraphQLTemplate client;

@@ -3,7 +3,9 @@ package org.jfantasy.graphql.client;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.Option;
 import com.jayway.jsonpath.ReadContext;
 import java.io.IOException;
 import java.util.List;
@@ -14,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 
 public class GraphQLResponse {
 
+  private static final Configuration JSONPATH_CONF =
+      Configuration.defaultConfiguration().addOptions(Option.SUPPRESS_EXCEPTIONS);
   private final ResponseEntity<String> responseEntity;
   private final ObjectMapper mapper;
   private final ReadContext context;
@@ -25,7 +29,7 @@ public class GraphQLResponse {
     Objects.requireNonNull(
         responseEntity.getBody(),
         () -> "Body is empty with status " + responseEntity.getStatusCode());
-    context = JsonPath.parse(responseEntity.getBody());
+    context = JsonPath.parse(responseEntity.getBody(), JSONPATH_CONF);
   }
 
   public JsonNode readTree() throws IOException {
@@ -58,6 +62,11 @@ public class GraphQLResponse {
 
   public boolean isOk() {
     return getStatusCode() == HttpStatus.OK;
+  }
+
+  public boolean hasErrors() {
+    JsonNode node = this.get("$.errors", JsonNode.class);
+    return node != null && !node.isEmpty();
   }
 
   public HttpStatusCode getStatusCode() {

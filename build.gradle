@@ -110,6 +110,17 @@ subprojects {
         }
     }
 
+    dependencies {
+        compileOnly "org.jetbrains:annotations:24.0.0"
+        compileOnly "org.projectlombok:lombok"
+        annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+        annotationProcessor "org.projectlombok:lombok"
+        testCompileOnly "org.projectlombok:lombok"
+        testAnnotationProcessor "org.projectlombok:lombok"
+        // noinspection DependencyNotationArgument
+        testImplementation libs['test']
+    }
+
     tasks.withType(Test).configureEach {
         useJUnitPlatform()
 

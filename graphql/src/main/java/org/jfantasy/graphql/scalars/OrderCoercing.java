@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Locale;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.springframework.data.domain.Sort;
 
@@ -26,18 +27,14 @@ public class OrderCoercing implements Coercing<Sort, String> {
 
   @Override
   public String serialize(
-      Object input,
-      @SuppressWarnings("NullableProblems") GraphQLContext graphQLContext,
-      @SuppressWarnings("NullableProblems") Locale locale)
+      Object input, @NotNull GraphQLContext graphQLContext, @NotNull Locale locale)
       throws CoercingSerializeException {
     return input.toString();
   }
 
   @Override
   public Sort parseValue(
-      Object input,
-      @SuppressWarnings("NullableProblems") GraphQLContext graphQLContext,
-      @SuppressWarnings("NullableProblems") Locale locale)
+      Object input, @NotNull GraphQLContext graphQLContext, @NotNull Locale locale)
       throws CoercingParseValueException {
     String inputString = input.toString();
     if ("unsorted".equals(inputString)) {
@@ -78,10 +75,10 @@ public class OrderCoercing implements Coercing<Sort, String> {
 
   @Override
   public Sort parseLiteral(
-      @SuppressWarnings("NullableProblems") Value<?> input,
-      @SuppressWarnings("NullableProblems") CoercedVariables variables,
-      @SuppressWarnings("NullableProblems") GraphQLContext graphQLContext,
-      @SuppressWarnings("NullableProblems") Locale locale)
+      @NotNull Value<?> input,
+      @NotNull CoercedVariables variables,
+      @NotNull GraphQLContext graphQLContext,
+      @NotNull Locale locale)
       throws CoercingParseLiteralException {
     if (!(input instanceof StringValue)) {
       throw new CoercingParseLiteralException(

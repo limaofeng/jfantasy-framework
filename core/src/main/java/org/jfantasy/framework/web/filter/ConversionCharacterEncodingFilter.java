@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import org.jetbrains.annotations.NotNull;
 import org.jfantasy.framework.web.filter.wrapper.CharacterEncodingRequestWrapper;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -20,8 +21,8 @@ public class ConversionCharacterEncodingFilter extends OncePerRequestFilter {
   @Override
   protected void doFilterInternal(
       HttpServletRequest request,
-      @SuppressWarnings("NullableProblems") HttpServletResponse response,
-      @SuppressWarnings("NullableProblems") FilterChain filterChain)
+      @NotNull HttpServletResponse response,
+      @NotNull FilterChain filterChain)
       throws ServletException, IOException {
     Boolean transform = (Boolean) request.getAttribute(TRANSFORM);
     if (transform == null) {

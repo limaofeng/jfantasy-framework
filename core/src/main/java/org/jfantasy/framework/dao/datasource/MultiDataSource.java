@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
@@ -40,7 +41,7 @@ public class MultiDataSource extends AbstractRoutingDataSource {
     }
   }
 
-  @SuppressWarnings("NullableProblems")
+  @NotNull
   @Override
   public Connection getConnection() throws SQLException {
     Connection connection = super.getConnection();

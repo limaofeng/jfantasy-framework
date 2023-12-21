@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import org.aspectj.lang.annotation.Aspect;
+import org.jetbrains.annotations.NotNull;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.springframework.aop.MethodBeforeAdvice;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
  *
  * @author limaofeng
  * @version V1.0
- * @date 2020/3/21 11:31 下午
  */
 @Aspect
 @Component
@@ -50,7 +50,7 @@ public class GraphQLResolverAdvice implements MethodBeforeAdvice {
   }
 
   @Override
-  public void before(Method method, Object[] args, Object target) throws Throwable {
+  public void before(Method method, Object @NotNull [] args, Object target) throws Throwable {
     Parameter[] parameters = method.getParameters();
     for (int i = 0; i < parameters.length; i++) {
       MethodParameter parameter = MethodParameter.forParameter(parameters[i]);

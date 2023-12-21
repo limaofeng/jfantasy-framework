@@ -15,6 +15,7 @@ import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jfantasy.framework.dao.DataQueryContext;
 import org.jfantasy.framework.dao.DataQueryContextHolder;
 import org.jfantasy.framework.dao.SoftDeletable;
@@ -46,7 +47,6 @@ import org.springframework.util.Assert;
  *
  * @author limaofeng
  * @version V1.0
- * @date 14/11/2017 11:23 AM
  */
 @Slf4j
 public class SimpleAnyJpaRepository<T, ID extends Serializable> extends SimpleJpaRepository<T, ID>
@@ -299,6 +299,7 @@ public class SimpleAnyJpaRepository<T, ID extends Serializable> extends SimpleJp
       }
 
       List<Object> source = ognlUtil.getValue(field.getName(), oldEntity);
+      @SuppressWarnings("unchecked")
       List<Object> objects = (List<Object>) fks;
 
       if (source == objects) {
@@ -370,6 +371,7 @@ public class SimpleAnyJpaRepository<T, ID extends Serializable> extends SimpleJp
       }
       Object fks = ognlUtil.getValue(field.getName(), entity);
       if (ClassUtil.isList(fks)) {
+        @SuppressWarnings("unchecked")
         List<Object> objects = (List<Object>) fks;
         List<Object> addObjects = new ArrayList<>();
         for (Object fk : objects) {
@@ -420,6 +422,7 @@ public class SimpleAnyJpaRepository<T, ID extends Serializable> extends SimpleJp
                 Class<?> entityType =
                     ClassUtil.getInterfaceGenricType(
                         repository.getClass().getInterfaces()[0], AnyJpaRepository.class);
+                //noinspection unchecked
                 REPOSITORIES.put(entityType, repository);
               });
     }
@@ -427,7 +430,7 @@ public class SimpleAnyJpaRepository<T, ID extends Serializable> extends SimpleJp
   }
 
   @Override
-  public void delete(@SuppressWarnings("NullableProblems") T entity) {
+  public void delete(@NotNull T entity) {
     if (SoftDeletable.class.isAssignableFrom(this.getDomainClass())) {
       ((SoftDeletable) entity).setDeleted(true);
       List<FieldWarp> fields =
@@ -473,18 +476,16 @@ public class SimpleAnyJpaRepository<T, ID extends Serializable> extends SimpleJp
   }
 
   @Override
-  @SuppressWarnings("NullableProblems")
+  @NotNull
   protected <S extends T> TypedQuery<S> getQuery(
-      @Nullable Specification<S> spec,
-      @SuppressWarnings("NullableProblems") Class<S> domainClass,
-      @SuppressWarnings("NullableProblems") Sort sort) {
+      @Nullable Specification<S> spec, @NotNull Class<S> domainClass, @NotNull Sort sort) {
     return super.getQuery(defaultSpecification(spec), domainClass, sort);
   }
 
-  @SuppressWarnings("NullableProblems")
+  @NotNull
   @Override
   protected <S extends T> TypedQuery<Long> getCountQuery(
-      @Nullable Specification<S> spec, @SuppressWarnings("NullableProblems") Class<S> domainClass) {
+      @Nullable Specification<S> spec, @NotNull Class<S> domainClass) {
     return super.getCountQuery(defaultSpecification(spec), domainClass);
   }
 
@@ -531,10 +532,7 @@ public class SimpleAnyJpaRepository<T, ID extends Serializable> extends SimpleJp
     }
 
     @Override
-    public Predicate toPredicate(
-        Root root,
-        @SuppressWarnings("NullableProblems") CriteriaQuery query,
-        CriteriaBuilder builder) {
+    public Predicate toPredicate(Root root, @NotNull CriteriaQuery query, CriteriaBuilder builder) {
       return builder.notEqual(root.get(this.fieldName), true);
     }
   }
@@ -565,6 +563,7 @@ public class SimpleAnyJpaRepository<T, ID extends Serializable> extends SimpleJp
 
   public Page<T> loadPage(Pageable pageable, Query query, LongSupplier supplier) {
     if (pageable.isUnpaged()) {
+      //noinspection unchecked
       return new PageImpl<T>(query.getResultList());
     }
 
@@ -573,6 +572,7 @@ public class SimpleAnyJpaRepository<T, ID extends Serializable> extends SimpleJp
       query.setMaxResults(pageable.getPageSize());
     }
 
+    //noinspection unchecked
     return PageableExecutionUtils.getPage(query.getResultList(), pageable, supplier);
   }
 
@@ -603,6 +603,7 @@ public class SimpleAnyJpaRepository<T, ID extends Serializable> extends SimpleJp
    * @return 返回集合
    */
   public List<T> find(String hql, Object... values) {
+    //noinspection unchecked
     return createQuery(hql, values).getResultList();
   }
 
@@ -614,14 +615,17 @@ public class SimpleAnyJpaRepository<T, ID extends Serializable> extends SimpleJp
    * @return 返回集合
    */
   public List<T> find(String hql, Map<String, ?> values) {
+    //noinspection unchecked
     return createQuery(hql, values).getResultList();
   }
 
   public T findUnique(String hql, Object... values) {
+    //noinspection unchecked
     return (T) createQuery(hql, values).getSingleResult();
   }
 
   public T findUnique(String hql, Map<String, ?> values) {
+    //noinspection unchecked
     return (T) createQuery(hql, values).getSingleResult();
   }
 

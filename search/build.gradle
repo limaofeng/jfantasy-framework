@@ -33,6 +33,7 @@ dependencies {
 	testImplementation libs['orm']
 	annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 	annotationProcessor "org.projectlombok:lombok"
+	compileOnly "org.jetbrains:annotations"
 	testCompileOnly "org.projectlombok:lombok"
 	testAnnotationProcessor "org.projectlombok:lombok"
 	//noinspection DependencyNotationArgument

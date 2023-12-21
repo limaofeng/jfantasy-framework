@@ -1,5 +1,3 @@
-version: "1.0"
-endpoint: "/graphql"
 schema:
   typeDefs: "./schema.graphql"
   resolvers:
@@ -9,30 +7,47 @@ schema:
     Mutation:
       updateUser: "./updateUser.py"
 
-services:
-  - name: userService
-    url: "http://user-service/graphql"
-    override:
-      - type: "User"
-        rename: "EnhancedUser"
-        fields:
-          - name: "username"
-            rename: "name"
-            arguments:
-              - name: "oldArgument"
-                rename: "newArgument"
-          - name: "password"
-            ignore: true
-        addFields:
-          - name: "additionalField"
-            type: "String"
-            resolveWith: "path.to.resolver.Function"
-        # TODO：参数如何重命名 ？
+scalars:
+  - name: "File"
+    description: "A file part in a multipart request"
+  - name: "Upload"
+    description: "A file part in a multipart request"
 
-  - name: orderService
-    url: "http://order-service/graphql"
-    ignoreFields:
-      - "Order.customerId"
+services:
+  - name: asany
+    url: "https://api.asany.cn/graphql"
+#    typeDefs: "./user-service.graphql"
+    override:
+      - type: "Query"
+        fields:
+          - name: "applications"
+            rename: "apps"
+            dataLoader: true
+            dataFetcher: "batch"
+            arguments:
+              - name: "where"
+                rename: "filter"
+          - name: "testApp"
+            dataFetcher: "single"
+            type: "Application"
+            arguments:
+              - name: "input"
+                description: "test app input"
+                type: "EnhancedUserInput!"
+      - type: "Application"
+        fields:
+          - name: "name"
+            rename: "appName"
+          - name: "layoutRoute"
+            ignore: true
+
+dataFetchers:
+  - name: "batch"
+    type: "spring"
+    bean: "batchDataFetcher"
+  - name: "single"
+    type: "javascript"
+    resolver: "./singleDataFetcher.js"
 
 rewriteFields:
   - field: "User.addUser"
