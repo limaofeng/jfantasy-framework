@@ -91,8 +91,7 @@ public class XmlElement extends Observable {
   public List<XmlElement> getChildNodesByTagName(String tagName) {
     List<XmlElement> rev = new ArrayList<XmlElement>();
     List<XmlElement> childNodes = getChildNodes();
-    for (int i = 0; i < childNodes.size(); i++) {
-      XmlElement element = childNodes.get(i);
+    for (XmlElement element : childNodes) {
       if (element.getTagName().equalsIgnoreCase(tagName)) {
         rev.add(element);
       }

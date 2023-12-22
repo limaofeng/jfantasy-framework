@@ -16,7 +16,7 @@ public class SimilarityUtil {
   }
 
   public static int ld(String str1, String str2) {
-    int d[][]; // 矩阵
+    int[][] d; // 矩阵
     int n = str1.length();
     int m = str2.length();
     int i; // 遍历str1的

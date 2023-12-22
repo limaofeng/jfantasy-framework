@@ -30,12 +30,10 @@ public abstract class XMLReader {
   public static XmlElement reader(String path) {
     File xmlFile = new File(path);
     log.info("开始解析XML文件：[" + path + "]");
-    InputStream input = Files.newInputStream(xmlFile.toPath());
-    try {
+    try (InputStream input = Files.newInputStream(xmlFile.toPath())) {
       return reader(input);
     } finally {
       log.info("XML文件：[" + path + "]解析完成");
-      input.close();
     }
   }
 

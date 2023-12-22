@@ -1,6 +1,7 @@
 package org.jfantasy.framework.util.common;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Random;
@@ -25,7 +26,7 @@ public class NumberUtil {
     DEFAULT_NUMBER_FORMAT.setGroupingUsed(false);
   }
 
-  private static Random random = new Random();
+  private static final Random random = new Random();
 
   private NumberUtil() {}
 
@@ -75,7 +76,7 @@ public class NumberUtil {
    */
   public static double round(double n, int w) {
     BigDecimal d = BigDecimal.valueOf(n);
-    d = d.setScale(w, BigDecimal.ROUND_HALF_UP);
+    d = d.setScale(w, RoundingMode.HALF_UP);
     return d.doubleValue();
   }
 
@@ -266,9 +267,9 @@ public class NumberUtil {
                     unit + 1,
                     numberChinese,
                     unitChinese)
-                + (numberChinese[Integer.valueOf(chinese.substring(chinese.length() - 1))]
+                + (numberChinese[Integer.parseInt(chinese.substring(chinese.length() - 1))]
                     + unitChinese[index])
-            : (numberChinese[Integer.valueOf(chinese)] + unitChinese[index]);
+            : (numberChinese[Integer.parseInt(chinese)] + unitChinese[index]);
 
     if (number != null) {
       chinese =
@@ -307,11 +308,11 @@ public class NumberUtil {
       chinese +=
           "00".equals(number)
               ? unitChinese[8]
-              : ((numberChinese[Integer.valueOf(number.substring(0, 1))]
+              : ((numberChinese[Integer.parseInt(number.substring(0, 1))]
                       + ("0".equals(number.substring(0, 1)) ? "" : unitChinese[6]))
                   + ("0".equals(number.substring(1))
                       ? ""
-                      : (numberChinese[Integer.valueOf(number.substring(1))] + unitChinese[7])));
+                      : (numberChinese[Integer.parseInt(number.substring(1))] + unitChinese[7])));
     }
     return chinese.replaceAll("^" + numberChinese[0], ""); // 以零打头的去掉
   }

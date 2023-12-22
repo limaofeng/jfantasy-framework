@@ -1,19 +1,17 @@
 package org.jfantasy.framework.log.interceptor;
 
+import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.aop.Pointcut;
 import org.springframework.aop.framework.AbstractSingletonProxyFactoryBean;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
 
 public class LogProxyFactoryBean extends AbstractSingletonProxyFactoryBean {
   private final LogInterceptor logInterceptor = new LogInterceptor();
-  private transient Pointcut pointcut;
-
-  public void setPointcut(Pointcut pointcut) {
-    this.pointcut = pointcut;
-  }
+  @Setter private transient Pointcut pointcut;
 
   @Override
-  protected Object createMainInterceptor() {
+  protected @NotNull Object createMainInterceptor() {
     this.logInterceptor.afterPropertiesSet();
     if (this.pointcut != null) {
       return new DefaultPointcutAdvisor(this.pointcut, this.logInterceptor);

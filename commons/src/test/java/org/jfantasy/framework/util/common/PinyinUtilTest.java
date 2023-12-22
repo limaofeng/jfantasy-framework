@@ -3,7 +3,6 @@ package org.jfantasy.framework.util.common;
 import com.github.stuxuhai.jpinyin.PinyinFormat;
 import com.github.stuxuhai.jpinyin.PinyinHelper;
 import org.junit.jupiter.api.Test;
-import org.springframework.util.Assert;
 
 public class PinyinUtilTest {
 
@@ -14,10 +13,10 @@ public class PinyinUtilTest {
     // Assert.assertEquals(Arrays.toString(PinyinUtil.stringToPinyin("长沙",true,"
     // ")),Arrays.toString(new String[]{"chang sha"}));
 
-    Assert.isTrue(
-        PinyinHelper.convertToPinyinString("长沙", " ", PinyinFormat.WITHOUT_TONE) == "chang sha");
+    assert PinyinHelper.convertToPinyinString("长沙", " ", PinyinFormat.WITHOUT_TONE)
+        .equals("chang sha");
 
-    Assert.isTrue(
-        PinyinHelper.convertToPinyinString("重庆", " ", PinyinFormat.WITHOUT_TONE) == "chong qing");
+    assert PinyinHelper.convertToPinyinString("重庆", " ", PinyinFormat.WITHOUT_TONE)
+        .equals("chong qing");
   }
 }

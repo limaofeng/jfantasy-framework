@@ -1,5 +1,7 @@
 package org.jfantasy.framework.util.common;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -56,7 +58,7 @@ public class DateUtilTest {
   public void dayInterval() throws Exception {
     Date day = DateUtil.now();
     long num = DateUtil.dayInterval(day, day);
-    Assert.isTrue(num == 0);
+    assertEquals(num, 0);
     log.debug(num + "");
   }
 

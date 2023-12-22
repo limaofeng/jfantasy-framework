@@ -17,8 +17,8 @@ import org.jfantasy.framework.util.ognl.OgnlUtil;
  */
 public class HibernateUtils {
 
-  public static IdClass getIdClass(Class entityClass) {
-    Class _entityClass = entityClass;
+  public static IdClass getIdClass(Class<?> entityClass) {
+    Class<?> _entityClass = entityClass;
     IdClass idClass;
     do {
       idClass = ClassUtil.getClassGenricType(_entityClass, IdClass.class);
@@ -27,7 +27,7 @@ public class HibernateUtils {
     return idClass;
   }
 
-  public static <ID> ID getIdValue(Class entityClass, Object entity) {
+  public static <ID> ID getIdValue(Class<?> entityClass, Object entity) {
     OgnlUtil ognlUtil = OgnlUtil.getInstance();
     Field[] idFields = ClassUtil.getDeclaredFields(entityClass, Id.class);
     if (idFields.length == 0) {
@@ -35,6 +35,7 @@ public class HibernateUtils {
     }
     if (idFields.length > 1) {
       IdClass idClass = getIdClass(entityClass);
+      @SuppressWarnings("unchecked")
       Serializable id = ClassUtil.newInstance((Class<Serializable>) idClass.value());
       for (Field idField : idFields) {
         ognlUtil.setValue(
@@ -42,13 +43,14 @@ public class HibernateUtils {
             id,
             ognlUtil.getValue(getIdFieldName(idField, idClass.value()), entity));
       }
+      //noinspection unchecked
       return (ID) id;
     } else {
       return ClassUtil.getValue(entity, idFields[0].getName());
     }
   }
 
-  private static String getIdFieldName(Field field, Class idClass) {
+  private static String getIdFieldName(Field field, Class<?> idClass) {
     Field fieldByIdClass = ClassUtil.getDeclaredField(idClass, field.getName());
     if (fieldByIdClass.getType() != field.getType()
         && field.getAnnotation(ManyToOne.class) != null) {
@@ -58,13 +60,14 @@ public class HibernateUtils {
   }
 
   public static <T> String getIdName(Class<T> entityClass) {
-    Class clazz = ClassUtil.getRealClass(entityClass);
+    Class<?> clazz = ClassUtil.getRealClass(entityClass);
     Field[] idFields = ClassUtil.getDeclaredFields(clazz, Id.class);
     if (idFields.length == 0) {
       throw new ValidationException("未发现主键配置:" + clazz.getName());
     }
     if (idFields.length > 1) {
       IdClass idClass = getIdClass(entityClass);
+      @SuppressWarnings("unchecked")
       Serializable id = ClassUtil.newInstance((Class<Serializable>) idClass.value());
       StringBuilder idNames = new StringBuilder();
       for (Field idField : idFields) {
@@ -77,7 +80,7 @@ public class HibernateUtils {
   }
 
   public static <T> String getEntityName(Class<T> entityClass) {
-    Class clazz = ClassUtil.getRealClass(entityClass);
+    Class<?> clazz = ClassUtil.getRealClass(entityClass);
     Entity entityAnnotation = ClassUtil.getAnnotation(clazz, Entity.class);
     if (entityAnnotation == null) {
       throw new ValidationException("未知实体:" + clazz.getName());
@@ -89,7 +92,7 @@ public class HibernateUtils {
   }
 
   public static <T> String getTableName(Class<T> entityClass) {
-    Class clazz = ClassUtil.getRealClass(entityClass);
+    Class<?> clazz = ClassUtil.getRealClass(entityClass);
     Table entityAnnotation = ClassUtil.getAnnotation(clazz, Table.class);
     if (entityAnnotation == null) {
       throw new ValidationException("未知实体:" + clazz.getName());

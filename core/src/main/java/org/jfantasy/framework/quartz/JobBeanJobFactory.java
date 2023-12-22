@@ -1,5 +1,6 @@
 package org.jfantasy.framework.quartz;
 
+import org.jetbrains.annotations.NotNull;
 import org.quartz.spi.TriggerFiredBundle;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -11,12 +12,13 @@ public class JobBeanJobFactory extends SpringBeanJobFactory implements Applicati
   private ApplicationContext applicationContext;
 
   @Override
-  public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+  public void setApplicationContext(@NotNull ApplicationContext applicationContext)
+      throws BeansException {
     this.applicationContext = applicationContext;
   }
 
   @Override
-  protected Object createJobInstance(TriggerFiredBundle bundle) throws Exception {
+  protected @NotNull Object createJobInstance(@NotNull TriggerFiredBundle bundle) throws Exception {
     Object jobInstance = super.createJobInstance(bundle);
     applicationContext.getAutowireCapableBeanFactory().autowireBean(jobInstance);
     return jobInstance;

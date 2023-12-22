@@ -22,7 +22,7 @@ public class BeanUtil {
     if (dest == null || orig == null) {
       return dest;
     }
-    Class destClass = dest.getClass();
+    Class<?> destClass = dest.getClass();
     Property[] properties = ClassUtil.getProperties(orig);
     for (Property property : properties) {
       if (!property.isRead()) {
@@ -80,7 +80,7 @@ public class BeanUtil {
     return null;
   }
 
-  public static interface PropertyFilter {
+  public interface PropertyFilter {
     boolean accept(Property property, Object value, Object target);
 
     default Object convertValue(Property property, Object value, Object target) {

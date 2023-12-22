@@ -1,5 +1,7 @@
 package org.jfantasy.framework.log.interceptor;
 
+import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
 import org.jfantasy.framework.log.annotation.LogOperationSource;
 import org.springframework.aop.ClassFilter;
 import org.springframework.aop.Pointcut;
@@ -7,7 +9,7 @@ import org.springframework.aop.support.AbstractBeanFactoryPointcutAdvisor;
 
 public class BeanFactoryLogOperationSourceAdvisor extends AbstractBeanFactoryPointcutAdvisor {
 
-  private transient LogOperationSource logOperationSource;
+  @Setter private transient LogOperationSource logOperationSource;
 
   private final LogOperationSourcePointcut pointcut =
       new LogOperationSourcePointcut() {
@@ -18,12 +20,8 @@ public class BeanFactoryLogOperationSourceAdvisor extends AbstractBeanFactoryPoi
       };
 
   @Override
-  public Pointcut getPointcut() {
+  public @NotNull Pointcut getPointcut() {
     return pointcut;
-  }
-
-  public void setLogOperationSource(LogOperationSource logOperationSource) {
-    this.logOperationSource = logOperationSource;
   }
 
   public void setClassFilter(ClassFilter classFilter) {

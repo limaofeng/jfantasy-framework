@@ -17,6 +17,7 @@ public class AuthorizationSubscriptionConnectionListener
 
   @Override
   public void onConnect(SubscriptionSession session, OperationMessage message) {
+    @SuppressWarnings("unchecked")
     Map<String, Object> connectionParams = (Map<String, Object>) message.getPayload();
     session.getUserProperties().put("connectionParams", connectionParams);
   }

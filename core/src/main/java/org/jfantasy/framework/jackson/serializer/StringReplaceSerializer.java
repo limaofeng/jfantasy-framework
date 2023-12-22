@@ -9,8 +9,8 @@ import org.jfantasy.framework.util.regexp.RegexpUtil;
 
 public abstract class StringReplaceSerializer extends JsonSerializer<String> {
 
-  private String regex;
-  private String replacement;
+  private final String regex;
+  private final String replacement;
 
   public StringReplaceSerializer(String regex, String replacement) {
     this.regex = regex;

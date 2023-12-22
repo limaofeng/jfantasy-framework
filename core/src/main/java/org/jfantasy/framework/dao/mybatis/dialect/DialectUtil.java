@@ -8,7 +8,7 @@ public class DialectUtil {
   private DialectUtil() {}
 
   /** 关键字数组 */
-  private static String[] keywords =
+  private static final String[] keywords =
       new String[] {
         "select", "top", "count", "from", "order", "by", "asc", "desc", "group", "where", "and"
       };
@@ -28,7 +28,7 @@ public class DialectUtil {
     keywordRegexp = buffer.toString();
   }
 
-  private static RegexpUtil.ReplaceCallBack antonymReplaceCallBack =
+  private static final RegexpUtil.ReplaceCallBack antonymReplaceCallBack =
       new RegexpUtil.AbstractReplaceCallBack() {
 
         @Override

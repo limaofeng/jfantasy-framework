@@ -1,6 +1,7 @@
 package org.jfantasy.framework.util;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 public class Arith {
   private Arith() {}
@@ -36,7 +37,7 @@ public class Arith {
     }
     BigDecimal b1 = new BigDecimal(Double.toString(v1));
     BigDecimal b2 = new BigDecimal(Double.toString(v2));
-    return b1.divide(b2, scale, 4).doubleValue();
+    return b1.divide(b2, scale, RoundingMode.HALF_UP).doubleValue();
   }
 
   public static double round(double v, int scale) {
@@ -46,6 +47,6 @@ public class Arith {
     }
     BigDecimal b = new BigDecimal(Double.toString(v));
     BigDecimal one = new BigDecimal("1");
-    return b.divide(one, scale, 4).doubleValue();
+    return b.divide(one, scale, RoundingMode.HALF_UP).doubleValue();
   }
 }

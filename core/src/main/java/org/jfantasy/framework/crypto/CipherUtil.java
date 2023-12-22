@@ -43,8 +43,8 @@ public class CipherUtil {
 
   private static String byteArrayToHexString(byte[] b) {
     StringBuilder resultSb = new StringBuilder();
-    for (int i = 0; i < b.length; i++) {
-      resultSb.append(byteToHexString(b[i]));
+    for (byte value : b) {
+      resultSb.append(byteToHexString(value));
     }
     return resultSb.toString();
   }

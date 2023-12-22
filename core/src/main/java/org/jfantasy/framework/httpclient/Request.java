@@ -33,9 +33,8 @@ import org.jfantasy.framework.util.common.StringUtil;
 public class Request {
 
   private CookieStore cookieStore = new BasicCookieStore();
-  ;
-  private List<Header> requestHeaders = new ArrayList<Header>();
-  private Map<String, String> params = new HashMap<String, String>();
+  private List<Header> requestHeaders = new ArrayList<>();
+  private final Map<String, String> params = new HashMap<>();
   private Part[] upLoadFiles = new Part[0];
   private Map<String, String> requestBody = new HashMap<String, String>();
   private HttpEntity requestEntity;
@@ -146,7 +145,7 @@ public class Request {
   }
 
   public Header[] getRequestHeaders() {
-    return this.requestHeaders.toArray(new Header[this.requestHeaders.size()]);
+    return this.requestHeaders.toArray(new Header[0]);
   }
 
   public Part[] getUpLoadFiles() {
@@ -176,13 +175,10 @@ public class Request {
               null,
               SSLConnectionSocketFactory
                   .BROWSER_COMPATIBLE_HOSTNAME_VERIFIER); // 设置httpclient的SSLSocketFactory
-    } catch (NoSuchAlgorithmException e) {
-      log.error(e.getMessage(), e);
-    } catch (KeyManagementException e) {
-      log.error(e.getMessage(), e);
-    } catch (KeyStoreException e) {
-      log.error(e.getMessage(), e);
-    } catch (UnrecoverableKeyException e) {
+    } catch (NoSuchAlgorithmException
+        | KeyManagementException
+        | KeyStoreException
+        | UnrecoverableKeyException e) {
       log.error(e.getMessage(), e);
     }
   }

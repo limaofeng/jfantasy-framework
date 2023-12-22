@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jfantasy.framework.jackson.FilteredMixinHolder;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
@@ -31,7 +32,7 @@ public class WebFluxResponseBodyResultHandler extends ResponseBodyResultHandler 
   }
 
   @Override
-  public Mono<Void> handleResult(ServerWebExchange exchange, HandlerResult result) {
+  public @NotNull Mono<Void> handleResult(ServerWebExchange exchange, HandlerResult result) {
     Object returnValue = result.getReturnValue();
     Preconditions.checkNotNull(returnValue, "response is null!");
 

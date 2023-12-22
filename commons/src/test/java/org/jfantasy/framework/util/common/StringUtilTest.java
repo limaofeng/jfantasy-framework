@@ -1,5 +1,7 @@
 package org.jfantasy.framework.util.common;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -7,7 +9,6 @@ import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
-import org.springframework.util.Assert;
 
 @Slf4j
 public class StringUtilTest {
@@ -45,7 +46,7 @@ public class StringUtilTest {
 
     log.debug(" StringUtil.ellipsis(str,20,\"...\") ==> " + newStr);
 
-    Assert.isTrue(str.substring(0, 17) + "..." == newStr);
+    assertEquals((str.substring(0, 17) + "..."), newStr);
   }
 
   @Test

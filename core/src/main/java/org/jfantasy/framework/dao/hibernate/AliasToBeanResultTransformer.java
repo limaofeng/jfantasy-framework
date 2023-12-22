@@ -2,6 +2,7 @@ package org.jfantasy.framework.dao.hibernate;
 
 import com.github.jknack.handlebars.internal.lang3.StringUtils;
 import jakarta.persistence.Column;
+import java.io.Serial;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
@@ -22,8 +23,8 @@ import org.jfantasy.framework.util.ognl.OgnlUtil;
  * @since 2013-9-12 上午9:52:00
  */
 @Slf4j
-public class AliasToBeanResultTransformer implements ResultTransformer {
-  private static final long serialVersionUID = -5199190581393587893L;
+public class AliasToBeanResultTransformer implements ResultTransformer<Object> {
+  @Serial private static final long serialVersionUID = -5199190581393587893L;
 
   private final Class<?> resultClass;
 

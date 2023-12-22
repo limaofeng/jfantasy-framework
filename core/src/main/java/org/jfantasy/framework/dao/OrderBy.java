@@ -117,7 +117,7 @@ public class OrderBy {
     return !this.orders.isEmpty();
   }
 
-  public static enum Direction {
+  public enum Direction {
     /** 升序 */
     ASC,
     /** 降序 */

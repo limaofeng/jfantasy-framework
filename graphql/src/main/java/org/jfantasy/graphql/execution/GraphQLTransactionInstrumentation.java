@@ -6,6 +6,7 @@ import graphql.execution.instrumentation.SimpleInstrumentation;
 import graphql.execution.instrumentation.SimpleInstrumentationContext;
 import graphql.execution.instrumentation.parameters.InstrumentationExecuteOperationParameters;
 import graphql.language.OperationDefinition;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -23,7 +24,7 @@ public class GraphQLTransactionInstrumentation extends SimpleInstrumentation {
   }
 
   @Override
-  public InstrumentationContext<ExecutionResult> beginExecuteOperation(
+  public @NotNull InstrumentationContext<ExecutionResult> beginExecuteOperation(
       InstrumentationExecuteOperationParameters parameters) {
     TransactionTemplate tx = new TransactionTemplate(this.transactionManager);
     OperationDefinition.Operation operation =

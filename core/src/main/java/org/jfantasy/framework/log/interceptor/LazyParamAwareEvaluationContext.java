@@ -2,6 +2,7 @@ package org.jfantasy.framework.log.interceptor;
 
 import java.lang.reflect.Method;
 import java.util.Map;
+import org.jetbrains.annotations.NotNull;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.core.ParameterNameDiscoverer;
@@ -40,7 +41,7 @@ class LazyParamAwareEvaluationContext extends StandardEvaluationContext {
 
   /** Load the param information only when needed. */
   @Override
-  public Object lookupVariable(String name) {
+  public Object lookupVariable(@NotNull String name) {
     Object variable = super.lookupVariable(name);
     if (variable != null) {
       return variable;

@@ -1,5 +1,6 @@
 package org.jfantasy.framework.dao.mybatis.proxy;
 
+import java.io.Serial;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -26,8 +27,8 @@ public class MyBatisMapperProxy implements InvocationHandler {
 
   /** 不需要代理的方法 */
   private static final Set<String> OBJECT_METHODS =
-      new HashSet<String>() {
-        private static final long serialVersionUID = -1782950882770203583L;
+      new HashSet<>() {
+        @Serial private static final long serialVersionUID = -1782950882770203583L;
 
         {
           add("toString");
@@ -78,7 +79,7 @@ public class MyBatisMapperProxy implements InvocationHandler {
     return result;
   }
 
-  private Class getDeclaringInterface(Class declaringInterface, Method method) {
+  private Class<?> getDeclaringInterface(Class<?> declaringInterface, Method method) {
     if (!this.sqlSession
         .getConfiguration()
         .hasStatement(declaringInterface.getName() + "." + method.getName())) {
@@ -96,7 +97,7 @@ public class MyBatisMapperProxy implements InvocationHandler {
     return declaringInterface;
   }
 
-  private Class findDeclaringInterface(Object proxy, Method method) {
+  private Class<?> findDeclaringInterface(Object proxy, Method method) {
     Class<?> declaringInterface = null;
     for (Class<?> iface : proxy.getClass().getInterfaces()) {
       Method m = ReflectionUtils.findMethod(iface, method.getName(), method.getParameterTypes());
@@ -122,6 +123,7 @@ public class MyBatisMapperProxy implements InvocationHandler {
     ClassLoader classLoader = mapperInterface.getClassLoader();
     Class<?>[] interfaces = {mapperInterface};
     MyBatisMapperProxy proxy = new MyBatisMapperProxy(sqlSession);
+    //noinspection unchecked
     return (T) Proxy.newProxyInstance(classLoader, interfaces, proxy);
   }
 }

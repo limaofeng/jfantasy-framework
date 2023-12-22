@@ -23,9 +23,8 @@ import org.jfantasy.framework.util.regexp.RegexpUtil;
 public class OgnlUtil {
 
   private static final ConcurrentHashMap<String, OgnlUtil> ognlUtilCache =
-      new ConcurrentHashMap<String, OgnlUtil>();
-  private final ConcurrentHashMap<String, Object> expressions =
-      new ConcurrentHashMap<String, Object>();
+      new ConcurrentHashMap<>();
+  private final ConcurrentHashMap<String, Object> expressions = new ConcurrentHashMap<>();
   private final ConcurrentHashMap<Class<?>, BeanInfo> beanInfoCache =
       new ConcurrentHashMap<Class<?>, BeanInfo>();
 
@@ -116,9 +115,9 @@ public class OgnlUtil {
                   : arrayName;
           Property property = ClassUtil.getProperty(parent, shortName);
           if (ClassUtil.isList(property.getPropertyType())) {
-            Class listType =
+            Class<?> listType =
                 ClassUtil.getMethodGenericReturnType(property.getReadMethod().getMethod());
-            List list = array == null ? new ArrayList() : (List) array;
+            List<?> list = array == null ? new ArrayList<>() : (List<?>) array;
             for (int k = list.size(); k < index + 1; k++) {
               list.add(null);
             }
@@ -307,13 +306,14 @@ public class OgnlUtil {
                   private final DefaultClassResolver resolver = new DefaultClassResolver();
 
                   @Override
-                  public Class classForName(String className, Map context)
+                  public Class<?> classForName(String className, Map context)
                       throws ClassNotFoundException {
                     log.debug(className);
                     return resolver.classForName(className, context);
                   }
                 },
                 this.defaultTypeConverter);
+    //noinspection unchecked
     return (Map<String, Object>) ognlContext;
   }
 

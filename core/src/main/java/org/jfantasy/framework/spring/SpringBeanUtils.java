@@ -3,6 +3,7 @@ package org.jfantasy.framework.spring;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jfantasy.framework.util.common.ObjectUtil;
@@ -54,6 +55,7 @@ public class SpringBeanUtils
     SpringBeanUtils.registry = registry;
   }
 
+  @Getter
   public enum AutoType {
     //  自动装配
     AUTOWIRE_NO(0),
@@ -70,10 +72,6 @@ public class SpringBeanUtils
 
     AutoType(int value) {
       this.value = value;
-    }
-
-    public int getValue() {
-      return this.value;
     }
   }
 
@@ -263,7 +261,7 @@ public class SpringBeanUtils
   }
 
   public static <T> T registerBeanDefinition(String beanName, Class<?> clazz, Object[] argValues) {
-    return registerBeanDefinition(beanName, clazz, argValues, new HashMap<String, Object>());
+    return registerBeanDefinition(beanName, clazz, argValues, new HashMap<>());
   }
 
   public static <T> T registerBeanDefinition(

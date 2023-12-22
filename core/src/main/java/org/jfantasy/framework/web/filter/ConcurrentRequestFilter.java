@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.jfantasy.framework.util.LinkedBlockingQueue;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -29,7 +30,9 @@ public class ConcurrentRequestFilter extends OncePerRequestFilter {
 
   @Override
   protected void doFilterInternal(
-      HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+      @NotNull HttpServletRequest request,
+      @NotNull HttpServletResponse response,
+      FilterChain filterChain)
       throws ServletException, IOException {
     try {
       Lock lock = locks.take();

@@ -21,7 +21,7 @@ public class DynamicClassLoader extends ClassLoader {
     super(parent);
   }
 
-  public Class loadClass(String classPath, String className) {
+  public <T> Class<T> loadClass(String classPath, String className) {
     try {
       String url = classPathParser(classPath) + classNameParser(className);
       URL myUrl = new URL(url);
@@ -35,15 +35,17 @@ public class DynamicClassLoader extends ClassLoader {
       }
       input.close();
       byte[] classData = buffer.toByteArray();
-      return defineClass(noSuffix(className), classData, 0, classData.length);
+      //noinspection unchecked
+      return (Class<T>) defineClass(noSuffix(className), classData, 0, classData.length);
     } catch (IOException e) {
       log.error(e.getMessage(), e);
     }
     return null;
   }
 
-  public Class loadClass(byte[] classData, String className) throws ClassNotFoundException {
-    return defineClass(noSuffix(className), classData, 0, classData.length);
+  public <T> Class<T> loadClass(byte[] classData, String className) throws ClassNotFoundException {
+    //noinspection unchecked
+    return (Class<T>) defineClass(noSuffix(className), classData, 0, classData.length);
   }
 
   private String pathParser(String path) {

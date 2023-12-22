@@ -7,13 +7,14 @@ import graphql.schema.CoercingParseLiteralException;
 import graphql.schema.CoercingParseValueException;
 import graphql.schema.CoercingSerializeException;
 import java.util.Date;
+import org.jetbrains.annotations.NotNull;
 import org.jfantasy.framework.dao.hibernate.util.ReflectionUtils;
 import org.jfantasy.graphql.util.Kit;
 
 public class GraphqlDateCoercing implements Coercing<Date, Object> {
 
   @Override
-  public Object serialize(Object input) throws CoercingSerializeException {
+  public Object serialize(@NotNull Object input) throws CoercingSerializeException {
     if (input instanceof Date) {
       return ((Date) input).getTime();
     }
@@ -21,7 +22,7 @@ public class GraphqlDateCoercing implements Coercing<Date, Object> {
   }
 
   @Override
-  public Date parseValue(Object input) throws CoercingParseValueException {
+  public Date parseValue(@NotNull Object input) throws CoercingParseValueException {
     if (input instanceof Date) {
       return (Date) input;
     }
@@ -38,7 +39,7 @@ public class GraphqlDateCoercing implements Coercing<Date, Object> {
   }
 
   @Override
-  public Date parseLiteral(Object input) throws CoercingParseLiteralException {
+  public Date parseLiteral(@NotNull Object input) throws CoercingParseLiteralException {
     if (input instanceof StringValue) {
       return ReflectionUtils.convert(((StringValue) input).getValue(), Date.class);
     }

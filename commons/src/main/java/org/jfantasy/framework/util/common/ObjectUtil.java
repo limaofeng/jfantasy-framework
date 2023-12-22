@@ -257,7 +257,7 @@ public final class ObjectUtil {
     @Builder.Default private int level = 1;
   }
 
-  public static interface NestedConverter<T, R> {
+  public interface NestedConverter<T, R> {
     R apply(T t, NestedContext<R> context);
   }
 

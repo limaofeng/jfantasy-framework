@@ -2,6 +2,7 @@ package org.jfantasy.framework.dao.jpa;
 
 import jakarta.persistence.EntityManager;
 import java.io.Serializable;
+import org.jetbrains.annotations.NotNull;
 import org.reactivestreams.Publisher;
 import org.springframework.data.domain.Sort;
 import reactor.core.publisher.Flux;
@@ -28,97 +29,97 @@ public class SimpleReactiveAnyJpaRepository<T, ID extends Serializable>
   }
 
   @Override
-  public <S extends T> Mono<S> save(S entity) {
+  public <S extends T> @NotNull Mono<S> save(@NotNull S entity) {
     return Mono.fromCallable(() -> anyJpaRepository.save(entity)).subscribeOn(elastic);
   }
 
   @Override
-  public <S extends T> Flux<S> saveAll(Iterable<S> entities) {
+  public <S extends T> @NotNull Flux<S> saveAll(@NotNull Iterable<S> entities) {
     return null;
   }
 
   @Override
-  public <S extends T> Flux<S> saveAll(Publisher<S> entityStream) {
+  public <S extends T> @NotNull Flux<S> saveAll(@NotNull Publisher<S> entityStream) {
     return null;
   }
 
   @Override
-  public Mono<T> findById(ID id) {
+  public @NotNull Mono<T> findById(@NotNull ID id) {
     return Mono.fromCallable(() -> anyJpaRepository.findById(id).orElse(null)).subscribeOn(elastic);
   }
 
   @Override
-  public Mono<T> findById(Publisher<ID> id) {
+  public @NotNull Mono<T> findById(@NotNull Publisher<ID> id) {
     return null;
   }
 
   @Override
-  public Mono<Boolean> existsById(ID id) {
+  public @NotNull Mono<Boolean> existsById(@NotNull ID id) {
     return Mono.fromCallable(() -> anyJpaRepository.existsById(id)).subscribeOn(elastic);
   }
 
   @Override
-  public Mono<Boolean> existsById(Publisher<ID> id) {
+  public @NotNull Mono<Boolean> existsById(@NotNull Publisher<ID> id) {
     return null;
   }
 
   @Override
-  public Flux<T> findAll() {
+  public @NotNull Flux<T> findAll() {
     return null;
   }
 
   @Override
-  public Flux<T> findAllById(Iterable<ID> ids) {
+  public @NotNull Flux<T> findAllById(@NotNull Iterable<ID> ids) {
     return null;
   }
 
   @Override
-  public Flux<T> findAllById(Publisher<ID> idStream) {
+  public @NotNull Flux<T> findAllById(@NotNull Publisher<ID> idStream) {
     return null;
   }
 
   @Override
-  public Mono<Long> count() {
+  public @NotNull Mono<Long> count() {
     return null;
   }
 
   @Override
-  public Mono<Void> deleteById(ID id) {
+  public @NotNull Mono<Void> deleteById(@NotNull ID id) {
     return null;
   }
 
   @Override
-  public Mono<Void> deleteById(Publisher<ID> id) {
+  public @NotNull Mono<Void> deleteById(@NotNull Publisher<ID> id) {
     return null;
   }
 
   @Override
-  public Mono<Void> delete(T entity) {
+  public @NotNull Mono<Void> delete(@NotNull T entity) {
     return null;
   }
 
   @Override
-  public Mono<Void> deleteAllById(Iterable<? extends ID> ids) {
+  public @NotNull Mono<Void> deleteAllById(@NotNull Iterable<? extends ID> ids) {
     return null;
   }
 
   @Override
-  public Mono<Void> deleteAll(Iterable<? extends T> entities) {
+  public @NotNull Mono<Void> deleteAll(@NotNull Iterable<? extends T> entities) {
     return null;
   }
 
   @Override
-  public Mono<Void> deleteAll(Publisher<? extends T> entityStream) {
+  public @NotNull Mono<Void> deleteAll(@NotNull Publisher<? extends T> entityStream) {
     return null;
   }
 
   @Override
-  public Mono<Void> deleteAll() {
+  public @NotNull Mono<Void> deleteAll() {
     return null;
   }
 
   @Override
-  public Flux<T> findAll(Sort sort) {
+  public @NotNull Flux<T> findAll(@NotNull Sort sort) {
     return null;
   }
 }

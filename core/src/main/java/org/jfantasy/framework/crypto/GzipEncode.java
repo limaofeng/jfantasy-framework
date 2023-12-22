@@ -17,19 +17,12 @@ public class GzipEncode {
     return sb;
   }
 
-  public static void gzip(InputStream in, OutputStream out) {
-    try {
-      GZIPOutputStream gzout = new GZIPOutputStream(out);
-      byte[] buf = new byte[1024];
-      int num;
-      while ((num = in.read(buf)) != -1) {
-        gzout.write(buf, 0, num);
-      }
-      gzout.close();
-      out.close();
-      in.close();
-    } catch (IOException e) {
-      System.out.println(e);
+  public static void gzip(InputStream in, OutputStream out) throws IOException {
+    try (GZIPOutputStream gout = new GZIPOutputStream(out)) {
+      StreamUtil.copy(in, gout);
+    } finally {
+      StreamUtil.closeQuietly(in);
+      StreamUtil.closeQuietly(out);
     }
   }
 

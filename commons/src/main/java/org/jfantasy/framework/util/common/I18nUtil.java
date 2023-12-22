@@ -9,18 +9,16 @@ public class I18nUtil {
 
   public static String unicode(String text) {
     char[] utfBytes = text.toCharArray();
-    String unicodeBytes = "";
-    for (int byteIndex = 0; byteIndex < utfBytes.length; byteIndex++) {
-      String hexB = Integer.toHexString(utfBytes[byteIndex]);
+    StringBuilder unicodeBytes = new StringBuilder();
+    for (char utfByte : utfBytes) {
+      String hexB = Integer.toHexString(utfByte);
       if (hexB.length() <= 2) {
         hexB = StringUtil.append(hexB, -4, new String[] {"0"});
       }
-      unicodeBytes +=
-          (StringUtil.isChinese(String.valueOf(utfBytes[byteIndex]))
-              ? "\\u" + hexB
-              : String.valueOf(utfBytes[byteIndex]));
+      unicodeBytes.append(
+          StringUtil.isChinese(String.valueOf(utfByte)) ? "\\u" + hexB : String.valueOf(utfByte));
     }
-    return unicodeBytes;
+    return unicodeBytes.toString();
   }
 
   public static String decodeUnicode(String text) {

@@ -206,7 +206,7 @@ public class RegexpUtil {
     }
     Matcher m = pattern.matcher(string);
     if (m.find()) {
-      StringBuffer sb = new StringBuffer(); // NOSONAR
+      StringBuilder sb = new StringBuilder();
       int index = 0;
       do {
         String st = replacement.replace(m.group(0), index++, m);
@@ -243,7 +243,7 @@ public class RegexpUtil {
       return null;
     }
     Matcher m = pattern.matcher(string);
-    StringBuffer sb = new StringBuffer(); // NOSONAR
+    StringBuilder sb = new StringBuilder();
     if (m.find()) {
       m.appendReplacement(sb, replacement.replace(m.group(0), 0, m));
     }

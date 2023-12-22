@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -68,7 +69,7 @@ public class HttpClientUtil {
    */
   public static Response doGet(String url, Map<String, String> params) throws IOException {
     for (Map.Entry<String, String> entry : params.entrySet()) {
-      entry.setValue(URLEncoder.encode(entry.getValue(), "utf-8"));
+      entry.setValue(URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8));
     }
     return doGet(url, new Request(params));
   }
@@ -135,7 +136,7 @@ public class HttpClientUtil {
       }
       http.setEntity(builder.build());
     } else if (!request.getParams().isEmpty()) {
-      List<NameValuePair> formparams = new ArrayList<NameValuePair>();
+      List<NameValuePair> formparams = new ArrayList<>();
       for (Map.Entry<String, String> entry : request.getParams().entrySet()) {
         formparams.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
       }
@@ -178,8 +179,8 @@ public class HttpClientUtil {
    * @since 2012-11-30 下午04:42:25
    */
   private static class ResponseInputStream extends InputStream {
-    private CloseableHttpResponse response;
-    private InputStream inputStream;
+    private final CloseableHttpResponse response;
+    private final InputStream inputStream;
 
     ResponseInputStream(CloseableHttpResponse response) throws IOException {
       this.response = response;

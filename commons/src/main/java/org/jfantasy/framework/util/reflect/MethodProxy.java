@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import javassist.NotFoundException;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.cglib.reflect.FastMethod;
 import org.jfantasy.framework.util.common.JavassistUtil;
@@ -12,9 +13,9 @@ import org.jfantasy.framework.util.common.JavassistUtil;
 public class MethodProxy {
 
   private final Object method;
-  private Class<?>[] parameterTypes;
-  private final Class<?> returnType;
-  private final Class<?> declaringClass;
+  @Getter private Class<?>[] parameterTypes;
+  @Getter private final Class<?> returnType;
+  @Getter private final Class<?> declaringClass;
 
   public MethodProxy(Object method) {
     this.method = method;
@@ -70,14 +71,6 @@ public class MethodProxy {
     return new MethodProxy(method);
   }
 
-  public Class[] getParameterTypes() {
-    return this.parameterTypes;
-  }
-
-  public Class getReturnType() {
-    return this.returnType;
-  }
-
   @Override
   public String toString() {
     return "MethodProxy [" + this.method.toString() + "]";
@@ -100,20 +93,16 @@ public class MethodProxy {
   public String[] getParamNames() {
     try {
       if (this.method instanceof FastMethod) {
-        Class dclass = ((FastMethod) this.method).getDeclaringClass();
+        Class<?> dclass = ((FastMethod) this.method).getDeclaringClass();
         return JavassistUtil.getParamNames(
             dclass.getName(), ((FastMethod) this.method).getName(), this.parameterTypes);
       }
-      Class dclass = ((Method) this.method).getDeclaringClass();
+      Class<?> dclass = ((Method) this.method).getDeclaringClass();
       return JavassistUtil.getParamNames(
           dclass.getName(), ((Method) this.method).getName(), this.parameterTypes);
     } catch (NotFoundException | JavassistUtil.MissingLVException e) {
       log.error(e.getMessage(), e);
       return new String[0];
     }
-  }
-
-  public Class getDeclaringClass() {
-    return this.declaringClass;
   }
 }

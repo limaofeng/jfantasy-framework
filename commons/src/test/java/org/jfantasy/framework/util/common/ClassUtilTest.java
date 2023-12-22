@@ -8,7 +8,6 @@ import org.jfantasy.demo.bean.Article;
 import org.jfantasy.demo.bean.User;
 import org.jfantasy.framework.util.reflect.Property;
 import org.junit.jupiter.api.Test;
-import org.springframework.util.Assert;
 
 @Slf4j
 public class ClassUtilTest {
@@ -54,7 +53,7 @@ public class ClassUtilTest {
     assert clazz != null;
     log.debug(clazz.getName());
 
-    Assert.isTrue(clazz == Array.newInstance(User.class, 0).getClass());
+    assert clazz == Array.newInstance(User.class, 0).getClass();
   }
 
   @Test

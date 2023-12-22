@@ -25,7 +25,7 @@ public class DaoUtil {
     throw new SQLException("名为:" + dataSourceName + ",的数据源没有找到!");
   }
 
-  public static <T> Page<T> returnPager(int page, int pageSize, OrderBy orderBy, List<T> reset) {
+  public static <T> Page<T> returnPage(int page, int pageSize, OrderBy orderBy, List<T> reset) {
     Page<T> pager = new Pagination<>();
     pager.setPageSize(pageSize);
     pager.setOrderBy(orderBy);
@@ -44,14 +44,14 @@ public class DaoUtil {
    * @return Pager<T>
    */
   @SafeVarargs
-  public static <T> Page<T> findPager(
+  public static <T> Page<T> findPage(
       Page<T> pager, Map<String, Object> param, FindPagerCallBack<T>... callBacks) {
     pager = pager == null ? new Pagination<>() : pager;
     int totalCount = 0;
     Map<Page<T>, FindPagerCallBack<T>> pagers = new LinkedHashMap<>();
     // 计算总条数
     for (FindPagerCallBack<T> callBack : callBacks) {
-      Page<T> page = callBack.call(new Pagination(1) {}, param);
+      Page<T> page = callBack.call(new Pagination<>(1) {}, param);
       totalCount += page.getTotalCount();
       pagers.put(page, callBack);
     }

@@ -3,7 +3,6 @@ package org.jfantasy.framework.util.web;
 import eu.bitwalker.useragentutils.Browser;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -189,16 +188,12 @@ public class ServletUtils {
    */
   public static void setContentDisposition(
       String type, String fileName, HttpServletRequest request, HttpServletResponse response) {
-    try {
-      fileName = URLEncoder.encode(fileName, "UTF-8");
-      if (Browser.MOZILLA == WebUtil.browser(request)) {
-        byte[] bytes = fileName.getBytes(StandardCharsets.UTF_8);
-        fileName = new String(bytes, StandardCharsets.ISO_8859_1);
-      }
-      response.setHeader("Content-Disposition", type + "; filename=\"" + fileName + "\"");
-    } catch (UnsupportedEncodingException e) {
-      log.error(e.getMessage(), e);
+    fileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8);
+    if (Browser.MOZILLA == WebUtil.browser(request)) {
+      byte[] bytes = fileName.getBytes(StandardCharsets.UTF_8);
+      fileName = new String(bytes, StandardCharsets.ISO_8859_1);
     }
+    response.setHeader("Content-Disposition", type + "; filename=\"" + fileName + "\"");
   }
 
   public static boolean isRange(HttpServletRequest request) {

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.jfantasy.framework.error.IgnoreException;
 import org.springframework.beans.factory.config.TypedStringValue;
 import org.springframework.beans.factory.parsing.ReaderContext;
@@ -103,13 +104,15 @@ public class LogAdviceParser extends AbstractSingleBeanDefinitionParser {
   private static final String DEFS_ELEMENT = "caching";
 
   @Override
-  protected Class<CacheInterceptor> getBeanClass(Element element) {
+  protected Class<CacheInterceptor> getBeanClass(@NotNull Element element) {
     return CacheInterceptor.class;
   }
 
   @Override
   protected void doParse(
-      Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
+      @NotNull Element element,
+      @NotNull ParserContext parserContext,
+      BeanDefinitionBuilder builder) {
     builder.addPropertyReference("cacheManager", LogNamespaceHandler.extractCacheManager(element));
     LogNamespaceHandler.parseKeyGenerator(element, builder.getBeanDefinition());
 

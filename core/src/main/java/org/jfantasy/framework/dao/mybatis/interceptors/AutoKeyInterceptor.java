@@ -39,7 +39,7 @@ public class AutoKeyInterceptor implements Interceptor {
 
   public void initKeyGenerators() {
     if (ObjectUtil.isNull(keyGenerators)) {
-      keyGenerators = new HashMap<String, KeyGenerator>();
+      keyGenerators = new HashMap<>();
     }
     keyGenerators.put("system-uuid", GUIDKeyGenerator.getInstance());
     keyGenerators.put("fantasy-sequence", new SequenceKeyGenerator());
@@ -62,8 +62,8 @@ public class AutoKeyInterceptor implements Interceptor {
         && (ObjectUtil.isNotNull(ms.getParameterMap().getType()))) {
       Field[] fields =
           ClassUtil.getDeclaredFields(ms.getParameterMap().getType(), GeneratedValue.class);
-      List<String> keyPropertieNameList = new ArrayList<String>();
-      Map<String, KeyGenerator> targetKeyGenerators = new HashMap<String, KeyGenerator>();
+      List<String> keyPropertieNameList = new ArrayList<>();
+      Map<String, KeyGenerator> targetKeyGenerators = new HashMap<>();
       for (Field field : fields) {
         targetKeyGenerators.put(
             field.getName(),

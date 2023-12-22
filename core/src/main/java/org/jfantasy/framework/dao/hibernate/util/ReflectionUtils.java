@@ -139,20 +139,22 @@ public final class ReflectionUtils {
     return null;
   }
 
-  public static <T> Class<T> getSuperClassGenricType(Class clazz) {
+  public static <T> Class<T> getSuperClassGenricType(Class<?> clazz) {
     return getSuperClassGenricType(clazz, 0);
   }
 
-  public static Class getInterfaceGenricType(Class clazz, Class interfaceClazz) {
+  public static Class<?> getInterfaceGenricType(Class<?> clazz, Class<?> interfaceClazz) {
     return getInterfaceGenricType(clazz, interfaceClazz, 0);
   }
 
-  public static <T> Class<T> getInterfaceGenricType(Class clazz, Class interfaceClazz, int index) {
+  public static <T> Class<T> getInterfaceGenricType(
+      Class<?> clazz, Class<?> interfaceClazz, int index) {
     return ClassUtil.getInterfaceGenricType(clazz, interfaceClazz, index);
   }
 
-  public static <T> Class<T> getSuperClassGenricType(Class clazz, int index) {
-    return ClassUtil.getSuperClassGenricType(clazz, index);
+  public static <T> Class<T> getSuperClassGenricType(Class<?> clazz, int index) {
+    //noinspection unchecked
+    return (Class<T>) ClassUtil.getSuperClassGenricType(clazz, index);
   }
 
   public static List<Object> convertElementPropertyToList(

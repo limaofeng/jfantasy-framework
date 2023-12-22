@@ -19,7 +19,7 @@ import org.hibernate.type.Type;
  */
 public class MultiEntityInterceptor implements Interceptor {
 
-  private Set<Interceptor> interceptors = new HashSet<>();
+  private final Set<Interceptor> interceptors = new HashSet<>();
 
   public void addInterceptors(Interceptor interceptor) {
     this.interceptors.add(interceptor);

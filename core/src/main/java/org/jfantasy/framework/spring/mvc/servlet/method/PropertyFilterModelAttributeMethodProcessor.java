@@ -2,15 +2,14 @@ package org.jfantasy.framework.spring.mvc.servlet.method;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import org.jfantasy.framework.dao.MatchType;
 import org.jfantasy.framework.dao.jpa.PropertyFilter;
 import org.jfantasy.framework.dao.jpa.PropertyPredicate;
-import org.jfantasy.framework.error.IgnoreException;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.springframework.beans.BeanUtils;
@@ -91,11 +90,7 @@ public class PropertyFilterModelAttributeMethodProcessor extends MethodArgumentR
       String key = vs[0];
       String val = vs.length == 1 ? "" : vs[1];
       if (StringUtil.isNotBlank(val)) {
-        try {
-          val = URLDecoder.decode(val, "utf-8");
-        } catch (UnsupportedEncodingException e) {
-          throw new IgnoreException(e.getMessage(), e);
-        }
+        val = URLDecoder.decode(val, StandardCharsets.UTF_8);
       }
       if (!params.containsKey(key)) {
         params.put(key, new String[] {val});

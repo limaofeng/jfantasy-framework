@@ -5,6 +5,7 @@ import static org.jfantasy.framework.util.common.ObjectUtil.multipleValuesObject
 import jakarta.persistence.criteria.*;
 import java.lang.reflect.Array;
 import java.util.*;
+import org.jetbrains.annotations.NotNull;
 import org.jfantasy.framework.dao.MatchType;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.StringUtil;
@@ -38,7 +39,8 @@ public class PropertyFilterSpecification<T> implements Specification<T> {
   }
 
   @Override
-  public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
+  public Predicate toPredicate(
+      @NotNull Root<T> root, CriteriaQuery<?> query, @NotNull CriteriaBuilder builder) {
     if (!query.isDistinct()) {
       query.distinct(true);
     }

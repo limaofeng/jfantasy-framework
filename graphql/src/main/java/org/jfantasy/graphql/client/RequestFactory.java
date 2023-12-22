@@ -6,6 +6,10 @@ import org.springframework.http.MediaType;
 import org.springframework.util.LinkedMultiValueMap;
 
 /**
+ * 请求工厂
+ *
+ * <p>
+ *
  * @author limaofeng
  */
 public class RequestFactory {

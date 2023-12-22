@@ -1,10 +1,11 @@
 package org.jfantasy.framework.util.common;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import java.util.Enumeration;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
-import org.springframework.util.Assert;
 
 @Slf4j
 public class PropertiesHelperTest {
@@ -76,11 +77,11 @@ public class PropertiesHelperTest {
 
     // 普通测试
     log.debug(helper.getProperty("test"));
-    Assert.isTrue(helper.getProperty("test") == "limaofeng");
+    assertEquals(helper.getProperty("test"), "limaofeng");
 
     // 测试默认值
     log.debug(helper.getProperty("test1", "limaofeng"));
-    Assert.isTrue(helper.getProperty("test1", "limaofeng") == "limaofeng");
+    assertEquals(helper.getProperty("test1", "limaofeng"), "limaofeng");
 
     // 使用环境变量
     System.setProperty("username", "limaofeng");
@@ -88,11 +89,11 @@ public class PropertiesHelperTest {
     log.debug("System getenv by key(username) = " + System.getenv("username"));
     log.debug(helper.getProperty("testenv"));
 
-    Assert.isTrue(helper.getProperty("testenv") == "username=limaofeng");
+    assertEquals(helper.getProperty("testenv"), "username=limaofeng");
     System.setProperty("username", "haolue");
     log.debug(helper.getProperty("testenv"));
 
-    Assert.isTrue(helper.getProperty("testenv") == "username=haolue");
+    assertEquals(helper.getProperty("testenv"), "username=haolue");
   }
 
   @Test
@@ -101,12 +102,12 @@ public class PropertiesHelperTest {
         PropertiesHelper.load("backup/testconfig/props/application.properties");
 
     log.debug(helper.getProperty("test"));
-    Assert.isTrue(helper.getProperty("test") == "limaofeng");
+    assertEquals(helper.getProperty("test"), "limaofeng");
 
     helper.clear();
 
     log.debug(helper.getProperty("test"));
-    Assert.notNull(helper.getProperty("test"));
+    assertNotNull(helper.getProperty("test"));
   }
 
   @Test
@@ -135,21 +136,21 @@ public class PropertiesHelperTest {
   public void testContains() throws Exception {
     PropertiesHelper helper =
         PropertiesHelper.load("backup/testconfig/props/application.properties");
-    Assert.isTrue(helper.getProperties().contains("limaofeng"));
+    assertTrue(helper.getProperties().contains("limaofeng"));
   }
 
   @Test
   public void testContainsKey() throws Exception {
     PropertiesHelper helper =
         PropertiesHelper.load("backup/testconfig/props/application.properties");
-    Assert.isTrue(helper.getProperties().containsKey("test"));
+    assertTrue(helper.getProperties().containsKey("test"));
   }
 
   @Test
   public void testContainsValue() throws Exception {
     PropertiesHelper helper =
         PropertiesHelper.load("backup/testconfig/props/application.properties");
-    Assert.isTrue(helper.getProperties().containsValue("limaofeng"));
+    assertTrue(helper.getProperties().containsValue("limaofeng"));
   }
 
   @Test
@@ -167,8 +168,8 @@ public class PropertiesHelperTest {
   public void testIsEmpty() throws Exception {
     PropertiesHelper helper =
         PropertiesHelper.load("backup/testconfig/props/application.properties");
-    Assert.isTrue(!helper.getProperties().isEmpty());
+    assertFalse(helper.getProperties().isEmpty());
     helper = PropertiesHelper.load("backup/testconfig/props/application_empty.properties");
-    Assert.isTrue(helper.getProperties().isEmpty());
+    assertTrue(helper.getProperties().isEmpty());
   }
 }

@@ -5,6 +5,7 @@ import graphql.schema.Coercing;
 import graphql.schema.CoercingParseLiteralException;
 import graphql.schema.CoercingParseValueException;
 import graphql.schema.CoercingSerializeException;
+import org.jetbrains.annotations.NotNull;
 import org.jfantasy.framework.util.common.DateUtil;
 import org.jfantasy.graphql.DateBetween;
 import org.jfantasy.graphql.util.Kit;
@@ -26,7 +27,7 @@ public class GraphqlBetweenCoercing implements Coercing<DateBetween, String> {
   }
 
   @Override
-  public DateBetween parseLiteral(Object input) throws CoercingParseLiteralException {
+  public DateBetween parseLiteral(@NotNull Object input) throws CoercingParseLiteralException {
     if (!(input instanceof StringValue)) {
       throw new CoercingParseLiteralException(
           "Expected AST type 'StringValue' but was '" + Kit.typeName(input) + "'.");

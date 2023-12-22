@@ -2,6 +2,8 @@ package org.jfantasy.framework.search.config;
 
 import java.util.*;
 import java.util.function.Supplier;
+import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -15,12 +17,18 @@ import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
+@Getter
 public class IndexedScanPackages {
 
   private static final String BEAN = IndexedScanPackages.class.getName();
 
   private static final IndexedScanPackages NONE = new IndexedScanPackages();
 
+  /**
+   * -- GETTER -- Return the package names specified from all annotations.
+   *
+   * @return the entity scan package names
+   */
   private final List<String> packageNames;
 
   IndexedScanPackages(String... packageNames) {
@@ -31,15 +39,6 @@ public class IndexedScanPackages {
       }
     }
     this.packageNames = Collections.unmodifiableList(packages);
-  }
-
-  /**
-   * Return the package names specified from all {@link IndexedScan @IndexedScan} annotations.
-   *
-   * @return the entity scan package names
-   */
-  public List<String> getPackageNames() {
-    return this.packageNames;
   }
 
   /**
@@ -103,7 +102,7 @@ public class IndexedScanPackages {
 
     @Override
     public void registerBeanDefinitions(
-        AnnotationMetadata metadata, BeanDefinitionRegistry registry) {
+        @NotNull AnnotationMetadata metadata, @NotNull BeanDefinitionRegistry registry) {
       register(registry, getPackagesToScan(metadata));
     }
 

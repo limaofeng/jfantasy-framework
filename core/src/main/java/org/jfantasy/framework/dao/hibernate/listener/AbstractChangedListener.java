@@ -4,6 +4,7 @@ import jakarta.annotation.PostConstruct;
 import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.*;
 import org.hibernate.persister.entity.EntityPersister;
+import org.jetbrains.annotations.NotNull;
 import org.jfantasy.framework.dao.hibernate.util.ReflectionUtils;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
@@ -19,9 +20,9 @@ public abstract class AbstractChangedListener<T>
 
   private final Class<T> entityClass;
   protected ApplicationContext applicationContext;
-  private final EventType[] types;
+  private final EventType<?>[] types;
 
-  protected AbstractChangedListener(EventType... types) {
+  protected AbstractChangedListener(EventType<?>... types) {
     this.types = types;
     this.entityClass = ReflectionUtils.getSuperClassGenricType(getClass());
   }
@@ -30,7 +31,9 @@ public abstract class AbstractChangedListener<T>
   public void postConstruct() {
     EventListenerRegistry eventListenerRegistry =
         applicationContext.getBean(EventListenerRegistry.class);
+    //noinspection rawtypes
     for (EventType type : types) {
+      //noinspection unchecked
       eventListenerRegistry.appendListeners(type, this);
     }
   }
@@ -121,7 +124,8 @@ public abstract class AbstractChangedListener<T>
   }
 
   @Override
-  public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+  public void setApplicationContext(@NotNull ApplicationContext applicationContext)
+      throws BeansException {
     this.applicationContext = applicationContext;
   }
 }

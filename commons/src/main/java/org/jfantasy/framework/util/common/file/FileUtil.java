@@ -294,7 +294,7 @@ public class FileUtil {
     }
     Files.walkFileTree(
         path,
-        new SimpleFileVisitor<Path>() {
+        new SimpleFileVisitor<>() {
           @Override
           public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
               throws IOException {
@@ -360,7 +360,7 @@ public class FileUtil {
       }
       Files.walkFileTree(
           source,
-          new SimpleFileVisitor<Path>() {
+          new SimpleFileVisitor<>() {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
                 throws IOException {

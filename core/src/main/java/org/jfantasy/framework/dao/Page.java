@@ -12,7 +12,7 @@ import java.util.List;
  */
 public interface Page<T> {
 
-  static <T> Page<T> of(Page page, List<T> list) {
+  static <T> Page<T> of(Page<?> page, List<T> list) {
     return new Pagination<>(page, list);
   }
 

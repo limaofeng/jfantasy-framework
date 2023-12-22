@@ -42,7 +42,7 @@ public class FantasyClassLoader extends ClassLoader {
    * @return Class
    * @throws ClassNotFoundException 类不存在
    */
-  public Class loadClass(String classpath, String classname) throws ClassNotFoundException {
+  public <T> Class<T> loadClass(String classpath, String classname) throws ClassNotFoundException {
     try {
       lock.lock();
       if (loadClasses.contains(classname)) { // 如果对象已经被加载
@@ -73,7 +73,7 @@ public class FantasyClassLoader extends ClassLoader {
       }
       loadClasses.add(classname);
       unloadClasses.remove(classname);
-      return classLoader.loadClass(classData, classname);
+      return (Class<T>) classLoader.loadClass(classData, classname);
     } finally {
       lock.unlock();
     }
@@ -86,7 +86,7 @@ public class FantasyClassLoader extends ClassLoader {
    * @return Class
    */
   @Override
-  public Class loadClass(String classname) throws ClassNotFoundException {
+  public Class<?> loadClass(String classname) throws ClassNotFoundException {
     if (unloadClasses.contains(classname)) {
       throw new ClassNotFoundException(classname);
     }

@@ -2,6 +2,7 @@ package org.jfantasy.framework.dao;
 
 import java.io.Serializable;
 import java.util.Optional;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.lang.Nullable;
@@ -99,27 +100,27 @@ public class LimitPageRequest implements Pageable, Serializable {
   }
 
   @Override
-  public Optional<Pageable> toOptional() {
+  public @NotNull Optional<Pageable> toOptional() {
     return Optional.empty();
   }
 
   @Override
-  public Pageable previousOrFirst() {
+  public @NotNull Pageable previousOrFirst() {
     return hasPrevious() ? previous() : first();
   }
 
   @Override
-  public Sort getSort() {
+  public @NotNull Sort getSort() {
     return sort;
   }
 
   @Override
-  public Sort getSortOr(Sort sort) {
+  public @NotNull Sort getSortOr(@NotNull Sort sort) {
     return this.sort.and(sort);
   }
 
   @Override
-  public Pageable next() {
+  public @NotNull Pageable next() {
     return new LimitPageRequest(getPageNumber() + 1, getPageSize(), getSort());
   }
 
@@ -130,12 +131,12 @@ public class LimitPageRequest implements Pageable, Serializable {
   }
 
   @Override
-  public Pageable first() {
+  public @NotNull Pageable first() {
     return new LimitPageRequest(0, getPageSize(), getSort());
   }
 
   @Override
-  public Pageable withPage(int pageNumber) {
+  public @NotNull Pageable withPage(int pageNumber) {
     return this;
   }
 

@@ -5,8 +5,8 @@ import java.util.Map;
 
 public class AsmContext {
 
-  private static ThreadLocal<AsmContext> threadLocal = new ThreadLocal<>();
-  private Map<String, Object> data = new HashMap<String, Object>();
+  private static final ThreadLocal<AsmContext> threadLocal = new ThreadLocal<>();
+  private final Map<String, Object> data = new HashMap<>();
 
   public static AsmContext getContext() {
     AsmContext context = threadLocal.get();

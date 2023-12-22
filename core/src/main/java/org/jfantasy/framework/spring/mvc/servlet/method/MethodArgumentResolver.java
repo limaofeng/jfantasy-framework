@@ -7,6 +7,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.Map.Entry;
+import org.jetbrains.annotations.NotNull;
 import org.jfantasy.framework.spring.mvc.bind.annotation.FormModel;
 import org.jfantasy.framework.spring.mvc.util.MapWapper;
 import org.jfantasy.framework.util.common.StringUtil;
@@ -42,9 +43,9 @@ public abstract class MethodArgumentResolver implements HandlerMethodArgumentRes
 
   @Override
   public final Object resolveArgument(
-      MethodParameter parameter,
+      @NotNull MethodParameter parameter,
       ModelAndViewContainer mavContainer,
-      NativeWebRequest request,
+      @NotNull NativeWebRequest request,
       WebDataBinderFactory binderFactory)
       throws Exception {
     String name = getParameterName(parameter);

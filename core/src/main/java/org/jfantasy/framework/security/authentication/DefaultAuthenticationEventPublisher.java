@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.jfantasy.framework.security.AuthenticationException;
 import org.jfantasy.framework.security.authentication.event.*;
 import org.jfantasy.framework.security.core.userdetails.UsernameNotFoundException;
@@ -89,7 +90,8 @@ public class DefaultAuthenticationEventPublisher
   }
 
   @Override
-  public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+  public void setApplicationEventPublisher(
+      @NotNull ApplicationEventPublisher applicationEventPublisher) {
     this.applicationEventPublisher = applicationEventPublisher;
   }
 

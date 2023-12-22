@@ -20,6 +20,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * 绑定JSON/自定义 数据到 Map
@@ -34,17 +36,11 @@ import java.util.Set;
  * @param <K>
  * @param <V>
  */
+@Setter
+@Getter
 public class MapWapper<K, V> {
 
-  private Map<K, V> innerMap = new HashMap<K, V>();
-
-  public void setInnerMap(Map<K, V> innerMap) {
-    this.innerMap = innerMap;
-  }
-
-  public Map<K, V> getInnerMap() {
-    return innerMap;
-  }
+  private Map<K, V> innerMap = new HashMap<>();
 
   public void clear() {
     innerMap.clear();

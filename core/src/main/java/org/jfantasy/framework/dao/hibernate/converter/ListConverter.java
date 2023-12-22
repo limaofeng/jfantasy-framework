@@ -36,6 +36,6 @@ public class ListConverter<T> implements AttributeConverter<List<T>, String> {
     if (StringUtil.isBlank(dbData)) {
       return null;
     }
-    return JSON.deserialize(dbData, new TypeReference<List<T>>() {});
+    return JSON.deserialize(dbData, new TypeReference<>() {});
   }
 }

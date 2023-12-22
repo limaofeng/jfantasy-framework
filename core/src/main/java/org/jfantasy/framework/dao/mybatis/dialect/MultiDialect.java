@@ -24,7 +24,7 @@ public class MultiDialect implements Dialect, InitializingBean {
   @Override
   public void afterPropertiesSet() throws Exception {
     if (ObjectUtil.isNull(targetDialects)) {
-      targetDialects = new HashMap<String, Dialect>();
+      targetDialects = new HashMap<>();
     }
     targetDialects.put("sql2005", new MsSQLDialect("2005"));
     targetDialects.put("sql2000", new MsSQLDialect("2000"));

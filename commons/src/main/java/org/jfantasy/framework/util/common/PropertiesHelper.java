@@ -54,7 +54,7 @@ public class PropertiesHelper {
 
   public PropertiesHelper filter(CallBackMatch callBack) {
     Properties props = new Properties();
-    for (Map.Entry entry : getProperties().entrySet()) {
+    for (Map.Entry<Object, Object> entry : getProperties().entrySet()) {
       if (callBack.call(entry)) {
         props.put(entry.getKey(), entry.getValue());
       }
@@ -66,8 +66,8 @@ public class PropertiesHelper {
 
   public PropertiesHelper map(CallBackTransform callBack) {
     Properties props = new Properties();
-    for (Map.Entry entry : getProperties().entrySet()) {
-      Map.Entry newEntry = callBack.call(entry);
+    for (Map.Entry<Object, Object> entry : getProperties().entrySet()) {
+      Map.Entry<Object, Object> newEntry = callBack.call(entry);
       props.put(newEntry.getKey(), newEntry.getValue());
     }
     this.clear();
@@ -82,7 +82,7 @@ public class PropertiesHelper {
       return propertiesCache.get(cacheKey);
     }
     for (Properties eProps : propertiesList) {
-      for (Map.Entry entry : eProps.entrySet()) {
+      for (Map.Entry<Object, Object> entry : eProps.entrySet()) {
         if (ObjectUtil.exists(ignorePropertyNames, entry.getKey())) {
           continue;
         }
@@ -260,17 +260,17 @@ public class PropertiesHelper {
 
   public interface CallBackTransform {
 
-    Map.Entry call(Map.Entry entry);
+    Map.Entry<Object, Object> call(Map.Entry<Object, Object> entry);
   }
 
   public interface CallBackMatch {
 
-    boolean call(Map.Entry entry);
+    boolean call(Map.Entry<Object, Object> entry);
   }
 
-  public static class MapEntry implements Map.Entry {
+  public static class MapEntry implements Map.Entry<Object, Object> {
 
-    private Object key;
+    private final Object key;
     private Object value;
 
     public MapEntry(Object key, Object value) {
@@ -295,7 +295,7 @@ public class PropertiesHelper {
   }
 
   public static Iterator<URL> getResources(
-      String resourceName, Class callingClass, boolean aggregate) throws IOException {
+      String resourceName, Class<?> callingClass, boolean aggregate) throws IOException {
 
     AggregateIterator<URL> iterator = new AggregateIterator<>();
 
@@ -316,7 +316,7 @@ public class PropertiesHelper {
 
     if (!iterator.hasNext()
         && (resourceName != null)
-        && ((resourceName.length() == 0) || (resourceName.charAt(0) != '/'))) {
+        && ((resourceName.isEmpty()) || (resourceName.charAt(0) != '/'))) {
       return getResources('/' + resourceName, callingClass, aggregate);
     }
 

@@ -36,6 +36,6 @@ public class SetConverter<T> implements AttributeConverter<Set<T>, String> {
     if (StringUtil.isBlank(dbData)) {
       return null;
     }
-    return JSON.deserialize(dbData, new TypeReference<Set<T>>() {});
+    return JSON.deserialize(dbData, new TypeReference<>() {});
   }
 }

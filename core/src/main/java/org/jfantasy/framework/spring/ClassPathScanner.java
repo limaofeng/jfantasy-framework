@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.context.ResourceLoaderAware;
@@ -23,7 +25,7 @@ import org.springframework.util.StopWatch;
 public class ClassPathScanner implements ResourceLoaderAware {
   protected static final String DEFAULT_RESOURCE_PATTERN = "**/*.class";
 
-  private static final ClassPathScanner instance = new ClassPathScanner();
+  @Getter private static final ClassPathScanner instance = new ClassPathScanner();
 
   private ResourcePatternResolver resourcePatternResolver =
       new PathMatchingResourcePatternResolver();
@@ -34,23 +36,19 @@ public class ClassPathScanner implements ResourceLoaderAware {
   private String resourcePattern = DEFAULT_RESOURCE_PATTERN;
 
   @Override
-  public void setResourceLoader(ResourceLoader resourceLoader) {
+  public void setResourceLoader(@NotNull ResourceLoader resourceLoader) {
     this.resourcePatternResolver = ResourcePatternUtils.getResourcePatternResolver(resourceLoader);
     this.metadataReaderFactory = new CachingMetadataReaderFactory(resourceLoader);
   }
 
-  public static ClassPathScanner getInstance() {
-    return instance;
-  }
-
   private static final String CLASSPATH = "classpath*:";
 
-  public Set<String> findTargetClassNames(String basepackage) {
-    Set<String> candidates = new LinkedHashSet<String>();
+  public Set<String> findTargetClassNames(String basePackage) {
+    Set<String> candidates = new LinkedHashSet<>();
     try {
       String packageSearchPath =
           CLASSPATH
-              + ClassUtil.convertClassNameToResourcePath(basepackage)
+              + ClassUtil.convertClassNameToResourcePath(basePackage)
               + "/"
               + this.resourcePattern;
       Resource[] resources = this.resourcePatternResolver.getResources(packageSearchPath);

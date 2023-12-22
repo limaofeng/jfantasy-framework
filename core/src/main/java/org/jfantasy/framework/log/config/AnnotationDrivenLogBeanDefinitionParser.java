@@ -1,5 +1,6 @@
 package org.jfantasy.framework.log.config;
 
+import org.jetbrains.annotations.NotNull;
 import org.jfantasy.framework.log.annotation.AnnotationLogOperationSource;
 import org.jfantasy.framework.log.interceptor.BeanFactoryLogOperationSourceAdvisor;
 import org.jfantasy.framework.log.interceptor.LogInterceptor;
@@ -21,7 +22,7 @@ public class AnnotationDrivenLogBeanDefinitionParser implements BeanDefinitionPa
       "org.springframework.log.config.internalLogAspect";
 
   @Override
-  public BeanDefinition parse(Element element, ParserContext parserContext) {
+  public BeanDefinition parse(@NotNull Element element, @NotNull ParserContext parserContext) {
     AopAutoProxyConfigurer.configureAutoProxyCreator(element, parserContext);
     return null;
   }

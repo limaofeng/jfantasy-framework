@@ -1,8 +1,8 @@
 package org.jfantasy.framework.util.reflect;
 
 public class Functor {
-  private Object source;
-  private MethodProxy method;
+  private final Object source;
+  private final MethodProxy method;
 
   private Functor(Object object, MethodProxy method) {
     this.source = object;

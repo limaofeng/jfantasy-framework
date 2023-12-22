@@ -9,7 +9,7 @@ public class AnnotationDescriptor {
 
   private final Class<? extends Annotation> type;
 
-  private Map<String, Object> elements = new HashMap<String, Object>();
+  private Map<String, Object> elements = new HashMap<>();
 
   public AnnotationDescriptor(Class<? extends Annotation> annotationType) {
     type = annotationType;
@@ -50,7 +50,7 @@ public class AnnotationDescriptor {
   public static class Builder {
 
     private Class<? extends Annotation> type;
-    private final Map<String, Object> elements = new HashMap<String, Object>();
+    private final Map<String, Object> elements = new HashMap<>();
 
     private Builder() {}
 

@@ -37,7 +37,7 @@ public class CharEnumTypeHandler<E extends Enum<E>> extends BaseTypeHandler<E> {
               E e = (E) value;
               return String.valueOf(e.ordinal());
             } else {
-              return enums[Integer.valueOf((String) value)];
+              return enums[Integer.parseInt((String) value)];
             }
           }
         },

@@ -22,8 +22,8 @@ import org.jfantasy.framework.util.common.StringUtil;
 public class Response {
 
   private CloseableHttpResponse response;
-  private String url;
-  private int statusCode;
+  private final String url;
+  private final int statusCode;
   private Cookie[] cookies;
   private Header[] responseHeaders;
   private Header[] requestHeaders;
@@ -290,7 +290,7 @@ public class Response {
    * @return length
    */
   public long getContentLength() {
-    return Long.valueOf(this.getResponseHeader("Content-Length").getValue());
+    return Long.parseLong(this.getResponseHeader("Content-Length").getValue());
   }
 
   /**

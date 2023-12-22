@@ -2,6 +2,7 @@ package org.jfantasy.framework.spring.mvc.reactive.method;
 
 import java.lang.annotation.Annotation;
 import java.util.*;
+import org.jetbrains.annotations.NotNull;
 import org.jfantasy.framework.spring.mvc.bind.annotation.FormModel;
 import org.jfantasy.framework.spring.mvc.util.MapWapper;
 import org.jfantasy.framework.util.common.ClassUtil;
@@ -35,8 +36,10 @@ public abstract class MethodArgumentResolver implements HandlerMethodArgumentRes
   }
 
   @Override
-  public Mono<Object> resolveArgument(
-      MethodParameter parameter, BindingContext bindingContext, ServerWebExchange exchange) {
+  public @NotNull Mono<Object> resolveArgument(
+      @NotNull MethodParameter parameter,
+      BindingContext bindingContext,
+      @NotNull ServerWebExchange exchange) {
     String name = getParameterName(parameter);
 
     Model model = bindingContext.getModel();

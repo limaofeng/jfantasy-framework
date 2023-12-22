@@ -1,11 +1,12 @@
 package org.jfantasy.framework.util.cglib.interceptor;
 
+import java.io.Serial;
 import java.util.*;
 import org.jfantasy.framework.util.regexp.RegexpUtil;
 
 public class ParameterMap extends HashMap<String, Object> {
 
-  private static final long serialVersionUID = 6842517213822127863L;
+  @Serial private static final long serialVersionUID = 6842517213822127863L;
 
   @Override
   public boolean containsKey(Object key) {
@@ -24,7 +25,7 @@ public class ParameterMap extends HashMap<String, Object> {
         String seq = RegexpUtil.parseGroup(key, "^" + propertyName + "\\[(\\d+)\\]", 1);
         if (isBean(name)) {
           List<Object> array = (List<Object>) super.get(propertyName);
-          int index = Integer.valueOf(seq);
+          int index = Integer.parseInt(seq);
           if (array.size() <= index) {
             for (int i = array.size(); i <= index; i++) {
               array.add(array.get(i));
@@ -37,7 +38,7 @@ public class ParameterMap extends HashMap<String, Object> {
               .put(RegexpUtil.replace(name, "^" + propertyName + ".", ""), value);
         } else {
           List<Object> array = (List<Object>) super.get(propertyName);
-          int index = Integer.valueOf(seq);
+          int index = Integer.parseInt(seq);
           if (array.size() <= index) {
             for (int i = array.size(); i <= index; i++) {
               array.add(array.get(i));

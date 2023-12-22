@@ -66,7 +66,7 @@ public class Pagination<T> implements Page<T>, Serializable {
     this.pageSize = pageSize;
   }
 
-  public Pagination(Page page) {
+  public Pagination(Page<?> page) {
     this.currentPage = page.getCurrentPage();
     this.pageSize = page.getPageSize();
     this.totalCount = page.getTotalCount();
@@ -74,7 +74,7 @@ public class Pagination<T> implements Page<T>, Serializable {
     this.orderBy = page.getOrderBy();
   }
 
-  public Pagination(Page page, List<T> items) {
+  public Pagination(Page<?> page, List<T> items) {
     this.currentPage = page.getCurrentPage();
     this.pageSize = page.getPageSize();
     this.totalCount = page.getTotalCount();

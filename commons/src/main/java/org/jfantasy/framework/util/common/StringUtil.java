@@ -122,7 +122,7 @@ public abstract class StringUtil {
     String ts = trim(s);
     String[] rs = ts.split(delim);
     for (String str : rs) {
-      if (str.trim().length() > 0) {
+      if (!str.trim().isEmpty()) {
         list.add(str);
       }
     }
@@ -236,7 +236,7 @@ public abstract class StringUtil {
   }
 
   public static boolean isBlank(Object s) {
-    return (s == null) || (nullValue(s).trim().length() == 0);
+    return (s == null) || (nullValue(s).trim().isEmpty());
   }
 
   public static boolean isNotBlank(Object s) {
@@ -533,7 +533,7 @@ public abstract class StringUtil {
   }
 
   public static boolean isEmpty(String s) {
-    return (s == null) || (s.trim().length() == 0);
+    return (s == null) || (s.trim().isEmpty());
   }
 
   public static String escapeHtml(String result) {

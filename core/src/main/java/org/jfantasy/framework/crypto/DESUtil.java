@@ -27,7 +27,7 @@ public class DESUtil {
    */
   private static SecretKey keyGenerator(String keyStr) throws CryptoException {
     try {
-      byte input[] = HexString2Bytes(keyStr);
+      byte[] input = HexString2Bytes(keyStr);
       DESKeySpec desKey = new DESKeySpec(input);
       // 创建一个密匙工厂，然后用它把DESKeySpec转换成
       SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("DES");
@@ -76,10 +76,6 @@ public class DESUtil {
       cipher.init(Cipher.ENCRYPT_MODE, deskey, random);
       byte[] results = cipher.doFinal(data.getBytes());
       // 该部分是为了与加解密在线测试网站（http://tripledes.online-domain-tools.com/）的十六进制结果进行核对
-      for (int i = 0; i < results.length; i++) {
-        System.out.print(results[i] + " ");
-      }
-      System.out.println();
       // 执行加密操作。加密后的结果通常都会用Base64编码进行传输
       return Base64.encodeBase64String(results);
     } catch (InvalidKeyException
