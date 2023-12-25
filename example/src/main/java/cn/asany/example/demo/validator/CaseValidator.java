@@ -1,8 +1,8 @@
 package cn.asany.example.demo.validator;
 
-import org.jfantasy.framework.spring.validation.ValidationException;
-import org.jfantasy.framework.spring.validation.Validator;
-import org.jfantasy.framework.util.common.StringUtil;
+import net.asany.jfantasy.framework.spring.validation.ValidationException;
+import net.asany.jfantasy.framework.spring.validation.Validator;
+import net.asany.jfantasy.framework.util.common.StringUtil;
 
 public class CaseValidator implements Validator<String> {
   @Override

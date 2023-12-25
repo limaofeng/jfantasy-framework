@@ -2,7 +2,7 @@ package cn.asany.demo.service;
 
 import cn.asany.demo.dao.ArticleDao;
 import cn.asany.demo.domain.Article;
-import org.jfantasy.framework.search.query.CuckooIndexSearcher;
+import net.asany.jfantasy.framework.search.query.CuckooIndexSearcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;

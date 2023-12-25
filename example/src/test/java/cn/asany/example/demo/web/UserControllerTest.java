@@ -5,9 +5,9 @@ import cn.asany.example.demo.domain.UserSetting;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import java.lang.reflect.Method;
 import lombok.extern.slf4j.Slf4j;
-import org.jfantasy.framework.jackson.FilteredMixinHolder;
-import org.jfantasy.framework.jackson.JSON;
-import org.jfantasy.framework.util.common.ClassUtil;
+import net.asany.jfantasy.framework.jackson.FilteredMixinHolder;
+import net.asany.jfantasy.framework.jackson.JSON;
+import net.asany.jfantasy.framework.util.common.ClassUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.MethodParameter;
 

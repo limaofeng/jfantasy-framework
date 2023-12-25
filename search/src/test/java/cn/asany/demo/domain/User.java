@@ -1,6 +1,6 @@
 package cn.asany.demo.domain;
 
-import org.jfantasy.framework.search.annotations.IndexRefBy;
+import net.asany.jfantasy.framework.search.annotations.IndexRefBy;
 
 public class User {
 

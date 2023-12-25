@@ -3,7 +3,7 @@ package cn.asany.example.demo.graphql.inputs;
 import cn.asany.example.demo.validator.CaseValidator;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
-import org.jfantasy.framework.spring.validation.Use;
+import net.asany.jfantasy.framework.spring.validation.Use;
 
 @Data
 public class UserCreateInput {

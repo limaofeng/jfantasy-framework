@@ -3,7 +3,7 @@ package cn.asany.example.demo.service;
 import cn.asany.example.TestApplication;
 import cn.asany.example.demo.domain.User;
 import lombok.extern.slf4j.Slf4j;
-import org.jfantasy.framework.dao.jpa.PropertyFilter;
+import net.asany.jfantasy.framework.dao.jpa.PropertyFilter;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;

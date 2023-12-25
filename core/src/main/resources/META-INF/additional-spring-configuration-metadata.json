@@ -3,14 +3,14 @@
     {
       "name": "spring.sequence",
       "description": "自定义序列.",
-      "type": "org.jfantasy.autoconfigure.properties.SequenceProperties",
-      "sourceType": "org.jfantasy.autoconfigure.properties.SequenceProperties"
+      "type": "net.asany.jfantasy.autoconfigure.properties.SequenceProperties",
+      "sourceType": "net.asany.jfantasy.autoconfigure.properties.SequenceProperties"
     },
     {
       "name": "spring.cache.advance",
       "description": "缓存提前初始化.",
-      "type": "org.jfantasy.autoconfigure.properties.CacheAdvanceProperties",
-      "sourceType": "org.jfantasy.autoconfigure.properties.CacheAdvanceProperties"
+      "type": "net.asany.jfantasy.autoconfigure.properties.CacheAdvanceProperties",
+      "sourceType": "net.asany.jfantasy.autoconfigure.properties.CacheAdvanceProperties"
     }
   ],
   "properties": [
@@ -28,7 +28,7 @@
       "name": "spring.datasource.proxy",
       "type": "java.lang.Boolean",
       "description": "启用数据源代理.",
-      "sourceType": "org.jfantasy.autoconfigure.properties.DataSourceExtendedProperties"
+      "sourceType": "net.asany.jfantasy.autoconfigure.properties.DataSourceExtendedProperties"
     },
     {
       "name": "spring.cache.advance.bean-names",

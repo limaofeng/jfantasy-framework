@@ -9,7 +9,7 @@ import graphql.kickstart.execution.error.GraphQLErrorHandler;
 import java.util.Arrays;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.jfantasy.framework.util.common.ClassUtil;
+import net.asany.jfantasy.framework.util.common.ClassUtil;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationContext;

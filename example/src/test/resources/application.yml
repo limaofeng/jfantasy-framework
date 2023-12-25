@@ -15,7 +15,7 @@ spring:
         jdbc:
           time_zone: GMT+8
         session_factory:
-          interceptor: org.jfantasy.framework.dao.hibernate.interceptors.BusEntityInterceptor
+          interceptor: net.asany.jfantasy.framework.dao.hibernate.interceptors.BusEntityInterceptor
         current_session_context_class: org.springframework.orm.hibernate5.SpringSessionContext
         cache:
           use_query_cache: false
@@ -25,7 +25,7 @@ spring:
         dialect: org.hibernate.dialect.MySQL55Dialect
         show_sql: true
         ejb:
-          identifier_generator_strategy_provider: org.jfantasy.framework.dao.hibernate.spi.CustomIdentifierGeneratorStrategyProvider
+          identifier_generator_strategy_provider: net.asany.jfantasy.framework.dao.hibernate.spi.CustomIdentifierGeneratorStrategyProvider
     generate-ddl: false
     open-in-view: false
   quartz:

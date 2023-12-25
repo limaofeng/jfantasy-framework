@@ -6,7 +6,7 @@ import cn.asany.example.demo.graphql.inputs.UserCreateInput;
 import cn.asany.example.demo.service.UserService;
 import com.zaxxer.hikari.HikariDataSource;
 import graphql.kickstart.tools.GraphQLMutationResolver;
-import org.jfantasy.framework.dao.datasource.MultiDataSourceManager;
+import net.asany.jfantasy.framework.dao.datasource.MultiDataSourceManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.stereotype.Component;

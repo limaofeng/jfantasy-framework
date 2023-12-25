@@ -46,9 +46,9 @@
     <logger name="org.hibernate.SQL" level="DEBUG" />
     <logger name="org.hibernate.engine.QueryParameters" level="DEBUG" />
     <logger name="org.hibernate.engine.query.HQLQueryPlan" level="DEBUG" />
-    <logger name="org.jfantasy.framework" level="DEBUG"/>
+    <logger name="net.asany.jfantasy.framework" level="DEBUG"/>
 
-    <logger name="org.jfantasy.chatgpt" level="INFO"/>
+    <logger name="net.asany.jfantasy.chatgpt" level="INFO"/>
 
     <root level="info">
         <appender-ref ref="CONSOLE" />

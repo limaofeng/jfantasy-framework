@@ -4,9 +4,9 @@ import jakarta.persistence.*;
 import java.util.Date;
 import java.util.Objects;
 import lombok.*;
-import org.jfantasy.framework.search.annotations.FieldType;
-import org.jfantasy.framework.search.annotations.IndexProperty;
-import org.jfantasy.framework.search.annotations.Indexed;
+import net.asany.jfantasy.framework.search.annotations.FieldType;
+import net.asany.jfantasy.framework.search.annotations.IndexProperty;
+import net.asany.jfantasy.framework.search.annotations.Indexed;
 
 @Indexed(indexName = "articles")
 @Getter

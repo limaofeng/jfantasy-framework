@@ -1,0 +1,24 @@
+package net.asany.jfantasy.framework.security;
+
+import jakarta.websocket.server.HandshakeRequest;
+import net.asany.jfantasy.framework.security.authentication.AuthenticationManagerResolver;
+
+/**
+ * AuthenticationManagerResolver
+ *
+ * @author limaofeng
+ */
+public class WebSocketAuthenticationManagerResolver
+    implements AuthenticationManagerResolver<HandshakeRequest> {
+
+  private final AuthenticationManager authenticationManager;
+
+  public WebSocketAuthenticationManagerResolver(AuthenticationManager authenticationManager) {
+    this.authenticationManager = authenticationManager;
+  }
+
+  @Override
+  public AuthenticationManager resolve(HandshakeRequest context) {
+    return this.authenticationManager;
+  }
+}

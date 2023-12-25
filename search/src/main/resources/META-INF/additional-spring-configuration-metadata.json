@@ -3,14 +3,14 @@
     {
       "name": "cuckoo",
       "description": "cuckoo 配置.",
-      "type": "org.jfantasy.autoconfigure.properties.CuckooProperties",
-      "sourceType": "org.jfantasy.autoconfigure.properties.CuckooProperties"
+      "type": "net.asany.jfantasy.autoconfigure.properties.CuckooProperties",
+      "sourceType": "net.asany.jfantasy.autoconfigure.properties.CuckooProperties"
     },
     {
       "name": "cuckoo.elasticsearch.client",
       "description": "Elasticsearch 客户端设置.",
-      "type": "org.jfantasy.autoconfigure.properties.ElasticsearchClientProperties",
-      "sourceType": "org.jfantasy.autoconfigure.properties.ElasticsearchClientProperties"
+      "type": "net.asany.jfantasy.autoconfigure.properties.ElasticsearchClientProperties",
+      "sourceType": "net.asany.jfantasy.autoconfigure.properties.ElasticsearchClientProperties"
     }
   ],
   "properties": [
@@ -18,55 +18,55 @@
       "name": "cuckoo.rebuild",
       "type": "java.lang.Boolean",
       "description": "启动重建索引.",
-      "sourceType": "org.jfantasy.autoconfigure.properties.CuckooProperties"
+      "sourceType": "net.asany.jfantasy.autoconfigure.properties.CuckooProperties"
     },
     {
       "name": "cuckoo.enable",
       "type": "java.lang.Boolean",
       "description": "启用与禁用.",
-      "sourceType": "org.jfantasy.autoconfigure.properties.CuckooProperties"
+      "sourceType": "net.asany.jfantasy.autoconfigure.properties.CuckooProperties"
     },
     {
       "name": "cuckoo.batch-size",
       "type": "java.lang.Integer",
       "description": "启动重建索引已经其他操作时，最大处理的数据量.",
-      "sourceType": "org.jfantasy.autoconfigure.properties.CuckooProperties"
+      "sourceType": "net.asany.jfantasy.autoconfigure.properties.CuckooProperties"
     },
     {
       "name": "cuckoo.elasticsearch.client.url",
       "type": "java.lang.String",
       "description": "连接地址.",
-      "sourceType": "org.jfantasy.autoconfigure.properties.ElasticsearchClientProperties"
+      "sourceType": "net.asany.jfantasy.autoconfigure.properties.ElasticsearchClientProperties"
     },
     {
       "name": "cuckoo.elasticsearch.client.api-key",
       "type": "java.lang.String",
       "description": "推荐使用 apikey 取代 username/password 的方式.",
-      "sourceType": "org.jfantasy.autoconfigure.properties.ElasticsearchClientProperties"
+      "sourceType": "net.asany.jfantasy.autoconfigure.properties.ElasticsearchClientProperties"
     },
     {
       "name": "cuckoo.elasticsearch.client.username",
       "type": "java.lang.String",
       "description": "连接用户名.",
-      "sourceType": "org.jfantasy.autoconfigure.properties.ElasticsearchClientProperties"
+      "sourceType": "net.asany.jfantasy.autoconfigure.properties.ElasticsearchClientProperties"
     },
     {
       "name": "cuckoo.elasticsearch.client.password",
       "type": "java.lang.String",
       "description": "连接密码.",
-      "sourceType": "org.jfantasy.autoconfigure.properties.ElasticsearchClientProperties"
+      "sourceType": "net.asany.jfantasy.autoconfigure.properties.ElasticsearchClientProperties"
     },
     {
       "name": "cuckoo.elasticsearch.client.ssl.certificate-path",
       "type": "java.lang.String",
       "description": "证书路径.",
-      "sourceType": "org.jfantasy.autoconfigure.properties.ElasticsearchClientProperties$SSL"
+      "sourceType": "net.asany.jfantasy.autoconfigure.properties.ElasticsearchClientProperties$SSL"
     },
     {
       "name": "cuckoo.elasticsearch.client.ssl.certificate",
       "type": "java.lang.String",
       "description": "证书字符串.",
-      "sourceType": "org.jfantasy.autoconfigure.properties.ElasticsearchClientProperties$SSL"
+      "sourceType": "net.asany.jfantasy.autoconfigure.properties.ElasticsearchClientProperties$SSL"
     }
   ]
 }

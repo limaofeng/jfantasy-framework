@@ -1,0 +1,120 @@
+package net.asany.jfantasy.framework.spring.config;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Arrays;
+import net.asany.jfantasy.framework.spring.SpringBeanUtils;
+import net.asany.jfantasy.framework.spring.mvc.reactive.WebFluxResponseBodyResultHandler;
+import net.asany.jfantasy.framework.spring.mvc.reactive.method.PropertyFilterModelAttributeMethodProcessor;
+import net.asany.jfantasy.framework.util.common.ClassUtil;
+import net.asany.jfantasy.framework.util.web.ServletUtils;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.http.MediaType;
+import org.springframework.http.codec.ServerCodecConfigurer;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.validation.Validator;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.reactive.CorsWebFilter;
+import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
+import org.springframework.web.reactive.accept.HeaderContentTypeResolver;
+import org.springframework.web.reactive.accept.RequestedContentTypeResolver;
+import org.springframework.web.reactive.config.CorsRegistry;
+import org.springframework.web.reactive.config.WebFluxConfigurer;
+import org.springframework.web.reactive.result.method.annotation.ArgumentResolverConfigurer;
+
+@Configuration
+@Order(value = WebFluxConfig.ORDER)
+public class WebFluxConfig implements WebFluxConfigurer {
+
+  public static final int ORDER = Ordered.HIGHEST_PRECEDENCE + 32;
+
+  private final ApplicationContext applicationContext;
+
+  private final ObjectMapper objectMapper;
+
+  @Autowired
+  public WebFluxConfig(ApplicationContext applicationContext, ObjectMapper objectMapper) {
+    this.applicationContext = applicationContext;
+    this.objectMapper = objectMapper;
+  }
+
+  @Override
+  public void configureArgumentResolvers(ArgumentResolverConfigurer configurer) {
+    configurer.addCustomResolver(new PropertyFilterModelAttributeMethodProcessor());
+  }
+
+  @Override
+  public Validator getValidator() {
+    return BaseConfig.getValidator(applicationContext);
+  }
+
+  @Override
+  public void addCorsMappings(@NotNull CorsRegistry registry) {
+    // noinspection DuplicatedCode
+    String path = "/**";
+
+    boolean credentials = true;
+    String originPatterns = ServletUtils.CORS_DEFAULT_ORIGIN_PATTERNS;
+    String[] allowedHeaders = ServletUtils.CORS_DEFAULT_ALLOWED_HEADERS;
+    String[] allowedMethods = ServletUtils.CORS_DEFAULT_ALLOWED_METHODS;
+    String[] exposeHeaders = ServletUtils.CORS_DEFAULT_EXPOSE_METHODS;
+    long maxAge = ServletUtils.CORS_DEFAULT_MAX_AGE;
+
+    if (SpringBeanUtils.containsBean(CorsWebFilter.class)) {
+      CorsWebFilter corsFilter = SpringBeanUtils.getBean(CorsWebFilter.class);
+      // noinspection DuplicatedCode
+      UrlBasedCorsConfigurationSource configSource = ClassUtil.getValue(corsFilter, "configSource");
+
+      CorsConfiguration corsConfiguration = new CorsConfiguration();
+      corsConfiguration.addAllowedOriginPattern(originPatterns);
+      corsConfiguration.setAllowedHeaders(Arrays.asList(allowedHeaders));
+      corsConfiguration.setAllowedMethods(Arrays.asList(allowedMethods));
+      corsConfiguration.setExposedHeaders(Arrays.asList(exposeHeaders));
+      corsConfiguration.setAllowCredentials(credentials);
+      corsConfiguration.setMaxAge(maxAge);
+
+      configSource.registerCorsConfiguration(path, corsConfiguration);
+    } else {
+      registry
+          .addMapping(path)
+          .allowedOriginPatterns(originPatterns)
+          .allowedMethods(allowedMethods)
+          .allowedHeaders(allowedHeaders)
+          .exposedHeaders(exposeHeaders)
+          .allowCredentials(credentials)
+          .maxAge(maxAge);
+    }
+  }
+
+  @Bean
+  public MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter() {
+    MappingJackson2HttpMessageConverter converter =
+        new MappingJackson2HttpMessageConverter(this.objectMapper);
+    converter.setSupportedMediaTypes(
+        Arrays.asList(MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML));
+    return converter;
+  }
+
+  @Bean
+  public ServerCodecConfigurer serverCodecConfigurer() {
+    return ServerCodecConfigurer.create();
+  }
+
+  @Bean
+  public RequestedContentTypeResolver requestedContentTypeResolver() {
+    return new HeaderContentTypeResolver();
+  }
+
+  @Bean
+  public WebFluxResponseBodyResultHandler webFluxResponseBodyResultHandler(
+      ServerCodecConfigurer serverCodecConfigurer,
+      RequestedContentTypeResolver requestedContentTypeResolver) {
+    return new WebFluxResponseBodyResultHandler(
+        serverCodecConfigurer.getWriters(), requestedContentTypeResolver);
+  }
+}
