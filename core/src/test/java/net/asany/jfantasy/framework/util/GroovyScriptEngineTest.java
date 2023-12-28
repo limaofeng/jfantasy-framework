@@ -3,7 +3,7 @@ package net.asany.jfantasy.framework.util;
 import java.nio.file.Paths;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
-import net.asany.jfantasy.framework.jackson.models.User;
+import net.asany.jfantasy.framework.error.User;
 import net.asany.jfantasy.framework.util.common.file.FileUtil;
 import org.junit.jupiter.api.Test;
 

@@ -1,6 +1,6 @@
 package net.asany.jfantasy.framework.error;
 
-import net.asany.jfantasy.framework.jackson.models.User;
+import net.asany.jfantasy.framework.spring.util.ValidationUtil;
 import org.junit.jupiter.api.Test;
 
 class ErrorUtilsTest {
@@ -13,6 +13,6 @@ class ErrorUtilsTest {
   @Test
   void validate() {
     User user = new User();
-    ErrorUtils.validate(user);
+    ValidationUtil.validate(user);
   }
 }

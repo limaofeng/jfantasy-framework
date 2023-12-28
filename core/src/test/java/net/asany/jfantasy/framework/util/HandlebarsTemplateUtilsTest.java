@@ -3,7 +3,7 @@ package net.asany.jfantasy.framework.util;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import net.asany.jfantasy.framework.jackson.models.User;
+import net.asany.jfantasy.framework.error.User;
 import org.junit.jupiter.api.Test;
 
 @Slf4j

@@ -8,7 +8,7 @@ import java.util.zip.GZIPOutputStream;
 
 public class GZipStream extends ServletOutputStream {
 
-  private GZIPOutputStream zipStream;
+  private final GZIPOutputStream zipStream;
 
   public GZipStream(OutputStream out) throws IOException {
     this.zipStream = new GZIPOutputStream(out);

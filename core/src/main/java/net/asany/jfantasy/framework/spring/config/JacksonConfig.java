@@ -47,7 +47,11 @@ public class JacksonConfig {
 
   @PostConstruct
   public void initObjectMapper() {
-    XML.initialize();
+    XML.initialize(
+        xmlMapperBuilder -> {
+          new JacksonConfig.AnyJackson2XmlMapperBuilderCustomizer().customize(xmlMapperBuilder);
+          return xmlMapperBuilder;
+        });
   }
 
   @Bean

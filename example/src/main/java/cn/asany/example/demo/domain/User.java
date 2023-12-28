@@ -45,5 +45,5 @@ public class User extends BaseBusEntity {
   @Column(name = "status", length = 10)
   private UserStatus status;
 
-  private transient UserSetting setting = new UserSetting();
+  @Builder.Default private transient UserSetting setting = new UserSetting();
 }

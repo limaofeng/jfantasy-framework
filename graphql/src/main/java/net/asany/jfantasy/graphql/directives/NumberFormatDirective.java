@@ -19,14 +19,16 @@ public class NumberFormatDirective implements SchemaDirectiveWiring {
       GraphQLArgument.newArgument()
           .name(FORMAT_NAME)
           .type(Scalars.GraphQLString)
-          .description(
-              "格式说明<br/>"
-                  + "* 0 - (123456) 只显示整数，没有小数位<br>\n"
-                  + "* 0.00 - (123456.78) 显示整数，保留两位小数位<br>\n"
-                  + "* 0.0000 - (123456.7890) 显示整数，保留四位小数位<br>\n"
-                  + "* 0,000 - (123,456) 只显示整数，用逗号分开<br>\n"
-                  + "* 0,000.00 - (123,456.78) 显示整数，用逗号分开，保留两位小数位<br>\n"
-                  + "* 0,0.00 - (123,456.78) 快捷方法，显示整数，用逗号分开，保留两位小数位<br>");
+          .description("""
+                      格式说明<br/>
+                      * 0 - (123456) 只显示整数，没有小数位<br>
+                      * 0.00 - (123456.78) 显示整数，保留两位小数位<br>
+                      * 0.0000 - (123456.7890) 显示整数，保留四位小数位<br>
+                      * 0,000 - (123,456) 只显示整数，用逗号分开<br>
+                      * 0,000.00 - (123,456.78) 显示整数，用逗号分开，保留两位小数位<br>
+                      * 0,0.00 - (123,456.78) 快捷方法，显示整数，用逗号分开，保留两位小数位<br>
+                      """
+    );
 
   @Override
   public GraphQLFieldDefinition onField(
@@ -34,7 +36,7 @@ public class NumberFormatDirective implements SchemaDirectiveWiring {
     GraphQLFieldDefinition field = environment.getElement();
     GraphQLFieldsContainer parentType = environment.getFieldsContainer();
     DataFetcher<?> originalDataFetcher =
-        environment.getCodeRegistry().getDataFetcher(parentType, field);
+      environment.getCodeRegistry().getDataFetcher(parentType, field);
 
     DataFetcher<?> dataFetcher =
         DataFetcherFactories.wrapDataFetcher(

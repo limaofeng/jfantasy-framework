@@ -29,7 +29,6 @@ public class AliasToBeanResultTransformer implements ResultTransformer<Object> {
   private final Class<?> resultClass;
 
   private final Map<String, String> propertyNames = new HashMap<>();
-  private final Map<String, Type> propertyTypes = new HashMap<>();
 
   public AliasToBeanResultTransformer(Class<?> resultClass) {
     if (resultClass == null) {
@@ -42,6 +41,7 @@ public class AliasToBeanResultTransformer implements ResultTransformer<Object> {
       propertyNames.put(column.name(), field.getName());
       Type type = getHibernateType(field.getType());
       if (type != null) {
+        Map<String, Type> propertyTypes = new HashMap<>();
         propertyTypes.put(column.name(), type);
       }
     }

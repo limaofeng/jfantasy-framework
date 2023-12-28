@@ -3,7 +3,7 @@ package net.asany.jfantasy.framework.dao.jpa;
 import java.util.ArrayList;
 import java.util.List;
 import net.asany.jfantasy.framework.dao.MatchType;
-import net.asany.jfantasy.framework.jackson.models.User;
+import net.asany.jfantasy.framework.error.User;
 import org.junit.jupiter.api.Test;
 
 class PropertyFilterTest {

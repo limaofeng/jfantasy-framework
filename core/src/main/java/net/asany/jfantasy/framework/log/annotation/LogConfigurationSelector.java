@@ -16,15 +16,11 @@ public class LogConfigurationSelector extends AdviceModeImportSelector<EnableLog
 
   @Override
   public String[] selectImports(AdviceMode adviceMode) {
-    switch (adviceMode) {
-      case PROXY:
-        return new String[] {
-          AutoProxyRegistrar.class.getName(), ProxyLogConfiguration.class.getName()
-        };
-      case ASPECTJ:
-        return new String[] {LOG_ASPECT_CONFIGURATION_CLASS_NAME};
-      default:
-        return null;
-    }
+    return switch (adviceMode) {
+      case PROXY -> new String[] {
+        AutoProxyRegistrar.class.getName(), ProxyLogConfiguration.class.getName()
+      };
+      case ASPECTJ -> new String[] {LOG_ASPECT_CONFIGURATION_CLASS_NAME};
+    };
   }
 }

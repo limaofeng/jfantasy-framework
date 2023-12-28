@@ -101,7 +101,10 @@ public class OgnlUtil {
       for (int i = 0; i < ns.length - (RegexpUtil.isMatch(name, "\\[\\d+\\]$") ? 0 : 1); i++) {
         String names = q + ns[i];
         if (RegexpUtil.isMatch(names, "\\[\\d+\\]$")) { // is array or list
-          int index = Integer.parseInt(RegexpUtil.parseGroup(names, "\\[(\\d+)\\]$", 1)); // array
+          int index =
+              Integer.parseInt(
+                  Objects.requireNonNull(
+                      RegexpUtil.parseGroup(names, "\\[(\\d+)\\]$", 1))); // array
           // length
           String arrayName = RegexpUtil.replace(names, "\\[\\d+\\]$", "");
           Object array = getValue(arrayName, root);

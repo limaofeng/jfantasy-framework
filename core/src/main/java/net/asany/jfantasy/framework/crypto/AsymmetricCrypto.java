@@ -14,12 +14,6 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 @Slf4j
 public class AsymmetricCrypto implements SecurityInc {
 
-  private KeyPair keypair = null;
-
-  private PublicKey publicKey = null;
-
-  private PrivateKey privateKey = null;
-
   private Cipher ecipher = null;
 
   private Cipher dcipher = null;
@@ -34,35 +28,43 @@ public class AsymmetricCrypto implements SecurityInc {
 
   public AsymmetricCrypto() throws CryptoException {
     try {
-      this.keypair = generatorKeyPair();
-      this.privateKey = this.keypair.getPrivate();
-      this.publicKey = this.keypair.getPublic();
+      KeyPair keypair = generatorKeyPair();
+      PrivateKey privateKey = keypair.getPrivate();
+      PublicKey publicKey = keypair.getPublic();
 
       if (log.isDebugEnabled()) {
-        StringBuilder builder = new StringBuilder();
-        builder.append("=====================").append("\r\n");
-        builder.append(this.privateKey.getAlgorithm()).append("\r\n");
-        builder.append(this.privateKey.getFormat()).append("\r\n");
-        builder.append(Arrays.toString(this.privateKey.getEncoded())).append("\r\n");
 
-        builder.append(this.publicKey.getAlgorithm()).append("\r\n");
-        builder.append(this.publicKey.getFormat()).append("\r\n");
-        builder.append(Arrays.toString(this.publicKey.getEncoded())).append("\r\n");
-        builder.append("=====================").append("\r\n");
-        log.debug(builder.toString());
+        String builder =
+            "====================="
+                + "\r\n"
+                + privateKey.getAlgorithm()
+                + "\r\n"
+                + privateKey.getFormat()
+                + "\r\n"
+                + Arrays.toString(privateKey.getEncoded())
+                + "\r\n"
+                + publicKey.getAlgorithm()
+                + "\r\n"
+                + publicKey.getFormat()
+                + "\r\n"
+                + Arrays.toString(publicKey.getEncoded())
+                + "\r\n"
+                + "====================="
+                + "\r\n";
+        log.debug(builder);
       }
 
       this.ecipher = Cipher.getInstance(CRYPTO_FORM);
-      this.ecipher.init(1, this.publicKey);
+      this.ecipher.init(1, publicKey);
 
       this.dcipher = Cipher.getInstance(CRYPTO_FORM);
-      this.dcipher.init(2, this.privateKey);
+      this.dcipher.init(2, privateKey);
 
       this.sSignature = Signature.getInstance(SIGNATURE_FORM);
-      this.sSignature.initSign(this.privateKey);
+      this.sSignature.initSign(privateKey);
 
       this.vSignature = Signature.getInstance(SIGNATURE_FORM);
-      this.vSignature.initVerify(this.publicKey);
+      this.vSignature.initVerify(publicKey);
     } catch (Exception e) {
       throw new CryptoException(e.getMessage(), e);
     }
@@ -105,15 +107,14 @@ public class AsymmetricCrypto implements SecurityInc {
 
   @Override
   public byte[] decrypt(byte[] encryptData) throws CryptoException {
-    byte[] decodeEncryptData = encryptData;
 
     int blockSize = this.dcipher.getBlockSize();
     ByteArrayOutputStream decrypt = new ByteArrayOutputStream(64);
     int j = 0;
 
     try {
-      while (decodeEncryptData.length - j * blockSize > 0) {
-        decrypt.write(this.dcipher.doFinal(decodeEncryptData, j * blockSize, blockSize));
+      while (encryptData.length - j * blockSize > 0) {
+        decrypt.write(this.dcipher.doFinal(encryptData, j * blockSize, blockSize));
         j++;
       }
     } catch (IOException | IllegalBlockSizeException | BadPaddingException e) {

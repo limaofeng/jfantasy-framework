@@ -9,7 +9,6 @@ import jakarta.websocket.server.HandshakeRequest;
 import java.util.List;
 import net.asany.jfantasy.framework.security.authentication.AuthenticationManagerResolver;
 import net.asany.jfantasy.graphql.SchemaParserDictionaryBuilder;
-import net.asany.jfantasy.graphql.client.GraphQLClientBeanPostProcessor;
 import net.asany.jfantasy.graphql.context.DataLoaderRegistryCustomizer;
 import net.asany.jfantasy.graphql.context.SecurityGraphQLContextBuilder;
 import net.asany.jfantasy.graphql.error.GraphQLResolverAdvice;
@@ -17,9 +16,6 @@ import net.asany.jfantasy.graphql.error.GraphqlStaticMethodMatcherPointcut;
 import net.asany.jfantasy.graphql.error.TokenGraphQLServletListener;
 import net.asany.jfantasy.graphql.execution.AsyncMutationExecutionStrategy;
 import net.asany.jfantasy.graphql.execution.AsyncQueryExecutionStrategy;
-import net.asany.jfantasy.graphql.gateway.type.ScalarTypeProvider;
-import net.asany.jfantasy.graphql.gateway.type.ScalarTypeProviderFactory;
-import net.asany.jfantasy.graphql.gateway.type.SpringScalarTypeProvider;
 import org.dataloader.DataLoaderRegistry;
 import org.springframework.aop.support.DefaultBeanFactoryPointcutAdvisor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,11 +24,9 @@ import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
@@ -47,12 +41,6 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @AutoConfigureAfter(OAuth2SecurityAutoConfiguration.class)
 @ComponentScan({"net.asany.jfantasy.graphql.context", "net.asany.jfantasy.graphql.error"})
 public class GraphQLAutoConfiguration {
-
-  @Bean
-  static GraphQLClientBeanPostProcessor clientBeanPostProcessor(
-      final ApplicationContext applicationContext, final ResourceLoader resourceLoader) {
-    return new GraphQLClientBeanPostProcessor(applicationContext, resourceLoader);
-  }
 
   @Bean
   @ConditionalOnClass(EnableWebMvc.class)
@@ -111,19 +99,5 @@ public class GraphQLAutoConfiguration {
       customizer.customize(registry);
     }
     return registry;
-  }
-
-  @Bean
-  public ScalarTypeProviderFactory scalarTypeProviderFactory(List<ScalarTypeProvider> providers) {
-    ScalarTypeProviderFactory providerFactory = new ScalarTypeProviderFactory();
-    for (ScalarTypeProvider provider : providers) {
-      providerFactory.registerProvider(provider.getName(), provider);
-    }
-    return providerFactory;
-  }
-
-  @Bean
-  public ScalarTypeProvider springScalarTypeProvider() {
-    return new SpringScalarTypeProvider();
   }
 }

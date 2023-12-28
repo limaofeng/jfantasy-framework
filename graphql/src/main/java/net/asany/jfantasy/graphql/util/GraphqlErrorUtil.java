@@ -1,7 +1,6 @@
 package net.asany.jfantasy.graphql.util;
 
 import graphql.ErrorType;
-import graphql.GraphQLError;
 import graphql.kickstart.spring.error.ErrorContext;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Map;
@@ -9,8 +8,6 @@ import net.asany.jfantasy.framework.error.ErrorUtils;
 import net.asany.jfantasy.framework.security.AuthenticationException;
 import net.asany.jfantasy.graphql.error.AuthorizationErrorType;
 import net.asany.jfantasy.graphql.error.DefaultGraphQLError;
-import net.asany.jfantasy.graphql.gateway.error.GraphQLGatewayError;
-import net.asany.jfantasy.graphql.gateway.error.GraphQLGatewayException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
 /**
@@ -68,9 +65,5 @@ public class GraphqlErrorUtil {
     }
     ErrorUtils.populateErrorAttributesFromException(error, e);
     return error;
-  }
-
-  public static GraphQLError buildGraphqlError(ErrorContext context, GraphQLGatewayException e) {
-    return new GraphQLGatewayError(context, e);
   }
 }

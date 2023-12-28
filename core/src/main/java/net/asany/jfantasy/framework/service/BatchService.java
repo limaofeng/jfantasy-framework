@@ -58,16 +58,9 @@ public interface BatchService<T, R> {
     LoadBalanceMetrics metrics = new LoadBalanceMetrics();
     LoadBalance loadBalancer;
     switch (loadBalance) {
-      case "random":
-        loadBalancer = LoadBalance.random();
-        break;
-      case "least":
-        loadBalancer = LoadBalance.leastConnection(metrics);
-        break;
-      case "round":
-      default:
-        loadBalancer = LoadBalance.roundRobin(metrics);
-        break;
+      case "random" -> loadBalancer = LoadBalance.random();
+      case "least" -> loadBalancer = LoadBalance.leastConnection(metrics);
+      default -> loadBalancer = LoadBalance.roundRobin(metrics);
     }
     //noinspection unchecked
     return (B)

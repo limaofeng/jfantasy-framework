@@ -6,17 +6,9 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 public class SymmetricCrypto implements SecurityInc {
 
-  private SecretKey secretKey = null;
-
   private Cipher ecipher = null;
 
   private Cipher dcipher = null;
-
-  private KeyPair keypair = null;
-
-  private PublicKey publicKey = null;
-
-  private PrivateKey privateKey = null;
 
   private Signature sSignature = null;
 
@@ -28,23 +20,23 @@ public class SymmetricCrypto implements SecurityInc {
 
   public SymmetricCrypto() throws CryptoException {
     try {
-      this.secretKey = KeyGenerator.getInstance("DES").generateKey();
+      SecretKey secretKey = KeyGenerator.getInstance("DES").generateKey();
 
       this.ecipher = Cipher.getInstance("DES");
-      this.ecipher.init(1, this.secretKey);
+      this.ecipher.init(1, secretKey);
 
       this.dcipher = Cipher.getInstance("DES");
-      this.dcipher.init(2, this.secretKey);
+      this.dcipher.init(2, secretKey);
 
-      this.keypair = generatorKeyPair();
-      this.privateKey = this.keypair.getPrivate();
-      this.publicKey = this.keypair.getPublic();
+      KeyPair keypair = generatorKeyPair();
+      PrivateKey privateKey = keypair.getPrivate();
+      PublicKey publicKey = keypair.getPublic();
 
       this.sSignature = Signature.getInstance("DSA");
-      this.sSignature.initSign(this.privateKey);
+      this.sSignature.initSign(privateKey);
 
       this.vSignature = Signature.getInstance("DSA");
-      this.vSignature.initVerify(this.publicKey);
+      this.vSignature.initVerify(publicKey);
     } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException e) {
       throw new CryptoException(e.getMessage(), e);
     }

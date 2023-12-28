@@ -1,5 +1,6 @@
 package net.asany.jfantasy.framework.security.authentication.dao;
 
+import lombok.Setter;
 import net.asany.jfantasy.framework.error.ValidationException;
 import net.asany.jfantasy.framework.security.authentication.Authentication;
 import net.asany.jfantasy.framework.security.authentication.InternalAuthenticationServiceException;
@@ -9,25 +10,28 @@ import net.asany.jfantasy.framework.security.core.userdetails.UserDetails;
 import net.asany.jfantasy.framework.security.core.userdetails.UsernameNotFoundException;
 
 /**
+ * 简单身份验证程序
+ *
  * @author limaofeng
  */
-public class SimpleAuthenticationProvider extends AbstractSimpleUserDetailsAuthenticationProvider {
+public class SimpleAuthenticationProvider
+    extends AbstractSimpleUserDetailsAuthenticationProvider<SimpleAuthenticationToken<Object>> {
 
-  private SimpleUserDetailsService userDetailsService;
+  @Setter private SimpleUserDetailsService<Object> userDetailsService;
 
-  private Class<?> authenticationClass;
+  private final Class<?> authenticationClass;
 
-  public SimpleAuthenticationProvider(Class authentication) {
+  public SimpleAuthenticationProvider(Class<?> authentication) {
     this.authenticationClass = authentication;
   }
 
   @Override
-  public boolean supports(Class authentication) {
+  public boolean supports(@SuppressWarnings("rawtypes") Class authentication) {
     return (this.authenticationClass.isAssignableFrom(authentication));
   }
 
   @Override
-  public UserDetails retrieveUser(SimpleAuthenticationToken authentication) {
+  public UserDetails retrieveUser(SimpleAuthenticationToken<Object> authentication) {
     Object token = determineToken(authentication);
     try {
       UserDetails loadedUser = this.userDetailsService.loadUserByToken(token);
@@ -47,9 +51,5 @@ public class SimpleAuthenticationProvider extends AbstractSimpleUserDetailsAuthe
 
   private Object determineToken(Authentication authentication) {
     return authentication.getCredentials();
-  }
-
-  public void setUserDetailsService(SimpleUserDetailsService userDetailsService) {
-    this.userDetailsService = userDetailsService;
   }
 }

@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.lang.reflect.Array;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
-import net.asany.jfantasy.framework.jackson.models.User;
+import net.asany.jfantasy.framework.error.User;
 import net.asany.jfantasy.framework.util.web.WebUtil;
 import org.junit.jupiter.api.Test;
 

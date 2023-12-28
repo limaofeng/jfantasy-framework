@@ -4,6 +4,7 @@ import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Objects;
 import net.asany.jfantasy.framework.util.common.ClassUtil;
 import net.asany.jfantasy.framework.util.common.StringUtil;
 import org.apache.commons.beanutils.ConvertUtils;
@@ -27,7 +28,9 @@ public class CharEnumTypeHandler<E extends Enum<E>> extends BaseTypeHandler<E> {
 
   public CharEnumTypeHandler() {
     this.enumClass = (Class<E>) ClassUtil.getSuperClassGenricType(getClass());
-    this.enums = (Enum[]) ClassUtil.getMethodProxy(this.enumClass, "values").invoke(null);
+    this.enums =
+        (Enum[])
+            Objects.requireNonNull(ClassUtil.getMethodProxy(this.enumClass, "values")).invoke(null);
     ConvertUtils.register(
         new Converter() {
 

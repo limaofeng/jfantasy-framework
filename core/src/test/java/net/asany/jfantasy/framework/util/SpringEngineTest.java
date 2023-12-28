@@ -2,7 +2,7 @@ package net.asany.jfantasy.framework.util;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
-import net.asany.jfantasy.framework.jackson.models.User;
+import net.asany.jfantasy.framework.error.User;
 import net.asany.jfantasy.framework.spring.SpELUtil;
 import org.junit.jupiter.api.Test;
 

@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.security.*;
 import java.util.*;
 import javax.net.ssl.SSLContext;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.asany.jfantasy.framework.util.common.StringUtil;
 import org.apache.http.Header;
@@ -38,7 +39,7 @@ public class Request {
   private Part[] upLoadFiles = new Part[0];
   private Map<String, String> requestBody = new HashMap<String, String>();
   private HttpEntity requestEntity;
-  private SSLConnectionSocketFactory sslSocketFactory;
+  @Getter private SSLConnectionSocketFactory sslSocketFactory;
 
   public Request() {}
 
@@ -97,7 +98,7 @@ public class Request {
               new Part(entry.getKey(), new StringBody(entry.getValue(), ContentType.TEXT_PLAIN)));
         }
         this.getParams().clear();
-        setUpLoadFiles(parts.toArray(new Part[parts.size()]));
+        setUpLoadFiles(parts.toArray(new Part[0]));
       }
     }
   }
@@ -183,25 +184,14 @@ public class Request {
     }
   }
 
-  public SSLConnectionSocketFactory getSslSocketFactory() {
-    return sslSocketFactory;
-  }
-
-  class Part {
+  @Getter
+  static class Part {
     String name;
     ContentBody contentBody;
 
     public Part(String name, ContentBody contentBody) {
       this.name = name;
       this.contentBody = contentBody;
-    }
-
-    public String getName() {
-      return name;
-    }
-
-    public ContentBody getContentBody() {
-      return contentBody;
     }
   }
 }

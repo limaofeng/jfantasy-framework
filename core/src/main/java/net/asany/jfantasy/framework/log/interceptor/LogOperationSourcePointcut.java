@@ -22,10 +22,9 @@ abstract class LogOperationSourcePointcut extends StaticMethodMatcherPointcut
     if (this == other) {
       return true;
     }
-    if (!(other instanceof LogOperationSourcePointcut)) {
+    if (!(other instanceof LogOperationSourcePointcut otherPc)) {
       return false;
     }
-    LogOperationSourcePointcut otherPc = (LogOperationSourcePointcut) other;
     return ObjectUtils.nullSafeEquals(getLogOperationSource(), otherPc.getLogOperationSource());
   }
 

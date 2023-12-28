@@ -1,5 +1,6 @@
 package net.asany.jfantasy.framework.security.authentication.dao;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.asany.jfantasy.framework.security.AuthenticationException;
 import net.asany.jfantasy.framework.security.authentication.*;
@@ -13,25 +14,26 @@ import net.asany.jfantasy.framework.security.core.userdetails.UsernameNotFoundEx
  */
 @Slf4j
 public abstract class AbstractSimpleUserDetailsAuthenticationProvider<
-        T extends SimpleAuthenticationToken>
+        T extends SimpleAuthenticationToken<Object>>
     implements AuthenticationProvider<T> {
 
   private boolean hideUserNotFoundExceptions;
 
-  private UserDetailsChecker preAuthenticationChecks = new DefaultAuthenticationChecks();
-  private UserDetailsChecker postAuthenticationChecks = new DefaultAuthenticationChecks();
+  @Setter private UserDetailsChecker preAuthenticationChecks = new DefaultAuthenticationChecks();
+  @Setter private UserDetailsChecker postAuthenticationChecks = new DefaultAuthenticationChecks();
 
-  public abstract UserDetails retrieveUser(SimpleAuthenticationToken token);
+  public abstract UserDetails retrieveUser(SimpleAuthenticationToken<Object> token);
 
   private String determineToken(Authentication authentication) {
     return (String) authentication.getCredentials();
   }
 
   @Override
-  public Authentication authenticate(SimpleAuthenticationToken token)
+  public Authentication authenticate(@SuppressWarnings("rawtypes") SimpleAuthenticationToken token)
       throws AuthenticationException {
     UserDetails user;
     try {
+      //noinspection unchecked
       user = this.retrieveUser(token);
     } catch (UsernameNotFoundException ex) {
       log.debug("Failed to find user '" + token.getName() + "'");
@@ -54,13 +56,5 @@ public abstract class AbstractSimpleUserDetailsAuthenticationProvider<
     result.setDetails(authentication.getDetails());
     log.debug("Authenticated user");
     return result;
-  }
-
-  public void setPreAuthenticationChecks(UserDetailsChecker preAuthenticationChecks) {
-    this.preAuthenticationChecks = preAuthenticationChecks;
-  }
-
-  public void setPostAuthenticationChecks(UserDetailsChecker postAuthenticationChecks) {
-    this.postAuthenticationChecks = postAuthenticationChecks;
   }
 }

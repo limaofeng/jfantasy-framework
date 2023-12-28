@@ -12,7 +12,7 @@ public enum TriggerType {
   simple("简单规则"),
   cron("cron表达式");
 
-  private String value;
+  private final String value;
 
   TriggerType(String value) {
     this.value = value;

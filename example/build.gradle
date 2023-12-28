@@ -34,6 +34,7 @@ dependencyManagement {
 dependencies {
 	implementation project(":jfantasy-core")
 	implementation project(":jfantasy-graphql")
+	implementation project(":jfantasy-graphql-gateway")
 	implementation project(":jfantasy-search")
 	implementation "com.graphql-java:graphql-java:$LIB_GRAPHQL_JAVA_VER"
 	implementation "jakarta.json:jakarta.json-api:${LIB_JAKARTA_VAR}"

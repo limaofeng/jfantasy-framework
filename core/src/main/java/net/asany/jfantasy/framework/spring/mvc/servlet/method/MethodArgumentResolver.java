@@ -156,7 +156,7 @@ public abstract class MethodArgumentResolver implements HandlerMethodArgumentRes
       throws Exception {
     Class<?> targetType = binder.getTarget().getClass();
     ServletRequest servletRequest = prepareServletRequest(binder.getTarget(), request, parameter);
-    WebDataBinder simpleBinder = binderFactory.createBinder(request, null, null);
+    WebDataBinder simpleBinder = binderFactory.createBinder(request, null, "");
 
     if (Collection.class.isAssignableFrom(targetType)) { // bind collection
 
@@ -184,7 +184,7 @@ public abstract class MethodArgumentResolver implements HandlerMethodArgumentRes
         } else {
 
           Object component = BeanUtils.instantiate(componentType);
-          WebDataBinder componentBinder = binderFactory.createBinder(request, component, null);
+          WebDataBinder componentBinder = binderFactory.createBinder(request, component, "");
           component = componentBinder.getTarget();
 
           if (component != null) {
@@ -228,7 +228,7 @@ public abstract class MethodArgumentResolver implements HandlerMethodArgumentRes
           }
         } else {
           Object component = BeanUtils.instantiate(valueType);
-          WebDataBinder componentBinder = binderFactory.createBinder(request, component, null);
+          WebDataBinder componentBinder = binderFactory.createBinder(request, component, "");
           component = componentBinder.getTarget();
 
           if (component != null) {

@@ -10,9 +10,7 @@ import net.asany.jfantasy.framework.dao.jpa.SimpleAnyJpaRepository;
 import net.asany.jfantasy.framework.security.LoginUser;
 import net.asany.jfantasy.framework.security.authentication.Authentication;
 import net.asany.jfantasy.framework.security.core.GrantedAuthority;
-import net.asany.jfantasy.framework.security.core.userdetails.UserDetails;
 import net.asany.jfantasy.framework.security.core.userdetails.UserDetailsService;
-import net.asany.jfantasy.framework.security.core.userdetails.UsernameNotFoundException;
 import net.asany.jfantasy.framework.security.crypto.password.PasswordEncoder;
 import net.asany.jfantasy.framework.security.crypto.password.PlaintextPasswordEncoder;
 import net.asany.jfantasy.framework.security.oauth2.DefaultTokenServices;
@@ -78,13 +76,7 @@ public class Application extends SpringBootServletInitializer {
 
   @Bean
   public UserDetailsService<LoginUser> userDetailsService() {
-    return new UserDetailsService() {
-
-      @Override
-      public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return LoginUser.builder().build();
-      }
-    };
+    return (UserDetailsService) username -> LoginUser.builder().build();
   }
 
   @Bean
@@ -150,11 +142,8 @@ public class Application extends SpringBootServletInitializer {
             return null;
           }
         },
-        new ClientDetailsService() {
-          @Override
-          public ClientDetails loadClientByClientId(String clientId)
-              throws ClientRegistrationException {
-            return new ClientDetails() {
+        clientId ->
+            new ClientDetails() {
               @Override
               public Map<String, Object> getAdditionalInformation() {
                 return new HashMap<>();
@@ -194,9 +183,7 @@ public class Application extends SpringBootServletInitializer {
               public Integer getTokenExpires() {
                 return 0;
               }
-            };
-          }
-        },
+            },
         taskExecutor);
   }
 

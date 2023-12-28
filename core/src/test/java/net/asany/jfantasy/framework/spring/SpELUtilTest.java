@@ -3,7 +3,7 @@ package net.asany.jfantasy.framework.spring;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import lombok.extern.slf4j.Slf4j;
-import net.asany.jfantasy.framework.jackson.models.User;
+import net.asany.jfantasy.framework.error.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;

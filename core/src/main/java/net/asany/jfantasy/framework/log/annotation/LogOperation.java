@@ -1,12 +1,13 @@
 package net.asany.jfantasy.framework.log.annotation;
 
+import lombok.Getter;
 import org.springframework.util.Assert;
 
 public class LogOperation {
 
   private String condition = "";
   private String type = "";
-  private String name = "";
+  @Getter private final String name = "";
   private String text = "";
 
   public String getCondition() {
@@ -15,10 +16,6 @@ public class LogOperation {
 
   public String getType() {
     return type;
-  }
-
-  public String getName() {
-    return name;
   }
 
   public void setCondition(String condition) {

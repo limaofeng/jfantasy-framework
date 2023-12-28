@@ -580,6 +580,15 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
   }
 
   @SneakyThrows
+  public static <T> T invoke(Method method) {
+    if (!method.canAccess(null)) {
+      method.setAccessible(true);
+    }
+    //noinspection unchecked
+    return (T) method.invoke(null);
+  }
+
+  @SneakyThrows
   public static <T> T invoke(String methodName, Object obj) {
     MethodProxy method = ClassUtil.getMethodProxy(getRealClass(obj), methodName);
     assert method != null;

@@ -17,8 +17,10 @@ dependencies {
 	api 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
 	api 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 	api "com.jayway.jsonpath:json-path"
+	compileOnly 'jakarta.servlet:jakarta.servlet-api'
 	// noinspection DependencyNotationArgument
 	compileOnly libs['orm']
+	compileOnly "org.springframework:spring-web"
 	compileOnly "org.springframework.boot:spring-boot-starter-data-jpa"
 	compileOnly "org.springframework.boot:spring-boot-starter-data-redis"
 	testCompileOnly 'jakarta.servlet:jakarta.servlet-api'

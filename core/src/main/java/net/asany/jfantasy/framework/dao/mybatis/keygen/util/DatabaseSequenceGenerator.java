@@ -26,8 +26,6 @@ public class DatabaseSequenceGenerator {
   private final Lock lock = new ReentrantLock();
   private final SequenceService service;
 
-  private boolean initialized = false;
-
   /** 获取缓存序列的最大值 */
   @Getter private long keyMax = 1L;
 
@@ -108,7 +106,6 @@ public class DatabaseSequenceGenerator {
       this.keyMax = keyFromDB;
       this.keyMin = keyFromDB;
       this.currentValue.set(this.keyMin);
-      initialized = true;
     } catch (Exception e) {
       log.error(e.getMessage());
     } finally {

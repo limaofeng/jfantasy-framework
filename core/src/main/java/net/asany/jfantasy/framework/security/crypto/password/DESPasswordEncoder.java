@@ -10,7 +10,7 @@ import net.asany.jfantasy.framework.crypto.DESPlus;
  */
 public class DESPasswordEncoder implements PasswordEncoder {
 
-  private static DESPlus desPlus = new DESPlus("jfantasy.asany.cn");
+  private static final DESPlus desPlus = new DESPlus("jfantasy.asany.cn");
 
   @Override
   @SneakyThrows

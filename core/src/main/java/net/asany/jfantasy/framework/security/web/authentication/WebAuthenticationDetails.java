@@ -29,8 +29,7 @@ public class WebAuthenticationDetails {
 
   @Override
   public boolean equals(Object obj) {
-    if (obj instanceof WebAuthenticationDetails) {
-      WebAuthenticationDetails other = (WebAuthenticationDetails) obj;
+    if (obj instanceof WebAuthenticationDetails other) {
       if ((this.remoteAddress == null) && (other.getRemoteAddress() != null)) {
         return false;
       }

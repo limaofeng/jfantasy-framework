@@ -93,10 +93,9 @@ public abstract class AbstractFallbackLogOperationSource implements LogOperation
       if (this == other) {
         return true;
       }
-      if (!(other instanceof DefaultCacheKey)) {
+      if (!(other instanceof DefaultCacheKey otherKey)) {
         return false;
       }
-      DefaultCacheKey otherKey = (DefaultCacheKey) other;
       return this.method.equals(otherKey.method)
           && ObjectUtils.nullSafeEquals(this.targetClass, otherKey.targetClass);
     }

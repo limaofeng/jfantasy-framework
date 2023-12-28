@@ -86,7 +86,7 @@ public class FileUtil {
     if (Files.notExists(path.getParent())) {
       mkdirs(path.getParent());
     }
-    return Files.write(path, content.getBytes(DEFAULT_CHARSET), StandardOpenOption.CREATE);
+    return Files.writeString(path, content, DEFAULT_CHARSET, StandardOpenOption.CREATE);
   }
 
   public static Path write(Path path, byte[] content) throws IOException {
@@ -177,9 +177,7 @@ public class FileUtil {
 
       StringBuilder sb = new StringBuilder();
       int len = 16 - word.length();
-      for (int j = 0; j < len; j++) {
-        sb.append("0");
-      }
+      sb.append("0".repeat(len));
       sb.append(word);
       sb.insert(0, "1110");
       sb.insert(8, "10");

@@ -3,6 +3,8 @@ package net.asany.jfantasy.framework.httpclient;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.*;
 import java.util.Arrays;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.asany.jfantasy.framework.jackson.JSON;
 import net.asany.jfantasy.framework.util.common.StringUtil;
@@ -21,12 +23,19 @@ import org.apache.http.cookie.Cookie;
 @Slf4j
 public class Response {
 
-  private CloseableHttpResponse response;
-  private final String url;
-  private final int statusCode;
-  private Cookie[] cookies;
-  private Header[] responseHeaders;
-  private Header[] requestHeaders;
+  @Getter private final CloseableHttpResponse response;
+  @Getter private final String url;
+
+  /**
+   * -- GETTER -- 状态码
+   *
+   * @return status
+   */
+  @Getter private final int statusCode;
+
+  @Setter @Getter private Cookie[] cookies;
+  @Setter @Getter private Header[] responseHeaders;
+  @Setter @Getter private Header[] requestHeaders;
   private InputStream in;
   private ByteArrayOutputStream out;
 
@@ -35,43 +44,6 @@ public class Response {
     this.statusCode = response.getStatusLine().getStatusCode();
     this.response = response;
     this.responseHeaders = response.getAllHeaders();
-  }
-
-  /**
-   * 状态码
-   *
-   * @return status
-   */
-  public int getStatusCode() {
-    return statusCode;
-  }
-
-  public String getUrl() {
-    return url;
-  }
-
-  public Cookie[] getCookies() {
-    return cookies;
-  }
-
-  public void setCookies(Cookie[] cookies) {
-    this.cookies = cookies;
-  }
-
-  public Header[] getResponseHeaders() {
-    return responseHeaders;
-  }
-
-  public void setResponseHeaders(Header[] responseHeaders) {
-    this.responseHeaders = responseHeaders;
-  }
-
-  public Header[] getRequestHeaders() {
-    return requestHeaders;
-  }
-
-  public void setRequestHeaders(Header[] requestHeaders) {
-    this.requestHeaders = requestHeaders;
   }
 
   /**

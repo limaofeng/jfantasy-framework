@@ -1,8 +1,6 @@
 package net.asany.jfantasy.framework.dao.mybatis.dialect;
 
-import java.util.regex.Matcher;
 import net.asany.jfantasy.framework.util.regexp.RegexpUtil;
-import net.asany.jfantasy.framework.util.regexp.RegexpUtil.ReplaceCallBack;
 
 /**
  * oracle 翻页方言
@@ -24,19 +22,15 @@ public class OraSQLDialect implements Dialect {
         RegexpUtil.replace(
             ORA_SQL_LIMIT,
             "\\{[A-Z]+\\}",
-            new ReplaceCallBack() {
-
-              @Override
-              public String replace(String group, int i, Matcher m) {
-                if ("{SQL}".equals(group)) {
-                  return trim(sql);
-                } else if ("{OFFSET}".equals(group)) {
-                  return String.valueOf(offset + 1);
-                } else if ("{LIMIT}".equals(group)) {
-                  return String.valueOf(offset > 0 ? limit + offset : limit);
-                }
-                return group;
+            (group, i, m) -> {
+              if ("{SQL}".equals(group)) {
+                return trim(sql);
+              } else if ("{OFFSET}".equals(group)) {
+                return String.valueOf(offset + 1);
+              } else if ("{LIMIT}".equals(group)) {
+                return String.valueOf(offset > 0 ? limit + offset : limit);
               }
+              return group;
             }));
   }
 

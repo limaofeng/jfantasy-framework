@@ -147,11 +147,9 @@ public class LimitPageRequest implements Pageable, Serializable {
       return true;
     }
 
-    if (!(obj instanceof LimitPageRequest)) {
+    if (!(obj instanceof LimitPageRequest that)) {
       return false;
     }
-
-    LimitPageRequest that = (LimitPageRequest) obj;
 
     return super.equals(that) && this.sort.equals(that.sort);
   }

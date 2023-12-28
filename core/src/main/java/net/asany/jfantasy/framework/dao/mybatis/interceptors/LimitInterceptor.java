@@ -8,6 +8,8 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.asany.jfantasy.framework.dao.Page;
 import net.asany.jfantasy.framework.dao.mybatis.MyBatisException;
@@ -40,6 +42,8 @@ import org.springframework.jdbc.support.JdbcUtils;
  * @version 1.0
  * @since 2013-1-14 下午02:08:34
  */
+@Setter
+@Getter
 @Slf4j
 @Intercepts({
   @Signature(
@@ -62,7 +66,7 @@ public class LimitInterceptor implements Interceptor {
   @Override
   public Object intercept(Invocation invocation) throws Throwable {
     try {
-      Page page = getPager(invocation.getArgs()[PARAMETER_INDEX]);
+      Page<?> page = getPage(invocation.getArgs()[PARAMETER_INDEX]);
       if (ObjectUtil.isNotNull(page)) { // 如果参数中有Pager对象，执行翻页逻辑,否则按普通逻辑处理查询
         return processIntercept(invocation, invocation.getArgs());
       }
@@ -81,8 +85,9 @@ public class LimitInterceptor implements Interceptor {
   private Object processIntercept(Invocation invocation, final Object[] queryArgs)
       throws InvocationTargetException, IllegalAccessException {
     MappedStatement ms = (MappedStatement) queryArgs[MAPPED_STATEMENT_INDEX];
+    @SuppressWarnings("unchecked")
     Map<String, Object> parameter = (Map<String, Object>) queryArgs[PARAMETER_INDEX];
-    Page page = getPager(parameter);
+    Page<Object> page = getPage(parameter);
     assert page != null;
     if (page.getOffset() == 0) {
       page.reset(executeForCount(ms, parameter));
@@ -97,12 +102,14 @@ public class LimitInterceptor implements Interceptor {
    * @param parameterObject Object
    * @return Pager
    */
-  private Page getPager(Object parameterObject) {
-    Page page = null;
+  private Page<Object> getPage(Object parameterObject) {
+    Page<Object> page = null;
     if (ObjectUtil.isNotNull(parameterObject)
         && Map.class.isAssignableFrom(parameterObject.getClass())) {
+      @SuppressWarnings("unchecked")
       Map<String, Object> param = (Map<String, Object>) parameterObject;
-      page = param.containsKey("page") ? (Page) param.get("page") : null;
+      //noinspection unchecked
+      page = param.containsKey("page") ? (Page<Object>) param.get("page") : null;
     }
     return page;
   }
@@ -151,13 +158,14 @@ public class LimitInterceptor implements Interceptor {
    * @param parameterObject parameterObject
    * @return List
    */
-  private List executeForList(
+  private List<Object> executeForList(
       Invocation invocation, MappedStatement ms, Map<String, Object> parameterObject)
       throws InvocationTargetException, IllegalAccessException {
     SqlSource sqlSource = getPageLimitSqlSource(ms, parameterObject);
     MappedStatement newMappedStatement = copyMappedStatementBySqlSource(ms, sqlSource);
     invocation.getArgs()[0] = newMappedStatement;
-    return (List) invocation.proceed();
+    //noinspection unchecked
+    return (List<Object>) invocation.proceed();
   }
 
   /**
@@ -189,7 +197,7 @@ public class LimitInterceptor implements Interceptor {
       return sqlSourceParser.parse(mapperSQL, Object.class, null);
     } else {
       Class<?> parameterType = parameterObject.getClass();
-      Page<?> page = getPager(parameterObject);
+      Page<?> page = getPage(parameterObject);
       assert page != null;
       int pageSize = Math.min(page.getTotalCount() - page.getOffset(), page.getPageSize());
       String newSql = this.dialect.getLimitString(mapperSQL, page.getOffset(), pageSize);
@@ -264,10 +272,6 @@ public class LimitInterceptor implements Interceptor {
     return Plugin.wrap(target, this);
   }
 
-  public void setDialect(Dialect dialect) {
-    this.dialect = dialect;
-  }
-
   @Override
   public void setProperties(Properties properties) {
     String dialectClass = new PropertiesHelper(properties).getRequiredString("dialectClass");
@@ -277,13 +281,9 @@ public class LimitInterceptor implements Interceptor {
 
   private void setDialectClass(Class<? extends Dialect> clazz) {
     try {
-      this.dialect = clazz.newInstance();
+      this.dialect = clazz.getConstructor().newInstance();
     } catch (Exception e) {
       throw new MyBatisException("cannot create dialect instance by dialectClass:" + clazz, e);
     }
-  }
-
-  public Dialect getDialect() {
-    return dialect;
   }
 }

@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.util.List;
 import lombok.AllArgsConstructor;
-import net.asany.jfantasy.framework.util.web.RedirectAttributesWriter;
+import net.asany.jfantasy.framework.util.RedirectAttributesWriter;
 import org.apache.ibatis.type.Alias;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;

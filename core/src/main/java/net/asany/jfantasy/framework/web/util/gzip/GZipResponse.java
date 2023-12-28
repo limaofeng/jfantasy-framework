@@ -9,7 +9,7 @@ import java.io.PrintWriter;
 
 public class GZipResponse extends HttpServletResponseWrapper {
 
-  private GZipStream stream;
+  private final GZipStream stream;
   private PrintWriter writer;
 
   public GZipResponse(HttpServletResponse response) throws IOException {
