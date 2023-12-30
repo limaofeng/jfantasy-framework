@@ -18,7 +18,7 @@ public class SchemaOverrideField {
   private boolean exclude;
   private boolean extended;
   private String dataFetcher;
-  private String resolve;
+  private FieldResolve resolve;
 
   private Map<String, SchemaOverrideFieldArgument> arguments;
 
@@ -81,7 +81,9 @@ public class SchemaOverrideField {
     }
 
     public Builder resolve(String resolve) {
-      this.resolve = resolve;
+      this.resolve =
+          FieldResolve.builder().query("user").arguments(Map.of("id", "createdBy")).build();
+      ;
       return this;
     }
 

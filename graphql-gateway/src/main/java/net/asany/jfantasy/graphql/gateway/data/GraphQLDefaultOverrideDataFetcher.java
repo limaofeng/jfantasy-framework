@@ -9,10 +9,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.Builder;
+import net.asany.jfantasy.graphql.gateway.config.FieldResolve;
 import net.asany.jfantasy.graphql.gateway.config.SchemaOverride;
 import net.asany.jfantasy.graphql.gateway.config.SchemaOverrideField;
 import net.asany.jfantasy.graphql.gateway.config.SchemaOverrideFieldArgument;
 import net.asany.jfantasy.graphql.gateway.util.GraphQLTypeUtils;
+import net.asany.jfantasy.graphql.gateway.util.GraphQLValueUtils;
 
 @Builder(builderClassName = "Builder")
 public class GraphQLDefaultOverrideDataFetcher implements DataFetcher<Object> {
@@ -20,10 +22,11 @@ public class GraphQLDefaultOverrideDataFetcher implements DataFetcher<Object> {
   private final SchemaOverride override;
   private final SchemaOverrideField overrideField;
   private final DataFetcher<?> dataFetcher;
+  private final FieldResolve resolve;
 
   @Override
   public Object get(DataFetchingEnvironment environment) throws Exception {
-    if (dataFetcher instanceof DelegatedFieldResolver<?>) {
+    if (resolve != null) {
       return dataFetcher.get(newFileDelegationEnvironment(environment));
     }
     return dataFetcher.get(newOverridingEnvironment(environment));
@@ -33,15 +36,43 @@ public class GraphQLDefaultOverrideDataFetcher implements DataFetcher<Object> {
       DataFetchingEnvironment environment) {
     Field field = environment.getField();
 
-    GraphQLObjectType objectType = environment.getGraphQLSchema().getQueryType();
+    GraphQLSchema graphQLSchema = environment.getGraphQLSchema();
+    GraphQLObjectType objectType = graphQLSchema.getQueryType();
 
-    environment.getSource();
-
+    List<VariableDefinition> variableDefinitions = new ArrayList<>();
     Map<String, Object> variables = new HashMap<>();
-    variables.put("createBy", "1");
+    List<Argument> arguments = new ArrayList<>();
+
+    for (Map.Entry<String, String> entry : resolve.getArguments().entrySet()) {
+      GraphQLObjectType fieldType = (GraphQLObjectType) environment.getFieldType();
+      FieldDefinition fieldDefinition = fieldType.getField(entry.getKey()).getDefinition();
+      assert fieldDefinition != null;
+      GraphQLOutputType argType =
+          (GraphQLOutputType)
+              graphQLSchema.getType(
+                  GraphQLTypeUtils.getTypeName(overrideField.getOriginalType()).getName());
+      Object value =
+          GraphQLValueUtils.convert(
+              environment.getSource(),
+              entry.getValue(),
+              argType,
+              environment.getGraphQlContext(),
+              environment.getLocale());
+      variables.put(entry.getValue(), value);
+      arguments.add(
+          Argument.newArgument()
+              .name(entry.getKey())
+              .value(VariableReference.of(entry.getValue()))
+              .build());
+      variableDefinitions.add(
+          VariableDefinition.newVariableDefinition()
+              .name(entry.getValue())
+              .type(fieldDefinition.getType())
+              .build());
+    }
 
     Field.Builder fieldBuilder =
-        Field.newField("user")
+        Field.newField(resolve.getQuery())
             .alias(field.getAlias())
             .arguments(field.getArguments())
             .directives(field.getDirectives())
@@ -49,12 +80,7 @@ public class GraphQLDefaultOverrideDataFetcher implements DataFetcher<Object> {
             .sourceLocation(field.getSourceLocation())
             .selectionSet(field.getSelectionSet())
             .comments(field.getComments())
-            .arguments(
-                List.of(
-                    Argument.newArgument()
-                        .name("id")
-                        .value(VariableReference.of("createBy"))
-                        .build()))
+            .arguments(arguments)
             .ignoredChars(field.getIgnoredChars());
 
     field = fieldBuilder.build();
@@ -63,15 +89,12 @@ public class GraphQLDefaultOverrideDataFetcher implements DataFetcher<Object> {
         DataFetchingEnvironmentImpl.newDataFetchingEnvironment(environment)
             .operationDefinition(
                 OperationDefinition.newOperationDefinition()
-                    .name("user")
-                    .variableDefinition(
-                        VariableDefinition.newVariableDefinition("createBy")
-                            .type(TypeName.newTypeName("ID").build())
-                            .build())
+                    .name(resolve.getQuery())
+                    .variableDefinitions(variableDefinitions)
                     .build())
             .parentType(objectType)
             .variables(variables)
-            .fieldDefinition(objectType.getFieldDefinition("user"))
+            .fieldDefinition(objectType.getFieldDefinition(resolve.getQuery()))
             .mergedField(MergedField.newMergedField(field).build());
     return builder.build();
   }

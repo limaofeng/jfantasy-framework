@@ -8,10 +8,7 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import net.asany.jfantasy.framework.util.common.ObjectUtil;
 import net.asany.jfantasy.framework.util.common.StringUtil;
-import net.asany.jfantasy.graphql.gateway.config.SchemaOverride;
-import net.asany.jfantasy.graphql.gateway.config.SchemaOverrideField;
-import net.asany.jfantasy.graphql.gateway.config.SchemaOverrideFieldArgument;
-import net.asany.jfantasy.graphql.gateway.config.SchemaOverrideType;
+import net.asany.jfantasy.graphql.gateway.config.*;
 import net.asany.jfantasy.graphql.gateway.data.GatewayDataFetcherFactory;
 import net.asany.jfantasy.graphql.gateway.data.GraphQLDefaultOverrideDataFetcher;
 import net.asany.jfantasy.graphql.gateway.service.GraphQLServiceTypeResolver;
@@ -23,9 +20,6 @@ import net.asany.jfantasy.graphql.gateway.service.GraphQLServiceTypeResolver;
  */
 @Slf4j
 public class GraphQLUtils {
-
-  public static final String ENV_CURRENT_SERVICE = "CURRENT_SERVICE";
-  public static final String ENV_CURRENT_TYPE = "BUILD_QUERY_CURRENT_TYPE";
 
   public static String getExecutionStepInfoPath(DataFetchingEnvironment environment) {
     return environment.getExecutionStepInfo().getPath().toString();
@@ -245,6 +239,7 @@ public class GraphQLUtils {
     RuntimeWiring.Builder runtimeWiringBuilder = RuntimeWiring.newRuntimeWiring();
 
     Map<FieldCoordinates, DataFetcher<?>> dataFetchers = new HashMap<>();
+    Map<FieldCoordinates, SchemaOverrideField> resolves = new HashMap<>();
 
     for (GraphQLSchema schema : schemas) {
       TypeDefinitionRegistry schemaRegistry = schemaParser.parse(schemaPrinter.print(schema));
@@ -398,7 +393,8 @@ public class GraphQLUtils {
         if (config.getDataFetcher() != null) {
           dataFetcher = dataFetcherFactory.getDataFetcher(config.getDataFetcher());
         } else if (config.getResolve() != null) {
-          dataFetcher = dataFetcherFactory.getFieldResolver(config.getResolve());
+          resolves.put(newCoordinates, config);
+          dataFetcher = dataFetcherFactory.getFieldResolver();
         }
 
         if (dataFetcher != null) {
@@ -422,11 +418,15 @@ public class GraphQLUtils {
     for (Map.Entry<FieldCoordinates, DataFetcher<?>> entry : dataFetchers.entrySet()) {
       DataFetcher<?> dataFetcher = entry.getValue();
       if (!isNoDataFetcher) {
-        dataFetcher =
-            GraphQLDefaultOverrideDataFetcher.builder()
-                .dataFetcher(dataFetcher)
-                .override(override)
-                .build();
+        GraphQLDefaultOverrideDataFetcher.Builder newDataFetcherBuilder =
+            GraphQLDefaultOverrideDataFetcher.builder().dataFetcher(dataFetcher).override(override);
+
+        if (resolves.containsKey(entry.getKey())) {
+          SchemaOverrideField overrideField = resolves.get(entry.getKey());
+          newDataFetcherBuilder.overrideField(overrideField).resolve(overrideField.getResolve());
+        }
+
+        dataFetcher = newDataFetcherBuilder.build();
       }
       codeRegistryBuilder.dataFetcher(entry.getKey(), dataFetcher);
     }

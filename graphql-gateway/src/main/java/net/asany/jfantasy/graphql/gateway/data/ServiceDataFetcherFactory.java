@@ -54,8 +54,6 @@ public class ServiceDataFetcherFactory implements DataFetcherFactory<Object> {
             environment.getLocale());
       }
 
-      environment.getGraphQlContext().put(GraphQLUtils.ENV_CURRENT_SERVICE, service);
-
       String gql = GraphQLUtils.buildGraphQLQuery(environment);
 
       log.warn("gql:" + gql);

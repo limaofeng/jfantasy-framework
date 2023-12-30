@@ -19,6 +19,8 @@ public class GatewayDataFetcherFactory implements DataFetcherFactory<Object> {
 
   private final GraphQLGatewayDataFetcher defaultDataFetcher = new GraphQLGatewayDataFetcher();
 
+  private final DelegatedFieldResolver fieldResolver = new DelegatedFieldResolver();
+
   private final Map<String, DataFetcher<?>> dataFetcherMap = new HashMap<>();
 
   @Override
@@ -48,8 +50,8 @@ public class GatewayDataFetcherFactory implements DataFetcherFactory<Object> {
     return defaultDataFetcher;
   }
 
-  public DataFetcher<?> getFieldResolver(String resolve) {
-    return new GenericDelegatedFieldResolver(resolve);
+  public DataFetcher<?> getFieldResolver() {
+    return fieldResolver;
   }
 
   public static class GraphQLGatewayDataFetcher implements DataFetcher<Object> {
