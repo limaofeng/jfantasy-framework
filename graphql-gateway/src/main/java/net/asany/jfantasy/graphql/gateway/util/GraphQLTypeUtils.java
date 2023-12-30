@@ -3,21 +3,13 @@ package net.asany.jfantasy.graphql.gateway.util;
 import graphql.Scalars;
 import graphql.language.*;
 import graphql.schema.*;
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import net.asany.jfantasy.framework.util.common.ClassUtil;
 
 public class GraphQLTypeUtils {
 
-  private static final Method OBJECT_TYPE_BUILD_DEFINITION_MAP =
-      ClassUtil.getDeclaredMethod(GraphQLObjectType.class, "buildDefinitionMap");
-  private static final Method INPUT_OBJECT_TYPE_BUILD_DEFINITION_MAP =
-      ClassUtil.getDeclaredMethod(GraphQLInputObjectType.class, "buildDefinitionMap");
   private static final Map<String, GraphQLScalarType> DEFAULT_SCALARS = new HashMap<>();
-
-  //  private static final Map<String, Coercing<?, ?>> DEFAULT_COERCINGS = new HashMap<>();
 
   static {
     DEFAULT_SCALARS.put(Scalars.GraphQLInt.getName(), Scalars.GraphQLInt);
@@ -31,13 +23,54 @@ public class GraphQLTypeUtils {
     return DEFAULT_SCALARS.containsKey(name);
   }
 
-  public static String getTypeName(Type<?> type) {
+  public static TypeName getTypeName(Type<?> type) {
+    if (type instanceof NonNullType nonNullType) {
+      return getTypeName(nonNullType.getType());
+    } else if (type instanceof TypeName typeName) {
+      return typeName;
+    } else if (type instanceof ListType listType) {
+      return getTypeName(listType.getType());
+    }
+    throw new RuntimeException("未知类型:" + type.toString());
+  }
+
+  public static String getTypeSource(Type<?> type) {
+    if (type instanceof NonNullType nonNullType) {
+      return getTypeSource(nonNullType.getType()) + "!";
+    } else if (type instanceof TypeName typeName) {
+      return typeName.getName();
+    } else if (type instanceof ListType listType) {
+      return "[" + getTypeSource(listType.getType()) + "]";
+    }
+    throw new RuntimeException("未知类型:" + type.toString());
+  }
+
+  public static <T extends Type<?>> T parseType(String type) {
+    if (type.endsWith("!")) {
+      //noinspection unchecked
+      return (T)
+          NonNullType.newNonNullType(parseType(type.substring(0, type.length() - 1)))
+              .build(); // 移除非空标记
+    }
+    if (type.startsWith("[")) {
+      // 处理数组类型
+      String elementType = type.substring(1, type.length() - 1);
+      //noinspection unchecked
+      return (T) ListType.newListType(parseType(elementType)).build();
+    } else {
+      //noinspection unchecked
+      return (T) TypeName.newTypeName(type).build();
+    }
+  }
+
+  public static Type<?> changeType(Type<?> type, TypeName typeName) {
     if (type instanceof NonNullType) {
-      return getTypeName(((NonNullType) type).getType());
+      return NonNullType.newNonNullType(changeType(((NonNullType) type).getType(), typeName))
+          .build();
     } else if (type instanceof TypeName) {
-      return ((TypeName) type).getName();
+      return typeName;
     } else if (type instanceof ListType) {
-      return getTypeName(((ListType) type).getType());
+      return ListType.newListType(changeType(((ListType) type).getType(), typeName)).build();
     }
     throw new RuntimeException("未知类型:" + type.toString());
   }
@@ -55,6 +88,10 @@ public class GraphQLTypeUtils {
       return isScalar(type1.getWrappedType());
     }
     return false;
+  }
+
+  public static boolean isObjectType(GraphQLType fieldType) {
+    return getSourceType(fieldType) instanceof GraphQLObjectType;
   }
 
   public static boolean isList(GraphQLType type) {
@@ -79,5 +116,16 @@ public class GraphQLTypeUtils {
     GraphQLObjectType objectType = (GraphQLObjectType) type;
     GraphQLOutputType outputType = objectType.getField(name).getType();
     return GraphQLTypeUtils.getSourceType(outputType);
+  }
+
+  public static GraphQLOutputType toOutputType(Type<?> type) {
+    if (type instanceof NonNullType nonNullType) {
+      return GraphQLNonNull.nonNull(toOutputType(nonNullType.getType()));
+    } else if (type instanceof TypeName typeName) {
+      return GraphQLTypeReference.typeRef(typeName.getName());
+    } else if (type instanceof ListType listType) {
+      return GraphQLList.list(toOutputType(listType.getType()));
+    }
+    throw new RuntimeException("未知类型:" + type.toString());
   }
 }

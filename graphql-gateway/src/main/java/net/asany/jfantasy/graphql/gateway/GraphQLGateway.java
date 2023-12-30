@@ -148,6 +148,7 @@ public class GraphQLGateway {
                 .name(serviceConfig.getName())
                 .url(serviceConfig.getUrl())
                 .clientFactory(this.clientFactory)
+                .headers(serviceConfig.getHeaders())
                 .scalarTypeResolver(scalarResolver);
 
         if (serviceConfig.getExcludeFields() != null) {

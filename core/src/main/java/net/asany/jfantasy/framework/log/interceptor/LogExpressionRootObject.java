@@ -1,10 +1,8 @@
 package net.asany.jfantasy.framework.log.interceptor;
 
 import java.lang.reflect.Method;
-import lombok.Getter;
 import org.springframework.util.Assert;
 
-@Getter
 public record LogExpressionRootObject(
     Method method, Object[] args, Object target, Class<?> targetClass) {
 

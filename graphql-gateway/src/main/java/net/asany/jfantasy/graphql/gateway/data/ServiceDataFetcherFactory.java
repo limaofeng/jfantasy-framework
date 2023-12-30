@@ -1,7 +1,6 @@
 package net.asany.jfantasy.graphql.gateway.data;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import graphql.execution.ExecutionStepInfo;
 import graphql.language.Field;
 import graphql.schema.*;
 import java.util.List;
@@ -41,7 +40,6 @@ public class ServiceDataFetcherFactory implements DataFetcherFactory<Object> {
 
     @Override
     public Object get(DataFetchingEnvironment environment) throws Exception {
-      ExecutionStepInfo executionStepInfo = environment.getExecutionStepInfo();
       GraphQLObjectType parentType = (GraphQLObjectType) environment.getParentType();
       String operationName = environment.getOperationDefinition().getName();
       Field field = environment.getField();
@@ -86,8 +84,8 @@ public class ServiceDataFetcherFactory implements DataFetcherFactory<Object> {
       if (response.get("$.data", JsonNode.class) == null) {
         return null;
       }
-
-      return response.get("$.data." + executionStepInfo.getResultKey(), JsonNode.class);
+      String resultKey = field.getAlias() != null ? field.getAlias() : field.getName();
+      return response.get("$.data." + resultKey, JsonNode.class);
     }
   }
 }

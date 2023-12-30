@@ -74,7 +74,12 @@ public class SchemaOverride {
                 .name(fieldConfig.getName())
                 .mapping(fieldConfig.getName())
                 .dataFetcher(fieldConfig.getDataFetcher())
+                .resolve(fieldConfig.getResolve())
                 .exclude(fieldConfig.getExclude() == Boolean.TRUE);
+
+        if (fieldConfig.getType() != null) {
+          overrideFieldBuilder.type(fieldConfig.getType());
+        }
 
         // 如果rename不为空，则重命名该字段
         if (fieldConfig.getMapping() != null) {
@@ -85,9 +90,13 @@ public class SchemaOverride {
         if (fieldConfig.getArguments() != null) {
           for (GatewayConfig.ArgumentConfig argumentConfig : fieldConfig.getArguments()) {
             if (argumentConfig.getExclude() == Boolean.TRUE) {
-              overrideFieldBuilder.excludeArgument(argumentConfig.getName());
+              overrideFieldBuilder.excludeArgument(
+                  argumentConfig.getName(), argumentConfig.getValue());
             } else {
-              overrideFieldBuilder.argument(argumentConfig.getName(), argumentConfig.getMapping());
+              overrideFieldBuilder.argument(
+                  argumentConfig.getName(),
+                  argumentConfig.getMapping(),
+                  argumentConfig.getDefaultValue());
             }
           }
         }

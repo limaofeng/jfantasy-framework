@@ -173,4 +173,42 @@ class GraphQLGatewayTest {
 
 
   }
+
+
+  @Test
+  public void testChangeFieldType() throws IOException {
+    GraphQLGateway gateway = GraphQLGateway.builder().config("graphql-gateway.yaml").build();
+
+    gateway.init();
+
+    GraphQL graphQL = GraphQL.newGraphQL(gateway.getSchema()).build();
+
+    // 定义 GraphQL 查询字符串
+    String queryStr =
+      """
+      query {
+          storages {
+             id
+             name
+             createdAt
+             createdBy {
+                id
+                name
+             }
+          }
+      }
+      """;
+
+    // 执行查询
+    ExecutionResult result = graphQL.execute(queryStr);
+
+    if (!result.getErrors().isEmpty()) {
+      System.out.println(result.getErrors());
+    }
+
+    // 获取并输出查询结果
+    System.out.println(Optional.ofNullable(result.getData()));
+
+
+  }
 }

@@ -1,30 +1,11 @@
 schema:
   typeDefs: "./schema.graphql"
-  resolvers:
-    Query:
-      getUser: "./getUser.js"
-      getOrder: "./getOrder.js"
-    Mutation:
-      updateUser: "./updateUser.py"
 
 scalars:
-  - name: "OrderBy"
-    description: "Order by Scalar type"
-    provider: "spring"
-    resolver: "orderByScalar"
   - name: "File"
-    provider: "spring"
-    resolver: "orderByScalar"
-  - name: "Number"
-    provider: "spring"
-    resolver: "orderByScalar"
+    description: "A file part in a multipart request"
   - name: "Upload"
-    provider: "spring"
-    resolver: "orderByScalar"
-  - name: "Date"
-    description: "Date custom scalar type"
-  - name: "Json"
-    description: "Json custom scalar type"
+    description: "A file part in a multipart request"
 
 services:
   - name: asany
@@ -33,44 +14,38 @@ services:
     introspection:
       enabled: false
       frequency: 30m
-#    excludeFields:
-#      - "Application.layoutRoute"
-#  - name: user
-#    url: "https://user.api.asany.cn/graphql"
-#    typeDefs: "./user.graphql"
-#    introspection:
-#      enabled: false
-#      frequency: 30m
+    excludeFields:
+      - "Application.routespaces"
 
 override:
   - type: "Query"
     fields:
       - name: "apps"
         mapping: "applications"
-#        dataLoader: true
         arguments:
           - name: "filter"
             mapping: "where"
-#      - name: "testApp"
-#        dataFetcher: "single"
-#        type: "Application"
-#        arguments:
-#          - name: "input"
-#            description: "test app input"
-#            type: "EnhancedUserInput!"
   - type: "Application"
     fields:
       - name: "appName"
         mapping: "name"
         dataFetcher: "appName"
-#      - name: "createdBy"
-#        type: "User"
-#        resolver:
-#          query: "user@Query.user(id: $createdBy)"
+  - type: "Storage"
+    fields:
+      - name: "createdBy"
+        type: "User"
+        resolve: "user(id: $createdBy)"
 
 dataFetchers:
   - name: "appName"
     class: "net.asany.jfantasy.graphql.gateway.AppNameDataFetcher"
+
+dataLoaders:
+  - name: "applications"
+    class: "net.asany.jfantasy.graphql.gateway.ApplicationDataLoader"
+    options:
+      cache: true
+      batch: true
 
 rewriteFields:
   - field: "User.addUser"

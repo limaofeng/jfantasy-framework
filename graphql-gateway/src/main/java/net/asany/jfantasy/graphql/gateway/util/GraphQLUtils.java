@@ -6,7 +6,6 @@ import graphql.schema.idl.*;
 import java.util.*;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import net.asany.jfantasy.framework.util.Stack;
 import net.asany.jfantasy.framework.util.common.ObjectUtil;
 import net.asany.jfantasy.framework.util.common.StringUtil;
 import net.asany.jfantasy.graphql.gateway.config.SchemaOverride;
@@ -57,13 +56,8 @@ public class GraphQLUtils {
 
   public static String buildGraphQLQuery(DataFetchingEnvironment environment) {
     Field field = environment.getField();
-    GraphQLType type = GraphQLTypeUtils.getSourceType(environment.getFieldType());
 
-    Stack<GraphQLType> currentType = new Stack<>();
-    environment.getGraphQlContext().put(GraphQLUtils.ENV_CURRENT_TYPE, currentType);
-
-    GraphQLObjectType objectType = (GraphQLObjectType) environment.getParentType();
-    currentType.push(objectType);
+    GraphQLType type = environment.getParentType();
 
     OperationDefinition operation = environment.getOperationDefinition();
 
@@ -89,37 +83,25 @@ public class GraphQLUtils {
 
     queryBuilder.append(" { ");
 
-    buildFieldQueryPart(environment, field, queryBuilder);
+    processSelection(type, field, queryBuilder);
 
-    // 处理选择集
-    currentType.push(type);
-    processSelectionSet(field.getSelectionSet(), queryBuilder, environment);
-    currentType.pop();
+    //    buildFieldQueryPart(type, field, queryBuilder);
+    //
+    //    // 处理选择集
+    //    processSelectionSet(type, field.getSelectionSet(), queryBuilder);
 
     queryBuilder.append(" }");
     return queryBuilder.toString();
   }
 
   private static void buildFieldQueryPart(
-      DataFetchingEnvironment environment,
-      //      GraphQLSchemaOverride override,
-      //      GraphQLObjectType objectType,
-      Field field,
-      StringBuilder queryBuilder) {
-    //    if (override.isFieldRenamed(objectType.getName(), field.getName())) {
-    //      String name = override.getOriginalFieldName(objectType.getName(), field.getName());
-    //      queryBuilder.append(StringUtil.defaultValue(field.getAlias(),
-    // field.getName())).append(": ");
-    //      queryBuilder.append(name);
-    //    } else {
+      GraphQLType type, Field field, StringBuilder queryBuilder) {
     if (field.getAlias() != null) {
       queryBuilder.append(field.getAlias()).append(": ");
     }
     queryBuilder.append(field.getName());
-    //    }
-
     // 添加字段参数（如果有）
-    processFieldArguments(field, queryBuilder, environment);
+    processFieldArguments(type, field, queryBuilder);
   }
 
   private static String formatType(Type<?> type) {
@@ -134,18 +116,18 @@ public class GraphQLUtils {
   }
 
   private static void processSelectionSet(
-      SelectionSet selectionSet, StringBuilder queryBuilder, DataFetchingEnvironment environment) {
+      GraphQLType type, SelectionSet selectionSet, StringBuilder queryBuilder) {
     if (selectionSet != null && !selectionSet.getSelections().isEmpty()) {
       queryBuilder.append(" { ");
       selectionSet
           .getSelections()
-          .forEach(selection -> processSelection(selection, queryBuilder, environment));
+          .forEach(selection -> processSelection(type, selection, queryBuilder));
       queryBuilder.append(" }");
     }
   }
 
   private static void processFieldArguments(
-      Field field, StringBuilder queryBuilder, DataFetchingEnvironment environment) {
+      GraphQLType type, Field field, StringBuilder queryBuilder) {
     if (!field.getArguments().isEmpty()) {
       queryBuilder.append("(");
       field
@@ -161,12 +143,14 @@ public class GraphQLUtils {
   }
 
   private static void processSelection(
-      Selection<?> selection, StringBuilder queryBuilder, DataFetchingEnvironment environment) {
+      GraphQLType type, Selection<?> selection, StringBuilder queryBuilder) {
     if (selection instanceof Field subField) {
+      buildFieldQueryPart(type, subField, queryBuilder);
 
-      buildFieldQueryPart(environment, subField, queryBuilder);
-
-      processSelectionSet(subField.getSelectionSet(), queryBuilder, environment);
+      if (subField.getSelectionSet() != null) {
+        GraphQLType fileType = GraphQLTypeUtils.getFieldType(type, subField.getName());
+        processSelectionSet(fileType, subField.getSelectionSet(), queryBuilder);
+      }
 
       queryBuilder.append(" ");
     }
@@ -341,13 +325,33 @@ public class GraphQLUtils {
           log.warn("Field {} not found in type {}", fieldName, typeDefinition.getName());
           continue;
         }
-        excludeFields.add(fieldDefinition.getName());
+        if (config.isNameChanged()) {
+          excludeFields.add(fieldDefinition.getName());
+        }
         FieldDefinition.Builder fieldBuilder =
             FieldDefinition.newFieldDefinition()
-                .name(fieldName)
+                .name(fieldDefinition.getName())
                 .type(fieldDefinition.getType())
+                .sourceLocation(fieldDefinition.getSourceLocation())
+                .additionalData(fieldDefinition.getAdditionalData())
+                .ignoredChars(fieldDefinition.getIgnoredChars())
                 .inputValueDefinitions(fieldDefinition.getInputValueDefinitions())
                 .directives(fieldDefinition.getDirectives());
+
+        // 处理字段名称
+        if (config.isNameChanged()) {
+          fieldBuilder.name(fieldName);
+        }
+
+        // 处理字段类型
+        if (config.isTypeChanged(fieldDefinition.getType())) {
+          if (!mergedRegistry.hasType(GraphQLTypeUtils.getTypeName(config.getType()))) {
+            log.warn("Type {} not found in type {}", config.getType(), typeDefinition.getName());
+          } else {
+            config.setOriginalType(fieldDefinition.getType());
+            fieldBuilder.type(config.getType());
+          }
+        }
 
         if (config.getArguments() != null) {
           Map<String, InputValueDefinition> inputValueMap =
@@ -383,35 +387,22 @@ public class GraphQLUtils {
           fieldBuilder.inputValueDefinitions(inputValueMap.values().stream().toList());
         }
 
-        FieldCoordinates coordinates =
-            FieldCoordinates.coordinates(typeDefinition.getName(), fieldDefinition.getName());
-
         FieldDefinition newFieldDefinition = fieldBuilder.build();
 
+        FieldCoordinates coordinates =
+            FieldCoordinates.coordinates(typeDefinition.getName(), fieldDefinition.getName());
         FieldCoordinates newCoordinates =
             FieldCoordinates.coordinates(typeDefinition.getName(), newFieldDefinition.getName());
 
-        // 处理 Query, Mutation, Subscription 根类型
-        if (dataFetchers.containsKey(coordinates)) {
-          dataFetchers.put(
-              newCoordinates,
-              GraphQLDefaultOverrideDataFetcher.builder()
-                  .override(override)
-                  .overrideField(config)
-                  .fieldDefinition(newFieldDefinition)
-                  .dataFetcher(dataFetchers.get(coordinates))
-                  .build());
-        } else {
-          if (config.getDataFetcher() != null) {
-            dataFetchers.put(
-                newCoordinates,
-                GraphQLDefaultOverrideDataFetcher.builder()
-                    .override(override)
-                    .overrideField(config)
-                    .dataFetcher(dataFetcherFactory.getDataFetcher(config.getDataFetcher()))
-                    .fieldDefinition(fieldDefinition)
-                    .build());
-          }
+        DataFetcher<?> dataFetcher = dataFetchers.remove(coordinates);
+        if (config.getDataFetcher() != null) {
+          dataFetcher = dataFetcherFactory.getDataFetcher(config.getDataFetcher());
+        } else if (config.getResolve() != null) {
+          dataFetcher = dataFetcherFactory.getFieldResolver(config.getResolve());
+        }
+
+        if (dataFetcher != null) {
+          dataFetchers.put(newCoordinates, dataFetcher);
         }
 
         fieldMap.put(fieldName, newFieldDefinition);
@@ -427,8 +418,17 @@ public class GraphQLUtils {
     }
 
     // 处理数据获取器
+    boolean isNoDataFetcher = override.getTypes().isEmpty();
     for (Map.Entry<FieldCoordinates, DataFetcher<?>> entry : dataFetchers.entrySet()) {
-      codeRegistryBuilder.dataFetcher(entry.getKey(), entry.getValue());
+      DataFetcher<?> dataFetcher = entry.getValue();
+      if (!isNoDataFetcher) {
+        dataFetcher =
+            GraphQLDefaultOverrideDataFetcher.builder()
+                .dataFetcher(dataFetcher)
+                .override(override)
+                .build();
+      }
+      codeRegistryBuilder.dataFetcher(entry.getKey(), dataFetcher);
     }
 
     // 构建新的GraphQL模式
@@ -458,7 +458,7 @@ public class GraphQLUtils {
     for (GraphQLObjectType objectType : objectTypes) {
       for (GraphQLFieldDefinition field : objectType.getFields()) {
         FieldCoordinates coordinates =
-            FieldCoordinates.coordinates(schema.getQueryType().getName(), field.getName());
+            FieldCoordinates.coordinates(objectType.getName(), field.getName());
         DataFetcher<?> dataFetcher = schema.getCodeRegistry().getDataFetcher(coordinates, field);
         dataFetchers.put(coordinates, dataFetcher);
       }

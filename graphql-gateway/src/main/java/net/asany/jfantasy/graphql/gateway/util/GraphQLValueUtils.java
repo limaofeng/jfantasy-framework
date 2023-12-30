@@ -4,15 +4,14 @@ import static graphql.Scalars.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import graphql.GraphQLContext;
-import graphql.schema.Coercing;
-import graphql.schema.GraphQLOutputType;
-import graphql.schema.GraphQLScalarType;
-import graphql.schema.GraphQLType;
+import graphql.schema.*;
 import java.util.Locale;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import net.asany.jfantasy.framework.jackson.JSON;
 import net.asany.jfantasy.framework.util.common.ObjectUtil;
 
+@Slf4j
 public class GraphQLValueUtils {
   /**
    * 根据 GraphQLScalarType 转换 JsonNode 到相应的 Java 对象。
@@ -42,6 +41,7 @@ public class GraphQLValueUtils {
     }
     Object nodeValue = getNodeValue(node);
     Coercing<?, ?> coercing = scalarType.getCoercing();
+    assert nodeValue != null;
     return coercing.serialize(nodeValue, graphQLContext, locale);
   }
 
@@ -87,11 +87,18 @@ public class GraphQLValueUtils {
 
     if (root instanceof JsonNode node) {
       JsonNode valueNode = JSON.findNode(node, "/" + name);
-      if (outputType instanceof GraphQLScalarType scalarType) {
-        return GraphQLValueUtils.convertToScalarType(valueNode, scalarType, graphQLContext, locale);
-      }
       if (valueNode == null || valueNode.isNull()) {
         return null;
+      }
+      if (!valueNode.isObject() && GraphQLTypeUtils.isObjectType(outputType)) {
+        log.warn(
+            "valueNode is not object, but outputType is object. valueNode: {}, outputType: {}",
+            valueNode,
+            ((GraphQLObjectType) outputType).getName());
+        return null;
+      }
+      if (outputType instanceof GraphQLScalarType scalarType) {
+        return GraphQLValueUtils.convertToScalarType(valueNode, scalarType, graphQLContext, locale);
       }
       return valueNode;
     }

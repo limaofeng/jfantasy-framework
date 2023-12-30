@@ -1,17 +1,24 @@
 package net.asany.jfantasy.graphql.gateway.config;
 
+import graphql.language.Type;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.Builder;
 import lombok.Data;
+import net.asany.jfantasy.graphql.gateway.util.GraphQLTypeUtils;
+import org.jetbrains.annotations.NotNull;
 
 @Data
 @Builder(builderClassName = "Builder")
 public class SchemaOverrideField {
   private String name;
+  private Type<?> type;
+  private Type<?> originalType;
   private String mapping;
   private boolean exclude;
+  private boolean extended;
   private String dataFetcher;
+  private String resolve;
 
   private Map<String, SchemaOverrideFieldArgument> arguments;
 
@@ -32,11 +39,26 @@ public class SchemaOverrideField {
     return !this.mapping.equals(this.name);
   }
 
+  public boolean isTypeChanged() {
+    return this.type != null;
+  }
+
+  public boolean isTypeChanged(@NotNull Type<?> type) {
+    if (this.type == null) {
+      return false;
+    }
+    return !GraphQLTypeUtils.getTypeSource(type).equals(GraphQLTypeUtils.getTypeSource(this.type));
+  }
+
   public String getAlias(String alias) {
     if (alias != null) {
       return alias;
     }
     return isNameChanged() ? this.name : null;
+  }
+
+  public boolean hasIncludeArgument(String name) {
+    return this.arguments.containsKey(name);
   }
 
   public static class Builder {
@@ -46,29 +68,37 @@ public class SchemaOverrideField {
     }
 
     public Builder excludeArgument(String name) {
-      if (!arguments.containsKey(name)) {
-        arguments.put(name, SchemaOverrideFieldArgument.builder().name(name).build());
-      }
-      SchemaOverrideFieldArgument argument = arguments.get(name);
+      SchemaOverrideFieldArgument argument =
+          arguments.computeIfAbsent(
+              name, k -> SchemaOverrideFieldArgument.builder().name(name).build());
       argument.setExclude(true);
       return this;
     }
 
-    public Builder renameArgument(String name, String mapping) {
-      if (!arguments.containsKey(name)) {
-        arguments.put(name, SchemaOverrideFieldArgument.builder().name(name).build());
-      }
-      SchemaOverrideFieldArgument argument = arguments.get(name);
-      argument.setMapping(mapping);
+    public Builder type(String type) {
+      this.type = GraphQLTypeUtils.parseType(type);
       return this;
     }
 
-    public void argument(String name, String mapping) {
-      if (!arguments.containsKey(name)) {
-        arguments.put(name, SchemaOverrideFieldArgument.builder().name(name).build());
-      }
-      SchemaOverrideFieldArgument argument = arguments.get(name);
-      argument.setMapping(mapping);
+    public Builder resolve(String resolve) {
+      this.resolve = resolve;
+      return this;
+    }
+
+    public Builder excludeArgument(String name, String value) {
+      arguments.put(name, SchemaOverrideFieldArgument.builder().name(name).value(value).build());
+      return this;
+    }
+
+    public Builder argument(String name, String mapping, String defaultValue) {
+      arguments.put(
+          name,
+          SchemaOverrideFieldArgument.builder()
+              .name(name)
+              .mapping(mapping)
+              .defaultValue(defaultValue)
+              .build());
+      return this;
     }
   }
 }
