@@ -4,8 +4,13 @@ import static graphql.Scalars.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import graphql.GraphQLContext;
+import graphql.execution.directives.QueryAppliedDirective;
+import graphql.language.*;
+import graphql.parser.Parser;
 import graphql.schema.*;
+import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import net.asany.jfantasy.framework.jackson.JSON;
@@ -13,6 +18,59 @@ import net.asany.jfantasy.framework.util.common.ObjectUtil;
 
 @Slf4j
 public class GraphQLValueUtils {
+
+  public static Value<?> parseValue(String input) {
+    return Parser.parseValue(input);
+  }
+
+  //  public static Value<?> convertToValue(
+  //      Object source, Type<?> type, TypeDefinition<?> typeDefinition) {
+  //    if (source == null) {
+  //      return null;
+  //    }
+  //    if (source instanceof Value<?>) {
+  //      return (Value<?>) source;
+  //    }
+  //    if (type instanceof NonNullType nonNullType) {
+  //      return convertToValue(source, nonNullType.getType(), typeDefinition);
+  //    } else if (type instanceof ListType listType) {
+  //      return convertToValue(source, listType.getType(), typeDefinition);
+  //    } else if (type instanceof TypeName typeName) {
+  //      if (typeDefinition instanceof ScalarTypeDefinition scalarTypeDefinition) {
+  //        return convertToScalarType(source, scalarTypeDefinition);
+  //      } else if (typeDefinition instanceof EnumTypeDefinition enumTypeDefinition) {
+  //        return EnumValue.of(source.toString());
+  //      } else if (typeDefinition instanceof InputObjectTypeDefinition inputObjectTypeDefinition)
+  // {
+  //        return ObjectValue.newObjectValue().build();
+  //      } else if (typeDefinition instanceof ObjectTypeDefinition objectTypeDefinition) {
+  //        return ObjectValue.newObjectValue().build();
+  //      }
+  //    }
+  //    throw new IllegalArgumentException("Unsupported type: " + type);
+  //  }
+
+  public static Value<?> convertToScalarType(Object value, ScalarTypeDefinition scalarType) {
+    if (scalarType.getName().equals(GraphQLString.getName())) {
+      return StringValue.of(value.toString());
+    } else if (scalarType.getName().equals(GraphQLInt.getName())) {
+      return IntValue.of(
+          value instanceof Number
+              ? ((Number) value).intValue()
+              : Integer.parseInt(value.toString()));
+    } else if (scalarType.getName().equals(GraphQLBoolean.getName())) {
+      return BooleanValue.of(Boolean.parseBoolean(value.toString()));
+    } else if (scalarType.getName().equals(GraphQLFloat.getName())) {
+      return FloatValue.of(
+          value instanceof Number
+              ? ((Number) value).doubleValue()
+              : Double.parseDouble(value.toString()));
+    } else if (scalarType.getName().equals(GraphQLID.getName())) {
+      return StringValue.of(value.toString());
+    }
+    return null;
+  }
+
   /**
    * 根据 GraphQLScalarType 转换 JsonNode 到相应的 Java 对象。
    *
@@ -90,7 +148,10 @@ public class GraphQLValueUtils {
       if (valueNode == null || valueNode.isNull()) {
         return null;
       }
-      if (!valueNode.isObject() && GraphQLTypeUtils.isObjectType(outputType)) {
+      if (valueNode.isArray() && GraphQLTypeUtils.isListType(type)) {
+        return valueNode;
+      }
+      if (!valueNode.isObject() && GraphQLTypeUtils.isObjectType(type)) {
         log.warn(
             "valueNode is not object, but outputType is object. valueNode: {}, outputType: {}",
             valueNode,
@@ -111,5 +172,45 @@ public class GraphQLValueUtils {
       return convertToScalarType(node, scalarType);
     }
     return null;
+  }
+
+  public static QueryAppliedDirective getDirective(
+      DataFetchingEnvironment environment, String directiveName) {
+    List<QueryAppliedDirective> directives =
+        environment.getQueryDirectives().getImmediateAppliedDirective(directiveName);
+    if (directives.isEmpty()) {
+      throw new IllegalArgumentException("Unknown directive: " + directiveName);
+    }
+    return directives.get(0);
+  }
+
+  public static String convertToString(Value<?> value) {
+    if (value instanceof NullValue) {
+      return null;
+    } else if (value instanceof StringValue stringValue) {
+      return "\"" + stringValue.getValue() + "\"";
+    } else if (value instanceof IntValue intValue) {
+      return intValue.getValue().toString();
+    } else if (value instanceof FloatValue floatValue) {
+      return floatValue.getValue().toString();
+    } else if (value instanceof BooleanValue booleanValue) {
+      return booleanValue.isValue() ? "true" : "false";
+    } else if (value instanceof EnumValue enumValue) {
+      return enumValue.getName();
+    } else if (value instanceof ObjectValue objectValue) {
+      return "{"
+          + objectValue.getObjectFields().stream()
+              .map(field -> field.getName() + ": " + convertToString(field.getValue()))
+              .collect(Collectors.joining(", "))
+          + "}";
+    } else if (value instanceof ArrayValue arrayValue) {
+      StringBuilder builder = new StringBuilder("[");
+      for (Value<?> item : arrayValue.getValues()) {
+        builder.append(convertToString(item)).append(", ");
+      }
+      builder.append("]");
+      return builder.toString();
+    }
+    throw new IllegalArgumentException("Unsupported value: " + value);
   }
 }

@@ -33,20 +33,8 @@ spring:
 #          database-strategy:
 #            inline:
 #              sharding-column: tenant_id
-#              algorithmExpression: myDatabaseShardingAlgorithm
+#              algorithmExpression: myDatabaseShardingAlgorithms
 
-
-graphql:
-  servlet:
-    mapping: /graphql
-    enabled: true
-    cors-enabled: true
-    cors:
-      allowed-origins:
-        - "*"
-      allowed-methods: GET, HEAD, POST
-      allow-credentials: false
-    exception-handlers-enabled: true
 
 cuckoo:
   elasticsearch:

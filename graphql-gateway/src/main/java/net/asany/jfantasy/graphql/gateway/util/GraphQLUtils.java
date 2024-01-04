@@ -6,11 +6,14 @@ import graphql.schema.idl.*;
 import java.util.*;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import net.asany.jfantasy.framework.util.common.ClassUtil;
 import net.asany.jfantasy.framework.util.common.ObjectUtil;
 import net.asany.jfantasy.framework.util.common.StringUtil;
 import net.asany.jfantasy.graphql.gateway.config.*;
 import net.asany.jfantasy.graphql.gateway.data.GatewayDataFetcherFactory;
-import net.asany.jfantasy.graphql.gateway.data.GraphQLDefaultOverrideDataFetcher;
+import net.asany.jfantasy.graphql.gateway.data.OverrideDataFetcher;
+import net.asany.jfantasy.graphql.gateway.directive.DirectiveFactory;
+import net.asany.jfantasy.graphql.gateway.directive.DirectiveProcessor;
 import net.asany.jfantasy.graphql.gateway.service.GraphQLServiceTypeResolver;
 
 /**
@@ -78,11 +81,6 @@ public class GraphQLUtils {
     queryBuilder.append(" { ");
 
     processSelection(type, field, queryBuilder);
-
-    //    buildFieldQueryPart(type, field, queryBuilder);
-    //
-    //    // 处理选择集
-    //    processSelectionSet(type, field.getSelectionSet(), queryBuilder);
 
     queryBuilder.append(" }");
     return queryBuilder.toString();
@@ -216,7 +214,11 @@ public class GraphQLUtils {
   public static GraphQLSchema mergeSchemas(
       List<GraphQLSchema> schemas,
       SchemaOverride override,
-      GatewayDataFetcherFactory dataFetcherFactory) {
+      GatewayDataFetcherFactory dataFetcherFactory,
+      DirectiveFactory directiveFactory) {
+
+    DirectiveProcessor directiveProcessor =
+        DirectiveProcessor.builder().factory(directiveFactory).build();
 
     // 使用SchemaPrinter获取现有模式的SDL表示
     SchemaPrinter schemaPrinter =
@@ -418,12 +420,55 @@ public class GraphQLUtils {
     for (Map.Entry<FieldCoordinates, DataFetcher<?>> entry : dataFetchers.entrySet()) {
       DataFetcher<?> dataFetcher = entry.getValue();
       if (!isNoDataFetcher) {
-        GraphQLDefaultOverrideDataFetcher.Builder newDataFetcherBuilder =
-            GraphQLDefaultOverrideDataFetcher.builder().dataFetcher(dataFetcher).override(override);
+        OverrideDataFetcher.Builder newDataFetcherBuilder =
+            OverrideDataFetcher.builder()
+                .directiveProcessor(directiveProcessor)
+                .dataFetcher(dataFetcher)
+                .override(override);
 
         if (resolves.containsKey(entry.getKey())) {
           SchemaOverrideField overrideField = resolves.get(entry.getKey());
-          newDataFetcherBuilder.overrideField(overrideField).resolve(overrideField.getResolve());
+          FieldResolve resolve = overrideField.getResolve();
+          ObjectTypeDefinition objectType =
+              (ObjectTypeDefinition)
+                  mergedRegistry
+                      .getType("Query")
+                      .orElseThrow(() -> new RuntimeException("Query not found"));
+          FieldDefinition fieldDefinition =
+              ObjectUtil.find(objectType.getFieldDefinitions(), "name", resolve.getQuery());
+
+          for (Map.Entry<String, FieldResolve.FieldArgument> argumentEntry :
+              resolve.getArguments().entrySet()) {
+            FieldResolve.FieldArgument fieldArgument = argumentEntry.getValue();
+            InputValueDefinition inputValueDefinition =
+                ObjectUtil.find(
+                    fieldDefinition.getInputValueDefinitions(), "name", fieldArgument.getName());
+            if (inputValueDefinition == null) {
+              throw new RuntimeException(
+                  "Argument "
+                      + fieldArgument.getName()
+                      + " not found in field "
+                      + fieldDefinition.getName());
+            }
+            // 设置真实的参数类型
+            fieldArgument.setType(inputValueDefinition.getType());
+            if (fieldArgument.isReference()) {
+              continue;
+            }
+            @SuppressWarnings("rawtypes")
+            Optional<TypeDefinition> typeOptional =
+                mergedRegistry.getType(inputValueDefinition.getType());
+            if (typeOptional.isEmpty()) {
+              throw new RuntimeException(
+                  "Type "
+                      + inputValueDefinition.getType()
+                      + " not found in field "
+                      + fieldDefinition.getName());
+            }
+            fieldArgument.setValue(fieldArgument.getValue());
+          }
+
+          newDataFetcherBuilder.overrideField(overrideField).resolve(resolve);
         }
 
         dataFetcher = newDataFetcherBuilder.build();
@@ -445,6 +490,14 @@ public class GraphQLUtils {
     // StaticDataFetcher("newField")));
 
     RuntimeWiring runtimeWiring = runtimeWiringBuilder.build();
+
+    ClassUtil.setFieldValue(
+        mergedRegistry,
+        "directiveDefinitions",
+        (Map<String, DirectiveDefinition> old) -> {
+          old.putAll(directiveFactory.getDirectiveDefinitions());
+          return old;
+        });
 
     return schemaGenerator.makeExecutableSchema(mergedRegistry, runtimeWiring);
   }

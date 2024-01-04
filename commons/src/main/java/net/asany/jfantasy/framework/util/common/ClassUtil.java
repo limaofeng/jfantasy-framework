@@ -8,14 +8,12 @@ import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import net.asany.jfantasy.framework.util.FantasyClassLoader;
 import net.asany.jfantasy.framework.util.error.InputDataException;
-import net.asany.jfantasy.framework.util.reflect.ClassFactory;
-import net.asany.jfantasy.framework.util.reflect.IClassFactory;
-import net.asany.jfantasy.framework.util.reflect.MethodProxy;
-import net.asany.jfantasy.framework.util.reflect.Property;
+import net.asany.jfantasy.framework.util.reflect.*;
 import org.springframework.aop.framework.AdvisedSupport;
 import org.springframework.aop.framework.AopProxy;
 import org.springframework.aop.support.AopUtils;
@@ -176,6 +174,13 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
 
   public static void setFieldValue(Object target, String name, Object value) {
     classFactory.getClass(getRealClass(target)).setValue(target, name, value);
+  }
+
+  public static <T> void setFieldValue(Object target, String name, Function<T, T> value) {
+    IClass<?> iClass = classFactory.getClass(getRealClass(target));
+    Object oldValue = iClass.getValue(target, name);
+    //noinspection unchecked
+    iClass.setValue(target, name, value.apply((T) oldValue));
   }
 
   public static void setFieldValue(Object target, Class<?> clazz, String name, Object value) {

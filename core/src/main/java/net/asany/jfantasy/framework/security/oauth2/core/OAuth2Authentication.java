@@ -1,5 +1,6 @@
 package net.asany.jfantasy.framework.security.oauth2.core;
 
+import lombok.Setter;
 import net.asany.jfantasy.framework.security.authentication.AbstractAuthenticationToken;
 import net.asany.jfantasy.framework.security.authentication.Authentication;
 
@@ -11,6 +12,7 @@ import net.asany.jfantasy.framework.security.authentication.Authentication;
 public class OAuth2Authentication extends AbstractAuthenticationToken {
 
   private final OAuth2AuthenticatedPrincipal principal;
+  @Setter
   private Object credentials;
 
   public OAuth2Authentication(Authentication authentication, OAuth2AuthenticationDetails details) {
@@ -19,10 +21,6 @@ public class OAuth2Authentication extends AbstractAuthenticationToken {
     this.principal = (OAuth2AuthenticatedPrincipal) authentication.getPrincipal();
     setDetails(details);
     setAuthenticated(authentication.isAuthenticated());
-  }
-
-  public void setCredentials(Object credentials) {
-    this.credentials = credentials;
   }
 
   @Override

@@ -1,0 +1,34 @@
+resources:
+  - id: "userService:/users"
+    type: "User"
+    description: "Product service"
+    actions:
+      - id: "GetMailUser"
+        type: "read"
+        operations:
+          - "Query.listUsers"
+
+policies:
+  - id: "policy-1"
+    description: "Admin access to all services"
+    subjects: ["admin"]
+    actions: ["*"]
+    resources: ["*"]
+    effect: "allow"
+
+  - id: "policy-2"
+    description: "Read-only access to user data"
+    subjects: ["role:user"]
+    actions: ["read"]
+    resources: ["userService:/users/*"]
+    effect: "allow"
+
+  - id: "policy-3"
+    description: "Product management access"
+    subjects: ["role:product-manager"]
+    actions: ["create", "update", "delete"]
+    resources: ["productService:/products/*"]
+    effect: "allow"
+
+default:
+  effect: "deny"

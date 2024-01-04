@@ -6,6 +6,7 @@ import java.util.Map;
 import lombok.Builder;
 import lombok.Data;
 import net.asany.jfantasy.graphql.gateway.util.GraphQLTypeUtils;
+import net.asany.jfantasy.graphql.gateway.util.ResolveExpressionParser;
 import org.jetbrains.annotations.NotNull;
 
 @Data
@@ -76,14 +77,15 @@ public class SchemaOverrideField {
     }
 
     public Builder type(String type) {
-      this.type = GraphQLTypeUtils.parseType(type);
+      this.type = GraphQLTypeUtils.parseReturnType(type);
       return this;
     }
 
     public Builder resolve(String resolve) {
-      this.resolve =
-          FieldResolve.builder().query("user").arguments(Map.of("id", "createdBy")).build();
-      ;
+      if (resolve == null) {
+        return this;
+      }
+      this.resolve = ResolveExpressionParser.parse(resolve);
       return this;
     }
 

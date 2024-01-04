@@ -12,11 +12,19 @@ pluginManagement {
 }
 
 rootProject.name = 'jfantasy-framework'
-include ":jfantasy-commons", ":jfantasy-core", ":jfantasy-graphql", ":jfantasy-graphql-client", ":jfantasy-graphql-gateway",  ":jfantasy-search", ":jfantasy-example"
+include ":jfantasy-commons",
+        ":jfantasy-core",
+        ":jfantasy-graphql",
+        ":jfantasy-graphql-client",
+        ":jfantasy-graphql-security",
+        ":jfantasy-graphql-gateway",
+        ":jfantasy-search",
+        ":jfantasy-example"
 
 project(':jfantasy-core').projectDir = "$rootDir/core" as File
 project(':jfantasy-graphql').projectDir = "$rootDir/graphql" as File
 project(':jfantasy-graphql-client').projectDir = "$rootDir/graphql-client" as File
+project(':jfantasy-graphql-security').projectDir = "$rootDir/graphql-security" as File
 project(':jfantasy-graphql-gateway').projectDir = "$rootDir/graphql-gateway" as File
 project(':jfantasy-example').projectDir = "$rootDir/example" as File
 project(':jfantasy-commons').projectDir = "$rootDir/commons" as File

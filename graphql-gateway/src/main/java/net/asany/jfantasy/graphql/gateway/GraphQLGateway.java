@@ -10,11 +10,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import net.asany.jfantasy.graphql.gateway.config.DataFetcherConfig;
-import net.asany.jfantasy.graphql.gateway.config.GatewayConfig;
-import net.asany.jfantasy.graphql.gateway.config.GatewayPropertyUtils;
-import net.asany.jfantasy.graphql.gateway.config.SchemaOverride;
+import net.asany.jfantasy.graphql.gateway.config.*;
 import net.asany.jfantasy.graphql.gateway.data.GatewayDataFetcherFactory;
+import net.asany.jfantasy.graphql.gateway.directive.DirectiveFactory;
 import net.asany.jfantasy.graphql.gateway.service.GraphQLService;
 import net.asany.jfantasy.graphql.gateway.service.LocalGraphQLService;
 import net.asany.jfantasy.graphql.gateway.service.RemoteGraphQLService;
@@ -38,13 +36,17 @@ public class GraphQLGateway {
 
   private GatewayDataFetcherFactory dataFetcherFactory;
 
+  private DirectiveFactory directiveFactory;
+
   private GraphQLGateway(
       List<GraphQLService> serviceList,
       SchemaOverride override,
-      GatewayDataFetcherFactory dataFetcherFactory) {
-    this.dataFetcherFactory = dataFetcherFactory;
+      GatewayDataFetcherFactory dataFetcherFactory,
+      DirectiveFactory directiveFactory) {
     this.serviceList = serviceList;
     this.override = override;
+    this.dataFetcherFactory = dataFetcherFactory;
+    this.directiveFactory = directiveFactory;
   }
 
   public void init() throws IOException {
@@ -59,7 +61,14 @@ public class GraphQLGateway {
       dataFetcherFactory = new GatewayDataFetcherFactory();
     }
 
-    this.schema = GraphQLUtils.mergeSchemas(schemas, this.override, dataFetcherFactory);
+    if (directiveFactory == null) {
+      directiveFactory = new DirectiveFactory();
+    }
+
+    directiveFactory.registerDefaultDirectives();
+
+    this.schema =
+        GraphQLUtils.mergeSchemas(schemas, this.override, dataFetcherFactory, directiveFactory);
   }
 
   public void destroy() {}
@@ -75,6 +84,7 @@ public class GraphQLGateway {
     public Builder() {
       serviceList = new ArrayList<>();
       dataFetcherFactory = new GatewayDataFetcherFactory();
+      directiveFactory = new DirectiveFactory();
     }
 
     public Builder clientFactory(GraphQLTemplateFactory clientFactory) {
@@ -149,12 +159,10 @@ public class GraphQLGateway {
                 .url(serviceConfig.getUrl())
                 .clientFactory(this.clientFactory)
                 .headers(serviceConfig.getHeaders())
-                .scalarTypeResolver(scalarResolver);
-
+                .scalarTypeResolver(this.scalarResolver);
         if (serviceConfig.getExcludeFields() != null) {
           serviceBuilder.excludeFields(serviceConfig.getExcludeFields());
         }
-
         services.add(serviceBuilder.build());
       }
 
@@ -165,9 +173,20 @@ public class GraphQLGateway {
         }
       }
 
+      // 如果有配置 dataFetchers，则添加 dataFetchers
       if (gatewayConfig.getDataFetchers() != null) {
         for (DataFetcherConfig dataFetcherConfig : gatewayConfig.getDataFetchers()) {
           dataFetcherFactory.registerDataFetcher(dataFetcherConfig);
+        }
+      }
+
+      // 如果有配置 directives，则添加 directives
+      if (gatewayConfig.getDirectives() != null) {
+        for (DirectiveConfig directiveConfig : gatewayConfig.getDirectives()) {
+          Directive directive =
+              directiveFactory.registerDirective(
+                  directiveConfig.getDefinition(), directiveConfig.getHandler());
+          log.info("register directive: {}", directive.getName());
         }
       }
 
@@ -176,7 +195,8 @@ public class GraphQLGateway {
         services.add(LocalGraphQLService.builder().schema(localSchema).build());
       }
 
-      return new GraphQLGateway(services, schemaOverrideBuilder.build(), dataFetcherFactory);
+      return new GraphQLGateway(
+          services, schemaOverrideBuilder.build(), dataFetcherFactory, directiveFactory);
     }
   }
 }

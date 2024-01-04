@@ -15,17 +15,27 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.Resource;
 
 @Slf4j
 public class SpringBeanUtils
     implements BeanDefinitionRegistryPostProcessor, ApplicationContextAware {
 
-  /** Spring应用上下文环境 */
-  private static ApplicationContext applicationContext;
+  /** Spring应用上下文环境 -- GETTER -- 获取 spring 上下文 */
+  @Getter private static ApplicationContext applicationContext;
 
   private static BeanDefinitionRegistry registry;
   private static ConfigurableListableBeanFactory beanFactory;
+
+  public static void addApplicationListener(ApplicationListener<?> listener) {
+    if (applicationContext instanceof ConfigurableApplicationContext) {
+      ((ConfigurableApplicationContext) applicationContext).addApplicationListener(listener);
+    } else {
+      log.warn("applicationContext is not instanceof ConfigurableApplicationContext");
+    }
+  }
 
   @Override
   public void postProcessBeanDefinitionRegistry(@NotNull BeanDefinitionRegistry registry)
@@ -73,13 +83,6 @@ public class SpringBeanUtils
     AutoType(int value) {
       this.value = value;
     }
-  }
-
-  /**
-   * @return ApplicationContext
-   */
-  public static ApplicationContext getApplicationContext() {
-    return applicationContext;
   }
 
   /**
@@ -146,6 +149,7 @@ public class SpringBeanUtils
    * @see AutoType
    */
   public static synchronized <T> T autowire(Class<T> beanClass, AutoType autoType) {
+    //noinspection unchecked
     return (T)
         applicationContext
             .getAutowireCapableBeanFactory()
@@ -162,6 +166,7 @@ public class SpringBeanUtils
    * @see AutoType
    */
   public static synchronized <T> T createBean(Class<T> beanClass, AutoType autoType) {
+    //noinspection unchecked
     return (T)
         applicationContext
             .getAutowireCapableBeanFactory()
@@ -190,17 +195,20 @@ public class SpringBeanUtils
   }
 
   /**
-   * @param name beanname
+   * 获取注册对象的类型
+   *
+   * @param name beanName
    * @return Class 注册对象的类型
    */
   public static synchronized <T> Class<T> getType(String name) {
+    //noinspection unchecked
     return (Class<T>) applicationContext.getType(name);
   }
 
   /**
    * 如果给定的bean名字在bean定义中有别名，则返回这些别名
    *
-   * @param name beanname
+   * @param name beanName
    * @return name aliases
    */
   public static synchronized String[] getAliases(String name) {

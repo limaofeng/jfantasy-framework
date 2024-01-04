@@ -2,6 +2,8 @@ package net.asany.jfantasy.graphql.gateway.util;
 
 import graphql.Scalars;
 import graphql.language.*;
+import graphql.language.DirectiveDefinition;
+import graphql.parser.Parser;
 import graphql.schema.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -45,18 +47,18 @@ public class GraphQLTypeUtils {
     throw new RuntimeException("未知类型:" + type.toString());
   }
 
-  public static <T extends Type<?>> T parseType(String type) {
+  public static <T extends Type<?>> T parseReturnType(String type) {
     if (type.endsWith("!")) {
       //noinspection unchecked
       return (T)
-          NonNullType.newNonNullType(parseType(type.substring(0, type.length() - 1)))
+          NonNullType.newNonNullType(parseReturnType(type.substring(0, type.length() - 1)))
               .build(); // 移除非空标记
     }
     if (type.startsWith("[")) {
       // 处理数组类型
       String elementType = type.substring(1, type.length() - 1);
       //noinspection unchecked
-      return (T) ListType.newListType(parseType(elementType)).build();
+      return (T) ListType.newListType(parseReturnType(elementType)).build();
     } else {
       //noinspection unchecked
       return (T) TypeName.newTypeName(type).build();
@@ -94,11 +96,11 @@ public class GraphQLTypeUtils {
     return getSourceType(fieldType) instanceof GraphQLObjectType;
   }
 
-  public static boolean isList(GraphQLType type) {
+  public static boolean isListType(GraphQLType type) {
     if (type instanceof GraphQLList) {
       return true;
     } else if (type instanceof GraphQLNonNull type1) {
-      return isList(type1.getWrappedType());
+      return isListType(type1.getWrappedType());
     }
     return false;
   }
@@ -127,5 +129,11 @@ public class GraphQLTypeUtils {
       return GraphQLList.list(toOutputType(listType.getType()));
     }
     throw new RuntimeException("未知类型:" + type.toString());
+  }
+
+  public static DirectiveDefinition parseDirectiveDefinition(String directiveDefinitionString) {
+    return Parser.parse(directiveDefinitionString)
+        .getFirstDefinitionOfType(DirectiveDefinition.class)
+        .orElseThrow(() -> new RuntimeException("无效的指令定义:" + directiveDefinitionString));
   }
 }

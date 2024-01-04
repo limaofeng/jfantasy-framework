@@ -83,13 +83,13 @@ public class MyBatisMapperProxy implements InvocationHandler {
     if (!this.sqlSession
         .getConfiguration()
         .hasStatement(declaringInterface.getName() + "." + method.getName())) {
-      Class<?>[] declaringInterfaces = declaringInterface.getInterfaces();
-      for (Class<?> declaringinterface : declaringInterfaces) {
-        log.debug("向父接口查找Mapper:" + declaringinterface.getName() + "." + method.getName());
+      Class<?>[] superInterfaces = declaringInterface.getInterfaces();
+      for (Class<?> interfaceClass : superInterfaces) {
+        log.debug("向父接口查找Mapper:" + interfaceClass.getName() + "." + method.getName());
         if (this.sqlSession
             .getConfiguration()
-            .hasStatement(declaringinterface.getName() + "." + method.getName())) {
-          return declaringinterface;
+            .hasStatement(interfaceClass.getName() + "." + method.getName())) {
+          return interfaceClass;
         }
       }
       throw new IgnoreException(declaringInterface.getName() + "." + method.getName() + "未正确配置!");
@@ -99,10 +99,11 @@ public class MyBatisMapperProxy implements InvocationHandler {
 
   private Class<?> findDeclaringInterface(Object proxy, Method method) {
     Class<?> declaringInterface = null;
-    for (Class<?> iface : proxy.getClass().getInterfaces()) {
-      Method m = ReflectionUtils.findMethod(iface, method.getName(), method.getParameterTypes());
+    for (Class<?> interfaceClass : proxy.getClass().getInterfaces()) {
+      Method m =
+          ReflectionUtils.findMethod(interfaceClass, method.getName(), method.getParameterTypes());
       if (m != null) {
-        declaringInterface = iface;
+        declaringInterface = interfaceClass;
       }
     }
     if (declaringInterface == null) {

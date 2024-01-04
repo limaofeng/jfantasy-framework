@@ -6,7 +6,7 @@ import lombok.Builder;
 @Builder(builderClassName = "Builder")
 public class SchemaOverride {
 
-  Map<String, SchemaOverrideType> overrides;
+  private Map<String, SchemaOverrideType> overrides;
 
   public Optional<SchemaOverrideType> getOverrideConfigForType(String typeName) {
     return Optional.ofNullable(overrides.get(typeName));
@@ -68,7 +68,6 @@ public class SchemaOverride {
       }
 
       for (GatewayConfig.FieldConfig fieldConfig : overrideConfig.getFields()) {
-
         SchemaOverrideField.Builder overrideFieldBuilder =
             SchemaOverrideField.builder()
                 .name(fieldConfig.getName())

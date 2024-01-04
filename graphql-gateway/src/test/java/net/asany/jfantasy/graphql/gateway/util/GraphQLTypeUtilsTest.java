@@ -9,22 +9,28 @@ class GraphQLTypeUtilsTest {
 
   @Test
   void parseType() {
-    Type<?> type = GraphQLTypeUtils.parseType("User");
+    Type<?> type = GraphQLTypeUtils.parseReturnType("User");
     assertEquals(GraphQLTypeUtils.getTypeSource(type), "User");
 
-    type = GraphQLTypeUtils.parseType("User!");
+    type = GraphQLTypeUtils.parseReturnType("User!");
     assertEquals(GraphQLTypeUtils.getTypeSource(type), "User!");
 
-    type = GraphQLTypeUtils.parseType("[User]");
+    type = GraphQLTypeUtils.parseReturnType("[User]");
     assertEquals(GraphQLTypeUtils.getTypeSource(type), "[User]");
 
-    type = GraphQLTypeUtils.parseType("[User]!");
+    type = GraphQLTypeUtils.parseReturnType("[User]!");
     assertEquals(GraphQLTypeUtils.getTypeSource(type), "[User]!");
 
-    type = GraphQLTypeUtils.parseType("[User!]");
+    type = GraphQLTypeUtils.parseReturnType("[User!]");
     assertEquals(GraphQLTypeUtils.getTypeSource(type), "[User!]");
 
-    type = GraphQLTypeUtils.parseType("[User!]!");
+    type = GraphQLTypeUtils.parseReturnType("[User!]!");
     assertEquals(GraphQLTypeUtils.getTypeSource(type), "[User!]!");
+  }
+
+  @Test
+  void parseDirectiveDefinition() {
+    GraphQLTypeUtils.parseDirectiveDefinition(
+        "directive @auth(rules: [AuthRule!]!) on FIELD_DEFINITION");
   }
 }

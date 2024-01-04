@@ -46,7 +46,7 @@ public class GatewayDataFetcherFactory implements DataFetcherFactory<Object> {
     if (dataFetcherMap.containsKey(dataFetcher)) {
       return dataFetcherMap.get(dataFetcher);
     }
-    log.warn("未找到DataFetcher:{}", dataFetcher);
+    log.warn("not found data fetcher:{}", dataFetcher);
     return defaultDataFetcher;
   }
 

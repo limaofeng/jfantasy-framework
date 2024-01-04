@@ -11,6 +11,7 @@ import graphql.schema.GraphQLSchema;
 import net.asany.jfantasy.framework.jackson.JSON;
 import net.asany.jfantasy.graphql.gateway.config.SchemaOverride;
 import net.asany.jfantasy.graphql.gateway.data.GatewayDataFetcherFactory;
+import net.asany.jfantasy.graphql.gateway.directive.DirectiveFactory;
 import net.asany.jfantasy.graphql.gateway.service.RemoteGraphQLService;
 import net.asany.jfantasy.graphql.gateway.service.GraphQLService;
 import net.asany.jfantasy.graphql.gateway.type.ScalarTypeProviderFactory;
@@ -81,7 +82,7 @@ class GraphQLGatewayTest {
 
     service.makeSchema();
 
-    GraphQLSchema schema = GraphQLUtils.mergeSchemas(Arrays.asList(service.getSchema(), customSchema), SchemaOverride.builder().build(), new GatewayDataFetcherFactory());
+    GraphQLSchema schema = GraphQLUtils.mergeSchemas(Arrays.asList(service.getSchema(), customSchema), SchemaOverride.builder().build(), new GatewayDataFetcherFactory(), new DirectiveFactory());
 
     GraphQL graphQL = GraphQL.newGraphQL(schema).build();
 
@@ -209,6 +210,55 @@ class GraphQLGatewayTest {
     // 获取并输出查询结果
     System.out.println(Optional.ofNullable(result.getData()));
 
+    // TODO: 测试 dict(code: $type, type: client_type)
+
+    // TODO: 测试 dict(code: $type, type: {client_type}) 包含对象的参数
+
+    // TODO: 测试 dict(code: $type, type: [] or Enum or 自定义标量)
 
   }
+
+  @Test
+  public void testChangeFieldArgumentType() throws IOException {
+    GraphQLGateway gateway = GraphQLGateway.builder().config("graphql-gateway.yaml").build();
+
+    gateway.init();
+
+    GraphQL graphQL = GraphQL.newGraphQL(gateway.getSchema()).build();
+
+    // 定义 GraphQL 查询字符串
+    String queryStr =
+      """
+        {
+           apps(filter: { enabled: true }) {
+             id
+             appName @myDirective(arg1: "1") @myDirective(arg1: "2")
+             layoutRoute(space: "web") {
+               id
+               path
+             }
+             clientSecrets {
+               id
+               type {
+                 id
+                 name
+                 description
+               }
+               secret
+             }
+           }
+         }
+        """;
+
+    // 执行查询
+    ExecutionResult result = graphQL.execute(queryStr);
+
+    if (!result.getErrors().isEmpty()) {
+      System.out.println(result.getErrors());
+    }
+
+    // 获取并输出查询结果
+    System.out.println(Optional.ofNullable(result.getData()));
+  }
+
 }

@@ -1,5 +1,8 @@
 package net.asany.jfantasy.framework.security.oauth2.core;
 
+import lombok.Getter;
+
+@Getter
 public enum TokenType {
 
   /** 个人 Token 不能续期，但可以设置有效期的 TOKEN */
@@ -15,7 +18,4 @@ public enum TokenType {
     this.clientSecretType = clientSecretType;
   }
 
-  public ClientSecretType getClientSecretType() {
-    return this.clientSecretType;
-  }
 }

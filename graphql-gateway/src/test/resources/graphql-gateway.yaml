@@ -35,10 +35,50 @@ override:
       - name: "createdBy"
         type: "User"
         resolve: "user(id: $createdBy)"
+  - type: "ClientSecret"
+    fields:
+      - name: "type"
+        type: "Dict"
+        resolve: 'dict(code: $type, type: "client_type")'
 
 dataFetchers:
   - name: "appName"
     class: "net.asany.jfantasy.graphql.gateway.AppNameDataFetcher"
+
+directives:
+  - name: "myDirective"
+    description: "A simple directive"
+    repeatable: true
+    locations:
+      - "FIELD_DEFINITION"
+      - "FIELD"
+    arguments:
+      - name: "arg1"
+        type: "String"
+        description: "A simple argument"
+    handler: "net.asany.jfantasy.graphql.gateway.MyDirective"
+
+security:
+  authentication:
+    enabled: true
+    provider: jwt
+    secretKey: "your_secret_key"
+
+  authorization:
+    enabled: true
+    policy: "./auth-policy.yaml"
+
+logging:
+  level: INFO
+  format: json
+
+caching:
+  enabled: true
+  ttl: 300
+
+monitoring:
+  enabled: true
+  endpoint: "/metrics"
 
 dataLoaders:
   - name: "applications"
@@ -76,25 +116,3 @@ forwardingRules:
   - match:
       queryName: "getUser"
     forwardTo: "userService"
-
-security:
-  authentication:
-    enabled: true
-    provider: jwt
-    secretKey: "your_secret_key"
-
-  authorization:
-    enabled: true
-    policy: "./auth-policy.yaml"
-
-logging:
-  level: INFO
-  format: json
-
-caching:
-  enabled: true
-  ttl: 300
-
-monitoring:
-  enabled: true
-  endpoint: "/metrics"

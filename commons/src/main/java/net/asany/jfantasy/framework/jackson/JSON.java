@@ -56,6 +56,10 @@ public class JSON {
     return wrapper.serialize(object, provider);
   }
 
+  public static String stringify(Object object) {
+    return serialize(object);
+  }
+
   public static <T> T deserialize(InputStream input, Class<T> classed) {
     return wrapper.deserialize(input, classed);
   }

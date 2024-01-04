@@ -3,6 +3,7 @@ package net.asany.jfantasy.graphql.gateway.config;
 import graphql.language.Value;
 import lombok.Builder;
 import lombok.Data;
+import net.asany.jfantasy.graphql.gateway.util.GraphQLValueUtils;
 
 @Builder
 @Data
@@ -23,6 +24,6 @@ public class SchemaOverrideFieldArgument {
   }
 
   public Value<?> getGraphQLValue() {
-    return null;
+    return GraphQLValueUtils.parseValue(this.value);
   }
 }

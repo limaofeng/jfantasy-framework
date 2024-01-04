@@ -13,6 +13,7 @@ public class GatewayConfig {
   private List<ScalarConfig> scalars;
   private List<OverrideConfig> override;
   private List<DataFetcherConfig> dataFetchers;
+  private List<DirectiveConfig> directives;
 
   @Data
   public static class ServiceConfig {

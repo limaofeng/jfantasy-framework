@@ -28,7 +28,6 @@ public class SchemaOverrideType {
     }
     SchemaOverrideField field = this.fields.get(name);
     field.setMapping(mapping);
-    //    this.newFields.put(newName, field);
   }
 
   public void renameFieldArgument(String fieldName, String name, String newName) {

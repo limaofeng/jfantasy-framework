@@ -5,6 +5,8 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Set;
+
+import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import net.asany.jfantasy.framework.jackson.JSON;
@@ -33,7 +35,9 @@ public class DefaultTokenServices
         ResourceServerTokenServices,
         ConsumerTokenServices {
 
+  @Setter
   private TokenStore tokenStore;
+  @Setter
   private ClientDetailsService clientDetailsService;
   private final JwtTokenService jwtTokenService = new JwtTokenServiceImpl();
   private final TaskExecutor taskExecutor;
@@ -92,13 +96,15 @@ public class DefaultTokenServices
 
     JwtTokenPayload.JwtTokenPayloadBuilder jwtTokenPayloadBuilder =
         JwtTokenPayload.builder()
+            .iss("https://www.asany.cn")
             .name(authentication.getName())
             .clientId(clientDetails.getClientId())
             .tokenType(tokenType)
-            .expiresAt(expiresAt);
+            .iat(issuedAt.getEpochSecond())
+            .exp(expiresAt.getEpochSecond());
 
     if (principal != null) {
-      jwtTokenPayloadBuilder.uid(principal.getUid());
+      jwtTokenPayloadBuilder.userId(principal.getUid());
     }
 
     JwtTokenPayload payload = jwtTokenPayloadBuilder.build();
@@ -267,19 +273,10 @@ public class DefaultTokenServices
     }
   }
 
-  public void setTokenStore(TokenStore tokenStore) {
-    this.tokenStore = tokenStore;
-  }
-
-  public void setClientDetailsService(ClientDetailsService clientDetailsService) {
-    this.clientDetailsService = clientDetailsService;
-  }
-
   @SneakyThrows
   private String generateTokenValue(JwtTokenPayload payload, String secret) {
     String tokenValue;
     do {
-      payload.setNonce(StringUtil.generateNonceString(32));
       tokenValue = jwtTokenService.generateToken(JSON.serialize(payload), secret);
     } while (tokenStore.readAccessToken(tokenValue) != null);
     return tokenValue;
