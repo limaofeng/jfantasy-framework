@@ -8,15 +8,16 @@ import java.util.*;
 import lombok.extern.slf4j.Slf4j;
 import net.asany.jfantasy.framework.dao.jpa.SimpleAnyJpaRepository;
 import net.asany.jfantasy.framework.security.LoginUser;
+import net.asany.jfantasy.framework.security.auth.TokenType;
+import net.asany.jfantasy.framework.security.auth.core.*;
+import net.asany.jfantasy.framework.security.auth.oauth2.DefaultTokenServices;
+import net.asany.jfantasy.framework.security.auth.oauth2.server.BearerTokenAuthenticationToken;
+import net.asany.jfantasy.framework.security.auth.oauth2.server.authentication.BearerTokenAuthentication;
 import net.asany.jfantasy.framework.security.authentication.Authentication;
 import net.asany.jfantasy.framework.security.core.GrantedAuthority;
 import net.asany.jfantasy.framework.security.core.userdetails.UserDetailsService;
 import net.asany.jfantasy.framework.security.crypto.password.PasswordEncoder;
 import net.asany.jfantasy.framework.security.crypto.password.PlaintextPasswordEncoder;
-import net.asany.jfantasy.framework.security.oauth2.DefaultTokenServices;
-import net.asany.jfantasy.framework.security.oauth2.core.*;
-import net.asany.jfantasy.framework.security.oauth2.server.BearerTokenAuthenticationToken;
-import net.asany.jfantasy.framework.security.oauth2.server.authentication.BearerTokenAuthentication;
 import net.asany.jfantasy.graphql.gateway.GraphQLGateway;
 import net.asany.jfantasy.graphql.gateway.GraphQLGatewayReloadSchemaProvider;
 import net.asany.jfantasy.graphql.gateway.GraphQLReloadSchemaProvider;
@@ -80,9 +81,56 @@ public class Application extends SpringBootServletInitializer {
   }
 
   @Bean
+  public ClientDetailsService clientDetailsService() {
+    return clientId -> {
+      return new ClientDetails() {
+        @Override
+        public Map<String, Object> getAdditionalInformation() {
+          return null;
+        }
+
+        @Override
+        public Collection<GrantedAuthority> getAuthorities() {
+          return null;
+        }
+
+        @Override
+        public Set<String> getAuthorizedGrantTypes() {
+          return null;
+        }
+
+        @Override
+        public String getClientId() {
+          return null;
+        }
+
+        @Override
+        public Set<String> getClientSecrets(ClientSecretType type) {
+          return null;
+        }
+
+        @Override
+        public String getRedirectUri() {
+          return null;
+        }
+
+        @Override
+        public Set<String> getScope() {
+          return null;
+        }
+
+        @Override
+        public Integer getTokenExpires(TokenType tokenType) {
+          return 30;
+        }
+      };
+    };
+  }
+
+  @Bean
   public DefaultTokenServices defaultTokenServices(TaskExecutor taskExecutor) {
     return new DefaultTokenServices(
-        new TokenStore() {
+        new TokenStore<AuthToken>() {
           @Override
           public BearerTokenAuthentication readAuthentication(
               BearerTokenAuthenticationToken token) {
@@ -95,50 +143,50 @@ public class Application extends SpringBootServletInitializer {
           }
 
           @Override
-          public void storeAccessToken(OAuth2AccessToken token, Authentication authentication) {}
+          public void storeAccessToken(AuthToken token, Authentication authentication) {}
 
           @Override
-          public OAuth2AccessToken readAccessToken(String tokenValue) {
+          public AuthToken readAccessToken(String tokenValue) {
             return null;
           }
 
           @Override
-          public void removeAccessToken(OAuth2AccessToken token) {}
+          public void removeAccessToken(AuthToken token) {}
 
           @Override
           public void storeRefreshToken(
-              OAuth2RefreshToken refreshToken, Authentication authentication) {}
+              AuthRefreshToken refreshToken, Authentication authentication) {}
 
           @Override
-          public OAuth2RefreshToken readRefreshToken(String tokenValue) {
+          public AuthRefreshToken readRefreshToken(String tokenValue) {
             return null;
           }
 
           @Override
           public BearerTokenAuthentication readAuthenticationForRefreshToken(
-              OAuth2RefreshToken token) {
+              AuthRefreshToken token) {
             return null;
           }
 
           @Override
-          public void removeRefreshToken(OAuth2RefreshToken token) {}
+          public void removeRefreshToken(AuthRefreshToken token) {}
 
           @Override
-          public void removeAccessTokenUsingRefreshToken(OAuth2RefreshToken refreshToken) {}
+          public void removeAccessTokenUsingRefreshToken(AuthRefreshToken refreshToken) {}
 
           @Override
-          public OAuth2AccessToken getAccessToken(BearerTokenAuthentication authentication) {
+          public AuthToken getAccessToken(BearerTokenAuthentication authentication) {
             return null;
           }
 
           @Override
-          public Collection<OAuth2AccessToken> findTokensByClientIdAndUserName(
+          public Collection<AuthToken> findTokensByClientIdAndUserName(
               String clientId, String userName) {
             return null;
           }
 
           @Override
-          public Collection<OAuth2AccessToken> findTokensByClientId(String clientId) {
+          public Collection<AuthToken> findTokensByClientId(String clientId) {
             return null;
           }
         },
@@ -180,8 +228,8 @@ public class Application extends SpringBootServletInitializer {
               }
 
               @Override
-              public Integer getTokenExpires() {
-                return 0;
+              public Integer getTokenExpires(TokenType tokenType) {
+                return 30;
               }
             },
         taskExecutor);

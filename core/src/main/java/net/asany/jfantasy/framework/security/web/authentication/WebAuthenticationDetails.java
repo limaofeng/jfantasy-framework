@@ -2,13 +2,16 @@ package net.asany.jfantasy.framework.security.web.authentication;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import lombok.Getter;
+import net.asany.jfantasy.framework.security.auth.core.AuthenticationDetails;
 
 /**
  * WebAuthenticationDetails
  *
  * @author limaofeng
  */
-public class WebAuthenticationDetails {
+@Getter
+public class WebAuthenticationDetails implements AuthenticationDetails {
 
   private final String remoteAddress;
   private final String sessionId;
@@ -53,18 +56,6 @@ public class WebAuthenticationDetails {
       return true;
     }
     return false;
-  }
-
-  public String getRemoteAddress() {
-    return this.remoteAddress;
-  }
-
-  public String getSessionId() {
-    return this.sessionId;
-  }
-
-  public HttpServletRequest getRequest() {
-    return request;
   }
 
   @Override

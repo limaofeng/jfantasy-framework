@@ -1,4 +1,4 @@
-package net.asany.jfantasy.graphql.dataFetchers;
+package net.asany.jfantasy.graphql.security.fetchers;
 
 import graphql.schema.*;
 import graphql.schema.idl.SchemaDirectiveWiringEnvironment;

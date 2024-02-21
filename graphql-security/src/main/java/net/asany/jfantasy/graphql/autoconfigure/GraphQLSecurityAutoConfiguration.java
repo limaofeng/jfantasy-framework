@@ -4,7 +4,8 @@ import graphql.execution.ExecutionStrategy;
 import graphql.kickstart.autoconfigure.web.servlet.GraphQLWebAutoConfiguration;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.websocket.server.HandshakeRequest;
-import net.asany.jfantasy.autoconfigure.OAuth2SecurityAutoConfiguration;
+import java.util.List;
+import net.asany.jfantasy.autoconfigure.SecurityAutoConfiguration;
 import net.asany.jfantasy.framework.security.authentication.AuthenticationManagerResolver;
 import net.asany.jfantasy.graphql.security.context.SecurityGraphQLContextBuilder;
 import net.asany.jfantasy.graphql.security.execution.AsyncMutationExecutionStrategy;
@@ -20,20 +21,18 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
-import java.util.List;
-
 @Configuration
-@AutoConfigureAfter(OAuth2SecurityAutoConfiguration.class)
+@AutoConfigureAfter(SecurityAutoConfiguration.class)
 public class GraphQLSecurityAutoConfiguration {
 
   @Bean
   @ConditionalOnClass(EnableWebMvc.class)
   public SecurityGraphQLContextBuilder securityGraphQLContextBuilder(
-    AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver,
-    AuthenticationManagerResolver<HandshakeRequest> websocketAuthenticationManagerResolver,
-    DataLoaderRegistry dataLoaderRegistry) {
+      AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver,
+      AuthenticationManagerResolver<HandshakeRequest> websocketAuthenticationManagerResolver,
+      DataLoaderRegistry dataLoaderRegistry) {
     return new SecurityGraphQLContextBuilder(
-      authenticationManagerResolver, websocketAuthenticationManagerResolver, dataLoaderRegistry);
+        authenticationManagerResolver, websocketAuthenticationManagerResolver, dataLoaderRegistry);
   }
 
   @Bean
@@ -57,5 +56,4 @@ public class GraphQLSecurityAutoConfiguration {
   public ExecutionStrategy mutationExecutionStrategy(InterceptorManager interceptorManager) {
     return new AsyncMutationExecutionStrategy(interceptorManager);
   }
-
 }

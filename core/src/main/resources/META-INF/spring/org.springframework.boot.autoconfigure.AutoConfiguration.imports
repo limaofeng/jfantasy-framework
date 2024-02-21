@@ -1,6 +1,6 @@
 net.asany.jfantasy.autoconfigure.CoreAutoConfiguration
 net.asany.jfantasy.autoconfigure.WebStarterAutoConfiguration
 net.asany.jfantasy.autoconfigure.WebFluxStarterAutoConfiguration
-net.asany.jfantasy.autoconfigure.OAuth2SecurityAutoConfiguration
-net.asany.jfantasy.autoconfigure.OAuth2ResourceServerAutoConfiguration
+net.asany.jfantasy.autoconfigure.SecurityAutoConfiguration
+net.asany.jfantasy.autoconfigure.ResourceServerAutoConfiguration
 net.asany.jfantasy.autoconfigure.ShardingDataSourceAutoConfiguration

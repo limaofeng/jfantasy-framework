@@ -31,14 +31,14 @@ public interface Authentication extends Principal, Serializable {
    *
    * @return 认证详情
    */
-  Object getDetails();
+  <O> O getDetails();
 
   /**
    * 当事人
    *
    * @return 用户
    */
-  Object getPrincipal();
+  <P> P getPrincipal();
 
   /**
    * 是否授权 （登录）

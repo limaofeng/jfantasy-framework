@@ -2,6 +2,7 @@ package net.asany.jfantasy.framework.security.web.authentication;
 
 import jakarta.websocket.server.HandshakeRequest;
 import lombok.Getter;
+import net.asany.jfantasy.framework.security.auth.core.AuthenticationDetails;
 
 /**
  * WebSocketAuthenticationDetails
@@ -9,7 +10,7 @@ import lombok.Getter;
  * @author limaofeng
  */
 @Getter
-public class WebSocketAuthenticationDetails {
+public class WebSocketAuthenticationDetails implements AuthenticationDetails {
 
   private HandshakeRequest handshakeRequest;
 

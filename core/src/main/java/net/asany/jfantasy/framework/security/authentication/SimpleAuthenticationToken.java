@@ -5,13 +5,14 @@ import net.asany.jfantasy.framework.security.LoginUser;
 
 /**
  * 简单身份验证令牌
- * <p>
- *   该类实现了 Authentication 接口，提供了 Authentication 接口的基本实现。
+ *
+ * <p>该类实现了 Authentication 接口，提供了 Authentication 接口的基本实现。
+ *
  * @author limaofeng
  */
 public class SimpleAuthenticationToken<T> extends AbstractAuthenticationToken {
 
-  private final LoginUser principal;
+  private final Object principal;
   private final T credentials;
 
   public SimpleAuthenticationToken() {
@@ -19,6 +20,13 @@ public class SimpleAuthenticationToken<T> extends AbstractAuthenticationToken {
     this.principal = null;
     this.credentials = null;
     setAuthenticated(false);
+  }
+
+  public SimpleAuthenticationToken(ApiKeyPrincipal principal) {
+    super(principal.getAuthorities());
+    this.principal = principal;
+    this.credentials = null;
+    setAuthenticated(true);
   }
 
   public SimpleAuthenticationToken(LoginUser user) {
@@ -49,8 +57,9 @@ public class SimpleAuthenticationToken<T> extends AbstractAuthenticationToken {
   }
 
   @Override
-  public Object getPrincipal() {
-    return this.principal;
+  public <P> P getPrincipal() {
+    //noinspection unchecked
+    return (P) this.principal;
   }
 
   @Override

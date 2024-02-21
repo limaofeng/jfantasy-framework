@@ -14,14 +14,17 @@ import net.asany.jfantasy.framework.security.AuthenticationException;
 import net.asany.jfantasy.framework.security.AuthenticationManager;
 import net.asany.jfantasy.framework.security.SecurityContext;
 import net.asany.jfantasy.framework.security.SecurityContextHolder;
+import net.asany.jfantasy.framework.security.auth.TokenType;
+import net.asany.jfantasy.framework.security.auth.apikey.ApiKeyAuthenticationToken;
+import net.asany.jfantasy.framework.security.auth.core.AuthenticationDetails;
+import net.asany.jfantasy.framework.security.auth.oauth2.server.BearerTokenAuthenticationToken;
+import net.asany.jfantasy.framework.security.auth.oauth2.server.web.BearerTokenResolver;
+import net.asany.jfantasy.framework.security.auth.oauth2.server.web.DefaultBearerTokenResolver;
+import net.asany.jfantasy.framework.security.auth.oauth2.server.web.WebSocketBearerTokenResolver;
 import net.asany.jfantasy.framework.security.authentication.Authentication;
 import net.asany.jfantasy.framework.security.authentication.AuthenticationDetailsSource;
 import net.asany.jfantasy.framework.security.authentication.AuthenticationManagerResolver;
 import net.asany.jfantasy.framework.security.authentication.SimpleAuthenticationToken;
-import net.asany.jfantasy.framework.security.oauth2.server.BearerTokenAuthenticationToken;
-import net.asany.jfantasy.framework.security.oauth2.server.web.BearerTokenResolver;
-import net.asany.jfantasy.framework.security.oauth2.server.web.DefaultBearerTokenResolver;
-import net.asany.jfantasy.framework.security.oauth2.server.web.WebSocketBearerTokenResolver;
 import net.asany.jfantasy.framework.security.web.WebAuthenticationDetailsSource;
 import net.asany.jfantasy.framework.security.web.WebSocketAuthenticationDetailsSource;
 import org.dataloader.DataLoaderRegistry;
@@ -72,15 +75,12 @@ public class SecurityGraphQLContextBuilder extends DefaultGraphQLContextBuilder
     SecurityContextHolder.setContext(securityContext);
 
     AuthGraphQLServletContext context =
-        new AuthGraphQLServletContext(
-            this.dataLoaderRegistry, req, response, securityContext);
+        new AuthGraphQLServletContext(this.dataLoaderRegistry, req, response, securityContext);
     GraphQLContextHolder.setContext(context);
 
     String token = bearerTokenResolver.resolve(req);
 
-    Object details = this.authenticationDetailsSource.buildDetails(req);
-
-   String authType = req.getAuthType();
+    AuthenticationDetails details = this.authenticationDetailsSource.buildDetails(req);
 
     return buildContext(
         context, token, details, () -> this.authenticationManagerResolver.resolve(req));
@@ -89,7 +89,7 @@ public class SecurityGraphQLContextBuilder extends DefaultGraphQLContextBuilder
   private AuthGraphQLServletContext buildContext(
       AuthGraphQLServletContext context,
       String token,
-      Object details,
+      AuthenticationDetails details,
       Supplier<AuthenticationManager> authenticationResolver) {
     if (token == null) {
       log.trace("Did not process request since did not find bearer token");
@@ -99,8 +99,16 @@ public class SecurityGraphQLContextBuilder extends DefaultGraphQLContextBuilder
       return context;
     }
 
+    TokenType tokenType = TokenType.of(token);
+
     BearerTokenAuthenticationToken authenticationRequest =
-        new BearerTokenAuthenticationToken(token);
+        switch (tokenType) {
+          case JWT -> new BearerTokenAuthenticationToken(token);
+          case API_KEY -> new ApiKeyAuthenticationToken(token);
+          case SESSION_ID -> throw new AuthenticationException("SESSION_ID 未实现");
+          case PERSONAL_ACCESS_TOKEN -> throw new AuthenticationException(
+              "PERSONAL_ACCESS_TOKEN 未实现");
+        };
     authenticationRequest.setDetails(details);
 
     try {
@@ -115,7 +123,7 @@ public class SecurityGraphQLContextBuilder extends DefaultGraphQLContextBuilder
 
       context.setAuthentication(authenticationResult);
     } catch (AuthenticationException failed) {
-      //      log.error("Failed to process authentication request", failed);
+      log.error("Failed to process authentication request", failed);
       context.setAuthentication(authenticationRequest);
     }
     return context;
@@ -132,8 +140,7 @@ public class SecurityGraphQLContextBuilder extends DefaultGraphQLContextBuilder
     String token = webSocketBearerTokenResolver.resolve(session);
 
     AuthGraphQLServletContext context =
-        new AuthGraphQLServletContext(
-            this.dataLoaderRegistry, session, request, securityContext);
+        new AuthGraphQLServletContext(this.dataLoaderRegistry, session, request, securityContext);
 
     return buildContext(
         context,

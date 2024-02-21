@@ -1,5 +1,7 @@
 package net.asany.jfantasy.framework.security.authentication.dao;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.asany.jfantasy.framework.security.AuthenticationException;
 import net.asany.jfantasy.framework.security.authentication.*;
@@ -17,12 +19,12 @@ import org.springframework.context.support.MessageSourceAccessor;
 public abstract class AbstractUserDetailsAuthenticationProvider
     implements AuthenticationProvider<UsernamePasswordAuthenticationToken> {
 
-  protected MessageSourceAccessor messages;
+  @Setter protected MessageSourceAccessor messages;
 
-  private boolean hideUserNotFoundExceptions;
+  @Setter private boolean hideUserNotFoundExceptions;
 
-  private UserDetailsChecker preAuthenticationChecks;
-  private UserDetailsChecker postAuthenticationChecks;
+  @Setter @Getter private UserDetailsChecker preAuthenticationChecks;
+  @Setter @Getter private UserDetailsChecker postAuthenticationChecks;
 
   @Override
   public boolean supports(Class<? extends Authentication> authentication) {
@@ -87,14 +89,6 @@ public abstract class AbstractUserDetailsAuthenticationProvider
       UserDetails userDetails, UsernamePasswordAuthenticationToken authentication)
       throws AuthenticationException;
 
-  public void setPreAuthenticationChecks(UserDetailsChecker preAuthenticationChecks) {
-    this.preAuthenticationChecks = preAuthenticationChecks;
-  }
-
-  public void setPostAuthenticationChecks(UserDetailsChecker postAuthenticationChecks) {
-    this.postAuthenticationChecks = postAuthenticationChecks;
-  }
-
   public static class DefaultPreAuthenticationChecks implements UserDetailsChecker {
 
     private final MessageSourceAccessor messages;
@@ -140,21 +134,5 @@ public abstract class AbstractUserDetailsAuthenticationProvider
                 "User credentials have expired"));
       }
     }
-  }
-
-  public void setMessages(MessageSourceAccessor messages) {
-    this.messages = messages;
-  }
-
-  public void setHideUserNotFoundExceptions(boolean hideUserNotFoundExceptions) {
-    this.hideUserNotFoundExceptions = hideUserNotFoundExceptions;
-  }
-
-  public UserDetailsChecker getPreAuthenticationChecks() {
-    return preAuthenticationChecks;
-  }
-
-  public UserDetailsChecker getPostAuthenticationChecks() {
-    return postAuthenticationChecks;
   }
 }

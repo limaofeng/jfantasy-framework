@@ -9,6 +9,10 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.zip.DeflaterOutputStream;
 import lombok.extern.slf4j.Slf4j;
+import net.asany.jfantasy.framework.jackson.JSON;
+import net.asany.jfantasy.framework.security.auth.oauth2.JwtTokenPayload;
+import net.asany.jfantasy.framework.security.auth.oauth2.jwt.JwtTokenService;
+import net.asany.jfantasy.framework.security.auth.oauth2.jwt.JwtTokenServiceImpl;
 import net.asany.jfantasy.framework.util.common.StringUtil;
 import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,6 +25,7 @@ class JwtTokenServiceTest {
 
   @BeforeEach
   void setUp() {
+    JSON.initialize();
     jwtTokenService = new JwtTokenServiceImpl();
   }
 
@@ -30,7 +35,14 @@ class JwtTokenServiceTest {
     log.debug(" client = " + client);
     String secret = StringUtil.generateNonceString("abcdef0123456789", 40);
     log.debug(" secret = " + secret);
-    String token = jwtTokenService.generateToken("我是 ASANY", secret);
+    JwtTokenPayload payload =
+        JwtTokenPayload.builder()
+            .userId(1L)
+            .name("limaofeng")
+            .email("limaofeng@msn.com")
+            .exp(System.currentTimeMillis() / 1000 + 3600)
+            .build();
+    String token = jwtTokenService.generateToken(JSON.stringify(payload), secret);
     log.debug(" token = " + token);
   }
 

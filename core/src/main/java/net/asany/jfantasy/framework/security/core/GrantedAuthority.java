@@ -2,6 +2,7 @@ package net.asany.jfantasy.framework.security.core;
 
 import net.asany.jfantasy.framework.jackson.deserializer.StringToSetDeserializer;
 import net.asany.jfantasy.framework.jackson.serializer.SetToStringSerializer;
+import net.asany.jfantasy.framework.security.core.authority.SimpleGrantedAuthority;
 
 /**
  * 授予的权限

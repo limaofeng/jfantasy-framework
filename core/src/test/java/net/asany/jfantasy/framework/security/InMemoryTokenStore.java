@@ -2,12 +2,12 @@ package net.asany.jfantasy.framework.security;
 
 import java.util.Collection;
 import java.util.Map;
+import net.asany.jfantasy.framework.security.auth.core.AuthRefreshToken;
+import net.asany.jfantasy.framework.security.auth.core.AuthToken;
+import net.asany.jfantasy.framework.security.auth.core.TokenStore;
+import net.asany.jfantasy.framework.security.auth.oauth2.server.BearerTokenAuthenticationToken;
+import net.asany.jfantasy.framework.security.auth.oauth2.server.authentication.BearerTokenAuthentication;
 import net.asany.jfantasy.framework.security.authentication.Authentication;
-import net.asany.jfantasy.framework.security.oauth2.core.OAuth2AccessToken;
-import net.asany.jfantasy.framework.security.oauth2.core.OAuth2RefreshToken;
-import net.asany.jfantasy.framework.security.oauth2.core.TokenStore;
-import net.asany.jfantasy.framework.security.oauth2.server.BearerTokenAuthenticationToken;
-import net.asany.jfantasy.framework.security.oauth2.server.authentication.BearerTokenAuthentication;
 import org.apache.commons.collections.map.HashedMap;
 
 public class InMemoryTokenStore implements TokenStore {
@@ -25,48 +25,47 @@ public class InMemoryTokenStore implements TokenStore {
   }
 
   @Override
-  public void storeAccessToken(OAuth2AccessToken token, Authentication authentication) {}
+  public void storeAccessToken(AuthToken token, Authentication authentication) {}
 
   @Override
-  public OAuth2AccessToken readAccessToken(String tokenValue) {
+  public AuthToken readAccessToken(String tokenValue) {
     return null;
   }
 
   @Override
-  public void removeAccessToken(OAuth2AccessToken token) {}
+  public void removeAccessToken(AuthToken token) {}
 
   @Override
-  public void storeRefreshToken(OAuth2RefreshToken refreshToken, Authentication authentication) {}
+  public void storeRefreshToken(AuthRefreshToken refreshToken, Authentication authentication) {}
 
   @Override
-  public OAuth2RefreshToken readRefreshToken(String tokenValue) {
+  public AuthRefreshToken readRefreshToken(String tokenValue) {
     return null;
   }
 
   @Override
-  public BearerTokenAuthentication readAuthenticationForRefreshToken(OAuth2RefreshToken token) {
+  public BearerTokenAuthentication readAuthenticationForRefreshToken(AuthRefreshToken token) {
     return null;
   }
 
   @Override
-  public void removeRefreshToken(OAuth2RefreshToken token) {}
+  public void removeRefreshToken(AuthRefreshToken token) {}
 
   @Override
-  public void removeAccessTokenUsingRefreshToken(OAuth2RefreshToken refreshToken) {}
+  public void removeAccessTokenUsingRefreshToken(AuthRefreshToken refreshToken) {}
 
   @Override
-  public OAuth2AccessToken getAccessToken(BearerTokenAuthentication authentication) {
+  public AuthToken getAccessToken(BearerTokenAuthentication authentication) {
     return null;
   }
 
   @Override
-  public Collection<OAuth2AccessToken> findTokensByClientIdAndUserName(
-      String clientId, String userName) {
+  public Collection<AuthToken> findTokensByClientIdAndUserName(String clientId, String userName) {
     return null;
   }
 
   @Override
-  public Collection<OAuth2AccessToken> findTokensByClientId(String clientId) {
+  public Collection<AuthToken> findTokensByClientId(String clientId) {
     return null;
   }
 }

@@ -5,9 +5,8 @@ import graphql.execution.AsyncExecutionStrategy;
 import graphql.execution.ExecutionContext;
 import graphql.execution.ExecutionStrategyParameters;
 import graphql.execution.NonNullableFieldWasNullException;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.concurrent.CompletableFuture;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Mutation 执行策略
@@ -18,9 +17,9 @@ public class AsyncMutationExecutionStrategy extends AsyncExecutionStrategy {
 
   private final InterceptorManager interceptorManager;
 
-    public AsyncMutationExecutionStrategy(InterceptorManager interceptorManager) {
-        this.interceptorManager = interceptorManager;
-    }
+  public AsyncMutationExecutionStrategy(InterceptorManager interceptorManager) {
+    this.interceptorManager = interceptorManager;
+  }
 
   @Override
   @Transactional
@@ -31,15 +30,14 @@ public class AsyncMutationExecutionStrategy extends AsyncExecutionStrategy {
     // 使用 InterceptorManager 在执行前调用拦截器
     interceptorManager.executeBefore(executionContext, parameters);
 
-//    AuthGraphQLServletContext context = executionContext.getContext();
-//    GraphQLContextHolder.setContext(context);
-//    SecurityContextHolder.setContext(context.getSecurityContext());
+    //    AuthGraphQLServletContext context = executionContext.getContext();
+    //    GraphQLContextHolder.setContext(context);
+    //    SecurityContextHolder.setContext(context.getSecurityContext());
 
     CompletableFuture<ExecutionResult> future = super.execute(executionContext, parameters);
 
     // 使用 InterceptorManager 在执行后调用拦截器
-    return future.thenApply(result ->
-      interceptorManager.executeAfter(executionContext, parameters, result)
-    );
+    return future.thenApply(
+        result -> interceptorManager.executeAfter(executionContext, parameters, result));
   }
 }

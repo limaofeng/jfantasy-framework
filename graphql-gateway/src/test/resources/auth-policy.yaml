@@ -8,27 +8,52 @@ resources:
         operations:
           - "Query.listUsers"
 
+public-paths:
+  - "/public/**"
+  - "/home"
+  - "/about-us"
+
+default:
+  effect: "deny"
+
 policies:
   - id: "policy-1"
     description: "Admin access to all services"
     subjects: ["admin"]
-    actions: ["*"]
-    resources: ["*"]
-    effect: "allow"
+    statements:
+      - action: [ "read", "write" ]
+        resource: ["arn:*:*:/users/*"]
+        effect: "allow"
+        condition:
+          - "sourceIp == '10.20.11.223'"
+          - "currentTimestamp() < '2021-03-01T00:00:00Z'"
+          - "secureTransport()"
+      - action: [ "delete" ]
+        resource: ["arn:*:*:/users/*"]
+        effect: "deny"
 
   - id: "policy-2"
     description: "Read-only access to user data"
-    subjects: ["role:user"]
-    actions: ["read"]
-    resources: ["userService:/users/*"]
-    effect: "allow"
+    subjects: ["user"]
+    statements:
+      - action: [ "read" ]
+        resource: ["arn:*:*:/users/*"]
+        effect: "allow"
 
-  - id: "policy-3"
-    description: "Product management access"
-    subjects: ["role:product-manager"]
-    actions: ["create", "update", "delete"]
-    resources: ["productService:/products/*"]
-    effect: "allow"
+roles:
+  - id: "admin"
+    description: "Admin role"
+    permissions:
+      - "policy-1"
+      - "policy-2"
+      - "policy-3"
 
-default:
-  effect: "deny"
+  - id: "user"
+    description: "User role"
+    permissions:
+      - "policy-2"
+
+  - id: "product-manager"
+    description: "Product manager role"
+    permissions:
+      - "policy-3"

@@ -1,34 +1,34 @@
 description = "GraphQL Security"
 
 configurations {
-    compile.exclude module: "tomcat-jdbc"
+	compile.exclude module: "tomcat-jdbc"
 }
 
 apply plugin: 'java-library'
 apply plugin: 'jacoco'
 
 dependencies {
-    implementation project(":jfantasy-commons")
-    implementation ("com.graphql-java-kickstart:graphql-spring-boot-starter:${LIB_GRAPHQL_BOOT_VER}") {
-        exclude group: "com.graphql-java-kickstart", module: "graphql-java-tools"
-        exclude group: "com.graphql-java", module: "graphql-java"
-        exclude group: "org.springframework", module: "spring-webflux"
-        exclude group: "com.graphql-java", module: "graphql-java-extended-scalars"
-    }
-    implementation "com.graphql-java:graphql-java:$LIB_GRAPHQL_JAVA_VER"
-    implementation ("com.graphql-java-kickstart:graphql-java-tools:$LIB_GRAPHQL_JAVA_TOOLS_VER") {
-        exclude group: "com.graphql-java", module: "graphql-java"
-    }
-    implementation ("com.graphql-java:graphql-java-extended-scalars:$LIB_GRAPHQL_SCALARS_VER") {
-        exclude group: "com.graphql-java", module: "graphql-java"
-    }
-    implementation "com.jayway.jsonpath:json-path"
-    implementation project(":jfantasy-core")
-    //noinspection DependencyNotationArgument
-    implementation libs['unirest']
-    compileOnly 'org.springframework.boot:spring-boot-starter-websocket'
-    compileOnly "org.springframework:spring-orm"
-    compileOnly "org.springframework.data:spring-data-jpa"
-    compileOnly 'org.aspectj:aspectjweaver'
-    compileOnly "org.springframework.boot:spring-boot-starter-data-redis"
+	implementation project(":jfantasy-commons")
+	implementation ("com.graphql-java-kickstart:graphql-spring-boot-starter:${LIB_GRAPHQL_BOOT_VER}") {
+		exclude group: "com.graphql-java-kickstart", module: "graphql-java-tools"
+		exclude group: "com.graphql-java", module: "graphql-java"
+		exclude group: "org.springframework", module: "spring-webflux"
+		exclude group: "com.graphql-java", module: "graphql-java-extended-scalars"
+	}
+	implementation "com.graphql-java:graphql-java:$LIB_GRAPHQL_JAVA_VER"
+	implementation ("com.graphql-java-kickstart:graphql-java-tools:$LIB_GRAPHQL_JAVA_TOOLS_VER") {
+		exclude group: "com.graphql-java", module: "graphql-java"
+	}
+	implementation ("com.graphql-java:graphql-java-extended-scalars:$LIB_GRAPHQL_SCALARS_VER") {
+		exclude group: "com.graphql-java", module: "graphql-java"
+	}
+	implementation "com.jayway.jsonpath:json-path"
+	implementation project(":jfantasy-core")
+	//noinspection DependencyNotationArgument
+	implementation libs['unirest']
+	compileOnly 'org.springframework.boot:spring-boot-starter-websocket'
+	compileOnly "org.springframework:spring-orm"
+	compileOnly "org.springframework.data:spring-data-jpa"
+	compileOnly 'org.aspectj:aspectjweaver'
+	compileOnly "org.springframework.boot:spring-boot-starter-data-redis"
 }

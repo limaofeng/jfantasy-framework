@@ -2,6 +2,7 @@ package net.asany.jfantasy.autoconfigure;
 
 import graphql.kickstart.autoconfigure.tools.GraphQLJavaToolsAutoConfiguration;
 import graphql.kickstart.tools.SchemaParserDictionary;
+import java.util.List;
 import net.asany.jfantasy.graphql.SchemaParserDictionaryBuilder;
 import net.asany.jfantasy.graphql.context.DataLoaderRegistryCustomizer;
 import net.asany.jfantasy.graphql.error.GraphQLResolverAdvice;
@@ -16,8 +17,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
-
-import java.util.List;
 
 /**
  * GraphQL 自动配置

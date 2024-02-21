@@ -6,15 +6,18 @@ import graphql.execution.ExecutionStrategyParameters;
 
 public interface ExecutionInterceptor {
 
-  default boolean shouldApply(ExecutionContext executionContext, ExecutionStrategyParameters parameters){
+  default boolean shouldApply(
+      ExecutionContext executionContext, ExecutionStrategyParameters parameters) {
     return true;
   }
 
-  default void beforeExecute(ExecutionContext executionContext, ExecutionStrategyParameters parameters) {
+  default void beforeExecute(
+      ExecutionContext executionContext, ExecutionStrategyParameters parameters) {}
 
-  }
-
-  default ExecutionResult afterExecute(ExecutionContext executionContext, ExecutionStrategyParameters parameters, ExecutionResult result) {
+  default ExecutionResult afterExecute(
+      ExecutionContext executionContext,
+      ExecutionStrategyParameters parameters,
+      ExecutionResult result) {
     return result;
   }
 }

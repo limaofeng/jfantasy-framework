@@ -10,7 +10,8 @@ import net.asany.jfantasy.graphql.security.execution.ExecutionInterceptor;
 public class AuthContextSetupInterceptor implements ExecutionInterceptor {
 
   @Override
-  public void beforeExecute(ExecutionContext executionContext, ExecutionStrategyParameters parameters) {
+  public void beforeExecute(
+      ExecutionContext executionContext, ExecutionStrategyParameters parameters) {
     AuthGraphQLServletContext context = executionContext.getContext();
     GraphQLContextHolder.setContext(context);
     SecurityContextHolder.setContext(context.getSecurityContext());

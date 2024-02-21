@@ -24,7 +24,7 @@ dependencies {
 		exclude group: "com.graphql-java", module: "graphql-java"
 	}
 	api "com.jayway.jsonpath:json-path"
-    implementation project(":jfantasy-core")
+	implementation project(":jfantasy-core")
 	//noinspection DependencyNotationArgument
 	implementation libs['unirest']
 	compileOnly 'org.springframework.boot:spring-boot-starter-websocket'

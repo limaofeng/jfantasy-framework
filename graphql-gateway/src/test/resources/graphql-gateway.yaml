@@ -61,11 +61,17 @@ directives:
 security:
   authentication:
     enabled: true
-    provider: jwt
-    secretKey: "your_secret_key"
+    providers:
+      apikey:
+        enabled: true
+        provider: "net.asany.jfantasy.graphql.gateway.ApiKeyAuthenticationProvider"
+      iam:
+        enabled: true
+        provider: "net.asany.jfantasy.graphql.gateway.IamAuthenticationProvider"
 
   authorization:
     enabled: true
+    mode: "RBAC"
     policy: "./auth-policy.yaml"
 
 logging:
