@@ -52,7 +52,7 @@ public class FileSizeDirective implements SchemaDirectiveWiring {
                       Arrays.binarySearch(
                           FileUtil.UNITS,
                           ((StringValue) Objects.requireNonNull(unit.getValue())).getValue()));
-              return FileUtil.bytesToSize(value * Long.getLong(unitMultiplier + ""));
+              return FileUtil.bytesToSize(value * Long.parseLong(unitMultiplier + ""));
             });
 
     environment.getCodeRegistry().dataFetcher(parentType, field, dataFetcher);
