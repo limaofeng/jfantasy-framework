@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.11.2](https://github.com/limaofeng/jfantasy-framework/compare/v2.11.1...v2.11.2) (2024-03-04)
+
+
+### Bug Fixes
+
+* 修复枚举查询BUG ([e4e62d8](https://github.com/limaofeng/jfantasy-framework/commit/e4e62d85fd9c510e4a6e69da13c5e01a716d83cf))
+
 ### [2.11.1](https://github.com/limaofeng/jfantasy-framework/compare/v2.11.0...v2.11.1) (2023-04-13)
 
 
