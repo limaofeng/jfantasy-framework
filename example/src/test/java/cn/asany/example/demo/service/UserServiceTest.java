@@ -4,7 +4,6 @@ import cn.asany.example.TestApplication;
 import cn.asany.example.demo.domain.User;
 import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.dao.jpa.PropertyFilter;
-import org.jfantasy.framework.dao.jpa.PropertyFilterBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,13 +26,13 @@ class UserServiceTest {
   @Test
   void findPager() {
     Pageable pageable = Pageable.ofSize(10);
-    PropertyFilterBuilder builder =
-        PropertyFilter.builder()
+    PropertyFilter filter =
+        PropertyFilter.newFilter()
             .equal("username", "3")
             .or(
-                PropertyFilter.builder().equal("username", "1").equal("password", "1"),
-                PropertyFilter.builder().equal("username", "2").equal("password", "2"));
-    Page<User> page = this.userService.findPage(pageable, builder.build());
+                PropertyFilter.newFilter().equal("username", "1").equal("password", "1"),
+                PropertyFilter.newFilter().equal("username", "2").equal("password", "2"));
+    Page<User> page = this.userService.findPage(pageable, filter);
     log.debug("TotalCount:" + page.getTotalElements());
   }
 }

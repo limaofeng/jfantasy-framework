@@ -3,7 +3,7 @@ package org.jfantasy.framework.dao;
 import java.sql.*;
 import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
-import org.jfantasy.framework.dao.util.JdbcUtil;
+import org.jfantasy.framework.dao.util.JdbcUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,11 +46,11 @@ public class MysqlEngine {
                       + " engine=InnoDB;");
           preparedStatement.executeUpdate();
         } finally {
-          JdbcUtil.closeConnection(_connection);
+          JdbcUtils.closeConnection(_connection);
         }
       }
     } finally {
-      JdbcUtil.closeConnection(connection);
+      JdbcUtils.closeConnection(connection);
     }
   }
 }

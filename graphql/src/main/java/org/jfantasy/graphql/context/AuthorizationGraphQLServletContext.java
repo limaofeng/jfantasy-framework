@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.websocket.Session;
 import javax.websocket.server.HandshakeRequest;
 import org.dataloader.DataLoaderRegistry;
+import org.jetbrains.annotations.NotNull;
 import org.jfantasy.framework.security.SecurityContext;
 import org.jfantasy.framework.security.authentication.Authentication;
 
@@ -18,7 +19,6 @@ import org.jfantasy.framework.security.authentication.Authentication;
  *
  * @author limaofeng
  * @version V1.0
- * @date 2020/4/26 11:33 上午
  */
 public class AuthorizationGraphQLServletContext implements GraphQLContext {
 
@@ -28,7 +28,7 @@ public class AuthorizationGraphQLServletContext implements GraphQLContext {
   private DataLoaderRegistry dataLoaderRegistry;
   private HandshakeRequest handshakeRequest;
   private Authentication authentication;
-  private SecurityContext securityContext;
+  private final SecurityContext securityContext;
   private final Map<String, Object> attributes = new HashMap<>();
 
   public AuthorizationGraphQLServletContext(
@@ -38,9 +38,11 @@ public class AuthorizationGraphQLServletContext implements GraphQLContext {
     this.securityContext = securityContext;
   }
 
-  public AuthorizationGraphQLServletContext(Session session, HandshakeRequest request) {
+  public AuthorizationGraphQLServletContext(
+      Session session, HandshakeRequest request, SecurityContext securityContext) {
     this.session = session;
     this.handshakeRequest = request;
+    this.securityContext = securityContext;
   }
 
   @Override
@@ -48,6 +50,7 @@ public class AuthorizationGraphQLServletContext implements GraphQLContext {
     return Optional.empty();
   }
 
+  @NotNull
   @Override
   public DataLoaderRegistry getDataLoaderRegistry() {
     return dataLoaderRegistry;

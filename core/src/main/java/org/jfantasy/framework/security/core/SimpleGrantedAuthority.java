@@ -21,7 +21,7 @@ public class SimpleGrantedAuthority implements GrantedAuthority {
     code = authority.substring(index + 1);
   }
 
-  public static GrantedAuthority newInstance(String authority) {
+  public static SimpleGrantedAuthority newInstance(String authority) {
     return new SimpleGrantedAuthority(authority);
   }
 

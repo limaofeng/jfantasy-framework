@@ -27,70 +27,70 @@ public interface JpaRepository<T, PK extends Serializable>
    *
    * @return JpaEntityInformation
    */
-  JpaEntityInformation getJpaEntityInformation();
+  JpaEntityInformation<T, PK> getJpaEntityInformation();
 
   /**
    * 查询数据集
    *
-   * @param filters 过滤器
+   * @param filter 过滤器
    * @return List<T>
    */
-  List<T> findAll(List<PropertyFilter> filters);
+  List<T> findAll(PropertyFilter filter);
 
   /**
    * 查询数据集
    *
-   * @param filters 过滤器
+   * @param filter 过滤器
    * @param sort 排序
    * @return List<T>
    */
-  List<T> findAll(List<PropertyFilter> filters, Sort sort);
+  List<T> findAll(PropertyFilter filter, Sort sort);
 
   /**
    * 查询数据集
    *
-   * @param filters 过滤器
+   * @param filter 过滤器
    * @param size 返回结果集最大行数
    * @return List<T>
    */
-  List<T> findAll(List<PropertyFilter> filters, int size);
+  List<T> findAll(PropertyFilter filter, int size);
 
   /**
    * 查询数据集
    *
-   * @param filters 过滤器
+   * @param filter 过滤器
    * @param size 返回结果集最大行数
    * @param sort 排序
    * @return List<T>
    */
-  List<T> findAll(List<PropertyFilter> filters, int size, Sort sort);
+  List<T> findAll(PropertyFilter filter, int size, Sort sort);
 
   /**
    * 查询数据集
    *
-   * @param filters 过滤器
+   * @param filter 过滤器
    * @param offset 偏移量
    * @param limit 返回结果集最大行数
    * @param sort 排序
    * @return List<T>
    */
-  List<T> findAll(List<PropertyFilter> filters, int offset, int limit, Sort sort);
+  List<T> findAll(PropertyFilter filter, int offset, int limit, Sort sort);
 
   /**
    * 通过过滤器返回唯一对象
    *
-   * @param filters 过滤器
+   * @param filter 过滤器
    * @return Optional<T>
    */
-  Optional<T> findOne(List<PropertyFilter> filters);
+  Optional<T> findOne(PropertyFilter filter);
 
   /**
    * 判断数据是否存在
    *
-   * @param filters 过滤器
+   * @param filter 过滤器
    * @return boolean
    */
-  boolean exists(List<PropertyFilter> filters);
+  boolean exists(PropertyFilter filter);
 
   /**
    * 唯一字段查询
@@ -104,19 +104,19 @@ public interface JpaRepository<T, PK extends Serializable>
   /**
    * 数据集数量
    *
-   * @param filters 过滤
+   * @param filter 过滤
    * @return long
    */
-  long count(List<PropertyFilter> filters);
+  long count(PropertyFilter filter);
 
   /**
    * 分页查询
    *
    * @param pageable 分页对象
-   * @param filters 过滤
+   * @param filter 过滤
    * @return Pager<T>
    */
-  Page<T> findPage(Pageable pageable, List<PropertyFilter> filters);
+  Page<T> findPage(Pageable pageable, PropertyFilter filter);
 
   /**
    * 分页查询

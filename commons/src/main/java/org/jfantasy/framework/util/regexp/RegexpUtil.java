@@ -20,7 +20,7 @@ import org.jfantasy.framework.util.error.InputDataException;
 @Slf4j
 public class RegexpUtil {
 
-  private static final ConcurrentHashMap<String, Pattern> patternCache = new ConcurrentHashMap<>();
+  private static final ConcurrentHashMap<String, Pattern> PATTERN_CACHE = new ConcurrentHashMap<>();
 
   private RegexpUtil() {}
 
@@ -32,13 +32,13 @@ public class RegexpUtil {
     if (StringUtil.isBlank(patternString)) {
       throw new InputDataException("pattern string is space");
     }
-    if (!patternCache.containsKey(patternString)) {
+    if (!PATTERN_CACHE.containsKey(patternString)) {
       if (log.isDebugEnabled()) {
         log.debug("缓存正则表达式:" + patternString);
       }
-      patternCache.putIfAbsent(patternString, Pattern.compile(patternString));
+      PATTERN_CACHE.putIfAbsent(patternString, Pattern.compile(patternString));
     }
-    return patternCache.get(patternString);
+    return PATTERN_CACHE.get(patternString);
   }
 
   public static Group parseFirstGroup(String input, String regEx) {

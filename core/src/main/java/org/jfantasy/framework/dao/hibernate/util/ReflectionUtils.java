@@ -151,7 +151,6 @@ public final class ReflectionUtils {
     return ClassUtil.getInterfaceGenricType(clazz, interfaceClazz, index);
   }
 
-  @SuppressWarnings("unchecked")
   public static <T> Class<T> getSuperClassGenricType(Class clazz, int index) {
     return ClassUtil.getSuperClassGenricType(clazz, index);
   }

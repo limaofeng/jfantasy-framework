@@ -17,11 +17,10 @@ import org.springframework.context.annotation.Import;
 public class WebStarterAutoConfiguration {
 
   /**
-   * 自定义 TomcatServletWebServerFactory 禁用自带的 Tomcat Session
+   * TODO: 自定义 TomcatServletWebServerFactory 禁用自带的 Tomcat Session
    *
    * @return TomcatServletWebServerFactory
    */
-  //  @Bean
   public CustomTomcatContextCustomizer customTomcatContextCustomizer() {
     return new CustomTomcatContextCustomizer();
   }

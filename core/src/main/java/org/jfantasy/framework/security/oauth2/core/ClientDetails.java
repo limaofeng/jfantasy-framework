@@ -73,7 +73,7 @@ public interface ClientDetails {
   /**
    * Token 失效时间（分钟）
    *
-   * @return int
+   * @return Integer
    */
-  int getTokenExpires();
+  Integer getTokenExpires();
 }

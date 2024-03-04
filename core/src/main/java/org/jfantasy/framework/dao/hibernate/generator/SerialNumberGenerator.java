@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.Properties;
 import org.hibernate.HibernateException;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
-import org.hibernate.id.Configurable;
 import org.hibernate.id.IdentifierGenerator;
 import org.hibernate.service.ServiceRegistry;
 import org.hibernate.type.Type;
@@ -12,7 +11,7 @@ import org.jfantasy.framework.spring.SpELUtil;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 
-public class SerialNumberGenerator implements IdentifierGenerator, Configurable {
+public class SerialNumberGenerator implements IdentifierGenerator {
 
   private final SpelExpressionParser parser = new SpelExpressionParser();
   private Expression expression;

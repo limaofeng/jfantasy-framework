@@ -1,37 +1,50 @@
 package org.jfantasy.framework.dao.jpa;
 
+import java.util.ArrayList;
 import java.util.List;
-import lombok.extern.slf4j.Slf4j;
+import org.jfantasy.framework.dao.MatchType;
+import org.jfantasy.framework.jackson.models.User;
 import org.junit.jupiter.api.Test;
 
-@Slf4j
-public class PropertyFilterTest {
+class PropertyFilterTest {
 
-  @Test
-  public void getPropertyValue() {
-    PropertyFilter filter = new PropertyFilter(PropertyFilter.MatchType.EQ, "name", "limaofeng");
-    System.out.println(filter.getPropertyValue(String.class));
+  static class UserPropertyFilter extends PropertyFilterBuilder<UserPropertyFilter, List<String>>
+      implements PropertyFilter {
+
+    UserPropertyFilter() {
+      super(new ArrayList<>());
+      this.custom(
+          "name",
+          new MatchType[] {MatchType.EQ},
+          (name, matchType, value, context) -> {
+            if (matchType == MatchType.EQ) {
+              context.add(value.toString());
+            }
+          });
+    }
+
+    public static PropertyFilter newFilter() {
+      return new UserPropertyFilter();
+    }
+
+    @Override
+    public String build() {
+      return "";
+    }
   }
 
   @Test
-  void getMatchType() {
-    PropertyFilter.MatchType matchType = PropertyFilter.MatchType.get("gt");
-    PropertyFilterBuilder builder = PropertyFilter.builder();
-    assert matchType != null;
-    matchType.build(builder, "age", "30");
-    List<PropertyFilter> filters = builder.build();
-    System.out.println(filters.size());
-  }
+  void builder() {
+    PropertyFilter filter = UserPropertyFilter.newFilter().equal("name", "123");
+    filter.build();
 
-  @Test
-  void getMatchTypeOfNotStartsWith() {
-    PropertyFilter.MatchType matchType = PropertyFilter.MatchType.get("notStartsWith");
-    System.out.println(matchType);
-  }
+    PropertyFilter.register(User.class, UserPropertyFilter.class);
 
-  @Test
-  void testToString() {
-    List<PropertyFilter> filters = PropertyFilter.builder().in("aaa", "12").build();
-    log.debug(filters.toString());
+    PropertyFilter userFilter = PropertyFilter.newFilter(User.class);
+
+    userFilter.equal("name", "123").build();
+
+    PropertyFilter.newFilter().equal("name", "123").build();
+    PropertyFilter.newFilter().contains("", "123").build();
   }
 }

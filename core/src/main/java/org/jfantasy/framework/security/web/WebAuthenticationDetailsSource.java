@@ -4,7 +4,11 @@ import javax.servlet.http.HttpServletRequest;
 import org.jfantasy.framework.security.authentication.AuthenticationDetailsSource;
 import org.jfantasy.framework.security.web.authentication.WebAuthenticationDetails;
 
-/** @author limaofeng */
+/**
+ * WebAuthenticationDetailsSource
+ *
+ * @author limaofeng
+ */
 public class WebAuthenticationDetailsSource
     implements AuthenticationDetailsSource<HttpServletRequest, WebAuthenticationDetails> {
 

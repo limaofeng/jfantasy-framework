@@ -14,8 +14,11 @@ import org.apache.ibatis.mapping.ResultMapping;
 import org.apache.ibatis.mapping.SqlCommandType;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSession;
+import org.jfantasy.framework.dao.MatchType;
 import org.jfantasy.framework.dao.Page;
 import org.jfantasy.framework.dao.Pagination;
+import org.jfantasy.framework.dao.jpa.JpaDefaultPropertyFilter;
+import org.jfantasy.framework.dao.jpa.PropertyPredicate;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
 
@@ -103,7 +106,7 @@ public class MyBatisMapperMethod {
           || (ClassUtil.isPrimitiveWrapper(args[this.paramPositions.get(0)].getClass()))) {
         param.put("value", args[this.paramPositions.get(0)]);
       } else {
-        param.putAll(ObjectUtil.toMap(args[this.paramPositions.get(0)]));
+        param.putAll(getParamValue(args[this.paramPositions.get(0)]));
       }
       param.put("page", getPager((Page<Object>) args[this.pageIndex]));
       return param;
@@ -113,6 +116,22 @@ public class MyBatisMapperMethod {
     }
     param.put("page", getPager((Page<Object>) args[this.pageIndex]));
     return param;
+  }
+
+  private Map<String, Object> getParamValue(Object object) {
+    if (object instanceof JpaDefaultPropertyFilter) {
+      List<PropertyPredicate> predicates = ((JpaDefaultPropertyFilter) object).build();
+      Map<String, Object> value = new HashMap<>(predicates.size());
+      for (PropertyPredicate predicate : predicates) {
+        if (predicate.getMatchType() == MatchType.EQ) {
+          value.put(predicate.getPropertyName(), predicate.getPropertyValue());
+        } else {
+          value.put(predicate.getFilterName(), predicate.getPropertyValue());
+        }
+      }
+      return value;
+    }
+    return ObjectUtil.toMap(object);
   }
 
   /**

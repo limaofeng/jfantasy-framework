@@ -3,10 +3,11 @@ package cn.asany.example.demo.service;
 import cn.asany.example.demo.dao.UserDao;
 import cn.asany.example.demo.domain.User;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.jfantasy.framework.dao.datasource.DataSourceContextHolder;
 import org.jfantasy.framework.dao.jpa.PropertyFilter;
+import org.jfantasy.framework.log.annotation.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,8 +31,14 @@ public class UserService {
    *
    * @param user 用户对象
    */
+  @Log(text = "保存用户: {name}")
   public User save(User user) {
-    return this.userDao.save(user);
+    try {
+      DataSourceContextHolder.addDataSourceRoute("test1");
+      return this.userDao.save(user);
+    } finally {
+      DataSourceContextHolder.removeDataSourceRoute();
+    }
   }
 
   public User update(Long id, boolean merge, User user) {
@@ -39,8 +46,8 @@ public class UserService {
     return this.userDao.update(user, merge);
   }
 
-  public Page<User> findPage(Pageable pageable, List<PropertyFilter> filters) {
-    return this.userDao.findPage(pageable, filters);
+  public Page<User> findPage(Pageable pageable, PropertyFilter filter) {
+    return this.userDao.findPage(pageable, filter);
   }
 
   public void delete(Long... ids) {

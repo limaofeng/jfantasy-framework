@@ -10,26 +10,36 @@ apply plugin: 'jacoco'
 dependencies {
 	api project(":jfantasy-commons")
 	// spring boot
+	// noinspection DependencyNotationArgument
 	api libs['springBoot']
 	// quartz
+	// noinspection DependencyNotationArgument
 	api libs['quartz']
 	// orm
+	// noinspection DependencyNotationArgument
 	api libs['orm']
 	// unirest
+	// noinspection DependencyNotationArgument
 	api libs['unirest']
 	// commons
+	// noinspection DependencyNotationArgument
 	api libs['commons']
 	// ognl and cglib
+	// noinspection DependencyNotationArgument
 	api libs['third-party']
 	api 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
 	api "com.jayway.jsonpath:json-path"
+	compileOnly "cn.hutool:hutool-all:5.8.11"
 	compileOnly "org.springframework.boot:spring-boot-starter-data-redis"
+	compileOnly "org.apache.shardingsphere:sharding-jdbc-core:4.1.1"
 	compileOnly "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
 	annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 	annotationProcessor "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
 	testCompileOnly "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
 	testAnnotationProcessor "org.projectlombok:lombok:${LIB_LOMBOK_VER}"
+	// noinspection DependencyNotationArgument
 	testImplementation libs['test']
+	testImplementation files('/Library/Java/JavaVirtualMachines/jdk1.8.0_144.jdk/Contents/Home/lib/tools.jar')
 }
 
 repositories {

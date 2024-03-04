@@ -1,32 +1,101 @@
 package org.jfantasy.framework.dao.jpa;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.lang.reflect.Field;
+import java.util.*;
 import java.util.stream.Collectors;
-import org.jfantasy.framework.dao.jpa.PropertyFilter.MatchType;
-import org.springframework.data.jpa.domain.Specification;
+import org.jfantasy.framework.dao.MatchType;
+import org.jfantasy.framework.util.common.ClassUtil;
 
 /**
  * 属性过滤器 构造器
  *
  * @author limaofeng
  * @version V1.0
- * @date 2019-04-22 17:55
  */
-public class PropertyFilterBuilder {
+public abstract class PropertyFilterBuilder<P extends PropertyFilter, C> implements PropertyFilter {
 
-  private List<PropertyFilter> filters = new ArrayList<>();
+  protected C context;
+  protected Class<?> entityClass;
+  protected final Map<String, PropertyDefinition<C>> properties = new HashMap<>();
+  protected final Map<String, JunctionPredicateCallback<C>> junctions = new HashMap<>();
+  protected static Map<Class<?>, Class<? extends PropertyFilter>> FILTERS = new HashMap<>();
+  protected static final Map<Class<?>, Map<String, TypeConverter<?>>> CUSTOM_CONVERTERS =
+      new HashMap<>();
+  protected static final Map<Class<?>, Map<String, PropertyDefinition<?>>> CUSTOM_PROPERTIES =
+      new HashMap<>();
 
-  public PropertyFilterBuilder() {}
-
-  public PropertyFilterBuilder(List<PropertyFilter> filters) {
-    this.filters = filters;
+  protected PropertyFilterBuilder(Class<?> entityClass, C context) {
+    this.context = context;
+    this.entityClass = entityClass;
   }
 
-  public List<PropertyFilter> build() {
-    return this.filters;
+  protected PropertyFilterBuilder(C context) {
+    this.context = context;
   }
+
+  protected static Map<String, TypeConverter<?>> initDefaultConverters(Class<?> entityClass) {
+    return PropertyFilterBuilder.CUSTOM_CONVERTERS.computeIfAbsent(
+        entityClass,
+        (clazz) -> {
+          Map<String, TypeConverter<?>> fields = new HashMap<>();
+          for (Field field : ClassUtil.getDeclaredFields(clazz)) {
+            if (ClassUtil.isBasicType(field.getType())) {
+              fields.put(field.getName(), new DefaultTypeConverter<>(field.getType()));
+            }
+          }
+          return fields;
+        });
+  }
+
+  protected void junction(MatchType matchType, JunctionPredicateCallback<C> junction) {
+    junctions.put(matchType.name(), junction);
+  }
+
+  protected void property(PropertyPredicateCallback<C> property) {
+    PropertyDefinition<C> definition = PropertyDefinition.<C>builder().name("*").build();
+    definition.getPredicates().put("*", property);
+    properties.put("*", definition);
+  }
+
+  protected void custom(String name, PropertyPredicateCallback<C> callback) {
+    PropertyDefinition<C> definition = PropertyDefinition.<C>builder().name(name).build();
+    definition.getPredicates().put("*", callback);
+    properties.put(name, definition);
+  }
+
+  protected void custom(
+      String name, MatchType[] matchTypes, PropertyPredicateCallback<C> callback) {
+    PropertyDefinition<C> definition = PropertyDefinition.<C>builder().name(name).build();
+    for (MatchType matchType : matchTypes) {
+      definition.getPredicates().put(matchType.name(), callback);
+    }
+    properties.put(name, definition);
+  }
+
+  protected PropertyPredicateCallback<C> predicate(String name, MatchType matchType) {
+    PropertyDefinition<C> definition = this.properties.get(name);
+    if (definition == null) {
+      definition = this.properties.get("*");
+    }
+    if (definition == null) {
+      throw new PropertyNotFoundException(name);
+    }
+    PropertyPredicateCallback<C> predicate = definition.getPredicates().get(matchType.name());
+    if (predicate == null) {
+      predicate = definition.getPredicates().get("*");
+    }
+    if (predicate == null) {
+      throw new PropertyNotFoundException(name, "未匹配到[" + matchType.name() + "]对应的过滤条件");
+    }
+    return predicate;
+  }
+
+  private JunctionPredicateCallback<C> junction(MatchType matchType) {
+    return this.junctions.get(matchType.name());
+  }
+
+  @Override
+  public abstract <T> T build();
 
   /**
    * 等于
@@ -36,9 +105,11 @@ public class PropertyFilterBuilder {
    * @param <T> 泛型
    * @return PropertyFilterBuilder
    */
-  public <T> PropertyFilterBuilder equal(String name, T value) {
-    this.filters.add(new PropertyFilter(MatchType.EQ, name, value));
-    return this;
+  @Override
+  public <T> P equal(String name, T value) {
+    this.predicate(name, MatchType.EQ)
+        .apply(name, MatchType.EQ, convert(name, MatchType.EQ, value), context);
+    return (P) this;
   }
 
   /**
@@ -48,76 +119,99 @@ public class PropertyFilterBuilder {
    * @param value 值
    * @return PropertyFilterBuilder
    */
-  public PropertyFilterBuilder contains(String name, String value) {
-    this.filters.add(new PropertyFilter(MatchType.CONTAINS, name, value));
-    return this;
+  @Override
+  public P contains(String name, String value) {
+    this.predicate(name, MatchType.CONTAINS).apply(name, MatchType.CONTAINS, value, context);
+    return (P) this;
   }
 
-  public PropertyFilterBuilder notContains(String name, String value) {
-    this.filters.add(new PropertyFilter(MatchType.NOT_CONTAINS, name, value));
-    return this;
+  @Override
+  public P notContains(String name, String value) {
+    this.predicate(name, MatchType.NOT_CONTAINS)
+        .apply(name, MatchType.NOT_CONTAINS, value, context);
+    return (P) this;
   }
 
-  public PropertyFilterBuilder startsWith(String name, String value) {
-    this.filters.add(new PropertyFilter(MatchType.STARTS_WITH, name, value + "%"));
-    return this;
+  @Override
+  public P startsWith(String name, String value) {
+    this.predicate(name, MatchType.STARTS_WITH)
+        .apply(name, MatchType.STARTS_WITH, value + "%", context);
+    return (P) this;
   }
 
-  public PropertyFilterBuilder notStartsWith(String name, String value) {
-    this.filters.add(new PropertyFilter(MatchType.NOT_STARTS_WITH, name, value + "%"));
-    return this;
+  @Override
+  public P notStartsWith(String name, String value) {
+    this.predicate(name, MatchType.NOT_STARTS_WITH)
+        .apply(name, MatchType.NOT_STARTS_WITH, value + "%", context);
+    return (P) this;
   }
 
-  public PropertyFilterBuilder endsWith(String name, String value) {
-    this.filters.add(new PropertyFilter(MatchType.ENDS_WITH, name, "%" + value));
-    return this;
+  @Override
+  public P endsWith(String name, String value) {
+    this.predicate(name, MatchType.ENDS_WITH)
+        .apply(name, MatchType.ENDS_WITH, "%" + value, context);
+    return (P) this;
   }
 
-  public PropertyFilterBuilder notEndsWith(String name, String value) {
-    this.filters.add(new PropertyFilter(MatchType.NOT_ENDS_WITH, name, "%" + value));
-    return this;
+  @Override
+  public P notEndsWith(String name, String value) {
+    this.predicate(name, MatchType.NOT_ENDS_WITH)
+        .apply(name, MatchType.NOT_ENDS_WITH, "%" + value, context);
+    return (P) this;
   }
 
   /** 小于 */
-  public <T> PropertyFilterBuilder lessThan(String name, T value) {
-    this.filters.add(new PropertyFilter(MatchType.LT, name, value));
-    return this;
+  @Override
+  public <T> P lessThan(String name, T value) {
+    this.predicate(name, MatchType.LT)
+        .apply(name, MatchType.LT, convert(name, MatchType.LT, value), context);
+    return (P) this;
   }
 
   /** 大于 */
-  public PropertyFilterBuilder greaterThan(String name, Object value) {
-    this.filters.add(new PropertyFilter(MatchType.GT, name, value));
-    return this;
+  @Override
+  public P greaterThan(String name, Object value) {
+    this.predicate(name, MatchType.GT)
+        .apply(name, MatchType.GT, convert(name, MatchType.GT, value), context);
+    return (P) this;
   }
 
   /** 小于等于 */
-  public PropertyFilterBuilder lessThanOrEqual(String name, Object value) {
-    this.filters.add(new PropertyFilter(MatchType.LTE, name, value));
-    return this;
+  @Override
+  public P lessThanOrEqual(String name, Object value) {
+    this.predicate(name, MatchType.LTE)
+        .apply(name, MatchType.LTE, convert(name, MatchType.LTE, value), context);
+    return (P) this;
   }
 
   /** 大于等于 */
-  public PropertyFilterBuilder greaterThanOrEqual(String name, Object value) {
-    this.filters.add(new PropertyFilter(MatchType.GTE, name, value));
-    return this;
+  @Override
+  public P greaterThanOrEqual(String name, Object value) {
+    this.predicate(name, MatchType.GTE)
+        .apply(name, MatchType.GTE, convert(name, MatchType.GTE, value), context);
+    return (P) this;
   }
 
   /** in */
   @SafeVarargs
-  public final <T> PropertyFilterBuilder in(String name, T... value) {
-    this.filters.add(new PropertyFilter(MatchType.IN, name, value));
-    return this;
+  @Override
+  public final <T> P in(String name, T... value) {
+    this.predicate(name, MatchType.IN)
+        .apply(name, MatchType.IN, convert(name, MatchType.IN, value), context);
+    return (P) this;
   }
 
   /**
    * @param name 名称
    * @param value 值
    * @param <T> 泛型
-   * @return PropertyFilterBuilder
+   * @return PropertyFilter
    */
-  public <T> PropertyFilterBuilder in(String name, List<T> value) {
-    this.filters.add(new PropertyFilter(MatchType.IN, name, value));
-    return this;
+  @Override
+  public <T> P in(String name, List<T> value) {
+    this.predicate(name, MatchType.IN)
+        .apply(name, MatchType.IN, convert(name, MatchType.IN, value), context);
+    return (P) this;
   }
 
   /**
@@ -126,109 +220,136 @@ public class PropertyFilterBuilder {
    * @param name 名称
    * @param value 值
    * @param <T> 泛型
-   * @return PropertyFilterBuilder
+   * @return PropertyFilter
    */
   @SafeVarargs
-  public final <T> PropertyFilterBuilder notIn(String name, T... value) {
-    this.filters.add(new PropertyFilter(MatchType.NOT_IN, name, value));
-    return this;
+  @Override
+  public final <T> P notIn(String name, T... value) {
+    this.predicate(name, MatchType.NOT_IN)
+        .apply(name, MatchType.NOT_IN, convert(name, MatchType.NOT_IN, value), context);
+    return (P) this;
   }
 
   /** 不等于 */
-  public <T> PropertyFilterBuilder notEqual(String name, T value) {
-    this.filters.add(new PropertyFilter(MatchType.NOT_EQUAL, name, value));
-    return this;
+  @Override
+  public <T> P notEqual(String name, T value) {
+    this.predicate(name, MatchType.NOT_EQUAL)
+        .apply(name, MatchType.NOT_EQUAL, convert(name, MatchType.NOT_EQUAL, value), context);
+    return (P) this;
   }
 
   /** is null */
-  public PropertyFilterBuilder isNull(String name) {
-    this.filters.add(new PropertyFilter(MatchType.NULL, name));
-    return this;
+  @Override
+  public P isNull(String name) {
+    this.predicate(name, MatchType.NULL).apply(name, MatchType.NULL, null, context);
+    return (P) this;
   }
 
   /** not null */
-  public PropertyFilterBuilder isNotNull(String name) {
-    this.filters.add(new PropertyFilter(MatchType.NOT_NULL, name));
-    return this;
+  @Override
+  public P isNotNull(String name) {
+    this.predicate(name, MatchType.NOT_NULL).apply(name, MatchType.NOT_NULL, null, context);
+    return (P) this;
   }
 
   /** */
-  public PropertyFilterBuilder isEmpty(String name) {
-    this.filters.add(new PropertyFilter(MatchType.EMPTY, name));
-    return this;
+  @Override
+  public P isEmpty(String name) {
+    this.predicate(name, MatchType.EMPTY).apply(name, MatchType.EMPTY, null, context);
+    return (P) this;
   }
 
   /** */
-  public PropertyFilterBuilder isNotEmpty(String name) {
-    this.filters.add(new PropertyFilter(MatchType.NOT_EMPTY, name));
-    return this;
+  @Override
+  public P isNotEmpty(String name) {
+    this.predicate(name, MatchType.NOT_EMPTY).apply(name, MatchType.NOT_EMPTY, null, context);
+    return (P) this;
   }
 
-  public <Y extends Comparable<? super Y>> PropertyFilterBuilder between(String name, Y x, Y y) {
-    this.filters.add(new PropertyFilter(MatchType.BETWEEN, name, x, y));
-    return this;
+  @Override
+  public <Y extends Comparable<? super Y>> P between(String name, Y x, Y y) {
+    this.predicate(name, MatchType.BETWEEN)
+        .apply(name, MatchType.BETWEEN, new BetweenValue<>(x, y), context);
+    return (P) this;
   }
 
-  public PropertyFilterBuilder and(PropertyFilterBuilder... builders) {
-    this.filters.add(
-        new PropertyFilter(
-            MatchType.AND,
-            Arrays.stream(builders)
-                .map(PropertyFilterBuilder::build)
-                .collect(Collectors.toList())));
-    return this;
+  @Override
+  public P and(PropertyFilter... filters) {
+    this.junction(MatchType.AND).apply(context, MatchType.AND, filters);
+    return (P) this;
   }
 
-  @SafeVarargs
-  public final PropertyFilterBuilder and(List<PropertyFilter>... filters) {
-    this.filters.add(new PropertyFilter(MatchType.AND, Arrays.asList(filters)));
-    return this;
+  @Override
+  public P or(PropertyFilter... filters) {
+    this.junction(MatchType.OR).apply(context, MatchType.OR, filters);
+    return (P) this;
   }
 
-  public PropertyFilterBuilder and(Specification... specifications) {
-    this.filters.add(new PropertyFilter(MatchType.AND, Arrays.asList(specifications)));
-    return this;
+  @Override
+  public P not(PropertyFilter... filters) {
+    this.junction(MatchType.NOT).apply(context, MatchType.NOT, filters);
+    return (P) this;
   }
 
-  @SafeVarargs
-  public final PropertyFilterBuilder or(List<PropertyFilter>... filters) {
-    this.filters.add(new PropertyFilter(MatchType.OR, Arrays.asList(filters)));
-    return this;
+  public List<String> getPropertyNames() {
+    return this.properties.keySet().stream()
+        .filter(name -> !"*".equals(name))
+        .collect(Collectors.toList());
   }
 
-  public PropertyFilterBuilder or(PropertyFilterBuilder... builders) {
-    this.filters.add(
-        new PropertyFilter(
-            MatchType.OR,
-            Arrays.stream(builders)
-                .map(PropertyFilterBuilder::build)
-                .collect(Collectors.toList())));
-    return this;
+  protected interface PropertyPredicateCallback<C> {
+    /**
+     * 应用
+     *
+     * @param name 名称
+     * @param matchType 匹配类型
+     * @param value 值
+     * @param context 上下文
+     */
+    void apply(String name, MatchType matchType, Object value, C context);
   }
 
-  public PropertyFilterBuilder or(Specification... specifications) {
-    this.filters.add(new PropertyFilter(MatchType.OR, specifications));
-    return this;
+  /**
+   * 复杂条件连接器
+   *
+   * @param <C>
+   */
+  protected interface JunctionPredicateCallback<C> {
+    /**
+     * 应用
+     *
+     * @param context 上下文
+     * @param matchType 匹配类型
+     * @param filters 过滤器
+     */
+    void apply(C context, MatchType matchType, PropertyFilter... filters);
   }
 
-  @SafeVarargs
-  public final PropertyFilterBuilder not(List<PropertyFilter>... filters) {
-    this.filters.add(new PropertyFilter(MatchType.NOT, Arrays.asList(filters)));
-    return this;
+  protected <IV, OV> OV convert(String name, MatchType matchType, IV value) {
+    if (entityClass == null || !CUSTOM_CONVERTERS.containsKey(entityClass)) {
+      return (OV) value;
+    }
+    Map<String, TypeConverter<?>> typeConverterMap = CUSTOM_CONVERTERS.get(entityClass);
+    if (!typeConverterMap.containsKey(name)) {
+      return (OV) value;
+    }
+    TypeConverter<?> converter = typeConverterMap.get(name);
+    if (MatchType.isMultipleValues(matchType)) {
+      return (OV)
+          Arrays.stream(multipleValuesObjectsObjects(value))
+              .map(converter::convert)
+              .toArray(Object[]::new);
+    }
+    return (OV) converter.convert(value);
   }
 
-  public PropertyFilterBuilder not(PropertyFilterBuilder... builders) {
-    this.filters.add(
-        new PropertyFilter(
-            MatchType.NOT,
-            Arrays.stream(builders)
-                .map(PropertyFilterBuilder::build)
-                .collect(Collectors.toList())));
-    return this;
-  }
-
-  public PropertyFilterBuilder not(Specification... specifications) {
-    this.filters.add(new PropertyFilter(MatchType.NOT, specifications));
-    return this;
+  public static <T> T[] multipleValuesObjectsObjects(Object value) {
+    if (ClassUtil.isArray(value)) {
+      return (T[]) value;
+    }
+    if (ClassUtil.isList(value)) {
+      return (T[]) ((Collection<?>) value).toArray();
+    }
+    return (T[]) new Object[] {value};
   }
 }

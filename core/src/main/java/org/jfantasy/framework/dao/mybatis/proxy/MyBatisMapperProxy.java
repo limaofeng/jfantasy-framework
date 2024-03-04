@@ -118,7 +118,6 @@ public class MyBatisMapperProxy implements InvocationHandler {
    * @param sqlSession sqlSession
    * @return T
    */
-  @SuppressWarnings("unchecked")
   public static <T> T newMapperProxy(Class<T> mapperInterface, SqlSession sqlSession) {
     ClassLoader classLoader = mapperInterface.getClassLoader();
     Class<?>[] interfaces = {mapperInterface};

@@ -9,9 +9,14 @@ import org.jfantasy.framework.security.oauth2.server.BearerTokenErrors;
 import org.springframework.http.HttpHeaders;
 import org.springframework.util.StringUtils;
 
-public class DefaultBearerTokenResolver implements BearerTokenResolver {
+/**
+ * Http 请求头中获取 BearerToken
+ *
+ * @author limaofeng
+ */
+public class DefaultBearerTokenResolver implements BearerTokenResolver<HttpServletRequest> {
 
-  private static final Pattern AUTHORIZATION_PATTERN =
+  protected static final Pattern AUTHORIZATION_PATTERN =
       Pattern.compile("^Bearer (?<token>[a-zA-Z0-9-._~+/]+=*)$", Pattern.CASE_INSENSITIVE);
 
   private boolean allowFormEncodedBodyParameter = false;

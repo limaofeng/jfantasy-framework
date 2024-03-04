@@ -10,6 +10,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.web.WebUtil;
 
+/**
+ * 字符编码请求包装器
+ *
+ * @author limaofeng
+ */
 @Slf4j
 public class CharacterEncodingRequestWrapper extends HttpServletRequestWrapper {
 

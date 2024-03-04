@@ -5,7 +5,6 @@ import java.util.Properties;
 import org.hibernate.HibernateException;
 import org.hibernate.MappingException;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
-import org.hibernate.id.Configurable;
 import org.hibernate.id.IdentifierGenerator;
 import org.hibernate.persister.entity.EntityPersister;
 import org.hibernate.service.ServiceRegistry;
@@ -13,9 +12,7 @@ import org.hibernate.type.Type;
 import org.jfantasy.framework.dao.mybatis.keygen.util.DataBaseKeyGenerator;
 import org.jfantasy.framework.spring.SpringBeanUtils;
 import org.jfantasy.framework.util.common.ClassUtil;
-import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StringUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * 自定义序列生成器
@@ -24,9 +21,9 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @version 1.0
  * @since 2013-1-14 下午02:07:25
  */
-public class SequenceGenerator implements IdentifierGenerator, Configurable {
+public class SequenceGenerator implements IdentifierGenerator {
 
-  @Autowired private DataBaseKeyGenerator baseKeyGenerator;
+  private DataBaseKeyGenerator baseKeyGenerator;
 
   public static final String KEY_NAME = "keyName";
 
@@ -42,6 +39,7 @@ public class SequenceGenerator implements IdentifierGenerator, Configurable {
                 params.getProperty(KEY_NAME),
                 params.getProperty("target_table") + ":" + params.getProperty("target_column"))
             .toLowerCase();
+    this.baseKeyGenerator = SpringBeanUtils.getBean(DataBaseKeyGenerator.class);
   }
 
   @Override
@@ -52,9 +50,6 @@ public class SequenceGenerator implements IdentifierGenerator, Configurable {
     Serializable id = persister.getIdentifier(object, session);
     if (id != null) {
       return id;
-    }
-    if (ObjectUtil.isNull(this.baseKeyGenerator)) {
-      SpringBeanUtils.autowireBean(this);
     }
     return this.baseKeyGenerator.nextValue(
         StringUtil.defaultValue(keyName, ClassUtil.getRealClass(object).getName()));

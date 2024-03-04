@@ -119,7 +119,6 @@ public abstract class MethodArgumentResolver implements HandlerMethodArgumentRes
     }
   }
 
-  @SuppressWarnings("unchecked")
   protected Map<String, String> getUriTemplateVariables(NativeWebRequest request) {
     Map<String, String> variables =
         (Map<String, String>)

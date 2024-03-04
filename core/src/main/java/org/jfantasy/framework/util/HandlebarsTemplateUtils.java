@@ -4,17 +4,25 @@ import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Template;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.net.URLEncoder;
 import java.util.Date;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.jfantasy.framework.util.common.DateUtil;
+import org.jfantasy.framework.util.common.StreamUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 
+/**
+ * Handlebars 模板工具类
+ *
+ * @author limaofeng
+ */
 @Slf4j
 public class HandlebarsTemplateUtils {
 
-  private static final Handlebars handlebars = new Handlebars();
+  private static final Handlebars HANDLEBARS = new Handlebars();
 
   static {
     registerHelper(
@@ -26,28 +34,64 @@ public class HandlebarsTemplateUtils {
             (context, options) -> URLEncoder.encode(context, (String) options.params[0]));
   }
 
-  public static <H> Handlebars registerHelper(String name, Helper<H> helper) {
-    return handlebars.registerHelper(name, helper);
+  /**
+   * 注册模板助手
+   *
+   * @param name 助手名称
+   * @param helper 模板助手
+   * @param <H> 模板助手类型
+   */
+  public static <H> void registerHelper(String name, Helper<H> helper) {
+    HANDLEBARS.registerHelper(name, helper);
   }
 
+  /**
+   * 将模板处理为字符串
+   *
+   * @param inputTemplate 字符串模板
+   * @return Template
+   */
   public static String processTemplateIntoString(String inputTemplate, Object model) {
     if (StringUtil.isBlank(inputTemplate)) {
       return null;
     }
     try {
-      return handlebars.compileInline(inputTemplate).apply(model);
+      return HANDLEBARS.compileInline(inputTemplate).apply(model);
     } catch (IOException e) {
       log.error(e.getMessage(), e);
       return null;
     }
   }
 
+  /**
+   * 将模板处理为字符串
+   *
+   * @param template 模板
+   * @param model 模型
+   * @return String
+   */
   public static String processTemplateIntoString(Template template, Object model)
       throws IOException {
     return template.apply(model);
   }
 
-  public static void writer(Object model, String template, ByteArrayOutputStream out) {}
+  /**
+   * 将模板处理为字节流
+   *
+   * @param template 模板
+   * @param model 模型
+   * @param out 输出流
+   */
+  public static void writer(String template, Object model, OutputStream out) {
+    Writer writer = new OutputStreamWriter(out);
+    try {
+      HANDLEBARS.compileInline(template).apply(model, writer);
+    } catch (IOException e) {
+      log.error(e.getMessage(), e);
+    } finally {
+      StreamUtil.closeQuietly(writer);
+    }
+  }
 
   /**
    * 从文件加载模板
@@ -56,6 +100,25 @@ public class HandlebarsTemplateUtils {
    * @return Template
    */
   public static Template template(String path) throws IOException {
-    return handlebars.compile(path);
+    return HANDLEBARS.compile(path);
+  }
+
+  /**
+   * 从字符串加载模板
+   *
+   * @param template 字符串模板
+   * @return Template
+   */
+  public static Template templateInline(String template) throws IOException {
+    return HANDLEBARS.compileInline(template);
+  }
+
+  /**
+   * 获取 Handlebars 实例
+   *
+   * @return Handlebars
+   */
+  public static Handlebars getHandlebars() {
+    return HANDLEBARS;
   }
 }

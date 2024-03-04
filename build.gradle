@@ -7,7 +7,7 @@ plugins {
     id 'com.github.kt3k.coveralls' version '2.12.0'
     id "com.star-zero.gradle.githook" version "1.2.0"
     id "ru.netris.commitlint" version "1.4.1"
-    id "com.diffplug.spotless" version "5.14.2"
+    id "com.diffplug.spotless" version "5.17.1"
     id "com.diffplug.eclipse.apt" version "3.31.0"
 }
 
@@ -109,17 +109,17 @@ subprojects {
         ignoreFailures = true
     }
 
-    task javadocJar(type: Jar) {
+    tasks.register('javadocJar', Jar) {
         archiveClassifier.set("javadoc")
         from javadoc
     }
 
-    task sourceJar(type: Jar) {
+    tasks.register('sourceJar', Jar) {
         archiveClassifier.set("sources")
         from sourceSets.main.allSource
     }
 
-    task copyDependencies(type: Sync) {
+    tasks.register('copyDependencies', Sync) {
         from configurations.compileClasspath
         from configurations.testCompileClasspath
         into 'build/dependencies'
@@ -186,6 +186,7 @@ tasks.register("codeCoverageReport", JacocoReport) {
             subproject.tasks.matching({ t -> t.extensions.findByType(JacocoTaskExtension) }).configureEach { testTask ->
                 //noinspection GroovyAssignabilityCheck
                 sourceSets subproject.sourceSets.main
+                //noinspection GroovyAssignabilityCheck
                 executionData(testTask)
             }
             subproject.tasks.matching({ t -> t.extensions.findByType(JacocoTaskExtension) }).forEach {

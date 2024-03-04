@@ -6,6 +6,11 @@ import org.jfantasy.framework.jackson.JSON;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 
+/**
+ * Json转换器
+ *
+ * @author limaofeng
+ */
 public class JsonConverter<T> implements AttributeConverter<T, String> {
 
   protected Class<T> entityClass;

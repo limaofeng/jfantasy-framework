@@ -1,13 +1,14 @@
 package org.jfantasy.framework.dao.mybatis.interceptors;
 
+import java.util.Objects;
 import java.util.Properties;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.plugin.Intercepts;
 import org.apache.ibatis.plugin.Invocation;
 import org.apache.ibatis.plugin.Plugin;
-import org.jfantasy.framework.dao.MultiDataSourceManager;
 import org.jfantasy.framework.dao.annotations.DataSource;
+import org.jfantasy.framework.dao.datasource.DataSourceContextHolder;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.regexp.RegexpUtil;
@@ -53,16 +54,17 @@ public class MultiDataSourceInterceptor implements Interceptor {
     MappedStatement ms = (MappedStatement) invocation.getArgs()[MAPPED_STATEMENT_INDEX];
     DataSource dataSource =
         ClassUtil.getClassGenricType(
-            ClassUtil.forName(RegexpUtil.replace(ms.getId(), ".[_a-zA-Z0-9]+$", "")),
+            Objects.requireNonNull(
+                ClassUtil.forName(RegexpUtil.replace(ms.getId(), ".[_a-zA-Z0-9]+$", ""))),
             DataSource.class);
     try {
       if (ObjectUtil.isNotNull(dataSource)) {
-        MultiDataSourceManager.getManager().push(dataSource);
+        DataSourceContextHolder.addDataSourceRoute(dataSource.name(), dataSource.catalog());
       }
       return invocation.proceed();
     } finally {
       if (ObjectUtil.isNotNull(dataSource)) {
-        MultiDataSourceManager.getManager().pop();
+        DataSourceContextHolder.removeDataSourceRoute();
       }
     }
   }

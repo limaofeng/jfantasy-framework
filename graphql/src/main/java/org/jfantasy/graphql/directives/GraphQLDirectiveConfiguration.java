@@ -9,10 +9,6 @@ import org.springframework.context.annotation.Bean;
  * @author limaofeng
  */
 public class GraphQLDirectiveConfiguration {
-  @Bean
-  public SchemaDirective authorisationDirective() {
-    return new SchemaDirective("auth", new AuthorisationDirective());
-  }
 
   @Bean
   public SchemaDirective dateFormattingDirective() {

@@ -5,10 +5,12 @@ import graphql.kickstart.autoconfigure.tools.GraphQLJavaToolsAutoConfiguration;
 import graphql.kickstart.autoconfigure.web.servlet.GraphQLWebAutoConfiguration;
 import graphql.kickstart.tools.SchemaParserDictionary;
 import java.util.List;
+import org.dataloader.DataLoaderRegistry;
 import org.jfantasy.graphql.SchemaParserDictionaryBuilder;
 import org.jfantasy.graphql.client.GraphQLClientBeanPostProcessor;
+import org.jfantasy.graphql.context.DataLoaderRegistryCustomizer;
 import org.jfantasy.graphql.error.GraphQLResolverAdvice;
-import org.jfantasy.graphql.error.GraphQLStaticMethodMatcherPointcut;
+import org.jfantasy.graphql.error.GraphqlStaticMethodMatcherPointcut;
 import org.jfantasy.graphql.execution.AsyncMutationExecutionStrategy;
 import org.jfantasy.graphql.execution.AsyncQueryExecutionStrategy;
 import org.springframework.aop.support.DefaultBeanFactoryPointcutAdvisor;
@@ -28,7 +30,6 @@ import org.springframework.web.client.RestTemplate;
  *
  * @author limaofeng
  * @version V1.0
- * @date 2019/8/23 6:18 下午
  */
 @Configuration
 @AutoConfigureBefore(GraphQLJavaToolsAutoConfiguration.class)
@@ -62,10 +63,10 @@ public class GraphQLAutoConfiguration {
   }
 
   @Bean
-  public DefaultBeanFactoryPointcutAdvisor graphQLErrorPointcutAdvisor(
+  public DefaultBeanFactoryPointcutAdvisor graphqlErrorPointcutAdvisor(
       @Autowired GraphQLResolverAdvice advice) {
     DefaultBeanFactoryPointcutAdvisor beanFactory = new DefaultBeanFactoryPointcutAdvisor();
-    beanFactory.setPointcut(new GraphQLStaticMethodMatcherPointcut());
+    beanFactory.setPointcut(new GraphqlStaticMethodMatcherPointcut());
     beanFactory.setAdvice(advice);
     return beanFactory;
   }
@@ -74,5 +75,14 @@ public class GraphQLAutoConfiguration {
   public RestTemplate restTemplate() {
     RestTemplateBuilder builder = new RestTemplateBuilder();
     return builder.build();
+  }
+
+  @Bean
+  public DataLoaderRegistry dataLoaderRegistry(List<DataLoaderRegistryCustomizer> customizers) {
+    DataLoaderRegistry registry = DataLoaderRegistry.newRegistry().build();
+    for (DataLoaderRegistryCustomizer customizer : customizers) {
+      customizer.customize(registry);
+    }
+    return registry;
   }
 }

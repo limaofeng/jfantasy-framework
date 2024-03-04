@@ -3,6 +3,11 @@ package org.jfantasy.framework.security.web.authentication;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+/**
+ * WebAuthenticationDetails
+ *
+ * @author limaofeng
+ */
 public class WebAuthenticationDetails {
 
   private final String remoteAddress;

@@ -1,5 +1,6 @@
 package org.jfantasy.framework.context.bean;
 
+import java.io.Serializable;
 import javax.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,7 +19,7 @@ import org.hibernate.annotations.GenericGenerator;
 @AllArgsConstructor
 @Entity
 @Table(name = "SYS_LANGUAGE")
-public class Language {
+public class Language implements Serializable {
   @Id
   @Column(name = "ID", precision = 22)
   @GeneratedValue(generator = "fantasy-sequence")

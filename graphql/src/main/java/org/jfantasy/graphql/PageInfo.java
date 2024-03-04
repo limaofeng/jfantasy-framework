@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 /**
+ * 分页信息
+ *
  * @author limaofeng
  * @version V1.0
  * @date 2019-04-02 18:24

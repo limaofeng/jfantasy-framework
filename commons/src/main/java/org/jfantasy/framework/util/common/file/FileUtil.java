@@ -3,66 +3,58 @@ package org.jfantasy.framework.util.common.file;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.text.DecimalFormat;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Stream;
 import java.util.zip.*;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.tika.Tika;
 import org.apache.tika.mime.MimeType;
 import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
-import org.jfantasy.framework.util.common.NumberUtil;
-import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.StreamUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.jfantasy.framework.util.error.OperationFailedException;
-import org.jfantasy.framework.util.regexp.RegexpUtil;
 
+/**
+ * 文件工具类
+ *
+ * @author limaofeng
+ */
 @Slf4j
 public class FileUtil {
 
   private static final Tika TIKA = new Tika();
+  private static final String ZERO_B = "0B";
   private static final String REGEXP_START = "[^/]+$";
   public static final String[] UNITS = {"bytes", "KB", "MB", "GB", "TB"};
 
-  private static final String ENCODE = "UTF-8";
+  private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
-  @SneakyThrows
-  public static String readFile(File file, String charset) {
-    String line;
-    FileInputStream out = new FileInputStream(file);
-    InputStreamReader read = new InputStreamReader(out, charset);
-    BufferedReader reader = new BufferedReader(read);
-    StringBuilder buf = new StringBuilder();
-    while ((line = reader.readLine()) != null) {
-      buf.append(line).append("\n");
-    }
-    return buf.toString();
+  public static String readString(Path filePath) throws IOException {
+    return readString(filePath, DEFAULT_CHARSET);
   }
 
-  public static String readFile(String file) {
-    return readFile(new File(file));
+  public static String readString(Path path, Charset charset) throws IOException {
+    return Files.readAllLines(path, charset).stream().reduce("", (a, b) -> a + b + "\n");
   }
 
-  public static String readFile(File file) {
-    return readFile(file, ENCODE);
-  }
-
-  public static String readFile(String file, String charset) {
-    return readFile(new File(file), charset);
-  }
-
-  public static String readFile(InputStream in) throws IOException {
-    return readFile(in, ENCODE);
-  }
-
-  public static void readFile(InputStream in, ReadLineCallback readLineCallback)
-      throws IOException {
-    readFile(in, ENCODE, readLineCallback);
+  public static String readString(Path path, ReadLineCallback readLineCallback) throws IOException {
+    return Files.readAllLines(path, DEFAULT_CHARSET).stream()
+        .reduce(
+            "",
+            (a, b) -> {
+              if (readLineCallback.readLine(b)) {
+                return a + readLineCallback.readLine(b) + "\n";
+              }
+              return a;
+            });
   }
 
   public static void readFile(InputStream in, String charset, ReadLineCallback readLineCallback)
@@ -81,94 +73,53 @@ public class FileUtil {
 
   public interface ReadLineCallback {
 
+    /**
+     * 读取一行数据
+     *
+     * @param line 行数据
+     * @return 是否继续读取
+     */
     boolean readLine(String line);
   }
 
-  public static String readFile(InputStream in, String charset) throws IOException {
-    final StringBuilder html = new StringBuilder();
-    readFile(
-        in,
-        charset,
-        line -> {
-          html.append(line).append(System.getProperty("line.separator"));
-          return true;
-        });
-    return html.toString();
-  }
-
-  public static void writeFile(String content, String file) {
-
-    File f = new File(file).getParentFile();
-    if (!f.exists() && !f.mkdirs()) {
-      throw new OperationFailedException("创建文件" + file + "失败");
+  public static Path write(Path path, String content) throws IOException {
+    if (Files.notExists(path.getParent())) {
+      mkdirs(path.getParent());
     }
-    try (FileOutputStream fos = new FileOutputStream(file)) {
-      Writer out = new OutputStreamWriter(fos, ENCODE);
-      out.flush();
-      out.write(content);
-    } catch (IOException ex) {
-      log.error(ex.getMessage(), ex);
-      throw new OperationFailedException(ex.getMessage());
+    return Files.write(path, content.getBytes(DEFAULT_CHARSET), StandardOpenOption.CREATE);
+  }
+
+  public static Path write(Path path, byte[] content) throws IOException {
+    if (Files.notExists(path.getParent())) {
+      mkdirs(path.getParent());
     }
+    return Files.write(path, content, StandardOpenOption.CREATE);
   }
 
-  public static void writeFile(byte[] content, String file) throws IOException {
-    createFolder(new File(file).getParentFile());
-    try (FileOutputStream fos = new FileOutputStream(file)) {
-      fos.write(content, 0, content.length);
-      fos.flush();
-      log.debug("Write File:" + file);
-    } catch (IOException ex) {
-      log.error(ex.getMessage(), ex);
-      throw ex;
-    }
+  public static Path mkdir(Path path) throws IOException {
+    return Files.createDirectory(path);
   }
 
-  public static File createFolder(String path) {
-    return createFolder(new File(path(path).replaceFirst(REGEXP_START, "")));
-  }
-
-  public static File createFolder(File file) {
-    if (!file.isDirectory()) {
-      createFolder(file.getParentFile());
-    }
-    if (!file.exists() && !file.mkdirs()) {
-      log.error("文件: " + file + " > " + file.exists());
-    }
-    return file;
-  }
-
-  public static File createFolder(File file, String folderName) {
-    return createFolder(new File(file, folderName));
-  }
-
-  private static String path(String pathname) {
-    return RegexpUtil.replace(
-        pathname, "[" + ("\\".equals(File.separator) ? "\\" : "") + File.separator + "]", "/");
+  public static Path mkdirs(Path path) throws IOException {
+    return Files.createDirectories(path);
   }
 
   /**
    * 创建文件并返回
    *
-   * @param pathname 文件目录
+   * @param path 文件目录
    * @return {File}
    */
-  public static File createFile(String pathname) {
-    String tpathname = path(pathname);
-    String fileName = RegexpUtil.parseGroup(tpathname, REGEXP_START, 0);
-    String parentDir = RegexpUtil.parseGroup(tpathname, REGEXP_START, 0);
-    assert parentDir != null;
-    return fileName == null
-        ? createFolder(tpathname)
-        : new File(createFolder(tpathname), parentDir);
-  }
-
-  public static File createFile(File parent, String fileName) {
-    return new File(createFolder(parent), fileName);
+  public static Path createFile(Path path) throws IOException {
+    Path parentPath = path.getParent();
+    if (!Files.exists(parentPath)) {
+      Files.createDirectories(parentPath);
+    }
+    return Files.createFile(path);
   }
 
   public static boolean exists(String folderName) {
-    return new File(folderName).exists();
+    return Files.exists(Paths.get(folderName));
   }
 
   public static String getMimeType(File file) {
@@ -197,38 +148,23 @@ public class FileUtil {
     return folder.listFiles(File::isDirectory);
   }
 
-  public static void compressionGZIP(String oldPath, String newPath) {
-    createFolder(
-        RegexpUtil.replace(newPath, "(([a-zA-Z0-9]|([(]|[)]|[ ]))+)[.]([a-zA-Z0-9]+)$", ""));
-    log.debug(
-        "创建文件 ："
-            + RegexpUtil.replace(newPath, "(([a-zA-Z0-9]|([(]|[)]|[ ]))+)[.]([a-zA-Z0-9]+)$", "")
-            + "|"
-            + newPath);
-    try (FileInputStream in = new FileInputStream(oldPath);
-        FileOutputStream out = new FileOutputStream(newPath)) {
+  public static void gzip(Path oldPath, Path newPath) throws IOException {
+    Path parentPath = newPath.getParent();
+    if (Files.exists(parentPath)) {
+      Files.createDirectories(parentPath);
+    }
+    try (FileInputStream in = new FileInputStream(oldPath.toFile());
+        FileOutputStream out = new FileOutputStream(newPath.toFile())) {
       GZIPOutputStream zipOut = new GZIPOutputStream(out);
-      byte[] buf = new byte[1024];
-      int num;
-      while ((num = in.read(buf)) != -1) {
-        zipOut.write(buf, 0, num);
-      }
-    } catch (IOException e) {
-      log.error(e.getMessage(), e);
+      StreamUtil.copyThenClose(in, zipOut);
     }
   }
 
-  public static void extractGzip(String fileUrl) {
-    try (FileInputStream fin = new FileInputStream(fileUrl);
-        FileOutputStream out = new FileOutputStream(RegexpUtil.replace(fileUrl, ".gz$", ""))) {
+  public static void ungzip(Path fileUrl, Path newPath) throws IOException {
+    try (FileInputStream fin = new FileInputStream(fileUrl.toFile());
+        FileOutputStream out = new FileOutputStream(newPath.toFile())) {
       GZIPInputStream zipIn = new GZIPInputStream(fin);
-      byte[] buf = new byte[1024];
-      int num;
-      while ((num = zipIn.read(buf, 0, buf.length)) != -1) {
-        out.write(buf, 0, num);
-      }
-    } catch (IOException e) {
-      log.error(e.getMessage(), e);
+      StreamUtil.copyThenClose(zipIn, out);
     }
   }
 
@@ -268,66 +204,51 @@ public class FileUtil {
     return fullByte;
   }
 
-  public static boolean moveFile(File sourceFile, File targetFile) {
-    if (sourceFile.isFile()) {
-      return moveOnlyFile(sourceFile, targetFile);
-    }
-    File[] files = sourceFile.listFiles();
-    if (files != null) {
-      for (File file : files) {
-        String newName = targetFile.getAbsolutePath() + "/" + file.getName();
-        moveFile(file, new File(newName));
-      }
-    }
-    if (!sourceFile.delete()) {
-      throw new OperationFailedException("删除文件" + sourceFile.getAbsolutePath() + "失败");
-    }
-    return true;
-  }
-
-  @SneakyThrows
-  private static boolean moveOnlyFile(File sourceFile, File targetFile) {
-    File parentFile = targetFile.getParentFile();
-    if (!parentFile.exists() && !parentFile.mkdirs()) {
-      throw new OperationFailedException("创建文件" + parentFile.getAbsolutePath() + "失败");
-    }
-    if (targetFile.exists() && !targetFile.delete()) {
-      throw new OperationFailedException("删除文件" + targetFile.getAbsolutePath() + "失败");
-    }
-
-    if (!sourceFile.renameTo(targetFile)) {
-      copyFile(sourceFile, targetFile);
-      if (sourceFile.exists()) {
-        log.debug("delete file:" + sourceFile + ":" + sourceFile.delete());
-      }
-    }
-    return false;
-  }
-
-  public static void copyFile(File sourceFile, File targetFile) throws IOException {
-    if (sourceFile.isFile()) {
-      copyOnlyFile(sourceFile, targetFile);
+  /**
+   * 移动文件或者文件夹
+   *
+   * @param source 源文件
+   * @param target 目标文件
+   * @throws IOException 异常
+   */
+  public static void mv(Path source, Path target) throws IOException {
+    if (!Files.isDirectory(source)) {
+      Files.move(source, target, StandardCopyOption.REPLACE_EXISTING);
     } else {
-      File[] files = sourceFile.listFiles();
-      if (files != null) {
-        for (File file : files) {
-          String newName = targetFile.getAbsolutePath() + "/" + file.getName();
-          copyFile(file, new File(newName));
-        }
+      if (!Files.exists(target)) {
+        Files.createDirectories(target);
+      }
+      try (Stream<Path> stream = Files.list(source)) {
+        stream.forEach(
+            path -> {
+              try {
+                mv(path, target.resolve(source.relativize(path)));
+              } catch (IOException e) {
+                throw new RuntimeException(e);
+              }
+            });
       }
     }
   }
 
-  private static void copyOnlyFile(File sourceFile, File targetFile) throws IOException {
-    log.debug("copy from:" + sourceFile);
-    log.debug("copy to:" + targetFile);
-    File parentFile = targetFile.getParentFile();
-    if (!parentFile.exists() && !parentFile.mkdirs()) {
-      throw new OperationFailedException("创建文件" + parentFile.getAbsolutePath() + "失败");
+  public static void copy(Path source, Path target) throws IOException {
+    if (!Files.isDirectory(source)) {
+      Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+    } else {
+      if (!Files.exists(target)) {
+        Files.createDirectories(target);
+      }
+      try (Stream<Path> stream = Files.list(source)) {
+        stream.forEach(
+            path -> {
+              try {
+                copy(path, target.resolve(source.relativize(path)));
+              } catch (IOException e) {
+                throw new RuntimeException(e);
+              }
+            });
+      }
     }
-    FileInputStream fis = new FileInputStream(sourceFile);
-    FileOutputStream fos = new FileOutputStream(targetFile);
-    StreamUtil.copyThenClose(fis, fos);
   }
 
   public static URL generate(URL url, File file) throws IOException {
@@ -349,66 +270,62 @@ public class FileUtil {
     return url;
   }
 
-  private static void delDir(File dir) {
-    File[] files = dir.listFiles();
-    if (files != null) {
-      for (File eFile : files) {
-        delFile(eFile);
-      }
-    }
-    if (!dir.delete()) {
-      log.error("删除文件" + dir.getAbsolutePath() + "失败");
-    }
+  /**
+   * 删除文件或者文件夹
+   *
+   * @param path 文件或者文件夹路径
+   * @throws IOException 异常
+   */
+  public static void rm(Path path) throws IOException {
+    Files.delete(path);
   }
 
-  public static void delFile(File file) {
-    if (file.exists()) {
-      if (file.isFile()) {
-        delOnlyFile(file);
-      } else {
-        delDir(file);
-      }
+  /**
+   * 删除文件夹
+   *
+   * @param path 文件或者文件夹路径
+   * @param force 强制删除 类似 rm -rf
+   * @throws IOException 异常
+   */
+  public static void rm(Path path, boolean force) throws IOException {
+    if (!Files.isDirectory(path)) {
+      Files.delete(path);
+      return;
     }
-  }
+    Files.walkFileTree(
+        path,
+        new SimpleFileVisitor<Path>() {
+          @Override
+          public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+              throws IOException {
+            Files.delete(file);
+            return FileVisitResult.CONTINUE;
+          }
 
-  private static void delOnlyFile(File file) {
-    if (file.exists() && !file.delete()) {
-      log.error("删除文件" + file.getAbsolutePath() + "失败");
-    }
-  }
-
-  public static void delFile(String filePath) {
-    delFile(new File(filePath));
+          @Override
+          public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+            if (force) {
+              Files.delete(dir);
+              return FileVisitResult.CONTINUE;
+            }
+            return FileVisitResult.SKIP_SUBTREE;
+          }
+        });
   }
 
   public static String tmpdir() {
     return System.getProperty("java.io.tmpdir");
   }
 
-  public static File tmp() {
-    return createFile(System.getProperty("java.io.tmpdir") + File.separator + StringUtil.guid());
+  public static Path tmp() {
+    return Paths.get(System.getProperty("java.io.tmpdir") + File.separator + StringUtil.guid());
   }
 
   public static File tmp(InputStream in) throws IOException {
-    File file = tmp();
+    File file = tmp().toFile();
     FileOutputStream out = new FileOutputStream(file);
     StreamUtil.copyThenClose(in, out);
     return file;
-  }
-
-  public static void replaceInFolder(File file, String oldStr, String newStr) {
-    if (file.isDirectory()) {
-      File[] files = file.listFiles();
-      assert files != null;
-      for (File file1 : files) {
-        replaceInFolder(file1, oldStr, newStr);
-      }
-    } else {
-      String content = readFile(file);
-      if ((file.getName().endsWith(".html")) && (content.contains(oldStr))) {
-        writeFile(content, file.getAbsolutePath());
-      }
-    }
   }
 
   public static Date lastModified(String filePath) {
@@ -432,34 +349,54 @@ public class FileUtil {
     return extension;
   }
 
-  public static File writeFile(InputStream in, String filePath) throws IOException {
-    File file = createFile(filePath);
-    StreamUtil.copyThenClose(in, new FileOutputStream(file));
-    return file;
+  public static void zip(Path source, Path target) throws IOException {
+    zip(source, Files.newOutputStream(target));
   }
 
-  public void writeFile(OutputStream out, InputStream in) throws IOException {
-    StreamUtil.copyThenClose(in, out);
-  }
+  public static void zip(Path source, OutputStream output) throws IOException {
+    try (ZipOutputStream zos = new ZipOutputStream(output)) {
+      if (!Files.isDirectory(source)) {
+        throw new IllegalArgumentException(source.getFileName() + " is not a directory");
+      }
+      Files.walkFileTree(
+          source,
+          new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+                throws IOException {
+              zip(Files.newInputStream(file), source.relativize(file).toString(), zos);
+              return FileVisitResult.CONTINUE;
+            }
 
-  public static ZipOutputStream compress(String unZipFile, OutputStream zipOut) throws IOException {
-    File srcFile = new File(unZipFile);
-    DataInputStream dis = new DataInputStream(new FileInputStream(srcFile));
-    try {
-      ZipOutputStream zos = new ZipOutputStream(zipOut);
-      zos.setMethod(ZipOutputStream.DEFLATED);
-      ZipEntry ze = new ZipEntry(srcFile.getName());
-      zos.putNextEntry(ze);
-      DataOutputStream dos = new DataOutputStream(zos);
-      StreamUtil.copyThenClose(dis, dos);
-      return zos;
-    } finally {
-      StreamUtil.closeQuietly(dis);
+            @Override
+            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
+                throws IOException {
+              return FileVisitResult.CONTINUE;
+            }
+          });
     }
   }
 
+  public static void zip(
+      List<String> filenames, OutputStream output, Function<String, InputStream> isf)
+      throws IOException {
+    try (ZipOutputStream zos = new ZipOutputStream(output)) {
+      for (String filename : filenames) {
+        InputStream fis = isf.apply(filename);
+        zip(fis, filename, zos);
+      }
+    }
+  }
+
+  private static void zip(InputStream input, String filename, ZipOutputStream zos)
+      throws IOException {
+    ZipEntry zipEntry = new ZipEntry(filename);
+    zos.putNextEntry(zipEntry);
+    StreamUtil.copyThenClose(input, zos);
+  }
+
   private static Map<String, Integer> zipHtSizes(File file) {
-    Map<String, Integer> htSizes = new HashMap<>();
+    Map<String, Integer> htSizes = new HashMap<>(1);
     try (ZipFile zf = new ZipFile(file)) {
       Enumeration<? extends ZipEntry> e = zf.entries();
       while (e.hasMoreElements()) {
@@ -472,10 +409,9 @@ public class FileUtil {
     return htSizes;
   }
 
-  public static void decompress(File file, UnZipCallBack callBack) {
-    Map<String, Integer> htSizes = zipHtSizes(file);
-
-    try (FileInputStream fis = new FileInputStream(file)) {
+  public static void unzip(Path path, UnZipCallBack callBack) {
+    Map<String, Integer> htSizes = zipHtSizes(path.toFile());
+    try (FileInputStream fis = new FileInputStream(path.toFile())) {
       BufferedInputStream bis = new BufferedInputStream(fis);
       ZipInputStream zis = new ZipInputStream(bis);
       ZipEntry ze;
@@ -505,29 +441,29 @@ public class FileUtil {
     }
   }
 
+  /** 解压缩回调 */
   public interface UnZipCallBack {
 
+    /**
+     * 每个文件的回调
+     *
+     * @param fileName 文件名
+     * @param stream 文件流
+     */
     void execute(String fileName, InputStream stream);
   }
 
-  public static long fileSize(long size, String unit) {
-    int index = ObjectUtil.indexOf(UNITS, unit);
-    return size * Double.valueOf(Math.pow(1024, index)).longValue();
+  public static String size(Path path) throws IOException {
+    return bytesToSize(Files.size(path));
   }
 
-  public static String fileSize(long length) {
-    float size = length;
-    int i = 0;
-    while (size >= 1024 && i < 4) {
-      size /= 1024;
-      i++;
+  public static String bytesToSize(long bytes) {
+    if (bytes <= 0) {
+      return ZERO_B;
     }
-    if (i < 2) {
-      return NumberUtil.format((Math.ceil(size))) + ' ' + UNITS[i];
-    } else if (i == 2) {
-      return NumberUtil.format(Math.ceil(size * 10) / 10) + ' ' + UNITS[i];
-    } else {
-      return NumberUtil.format(Math.ceil(size * 100) / 100) + ' ' + UNITS[i];
-    }
+    int digitGroups = (int) (Math.log10(bytes) / Math.log10(1024));
+    return new DecimalFormat("#,##0.#").format(bytes / Math.pow(1024, digitGroups))
+        + " "
+        + UNITS[digitGroups];
   }
 }

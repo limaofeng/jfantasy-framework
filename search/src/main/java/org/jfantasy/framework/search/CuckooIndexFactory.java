@@ -42,7 +42,7 @@ public class CuckooIndexFactory implements ApplicationContextAware {
   private ApplicationContext applicationContext;
   private ElasticsearchConnection connection;
 
-  @SneakyThrows
+  @SneakyThrows({IOException.class, ClassNotFoundException.class})
   public void initialize() {
     log.info("Starting CuckooIndex");
     StopWatch watch = new StopWatch();

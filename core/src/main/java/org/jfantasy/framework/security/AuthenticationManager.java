@@ -14,12 +14,15 @@ import org.springframework.util.Assert;
 @Slf4j
 public class AuthenticationManager {
 
+  @SuppressWarnings("rawtypes")
   private List<AuthenticationProvider> providers = new ArrayList<>();
+
   private AuthenticationEventPublisher eventPublisher = new NullEventPublisher();
 
   public AuthenticationManager() {}
 
-  public AuthenticationManager(List<AuthenticationProvider> providers) {
+  public AuthenticationManager(
+      @SuppressWarnings("rawtypes") List<AuthenticationProvider> providers) {
     this.providers = providers;
   }
 
@@ -30,11 +33,12 @@ public class AuthenticationManager {
     int currentPosition = 0;
     int size = this.providers.size();
 
-    for (AuthenticationProvider provider : this.providers) {
+    for (@SuppressWarnings("rawtypes") AuthenticationProvider provider : this.providers) {
       if (!provider.supports(toTest)) {
         continue;
       }
       if (log.isTraceEnabled()) {
+        //noinspection PlaceholderCountMatchesArgumentCount
         log.trace(
             "Authenticating request with %s (%d/%d)",
             provider.getClass().getSimpleName(), ++currentPosition, size);
@@ -84,7 +88,7 @@ public class AuthenticationManager {
     this.eventPublisher.publishAuthenticationFailure(ex, auth);
   }
 
-  public void addProvider(AuthenticationProvider provider) {
+  public void addProvider(AuthenticationProvider<? extends Authentication> provider) {
     this.providers.add(provider);
   }
 

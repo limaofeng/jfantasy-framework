@@ -1,5 +1,10 @@
 package org.jfantasy.framework.dao.hibernate.converter;
 
-import java.util.HashMap;
+import java.util.Map;
 
-public class MapConverter extends JsonConverter<HashMap<String, Object>> {}
+/**
+ * Map转换器
+ *
+ * @author limaofeng
+ */
+public class MapConverter<T> extends JsonConverter<Map<String, T>> {}

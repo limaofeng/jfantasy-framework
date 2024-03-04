@@ -8,9 +8,14 @@ import org.jfantasy.framework.jackson.JSON;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 
+/**
+ * List转换器
+ *
+ * @author limaofeng
+ */
 public class ListConverter<T> implements AttributeConverter<List<T>, String> {
 
-  protected Class entityClass;
+  protected Class<?> entityClass;
 
   public ListConverter() {
     this.entityClass =

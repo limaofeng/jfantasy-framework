@@ -13,10 +13,10 @@ public class Property {
   private final String name;
   private final MethodProxy readMethodProxy;
   private final MethodProxy writeMethodProxy;
-  private final Class propertyType;
+  private final Class<?> propertyType;
   private final boolean write;
   private final boolean read;
-  private final Map<Class, Annotation> annotationCache = new HashMap<>();
+  private final Map<Class<?>, Annotation> annotationCache = new HashMap<>();
 
   public Property(PropertyDescriptor descriptor) {
     this.name = descriptor.getName();
@@ -60,7 +60,7 @@ public class Property {
   }
 
   public <T> Class<T> getPropertyType() {
-    return this.propertyType;
+    return (Class<T>) this.propertyType;
   }
 
   public String getName() {

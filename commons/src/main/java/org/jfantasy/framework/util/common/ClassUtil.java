@@ -579,7 +579,7 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
    */
   public static <T> T getTarget(T proxy) throws Exception {
     if (!AopUtils.isAopProxy(proxy)) {
-      return proxy; // 不是代理对象
+      return proxy;
     }
     if (AopUtils.isJdkDynamicProxy(proxy)) {
       return (T) getJdkDynamicProxyTargetObject(proxy);

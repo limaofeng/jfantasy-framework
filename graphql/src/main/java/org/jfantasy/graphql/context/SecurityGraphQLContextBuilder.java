@@ -3,15 +3,13 @@ package org.jfantasy.graphql.context;
 import graphql.kickstart.execution.context.DefaultGraphQLContextBuilder;
 import graphql.kickstart.execution.context.GraphQLContext;
 import graphql.kickstart.servlet.context.GraphQLServletContextBuilder;
-import java.util.ArrayList;
-import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 import javax.websocket.Session;
 import javax.websocket.server.HandshakeRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.dataloader.DataLoader;
 import org.dataloader.DataLoaderRegistry;
 import org.jfantasy.framework.security.AuthenticationException;
 import org.jfantasy.framework.security.AuthenticationManager;
@@ -24,7 +22,9 @@ import org.jfantasy.framework.security.authentication.SimpleAuthenticationToken;
 import org.jfantasy.framework.security.oauth2.server.BearerTokenAuthenticationToken;
 import org.jfantasy.framework.security.oauth2.server.web.BearerTokenResolver;
 import org.jfantasy.framework.security.oauth2.server.web.DefaultBearerTokenResolver;
+import org.jfantasy.framework.security.oauth2.server.web.WebSocketBearerTokenResolver;
 import org.jfantasy.framework.security.web.WebAuthenticationDetailsSource;
+import org.jfantasy.framework.security.web.WebSocketAuthenticationDetailsSource;
 import org.springframework.core.log.LogMessage;
 import org.springframework.stereotype.Component;
 
@@ -33,27 +33,40 @@ import org.springframework.stereotype.Component;
  *
  * @author limaofeng
  * @version V1.0
- * @date 2019-04-14 14:13
  */
 @Slf4j
 @Component
 public class SecurityGraphQLContextBuilder extends DefaultGraphQLContextBuilder
     implements GraphQLServletContextBuilder {
 
-  private final BearerTokenResolver bearerTokenResolver = new DefaultBearerTokenResolver();
+  private final BearerTokenResolver<HttpServletRequest> bearerTokenResolver =
+      new DefaultBearerTokenResolver();
+  private final BearerTokenResolver<Session> webSocketBearerTokenResolver =
+      new WebSocketBearerTokenResolver();
 
   private final AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource =
       new WebAuthenticationDetailsSource();
 
+  private final AuthenticationDetailsSource<HandshakeRequest, ?>
+      websocketAuthenticationDetailsSource = new WebSocketAuthenticationDetailsSource();
+
   private final AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver;
+  private final AuthenticationManagerResolver<HandshakeRequest>
+      websocketAuthenticationManagerResolver;
+
+  private final DataLoaderRegistry dataLoaderRegistry;
 
   public SecurityGraphQLContextBuilder(
-      AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver) {
+      AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver,
+      AuthenticationManagerResolver<HandshakeRequest> websocketAuthenticationManagerResolver,
+      DataLoaderRegistry dataLoaderRegistry) {
     this.authenticationManagerResolver = authenticationManagerResolver;
+    this.websocketAuthenticationManagerResolver = websocketAuthenticationManagerResolver;
+    this.dataLoaderRegistry = dataLoaderRegistry;
   }
 
   @Override
-  @Transactional
+  @Transactional(rollbackOn = Exception.class)
   public GraphQLContext build(HttpServletRequest req, HttpServletResponse response) {
     GraphQLContextHolder.clear();
     SecurityContextHolder.clear();
@@ -63,25 +76,36 @@ public class SecurityGraphQLContextBuilder extends DefaultGraphQLContextBuilder
 
     AuthorizationGraphQLServletContext context =
         new AuthorizationGraphQLServletContext(req, response, securityContext);
-    context.setDataLoaderRegistry(buildDataLoaderRegistry());
+    context.setDataLoaderRegistry(this.dataLoaderRegistry);
     GraphQLContextHolder.setContext(context);
 
     String token = bearerTokenResolver.resolve(req);
 
+    Object details = this.authenticationDetailsSource.buildDetails(req);
+
+    return buildContext(
+        context, token, details, () -> this.authenticationManagerResolver.resolve(req));
+  }
+
+  private AuthorizationGraphQLServletContext buildContext(
+      AuthorizationGraphQLServletContext context,
+      String token,
+      Object details,
+      Supplier<AuthenticationManager> authenticationResolver) {
     if (token == null) {
       log.trace("Did not process request since did not find bearer token");
-      SimpleAuthenticationToken authenticationRequest = new SimpleAuthenticationToken();
-      authenticationRequest.setDetails(this.authenticationDetailsSource.buildDetails(req));
+      SimpleAuthenticationToken<?> authenticationRequest = new SimpleAuthenticationToken<>();
+      authenticationRequest.setDetails(details);
       context.setAuthentication(authenticationRequest);
       return context;
     }
 
     BearerTokenAuthenticationToken authenticationRequest =
         new BearerTokenAuthenticationToken(token);
-    authenticationRequest.setDetails(this.authenticationDetailsSource.buildDetails(req));
+    authenticationRequest.setDetails(details);
 
     try {
-      AuthenticationManager authenticationManager = this.authenticationManagerResolver.resolve(req);
+      AuthenticationManager authenticationManager = authenticationResolver.get();
       Authentication authenticationResult =
           authenticationManager.authenticate(authenticationRequest);
 
@@ -92,30 +116,30 @@ public class SecurityGraphQLContextBuilder extends DefaultGraphQLContextBuilder
 
       context.setAuthentication(authenticationResult);
     } catch (AuthenticationException failed) {
-      log.trace("Failed to process authentication request", failed);
+      //      log.error("Failed to process authentication request", failed);
+      context.setAuthentication(authenticationRequest);
     }
     return context;
   }
 
   @Override
   public GraphQLContext build(Session session, HandshakeRequest request) {
-    AuthorizationGraphQLServletContext context =
-        new AuthorizationGraphQLServletContext(session, request);
-    context.setDataLoaderRegistry(buildDataLoaderRegistry());
-    return context;
-  }
+    GraphQLContextHolder.clear();
+    SecurityContextHolder.clear();
 
-  private DataLoaderRegistry buildDataLoaderRegistry() {
-    DataLoaderRegistry dataLoaderRegistry = new DataLoaderRegistry();
-    dataLoaderRegistry.register(
-        "customerDataLoader",
-        new DataLoader<Integer, String>(
-            customerIds ->
-                CompletableFuture.supplyAsync(
-                    () -> {
-                      System.out.println(customerIds);
-                      return new ArrayList<>();
-                    })));
-    return dataLoaderRegistry;
+    SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
+    SecurityContextHolder.setContext(securityContext);
+
+    String token = webSocketBearerTokenResolver.resolve(session);
+
+    AuthorizationGraphQLServletContext context =
+        new AuthorizationGraphQLServletContext(session, request, securityContext);
+
+    context.setDataLoaderRegistry(this.dataLoaderRegistry);
+    return buildContext(
+        context,
+        token,
+        this.websocketAuthenticationDetailsSource.buildDetails(request),
+        () -> this.websocketAuthenticationManagerResolver.resolve(request));
   }
 }

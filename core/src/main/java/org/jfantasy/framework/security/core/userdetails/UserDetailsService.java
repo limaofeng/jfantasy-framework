@@ -1,11 +1,13 @@
 package org.jfantasy.framework.security.core.userdetails;
 
+import java.util.concurrent.CompletableFuture;
+
 /**
  * 用户服务
  *
  * @author limaofeng
  */
-public interface UserDetailsService {
+public interface UserDetailsService<T extends UserDetails> {
 
   /**
    * 通过用户名查询用户
@@ -14,5 +16,25 @@ public interface UserDetailsService {
    * @return 用户
    * @throws UsernameNotFoundException 未查询到用户
    */
-  UserDetails loadUserByUsername(String username) throws UsernameNotFoundException;
+  T loadUserByUsername(String username) throws UsernameNotFoundException;
+
+  /**
+   * 根据用户ID加载用户信息
+   *
+   * @param id 用户ID
+   * @return 用户信息
+   */
+  default CompletableFuture<T> loadUserById(Long id) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * 根据手机号码加载用户信息
+   *
+   * @param phone 手机号码
+   * @return 用户信息
+   */
+  default T loadUserByPhone(String phone) {
+    throw new UnsupportedOperationException();
+  }
 }

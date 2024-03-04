@@ -5,7 +5,7 @@ import static org.jfantasy.framework.util.common.ObjectUtil.multipleValuesObject
 import java.lang.reflect.Array;
 import java.util.*;
 import javax.persistence.criteria.*;
-import org.jfantasy.framework.dao.jpa.PropertyFilter.MatchType;
+import org.jfantasy.framework.dao.MatchType;
 import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.springframework.data.jpa.domain.Specification;
@@ -18,11 +18,11 @@ import org.springframework.util.Assert;
  */
 public class PropertyFilterSpecification<T> implements Specification<T> {
 
-  private final List<PropertyFilter> filters;
+  private final List<PropertyPredicate> filters;
   private final Class<?> entityClass;
   private final PropertyFilterSpecificationContext context;
 
-  public PropertyFilterSpecification(Class<T> entityClass, List<PropertyFilter> filters) {
+  public PropertyFilterSpecification(Class<T> entityClass, List<PropertyPredicate> filters) {
     this.entityClass = entityClass;
     this.filters = filters;
     this.context = new PropertyFilterSpecificationContext();
@@ -30,7 +30,7 @@ public class PropertyFilterSpecification<T> implements Specification<T> {
 
   private PropertyFilterSpecification(
       Class<?> entityClass,
-      List<PropertyFilter> filters,
+      List<PropertyPredicate> filters,
       PropertyFilterSpecificationContext context) {
     this.entityClass = entityClass;
     this.filters = filters;
@@ -38,17 +38,18 @@ public class PropertyFilterSpecification<T> implements Specification<T> {
   }
 
   @Override
-  public Predicate toPredicate(Root root, CriteriaQuery query, CriteriaBuilder builder) {
+  public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
     if (!query.isDistinct()) {
       query.distinct(true);
     }
 
     List<Predicate> predicates = new ArrayList<>();
-    for (PropertyFilter filter : filters) {
+    for (PropertyPredicate filter : filters) {
       if (filter.isSpecification()) {
-        join(
-            predicates,
-            filter.getPropertyValue(Specification.class).toPredicate(root, query, builder));
+        predicates =
+            join(
+                predicates,
+                filter.getPropertyValue(Specification.class).toPredicate(root, query, builder));
       } else if (filter.getMatchType() == MatchType.AND
           || filter.getMatchType() == MatchType.OR
           || filter.getMatchType() == MatchType.NOT) {
@@ -57,16 +58,18 @@ public class PropertyFilterSpecification<T> implements Specification<T> {
         if (predicateChildren.length == 0) {
           continue;
         }
-        join(predicates, conjunction(filter.getMatchType(), builder, predicateChildren));
+        predicates =
+            join(predicates, conjunction(filter.getMatchType(), builder, predicateChildren));
       } else {
-        join(
-            predicates,
-            buildPropertyFilterPredicate(
-                root,
-                builder,
-                filter.getPropertyName(),
-                getPropertyValue(filter),
-                filter.getMatchType()));
+        predicates =
+            join(
+                predicates,
+                buildPropertyFilterPredicate(
+                    root,
+                    builder,
+                    filter.getPropertyName(),
+                    getPropertyValue(filter),
+                    filter.getMatchType()));
       }
     }
     return conjunction(MatchType.AND, builder, predicates.toArray(new Predicate[0]));
@@ -87,16 +90,22 @@ public class PropertyFilterSpecification<T> implements Specification<T> {
   }
 
   private Predicate[] buildPropertyFilterPredicate(
-      List<List<PropertyFilter>> filters, Root root, CriteriaQuery query, CriteriaBuilder builder) {
+      List<List<PropertyPredicate>> filters,
+      Root<T> root,
+      CriteriaQuery<?> query,
+      CriteriaBuilder builder) {
     return filters.stream()
         .map(item -> buildMultiplePropertyFilterPredicate(item, root, query, builder))
         .toArray(Predicate[]::new);
   }
 
   private Predicate buildMultiplePropertyFilterPredicate(
-      List<PropertyFilter> filters, Root root, CriteriaQuery query, CriteriaBuilder builder) {
-    Specification specification =
-        new PropertyFilterSpecification(this.entityClass, filters, this.context);
+      List<PropertyPredicate> filters,
+      Root<T> root,
+      CriteriaQuery<?> query,
+      CriteriaBuilder builder) {
+    Specification<T> specification =
+        new PropertyFilterSpecification<>(this.entityClass, filters, this.context);
     return specification.toPredicate(root, query, builder);
   }
 
@@ -108,19 +117,20 @@ public class PropertyFilterSpecification<T> implements Specification<T> {
     return predicates;
   }
 
-  public Object getPropertyValue(PropertyFilter filter) {
+  public Object getPropertyValue(PropertyPredicate filter) {
     return filter.getPropertyValue(
         ClassUtil.getPropertyType(this.entityClass, filter.getPropertyName()));
   }
 
   protected Predicate buildPropertyFilterPredicate(
-      Root root,
+      Root<T> root,
       CriteriaBuilder builder,
       String propertyName,
       Object propertyValue,
       MatchType matchType) {
     Assert.hasText(propertyName, "propertyName不能为空");
 
+    //noinspection rawtypes
     Path path = this.context.path(root, propertyName);
 
     if (MatchType.EQ == matchType) {
@@ -138,13 +148,13 @@ public class PropertyFilterSpecification<T> implements Specification<T> {
     } else if (MatchType.NOT_ENDS_WITH == matchType) {
       return builder.notLike(path, '%' + (String) propertyValue);
     } else if (MatchType.LTE == matchType) {
-      return builder.lessThanOrEqualTo(path, (Comparable) propertyValue);
+      return builder.lessThanOrEqualTo(path, (Comparable<Object>) propertyValue);
     } else if (MatchType.LT == matchType) {
-      return builder.lessThan(path, (Comparable) propertyValue);
+      return builder.lessThan(path, (Comparable<Object>) propertyValue);
     } else if (MatchType.GTE == matchType) {
-      return builder.greaterThanOrEqualTo(path, (Comparable) propertyValue);
+      return builder.greaterThanOrEqualTo(path, (Comparable<Object>) propertyValue);
     } else if (MatchType.GT == matchType) {
-      return builder.greaterThan(path, (Comparable) propertyValue);
+      return builder.greaterThan(path, (Comparable<Object>) propertyValue);
     } else if (MatchType.IN == matchType) {
       return path.in(Arrays.stream(multipleValuesObjectsObjects(propertyValue)).toArray());
     } else if (MatchType.NOT_IN == matchType) {
@@ -161,8 +171,8 @@ public class PropertyFilterSpecification<T> implements Specification<T> {
     } else if (MatchType.NOT_EMPTY == matchType) {
       return builder.isNotEmpty(path);
     } else if (MatchType.BETWEEN == matchType) {
-      Comparable x = (Comparable) Array.get(propertyValue, 0);
-      Comparable y = (Comparable) Array.get(propertyValue, 1);
+      Comparable<Object> x = (Comparable<Object>) Array.get(propertyValue, 0);
+      Comparable<Object> y = (Comparable<Object>) Array.get(propertyValue, 1);
       return builder.between(path, x, y);
     }
     throw new RuntimeException("不支持的查询");
@@ -170,16 +180,16 @@ public class PropertyFilterSpecification<T> implements Specification<T> {
 
   static class PropertyFilterSpecificationContext {
 
-    private final Map<String, Path> paths = new HashMap<>();
+    private final Map<String, Path<?>> paths = new HashMap<>();
     private int rootHashCode = 0;
 
-    public Path path(Root root, String propertyName) {
+    public Path<?> path(Root<?> root, String propertyName) {
       if (root.hashCode() != rootHashCode) {
         paths.clear();
         rootHashCode = root.hashCode();
       }
 
-      Path path = root;
+      Path<?> path = root;
       String[] propertyNames = StringUtil.tokenizeToStringArray(propertyName, ".");
       for (int i = 0; i < propertyNames.length; i++) {
         String name = propertyNames[i];
@@ -190,15 +200,15 @@ public class PropertyFilterSpecification<T> implements Specification<T> {
           continue;
         }
 
-        Path tmp;
+        Path<?> tmp;
         try {
           tmp = path.get(name);
           if (!ClassUtil.isBasicType(tmp.getJavaType())) {
-            tmp = ((From) path).join(name, JoinType.LEFT);
+            tmp = ((From<?, ?>) path).join(name, JoinType.LEFT);
             paths.put(key, tmp);
           }
         } catch (ClassCastException e) {
-          tmp = ((From) path).join(name, JoinType.LEFT);
+          tmp = ((From<?, ?>) path).join(name, JoinType.LEFT);
           paths.put(key, tmp);
         }
         path = tmp;

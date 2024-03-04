@@ -4,7 +4,6 @@ import com.zaxxer.hikari.HikariDataSource;
 import java.util.List;
 import java.util.Properties;
 import javax.sql.DataSource;
-import lombok.SneakyThrows;
 import org.apache.ibatis.type.TypeAliasRegistry;
 import org.jfantasy.autoconfigure.properties.SequenceProperties;
 import org.jfantasy.framework.dao.Page;
@@ -50,7 +49,6 @@ public class MyBatisConfig {
 
   private final HikariDataSource dataSource;
 
-  @SneakyThrows
   @Autowired
   public MyBatisConfig(
       DataSourceProperties dataSourceProperties,
@@ -67,7 +65,7 @@ public class MyBatisConfig {
 
     if (configurationPropertiesCustomizers != null) {
       for (ConfigurationPropertiesCustomizer customizer : configurationPropertiesCustomizers) {
-        customizer.apply(properties);
+        customizer.customize(properties);
       }
     }
 
