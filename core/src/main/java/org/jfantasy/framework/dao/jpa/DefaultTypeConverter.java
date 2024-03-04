@@ -12,9 +12,12 @@ public class DefaultTypeConverter<T> implements TypeConverter<T> {
 
   @Override
   public T convert(Object value) {
+    if (type.isAssignableFrom(value.getClass())) {
+      return type.cast(value);
+    }
     if (type.isEnum()) {
-      //noinspection rawtypes
-      return (T) Enum.valueOf((Class<Enum>) type, (String) value);
+      //noinspection rawtypes,unchecked
+      return (T) Enum.valueOf((Class<Enum>) type, value.toString());
     }
     return ReflectionUtils.convert(value, type);
   }
