@@ -1,5 +1,7 @@
 package org.jfantasy.autoconfigure;
 
+import javax.annotation.PostConstruct;
+import javax.persistence.EntityManagerFactory;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.EventType;
@@ -18,9 +20,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.SchedulingTaskExecutor;
 
-import javax.annotation.PostConstruct;
-import javax.persistence.EntityManagerFactory;
-
 /**
  * 搜索配置类
  *
@@ -36,8 +35,8 @@ public class SearchAutoConfiguration {
   private final EntityManagerFactory entityManagerFactory;
 
   public SearchAutoConfiguration(
-    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
-    EntityManagerFactory entityManagerFactory) {
+      @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+          EntityManagerFactory entityManagerFactory) {
     this.entityManagerFactory = entityManagerFactory;
   }
 
