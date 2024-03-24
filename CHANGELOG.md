@@ -2,6 +2,50 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.11.3](https://github.com/limaofeng/jfantasy-framework/compare/v2.11.2...v2.11.3) (2024-03-24)
+
+
+### Features
+
+* graphql 订阅模式认证支持 ([3e36c24](https://github.com/limaofeng/jfantasy-framework/commit/3e36c24e610a20b2d8cb2dfdbe0a35afb420a841))
+* jpa 保存对象时，自动注入 tenantId ([6d640fc](https://github.com/limaofeng/jfantasy-framework/commit/6d640fcc7a6bec4c1c86c2fd94fe1f40b909c4c9))
+* mybatis 分页查询支持 PropertyFilter ([fbf713d](https://github.com/limaofeng/jfantasy-framework/commit/fbf713d90e5ceb0ccec1c96e053bd30b9a6a16c1))
+* 为 LoginUser 添加 tenantId 租户ID ([769fb06](https://github.com/limaofeng/jfantasy-framework/commit/769fb06af8ca39f23a766e2369f5ece80f5238ca))
+* 为 PropertyFilterBuilder 添加 getPropertyNames ([e3e1bfc](https://github.com/limaofeng/jfantasy-framework/commit/e3e1bfcc745fa6e35782890b6b716b14c2df7523))
+* 为 TaskScheduler 添加事务注解 ([22be082](https://github.com/limaofeng/jfantasy-framework/commit/22be0822702fcf1a600f1e8edc1253eb2652fc43))
+* 优化 BatchService ([213910a](https://github.com/limaofeng/jfantasy-framework/commit/213910a5c113a3c3f59ba34dfea13534c9483a38))
+* 优化 BatchService, 打印队列大小 ([ee8e731](https://github.com/limaofeng/jfantasy-framework/commit/ee8e7314fb97cf0f851ace95d126b7341e052596))
+* 优化 FileUtil 工具类 ([b5aac20](https://github.com/limaofeng/jfantasy-framework/commit/b5aac20433a1bbc361d60fd30461eef875da0a3f))
+* 合并内容 ([c59e42b](https://github.com/limaofeng/jfantasy-framework/commit/c59e42bb0c1cc4706256ac7b3e783122b21f901d))
+* 支持 Snowflake 主键生成器 ([5a0a135](https://github.com/limaofeng/jfantasy-framework/commit/5a0a135398ccfe47ca855a54d0768ce5ce6949f1))
+* 添加 BasePublisher 支持的测试代码 ([824fec1](https://github.com/limaofeng/jfantasy-framework/commit/824fec1f71baa2fb9a45cb1de25bdc3a981eefbc))
+* 添加 DataLoaderRegistry Customizer ([202f186](https://github.com/limaofeng/jfantasy-framework/commit/202f1863c323faaf61a53e5540fc08f8f7157685))
+* 添加 JpaDefaultPropertyFilter 处理 jpa 过滤器的实现 ([5211c58](https://github.com/limaofeng/jfantasy-framework/commit/5211c5802b48a681afffb480871abad3fd9d5d45))
+* 添加 NotAuthenticatedException 异常 ([9871217](https://github.com/limaofeng/jfantasy-framework/commit/9871217eacb6e80931cb31fc25b6eafa255f6c89))
+* 添加 Qodana 插件 ([99f5064](https://github.com/limaofeng/jfantasy-framework/commit/99f5064e7b66121592f699e4d7768bdc8cd47521))
+* 添加 ShardingJdbc 支持 ([cc1526c](https://github.com/limaofeng/jfantasy-framework/commit/cc1526ce2a0d2e9c2674b1fb2e8dac7bc771d3af))
+* 添加 WhereInput 重构 graphql 查询 ([b81388b](https://github.com/limaofeng/jfantasy-framework/commit/b81388b32f5136202b5d4d6d9647f7e3a2e40960))
+* 缓存提前初始化 ([625d4a6](https://github.com/limaofeng/jfantasy-framework/commit/625d4a679ed2db838ac42bd81501c5af4633f2d2))
+* 重构 TaskScheduler ([8bef171](https://github.com/limaofeng/jfantasy-framework/commit/8bef1719bdabedd2f101a59c40390df4b4efffca))
+
+
+### Bug Fixes
+
+* Long 转换问题 ([4fc8a39](https://github.com/limaofeng/jfantasy-framework/commit/4fc8a3950409572e98f4655b55e1feaf6b9160b4))
+* Long 转换问题 ([bac50d3](https://github.com/limaofeng/jfantasy-framework/commit/bac50d33444a71cbd987f1d700956efb8bc7e25f))
+* 优化 qodana 中出现的警告 ([47bddeb](https://github.com/limaofeng/jfantasy-framework/commit/47bddeb4a1d4c8cc47e36c8d164a84b3dcece448))
+* 修复 isPropertyFilter 错误 ([13bfb32](https://github.com/limaofeng/jfantasy-framework/commit/13bfb320aaa819ad0a6a37e6760047ebfda96e62))
+* 修复 NotAuthenticatedException 对应的 ErrorCde ([23b407b](https://github.com/limaofeng/jfantasy-framework/commit/23b407b5844237525b5bf878223fb80a4be66960))
+* 修复 StringToSetDeserializer 导致之后属性解析失败的 Bug ([2ab7a83](https://github.com/limaofeng/jfantasy-framework/commit/2ab7a83b492e5d0c07d95f467a14a58d01baf000))
+* 修改 JdbcUtil ([f77c795](https://github.com/limaofeng/jfantasy-framework/commit/f77c795dd839fbaa0c0ac0e6ed8c58cc304fabef))
+* 国际序列化BUG ([9b0d8b7](https://github.com/limaofeng/jfantasy-framework/commit/9b0d8b79e9f8345b7af88ef8b5c214af35da1178))
+* 抛出认证错误，避免造成二次影响 ([cc6a9c7](https://github.com/limaofeng/jfantasy-framework/commit/cc6a9c737729c176e7107dd2f0872725070af011))
+* 解决 BusEntityInterceptor 中设置 tenantId 错误的问题 ([b5eb7fc](https://github.com/limaofeng/jfantasy-framework/commit/b5eb7fc4f48f2886c39abb03e306f985d3485c7e))
+* 解决 DateFormatDirective 不支持 Optional 类型的问题 ([65b6abb](https://github.com/limaofeng/jfantasy-framework/commit/65b6abb5930ea508b63bd8233c17e50f24ff0517))
+* 解决 graphql jar 冲突的问题 ([69f5f70](https://github.com/limaofeng/jfantasy-framework/commit/69f5f70ac4a9a70071d7c8d12559633913147db6))
+* 解决 new WhereInput 时，出现的 空异常 ([08e23d1](https://github.com/limaofeng/jfantasy-framework/commit/08e23d19a2a949c51a950744bb3b986349725959))
+* 解决枚举类型查询BUG ([19483ff](https://github.com/limaofeng/jfantasy-framework/commit/19483ff68c95afbcf1dca3f74560734710d43a9e))
+
 ### [2.11.2](https://github.com/limaofeng/jfantasy-framework/compare/v2.11.1...v2.11.2) (2024-03-04)
 
 
