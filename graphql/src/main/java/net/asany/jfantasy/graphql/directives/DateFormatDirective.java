@@ -8,6 +8,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.Optional;
+
 import net.asany.jfantasy.framework.util.common.StringUtil;
 
 /**
@@ -38,6 +40,12 @@ public class DateFormatDirective implements SchemaDirectiveWiring {
         DataFetcherFactories.wrapDataFetcher(
             originalDataFetcher,
             (dataFetchingEnvironment, value) -> {
+              if (value instanceof Optional) {
+                value = ((Optional<?>) value).orElse(null);
+              }
+              if (value == null) {
+                return null;
+              }
               String format = dataFetchingEnvironment.getArgument(FORMAT_NAME);
               if (StringUtil.isBlank(format)) {
                 if (value instanceof LocalDateTime) {
