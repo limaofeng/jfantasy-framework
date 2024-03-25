@@ -248,6 +248,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
         entity, oldEntity, ClassUtil.getDeclaredFields(entityClass, OneToMany.class), ognlUtil);
     this.cleanEmbedded(
         entity, oldEntity, ClassUtil.getDeclaredFields(entityClass, Embedded.class), ognlUtil);
+    //noinspection unchecked
     return (O) oldEntity;
   }
 
@@ -299,7 +300,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
       }
 
       List<Object> source = ognlUtil.getValue(field.getName(), oldEntity);
-      List<Object> objects = (List<Object>) fks;
+      @SuppressWarnings("unchecked") List<Object> objects = (List<Object>) fks;
 
       if (source == objects) {
         continue;
@@ -370,7 +371,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
       }
       Object fks = ognlUtil.getValue(field.getName(), entity);
       if (ClassUtil.isList(fks)) {
-        List<Object> objects = (List<Object>) fks;
+        @SuppressWarnings("unchecked") List<Object> objects = (List<Object>) fks;
         List<Object> addObjects = new ArrayList<>();
         for (Object fk : objects) {
           Serializable fkId = HibernateUtils.getIdValue(targetEntityClass, fk);
@@ -420,6 +421,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
                 Class<?> entityType =
                     ClassUtil.getInterfaceGenricType(
                         repository.getClass().getInterfaces()[0], JpaRepository.class);
+                //noinspection unchecked
                 REPOSITORIES.put(entityType, repository);
               });
     }
@@ -564,6 +566,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
 
   public Page<T> loadPage(Pageable pageable, Query query, LongSupplier supplier) {
     if (pageable.isUnpaged()) {
+      //noinspection unchecked
       return new PageImpl<T>(query.getResultList());
     }
 
@@ -572,6 +575,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
       query.setMaxResults(pageable.getPageSize());
     }
 
+    //noinspection unchecked
     return PageableExecutionUtils.getPage(query.getResultList(), pageable, supplier);
   }
 
@@ -602,6 +606,7 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
    * @return 返回集合
    */
   public List<T> find(String hql, Object... values) {
+    //noinspection unchecked
     return createQuery(hql, values).getResultList();
   }
 
@@ -613,14 +618,17 @@ public class ComplexJpaRepository<T, ID extends Serializable> extends SimpleJpaR
    * @return 返回集合
    */
   public List<T> find(String hql, Map<String, ?> values) {
+    //noinspection unchecked
     return createQuery(hql, values).getResultList();
   }
 
   public T findUnique(String hql, Object... values) {
+    //noinspection unchecked
     return (T) createQuery(hql, values).getSingleResult();
   }
 
   public T findUnique(String hql, Map<String, ?> values) {
+    //noinspection unchecked
     return (T) createQuery(hql, values).getSingleResult();
   }
 

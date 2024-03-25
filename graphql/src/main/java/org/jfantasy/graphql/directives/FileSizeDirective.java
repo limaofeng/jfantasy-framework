@@ -8,6 +8,8 @@ import graphql.schema.idl.SchemaDirectiveWiring;
 import graphql.schema.idl.SchemaDirectiveWiringEnvironment;
 import java.util.Arrays;
 import java.util.Objects;
+
+import org.jfantasy.framework.util.common.ObjectUtil;
 import org.jfantasy.framework.util.common.file.FileUtil;
 
 /**
@@ -49,7 +51,7 @@ public class FileSizeDirective implements SchemaDirectiveWiring {
               double unitMultiplier =
                   Math.pow(
                       1024,
-                      Arrays.binarySearch(
+                      ObjectUtil.indexOf(
                           FileUtil.UNITS,
                           ((StringValue) Objects.requireNonNull(unit.getValue())).getValue()));
               return FileUtil.bytesToSize(value * Double.valueOf(unitMultiplier).longValue());
