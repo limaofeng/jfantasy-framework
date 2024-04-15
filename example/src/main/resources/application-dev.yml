@@ -18,7 +18,7 @@ spring:
   redis:
     host: ${REDIS_HOST}
     password: ${REDIS_PASSWORD}
-    port: 6379
+    port: ${REDIS_PORT}
     database: 0
 #  shardingsphere:
 #    datasource:
@@ -47,8 +47,8 @@ graphql:
 cuckoo:
   elasticsearch:
     client:
-      url: https://es.thuni-h.com:9200
-      api-key: RWpsR3dvQUJINEtJY2FvWGJGMXg6QkNXZzJ0X01UY2VocFNBQUVXNGExQQ==
+      url: https://192.168.5.7:9200
+      api-key: eGhzZjFZMEJFWW50eEFqVkRzb0E6R1o5SmppWklUb216Z3dCWHZJVVpvZw==
       ssl:
         certificate-path: /Users/limaofeng/Downloads/ca/ca.crt
-  enable: false
+  enable: true

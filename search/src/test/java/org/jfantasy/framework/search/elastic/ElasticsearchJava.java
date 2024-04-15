@@ -53,7 +53,7 @@ public class ElasticsearchJava {
     final SSLContext sslContext = sslContextBuilder.build();
 
     RestClientBuilder builder =
-        RestClient.builder(new HttpHost("es.thuni-h.com", 9200, "https"))
+        RestClient.builder(new HttpHost("192.168.5.7", 9200, "https"))
             .setHttpClientConfigCallback(
                 httpClientBuilder -> httpClientBuilder.setSSLContext(sslContext));
 
@@ -61,7 +61,7 @@ public class ElasticsearchJava {
         new Header[] {
           new BasicHeader(
               "Authorization",
-              "ApiKey RWpsR3dvQUJINEtJY2FvWGJGMXg6QkNXZzJ0X01UY2VocFNBQUVXNGExQQ==")
+              "ApiKey MkJNcXc0NEI1N2cwTzFTeTEzeVA6dnVLbVRGQjZTVXEyeFJZbnozdW9wZw==")
         };
     builder.setDefaultHeaders(defaultHeaders);
 

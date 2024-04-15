@@ -10,7 +10,6 @@ import org.jfantasy.framework.util.common.ClassUtil;
 import org.jfantasy.framework.util.common.StringUtil;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
@@ -40,7 +39,8 @@ public class PropertyFilterSpecification<T> implements Specification<T> {
   }
 
   @Override
-  public Predicate toPredicate(@NonNull Root<T> root, CriteriaQuery<?> query, @NonNull CriteriaBuilder builder) {
+  public Predicate toPredicate(
+      @NonNull Root<T> root, CriteriaQuery<?> query, @NonNull CriteriaBuilder builder) {
     if (!query.isDistinct()) {
       query.distinct(true);
     }
@@ -56,7 +56,8 @@ public class PropertyFilterSpecification<T> implements Specification<T> {
       } else if (filter.getMatchType() == MatchType.AND
           || filter.getMatchType() == MatchType.OR
           || filter.getMatchType() == MatchType.NOT) {
-        @SuppressWarnings("unchecked") Predicate[] predicateChildren =
+        @SuppressWarnings("unchecked")
+        Predicate[] predicateChildren =
             buildPropertyFilterPredicate(filter.getPropertyValue(List.class), root, query, builder);
         if (predicateChildren.length == 0) {
           continue;
