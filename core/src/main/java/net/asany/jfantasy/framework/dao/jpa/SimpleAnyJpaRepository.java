@@ -41,6 +41,9 @@ import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
+import javax.persistence.CascadeType;
+import javax.persistence.OneToMany;
+
 /**
  * 自己封装的 JpaRepository
  *
@@ -360,44 +363,67 @@ public class SimpleAnyJpaRepository<T, ID extends Serializable> extends SimpleJp
     for (Field field : oneToManyFields) {
       OneToMany oneToMany = field.getAnnotation(OneToMany.class);
       Class<?> targetEntityClass = oneToMany.targetEntity();
+
       if (void.class == targetEntityClass) {
         targetEntityClass = ClassUtil.getFieldGenericType(field);
       }
+
       if (oneToMany.cascade().length != 0
-          && !(ObjectUtil.indexOf(oneToMany.cascade(), CascadeType.ALL) > -1
-              || ObjectUtil.indexOf(oneToMany.cascade(), CascadeType.MERGE) > -1)) {
+        && !(ObjectUtil.indexOf(oneToMany.cascade(), CascadeType.ALL) > -1
+        || ObjectUtil.indexOf(oneToMany.cascade(), CascadeType.MERGE) > -1)) {
         continue;
       }
-      Object fks = ognlUtil.getValue(field.getName(), entity);
-      if (ClassUtil.isList(fks)) {
-        @SuppressWarnings("unchecked")
-        List<Object> objects = (List<Object>) fks;
-        List<Object> addObjects = new ArrayList<>();
-        for (Object fk : objects) {
-          Serializable fkId = HibernateUtils.getIdValue(targetEntityClass, fk);
-          Object fkObj =
-              fkId != null ? getJpaRepository(targetEntityClass).getReferenceById(fkId) : null;
-          if (fkObj != null) {
-            addObjects.add(BeanUtil.copyProperties(fkObj, fk));
-          } else {
-            addObjects.add(fk);
+
+      Collection<Object> fks = ognlUtil.getValue(field.getName(), entity);
+
+      if (fks == null || oldEntity == null) {
+        continue;
+      }
+
+      Collection<Object> oldFks = ognlUtil.getValue(field.getName(), oldEntity);
+
+      Collection<Object> addObjects = new ArrayList<>();
+      for (Object fk : fks) {
+        Serializable fkId = HibernateUtils.getIdValue(targetEntityClass, fk);
+        Object fkObj = ObjectUtil.find(oldFks, this.getIdName(targetEntityClass), fkId);
+        if (fkObj != null) {
+          addObjects.add(BeanUtil.copyProperties(fkObj, fk));
+        } else {
+          if (oneToMany.orphanRemoval()) {
+            oldFks.add(fk);
           }
+          addObjects.add(fk);
         }
-        ognlUtil.setValue(field.getName(), oldEntity == null ? entity : oldEntity, addObjects);
-        if (oldEntity == null) {
-          continue;
-        }
-        List<Object> oldFks = ognlUtil.getValue(field.getName(), oldEntity);
-        // 删除原有数据
-        for (Object odl : oldFks) {
-          if (ObjectUtil.find(
-                  addObjects,
-                  this.getIdName(targetEntityClass),
-                  HibernateUtils.getIdValue(targetEntityClass, odl))
-              == null) {
-            getJpaRepository(targetEntityClass).delete(odl);
-            log.debug("删除数据" + HibernateUtils.getIdValue(targetEntityClass, odl));
-          }
+      }
+
+      if (!oneToMany.orphanRemoval()) {
+        ognlUtil.setValue(field.getName(), oldEntity, addObjects);
+      }
+
+      // 删除原有数据
+      final Class<?> finalTargetEntityClass = targetEntityClass;
+      @SuppressWarnings("ComparatorMethodParameterNotUsed")
+      List<Object> delFks =
+        ObjectUtil.compare(
+            oldFks,
+            addObjects,
+            (o1, o2) -> {
+              Serializable fkId1 = HibernateUtils.getIdValue(finalTargetEntityClass, o1);
+              Serializable fkId2 = HibernateUtils.getIdValue(finalTargetEntityClass, o2);
+              if (o1 == o2) {
+                return 0;
+              }
+              return fkId1 != null && fkId1.equals(fkId2) ? 0 : -1;
+            })
+          .getExceptA();
+      for (Object odl : delFks) {
+        String name = this.getIdName(targetEntityClass);
+        Object value = HibernateUtils.getIdValue(targetEntityClass, odl);
+        if (oneToMany.orphanRemoval()) {
+          ObjectUtil.remove(oldFks, name, value);
+        } else {
+          getJpaRepository(targetEntityClass).delete(odl);
+          log.debug("删除数据" + value);
         }
       }
     }
