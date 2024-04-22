@@ -6,9 +6,7 @@ import graphql.language.StringValue;
 import graphql.schema.*;
 import graphql.schema.idl.SchemaDirectiveWiring;
 import graphql.schema.idl.SchemaDirectiveWiringEnvironment;
-import java.util.Arrays;
 import java.util.Objects;
-
 import net.asany.jfantasy.framework.util.common.ObjectUtil;
 import net.asany.jfantasy.framework.util.common.file.FileUtil;
 
@@ -32,10 +30,11 @@ public class FileSizeDirective implements SchemaDirectiveWiring {
   @Override
   public GraphQLFieldDefinition onField(
       SchemaDirectiveWiringEnvironment<GraphQLFieldDefinition> environment) {
-    InputValueWithState unit = environment.getDirective().getArgument(UNIT_NAME).getArgumentValue();
+    InputValueWithState unit =
+        environment.getAppliedDirective().getArgument(UNIT_NAME).getArgumentValue();
 
     GraphQLFieldDefinition field = environment.getElement();
-    GraphQLFieldsContainer parentType = environment.getFieldsContainer();
+    GraphQLObjectType parentType = (GraphQLObjectType) environment.getFieldsContainer();
     DataFetcher<?> originalDataFetcher =
         environment.getCodeRegistry().getDataFetcher(parentType, field);
 

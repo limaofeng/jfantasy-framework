@@ -19,6 +19,10 @@ public class WebErrorAttributes extends DefaultErrorAttributes {
 
     Throwable throwable = getError(request);
 
+    if (throwable == null) {
+      return map;
+    }
+
     ErrorUtils.populateErrorAttributesFromException(map, throwable);
 
     return map;

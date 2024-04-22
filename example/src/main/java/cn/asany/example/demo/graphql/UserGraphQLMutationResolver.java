@@ -34,7 +34,7 @@ public class UserGraphQLMutationResolver implements GraphQLMutationResolver {
     this.multiDataSourceManager = multiDataSourceManager;
   }
 
-  public User createUser(@Validated UserCreateInput input) {
+  public User createDemoUser(@Validated UserCreateInput input) {
     User user = userConverter.toUser(input);
     try {
       return userService.save(user);

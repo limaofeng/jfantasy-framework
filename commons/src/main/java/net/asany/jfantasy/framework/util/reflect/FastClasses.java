@@ -99,9 +99,16 @@ public class FastClasses<T> implements IClass<T> {
   }
 
   @Override
-  @SneakyThrows({InstantiationException.class, IllegalAccessException.class})
+  @SneakyThrows({
+    InstantiationException.class,
+    IllegalAccessException.class,
+    NoSuchMethodException.class,
+    SecurityException.class,
+    IllegalArgumentException.class,
+    InvocationTargetException.class
+  })
   public T newInstance() {
-    return this.clazz.newInstance();
+    return this.clazz.getConstructor().newInstance();
   }
 
   @Override
@@ -119,6 +126,7 @@ public class FastClasses<T> implements IClass<T> {
     InvocationTargetException.class
   })
   public T newInstance(Class<?> type, Object object) {
+    //noinspection unchecked
     return (T) this.constructors.get(type).newInstance(object);
   }
 

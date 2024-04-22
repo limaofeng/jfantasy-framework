@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import lombok.Setter;
 import lombok.SneakyThrows;
 import net.asany.jfantasy.framework.util.common.ClassUtil;
 import net.asany.jfantasy.framework.util.reflect.Property;
@@ -34,10 +35,9 @@ public class Kit {
     return input.getClass().getSimpleName();
   }
 
-  @SneakyThrows({InstantiationException.class, IllegalAccessException.class})
   public static <C extends Connection<R, S>, S, T, R extends Edge<S>> C connection(
       Page<T> page, Class<C> connectionClass, Function<T, R> mapper) {
-    C connection = connectionClass.newInstance();
+    C connection = ClassUtil.newInstance(connectionClass);
 
     List<T> nodes = page.getContent();
 
@@ -63,7 +63,7 @@ public class Kit {
 
   public static <C extends Connection<R, T>, T, R extends Edge<T>> C connection(
       Page<T> page, Class<C> connectionClass) {
-    Class<?> edgeClass =
+    Class<Edge<R>> edgeClass =
         ClassUtil.forName(
             ((ParameterizedType) connectionClass.getGenericSuperclass())
                 .getActualTypeArguments()[0].getTypeName());
@@ -72,7 +72,7 @@ public class Kit {
 
   public static <C extends Connection<R, S>, S, T, R extends Edge<S>> C connection(
       net.asany.jfantasy.framework.dao.Page<T> page, Class<C> connectionClass) {
-    Class<?> edgeClass =
+    Class<Edge<R>> edgeClass =
         ClassUtil.forName(
             ((ParameterizedType) connectionClass.getGenericSuperclass())
                 .getActualTypeArguments()[0].getTypeName());
@@ -116,7 +116,7 @@ public class Kit {
       Function<T, R> mapper,
       Class<C> connectionClass) {
     if (mapper instanceof EdgeConverter && ((EdgeConverter<?, ?>) mapper).edgeClass == null) {
-      Class<?> edgeClass =
+      Class<Edge<R>> edgeClass =
           ClassUtil.forName(
               ((ParameterizedType) connectionClass.getGenericSuperclass())
                   .getActualTypeArguments()[0].getTypeName());
@@ -135,10 +135,10 @@ public class Kit {
   }
 
   public static class EdgeConverter<T, R> implements Function<T, R> {
-    private Class<?> edgeClass;
+    @Setter private Class<Edge<R>> edgeClass;
     private Function<T, R> mapper;
 
-    public EdgeConverter(Class<?> edgeClass) {
+    public EdgeConverter(Class<Edge<R>> edgeClass) {
       this.edgeClass = edgeClass;
     }
 
@@ -146,20 +146,18 @@ public class Kit {
       this.mapper = mapper;
     }
 
-    public void setEdgeClass(Class<?> edgeClass) {
-      this.edgeClass = edgeClass;
-    }
-
     @Override
-    @SneakyThrows(ReflectiveOperationException.class)
     public R apply(T value) {
-      Edge<T> edge = (Edge<T>) edgeClass.newInstance();
+      Edge<R> edge = ClassUtil.newInstance(edgeClass);
+      assert edge != null;
       if (mapper != null) {
-        edge.setNode((T) mapper.apply(value));
+        edge.setNode(mapper.apply(value));
       } else {
-        edge.setNode(value);
+        //noinspection unchecked
+        edge.setNode((R) value);
       }
       edge.setCursor(getCursor(value));
+      //noinspection unchecked
       return (R) edge;
     }
 

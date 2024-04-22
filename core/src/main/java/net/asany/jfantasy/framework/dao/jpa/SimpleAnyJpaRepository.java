@@ -41,9 +41,6 @@ import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
-import javax.persistence.CascadeType;
-import javax.persistence.OneToMany;
-
 /**
  * 自己封装的 JpaRepository
  *
@@ -369,8 +366,8 @@ public class SimpleAnyJpaRepository<T, ID extends Serializable> extends SimpleJp
       }
 
       if (oneToMany.cascade().length != 0
-        && !(ObjectUtil.indexOf(oneToMany.cascade(), CascadeType.ALL) > -1
-        || ObjectUtil.indexOf(oneToMany.cascade(), CascadeType.MERGE) > -1)) {
+          && !(ObjectUtil.indexOf(oneToMany.cascade(), CascadeType.ALL) > -1
+              || ObjectUtil.indexOf(oneToMany.cascade(), CascadeType.MERGE) > -1)) {
         continue;
       }
 
@@ -404,18 +401,18 @@ public class SimpleAnyJpaRepository<T, ID extends Serializable> extends SimpleJp
       final Class<?> finalTargetEntityClass = targetEntityClass;
       @SuppressWarnings("ComparatorMethodParameterNotUsed")
       List<Object> delFks =
-        ObjectUtil.compare(
-            oldFks,
-            addObjects,
-            (o1, o2) -> {
-              Serializable fkId1 = HibernateUtils.getIdValue(finalTargetEntityClass, o1);
-              Serializable fkId2 = HibernateUtils.getIdValue(finalTargetEntityClass, o2);
-              if (o1 == o2) {
-                return 0;
-              }
-              return fkId1 != null && fkId1.equals(fkId2) ? 0 : -1;
-            })
-          .getExceptA();
+          ObjectUtil.compare(
+                  oldFks,
+                  addObjects,
+                  (o1, o2) -> {
+                    Serializable fkId1 = HibernateUtils.getIdValue(finalTargetEntityClass, o1);
+                    Serializable fkId2 = HibernateUtils.getIdValue(finalTargetEntityClass, o2);
+                    if (o1 == o2) {
+                      return 0;
+                    }
+                    return fkId1 != null && fkId1.equals(fkId2) ? 0 : -1;
+                  })
+              .getExceptA();
       for (Object odl : delFks) {
         String name = this.getIdName(targetEntityClass);
         Object value = HibernateUtils.getIdValue(targetEntityClass, odl);

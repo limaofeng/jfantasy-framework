@@ -19,7 +19,7 @@ spring:
     redis:
       host: ${REDIS_HOST}
       password: ${REDIS_PASSWORD}
-      port: 6379
+      port: ${REDIS_PORT}
       database: 0
   quartz:
     jdbc:
