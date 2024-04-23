@@ -4,7 +4,6 @@ import net.asany.jfantasy.framework.security.auth.apikey.ApiKey;
 import net.asany.jfantasy.framework.security.auth.apikey.ApiKeyAuthenticationProvider;
 import net.asany.jfantasy.framework.security.auth.apikey.ApiKeyServices;
 import net.asany.jfantasy.framework.security.auth.apikey.ApiKeyStore;
-import net.asany.jfantasy.framework.security.auth.core.ClientDetailsService;
 import net.asany.jfantasy.framework.security.auth.core.TokenServiceFactory;
 import net.asany.jfantasy.framework.security.auth.core.TokenStore;
 import net.asany.jfantasy.framework.security.auth.core.token.ResourceServerTokenServices;
@@ -14,7 +13,6 @@ import net.asany.jfantasy.framework.security.auth.oauth2.server.authentication.B
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
 /**
@@ -31,15 +29,6 @@ public class ResourceServerAutoConfiguration {
     tokenServiceFactory.registerTokenService(ApiKey.class, ApiKeyServices.class);
     tokenServiceFactory.registerTokenService(OAuth2AccessToken.class, DefaultTokenServices.class);
     return tokenServiceFactory;
-  }
-
-  @Bean
-  @ConditionalOnBean({ClientDetailsService.class, TokenStore.class})
-  public DefaultTokenServices tokenServices(
-      TokenStore<OAuth2AccessToken> tokenStore,
-      ClientDetailsService clientDetailsService,
-      TaskExecutor taskExecutor) {
-    return new DefaultTokenServices(tokenStore, clientDetailsService, taskExecutor);
   }
 
   @Bean

@@ -5,13 +5,16 @@ import java.util.Map;
 import net.asany.jfantasy.framework.security.auth.core.token.AuthorizationServerTokenServices;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 
-public class TokenServiceFactory implements ApplicationContextAware {
+public class TokenServiceFactory implements BeanDefinitionRegistryPostProcessor {
 
-  private ApplicationContext applicationContext;
-
+  private ConfigurableListableBeanFactory beanFactory;
   private final Map<
           Class<? extends AuthToken>,
           Class<? extends AuthorizationServerTokenServices<? extends AuthToken>>>
@@ -21,7 +24,7 @@ public class TokenServiceFactory implements ApplicationContextAware {
     Class<?> serviceClass = tokenServicesMap.get(type);
     if (serviceClass != null) {
       //noinspection unchecked
-      return (T) applicationContext.getBean(serviceClass);
+      return (T) beanFactory.getBean(serviceClass);
     }
     throw new IllegalArgumentException("No token service registered for type: " + type);
   }
@@ -33,8 +36,36 @@ public class TokenServiceFactory implements ApplicationContextAware {
   }
 
   @Override
-  public void setApplicationContext(@NotNull ApplicationContext applicationContext)
+  public void postProcessBeanDefinitionRegistry(@NotNull BeanDefinitionRegistry registry)
       throws BeansException {
-    this.applicationContext = applicationContext;
+    tokenServicesMap.forEach(
+        (tokenType, serviceClass) -> {
+          if (!hasBeanDefinition(registry, serviceClass)) {
+            BeanDefinition beanDefinition = buildBeanDefinition(serviceClass);
+            registry.registerBeanDefinition(serviceClass.getSimpleName(), beanDefinition);
+          }
+        });
+  }
+
+  private boolean hasBeanDefinition(
+      BeanDefinitionRegistry registry,
+      Class<? extends AuthorizationServerTokenServices<? extends AuthToken>> serviceClass) {
+    try {
+      ((DefaultListableBeanFactory) registry).getBean(serviceClass);
+      return true;
+    } catch (BeansException e) {
+      return false;
+    }
+  }
+
+  private BeanDefinition buildBeanDefinition(Class<?> serviceClass) {
+    BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(serviceClass);
+    return builder.getBeanDefinition();
+  }
+
+  @Override
+  public void postProcessBeanFactory(@NotNull ConfigurableListableBeanFactory beanFactory)
+      throws BeansException {
+    this.beanFactory = beanFactory;
   }
 }
