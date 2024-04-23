@@ -101,7 +101,7 @@ public class DefaultTokenServices
             .iss("https://www.asany.cn")
             .name(authentication.getName())
             .clientId(clientDetails.getClientId())
-            //            .tokenType(tokenType)
+            .tokenType(tokenType)
             .iat(issuedAt.getEpochSecond())
             .exp(expiresAt.getEpochSecond());
 
@@ -203,7 +203,16 @@ public class DefaultTokenServices
       ClientDetails clientDetails =
           clientDetailsService.loadClientByClientId(payload.getClientId());
 
-      Set<String> secrets = clientDetails.getClientSecrets(ClientSecretType.OAUTH);
+      TokenType tokenType = payload.getTokenType();
+
+      ClientSecretType clientSecretType =
+          switch (tokenType) {
+            case PERSONAL_ACCESS_TOKEN -> ClientSecretType.PERSONAL_ACCESS_TOKEN;
+            case SESSION_ID -> ClientSecretType.SESSION;
+            default -> ClientSecretType.OAUTH;
+          };
+
+      Set<String> secrets = clientDetails.getClientSecrets(clientSecretType);
       int expires = clientDetails.getTokenExpires(TokenType.PERSONAL_ACCESS_TOKEN);
 
       // 验证 Token
@@ -240,10 +249,14 @@ public class DefaultTokenServices
       ClientDetails clientDetails =
           clientDetailsService.loadClientByClientId(payload.getClientId());
 
+      tokenType = tokenType == TokenType.JWT ? payload.getTokenType() : tokenType;
+
       ClientSecretType clientSecretType =
-          tokenType == TokenType.PERSONAL_ACCESS_TOKEN
-              ? ClientSecretType.PERSONAL_ACCESS_TOKEN
-              : ClientSecretType.OAUTH;
+          switch (tokenType) {
+            case PERSONAL_ACCESS_TOKEN -> ClientSecretType.PERSONAL_ACCESS_TOKEN;
+            case SESSION_ID -> ClientSecretType.SESSION;
+            default -> ClientSecretType.OAUTH;
+          };
 
       Set<String> secrets = clientDetails.getClientSecrets(clientSecretType);
       int expires = clientDetails.getTokenExpires(tokenType);
