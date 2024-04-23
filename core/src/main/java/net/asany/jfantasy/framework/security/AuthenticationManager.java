@@ -14,15 +14,13 @@ import org.springframework.util.Assert;
 @Slf4j
 public class AuthenticationManager {
 
-  @SuppressWarnings("rawtypes")
-  private List<AuthenticationProvider> providers = new ArrayList<>();
+  private List<AuthenticationProvider<? extends Authentication>> providers = new ArrayList<>();
 
   private AuthenticationEventPublisher eventPublisher = new NullEventPublisher();
 
   public AuthenticationManager() {}
 
-  public AuthenticationManager(
-      @SuppressWarnings("rawtypes") List<AuthenticationProvider> providers) {
+  public AuthenticationManager(List<AuthenticationProvider<? extends Authentication>> providers) {
     this.providers = providers;
   }
 
@@ -33,8 +31,7 @@ public class AuthenticationManager {
     int currentPosition = 0;
     int size = this.providers.size();
 
-    for (@SuppressWarnings("rawtypes") AuthenticationProvider provider : this.providers) {
-      //noinspection unchecked
+    for (AuthenticationProvider<? extends Authentication> provider : this.providers) {
       if (!provider.supports(toTest)) {
         continue;
       }
@@ -46,7 +43,7 @@ public class AuthenticationManager {
       }
       try {
         //noinspection unchecked
-        result = provider.authenticate(authentication);
+        result = ((AuthenticationProvider<Authentication>) provider).authenticate(authentication);
         if (result != null) {
           copyDetails(authentication, result);
           break;

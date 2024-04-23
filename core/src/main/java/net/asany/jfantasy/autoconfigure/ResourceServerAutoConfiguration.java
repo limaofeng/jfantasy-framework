@@ -10,7 +10,6 @@ import net.asany.jfantasy.framework.security.auth.core.token.ResourceServerToken
 import net.asany.jfantasy.framework.security.auth.oauth2.DefaultTokenServices;
 import net.asany.jfantasy.framework.security.auth.oauth2.core.OAuth2AccessToken;
 import net.asany.jfantasy.framework.security.auth.oauth2.server.authentication.BearerTokenAuthenticationProvider;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -32,7 +31,6 @@ public class ResourceServerAutoConfiguration {
   }
 
   @Bean
-  @ConditionalOnBean({ResourceServerTokenServices.class})
   public BearerTokenAuthenticationProvider bearerTokenAuthenticationProvider(
       ResourceServerTokenServices<OAuth2AccessToken> tokenServices) {
     return new BearerTokenAuthenticationProvider(tokenServices);

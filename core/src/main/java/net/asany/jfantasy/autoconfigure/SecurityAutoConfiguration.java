@@ -9,10 +9,7 @@ import net.asany.jfantasy.framework.security.AuthenticationManager;
 import net.asany.jfantasy.framework.security.DefaultAuthenticationManagerResolver;
 import net.asany.jfantasy.framework.security.WebFluxAuthenticationManagerResolver;
 import net.asany.jfantasy.framework.security.WebSocketAuthenticationManagerResolver;
-import net.asany.jfantasy.framework.security.authentication.AuthenticationEventPublisher;
-import net.asany.jfantasy.framework.security.authentication.AuthenticationManagerResolver;
-import net.asany.jfantasy.framework.security.authentication.AuthenticationProvider;
-import net.asany.jfantasy.framework.security.authentication.DefaultAuthenticationEventPublisher;
+import net.asany.jfantasy.framework.security.authentication.*;
 import net.asany.jfantasy.framework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider.DefaultPostAuthenticationChecks;
 import net.asany.jfantasy.framework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider.DefaultPreAuthenticationChecks;
 import net.asany.jfantasy.framework.security.authentication.dao.DaoAuthenticationProvider;
@@ -57,7 +54,7 @@ public class SecurityAutoConfiguration {
 
   @Bean
   public AuthenticationManager authenticationManager(
-      @SuppressWarnings("rawtypes") List<AuthenticationProvider> providers,
+      List<AuthenticationProvider<? extends Authentication>> providers,
       @Autowired(required = false) AuthenticationEventPublisher publisher) {
     AuthenticationManager authenticationManager = new AuthenticationManager(providers);
     if (publisher != null) {
