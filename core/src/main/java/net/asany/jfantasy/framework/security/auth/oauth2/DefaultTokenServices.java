@@ -118,7 +118,11 @@ public class DefaultTokenServices
     if (supportRefreshToken) {
       String refreshTokenValue = generateRefreshTokenValue();
       AuthRefreshToken refreshToken =
-          new AuthRefreshToken("", refreshTokenValue, issuedAt, expiresAt.plus(7, ChronoUnit.DAYS));
+          new AuthRefreshToken(
+              details.getClientId(),
+              refreshTokenValue,
+              issuedAt,
+              expiresAt.plus(7, ChronoUnit.DAYS));
       tokenStore.storeRefreshToken(refreshToken, authentication);
 
       accessToken.setRefreshTokenValue(refreshTokenValue);
@@ -235,12 +239,12 @@ public class DefaultTokenServices
       ClientDetails clientDetails =
           clientDetailsService.loadClientByClientId(payload.getClientId());
 
-      ClientSecretType clientSecretType = tokenType == TokenType.PERSONAL_ACCESS_TOKEN
-        ? ClientSecretType.PERSONAL_ACCESS_TOKEN
-        : ClientSecretType.OAUTH;
+      ClientSecretType clientSecretType =
+          tokenType == TokenType.PERSONAL_ACCESS_TOKEN
+              ? ClientSecretType.PERSONAL_ACCESS_TOKEN
+              : ClientSecretType.OAUTH;
 
-      Set<String> secrets =
-          clientDetails.getClientSecrets(clientSecretType);
+      Set<String> secrets = clientDetails.getClientSecrets(clientSecretType);
       int expires = clientDetails.getTokenExpires(tokenType);
 
       // 验证 Token
