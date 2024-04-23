@@ -10,37 +10,23 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.util.List;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import net.asany.jfantasy.framework.util.common.ClassUtil;
 
 @Getter
 @Slf4j
+@NoArgsConstructor
 public class ObjectMapperWrapper {
+
+  public static ObjectMapperWrapper DEFAULT = new ObjectMapperWrapper(new ObjectMapper());
 
   private ObjectMapper objectMapper;
 
-  //  private JSON.XmlUtil xmlUtil;
-
-  //  public synchronized void initialize() {
-  //    if (jsonMapper != null && xmlMapper != null) {
-  //      Jackson2ObjectMapperBuilder jsonMapperBuilder = new Jackson2ObjectMapperBuilder();
-  //      new JacksonConfig.AnyJackson2ObjectMapperBuilderCustomizer().customize(jsonMapperBuilder);
-  //      setJsonMapper(jsonMapperBuilder.build());
-  //
-  //      Jackson2ObjectMapperBuilder xmlMapperBuilder = Jackson2ObjectMapperBuilder.xml();
-  //      new JacksonConfig.AnyJackson2XmlMapperBuilderCustomizer().customize(xmlMapperBuilder);
-  //      setXmlMapper(xmlMapperBuilder.build());
-  //    }
-  //  }
-
-  //  public synchronized void setXmlMapper(XmlMapper xmlMapper) {
-  //    if (JSON.xmlMapper != null) {
-  //      log.warn("重置 JSON 工具类中的 XmlMapper 对象.");
-  //    }
-  //    JSON.xmlMapper = xmlMapper;
-  //    xmlUtil = new JSON.XmlUtil((XmlMapper) JSON.xmlMapper);
-  //  }
+  private ObjectMapperWrapper(ObjectMapper objectMapper) {
+    this.objectMapper = objectMapper;
+  }
 
   @SneakyThrows
   public String serialize(Object object, String... ignoreProperties) {
@@ -137,10 +123,6 @@ public class ObjectMapperWrapper {
       log.error(e.getMessage(), e);
       return null;
     }
-  }
-
-  public ObjectMapper getObjectMapper() {
-    return this.objectMapper;
   }
 
   public void setObjectMapper(ObjectMapper objectMapper) {

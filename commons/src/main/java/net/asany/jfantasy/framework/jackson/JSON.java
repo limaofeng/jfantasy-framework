@@ -19,7 +19,7 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 @Slf4j
 public class JSON {
 
-  private static final ObjectMapperWrapper wrapper = new ObjectMapperWrapper();
+  private static final ObjectMapperWrapper wrapper = ObjectMapperWrapper.DEFAULT;
 
   public static synchronized ObjectMapperWrapper initialize() {
     if (wrapper.getObjectMapper() != null) {
