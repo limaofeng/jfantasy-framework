@@ -113,7 +113,7 @@ public class DefaultTokenServices
 
     String tokenValue = generateTokenValue(payload, secret);
 
-    OAuth2AccessToken accessToken = new OAuth2AccessToken("", tokenValue, issuedAt, expiresAt);
+    OAuth2AccessToken accessToken = new OAuth2AccessToken(clientDetails.getClientId(), tokenValue, issuedAt, expiresAt);
 
     if (supportRefreshToken) {
       String refreshTokenValue = generateRefreshTokenValue();
