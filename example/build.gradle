@@ -23,14 +23,6 @@ bootRun {
 	jvmArgs "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005"
 }
 
-dependencyManagement {
-	dependencies {
-		dependency("com.mashape.unirest:unirest-java:${LIB_UNIREST_VER}") {
-			exclude 'org.json:json'
-		}
-	}
-}
-
 dependencies {
 	implementation project(":jfantasy-core")
 	implementation project(":jfantasy-graphql")

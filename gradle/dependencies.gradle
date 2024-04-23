@@ -2,9 +2,8 @@ ext {
 
     libs = [
             unirest      : [
-                    dependencies.create("com.mashape.unirest:unirest-java:${LIB_UNIREST_VER}"){
+                    dependencies.create("com.konghq:unirest-java:${LIB_UNIREST_VER}"){
                         exclude group: "commons-logging", module: "commons-logging"
-                        exclude group: "org.json", module: "json"
                     }
             ],
             quartz       : [

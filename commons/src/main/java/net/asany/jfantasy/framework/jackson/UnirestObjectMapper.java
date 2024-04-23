@@ -1,8 +1,9 @@
 package net.asany.jfantasy.framework.jackson;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.mashape.unirest.http.ObjectMapper;
 import java.io.IOException;
+
+import kong.unirest.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

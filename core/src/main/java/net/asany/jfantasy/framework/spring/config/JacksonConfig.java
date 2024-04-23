@@ -9,10 +9,11 @@ import com.fasterxml.jackson.databind.ser.PropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.mashape.unirest.http.Unirest;
 import jakarta.annotation.PostConstruct;
 import java.lang.reflect.Method;
 import java.util.*;
+
+import kong.unirest.Unirest;
 import lombok.extern.slf4j.Slf4j;
 import net.asany.jfantasy.framework.jackson.*;
 import net.asany.jfantasy.framework.jackson.annotation.JsonResultFilter;
@@ -195,7 +196,7 @@ public class JacksonConfig {
         throws BeansException {
       if (bean instanceof ObjectMapper objectMapper) {
         JSON.setObjectMapper(objectMapper);
-        Unirest.setObjectMapper(new UnirestObjectMapper(objectMapper));
+        Unirest.config().setObjectMapper(new UnirestObjectMapper(objectMapper));
       }
       return bean;
     }
