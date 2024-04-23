@@ -1,6 +1,6 @@
 package net.asany.jfantasy.chatgpt;
 
-import com.mashape.unirest.http.exceptions.UnirestException;
+import kong.unirest.UnirestException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

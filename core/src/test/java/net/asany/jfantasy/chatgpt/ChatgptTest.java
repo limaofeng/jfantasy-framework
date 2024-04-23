@@ -1,7 +1,7 @@
 package net.asany.jfantasy.chatgpt;
 
-import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.http.exceptions.UnirestException;
+import kong.unirest.Unirest;
+import kong.unirest.UnirestException;
 import net.asany.jfantasy.framework.jackson.JSON;
 import net.asany.jfantasy.framework.jackson.UnirestObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,7 +11,7 @@ public class ChatgptTest {
 
   @BeforeEach
   void setUp() {
-    Unirest.setObjectMapper(new UnirestObjectMapper(JSON.getObjectMapper()));
+    Unirest.config().setObjectMapper(new UnirestObjectMapper(JSON.getObjectMapper()));
   }
 
   @Test

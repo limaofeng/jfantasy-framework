@@ -43,10 +43,11 @@ public class DefaultTokenServices
   private final TaskExecutor taskExecutor;
 
   public DefaultTokenServices(
-      TokenStore<AuthToken> tokenStore,
+      TokenStore<? extends AuthToken> tokenStore,
       ClientDetailsService clientDetailsService,
       TaskExecutor taskExecutor) {
-    this.tokenStore = tokenStore;
+    //noinspection unchecked
+    this.tokenStore = (TokenStore<AuthToken>) tokenStore;
     this.clientDetailsService = clientDetailsService;
     this.taskExecutor = taskExecutor;
   }
@@ -85,12 +86,10 @@ public class DefaultTokenServices
         secret = clientDetails.getClientSecret(ClientSecretType.OAUTH);
         expiresAt = Instant.now().plus(expires, ChronoUnit.MINUTES);
       }
+    } else if (tokenType == TokenType.SESSION_ID) {
+      secret = clientDetails.getClientSecret(ClientSecretType.OAUTH);
+      expiresAt = Instant.now().plus(expires, ChronoUnit.MINUTES);
     }
-
-    //    else if (tokenType == TokenType.SESSION_ID) {
-    //      secret = clientDetails.getClientSecret(ClientSecretType.SESSION);
-    //      expiresAt = Instant.now().plus(expires, ChronoUnit.MINUTES);
-    //    }
 
     if (secret == null) {
       throw new AuthenticationException("无效的 client_secret");
@@ -214,9 +213,9 @@ public class DefaultTokenServices
       }
 
       // 如果续期方式为 Session 执行续期操作
-      //      if (accessToken.getTokenType() == TokenType.SESSION_ID) {
-      //        this.refreshAccessToken(accessToken, expires);
-      //      }
+      if (accessToken.getTokenType() == TokenType.SESSION_ID) {
+        this.refreshAccessToken((OAuth2AccessToken) accessToken, expires);
+      }
 
       return accessToken;
     } catch (Exception e) {
@@ -254,9 +253,9 @@ public class DefaultTokenServices
       }
 
       // 如果续期方式为 Session 执行续期操作
-      //      if (tokenType == TokenType.SESSION_ID) {
-      //        this.refreshAccessToken(accessToken, expires, token);
-      //      }
+      if (tokenType == TokenType.SESSION_ID) {
+        this.refreshAccessToken((OAuth2AccessToken) accessToken, expires, token);
+      }
 
       return accessToken;
     } catch (Exception e) {

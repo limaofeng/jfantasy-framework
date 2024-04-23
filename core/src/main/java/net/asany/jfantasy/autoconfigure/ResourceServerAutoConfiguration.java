@@ -35,7 +35,7 @@ public class ResourceServerAutoConfiguration {
   @Bean
   @ConditionalOnBean({ClientDetailsService.class, TokenStore.class})
   public DefaultTokenServices tokenServices(
-      TokenStore<AuthToken> tokenStore,
+      TokenStore<? extends AuthToken> tokenStore,
       ClientDetailsService clientDetailsService,
       TaskExecutor taskExecutor) {
     return new DefaultTokenServices(tokenStore, clientDetailsService, taskExecutor);

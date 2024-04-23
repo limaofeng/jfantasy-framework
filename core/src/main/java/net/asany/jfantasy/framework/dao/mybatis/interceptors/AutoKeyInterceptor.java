@@ -3,6 +3,7 @@ package net.asany.jfantasy.framework.dao.mybatis.interceptors;
 import jakarta.persistence.GeneratedValue;
 import java.lang.reflect.Field;
 import java.util.*;
+import lombok.Setter;
 import net.asany.jfantasy.framework.dao.mybatis.keygen.GUIDKeyGenerator;
 import net.asany.jfantasy.framework.dao.mybatis.keygen.MultiKeyGenerator;
 import net.asany.jfantasy.framework.dao.mybatis.keygen.SequenceKeyGenerator;
@@ -24,6 +25,7 @@ import org.apache.ibatis.plugin.Plugin;
  * @version 1.0
  * @since 2012-10-28 下午08:13:36
  */
+@Setter
 @Intercepts({
   @org.apache.ibatis.plugin.Signature(
       type = org.apache.ibatis.executor.Executor.class,
@@ -96,9 +98,5 @@ public class AutoKeyInterceptor implements Interceptor {
       this.initKeyGenerators();
     }
     return this.keyGenerators.get(key);
-  }
-
-  public void setKeyGenerators(Map<String, KeyGenerator> keyGenerators) {
-    this.keyGenerators = keyGenerators;
   }
 }
