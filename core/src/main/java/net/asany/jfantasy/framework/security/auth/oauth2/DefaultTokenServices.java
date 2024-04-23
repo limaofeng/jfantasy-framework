@@ -86,7 +86,7 @@ public class DefaultTokenServices
         expiresAt = Instant.now().plus(expires, ChronoUnit.MINUTES);
       }
     } else if (tokenType == TokenType.SESSION_ID) {
-      secret = clientDetails.getClientSecret(ClientSecretType.OAUTH);
+      secret = clientDetails.getClientSecret(ClientSecretType.SESSION);
       expiresAt = Instant.now().plus(expires, ChronoUnit.MINUTES);
     }
 
@@ -234,12 +234,14 @@ public class DefaultTokenServices
       // 获取客户端配置
       ClientDetails clientDetails =
           clientDetailsService.loadClientByClientId(payload.getClientId());
+
+      ClientSecretType clientSecretType = tokenType == TokenType.PERSONAL_ACCESS_TOKEN
+        ? ClientSecretType.PERSONAL_ACCESS_TOKEN
+        : ClientSecretType.OAUTH;
+
       Set<String> secrets =
-          clientDetails.getClientSecrets(
-              tokenType == TokenType.PERSONAL_ACCESS_TOKEN
-                  ? ClientSecretType.PERSONAL_ACCESS_TOKEN
-                  : ClientSecretType.OAUTH);
-      int expires = clientDetails.getTokenExpires(TokenType.PERSONAL_ACCESS_TOKEN);
+          clientDetails.getClientSecrets(clientSecretType);
+      int expires = clientDetails.getTokenExpires(tokenType);
 
       // 验证 Token
       verifyToken(token.getToken(), secrets);
@@ -253,7 +255,7 @@ public class DefaultTokenServices
 
       // 如果续期方式为 Session 执行续期操作
       if (tokenType == TokenType.SESSION_ID) {
-        this.refreshAccessToken((OAuth2AccessToken) accessToken, expires, token);
+        this.refreshAccessToken(accessToken, expires, token);
       }
 
       return accessToken;
