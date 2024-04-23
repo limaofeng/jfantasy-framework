@@ -2,9 +2,9 @@ package net.asany.jfantasy.framework.security.auth.oauth2.server.authentication;
 
 import lombok.extern.slf4j.Slf4j;
 import net.asany.jfantasy.framework.security.AuthenticationException;
-import net.asany.jfantasy.framework.security.auth.core.AuthToken;
 import net.asany.jfantasy.framework.security.auth.core.InvalidTokenException;
 import net.asany.jfantasy.framework.security.auth.core.token.ResourceServerTokenServices;
+import net.asany.jfantasy.framework.security.auth.oauth2.core.OAuth2AccessToken;
 import net.asany.jfantasy.framework.security.auth.oauth2.server.BearerTokenAuthenticationToken;
 import net.asany.jfantasy.framework.security.authentication.AbstractAuthenticationToken;
 import net.asany.jfantasy.framework.security.authentication.Authentication;
@@ -19,9 +19,10 @@ import org.springframework.core.annotation.Order;
 public class BearerTokenAuthenticationProvider
     implements AuthenticationProvider<BearerTokenAuthenticationToken> {
 
-  private final ResourceServerTokenServices<AuthToken> tokenServices;
+  private final ResourceServerTokenServices<OAuth2AccessToken> tokenServices;
 
-  public BearerTokenAuthenticationProvider(ResourceServerTokenServices<AuthToken> tokenServices) {
+  public BearerTokenAuthenticationProvider(
+      ResourceServerTokenServices<OAuth2AccessToken> tokenServices) {
     this.tokenServices = tokenServices;
   }
 

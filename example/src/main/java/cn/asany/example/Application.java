@@ -10,7 +10,7 @@ import net.asany.jfantasy.framework.dao.jpa.SimpleAnyJpaRepository;
 import net.asany.jfantasy.framework.security.LoginUser;
 import net.asany.jfantasy.framework.security.auth.TokenType;
 import net.asany.jfantasy.framework.security.auth.core.*;
-import net.asany.jfantasy.framework.security.auth.oauth2.DefaultTokenServices;
+import net.asany.jfantasy.framework.security.auth.oauth2.core.OAuth2AccessToken;
 import net.asany.jfantasy.framework.security.auth.oauth2.server.BearerTokenAuthenticationToken;
 import net.asany.jfantasy.framework.security.auth.oauth2.server.authentication.BearerTokenAuthentication;
 import net.asany.jfantasy.framework.security.authentication.Authentication;
@@ -37,7 +37,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.web.client.RestTemplate;
@@ -127,111 +126,64 @@ public class Application extends SpringBootServletInitializer {
   }
 
   @Bean
-  public DefaultTokenServices defaultTokenServices(TaskExecutor taskExecutor) {
-    return new DefaultTokenServices(
-        new TokenStore<>() {
-          @Override
-          public BearerTokenAuthentication readAuthentication(
-              BearerTokenAuthenticationToken token) {
-            return null;
-          }
+  public TokenStore<OAuth2AccessToken> defaultTokenStore() {
+    return new TokenStore<>() {
+      @Override
+      public BearerTokenAuthentication readAuthentication(BearerTokenAuthenticationToken token) {
+        return null;
+      }
 
-          @Override
-          public BearerTokenAuthentication readAuthentication(String token) {
-            return null;
-          }
+      @Override
+      public BearerTokenAuthentication readAuthentication(String token) {
+        return null;
+      }
 
-          @Override
-          public void storeAccessToken(AuthToken token, Authentication authentication) {}
+      @Override
+      public void storeAccessToken(OAuth2AccessToken token, Authentication authentication) {}
 
-          @Override
-          public AuthToken readAccessToken(String tokenValue) {
-            return null;
-          }
+      @Override
+      public OAuth2AccessToken readAccessToken(String tokenValue) {
+        return null;
+      }
 
-          @Override
-          public void removeAccessToken(AuthToken token) {}
+      @Override
+      public void removeAccessToken(OAuth2AccessToken token) {}
 
-          @Override
-          public void storeRefreshToken(
-              AuthRefreshToken refreshToken, Authentication authentication) {}
+      @Override
+      public void storeRefreshToken(AuthRefreshToken refreshToken, Authentication authentication) {}
 
-          @Override
-          public AuthRefreshToken readRefreshToken(String tokenValue) {
-            return null;
-          }
+      @Override
+      public AuthRefreshToken readRefreshToken(String tokenValue) {
+        return null;
+      }
 
-          @Override
-          public BearerTokenAuthentication readAuthenticationForRefreshToken(
-              AuthRefreshToken token) {
-            return null;
-          }
+      @Override
+      public BearerTokenAuthentication readAuthenticationForRefreshToken(AuthRefreshToken token) {
+        return null;
+      }
 
-          @Override
-          public void removeRefreshToken(AuthRefreshToken token) {}
+      @Override
+      public void removeRefreshToken(AuthRefreshToken token) {}
 
-          @Override
-          public void removeAccessTokenUsingRefreshToken(AuthRefreshToken refreshToken) {}
+      @Override
+      public void removeAccessTokenUsingRefreshToken(AuthRefreshToken refreshToken) {}
 
-          @Override
-          public AuthToken getAccessToken(BearerTokenAuthentication authentication) {
-            return null;
-          }
+      @Override
+      public OAuth2AccessToken getAccessToken(BearerTokenAuthentication authentication) {
+        return null;
+      }
 
-          @Override
-          public Collection<AuthToken> findTokensByClientIdAndUserName(
-              String clientId, String userName) {
-            return null;
-          }
+      @Override
+      public Collection<AuthToken> findTokensByClientIdAndUserName(
+          String clientId, String userName) {
+        return null;
+      }
 
-          @Override
-          public Collection<AuthToken> findTokensByClientId(String clientId) {
-            return null;
-          }
-        },
-        clientId ->
-            new ClientDetails() {
-              @Override
-              public Map<String, Object> getAdditionalInformation() {
-                return new HashMap<>();
-              }
-
-              @Override
-              public Collection<GrantedAuthority> getAuthorities() {
-                return new ArrayList<>();
-              }
-
-              @Override
-              public Set<String> getAuthorizedGrantTypes() {
-                return null;
-              }
-
-              @Override
-              public String getClientId() {
-                return "111";
-              }
-
-              @Override
-              public Set<String> getClientSecrets(ClientSecretType type) {
-                return new HashSet<>();
-              }
-
-              @Override
-              public String getRedirectUri() {
-                return null;
-              }
-
-              @Override
-              public Set<String> getScope() {
-                return null;
-              }
-
-              @Override
-              public Integer getTokenExpires(TokenType tokenType) {
-                return 30;
-              }
-            },
-        taskExecutor);
+      @Override
+      public Collection<AuthToken> findTokensByClientId(String clientId) {
+        return null;
+      }
+    };
   }
 
   @Bean

@@ -33,28 +33,27 @@ import org.springframework.core.task.TaskExecutor;
  */
 @Slf4j
 public class DefaultTokenServices
-    implements AuthorizationServerTokenServices<AuthToken>,
-        ResourceServerTokenServices<AuthToken>,
+    implements AuthorizationServerTokenServices<OAuth2AccessToken>,
+        ResourceServerTokenServices<OAuth2AccessToken>,
         ConsumerTokenServices {
 
-  @Setter private TokenStore<AuthToken> tokenStore;
+  @Setter private TokenStore<OAuth2AccessToken> tokenStore;
   @Setter private ClientDetailsService clientDetailsService;
   private final JwtTokenService jwtTokenService = new JwtTokenServiceImpl();
   private final TaskExecutor taskExecutor;
 
   public DefaultTokenServices(
-      TokenStore<? extends AuthToken> tokenStore,
+      TokenStore<OAuth2AccessToken> tokenStore,
       ClientDetailsService clientDetailsService,
       TaskExecutor taskExecutor) {
-    //noinspection unchecked
-    this.tokenStore = (TokenStore<AuthToken>) tokenStore;
+    this.tokenStore = tokenStore;
     this.clientDetailsService = clientDetailsService;
     this.taskExecutor = taskExecutor;
   }
 
   @SneakyThrows
   @Override
-  public AuthToken createAccessToken(AuthenticationToken authentication) {
+  public OAuth2AccessToken createAccessToken(AuthenticationToken authentication) {
     LoginUser principal = authentication.getPrincipal();
     OAuth2AuthenticationDetails details = authentication.getDetails();
     ClientDetails clientDetails =
@@ -131,7 +130,7 @@ public class DefaultTokenServices
   }
 
   @Override
-  public AuthToken getAccessToken(AuthenticationToken authentication) {
+  public OAuth2AccessToken getAccessToken(AuthenticationToken authentication) {
     return null;
   }
 
@@ -154,7 +153,7 @@ public class DefaultTokenServices
 
   @Override
   public boolean revokeToken(String tokenValue) {
-    AuthToken accessToken = this.readAccessToken(tokenValue);
+    OAuth2AccessToken accessToken = this.readAccessToken(tokenValue);
 
     if (accessToken == null) {
       return false;
@@ -190,7 +189,7 @@ public class DefaultTokenServices
   }
 
   @Override
-  public AuthToken readAccessToken(String tokenValue) {
+  public OAuth2AccessToken readAccessToken(String tokenValue) {
     try {
       // 解析内容
       JwtTokenPayload payload = JwtUtils.payload(tokenValue);
@@ -206,7 +205,7 @@ public class DefaultTokenServices
       verifyToken(tokenValue, secrets);
 
       // 获取令牌
-      AuthToken accessToken = this.tokenStore.readAccessToken(tokenValue);
+      OAuth2AccessToken accessToken = this.tokenStore.readAccessToken(tokenValue);
 
       if (accessToken == null) {
         throw new InvalidTokenException("无效的 Token");
@@ -214,7 +213,7 @@ public class DefaultTokenServices
 
       // 如果续期方式为 Session 执行续期操作
       if (accessToken.getTokenType() == TokenType.SESSION_ID) {
-        this.refreshAccessToken((OAuth2AccessToken) accessToken, expires);
+        this.refreshAccessToken(accessToken, expires);
       }
 
       return accessToken;
@@ -225,7 +224,7 @@ public class DefaultTokenServices
   }
 
   @Override
-  public AuthToken readAccessToken(BearerTokenAuthenticationToken token) {
+  public OAuth2AccessToken readAccessToken(BearerTokenAuthenticationToken token) {
     try {
       TokenType tokenType = token.getTokenType();
 
@@ -246,7 +245,7 @@ public class DefaultTokenServices
       verifyToken(token.getToken(), secrets);
 
       // 获取令牌
-      AuthToken accessToken = this.tokenStore.readAccessToken(token.getToken());
+      OAuth2AccessToken accessToken = this.tokenStore.readAccessToken(token.getToken());
 
       if (accessToken == null) {
         throw new InvalidTokenException("无效的 Token");

@@ -4,12 +4,12 @@ import net.asany.jfantasy.framework.security.auth.apikey.ApiKey;
 import net.asany.jfantasy.framework.security.auth.apikey.ApiKeyAuthenticationProvider;
 import net.asany.jfantasy.framework.security.auth.apikey.ApiKeyServices;
 import net.asany.jfantasy.framework.security.auth.apikey.ApiKeyStore;
-import net.asany.jfantasy.framework.security.auth.core.AuthToken;
 import net.asany.jfantasy.framework.security.auth.core.ClientDetailsService;
 import net.asany.jfantasy.framework.security.auth.core.TokenServiceFactory;
 import net.asany.jfantasy.framework.security.auth.core.TokenStore;
 import net.asany.jfantasy.framework.security.auth.core.token.ResourceServerTokenServices;
 import net.asany.jfantasy.framework.security.auth.oauth2.DefaultTokenServices;
+import net.asany.jfantasy.framework.security.auth.oauth2.core.OAuth2AccessToken;
 import net.asany.jfantasy.framework.security.auth.oauth2.server.authentication.BearerTokenAuthenticationProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Bean;
@@ -29,13 +29,14 @@ public class ResourceServerAutoConfiguration {
   public TokenServiceFactory tokenServiceFactory() {
     TokenServiceFactory tokenServiceFactory = new TokenServiceFactory();
     tokenServiceFactory.registerTokenService(ApiKey.class, ApiKeyServices.class);
+    tokenServiceFactory.registerTokenService(OAuth2AccessToken.class, DefaultTokenServices.class);
     return tokenServiceFactory;
   }
 
   @Bean
   @ConditionalOnBean({ClientDetailsService.class, TokenStore.class})
   public DefaultTokenServices tokenServices(
-      TokenStore<? extends AuthToken> tokenStore,
+      TokenStore<OAuth2AccessToken> tokenStore,
       ClientDetailsService clientDetailsService,
       TaskExecutor taskExecutor) {
     return new DefaultTokenServices(tokenStore, clientDetailsService, taskExecutor);
@@ -44,7 +45,7 @@ public class ResourceServerAutoConfiguration {
   @Bean
   @ConditionalOnBean({ResourceServerTokenServices.class})
   public BearerTokenAuthenticationProvider bearerTokenAuthenticationProvider(
-      ResourceServerTokenServices<AuthToken> tokenServices) {
+      ResourceServerTokenServices<OAuth2AccessToken> tokenServices) {
     return new BearerTokenAuthenticationProvider(tokenServices);
   }
 

@@ -2,6 +2,7 @@ package net.asany.jfantasy.framework.security.auth.core;
 
 import java.util.HashMap;
 import java.util.Map;
+import net.asany.jfantasy.framework.security.auth.core.token.AuthorizationServerTokenServices;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -17,7 +18,10 @@ public class TokenServiceFactory
 
   private ApplicationContext applicationContext;
 
-  private final Map<Class<? extends AuthToken>, Class<?>> tokenServicesMap = new HashMap<>();
+  private final Map<
+          Class<? extends AuthToken>,
+          Class<? extends AuthorizationServerTokenServices<? extends AuthToken>>>
+      tokenServicesMap = new HashMap<>();
   private ConfigurableListableBeanFactory beanFactory;
 
   public <T> T getTokenServices(Class<? extends AuthToken> type) {
@@ -29,7 +33,9 @@ public class TokenServiceFactory
     throw new IllegalArgumentException("No token service registered for type: " + type);
   }
 
-  public void registerTokenService(Class<? extends AuthToken> tokenType, Class<?> serviceClass) {
+  public void registerTokenService(
+      Class<? extends AuthToken> tokenType,
+      Class<? extends AuthorizationServerTokenServices<? extends AuthToken>> serviceClass) {
     tokenServicesMap.put(tokenType, serviceClass);
   }
 
