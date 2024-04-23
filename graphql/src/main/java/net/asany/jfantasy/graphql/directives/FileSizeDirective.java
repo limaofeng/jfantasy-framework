@@ -34,7 +34,7 @@ public class FileSizeDirective implements SchemaDirectiveWiring {
         environment.getAppliedDirective().getArgument(UNIT_NAME).getArgumentValue();
 
     GraphQLFieldDefinition field = environment.getElement();
-    GraphQLObjectType parentType = (GraphQLObjectType) environment.getFieldsContainer();
+    GraphQLFieldsContainer parentType = environment.getFieldsContainer();
     DataFetcher<?> originalDataFetcher =
         environment.getCodeRegistry().getDataFetcher(parentType, field);
 
