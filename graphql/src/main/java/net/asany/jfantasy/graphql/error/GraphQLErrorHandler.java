@@ -2,7 +2,7 @@ package net.asany.jfantasy.graphql.error;
 
 import graphql.GraphQLError;
 import graphql.kickstart.spring.error.ErrorContext;
-import net.asany.jfantasy.graphql.util.GraphqlErrorUtil;
+import net.asany.jfantasy.graphql.util.GraphQLErrorUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -13,13 +13,13 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
  * @version V1.0
  */
 @Component
-public class GraphqlErrorHandler {
+public class GraphQLErrorHandler {
 
   @ExceptionHandler(value = {Exception.class, RuntimeException.class})
   public GraphQLError transform(Exception e, ErrorContext errorContext) {
     if (e instanceof GraphQLError) {
       return (GraphQLError) e;
     }
-    return GraphqlErrorUtil.buildGraphqlError(errorContext, e);
+    return GraphQLErrorUtils.buildGraphqlError(errorContext, e);
   }
 }

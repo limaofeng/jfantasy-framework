@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import net.asany.jfantasy.framework.util.common.ClassUtil;
 import net.asany.jfantasy.framework.util.common.ObjectUtil;
-import net.asany.jfantasy.framework.util.common.StringUtil;
 import net.asany.jfantasy.graphql.gateway.config.*;
 import net.asany.jfantasy.graphql.gateway.data.GatewayDataFetcherFactory;
 import net.asany.jfantasy.graphql.gateway.data.OverrideDataFetcher;
@@ -23,33 +22,6 @@ import net.asany.jfantasy.graphql.gateway.service.GraphQLServiceTypeResolver;
  */
 @Slf4j
 public class GraphQLUtils {
-
-  public static String getExecutionStepInfoPath(DataFetchingEnvironment environment) {
-    return environment.getExecutionStepInfo().getPath().toString();
-  }
-
-  public static boolean hasFetchFields(DataFetchingEnvironment environment, String... paths) {
-    List<Field> fields = environment.getExecutionStepInfo().getField().getFields();
-    String rootPath = environment.getExecutionStepInfo().getPath().toString();
-    String[] rootPaths = StringUtil.tokenizeToStringArray(rootPath, "/");
-    Field rootField =
-        ObjectUtil.find(
-            fields,
-            item -> rootPaths[0].equals(item.getAlias()) || rootPaths[0].equals(item.getName()));
-    for (String path : paths) {
-      String[] internalPaths = StringUtil.tokenizeToStringArray(path, ".");
-      assert rootField != null;
-      List<Field> selections = rootField.getSelectionSet().getSelectionsOfType(Field.class);
-      for (String fieldName : internalPaths) {
-        Field node = ObjectUtil.find(selections, item -> fieldName.equals(item.getName()));
-        if (node == null) {
-          return false;
-        }
-        selections = node.getSelectionSet().getSelectionsOfType(Field.class);
-      }
-    }
-    return true;
-  }
 
   public static String buildGraphQLQuery(DataFetchingEnvironment environment) {
     Field field = environment.getField();

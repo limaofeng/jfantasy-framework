@@ -77,60 +77,59 @@ public class Application extends SpringBootServletInitializer {
 
   @Bean
   public UserDetailsService<LoginUser> userDetailsService() {
-    return (UserDetailsService) username -> LoginUser.builder().build();
+    return username -> LoginUser.builder().build();
   }
 
   @Bean
   public ClientDetailsService clientDetailsService() {
-    return clientId -> {
-      return new ClientDetails() {
-        @Override
-        public Map<String, Object> getAdditionalInformation() {
-          return null;
-        }
+    return clientId ->
+        new ClientDetails() {
+          @Override
+          public Map<String, Object> getAdditionalInformation() {
+            return null;
+          }
 
-        @Override
-        public Collection<GrantedAuthority> getAuthorities() {
-          return null;
-        }
+          @Override
+          public Collection<GrantedAuthority> getAuthorities() {
+            return null;
+          }
 
-        @Override
-        public Set<String> getAuthorizedGrantTypes() {
-          return null;
-        }
+          @Override
+          public Set<String> getAuthorizedGrantTypes() {
+            return null;
+          }
 
-        @Override
-        public String getClientId() {
-          return null;
-        }
+          @Override
+          public String getClientId() {
+            return null;
+          }
 
-        @Override
-        public Set<String> getClientSecrets(ClientSecretType type) {
-          return null;
-        }
+          @Override
+          public Set<String> getClientSecrets(ClientSecretType type) {
+            return null;
+          }
 
-        @Override
-        public String getRedirectUri() {
-          return null;
-        }
+          @Override
+          public String getRedirectUri() {
+            return null;
+          }
 
-        @Override
-        public Set<String> getScope() {
-          return null;
-        }
+          @Override
+          public Set<String> getScope() {
+            return null;
+          }
 
-        @Override
-        public Integer getTokenExpires(TokenType tokenType) {
-          return 30;
-        }
-      };
-    };
+          @Override
+          public Integer getTokenExpires(TokenType tokenType) {
+            return 30;
+          }
+        };
   }
 
   @Bean
   public DefaultTokenServices defaultTokenServices(TaskExecutor taskExecutor) {
     return new DefaultTokenServices(
-        new TokenStore<AuthToken>() {
+        new TokenStore<>() {
           @Override
           public BearerTokenAuthentication readAuthentication(
               BearerTokenAuthenticationToken token) {

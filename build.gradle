@@ -76,21 +76,23 @@ subprojects {
     apply plugin: 'maven-publish'
     apply plugin: 'signing'
 
-    sourceCompatibility = project.property('SOURCE_COMPATIBILITY')
-    targetCompatibility = project.property('TARGET_COMPATIBILITY')
-
     java {
+        sourceCompatibility = project.property('SOURCE_COMPATIBILITY')
+        targetCompatibility = project.property('TARGET_COMPATIBILITY')
+
         toolchain {
             languageVersion = JavaLanguageVersion.of(sourceCompatibility as String)
         }
+
+        [compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
+
+        compileJava.dependsOn(processResources)
     }
 
-    [compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
-
-    compileJava.dependsOn(processResources)
-
-    manifest {
-        attributes 'provider': 'gradle'
+    jar {
+        manifest {
+            attributes 'provider': 'gradle'
+        }
     }
 
     javadoc {

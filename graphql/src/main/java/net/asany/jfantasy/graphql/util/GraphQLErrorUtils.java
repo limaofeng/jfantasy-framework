@@ -15,7 +15,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
  *
  * @author limaofeng
  */
-public class GraphqlErrorUtil {
+public class GraphQLErrorUtils {
 
   public static DefaultGraphQLError buildGraphqlError(
       ErrorContext context, String errorCode, Exception e) {
@@ -35,18 +35,14 @@ public class GraphqlErrorUtil {
 
   public static DefaultGraphQLError buildGraphqlError(
       ErrorContext context, String errorCode, Exception e, Map<String, Object> extensions) {
-    DefaultGraphQLError error = new DefaultGraphQLError(context);
-    ErrorUtils.populateErrorAttributesFromException(error, e);
-    error.setCode(errorCode);
+    DefaultGraphQLError error = buildGraphqlError(context, errorCode, e);
     error.setData(extensions);
     return error;
   }
 
   public static DefaultGraphQLError buildGraphqlError(
       ErrorContext context, String errorCode, String message, Map<String, Object> extensions) {
-    DefaultGraphQLError error = new DefaultGraphQLError(context);
-    ErrorUtils.populateErrorAttributesFromException(error, new Exception(message));
-    error.setCode(errorCode);
+    DefaultGraphQLError error = buildGraphqlError(context, errorCode, message);
     error.setData(extensions);
     return error;
   }
