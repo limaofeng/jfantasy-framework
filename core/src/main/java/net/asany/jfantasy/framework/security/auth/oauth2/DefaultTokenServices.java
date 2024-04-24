@@ -61,33 +61,55 @@ public class DefaultTokenServices
 
     TokenType tokenType = details.getTokenType();
 
-    int expires = clientDetails.getTokenExpires(TokenType.PERSONAL_ACCESS_TOKEN);
+    int expires = clientDetails.getTokenExpires(tokenType);
 
     boolean supportRefreshToken = false;
     Instant issuedAt = Instant.now();
-    Instant expiresAt = null;
+    Instant expiresAt;
 
-    String secret = null;
+    String secret;
 
-    if (tokenType == TokenType.PERSONAL_ACCESS_TOKEN) {
-      secret = clientDetails.getClientSecret(ClientSecretType.PERSONAL_ACCESS_TOKEN);
-      expiresAt = details.getExpiresAt();
-    } else if (tokenType == TokenType.JWT) {
-      if (details.getGrantType() == AuthorizationGrantType.CLIENT_CREDENTIALS) {
-        if (clientDetails.getClientSecrets(ClientSecretType.OAUTH).stream()
-            .noneMatch(s -> s.equals(details.getClientSecret()))) {
-          throw new AuthenticationException("无效的 client_secret");
+    switch (tokenType) {
+      case SESSION_ID:
+        {
+          secret = clientDetails.getClientSecret(ClientSecretType.SESSION);
+          expiresAt = Instant.now().plus(expires, ChronoUnit.MINUTES);
+          break;
         }
-        secret = details.getClientSecret();
-        expiresAt = details.getExpiresAt();
-      } else {
-        supportRefreshToken = true;
-        secret = clientDetails.getClientSecret(ClientSecretType.OAUTH);
-        expiresAt = Instant.now().plus(expires, ChronoUnit.MINUTES);
-      }
-    } else if (tokenType == TokenType.SESSION_ID) {
-      secret = clientDetails.getClientSecret(ClientSecretType.SESSION);
-      expiresAt = Instant.now().plus(expires, ChronoUnit.MINUTES);
+      case PERSONAL_ACCESS_TOKEN:
+        {
+          secret = clientDetails.getClientSecret(ClientSecretType.PERSONAL_ACCESS_TOKEN);
+          expiresAt = details.getExpiresAt();
+          break;
+        }
+      case API_KEY:
+        {
+          throw new AuthenticationException("还不支持 API_KEY 认证方式");
+        }
+      case JWT:
+        {
+          if (details.getGrantType() == AuthorizationGrantType.CLIENT_CREDENTIALS) {
+            if (clientDetails.getClientSecrets(ClientSecretType.OAUTH).stream()
+                .noneMatch(s -> s.equals(details.getClientSecret()))) {
+              throw new AuthenticationException("无效的 client_secret");
+            }
+            secret = details.getClientSecret();
+            expiresAt = details.getExpiresAt();
+          } else {
+            secret = clientDetails.getClientSecret(ClientSecretType.OAUTH);
+            expiresAt = Instant.now().plus(expires, ChronoUnit.MINUTES);
+          }
+          if (details.getGrantType() == AuthorizationGrantType.AUTHORIZATION_CODE
+              || details.getGrantType() == AuthorizationGrantType.PASSWORD
+              || details.getGrantType() == AuthorizationGrantType.JWT_BEARER) {
+            supportRefreshToken = true;
+          }
+          break;
+        }
+      default:
+        {
+          throw new AuthenticationException("还不支持的认证方式:" + tokenType);
+        }
     }
 
     if (secret == null) {
@@ -114,7 +136,8 @@ public class DefaultTokenServices
     String tokenValue = generateTokenValue(payload, secret);
 
     OAuth2AccessToken accessToken =
-        new OAuth2AccessToken(clientDetails.getClientId(), tokenValue, issuedAt, expiresAt);
+        new OAuth2AccessToken(
+            clientDetails.getClientId(), tokenType, tokenValue, issuedAt, expiresAt);
 
     if (supportRefreshToken) {
       String refreshTokenValue = generateRefreshTokenValue();

@@ -1,5 +1,7 @@
 package net.asany.jfantasy.framework.security.auth.oauth2.core;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Set;
@@ -11,7 +13,7 @@ import org.springframework.util.Assert;
 @Getter
 public class OAuth2AccessToken extends AbstractAuthToken {
 
-  private final Set<String> scopes;
+  private TokenType tokenType = TokenType.JWT;
 
   public OAuth2AccessToken(
       String clientId, String tokenValue, Instant issuedAt, Instant expiresAt) {
@@ -20,24 +22,36 @@ public class OAuth2AccessToken extends AbstractAuthToken {
 
   public OAuth2AccessToken(
       String clientId, String tokenValue, Instant issuedAt, Instant expiresAt, Set<String> scopes) {
-    super(clientId, tokenValue, issuedAt, expiresAt);
-    this.scopes = Collections.unmodifiableSet((scopes != null) ? scopes : Collections.emptySet());
+    super(clientId, tokenValue, issuedAt, expiresAt, scopes);
   }
 
   public OAuth2AccessToken(
+      String clientId,
       TokenType tokenType,
       String tokenValue,
-      String refreshTokenValue,
       Instant issuedAt,
-      Instant expiresAt,
-      Set<String> scopes) {
-    super(tokenValue, refreshTokenValue, issuedAt, expiresAt);
+      Instant expiresAt) {
+    this(clientId, tokenValue, issuedAt, expiresAt);
     Assert.notNull(tokenType, "tokenType cannot be null");
-    this.scopes = Collections.unmodifiableSet((scopes != null) ? scopes : Collections.emptySet());
+    this.tokenType = tokenType;
+  }
+
+  @JsonCreator
+  public OAuth2AccessToken(
+      @JsonProperty("client_id") String clientId,
+      @JsonProperty("token_type") TokenType tokenType,
+      @JsonProperty("token_value") String tokenValue,
+      @JsonProperty("refresh_token_value") String refreshTokenValue,
+      @JsonProperty("issued_at") Instant issuedAt,
+      @JsonProperty("expires_at") Instant expiresAt,
+      @JsonProperty("token") Set<String> scopes) {
+    super(clientId, tokenValue, refreshTokenValue, issuedAt, expiresAt, scopes);
+    Assert.notNull(tokenType, "tokenType cannot be null");
+    this.tokenType = tokenType;
   }
 
   @Override
   public TokenType getTokenType() {
-    return TokenType.JWT;
+    return tokenType;
   }
 }
