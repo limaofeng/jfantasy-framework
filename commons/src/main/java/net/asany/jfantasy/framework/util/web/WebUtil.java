@@ -409,6 +409,16 @@ public class WebUtil {
     return parameterMaps;
   }
 
+  public static Map<String, String> getHeaderMap(HttpServletRequest request) {
+    Map<String, String> headerMap = new LinkedHashMap<>();
+    Enumeration<String> enumeration = request.getHeaderNames();
+    while (enumeration.hasMoreElements()) {
+      String key = enumeration.nextElement();
+      headerMap.put(key, request.getHeader(key));
+    }
+    return headerMap;
+  }
+
   public static String[] getParameterValues(
       ServletRequest request, String name, Function<String, String> transform) {
     return getParameterValues(request, name, transform, String.class);

@@ -19,9 +19,13 @@ import net.asany.jfantasy.framework.util.web.WebUtil;
 public class CharacterEncodingRequestWrapper extends HttpServletRequestWrapper {
 
   private final Map<String, String[]> parameterMap = new LinkedHashMap<>();
+  private final Map<String, String> headerMap;
+  private final String remoteAddr;
 
   public CharacterEncodingRequestWrapper(HttpServletRequest request) {
     super(request);
+    this.headerMap = WebUtil.getHeaderMap(request);
+    this.remoteAddr = request.getRemoteAddr();
   }
 
   @Override
@@ -52,5 +56,15 @@ public class CharacterEncodingRequestWrapper extends HttpServletRequestWrapper {
     }
     parameterMap.putAll(WebUtil.getParameterMap(this.getRequest(), this::transform));
     return parameterMap;
+  }
+
+  @Override
+  public String getHeader(String name) {
+    return this.headerMap.get(name);
+  }
+
+  @Override
+  public String getRemoteAddr() {
+    return remoteAddr;
   }
 }
