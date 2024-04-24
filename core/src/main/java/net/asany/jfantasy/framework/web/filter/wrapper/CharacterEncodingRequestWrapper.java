@@ -60,7 +60,7 @@ public class CharacterEncodingRequestWrapper extends HttpServletRequestWrapper {
 
   @Override
   public String getHeader(String name) {
-    return this.headerMap.get(name);
+    return this.headerMap.get(name.toLowerCase());
   }
 
   @Override
