@@ -4,10 +4,7 @@ import static graphql.schema.idl.SchemaPrinter.Options.defaultOptions;
 
 import graphql.introspection.IntrospectionQueryBuilder;
 import graphql.introspection.IntrospectionResultToSchema;
-import graphql.language.Document;
-import graphql.language.InterfaceTypeDefinition;
-import graphql.language.ObjectTypeDefinition;
-import graphql.language.ScalarTypeDefinition;
+import graphql.language.*;
 import graphql.schema.DataFetcherFactory;
 import graphql.schema.GraphQLCodeRegistry;
 import graphql.schema.GraphQLSchema;
