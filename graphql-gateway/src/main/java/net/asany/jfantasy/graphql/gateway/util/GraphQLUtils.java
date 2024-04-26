@@ -28,20 +28,28 @@ public class GraphQLUtils {
 
     GraphQLType type = environment.getParentType();
 
-    OperationDefinition operation = environment.getOperationDefinition();
+    OperationDefinition operationDefinition = environment.getOperationDefinition();
+
+    OperationDefinition.Operation operation = operationDefinition.getOperation();
 
     StringBuilder queryBuilder = new StringBuilder();
 
     // 构建基本查询结构
-    queryBuilder.append("query ");
-
-    if (operation.getName() != null) {
-      queryBuilder.append(operation.getName());
+    if (operation == OperationDefinition.Operation.QUERY) {
+      queryBuilder.append("query ");
+    } else if (operation == OperationDefinition.Operation.MUTATION) {
+      queryBuilder.append("mutation ");
+    } else if (operation == OperationDefinition.Operation.SUBSCRIPTION) {
+      throw new RuntimeException("不支持的操作类型:" + operation);
     }
 
-    if (!operation.getVariableDefinitions().isEmpty()) {
+    if (operationDefinition.getName() != null) {
+      queryBuilder.append(operationDefinition.getName());
+    }
+
+    if (!operationDefinition.getVariableDefinitions().isEmpty()) {
       queryBuilder.append("(");
-      for (VariableDefinition variableDefinition : operation.getVariableDefinitions()) {
+      for (VariableDefinition variableDefinition : operationDefinition.getVariableDefinitions()) {
         queryBuilder.append("$").append(variableDefinition.getName()).append(": ");
         queryBuilder.append(formatType(variableDefinition.getType()));
         queryBuilder.append(", ");
@@ -220,6 +228,19 @@ public class GraphQLUtils {
 
       // 处理根类型 Query, Mutation, Subscription
       mergeRootTypes(mergedRegistry, schemaRegistry);
+
+      // 处理枚举类型
+      List<EnumTypeDefinition> enumTypes = schemaRegistry.getTypes(EnumTypeDefinition.class);
+      for (EnumTypeDefinition enumType : enumTypes) {
+        TypeName typeName = TypeName.newTypeName(enumType.getName()).build();
+        if (!mergedRegistry.hasType(typeName)) {
+          continue;
+        }
+        //noinspection OptionalGetWithoutIsPresent
+        EnumTypeDefinition extendEnum =
+            schemaRegistry.getType(typeName, EnumTypeDefinition.class).get();
+        schemaRegistry.remove(extendEnum);
+      }
 
       // 处理类型扩展
       mergeIgnoreTypes(mergedRegistry, schemaRegistry, "PageInfo");
@@ -451,15 +472,6 @@ public class GraphQLUtils {
     // 构建新的GraphQL模式
     SchemaGenerator schemaGenerator = new SchemaGenerator();
     runtimeWiringBuilder.codeRegistry(codeRegistryBuilder.build());
-
-    //    // 用于扩展现有模式的SDL表示
-    //    String extensionSchemaSDL = "extend type Query { newField: String }";
-    //    TypeDefinitionRegistry extensionRegistry = schemaParser.parse(extensionSchemaSDL);
-    //    mergedRegistry.merge(extensionRegistry);
-    //
-    //    runtimeWiringBuilder.type(
-    //        "Query", builder -> builder.dataFetcher("newField", new
-    // StaticDataFetcher("newField")));
 
     RuntimeWiring runtimeWiring = runtimeWiringBuilder.build();
 

@@ -6,55 +6,61 @@ scalars:
     description: "A file part in a multipart request"
 
 services:
-  - name: asany
-    url: "https://api.asany.cn/graphql"
-    typeDefs: "./asany.graphql"
+  - name: asany-server
+    url: "http://127.0.0.1:30881/graphql"
+    typeDefs: "./asany-server.graphql"
+    introspection:
+      enabled: false
+      frequency: 30m
+  - name: asany-legacy
+    url: "http://127.0.0.1:30882/graphql"
+    typeDefs: "./asany-legacy.graphql"
     introspection:
       enabled: false
       frequency: 30m
     excludeFields:
       - "Application.routespaces"
 
-override:
-  - type: "Query"
-    fields:
-      - name: "apps"
-        mapping: "applications"
-        arguments:
-          - name: "filter"
-            mapping: "where"
-  - type: "Application"
-    fields:
-      - name: "appName"
-        mapping: "name"
-        dataFetcher: "appName"
-  - type: "Storage"
-    fields:
-      - name: "createdBy"
-        type: "User"
-        resolve: "user(id: $createdBy)"
-  - type: "ClientSecret"
-    fields:
-      - name: "type"
-        type: "Dict"
-        resolve: 'dict(code: $type, type: "client_type")'
+#override:
+#  - type: "Query"
+#    fields:
+#      - name: "apps"
+#        mapping: "applications"
+#        arguments:
+#          - name: "filter"
+#            mapping: "where"
+#  - type: "Application"
+#    fields:
+#      - name: "appName"
+#        mapping: "name"
+#        dataFetcher: "appName"
+#  - type: "Storage"
+#    fields:
+#      - name: "createdBy"
+#        type: "User"
+#        resolve: "user(id: $createdBy)"
+#  - type: "ClientSecret"
+#    fields:
+#      - name: "type"
+#        type: "Dict"
+#        resolve: 'dict(code: $type, type: "client_type")'
 
-dataFetchers:
-  - name: "appName"
-    class: "cn.asany.example.demo.AppNameDataFetcher"
+#dataFetchers:
+#  - name: "appName"
+#    class: "cn.asany.example.demo.AppNameDataFetcher"
 
-directives:
-  - name: "myDirective"
-    description: "A simple directive"
-    repeatable: true
-    locations:
-      - "FIELD_DEFINITION"
-      - "FIELD"
-    arguments:
-      - name: "arg1"
-        type: "String"
-        description: "A simple argument"
-    handler: "cn.asany.example.demo.MyDirective"
+#directives:
+#  - name: "myDirective"
+#    description: "A simple directive"
+#    repeatable: true
+#    locations:
+#      - "FIELD_DEFINITION"
+#      - "FIELD"
+#    arguments:
+#      - name: "arg1"
+#        type: "String"
+#        description: "A simple argument"
+#    handler: "cn.asany.example.demo.MyDirective"
 
 security:
   authentication:

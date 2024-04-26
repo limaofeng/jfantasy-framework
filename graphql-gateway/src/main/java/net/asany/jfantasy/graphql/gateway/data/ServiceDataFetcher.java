@@ -8,6 +8,9 @@ import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLSchema;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import net.asany.jfantasy.framework.security.auth.AuthenticationToken;
+import net.asany.jfantasy.framework.security.auth.apikey.ApiKeyAuthenticationToken;
+import net.asany.jfantasy.framework.security.auth.oauth2.server.BearerTokenAuthenticationToken;
 import net.asany.jfantasy.framework.util.common.StringUtil;
 import net.asany.jfantasy.graphql.client.GraphQLResponse;
 import net.asany.jfantasy.graphql.client.GraphQLTemplate;
@@ -52,6 +55,11 @@ public class ServiceDataFetcher implements DataFetcher<Object> {
     GraphQLResponse response;
 
     try {
+      AuthenticationToken authenticationToken =
+          environment.getGraphQlContext().get("authentication");
+      if (authenticationToken instanceof BearerTokenAuthenticationToken bearerTokenAuthenticationToken) {
+        client = client.withBearerAuth(bearerTokenAuthenticationToken.getToken());
+      }
       response = client.post(gql, operationName, environment.getVariables());
     } catch (ResourceAccessException e) {
       throw new GraphQLServiceNetworkException(e.getMessage());

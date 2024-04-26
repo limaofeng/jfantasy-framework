@@ -105,7 +105,7 @@ public class Application extends SpringBootServletInitializer {
 
           @Override
           public Set<String> getClientSecrets(ClientSecretType type) {
-            return null;
+            return new HashSet<>();
           }
 
           @Override
