@@ -481,6 +481,9 @@ public class GraphQLUtils {
           schema.getQueryType(), schema.getMutationType(), schema.getSubscriptionType()
         };
     for (GraphQLObjectType objectType : objectTypes) {
+      if (objectType == null) {
+        continue;
+      }
       for (GraphQLFieldDefinition field : objectType.getFields()) {
         FieldCoordinates coordinates =
             FieldCoordinates.coordinates(objectType.getName(), field.getName());
