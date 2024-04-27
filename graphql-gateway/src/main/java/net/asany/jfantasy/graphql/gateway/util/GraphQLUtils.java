@@ -5,6 +5,7 @@ import graphql.schema.*;
 import graphql.schema.idl.*;
 import java.util.*;
 import java.util.stream.Collectors;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import net.asany.jfantasy.framework.util.common.ClassUtil;
 import net.asany.jfantasy.framework.util.common.ObjectUtil;
@@ -13,7 +14,8 @@ import net.asany.jfantasy.graphql.gateway.data.GatewayDataFetcherFactory;
 import net.asany.jfantasy.graphql.gateway.data.OverrideDataFetcher;
 import net.asany.jfantasy.graphql.gateway.directive.DirectiveFactory;
 import net.asany.jfantasy.graphql.gateway.directive.DirectiveProcessor;
-import net.asany.jfantasy.graphql.gateway.service.GraphQLServiceTypeResolver;
+import net.asany.jfantasy.graphql.gateway.service.GraphQLInterfaceTypeResolver;
+import net.asany.jfantasy.graphql.gateway.service.GraphQLUnionTypeResolver;
 
 /**
  * GraphQL 工具类
@@ -24,8 +26,8 @@ import net.asany.jfantasy.graphql.gateway.service.GraphQLServiceTypeResolver;
 public class GraphQLUtils {
 
   public static String buildGraphQLQuery(DataFetchingEnvironment environment) {
-    Document document = environment.getDocument();
-    GraphQLSchema graphQLSchema = environment.getGraphQLSchema();
+    BuildGraphQLQueryContext context = new BuildGraphQLQueryContext(environment);
+
     Field field = environment.getField();
 
     GraphQLType type = environment.getParentType();
@@ -35,8 +37,6 @@ public class GraphQLUtils {
     OperationDefinition.Operation operation = operationDefinition.getOperation();
 
     StringBuilder queryBuilder = new StringBuilder();
-
-    Set<String> usingFragments = new HashSet<>();
 
     // 构建基本查询结构
     if (operation == OperationDefinition.Operation.QUERY) {
@@ -64,30 +64,35 @@ public class GraphQLUtils {
 
     queryBuilder.append(" { ");
 
-    processSelection(type, field, queryBuilder, usingFragments);
+    processSelection(type, field, queryBuilder, context);
 
     queryBuilder.append(" }");
 
-    Map<String, FragmentDefinition> fragments =
-        document.getDefinitionsOfType(FragmentDefinition.class).stream()
-            .collect(Collectors.toMap(FragmentDefinition::getName, fragment -> fragment));
-
-    if (!usingFragments.isEmpty()) {
-      for (String fragmentName : usingFragments) {
-        FragmentDefinition fragmentDefinition = fragments.get(fragmentName);
-        TypeName fragmentTypeName = fragmentDefinition.getTypeCondition();
-        GraphQLType fragmentType = graphQLSchema.getType(fragmentTypeName.getName());
-        queryBuilder
-            .append("fragment ")
-            .append(fragmentName)
-            .append(" on ")
-            .append(fragmentTypeName.getName());
-        processSelectionSet(
-            fragmentType, fragmentDefinition.getSelectionSet(), queryBuilder, usingFragments);
-      }
+    if (!context.getUsingFragments().isEmpty()) {
+      processFragments(queryBuilder, context);
     }
 
     return queryBuilder.toString();
+  }
+
+  private static void processFragments(
+      StringBuilder queryBuilder, BuildGraphQLQueryContext context) {
+    Set<String> usingFragments = context.getUsingFragments();
+    Map<String, FragmentDefinition> fragments =
+        context.getDocument().getDefinitionsOfType(FragmentDefinition.class).stream()
+            .collect(Collectors.toMap(FragmentDefinition::getName, fragment -> fragment));
+    for (String fragmentName : usingFragments) {
+      FragmentDefinition fragmentDefinition = fragments.get(fragmentName);
+      TypeName fragmentTypeName = fragmentDefinition.getTypeCondition();
+      GraphQLType fragmentType = context.getGraphQLSchema().getType(fragmentTypeName.getName());
+      queryBuilder
+          .append("fragment ")
+          .append(fragmentName)
+          .append(" on ")
+          .append(fragmentTypeName.getName());
+      processSelectionSet(
+          fragmentType, fragmentDefinition.getSelectionSet(), queryBuilder, context);
+    }
   }
 
   private static void buildFieldQueryPart(
@@ -115,7 +120,7 @@ public class GraphQLUtils {
       GraphQLType type,
       SelectionSet selectionSet,
       StringBuilder queryBuilder,
-      Set<String> usingFragments) {
+      BuildGraphQLQueryContext usingFragments) {
     if (selectionSet != null && !selectionSet.getSelections().isEmpty()) {
       queryBuilder.append(" { ");
       selectionSet
@@ -145,25 +150,24 @@ public class GraphQLUtils {
       GraphQLType type,
       Selection<?> selection,
       StringBuilder queryBuilder,
-      Set<String> usingFragments) {
+      BuildGraphQLQueryContext context) {
     if (selection instanceof Field subField) {
       buildFieldQueryPart(type, subField, queryBuilder);
 
       if (subField.getSelectionSet() != null) {
         GraphQLType fileType = GraphQLTypeUtils.getFieldType(type, subField.getName());
-        processSelectionSet(fileType, subField.getSelectionSet(), queryBuilder, usingFragments);
+        processSelectionSet(fileType, subField.getSelectionSet(), queryBuilder, context);
       }
 
       queryBuilder.append(" ");
     } else if (selection instanceof FragmentSpread fragmentSpread) {
       queryBuilder.append("...").append(fragmentSpread.getName()).append(" ");
-      usingFragments.add(fragmentSpread.getName());
+      context.addUsingFragment(fragmentSpread.getName());
     } else if (selection instanceof InlineFragment inlineFragment) {
-      queryBuilder
-          .append("... on ")
-          .append(inlineFragment.getTypeCondition().getName())
-          .append(" ");
-      processSelectionSet(type, inlineFragment.getSelectionSet(), queryBuilder, usingFragments);
+      TypeName inlineTypeName = inlineFragment.getTypeCondition();
+      queryBuilder.append("... on ").append(inlineTypeName.getName()).append(" ");
+      GraphQLType fragmentType = context.getGraphQLSchema().getType(inlineTypeName.getName());
+      processSelectionSet(fragmentType, inlineFragment.getSelectionSet(), queryBuilder, context);
     } else {
       throw new RuntimeException("未知的选择类型: " + selection);
     }
@@ -301,7 +305,7 @@ public class GraphQLUtils {
       for (InterfaceTypeDefinition interfaceType : interfaceTypes) {
         runtimeWiringBuilder.type(
             TypeRuntimeWiring.newTypeWiring(interfaceType.getName())
-                .typeResolver(new GraphQLServiceTypeResolver(null)));
+                .typeResolver(new GraphQLInterfaceTypeResolver()));
       }
 
       // 处理联合类型
@@ -309,7 +313,7 @@ public class GraphQLUtils {
       for (UnionTypeDefinition unionType : unionTypes) {
         runtimeWiringBuilder.type(
             TypeRuntimeWiring.newTypeWiring(unionType.getName())
-                .typeResolver(new GraphQLServiceTypeResolver(null)));
+                .typeResolver(new GraphQLUnionTypeResolver()));
       }
 
       mergedRegistry.merge(schemaRegistry);
@@ -621,6 +625,24 @@ public class GraphQLUtils {
 
     for (String rootType : rootTypes) {
       mergeRootType(rootType, mergedRegistry, schemaRegistry);
+    }
+  }
+
+  @Data
+  private static class BuildGraphQLQueryContext {
+    private final DataFetchingEnvironment environment;
+    private final Document document;
+    private final GraphQLSchema graphQLSchema;
+    private final Set<String> usingFragments = new HashSet<>();
+
+    public BuildGraphQLQueryContext(DataFetchingEnvironment environment) {
+      this.environment = environment;
+      this.document = environment.getDocument();
+      this.graphQLSchema = environment.getGraphQLSchema();
+    }
+
+    public void addUsingFragment(String name) {
+      usingFragments.add(name);
     }
   }
 }

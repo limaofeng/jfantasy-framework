@@ -2,7 +2,6 @@ package net.asany.jfantasy.graphql.gateway.util;
 
 import graphql.Scalars;
 import graphql.language.*;
-import graphql.language.DirectiveDefinition;
 import graphql.parser.Parser;
 import graphql.schema.*;
 import java.util.HashMap;
@@ -115,9 +114,11 @@ public class GraphQLTypeUtils {
   }
 
   public static GraphQLType getFieldType(GraphQLType type, String name) {
-    GraphQLObjectType objectType = (GraphQLObjectType) type;
-    GraphQLOutputType outputType = objectType.getField(name).getType();
-    return GraphQLTypeUtils.getSourceType(outputType);
+    if (type instanceof GraphQLObjectType objectType) {
+      GraphQLOutputType outputType = objectType.getField(name).getType();
+      return GraphQLTypeUtils.getSourceType(outputType);
+    }
+    throw new RuntimeException("未知类型:" + type.toString());
   }
 
   public static GraphQLOutputType toOutputType(Type<?> type) {
