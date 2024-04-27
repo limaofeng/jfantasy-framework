@@ -3,6 +3,7 @@ package net.asany.jfantasy.graphql.gateway.util;
 import static graphql.Scalars.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import graphql.GraphQLContext;
 import graphql.execution.directives.QueryAppliedDirective;
 import graphql.language.*;
@@ -15,6 +16,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import net.asany.jfantasy.framework.jackson.JSON;
 import net.asany.jfantasy.framework.util.common.ObjectUtil;
+import net.asany.jfantasy.graphql.gateway.error.GraphQLGatewayException;
 
 @Slf4j
 public class GraphQLValueUtils {
@@ -135,33 +137,48 @@ public class GraphQLValueUtils {
     return null;
   }
 
+  private static Object processJsonData(
+      JsonNode valueNode,
+      GraphQLOutputType outputType,
+      GraphQLType type,
+      GraphQLContext graphQLContext,
+      Locale locale) {
+    if (valueNode == null || valueNode.isNull()) {
+      return null;
+    }
+    if (GraphQLTypeUtils.isListType(outputType) && valueNode.isArray()) {
+      return valueNode;
+    }
+    if (!valueNode.isObject() && GraphQLTypeUtils.isObjectType(outputType)) {
+      log.warn(
+          "valueNode is not object, but outputType is object. valueNode: {}, outputType: {}",
+          valueNode,
+          ((GraphQLObjectType) type).getName());
+      return null;
+    }
+    if (type instanceof GraphQLScalarType scalarType) {
+      return GraphQLValueUtils.convertToScalarType(valueNode, scalarType, graphQLContext, locale);
+    }
+    if (type instanceof GraphQLEnumType enumType) {
+      if (valueNode instanceof TextNode textNode) {
+        return textNode.asText();
+      }
+      throw new GraphQLGatewayException("Invalid enum value: " + enumType);
+    }
+    return valueNode;
+  }
+
   public static Object convert(
       Object root,
       String name,
-      GraphQLOutputType type,
+      GraphQLOutputType outputType,
       GraphQLContext graphQLContext,
       Locale locale) {
-    GraphQLType outputType = GraphQLTypeUtils.getSourceType(type);
+    GraphQLType type = GraphQLTypeUtils.getSourceType(outputType);
 
     if (root instanceof JsonNode node) {
       JsonNode valueNode = JSON.findNode(node, "/" + name);
-      if (valueNode == null || valueNode.isNull()) {
-        return null;
-      }
-      if (valueNode.isArray() && GraphQLTypeUtils.isListType(type)) {
-        return valueNode;
-      }
-      if (!valueNode.isObject() && GraphQLTypeUtils.isObjectType(type)) {
-        log.warn(
-            "valueNode is not object, but outputType is object. valueNode: {}, outputType: {}",
-            valueNode,
-            ((GraphQLObjectType) outputType).getName());
-        return null;
-      }
-      if (outputType instanceof GraphQLScalarType scalarType) {
-        return GraphQLValueUtils.convertToScalarType(valueNode, scalarType, graphQLContext, locale);
-      }
-      return valueNode;
+      return processJsonData(valueNode, outputType, type, graphQLContext, locale);
     }
 
     return ObjectUtil.getValue(name, root);

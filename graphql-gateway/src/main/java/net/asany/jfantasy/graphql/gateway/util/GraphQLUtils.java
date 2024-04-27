@@ -24,6 +24,8 @@ import net.asany.jfantasy.graphql.gateway.service.GraphQLServiceTypeResolver;
 public class GraphQLUtils {
 
   public static String buildGraphQLQuery(DataFetchingEnvironment environment) {
+    Document document = environment.getDocument();
+    GraphQLSchema graphQLSchema = environment.getGraphQLSchema();
     Field field = environment.getField();
 
     GraphQLType type = environment.getParentType();
@@ -33,6 +35,8 @@ public class GraphQLUtils {
     OperationDefinition.Operation operation = operationDefinition.getOperation();
 
     StringBuilder queryBuilder = new StringBuilder();
+
+    Set<String> usingFragments = new HashSet<>();
 
     // 构建基本查询结构
     if (operation == OperationDefinition.Operation.QUERY) {
@@ -60,9 +64,29 @@ public class GraphQLUtils {
 
     queryBuilder.append(" { ");
 
-    processSelection(type, field, queryBuilder);
+    processSelection(type, field, queryBuilder, usingFragments);
 
     queryBuilder.append(" }");
+
+    Map<String, FragmentDefinition> fragments =
+        document.getDefinitionsOfType(FragmentDefinition.class).stream()
+            .collect(Collectors.toMap(FragmentDefinition::getName, fragment -> fragment));
+
+    if (!usingFragments.isEmpty()) {
+      for (String fragmentName : usingFragments) {
+        FragmentDefinition fragmentDefinition = fragments.get(fragmentName);
+        TypeName fragmentTypeName = fragmentDefinition.getTypeCondition();
+        GraphQLType fragmentType = graphQLSchema.getType(fragmentTypeName.getName());
+        queryBuilder
+            .append("fragment ")
+            .append(fragmentName)
+            .append(" on ")
+            .append(fragmentTypeName.getName());
+        processSelectionSet(
+            fragmentType, fragmentDefinition.getSelectionSet(), queryBuilder, usingFragments);
+      }
+    }
+
     return queryBuilder.toString();
   }
 
@@ -88,12 +112,15 @@ public class GraphQLUtils {
   }
 
   private static void processSelectionSet(
-      GraphQLType type, SelectionSet selectionSet, StringBuilder queryBuilder) {
+      GraphQLType type,
+      SelectionSet selectionSet,
+      StringBuilder queryBuilder,
+      Set<String> usingFragments) {
     if (selectionSet != null && !selectionSet.getSelections().isEmpty()) {
       queryBuilder.append(" { ");
       selectionSet
           .getSelections()
-          .forEach(selection -> processSelection(type, selection, queryBuilder));
+          .forEach(selection -> processSelection(type, selection, queryBuilder, usingFragments));
       queryBuilder.append(" }");
     }
   }
@@ -115,16 +142,30 @@ public class GraphQLUtils {
   }
 
   private static void processSelection(
-      GraphQLType type, Selection<?> selection, StringBuilder queryBuilder) {
+      GraphQLType type,
+      Selection<?> selection,
+      StringBuilder queryBuilder,
+      Set<String> usingFragments) {
     if (selection instanceof Field subField) {
       buildFieldQueryPart(type, subField, queryBuilder);
 
       if (subField.getSelectionSet() != null) {
         GraphQLType fileType = GraphQLTypeUtils.getFieldType(type, subField.getName());
-        processSelectionSet(fileType, subField.getSelectionSet(), queryBuilder);
+        processSelectionSet(fileType, subField.getSelectionSet(), queryBuilder, usingFragments);
       }
 
       queryBuilder.append(" ");
+    } else if (selection instanceof FragmentSpread fragmentSpread) {
+      queryBuilder.append("...").append(fragmentSpread.getName()).append(" ");
+      usingFragments.add(fragmentSpread.getName());
+    } else if (selection instanceof InlineFragment inlineFragment) {
+      queryBuilder
+          .append("... on ")
+          .append(inlineFragment.getTypeCondition().getName())
+          .append(" ");
+      processSelectionSet(type, inlineFragment.getSelectionSet(), queryBuilder, usingFragments);
+    } else {
+      throw new RuntimeException("未知的选择类型: " + selection);
     }
     // 这里可以添加对其他类型的 Selection 的处理，如 FragmentSpread 或 InlineFragment
   }
