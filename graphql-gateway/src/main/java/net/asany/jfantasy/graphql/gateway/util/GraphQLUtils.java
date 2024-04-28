@@ -5,7 +5,7 @@ import graphql.schema.*;
 import graphql.schema.idl.*;
 import java.util.*;
 import java.util.stream.Collectors;
-import lombok.Data;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.asany.jfantasy.framework.util.common.ClassUtil;
 import net.asany.jfantasy.framework.util.common.ObjectUtil;
@@ -51,22 +51,14 @@ public class GraphQLUtils {
       queryBuilder.append(operationDefinition.getName());
     }
 
-    if (!operationDefinition.getVariableDefinitions().isEmpty()) {
-      queryBuilder.append("(");
-      for (VariableDefinition variableDefinition : operationDefinition.getVariableDefinitions()) {
-        queryBuilder.append("$").append(variableDefinition.getName()).append(": ");
-        queryBuilder.append(formatType(variableDefinition.getType()));
-        queryBuilder.append(", ");
-      }
-      queryBuilder.setLength(queryBuilder.length() - 2);
-      queryBuilder.append(")");
+    StringBuilder queryBodyBuilder = processSelection(type, field, context);
+
+    if (!context.getUsingVariables().isEmpty()) {
+      processVariables(queryBuilder, context);
+      queryBuilder.append(" { ").append(queryBodyBuilder).append(" }");
+    } else {
+      queryBuilder.append(" { ").append(queryBodyBuilder).append(" }");
     }
-
-    queryBuilder.append(" { ");
-
-    processSelection(type, field, queryBuilder, context);
-
-    queryBuilder.append(" }");
 
     if (!context.getUsingFragments().isEmpty()) {
       processFragments(queryBuilder, context);
@@ -75,16 +67,33 @@ public class GraphQLUtils {
     return queryBuilder.toString();
   }
 
+  private static void processVariables(
+      StringBuilder queryBuilder, BuildGraphQLQueryContext context) {
+    Set<String> usingVariables = context.getUsingVariables();
+    Map<String, VariableDefinition> variables =
+        context.getVariableDefinitions().stream()
+            .collect(Collectors.toMap(VariableDefinition::getName, fragment -> fragment));
+    queryBuilder.append("(");
+    for (String variableName : usingVariables) {
+      VariableDefinition variableDefinition = variables.get(variableName);
+      queryBuilder.append("$").append(variableDefinition.getName()).append(": ");
+      queryBuilder.append(formatType(variableDefinition.getType()));
+      queryBuilder.append(", ");
+    }
+    queryBuilder.setLength(queryBuilder.length() - 2);
+    queryBuilder.append(")");
+  }
+
   private static void processFragments(
       StringBuilder queryBuilder, BuildGraphQLQueryContext context) {
     Set<String> usingFragments = context.getUsingFragments();
     Map<String, FragmentDefinition> fragments =
-        context.getDocument().getDefinitionsOfType(FragmentDefinition.class).stream()
+        context.getDefinitionsOfType(FragmentDefinition.class).stream()
             .collect(Collectors.toMap(FragmentDefinition::getName, fragment -> fragment));
     for (String fragmentName : usingFragments) {
       FragmentDefinition fragmentDefinition = fragments.get(fragmentName);
       TypeName fragmentTypeName = fragmentDefinition.getTypeCondition();
-      GraphQLType fragmentType = context.getGraphQLSchema().getType(fragmentTypeName.getName());
+      GraphQLType fragmentType = context.getType(fragmentTypeName.getName());
       queryBuilder
           .append("fragment ")
           .append(fragmentName)
@@ -96,13 +105,13 @@ public class GraphQLUtils {
   }
 
   private static void buildFieldQueryPart(
-      GraphQLType type, Field field, StringBuilder queryBuilder) {
+      GraphQLType type, Field field, StringBuilder queryBuilder, BuildGraphQLQueryContext context) {
     if (field.getAlias() != null) {
       queryBuilder.append(field.getAlias()).append(": ");
     }
     queryBuilder.append(field.getName());
     // 添加字段参数（如果有）
-    processFieldArguments(type, field, queryBuilder);
+    processFieldArguments(type, field, queryBuilder, context);
   }
 
   private static String formatType(Type<?> type) {
@@ -131,7 +140,7 @@ public class GraphQLUtils {
   }
 
   private static void processFieldArguments(
-      GraphQLType type, Field field, StringBuilder queryBuilder) {
+      GraphQLType type, Field field, StringBuilder queryBuilder, BuildGraphQLQueryContext context) {
     if (!field.getArguments().isEmpty()) {
       queryBuilder.append("(");
       field
@@ -139,11 +148,18 @@ public class GraphQLUtils {
           .forEach(
               arg -> {
                 queryBuilder.append(arg.getName()).append(": ");
-                queryBuilder.append(formatValue(arg.getValue())).append(", ");
+                queryBuilder.append(formatValue(arg.getValue(), context)).append(", ");
               });
       queryBuilder.setLength(queryBuilder.length() - 2);
       queryBuilder.append(")");
     }
+  }
+
+  private static StringBuilder processSelection(
+      GraphQLType type, Selection<?> selection, BuildGraphQLQueryContext context) {
+    StringBuilder queryBuilder = new StringBuilder();
+    processSelection(type, selection, queryBuilder, context);
+    return queryBuilder;
   }
 
   private static void processSelection(
@@ -152,7 +168,7 @@ public class GraphQLUtils {
       StringBuilder queryBuilder,
       BuildGraphQLQueryContext context) {
     if (selection instanceof Field subField) {
-      buildFieldQueryPart(type, subField, queryBuilder);
+      buildFieldQueryPart(type, subField, queryBuilder, context);
 
       if (subField.getSelectionSet() != null) {
         GraphQLType fileType = GraphQLTypeUtils.getFieldType(type, subField.getName());
@@ -166,19 +182,18 @@ public class GraphQLUtils {
     } else if (selection instanceof InlineFragment inlineFragment) {
       TypeName inlineTypeName = inlineFragment.getTypeCondition();
       queryBuilder.append("... on ").append(inlineTypeName.getName()).append(" ");
-      GraphQLType fragmentType = context.getGraphQLSchema().getType(inlineTypeName.getName());
+      GraphQLType fragmentType = context.getType(inlineTypeName.getName());
       processSelectionSet(fragmentType, inlineFragment.getSelectionSet(), queryBuilder, context);
     } else {
       throw new RuntimeException("未知的选择类型: " + selection);
     }
-    // 这里可以添加对其他类型的 Selection 的处理，如 FragmentSpread 或 InlineFragment
   }
 
-  private static String formatValue(Value<?> value) {
+  private static String formatValue(Value<?> value, BuildGraphQLQueryContext context) {
     if (value instanceof ArrayValue arrayValue) {
       return "["
           + arrayValue.getValues().stream()
-              .map(GraphQLUtils::formatValue)
+              .map(val -> formatValue(val, context))
               .collect(Collectors.joining(", "))
           + "]";
     } else if (value instanceof StringValue) {
@@ -188,7 +203,7 @@ public class GraphQLUtils {
     } else if (value instanceof ObjectValue objectValue) {
       return "{"
           + objectValue.getObjectFields().stream()
-              .map(GraphQLUtils::formatObjectField)
+              .map(val -> formatObjectField(val, context))
               .collect(Collectors.joining(", "))
           + "}";
     } else if (value instanceof IntValue) {
@@ -196,6 +211,7 @@ public class GraphQLUtils {
     } else if (value instanceof FloatValue) {
       return ((FloatValue) value).getValue().toString();
     } else if (value instanceof VariableReference variableReference) {
+      context.addUsingVariable(variableReference.getName());
       return "$" + variableReference.getName();
     } else if (value instanceof BooleanValue booleanValue) {
       return booleanValue.isValue() ? "true" : "false";
@@ -205,8 +221,8 @@ public class GraphQLUtils {
     return value.toString();
   }
 
-  private static String formatObjectField(ObjectField field) {
-    return field.getName() + ": " + formatValue(field.getValue());
+  private static String formatObjectField(ObjectField field, BuildGraphQLQueryContext context) {
+    return field.getName() + ": " + formatValue(field.getValue(), context);
   }
 
   public static GraphQLSchema buildSchema(String sdl) {
@@ -628,21 +644,33 @@ public class GraphQLUtils {
     }
   }
 
-  @Data
   private static class BuildGraphQLQueryContext {
     private final DataFetchingEnvironment environment;
-    private final Document document;
-    private final GraphQLSchema graphQLSchema;
-    private final Set<String> usingFragments = new HashSet<>();
+    @Getter private final Set<String> usingFragments = new HashSet<>();
+    @Getter private final Set<String> usingVariables = new HashSet<>();
 
     public BuildGraphQLQueryContext(DataFetchingEnvironment environment) {
       this.environment = environment;
-      this.document = environment.getDocument();
-      this.graphQLSchema = environment.getGraphQLSchema();
     }
 
     public void addUsingFragment(String name) {
       usingFragments.add(name);
+    }
+
+    public void addUsingVariable(String name) {
+      usingVariables.add(name);
+    }
+
+    public List<VariableDefinition> getVariableDefinitions() {
+      return this.environment.getOperationDefinition().getVariableDefinitions();
+    }
+
+    public <T extends Definition<T>> List<T> getDefinitionsOfType(Class<T> definitionClass) {
+      return this.environment.getDocument().getDefinitionsOfType(definitionClass);
+    }
+
+    public GraphQLType getType(String name) {
+      return this.environment.getGraphQLSchema().getType(name);
     }
   }
 }
