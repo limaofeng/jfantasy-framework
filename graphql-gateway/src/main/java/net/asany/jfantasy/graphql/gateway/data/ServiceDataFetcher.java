@@ -79,8 +79,13 @@ public class ServiceDataFetcher implements DataFetcher<Object> {
     if (response.get("$.data", JsonNode.class) == null) {
       return null;
     }
-    String resultKey = field.getAlias() != null ? field.getAlias() : field.getName();
-    return response.get("$.data." + resultKey, JsonNode.class);
+    JsonNode result = response.get("$.data", JsonNode.class);
+    return GraphQLValueUtils.convert(
+        result,
+        StringUtil.defaultValue(field.getAlias(), field.getName()),
+        environment.getFieldType(),
+        environment.getGraphQlContext(),
+        environment.getLocale());
   }
 
   public GraphQLSchema getSchema() {
