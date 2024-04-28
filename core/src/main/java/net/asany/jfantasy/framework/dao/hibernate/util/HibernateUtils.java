@@ -17,6 +17,10 @@ import net.asany.jfantasy.framework.util.ognl.OgnlUtil;
  */
 public class HibernateUtils {
 
+  public static <T> T cloneEntity(T entity) {
+    return HibernateCloningHelper.cloneEntity(entity);
+  }
+
   public static IdClass getIdClass(Class<?> entityClass) {
     Class<?> _entityClass = entityClass;
     IdClass idClass;

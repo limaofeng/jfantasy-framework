@@ -8,9 +8,8 @@ import graphql.schema.Coercing;
 import graphql.schema.CoercingParseLiteralException;
 import graphql.schema.CoercingParseValueException;
 import graphql.schema.CoercingSerializeException;
-import org.jetbrains.annotations.NotNull;
-
 import java.util.Locale;
+import org.jetbrains.annotations.NotNull;
 
 public class UploadCoercing implements Coercing<Object, Object> {
 
