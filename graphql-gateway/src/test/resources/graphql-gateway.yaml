@@ -14,17 +14,8 @@ services:
     introspection:
       enabled: false
       frequency: 30m
-    excludeFields:
-      - "Application.routespaces"
 
 override:
-  - type: "Query"
-    fields:
-      - name: "apps"
-        mapping: "applications"
-        arguments:
-          - name: "filter"
-            mapping: "where"
   - type: "Application"
     fields:
       - name: "appName"
@@ -44,6 +35,8 @@ override:
 dataFetchers:
   - name: "appName"
     class: "net.asany.jfantasy.graphql.gateway.AppNameDataFetcher"
+  - name: "upload"
+    class: "net.asany.jfantasy.graphql.gateway.UploadDataFetcher"
 
 directives:
   - name: "myDirective"

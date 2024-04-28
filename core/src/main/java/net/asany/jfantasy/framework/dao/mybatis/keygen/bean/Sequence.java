@@ -1,7 +1,6 @@
 package net.asany.jfantasy.framework.dao.mybatis.keygen.bean;
 
 import jakarta.persistence.*;
-import java.io.Serial;
 import java.io.Serializable;
 import lombok.Getter;
 
@@ -16,8 +15,6 @@ import lombok.Getter;
 @Entity
 @Table(name = "SYS_SEQUENCE")
 public class Sequence implements Serializable {
-  @Serial private static final long serialVersionUID = -3013203287222083845L;
-
   /** 序列名称 */
   @Id
   @Column(name = "GEN_NAME")

@@ -7,7 +7,9 @@ import graphql.schema.*;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import net.asany.jfantasy.framework.util.common.StringUtil;
 import net.asany.jfantasy.graphql.gateway.config.GatewayConfig;
+import net.asany.jfantasy.graphql.gateway.type.scalar.UploadCoercing;
 import org.jetbrains.annotations.NotNull;
 
 public class DefaultScalarTypeProvider implements ScalarTypeProvider {
@@ -18,10 +20,16 @@ public class DefaultScalarTypeProvider implements ScalarTypeProvider {
 
   @Override
   public GraphQLScalarType getScalarType(GatewayConfig.ScalarConfig config) {
+    Coercing<?, ?> coercing;
+    if ("Upload".equals(StringUtil.defaultValue(config.getProvider(), config::getName))) {
+      coercing = new UploadCoercing();
+    } else {
+      coercing = new DefaultCoercing(config);
+    }
     return GraphQLScalarType.newScalar()
         .name(config.getName())
         .description(config.getDescription())
-        .coercing(new DefaultCoercing(config))
+        .coercing(coercing)
         .build();
   }
 

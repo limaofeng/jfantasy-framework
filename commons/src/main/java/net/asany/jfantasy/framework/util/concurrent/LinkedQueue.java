@@ -15,8 +15,6 @@ import org.jetbrains.annotations.NotNull;
 public class LinkedQueue<E> extends AbstractQueue<E>
     implements BlockingQueue<E>, java.io.Serializable {
 
-  @Serial private static final long serialVersionUID = -4457362206741191196L;
-
   static class Node<E> {
     volatile E item;
     Node<E> next;

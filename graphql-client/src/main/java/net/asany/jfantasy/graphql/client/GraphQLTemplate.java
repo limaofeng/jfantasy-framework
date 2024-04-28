@@ -5,14 +5,14 @@ import static java.util.Objects.nonNull;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import jakarta.servlet.http.Part;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import lombok.Builder;
+import lombok.Data;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -55,6 +55,33 @@ public class GraphQLTemplate {
     }
     wrapper.set("variables", variables);
     return objectMapper.writeValueAsString(wrapper);
+  }
+
+  private MultipartQuery createMultipartQuery(
+      String graphql, String operation, Map<String, Object> variables)
+      throws JsonProcessingException {
+    ObjectNode wrapper = objectMapper.createObjectNode();
+    wrapper.put("query", graphql);
+    if (nonNull(operation)) {
+      wrapper.put("operationName", operation);
+    }
+
+    Map<String, Part> parts = new HashMap<>();
+
+    Map<String, Object> newVariables = new HashMap<>(variables);
+    for (Map.Entry<String, Object> entry : newVariables.entrySet()) {
+      if (entry.getValue() instanceof Part part) {
+        parts.put("variables." + entry.getKey(), part);
+        entry.setValue(null);
+      }
+    }
+
+    wrapper.set("variables", this.objectMapper.valueToTree(newVariables));
+
+    return MultipartQuery.builder()
+        .operations(objectMapper.writeValueAsString(wrapper))
+        .parts(parts)
+        .build();
   }
 
   private String loadQuery(String location) throws IOException {
@@ -275,6 +302,15 @@ public class GraphQLTemplate {
 
   public GraphQLResponse post(String graphql, String operationName, Map<String, Object> variables)
       throws IOException {
+
+    boolean isUploaded = variables.values().stream().anyMatch(val -> val instanceof Part);
+
+    if (isUploaded) {
+      MultipartQuery query = createMultipartQuery(graphql, operationName, variables);
+      return postRequest(
+          RequestFactory.forMultipart(query.getOperations(), query.getParts(), headers));
+    }
+
     String payload =
         createJsonQuery(graphql, operationName, this.objectMapper.valueToTree(variables));
     return postRequest(RequestFactory.forJson(payload, headers));
@@ -307,8 +343,8 @@ public class GraphQLTemplate {
     return perform(graphqlResource, null, null, fragmentResources);
   }
 
-  public GraphQLResponse postMultipart(String query, String variables) {
-    return postRequest(RequestFactory.forMultipart(query, variables, headers));
+  public GraphQLResponse postMultipart(String query, Map<String, Part> payload) {
+    return postRequest(RequestFactory.forMultipart(query, payload, headers));
   }
 
   /**
@@ -325,5 +361,12 @@ public class GraphQLTemplate {
     ResponseEntity<String> response =
         restTemplate.exchange(graphqlMapping, HttpMethod.POST, request, String.class);
     return new GraphQLResponse(response, objectMapper);
+  }
+
+  @Data
+  @Builder
+  public static class MultipartQuery {
+    private String operations;
+    private Map<String, Part> parts;
   }
 }

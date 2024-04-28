@@ -1,6 +1,5 @@
 package net.asany.jfantasy.framework.dao.mybatis.proxy;
 
-import java.io.Serial;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -28,8 +27,6 @@ public class MyBatisMapperProxy implements InvocationHandler {
   /** 不需要代理的方法 */
   private static final Set<String> OBJECT_METHODS =
       new HashSet<>() {
-        @Serial private static final long serialVersionUID = -1782950882770203583L;
-
         {
           add("toString");
           add("getClass");

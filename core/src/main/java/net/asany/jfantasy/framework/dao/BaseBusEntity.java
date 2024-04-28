@@ -4,7 +4,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
-import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
 import lombok.*;
@@ -23,8 +22,6 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @MappedSuperclass
 public abstract class BaseBusEntity implements Serializable {
-
-  @Serial private static final long serialVersionUID = -6543503526965322995L;
 
   public static final String FIELD_CREATED_BY = "createdBy";
   public static final String FIELD_CREATED_AT = "createdAt";

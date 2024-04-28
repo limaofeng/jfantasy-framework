@@ -1,12 +1,9 @@
 package net.asany.jfantasy.framework.util.cglib.interceptor;
 
-import java.io.Serial;
 import java.util.*;
 import net.asany.jfantasy.framework.util.regexp.RegexpUtil;
 
 public class ParameterMap extends HashMap<String, Object> {
-
-  @Serial private static final long serialVersionUID = 6842517213822127863L;
 
   @Override
   public boolean containsKey(Object key) {

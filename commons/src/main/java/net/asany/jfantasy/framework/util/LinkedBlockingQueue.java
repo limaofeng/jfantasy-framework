@@ -20,9 +20,6 @@ import org.jetbrains.annotations.NotNull;
  */
 public class LinkedBlockingQueue<E> extends AbstractQueue<E>
     implements BlockingQueue<E>, Serializable {
-  /** */
-  @Serial private static final long serialVersionUID = -6642633435807467698L;
-
   /** 容量 */
   private final int capacity;
 
