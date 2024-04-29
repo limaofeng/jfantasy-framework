@@ -38,8 +38,12 @@ public class HibernateCloningHelper {
       return null;
     }
     // Return the entity directly if it is a cloneable simple type or has been cloned already
-    if (isSimpleType(value.getClass()) || alreadyCloned.containsKey(value)) {
+    if (isSimpleType(value.getClass())) {
       return value;
+    }
+    if (alreadyCloned.containsKey(value)) {
+      //noinspection unchecked
+      return (T) alreadyCloned.get(value);
     }
     try {
       Object clonedValue;
@@ -61,14 +65,18 @@ public class HibernateCloningHelper {
     }
   }
 
+  private static <T> Class<T> getRealClass(T entity) throws ClassNotFoundException {
+    if (entity instanceof MutableEntityEntry) {
+      //noinspection unchecked
+      return (Class<T>) Class.forName(((MutableEntityEntry) entity).getEntityName());
+    }
+    //noinspection unchecked
+    return (Class<T>) Hibernate.getClass(entity);
+  }
+
   private static <T> T cloneEntityInternal(T entity, Map<Object, Object> alreadyCloned) {
     try {
-      boolean isMutableEntity = entity instanceof MutableEntityEntry;
-      //noinspection unchecked
-      Class<T> entityClass =
-          isMutableEntity
-              ? (Class<T>) Class.forName(((MutableEntityEntry) entity).getEntityName())
-              : (Class<T>) entity.getClass();
+      Class<T> entityClass = getRealClass(entity);
 
       T cloned = entityClass.getDeclaredConstructor().newInstance();
       alreadyCloned.put(entity, cloned);
@@ -80,14 +88,13 @@ public class HibernateCloningHelper {
         if (Modifier.isStatic(field.getModifiers())) {
           continue;
         }
-        field.setAccessible(true);
-        Object fieldValue =
-            isMutableEntity ? ObjectUtil.getValue(field.getName(), entity) : field.get(entity);
+        Object fieldValue = ObjectUtil.getValue(field.getName(), entity);
 
         if (fieldValue == null || !Hibernate.isInitialized(fieldValue)) {
           continue;
         }
-        field.set(cloned, cloneValueInternal(fieldValue, alreadyCloned));
+
+        ObjectUtil.setValue(field.getName(), cloned, cloneValueInternal(fieldValue, alreadyCloned));
       }
       return cloned;
     } catch (Exception e) {
