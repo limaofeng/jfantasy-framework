@@ -53,7 +53,7 @@ public class DefaultScalarTypeProvider implements ScalarTypeProvider {
     public Object parseValue(
         @NotNull Object input, @NotNull GraphQLContext graphQLContext, @NotNull Locale locale)
         throws CoercingParseValueException {
-      return Coercing.super.parseValue(input, graphQLContext, locale);
+      return input;
     }
 
     @Override
