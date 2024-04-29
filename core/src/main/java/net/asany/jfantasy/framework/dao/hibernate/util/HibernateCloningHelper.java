@@ -29,24 +29,39 @@ import org.hibernate.engine.internal.MutableEntityEntry;
 
 public class HibernateCloningHelper {
   public static <T> T cloneEntity(T entity) {
-    if (entity == null) {
+    Map<Object, Object> alreadyCloned = new HashMap<>();
+    return cloneValueInternal(entity, alreadyCloned);
+  }
+
+  private static <T> T cloneValueInternal(T value, Map<Object, Object> alreadyCloned) {
+    if (value == null) {
       return null;
     }
-
-    Map<Object, Object> alreadyCloned = new HashMap<>();
-    return cloneEntityInternal(entity, alreadyCloned);
+    // Return the entity directly if it is a cloneable simple type or has been cloned already
+    if (isSimpleType(value.getClass()) || alreadyCloned.containsKey(value)) {
+      return value;
+    }
+    try {
+      Object clonedValue;
+      if (value.getClass().isArray()) {
+        clonedValue = cloneArray(value, alreadyCloned);
+      } else if (value instanceof Collection<?> collection) {
+        clonedValue = cloneCollection(collection, alreadyCloned);
+      } else if (value instanceof Map) {
+        clonedValue = cloneMap((Map<?, ?>) value, alreadyCloned);
+      } else if (!isSimpleType(value.getClass())) {
+        clonedValue = cloneEntityInternal(value, alreadyCloned);
+      } else {
+        clonedValue = value;
+      }
+      //noinspection unchecked
+      return (T) clonedValue;
+    } catch (Exception e) {
+      throw new RuntimeException("Cloning failed", e);
+    }
   }
 
   private static <T> T cloneEntityInternal(T entity, Map<Object, Object> alreadyCloned) {
-    if (entity == null) {
-      return null;
-    }
-
-    // Return the entity directly if it is a cloneable simple type or has been cloned already
-    if (isSimpleType(entity.getClass()) || alreadyCloned.containsKey(entity)) {
-      return entity;
-    }
-
     try {
       boolean isMutableEntity = entity instanceof MutableEntityEntry;
       //noinspection unchecked
@@ -72,20 +87,7 @@ public class HibernateCloningHelper {
         if (fieldValue == null || !Hibernate.isInitialized(fieldValue)) {
           continue;
         }
-
-        Object clonedValue;
-        if (field.getType().isArray()) {
-          clonedValue = cloneArray(fieldValue, alreadyCloned);
-        } else if (fieldValue instanceof Collection) {
-          clonedValue = cloneCollection((Collection<?>) fieldValue, alreadyCloned);
-        } else if (fieldValue instanceof Map) {
-          clonedValue = cloneMap((Map<?, ?>) fieldValue, alreadyCloned);
-        } else if (!isSimpleType(field.getType())) {
-          clonedValue = cloneEntityInternal(fieldValue, alreadyCloned);
-        } else {
-          clonedValue = fieldValue;
-        }
-        field.set(cloned, clonedValue);
+        field.set(cloned, cloneValueInternal(fieldValue, alreadyCloned));
       }
       return cloned;
     } catch (Exception e) {
@@ -115,7 +117,7 @@ public class HibernateCloningHelper {
       Object clonedItem =
           isSimpleType(arrayItem.getClass())
               ? arrayItem
-              : cloneEntityInternal(arrayItem, alreadyCloned);
+              : cloneValueInternal(arrayItem, alreadyCloned);
       Array.set(clonedArray, i, clonedItem);
     }
     return clonedArray;
@@ -137,7 +139,7 @@ public class HibernateCloningHelper {
     Collection<Object> clonedCollection =
         (Collection<Object>) collectionClazz.getConstructor().newInstance();
     for (Object item : collection) {
-      clonedCollection.add(cloneEntityInternal(item, alreadyCloned));
+      clonedCollection.add(cloneValueInternal(item, alreadyCloned));
     }
     return clonedCollection;
   }
@@ -155,8 +157,8 @@ public class HibernateCloningHelper {
     Map<Object, Object> clonedMap = (Map<Object, Object>) mapClazz.getConstructor().newInstance();
     for (Map.Entry<?, ?> entry : map.entrySet()) {
       clonedMap.put(
-          cloneEntityInternal(entry.getKey(), alreadyCloned),
-          cloneEntityInternal(entry.getValue(), alreadyCloned));
+          cloneValueInternal(entry.getKey(), alreadyCloned),
+          cloneValueInternal(entry.getValue(), alreadyCloned));
     }
     return clonedMap;
   }
