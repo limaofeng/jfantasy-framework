@@ -22,8 +22,8 @@ import java.lang.reflect.Modifier;
 import java.util.*;
 import net.asany.jfantasy.framework.util.common.ObjectUtil;
 import org.hibernate.Hibernate;
-import org.hibernate.collection.spi.PersistentCollection;
 import org.hibernate.collection.spi.PersistentList;
+import org.hibernate.collection.spi.PersistentMap;
 import org.hibernate.collection.spi.PersistentSet;
 import org.hibernate.engine.internal.MutableEntityEntry;
 
@@ -71,12 +71,6 @@ public class HibernateCloningHelper {
 
         if (fieldValue == null || !Hibernate.isInitialized(fieldValue)) {
           continue;
-        }
-
-        if (fieldValue instanceof PersistentCollection) {
-          if (!((PersistentCollection<?>) fieldValue).wasInitialized()) {
-            continue;
-          }
         }
 
         Object clonedValue;
@@ -153,8 +147,12 @@ public class HibernateCloningHelper {
           IllegalAccessException,
           NoSuchMethodException,
           InvocationTargetException {
+    Class<?> mapClazz = map.getClass();
+    if (map instanceof PersistentMap) {
+      mapClazz = LinkedHashMap.class;
+    }
     //noinspection unchecked
-    Map<Object, Object> clonedMap = map.getClass().getConstructor().newInstance();
+    Map<Object, Object> clonedMap = (Map<Object, Object>) mapClazz.getConstructor().newInstance();
     for (Map.Entry<?, ?> entry : map.entrySet()) {
       clonedMap.put(
           cloneEntityInternal(entry.getKey(), alreadyCloned),
