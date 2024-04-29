@@ -1,6 +1,7 @@
 package net.asany.jfantasy.graphql.gateway;
 
 import graphql.schema.GraphQLSchema;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -122,6 +123,24 @@ public class GraphQLGateway {
       return this;
     }
 
+    public InputStream getConfigStream() throws FileNotFoundException {
+      InputStream inputStream;
+      if (this.config.startsWith("classpath:")) { // 从类路径加载资源
+        String resourcePath = this.config.substring(10); // 移除 "classpath:" 前缀
+        inputStream = getClass().getClassLoader().getResourceAsStream(resourcePath);
+        if (inputStream == null) {
+          throw new FileNotFoundException("Resource " + resourcePath + " not found in classpath");
+        }
+      } else { // 从文件系统加载资源
+        try {
+          inputStream = new FileInputStream(this.config);
+        } catch (FileNotFoundException e) {
+          throw new FileNotFoundException(this.config + " file not found in file system");
+        }
+      }
+      return inputStream;
+    }
+
     @SneakyThrows
     public GraphQLGateway build() {
       // 如果没有指定 ScalarTypeResolver，则使用默认的
@@ -133,11 +152,7 @@ public class GraphQLGateway {
       }
 
       // 读取配置文件
-      InputStream inputStream = ClassLoader.getSystemResourceAsStream(this.config);
-
-      if (inputStream == null) {
-        throw new FileNotFoundException(this.config + "config file not found");
-      }
+      InputStream inputStream = getConfigStream();
 
       Constructor constructor = new Constructor(GatewayConfig.class);
       PropertyUtils propertyUtils = new GatewayPropertyUtils();
@@ -145,7 +160,7 @@ public class GraphQLGateway {
       constructor.setPropertyUtils(propertyUtils);
       Yaml yaml = new Yaml(constructor);
 
-      @SuppressWarnings("VulnerableCodeUsages")
+      //noinspection VulnerableCodeUsages
       GatewayConfig gatewayConfig = yaml.load(inputStream);
 
       // 注册所有的ScalarType
