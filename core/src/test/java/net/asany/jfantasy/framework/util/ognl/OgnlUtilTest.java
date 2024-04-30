@@ -87,7 +87,7 @@ public class OgnlUtilTest {
   public void testVFolder() {
     User user = new User();
     user.setVFolder("1234567");
-    String vFolder =  OgnlUtil.getInstance().getValue("vFolder", user);
+    String vFolder = OgnlUtil.getInstance().getValue("vFolder", user);
     log.debug("vFolder = " + vFolder);
   }
 }

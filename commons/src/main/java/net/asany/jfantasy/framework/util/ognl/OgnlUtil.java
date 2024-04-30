@@ -9,7 +9,6 @@ import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-
 import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +36,13 @@ public class OgnlUtil {
       new DefaultTypeConverter() {
 
         @Override
-        public Object convertValue(OgnlContext context, Object root, Member member, String name, Object value, Class<?> toType) {
+        public Object convertValue(
+            OgnlContext context,
+            Object root,
+            Member member,
+            String name,
+            Object value,
+            Class<?> toType) {
           if (OgnlUtil.this.typeConverters.containsKey(toType)) {
             return OgnlUtil.this
                 .typeConverters
@@ -188,8 +193,7 @@ public class OgnlUtil {
     return getValue(name, createDefaultContext(root), root, resultType);
   }
 
-  public <T> T getValue(
-      String name, OgnlContext context, Object root, Class<T> resultType) {
+  public <T> T getValue(String name, OgnlContext context, Object root, Class<T> resultType) {
     try {
       return (T) Ognl.getValue(compile(name), context, root, resultType);
     } catch (OgnlException e) {
@@ -252,10 +256,7 @@ public class OgnlUtil {
 
   @SneakyThrows
   public void setProperties(
-      Map<String, ?> props,
-      Object o,
-      OgnlContext context,
-      boolean throwPropertyExceptions) {
+      Map<String, ?> props, Object o, OgnlContext context, boolean throwPropertyExceptions) {
     if (props == null) {
       return;
     }
@@ -271,11 +272,7 @@ public class OgnlUtil {
   }
 
   void internalSetProperty(
-      String name,
-      Object value,
-      Object o,
-      OgnlContext context,
-      boolean throwPropertyExceptions) {
+      String name, Object value, Object o, OgnlContext context, boolean throwPropertyExceptions) {
     try {
       setValue(name, context, o, value);
     } catch (OgnlException e) {
@@ -302,18 +299,19 @@ public class OgnlUtil {
   }
 
   public OgnlContext createDefaultContext(Object target, TypeConverter converter) {
-    ClassResolver classResolver = new ClassResolver() {
-      private final DefaultClassResolver resolver = new DefaultClassResolver();
-      @Override
-      public <T> Class<T> classForName(String className, OgnlContext context) throws ClassNotFoundException {
-        log.debug(className);
-        return resolver.classForName(className, context);
-      }
-    };
-     return Ognl.createDefaultContext(
-      target,
-      classResolver,
-      ObjectUtil.defaultValue(converter, this.defaultTypeConverter));
+    ClassResolver classResolver =
+        new ClassResolver() {
+          private final DefaultClassResolver resolver = new DefaultClassResolver();
+
+          @Override
+          public <T> Class<T> classForName(String className, OgnlContext context)
+              throws ClassNotFoundException {
+            log.debug(className);
+            return resolver.classForName(className, context);
+          }
+        };
+    return Ognl.createDefaultContext(
+        target, classResolver, ObjectUtil.defaultValue(converter, this.defaultTypeConverter));
   }
 
   public void copy(Object from, Object to) {
