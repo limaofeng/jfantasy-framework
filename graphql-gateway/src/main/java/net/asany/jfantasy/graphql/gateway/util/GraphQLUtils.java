@@ -34,11 +34,13 @@ public class GraphQLUtils {
 
     for (VariableDefinition definition : variableDefinitions) {
       String varName = definition.getName();
-      GraphQLInputType varType = schema.getTypeAs(((TypeName) definition.getType()).getName());
+      TypeName typeName = GraphQLTypeUtils.getTypeName(definition.getType());
+      GraphQLInputType varType = schema.getTypeAs(typeName.getName());
 
       if (!variables.containsKey(varName)) {
         continue;
       }
+
       if (varType != null) {
         variables.put(varName, processVariable(varName, variables.get(varName), varType));
       }
