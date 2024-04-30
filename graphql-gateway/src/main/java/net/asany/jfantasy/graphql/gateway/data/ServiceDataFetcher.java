@@ -51,7 +51,8 @@ public class ServiceDataFetcher implements DataFetcher<Object> {
 
     Map<String, Object> variables = GraphQLUtils.buildVariables(environment, getSchema());
 
-    log.warn("gql:{}", gql);
+    log.debug("GraphQL Query: {}", gql);
+    log.debug("GraphQL Variables: {}", variables);
 
     GraphQLTemplate client = this.service.getClient();
     GraphQLResponse response;

@@ -74,32 +74,33 @@ public class HibernateCloningHelper {
     return (Class<T>) Hibernate.getClass(entity);
   }
 
-  private static <T> T cloneEntityInternal(T entity, Map<Object, Object> alreadyCloned) {
-    try {
-      Class<T> entityClass = getRealClass(entity);
+  private static <T> T cloneEntityInternal(T entity, Map<Object, Object> alreadyCloned)
+      throws ClassNotFoundException,
+          NoSuchMethodException,
+          InvocationTargetException,
+          InstantiationException,
+          IllegalAccessException {
+    Class<T> entityClass = getRealClass(entity);
 
-      T cloned = entityClass.getDeclaredConstructor().newInstance();
-      alreadyCloned.put(entity, cloned);
+    T cloned = entityClass.getDeclaredConstructor().newInstance();
+    alreadyCloned.put(entity, cloned);
 
-      for (Field field : entityClass.getDeclaredFields()) {
-        if (field.getName().startsWith("$$_hibernate_")) {
-          continue;
-        }
-        if (Modifier.isStatic(field.getModifiers())) {
-          continue;
-        }
-        Object fieldValue = ObjectUtil.getValue(field.getName(), entity);
-
-        if (fieldValue == null || !Hibernate.isInitialized(fieldValue)) {
-          continue;
-        }
-
-        ObjectUtil.setValue(field.getName(), cloned, cloneValueInternal(fieldValue, alreadyCloned));
+    for (Field field : entityClass.getDeclaredFields()) {
+      if (field.getName().startsWith("$$_hibernate_")) {
+        continue;
       }
-      return cloned;
-    } catch (Exception e) {
-      throw new RuntimeException("Cloning failed", e);
+      if (Modifier.isStatic(field.getModifiers())) {
+        continue;
+      }
+      Object fieldValue = ObjectUtil.getValue(field.getName(), entity);
+
+      if (fieldValue == null || !Hibernate.isInitialized(fieldValue)) {
+        continue;
+      }
+
+      ObjectUtil.setValue(field.getName(), cloned, cloneValueInternal(fieldValue, alreadyCloned));
     }
+    return cloned;
   }
 
   private static boolean isSimpleType(Class<?> clazz) {
@@ -113,7 +114,8 @@ public class HibernateCloningHelper {
         || clazz == Float.class
         || clazz == Short.class
         || clazz == Character.class
-        || clazz == Byte.class;
+        || clazz == Byte.class
+        || Date.class.isAssignableFrom(clazz);
   }
 
   private static Object cloneArray(Object array, Map<Object, Object> alreadyCloned) {

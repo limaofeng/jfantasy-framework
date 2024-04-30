@@ -95,6 +95,13 @@ public class GraphQLTypeUtils {
     return getSourceType(fieldType) instanceof GraphQLObjectType;
   }
 
+  public static boolean isListType(Type<?> type) {
+    if (type instanceof NonNullType nonNullType) {
+      return isListType(nonNullType.getType());
+    }
+    return type instanceof ListType;
+  }
+
   public static boolean isListType(GraphQLType type) {
     if (type instanceof GraphQLList) {
       return true;
@@ -136,5 +143,19 @@ public class GraphQLTypeUtils {
     return Parser.parse(directiveDefinitionString)
         .getFirstDefinitionOfType(DirectiveDefinition.class)
         .orElseThrow(() -> new RuntimeException("无效的指令定义:" + directiveDefinitionString));
+  }
+
+  public static GraphQLType convert(Type<?> languageType, GraphQLSchema schema) {
+    if (languageType instanceof TypeName typeName) {
+      return schema.getType(typeName.getName());
+    } else if (languageType instanceof NonNullType nonNullType) {
+      GraphQLType innerType = convert(nonNullType.getType(), schema);
+      return GraphQLNonNull.nonNull(innerType);
+    } else if (languageType instanceof ListType listType) {
+      GraphQLType innerType = convert(listType.getType(), schema);
+      return GraphQLList.list(innerType);
+    }
+    throw new UnsupportedOperationException(
+        "Conversion for type " + languageType.getClass() + " is not supported.");
   }
 }

@@ -34,16 +34,21 @@ public class GraphQLUtils {
 
     for (VariableDefinition definition : variableDefinitions) {
       String varName = definition.getName();
-      TypeName typeName = GraphQLTypeUtils.getTypeName(definition.getType());
-      GraphQLInputType varType = schema.getTypeAs(typeName.getName());
-
       if (!variables.containsKey(varName)) {
         continue;
       }
 
-      if (varType != null) {
-        variables.put(varName, processVariable(varName, variables.get(varName), varType));
+      Object fieldValue = variables.get(varName);
+
+      if (fieldValue == null) {
+        continue;
       }
+
+      Object newFieldValue =
+          processVariable(
+              varName, fieldValue, GraphQLTypeUtils.convert(definition.getType(), schema));
+
+      variables.put(varName, newFieldValue);
     }
     return variables;
   }
@@ -90,11 +95,25 @@ public class GraphQLUtils {
     return queryBuilder.toString();
   }
 
-  private static Object processVariable(String varName, Object value, GraphQLInputType varType) {
+  private static Object processVariable(String varName, Object value, GraphQLType type) {
+    GraphQLType varType = GraphQLTypeUtils.getSourceType(type);
+
+    if (varType == null) {
+      return value;
+    }
+
+    if (GraphQLTypeUtils.isListType(type)) {
+      //noinspection unchecked
+      List<Object> values = (List<Object>) value;
+      values.replaceAll(o -> processVariable(varName, o, varType));
+      return values;
+    }
+
     if (varType instanceof GraphQLScalarType scalarType) {
       // 处理标量类型的变量
       return processScalarVariable(varName, value, scalarType);
     }
+
     if (varType instanceof GraphQLInputObjectType) {
       // 处理输入对象类型的变量
       //noinspection unchecked
@@ -102,10 +121,17 @@ public class GraphQLUtils {
       //noinspection PatternVariableCanBeUsed
       GraphQLInputObjectType inputObjectType = (GraphQLInputObjectType) varType;
       for (GraphQLInputObjectField field : inputObjectType.getFields()) {
+        if (!values.containsKey(field.getName())) {
+          continue;
+        }
         Object fieldValue = values.get(field.getName());
+        if (fieldValue == null) {
+          continue;
+        }
         processVariable(field.getName(), fieldValue, field.getType());
       }
     }
+
     return value;
   }
 

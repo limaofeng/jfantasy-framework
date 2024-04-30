@@ -9,11 +9,4 @@ public interface GraphQLService {
 
   GraphQLSchema makeSchema() throws IOException;
 
-  //  GraphQLInputType getInputType(String name);
-  //
-  //  TypeDefinition<?> getTypeDefinition(String name);
-  //
-  //  GraphQLOutputType getOutputType(String name);
-  //
-  //  void addType(String name, GraphQLType build);
 }
