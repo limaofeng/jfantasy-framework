@@ -2,11 +2,30 @@ package net.asany.jfantasy.framework.util.common;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import net.asany.jfantasy.framework.jackson.deserializer.DateConverter;
 import net.asany.jfantasy.framework.util.ognl.OgnlUtil;
 import net.asany.jfantasy.framework.util.reflect.Property;
+import org.apache.commons.beanutils.BeanUtilsBean;
 
 public class BeanUtil {
+
+  static {
+    DateConverter dc = new DateConverter();
+    dc.setUseLocaleFormat(true);
+    dc.setPatterns(
+        new String[] {
+          "yyyy-MM",
+          "yyyy-MM-dd",
+          "yyyy-MM-dd HH:mm:ss",
+          "yyyy-MM-dd HH:mm",
+          "yyyyMMdd",
+          "yyyyMMddHHmmss",
+        });
+    BeanUtilsBean.getInstance().getConvertUtils().register(dc, Date.class);
+  }
+
   private BeanUtil() {}
 
   public static void setValue(Object target, String fieldName, Object value) {
@@ -100,6 +119,14 @@ public class BeanUtil {
     public boolean accept(Property property, Object value, Object target) {
       return Arrays.stream(propertyNames).noneMatch(item -> item.equals(property.getName()));
     }
+  }
+
+  public static <T> T convertStringToObject(String value, Class<T> toType) {
+    return toType.cast(BeanUtilsBean.getInstance().getConvertUtils().convert(value, toType));
+  }
+
+  public static Object convert(Object value, Class<?> toType) {
+    return BeanUtilsBean.getInstance().getConvertUtils().convert(value, toType);
   }
 
   private static class AllowPropertyFilter implements PropertyFilter {

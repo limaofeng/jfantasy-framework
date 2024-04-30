@@ -32,8 +32,13 @@ public class GraphQLGatewayError implements GraphQLError {
       this.path = dataFetchException.getPath();
       this.locations = dataFetchException.getLocations();
       this.extensions = dataFetchException.getExtensions();
-      this.code = (String) dataFetchException.getExtensions().get("code");
-      this.timestamp = (String) dataFetchException.getExtensions().get("timestamp");
+      if (this.extensions != null) {
+        this.code = (String) dataFetchException.getExtensions().get("code");
+        this.timestamp = (String) dataFetchException.getExtensions().get("timestamp");
+      } else {
+        this.code = "400000";
+        this.timestamp = DateUtil.format("yyyy-MM-dd HH:mm:ss");
+      }
       this.fieldErrors = dataFetchException.getFieldErrors();
       this.data = dataFetchException.getData();
       this.errorType = ErrorType.DataFetchingException;

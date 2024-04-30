@@ -9,6 +9,8 @@ import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+
+import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import net.asany.jfantasy.framework.util.common.ClassUtil;
@@ -28,15 +30,14 @@ public class OgnlUtil {
   private final ConcurrentHashMap<Class<?>, BeanInfo> beanInfoCache =
       new ConcurrentHashMap<Class<?>, BeanInfo>();
 
+  @Setter
   private Map<Class<?>, TypeConverter> typeConverters = new HashMap<Class<?>, TypeConverter>();
 
   private final TypeConverter defaultTypeConverter =
       new DefaultTypeConverter() {
 
         @Override
-        @SuppressWarnings({"rawtypes", "unchecked"})
-        public Object convertValue(
-            Map context, Object root, Member member, String name, Object value, Class toType) {
+        public Object convertValue(OgnlContext context, Object root, Member member, String name, Object value, Class<?> toType) {
           if (OgnlUtil.this.typeConverters.containsKey(toType)) {
             return OgnlUtil.this
                 .typeConverters
@@ -79,20 +80,16 @@ public class OgnlUtil {
     this.typeConverters.put(type, typeConverter);
   }
 
-  public void setTypeConverters(Map<Class<?>, TypeConverter> typeConverters) {
-    this.typeConverters = typeConverters;
-  }
-
   public void setValue(String name, Object root, Object value) {
     try {
-      Map<String, Object> context = createDefaultContext(root);
+      OgnlContext context = createDefaultContext(root);
       setValue(name, context, root, value);
     } catch (OgnlException e) {
       log.debug(e.getMessage(), e);
     }
   }
 
-  public void setValue(String name, Map<String, Object> context, Object root, Object value)
+  public void setValue(String name, OgnlContext context, Object root, Object value)
       throws OgnlException {
     if ((name.contains(".") || RegexpUtil.isMatch(name, "\\[\\d+\\]$"))
         && !name.trim().startsWith("new")) {
@@ -175,7 +172,7 @@ public class OgnlUtil {
     return (T) getValue(key, createDefaultContext(root), root);
   }
 
-  public Object getValue(String name, Map<String, Object> context, Object root) {
+  public Object getValue(String name, OgnlContext context, Object root) {
     try {
       if (context == null) {
         return Ognl.getValue(name, root);
@@ -192,7 +189,7 @@ public class OgnlUtil {
   }
 
   public <T> T getValue(
-      String name, Map<String, Object> context, Object root, Class<T> resultType) {
+      String name, OgnlContext context, Object root, Class<T> resultType) {
     try {
       return (T) Ognl.getValue(compile(name), context, root, resultType);
     } catch (OgnlException e) {
@@ -223,7 +220,7 @@ public class OgnlUtil {
   public Map<String, Object> getBeanMap(Object source, String... excludeProperties)
       throws IntrospectionException, OgnlException {
     Map<String, Object> beanMap = new HashMap<>();
-    Map<String, ?> sourceMap = Ognl.createDefaultContext(source);
+    OgnlContext sourceMap = Ognl.createDefaultContext(source);
     PropertyDescriptor[] propertyDescriptors = getPropertyDescriptors(source);
     for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
       String propertyName = propertyDescriptor.getDisplayName();
@@ -257,12 +254,13 @@ public class OgnlUtil {
   public void setProperties(
       Map<String, ?> props,
       Object o,
-      Map<String, Object> context,
+      OgnlContext context,
       boolean throwPropertyExceptions) {
     if (props == null) {
       return;
     }
-    Ognl.setTypeConverter(context, getTypeConverterFromContext());
+
+    context = createDefaultContext(context, getTypeConverterFromContext());
     Object oldRoot = Ognl.getRoot(context);
     Ognl.setRoot(context, o);
     for (Map.Entry<String, ?> entry : props.entrySet()) {
@@ -276,7 +274,7 @@ public class OgnlUtil {
       String name,
       Object value,
       Object o,
-      Map<String, Object> context,
+      OgnlContext context,
       boolean throwPropertyExceptions) {
     try {
       setValue(name, context, o, value);
@@ -299,42 +297,37 @@ public class OgnlUtil {
     return this.defaultTypeConverter;
   }
 
-  public Map<String, Object> createDefaultContext(Object target) {
-    OgnlContext ognlContext =
-        (OgnlContext)
-            Ognl.createDefaultContext(
-                target,
-                new ClassResolver() {
+  public OgnlContext createDefaultContext(Object target) {
+    return createDefaultContext(target, null);
+  }
 
-                  private final DefaultClassResolver resolver = new DefaultClassResolver();
-
-                  @Override
-                  public Class<?> classForName(String className, Map context)
-                      throws ClassNotFoundException {
-                    log.debug(className);
-                    return resolver.classForName(className, context);
-                  }
-                },
-                this.defaultTypeConverter);
-    //noinspection unchecked
-    return (Map<String, Object>) ognlContext;
+  public OgnlContext createDefaultContext(Object target, TypeConverter converter) {
+    ClassResolver classResolver = new ClassResolver() {
+      private final DefaultClassResolver resolver = new DefaultClassResolver();
+      @Override
+      public <T> Class<T> classForName(String className, OgnlContext context) throws ClassNotFoundException {
+        log.debug(className);
+        return resolver.classForName(className, context);
+      }
+    };
+     return Ognl.createDefaultContext(
+      target,
+      classResolver,
+      ObjectUtil.defaultValue(converter, this.defaultTypeConverter));
   }
 
   public void copy(Object from, Object to) {
     copy(from, to, null, null);
   }
 
-  @SuppressWarnings("rawtypes")
   public void copy(
       Object from, Object to, Collection<String> exclusions, Collection<String> inclusions) {
     if ((from == null) || (to == null)) {
       return;
     }
     TypeConverter conv = getTypeConverterFromContext();
-    Map contextFrom = Ognl.createDefaultContext(from);
-    Ognl.setTypeConverter(contextFrom, conv);
-    Map contextTo = Ognl.createDefaultContext(to);
-    Ognl.setTypeConverter(contextTo, conv);
+    OgnlContext contextFrom = createDefaultContext(from, conv);
+    OgnlContext contextTo = createDefaultContext(to, conv);
     PropertyDescriptor[] fromPds;
     PropertyDescriptor[] toPds;
     try {

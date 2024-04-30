@@ -8,8 +8,8 @@ import java.io.IOException;
 import java.util.Date;
 import lombok.extern.slf4j.Slf4j;
 import net.asany.jfantasy.framework.error.IgnoreException;
+import net.asany.jfantasy.framework.util.common.BeanUtil;
 import net.asany.jfantasy.framework.util.common.StringUtil;
-import org.apache.commons.beanutils.BeanUtilsBean;
 
 @Slf4j
 public class DateDeserializer extends JsonDeserializer<Date> {
@@ -25,16 +25,12 @@ public class DateDeserializer extends JsonDeserializer<Date> {
         return null;
       }
       try {
-        return convertStringToObject(value, Date.class);
+        return BeanUtil.convertStringToObject(value, Date.class);
       } catch (Exception e) {
-        log.debug("不能转换日期格式[" + value + "]", e);
+        log.debug("不能转换日期格式[{}]", value, e);
         throw new IgnoreException(e.getMessage(), e);
       }
     }
     throw new IgnoreException("JsonToken = " + t + ",是不能处理的类型！");
-  }
-
-  public static <T> T convertStringToObject(String value, Class<T> toType) {
-    return toType.cast(BeanUtilsBean.getInstance().getConvertUtils().convert(value, toType));
   }
 }

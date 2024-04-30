@@ -6,10 +6,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
 import lombok.extern.slf4j.Slf4j;
-import net.asany.jfantasy.framework.dao.hibernate.util.converters.DateConverter;
+import net.asany.jfantasy.framework.util.common.BeanUtil;
 import net.asany.jfantasy.framework.util.common.ClassUtil;
-import org.apache.commons.beanutils.BeanUtilsBean;
-import org.apache.commons.beanutils.ConvertUtilsBean;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Assert;
@@ -23,24 +21,6 @@ import org.springframework.util.Assert;
  */
 @Slf4j
 public final class ReflectionUtils {
-
-  private static final ConvertUtilsBean CONVERT_UTILS =
-      BeanUtilsBean.getInstance().getConvertUtils();
-
-  static {
-    DateConverter dc = new DateConverter();
-    dc.setUseLocaleFormat(true);
-    dc.setPatterns(
-        new String[] {
-          "yyyy-MM",
-          "yyyy-MM-dd",
-          "yyyy-MM-dd HH:mm:ss",
-          "yyyy-MM-dd HH:mm",
-          "yyyyMMdd",
-          "yyyyMMddHHmmss",
-        });
-    CONVERT_UTILS.register(dc, Date.class);
-  }
 
   public static Object invokeGetterMethod(Object target, String propertyName) {
     String getterMethodName = "get" + StringUtils.capitalize(propertyName);
@@ -178,14 +158,14 @@ public final class ReflectionUtils {
 
   public static <T> T convertStringToObject(String value, Class<T> toType) {
     try {
-      return toType.cast(CONVERT_UTILS.convert(value, toType));
+      return toType.cast(BeanUtil.convertStringToObject(value, toType));
     } catch (Exception e) {
       throw convertReflectionExceptionToUnchecked(e);
     }
   }
 
   public static <T> T convert(Object value, Class<T> toType) {
-    return toType.cast(CONVERT_UTILS.convert(value, toType));
+    return toType.cast(BeanUtil.convert(value, toType));
   }
 
   public static RuntimeException convertReflectionExceptionToUnchecked(Exception e) {

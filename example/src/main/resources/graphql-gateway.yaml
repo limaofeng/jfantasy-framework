@@ -12,6 +12,12 @@ services:
     introspection:
       enabled: false
       frequency: 30m
+  - name: asany-l
+    url: "http://127.0.0.1:30882/graphql"
+    typeDefs: "./asany-l.graphql"
+    introspection:
+      enabled: false
+      frequency: 30m
 
 #override:
 #  - type: "Query"

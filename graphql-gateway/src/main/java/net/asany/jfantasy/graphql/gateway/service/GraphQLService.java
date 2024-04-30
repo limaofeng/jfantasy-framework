@@ -8,5 +8,4 @@ public interface GraphQLService {
   String getName();
 
   GraphQLSchema makeSchema() throws IOException;
-
 }
