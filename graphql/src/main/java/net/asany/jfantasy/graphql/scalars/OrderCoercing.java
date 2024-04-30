@@ -27,8 +27,25 @@ public class OrderCoercing implements Coercing<Sort, String> {
 
   @Override
   public String serialize(
-      Object input, @NotNull GraphQLContext graphQLContext, @NotNull Locale locale)
+      @NotNull Object input, @NotNull GraphQLContext graphQLContext, @NotNull Locale locale)
       throws CoercingSerializeException {
+    if (input instanceof Sort orderBy) {
+
+      if (orderBy.isUnsorted()) {
+        return "unsorted";
+      } else {
+        StringBuilder sb = new StringBuilder();
+        for (Sort.Order order : orderBy) {
+          if (!sb.isEmpty()) {
+            sb.append(","); // 添加分隔符，如果有多个排序字段
+          }
+          sb.append(order.getProperty()); // 添加排序字段名称
+          sb.append("_");
+          sb.append(order.getDirection().toString().toLowerCase()); // 添加排序方向，转换为小写
+        }
+        return sb.toString();
+      }
+    }
     return input.toString();
   }
 

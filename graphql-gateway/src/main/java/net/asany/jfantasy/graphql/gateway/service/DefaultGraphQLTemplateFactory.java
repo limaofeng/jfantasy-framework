@@ -1,6 +1,8 @@
 package net.asany.jfantasy.graphql.gateway.service;
 
+import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import net.asany.jfantasy.framework.jackson.JSON;
 import net.asany.jfantasy.graphql.client.GraphQLTemplate;
 import net.asany.jfantasy.graphql.gateway.GraphQLTemplateFactory;
@@ -27,7 +29,7 @@ public class DefaultGraphQLTemplateFactory implements GraphQLTemplateFactory {
       ResourceLoader resourceLoader, RestTemplate restTemplate, ObjectMapper objectMapper) {
     this.resourceLoader = resourceLoader;
     this.restTemplate = restTemplate;
-    this.objectMapper = objectMapper;
+    this.objectMapper = objectMapper.copy();
   }
 
   @Override
@@ -41,5 +43,11 @@ public class DefaultGraphQLTemplateFactory implements GraphQLTemplateFactory {
       client.setDefaultHeaders(headers);
     }
     return client;
+  }
+
+  public <T> void addSerializer(Class<? extends T> type, JsonSerializer<T> ser) {
+    SimpleModule module = new SimpleModule();
+    module.addSerializer(type, ser);
+    this.objectMapper.registerModule(module);
   }
 }

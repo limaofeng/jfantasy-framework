@@ -7,6 +7,7 @@ import graphql.schema.DataFetchingEnvironment;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLSchema;
 import java.util.List;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import net.asany.jfantasy.framework.security.auth.AuthenticationToken;
 import net.asany.jfantasy.framework.security.auth.oauth2.server.BearerTokenAuthenticationToken;
@@ -48,7 +49,9 @@ public class ServiceDataFetcher implements DataFetcher<Object> {
 
     String gql = GraphQLUtils.buildGraphQLQuery(environment);
 
-    log.warn("gql:" + gql);
+    Map<String, Object> variables = GraphQLUtils.buildVariables(environment, getSchema());
+
+    log.warn("gql:{}", gql);
 
     GraphQLTemplate client = this.service.getClient();
     GraphQLResponse response;
@@ -60,7 +63,7 @@ public class ServiceDataFetcher implements DataFetcher<Object> {
           instanceof BearerTokenAuthenticationToken bearerTokenAuthenticationToken) {
         client = client.withBearerAuth(bearerTokenAuthenticationToken.getToken());
       }
-      response = client.post(gql, operationName, environment.getVariables());
+      response = client.post(gql, operationName, variables);
     } catch (ResourceAccessException e) {
       throw new GraphQLServiceNetworkException(e.getMessage());
     }
@@ -68,6 +71,7 @@ public class ServiceDataFetcher implements DataFetcher<Object> {
     if (!response.isOk()) {
       throw new GraphQLServiceNetworkException(response.getRawResponse().getBody());
     }
+
     List<DataFetchGraphQLError> errors = response.getList("$.errors", DataFetchGraphQLError.class);
     if (errors != null && !errors.isEmpty()) {
       if (errors.size() > 1) {
@@ -76,10 +80,12 @@ public class ServiceDataFetcher implements DataFetcher<Object> {
       throw new GraphQLServiceDataFetchException(errors.get(0));
     }
 
-    if (response.get("$.data", JsonNode.class) == null) {
+    JsonNode result = response.get("$.data", JsonNode.class);
+
+    if (result == null) {
       return null;
     }
-    JsonNode result = response.get("$.data", JsonNode.class);
+
     return GraphQLValueUtils.convert(
         result,
         StringUtil.defaultValue(field.getAlias(), field.getName()),

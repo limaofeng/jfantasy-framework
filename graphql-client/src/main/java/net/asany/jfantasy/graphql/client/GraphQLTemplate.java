@@ -3,7 +3,9 @@ package net.asany.jfantasy.graphql.client;
 import static java.util.Objects.nonNull;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.servlet.http.Part;
 import java.io.IOException;
@@ -361,6 +363,12 @@ public class GraphQLTemplate {
     ResponseEntity<String> response =
         restTemplate.exchange(graphqlMapping, HttpMethod.POST, request, String.class);
     return new GraphQLResponse(response, objectMapper);
+  }
+
+  public <T> void addSerializer(Class<? extends T> type, JsonSerializer<T> ser) {
+    SimpleModule module = new SimpleModule();
+    module.addSerializer(type, ser);
+    this.objectMapper.registerModule(module);
   }
 
   @Data

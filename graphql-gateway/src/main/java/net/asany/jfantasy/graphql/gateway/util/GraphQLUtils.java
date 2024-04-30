@@ -1,5 +1,6 @@
 package net.asany.jfantasy.graphql.gateway.util;
 
+import graphql.GraphQLContext;
 import graphql.language.*;
 import graphql.schema.*;
 import graphql.schema.idl.*;
@@ -24,6 +25,26 @@ import net.asany.jfantasy.graphql.gateway.service.GraphQLUnionTypeResolver;
  */
 @Slf4j
 public class GraphQLUtils {
+
+  public static Map<String, Object> buildVariables(
+      DataFetchingEnvironment environment, GraphQLSchema schema) {
+    List<VariableDefinition> variableDefinitions =
+        environment.getOperationDefinition().getVariableDefinitions();
+    Map<String, Object> variables = new HashMap<>(environment.getVariables());
+
+    for (VariableDefinition definition : variableDefinitions) {
+      String varName = definition.getName();
+      GraphQLInputType varType = schema.getTypeAs(((TypeName) definition.getType()).getName());
+
+      if (!variables.containsKey(varName)) {
+        continue;
+      }
+      if (varType != null) {
+        variables.put(varName, processVariable(varName, variables.get(varName), varType));
+      }
+    }
+    return variables;
+  }
 
   public static String buildGraphQLQuery(DataFetchingEnvironment environment) {
     BuildGraphQLQueryContext context = new BuildGraphQLQueryContext(environment);
@@ -65,6 +86,33 @@ public class GraphQLUtils {
     }
 
     return queryBuilder.toString();
+  }
+
+  private static Object processVariable(String varName, Object value, GraphQLInputType varType) {
+    if (varType instanceof GraphQLScalarType scalarType) {
+      // 处理标量类型的变量
+      return processScalarVariable(varName, value, scalarType);
+    }
+    if (varType instanceof GraphQLInputObjectType) {
+      // 处理输入对象类型的变量
+      //noinspection unchecked
+      Map<String, Object> values = (Map<String, Object>) value;
+      //noinspection PatternVariableCanBeUsed
+      GraphQLInputObjectType inputObjectType = (GraphQLInputObjectType) varType;
+      for (GraphQLInputObjectField field : inputObjectType.getFields()) {
+        Object fieldValue = values.get(field.getName());
+        processVariable(field.getName(), fieldValue, field.getType());
+      }
+    }
+    return value;
+  }
+
+  private static Object processScalarVariable(
+      String varName, Object value, GraphQLScalarType scalarType) {
+    log.debug("处理变量: {} 类型: {} 值: {}", varName, scalarType.getName(), value);
+    Coercing<?, ?> coercing = scalarType.getCoercing();
+    GraphQLContext context = GraphQLContext.newContext().build();
+    return coercing.serialize(value, context, Locale.getDefault());
   }
 
   private static void processVariables(

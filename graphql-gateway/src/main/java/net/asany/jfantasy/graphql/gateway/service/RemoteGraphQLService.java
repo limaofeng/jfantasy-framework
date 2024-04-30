@@ -4,7 +4,10 @@ import static graphql.schema.idl.SchemaPrinter.Options.defaultOptions;
 
 import graphql.introspection.IntrospectionQueryBuilder;
 import graphql.introspection.IntrospectionResultToSchema;
-import graphql.language.*;
+import graphql.language.Document;
+import graphql.language.InterfaceTypeDefinition;
+import graphql.language.ObjectTypeDefinition;
+import graphql.language.ScalarTypeDefinition;
 import graphql.schema.DataFetcherFactory;
 import graphql.schema.GraphQLCodeRegistry;
 import graphql.schema.GraphQLSchema;
@@ -94,7 +97,7 @@ public class RemoteGraphQLService implements GraphQLService {
   public GraphQLSchema getSchema() {
     if (this.schema == null) {
       try {
-        this.schema = this.makeSchema();
+        this.makeSchema();
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
@@ -159,7 +162,26 @@ public class RemoteGraphQLService implements GraphQLService {
       typeRegistry.add(newTypeDefinitionBuilder.build());
     }
 
-    return schemaGenerator.makeExecutableSchema(typeRegistry, runtimeWiringBuilder.build());
+    this.schema = schemaGenerator.makeExecutableSchema(typeRegistry, runtimeWiringBuilder.build());
+
+    //    List<ScalarTypeDefinition> scalarTypeDefinitions =
+    //        this.document.getDefinitionsOfType(ScalarTypeDefinition.class);
+    //    for (ScalarTypeDefinition definition : scalarTypeDefinitions) {
+    //      GraphQLScalarType scalarType =
+    // scalarTypeResolver.resolveScalarType(definition.getName());
+    //      Coercing<?, ?> coercing = scalarType.getCoercing();
+    //      Class<?> scalarJavaType =
+    //          ClassUtil.getInterfaceGenricType(coercing.getClass(), Coercing.class, 0);
+    //      Class<?> inputType = ClassUtil.getInterfaceGenricType(coercing.getClass(),
+    // Coercing.class, 1);
+    //      if (scalarJavaType == Object.class) {
+    //        continue;
+    //      }
+    //      this.client.addSerializer(
+    //          scalarJavaType, new ScalarTypeSerializer(scalarJavaType, inputType, scalarType));
+    //    }
+
+    return this.schema;
   }
 
   public static class Builder {

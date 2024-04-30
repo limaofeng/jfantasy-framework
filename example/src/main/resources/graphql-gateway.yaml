@@ -7,7 +7,7 @@ scalars:
 
 services:
   - name: asany-server
-    url: "https://api.asany.cn/graphql"
+    url: "http://127.0.0.1:30881/graphql"
     typeDefs: "./asany-server.graphql"
     introspection:
       enabled: false
