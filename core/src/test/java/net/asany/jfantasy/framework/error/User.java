@@ -19,6 +19,8 @@ public class User {
   @Id private String id;
   @NotBlank private String name;
 
+  private String vFolder;
+
   private Integer age;
   private Date createDate;
 

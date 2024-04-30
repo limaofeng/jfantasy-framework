@@ -9,12 +9,13 @@ import net.asany.jfantasy.framework.util.common.ClassUtil;
 import net.asany.jfantasy.framework.util.common.DateUtil;
 import net.asany.jfantasy.framework.util.common.StringUtil;
 import ognl.DefaultTypeConverter;
+import ognl.OgnlContext;
 
 public class DateConverter extends DefaultTypeConverter {
 
   @Override
   public Object convertValue(
-      Map context, Object target, Member member, String propertyName, Object value, Class toType) {
+    OgnlContext context, Object target, Member member, String propertyName, Object value, Class toType) {
     if (Date.class.isAssignableFrom(toType)) {
       String dateFormatString;
       DateFormat dateFormat = ClassUtil.getParamAnno((Method) member, DateFormat.class);

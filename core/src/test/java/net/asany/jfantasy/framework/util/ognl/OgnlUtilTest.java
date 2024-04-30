@@ -82,4 +82,12 @@ public class OgnlUtilTest {
     OgnlBean bean = OgnlUtil.getInstance().getValue("[0]", list);
     log.debug(bean.getName());
   }
+
+  @Test
+  public void testVFolder() {
+    User user = new User();
+    user.setVFolder("1234567");
+    String vFolder =  OgnlUtil.getInstance().getValue("vFolder", user);
+    log.debug("vFolder = " + vFolder);
+  }
 }
