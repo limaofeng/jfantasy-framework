@@ -4,9 +4,12 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.function.Function;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
@@ -78,6 +81,13 @@ public class JSON {
 
   public static <T> T deserialize(String json, TypeReference<T> typeReference) {
     return wrapper.deserialize(json, typeReference);
+  }
+
+  public static <L extends Collection<T>, T> L deserialize(
+      String json, Class<L> listClass, Class<T> classed) {
+    TypeFactory typeFactory = getObjectMapper().getTypeFactory();
+    Type type = typeFactory.constructCollectionType(listClass, classed);
+    return wrapper.deserialize(json, typeFactory.constructType(type));
   }
 
   public static JsonNode deserialize(String json) {

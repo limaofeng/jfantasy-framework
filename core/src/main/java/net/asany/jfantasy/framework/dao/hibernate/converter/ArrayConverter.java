@@ -35,6 +35,7 @@ public class ArrayConverter<T> implements AttributeConverter<T[], String> {
     if (StringUtil.isBlank(dbData)) {
       return null;
     }
+    //noinspection unchecked
     return (T[]) JSON.deserialize(dbData, Array.newInstance(entityClass, 0).getClass());
   }
 }

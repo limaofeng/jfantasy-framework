@@ -1,6 +1,5 @@
 package net.asany.jfantasy.framework.dao.hibernate.converter;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.persistence.AttributeConverter;
 import java.util.Set;
 import net.asany.jfantasy.framework.dao.hibernate.util.ReflectionUtils;
@@ -15,12 +14,10 @@ import net.asany.jfantasy.framework.util.common.StringUtil;
  */
 public class SetConverter<T> implements AttributeConverter<Set<T>, String> {
 
-  protected Class<?> entityClass;
+  protected Class<T> entityClass;
 
   public SetConverter() {
-    this.entityClass =
-        ReflectionUtils.getSuperClassGenricType(ClassUtil.getRealClass(getClass()))
-            .getComponentType();
+    this.entityClass = ReflectionUtils.getSuperClassGenricType(ClassUtil.getRealClass(getClass()));
   }
 
   @Override
@@ -36,6 +33,7 @@ public class SetConverter<T> implements AttributeConverter<Set<T>, String> {
     if (StringUtil.isBlank(dbData)) {
       return null;
     }
-    return JSON.deserialize(dbData, new TypeReference<>() {});
+    //noinspection unchecked
+    return JSON.deserialize(dbData, Set.class, entityClass);
   }
 }

@@ -1,6 +1,7 @@
 package net.asany.jfantasy.framework.jackson;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
@@ -8,6 +9,7 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.util.Collection;
 import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -119,6 +121,15 @@ public class ObjectMapperWrapper {
   public <T> T deserialize(String json, TypeReference<T> typeReference) {
     try {
       return this.objectMapper.readValue(json, typeReference);
+    } catch (IOException e) {
+      log.error(e.getMessage(), e);
+      return null;
+    }
+  }
+
+  public <L extends Collection<T>, T> L deserialize(String json, JavaType javaType) {
+    try {
+      return this.objectMapper.readValue(json, javaType);
     } catch (IOException e) {
       log.error(e.getMessage(), e);
       return null;
