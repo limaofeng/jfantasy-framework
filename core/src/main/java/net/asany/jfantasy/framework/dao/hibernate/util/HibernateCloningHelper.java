@@ -19,6 +19,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
+import java.time.LocalDateTime;
 import java.util.*;
 import net.asany.jfantasy.framework.util.common.ObjectUtil;
 import org.hibernate.Hibernate;
@@ -115,7 +116,9 @@ public class HibernateCloningHelper {
         || clazz == Short.class
         || clazz == Character.class
         || clazz == Byte.class
-        || Date.class.isAssignableFrom(clazz);
+        || Date.class.isAssignableFrom(clazz)
+        || LocalDateTime.class.isAssignableFrom(clazz)
+        || Number.class.isAssignableFrom(clazz);
   }
 
   private static Object cloneArray(Object array, Map<Object, Object> alreadyCloned) {

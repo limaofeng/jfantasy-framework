@@ -15,6 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import net.asany.jfantasy.framework.util.FantasyClassLoader;
 import net.asany.jfantasy.framework.util.error.InputDataException;
 import net.asany.jfantasy.framework.util.reflect.*;
+import org.hibernate.Hibernate;
+import org.hibernate.engine.internal.MutableEntityEntry;
 import org.springframework.aop.framework.AdvisedSupport;
 import org.springframework.aop.framework.AopProxy;
 import org.springframework.aop.support.AopUtils;
@@ -63,13 +65,19 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
    * @param target 对象
    * @return class
    */
+  @SneakyThrows
   public static <T> Class<T> getRealClass(T target) {
     if (target instanceof Class<?>) {
       //noinspection unchecked
       return (Class<T>) target;
     }
-    //noinspection unchecked
-    return (Class<T>) getRealClass(target.getClass());
+      if (target instanceof MutableEntityEntry) {
+        //noinspection unchecked
+        return (Class<T>) Class.forName(((MutableEntityEntry) target).getEntityName());
+      }
+      //noinspection unchecked
+    Class<T> targetClass = (Class<T>) Hibernate.getClass(target);
+    return getRealClass(targetClass);
   }
 
   /**

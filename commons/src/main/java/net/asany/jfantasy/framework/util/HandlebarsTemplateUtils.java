@@ -26,7 +26,7 @@ public class HandlebarsTemplateUtils {
 
   static {
     registerHelper(
-        "format",
+        "formatDate",
         (Helper<Date>) (context, options) -> DateUtil.format(context, (String) options.params[0]));
     registerHelper(
         "URLEncode",

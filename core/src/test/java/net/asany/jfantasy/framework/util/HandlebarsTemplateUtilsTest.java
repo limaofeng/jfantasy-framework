@@ -21,7 +21,19 @@ class HandlebarsTemplateUtilsTest {
   }
 
   @Test
-  void testProcessTemplateIntoString() {}
+  void testDate() {
+    Map<String, Object> data = new HashMap<>();
+    data.put("date", new java.util.Date());
+    String content =
+        HandlebarsTemplateUtils.processTemplateIntoString(
+            "hello: {{formatDate date 'yyyy-MM-dd HH:mm:ss'}}", data);
+    log.info("content: {}", content);
+  }
+
+  @Test
+  void testProcessTemplateIntoString() {
+
+  }
 
   @Test
   void writer() {}

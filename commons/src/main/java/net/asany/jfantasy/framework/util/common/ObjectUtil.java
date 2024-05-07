@@ -1,5 +1,16 @@
 package net.asany.jfantasy.framework.util.common;
 
+import lombok.Builder;
+import lombok.Data;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import net.asany.jfantasy.framework.util.common.toys.CompareResults;
+import net.asany.jfantasy.framework.util.error.TransformException;
+import net.asany.jfantasy.framework.util.ognl.OgnlUtil;
+import net.asany.jfantasy.framework.util.reflect.Property;
+import org.hibernate.Hibernate;
+import org.springframework.beans.BeanUtils;
+
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.text.Collator;
@@ -13,15 +24,6 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import lombok.Builder;
-import lombok.Data;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import net.asany.jfantasy.framework.util.common.toys.CompareResults;
-import net.asany.jfantasy.framework.util.error.TransformException;
-import net.asany.jfantasy.framework.util.ognl.OgnlUtil;
-import net.asany.jfantasy.framework.util.reflect.Property;
-import org.springframework.beans.BeanUtils;
 
 @Slf4j
 public final class ObjectUtil {
@@ -52,6 +54,7 @@ public final class ObjectUtil {
    * @return 返回的对象
    */
   @SneakyThrows
+  @Deprecated
   public static <T> T clone(T object, String... ignoreProperties) {
     if (object == null) {
       return null;
@@ -64,10 +67,12 @@ public final class ObjectUtil {
     }
     if (object instanceof Map) {
       Map<Object, Object> cloneMap = new HashMap<>();
+      //noinspection unchecked
       Map<Object, Object> map = (Map<Object, Object>) object;
       for (Map.Entry<Object, Object> entry : map.entrySet()) {
         cloneMap.put(clone(entry.getKey()), clone(entry.getValue(), ignoreProperties));
       }
+      //noinspection unchecked
       return (T) cloneMap;
     }
     if (object instanceof List) {
@@ -688,15 +693,52 @@ public final class ObjectUtil {
     return isNull(source) ? def.get() : source;
   }
 
+
+
   public static Map<String, Object> toMap(Object data) {
+    Map<Object, Object> alreadyConverted = new HashMap<>();
+    return toMap(data, alreadyConverted);
+  }
+
+  @SneakyThrows
+  private static Map<String, Object> toMap(Object data, Map<Object, Object> alreadyConverted) {
     if (ClassUtil.isMap(data)) {
+      //noinspection unchecked
       return (Map<String, Object>) data;
     }
     Map<String, Object> rootMap = new HashMap<>();
-    Property[] properties = ClassUtil.getProperties(data);
+    alreadyConverted.put(data, rootMap);
+
+    Property[] properties = ClassUtil.getProperties(ClassUtil.getRealClass(data));
     for (Property property : properties) {
-      if (property.isRead()) {
-        rootMap.put(property.getName(), property.getValue(data));
+      if (!property.isRead()) {
+        continue;
+      }
+      Object value = property.getValue(data);
+      if (value == null || !Hibernate.isInitialized(value)) {
+        continue;
+      }
+      if (alreadyConverted.containsKey(value)) {
+        continue;
+      }
+      if (value instanceof String) {
+        rootMap.put(property.getName(), value);
+      } else if (ClassUtil.isPrimitive(value)) {
+        rootMap.put(property.getName(), value);
+      } else if (ClassUtil.isEnum(value)) {
+        rootMap.put(property.getName(), value);
+      } else if (ClassUtil.isNumber(value)) {
+        rootMap.put(property.getName(), value);
+      } else if (ClassUtil.isDate(value)) {
+        rootMap.put(property.getName(), value);
+      } else if (ClassUtil.isArray(value)) {
+        rootMap.put(property.getName(), value);
+      } else if (ClassUtil.isList(value)) {
+        rootMap.put(property.getName(), value);
+      } else if (ClassUtil.isMap(value)) {
+        rootMap.put(property.getName(), value);
+      } else {
+        rootMap.put(property.getName(), toMap(value, alreadyConverted));
       }
     }
     return rootMap;
