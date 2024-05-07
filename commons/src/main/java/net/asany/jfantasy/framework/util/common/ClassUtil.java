@@ -6,6 +6,7 @@ import java.beans.Introspector;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -240,6 +241,7 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
 
   private static boolean isOther(Class<?> type) {
     return String.class.isAssignableFrom(type)
+        || LocalDateTime.class.isAssignableFrom(type)
         || Date.class.isAssignableFrom(type)
         || BigDecimal.class.isAssignableFrom(type)
         || Enum.class.isAssignableFrom(type);
@@ -256,6 +258,22 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
 
   public static boolean isArray(Field field) {
     return isArray(field.getType());
+  }
+
+  public static boolean isPrimitive(Object object) {
+    return isPrimitiveOrWrapper(object.getClass());
+  }
+
+  public static boolean isNumber(Object object) {
+    return object instanceof Number;
+  }
+
+  public static boolean isDate(Object object) {
+    return object instanceof Date || object instanceof LocalDateTime;
+  }
+
+  public static boolean isEnum(Object object) {
+    return object instanceof Enum;
   }
 
   public static boolean isArray(Object object) {
