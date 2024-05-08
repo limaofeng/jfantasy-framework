@@ -31,9 +31,7 @@ class HandlebarsTemplateUtilsTest {
   }
 
   @Test
-  void testProcessTemplateIntoString() {
-
-  }
+  void testProcessTemplateIntoString() {}
 
   @Test
   void writer() {}

@@ -16,6 +16,9 @@ import net.asany.jfantasy.framework.util.FantasyClassLoader;
 import net.asany.jfantasy.framework.util.error.InputDataException;
 import net.asany.jfantasy.framework.util.reflect.*;
 import org.hibernate.Hibernate;
+import org.hibernate.collection.spi.PersistentList;
+import org.hibernate.collection.spi.PersistentMap;
+import org.hibernate.collection.spi.PersistentSet;
 import org.hibernate.engine.internal.MutableEntityEntry;
 import org.springframework.aop.framework.AdvisedSupport;
 import org.springframework.aop.framework.AopProxy;
@@ -71,11 +74,11 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
       //noinspection unchecked
       return (Class<T>) target;
     }
-      if (target instanceof MutableEntityEntry) {
-        //noinspection unchecked
-        return (Class<T>) Class.forName(((MutableEntityEntry) target).getEntityName());
-      }
+    if (target instanceof MutableEntityEntry) {
       //noinspection unchecked
+      return (Class<T>) Class.forName(((MutableEntityEntry) target).getEntityName());
+    }
+    //noinspection unchecked
     Class<T> targetClass = (Class<T>) Hibernate.getClass(target);
     return getRealClass(targetClass);
   }
@@ -88,6 +91,18 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
    * @return real class
    */
   public static <T> Class<T> getRealClass(Class<T> clazz) {
+    if (PersistentSet.class.isAssignableFrom(clazz)) {
+      //noinspection unchecked
+      return (Class<T>) LinkedHashSet.class;
+    }
+    if (PersistentList.class.isAssignableFrom(clazz)) {
+      //noinspection unchecked
+      return (Class<T>) ArrayList.class;
+    }
+    if (PersistentMap.class.isAssignableFrom(clazz)) {
+      //noinspection unchecked
+      return (Class<T>) LinkedHashMap.class;
+    }
     //noinspection unchecked
     return (Class<T>) getUserClass(clazz);
   }
@@ -243,8 +258,21 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
     return null;
   }
 
+  public static boolean isBasicType(Object value) {
+    Class<?> realClass = getRealClass(value);
+    return isPrimitiveOrWrapper(realClass)
+        || String.class.isAssignableFrom(realClass)
+        || isEnum(value)
+        || isDate(value)
+        || isNumber(value);
+  }
+
   public static boolean isBasicType(Class<?> type) {
-    return isPrimitiveOrWrapper(type) || isOther(type);
+    return isPrimitiveOrWrapper(type)
+        || String.class.isAssignableFrom(type)
+        || isEnum(type)
+        || isDate(type)
+        || isNumber(type);
   }
 
   private static boolean isOther(Class<?> type) {
@@ -276,12 +304,24 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
     return object instanceof Number;
   }
 
+  public static boolean isNumber(Class<?> clazz) {
+    return Number.class.isAssignableFrom(clazz);
+  }
+
   public static boolean isDate(Object object) {
     return object instanceof Date || object instanceof LocalDateTime;
   }
 
+  public static boolean isDate(Class<?> clazz) {
+    return Date.class.isAssignableFrom(clazz) || LocalDateTime.class.isAssignableFrom(clazz);
+  }
+
   public static boolean isEnum(Object object) {
     return object instanceof Enum;
+  }
+
+  public static boolean isEnum(Class<?> clazz) {
+    return Enum.class.isAssignableFrom(clazz);
   }
 
   public static boolean isArray(Object object) {

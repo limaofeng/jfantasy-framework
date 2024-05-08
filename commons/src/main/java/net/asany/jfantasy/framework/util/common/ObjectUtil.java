@@ -77,12 +77,15 @@ public final class ObjectUtil {
     }
     if (object instanceof List) {
       List<Object> cloneList = new ArrayList<>();
+      //noinspection unchecked
       List<Object> list = (List<Object>) object;
       for (Object l : list) {
         cloneList.add(clone(l, ignoreProperties));
       }
+      //noinspection unchecked
       return (T) cloneList;
     }
+    //noinspection unchecked
     T target = (T) ClassUtil.newInstance(ClassUtil.getRealClass(object.getClass()));
     assert target != null;
     BeanUtils.copyProperties(object, target, ignoreProperties);
@@ -163,9 +166,11 @@ public final class ObjectUtil {
   private static <T, C extends Collection<T>> C packageResult(
       Stream<T> stream, Class<?> resultClass) {
     if (ClassUtil.isList(resultClass)) {
+      //noinspection unchecked
       return (C) stream.collect(Collectors.toList());
     }
     if (ClassUtil.isSet(resultClass)) {
+      //noinspection unchecked
       return (C) stream.collect(Collectors.toSet());
     }
     throw new TransformException("不支持转换到 " + resultClass.getName());
@@ -217,6 +222,7 @@ public final class ObjectUtil {
   private static <T, R, C extends Collection<T>, CR extends Collection<R>> CR recursive(
       C treeData, NestedConverter<T, R> converter, NestedContext<R> context) {
     Class<?> listClass = treeData.getClass();
+    //noinspection unchecked
     List<Object> list = packageResult((Stream<Object>) treeData.stream(), List.class);
 
     int level = context.level;
@@ -226,6 +232,7 @@ public final class ObjectUtil {
 
     for (int i = 0, len = list.size(); i < len; i++) {
       context.index = i;
+      //noinspection unchecked
       T item = (T) list.get(i);
       R obj = converter.apply(item, context);
       list.set(i, obj);
@@ -249,6 +256,7 @@ public final class ObjectUtil {
       return recursive(treeData, converter, context);
     }
 
+    //noinspection unchecked
     return packageResult((Stream<R>) list.stream().filter(Objects::nonNull), listClass);
   }
 
@@ -309,8 +317,10 @@ public final class ObjectUtil {
   public static <T> String toString(T[] objs, String fieldName, String sign) {
     if (objs.length == 1) {
       if (ClassUtil.isArray(objs[0])) {
+        //noinspection unchecked
         return toString((T[]) objs[0], fieldName, sign);
       } else if (ClassUtil.isList(objs[0])) {
+        //noinspection unchecked
         return toString((List<T>) objs[0], fieldName, sign);
       }
     }
@@ -348,11 +358,13 @@ public final class ObjectUtil {
   }
 
   public static <T, R> R[] toFieldArray(T[] objs, String fieldName, Class<R> componentType) {
+    //noinspection unchecked
     return toFieldArray(objs, fieldName, (R[]) Array.newInstance(componentType, objs.length));
   }
 
   public static <T, R> R[] toFieldArray(T[] objs, String fieldName, R[] returnObjs) {
     if (returnObjs.length < objs.length) {
+      //noinspection unchecked
       returnObjs =
           (R[]) ClassUtil.newInstance(returnObjs.getClass().getComponentType(), objs.length);
     }
@@ -693,15 +705,72 @@ public final class ObjectUtil {
     return isNull(source) ? def.get() : source;
   }
 
-
+  public static Map<String, Object> toMap(Object data, BeanUtil.PropertyFilter filter) {
+    Map<Object, Object> alreadyConverted = new HashMap<>();
+    return toMap(data, alreadyConverted, filter);
+  }
 
   public static Map<String, Object> toMap(Object data) {
     Map<Object, Object> alreadyConverted = new HashMap<>();
-    return toMap(data, alreadyConverted);
+    return toMap(data, alreadyConverted, (Property property, Object value, Object target) -> true);
+  }
+
+  private static Object convertValue(
+      Property property,
+      Object value,
+      Object target,
+      Map<Object, Object> alreadyConverted,
+      BeanUtil.PropertyFilter filter) {
+    if (ClassUtil.isBasicType(value)) {
+      return filter.convertValue(property, value, target);
+    }
+    if (ClassUtil.isArray(value)) {
+      Class<?> componentType = property.getPropertyType().getComponentType();
+      Object newArray = Array.newInstance(componentType, Array.getLength(value));
+      for (int i = 0; i < Array.getLength(newArray); i++) {
+        Object item = Array.get(value, i);
+        if (ClassUtil.isBasicType(componentType)) {
+          Array.set(newArray, i, item);
+        } else {
+          Array.set(newArray, i, toMap(item, alreadyConverted, filter));
+        }
+      }
+      return newArray;
+    }
+    if (value instanceof Collection<?> collection) {
+      //noinspection unchecked
+      Collection<Map<String, Object>> newCollection =
+          (Collection<Map<String, Object>>)
+              ClassUtil.newInstance(ClassUtil.getRealClass(collection));
+      assert newCollection != null;
+      for (Object item : collection) {
+        newCollection.add(toMap(item, alreadyConverted, filter));
+      }
+      return newCollection;
+    }
+    if (ClassUtil.isMap(value)) {
+      //noinspection unchecked
+      Map<String, Object> map = (Map<String, Object>) value;
+      Map<String, Object> newMap = ClassUtil.newInstance(ClassUtil.getRealClass(map));
+      assert newMap != null;
+      for (Map.Entry<String, Object> entry : map.entrySet()) {
+        if (ClassUtil.isBasicType(entry.getValue())) {
+          newMap.put(entry.getKey(), entry.getValue());
+        } else {
+          newMap.put(entry.getKey(), toMap(entry.getValue(), alreadyConverted, filter));
+        }
+      }
+      return newMap;
+    }
+    if (alreadyConverted.containsKey(value)) {
+      return alreadyConverted.get(value);
+    }
+    return toMap(value, alreadyConverted, filter);
   }
 
   @SneakyThrows
-  private static Map<String, Object> toMap(Object data, Map<Object, Object> alreadyConverted) {
+  private static Map<String, Object> toMap(
+      Object data, Map<Object, Object> alreadyConverted, BeanUtil.PropertyFilter filter) {
     if (ClassUtil.isMap(data)) {
       //noinspection unchecked
       return (Map<String, Object>) data;
@@ -718,28 +787,12 @@ public final class ObjectUtil {
       if (value == null || !Hibernate.isInitialized(value)) {
         continue;
       }
-      if (alreadyConverted.containsKey(value)) {
+      if (!filter.accept(property, value, rootMap)) {
         continue;
       }
-      if (value instanceof String) {
-        rootMap.put(property.getName(), value);
-      } else if (ClassUtil.isPrimitive(value)) {
-        rootMap.put(property.getName(), value);
-      } else if (ClassUtil.isEnum(value)) {
-        rootMap.put(property.getName(), value);
-      } else if (ClassUtil.isNumber(value)) {
-        rootMap.put(property.getName(), value);
-      } else if (ClassUtil.isDate(value)) {
-        rootMap.put(property.getName(), value);
-      } else if (ClassUtil.isArray(value)) {
-        rootMap.put(property.getName(), value);
-      } else if (ClassUtil.isList(value)) {
-        rootMap.put(property.getName(), value);
-      } else if (ClassUtil.isMap(value)) {
-        rootMap.put(property.getName(), value);
-      } else {
-        rootMap.put(property.getName(), toMap(value, alreadyConverted));
-      }
+
+      Object newObject = convertValue(property, value, rootMap, alreadyConverted, filter);
+      rootMap.put(property.getName(), newObject);
     }
     return rootMap;
   }
@@ -782,6 +835,7 @@ public final class ObjectUtil {
     for (int i = 0; i < ts.size(); i++) {
       Array.set(array, dest.length + i, ts.get(i));
     }
+    //noinspection unchecked
     return (T[]) array;
   }
 
@@ -792,6 +846,7 @@ public final class ObjectUtil {
     }
     List<T> all = new ArrayList<>(Arrays.asList(sources));
     all.addAll(Arrays.asList(items));
+    //noinspection unchecked
     return all.toArray((T[]) Array.newInstance(sources.getClass().getComponentType(), all.size()));
   }
 
@@ -802,6 +857,7 @@ public final class ObjectUtil {
 
   public static <R, T> R[] map(
       T[] sources, Function<? super T, ? extends R> mapper, Class<R> returnClass) {
+    //noinspection unchecked
     return Arrays.stream(sources)
         .map(mapper)
         .toArray(length -> (R[]) Array.newInstance(returnClass, length));
@@ -812,6 +868,7 @@ public final class ObjectUtil {
   }
 
   public static <T> T[] filter(T[] sources, Predicate<T> selector) {
+    //noinspection unchecked
     return Arrays.stream(sources)
         .filter(selector)
         .toArray(length -> (T[]) Array.newInstance(sources.getClass().getComponentType(), length));
@@ -841,7 +898,7 @@ public final class ObjectUtil {
                     StringUtil.isBlank(property)
                         ? !exists(dest, item)
                         : !exists(dest, property, BeanUtil.getValue(item, property)))
-            .collect(Collectors.toList()));
+            .toList());
   }
 
   public static <T, C extends Collection<T>> Boolean exists(C list, Predicate<T> selector) {
@@ -923,6 +980,7 @@ public final class ObjectUtil {
     while (array.contains(orig)) {
       array.remove(orig);
     }
+    //noinspection unchecked
     return array.toArray((T[]) Array.newInstance(dest.getClass().getComponentType(), array.size()));
   }
 
