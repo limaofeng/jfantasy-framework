@@ -1,10 +1,15 @@
 package net.asany.jfantasy.autoconfigure;
 
 import java.util.List;
+import net.asany.jfantasy.graphql.gateway.GraphQLGateway;
 import net.asany.jfantasy.graphql.gateway.error.GraphQLGatewayErrorHandler;
+import net.asany.jfantasy.graphql.gateway.service.RemoteGraphQLService;
 import net.asany.jfantasy.graphql.gateway.type.ScalarTypeProvider;
 import net.asany.jfantasy.graphql.gateway.type.ScalarTypeProviderFactory;
 import net.asany.jfantasy.graphql.gateway.type.SpringScalarTypeProvider;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -28,5 +33,20 @@ public class GraphQLGatewayAutoConfiguration {
   @Bean
   public ScalarTypeProvider springScalarTypeProvider() {
     return new SpringScalarTypeProvider();
+  }
+
+  @Bean("base.startupRunner")
+  @ConditionalOnBean(GraphQLGateway.class)
+  public CommandLineRunner startupRunner(
+      @Autowired(required = false) GraphQLGateway graphQLGateway) {
+    return args -> {
+      List<RemoteGraphQLService> services =
+          graphQLGateway.getGraphQLService(RemoteGraphQLService.class);
+      for (RemoteGraphQLService service : services) {
+        if (service.getSubscription().isEnabled()) {
+          service.getClient().connect();
+        }
+      }
+    };
   }
 }

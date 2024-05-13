@@ -8,7 +8,6 @@ apply plugin: 'java-library'
 apply plugin: 'jacoco'
 
 dependencies {
-	api project(":jfantasy-commons")
 	api project(":jfantasy-graphql-client")
 	api("com.graphql-java-kickstart:graphql-spring-boot-starter:${LIB_GRAPHQL_BOOT_VER}") {
 		exclude group: "com.graphql-java-kickstart", module: "graphql-java-tools"
@@ -24,6 +23,8 @@ dependencies {
 		exclude group: "com.graphql-java", module: "graphql-java"
 	}
 	api "com.jayway.jsonpath:json-path"
+	implementation project(":jfantasy-commons")
+	implementation project(":jfantasy-graphql")
 	implementation project(":jfantasy-core")
 	//noinspection DependencyNotationArgument
 	implementation libs['unirest']

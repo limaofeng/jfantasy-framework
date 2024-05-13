@@ -2,12 +2,11 @@ package net.asany.jfantasy.graphql.gateway.service;
 
 import static graphql.schema.idl.SchemaPrinter.Options.defaultOptions;
 
-import graphql.introspection.IntrospectionQueryBuilder;
-import graphql.introspection.IntrospectionResultToSchema;
 import graphql.language.Document;
 import graphql.language.InterfaceTypeDefinition;
 import graphql.language.ObjectTypeDefinition;
 import graphql.language.ScalarTypeDefinition;
+import graphql.parser.Parser;
 import graphql.schema.DataFetcherFactory;
 import graphql.schema.GraphQLCodeRegistry;
 import graphql.schema.GraphQLSchema;
@@ -15,69 +14,49 @@ import graphql.schema.TypeResolver;
 import graphql.schema.idl.*;
 import java.io.IOException;
 import java.util.*;
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import net.asany.jfantasy.graphql.client.GraphQLResponse;
-import net.asany.jfantasy.graphql.client.GraphQLTemplate;
-import net.asany.jfantasy.graphql.gateway.GraphQLTemplateFactory;
+import net.asany.jfantasy.graphql.gateway.GraphQLClient;
+import net.asany.jfantasy.graphql.gateway.config.GatewayConfig;
 import net.asany.jfantasy.graphql.gateway.data.ServiceDataFetcherFactory;
 import net.asany.jfantasy.graphql.gateway.type.ScalarTypeResolver;
 import net.asany.jfantasy.graphql.gateway.util.GraphQLTypeUtils;
-import org.springframework.http.HttpHeaders;
 
 @Slf4j
 @Data
-@Builder(builderClassName = "Builder")
+@lombok.Builder(builderClassName = "Builder")
+@NoArgsConstructor
+@AllArgsConstructor
 public class RemoteGraphQLService implements GraphQLService {
   private String name;
-  private String url;
 
-  private Map<String, String> introspectionHeaders;
-  private Map<String, String> headers;
-
-  @Setter private Document document;
+  private String typeDefs;
+  private Document document;
 
   private Map<String, Set<String>> excludeFields;
 
   private TypeResolver defaultTypeResolver;
 
   private DataFetcherFactory<?> defaultDataFetcher;
-  @Getter private ScalarTypeResolver scalarTypeResolver;
+  private ScalarTypeResolver scalarTypeResolver;
 
-  private GraphQLTemplateFactory clientFactory;
-  private GraphQLTemplate client;
+  private GraphQLClient client;
   private GraphQLSchema schema;
 
-  public Document introspectionQuery() throws IOException {
-    GraphQLTemplate client = getClient();
+  private GatewayConfig.SubscriptionConfig subscription;
+  private GatewayConfig.IntrospectionConfig introspection;
 
-    if (this.introspectionHeaders != null) {
-      HttpHeaders headers = new HttpHeaders();
-      this.introspectionHeaders.forEach(headers::add);
-      client = client.withHeaders(headers);
+  @SneakyThrows
+  private Document loadDocument() {
+    if (this.introspection.isEnabled()) {
+      Document document = this.client.introspectionQuery();
+      this.typeDefs = new SchemaPrinter(defaultOptions().includeDirectives(false)).print(document);
+      return document;
     }
-
-    String introspectionQuery =
-        IntrospectionQueryBuilder.build(
-            IntrospectionQueryBuilder.Options.defaultOptions()
-                .inputValueDeprecation(false)
-                .isOneOf(false));
-
-    GraphQLResponse response = client.post(introspectionQuery, "IntrospectionQuery");
-
-    @SuppressWarnings("unchecked")
-    Map<String, Object> introspectionResult = response.get("$.data", HashMap.class);
-    return new IntrospectionResultToSchema().createSchemaDefinition(introspectionResult);
-  }
-
-  public GraphQLTemplate getClient() {
-    if (this.client == null) {
-      this.client = clientFactory.client(this);
-    }
-    return this.client;
+    return new Parser().parseDocument(this.typeDefs);
   }
 
   public DataFetcherFactory<?> getDefaultDataFetcher() {
@@ -105,8 +84,9 @@ public class RemoteGraphQLService implements GraphQLService {
     return this.schema;
   }
 
+  @SneakyThrows
   public GraphQLSchema makeSchema() throws IOException {
-    this.document = this.introspectionQuery();
+    this.document = this.loadDocument();
 
     SchemaPrinter.Options noDirectivesOption = defaultOptions().includeDirectives(false);
 
@@ -164,46 +144,12 @@ public class RemoteGraphQLService implements GraphQLService {
 
     this.schema = schemaGenerator.makeExecutableSchema(typeRegistry, runtimeWiringBuilder.build());
 
-    //    List<ScalarTypeDefinition> scalarTypeDefinitions =
-    //        this.document.getDefinitionsOfType(ScalarTypeDefinition.class);
-    //    for (ScalarTypeDefinition definition : scalarTypeDefinitions) {
-    //      GraphQLScalarType scalarType =
-    // scalarTypeResolver.resolveScalarType(definition.getName());
-    //      Coercing<?, ?> coercing = scalarType.getCoercing();
-    //      Class<?> scalarJavaType =
-    //          ClassUtil.getInterfaceGenricType(coercing.getClass(), Coercing.class, 0);
-    //      Class<?> inputType = ClassUtil.getInterfaceGenricType(coercing.getClass(),
-    // Coercing.class, 1);
-    //      if (scalarJavaType == Object.class) {
-    //        continue;
-    //      }
-    //      this.client.addSerializer(
-    //          scalarJavaType, new ScalarTypeSerializer(scalarJavaType, inputType, scalarType));
-    //    }
-
     return this.schema;
   }
 
   public static class Builder {
-
     public Builder() {
       this.excludeFields = new HashMap<>();
-    }
-
-    public Builder addIntrospectionHeader(String name, String value) {
-      if (introspectionHeaders == null) {
-        introspectionHeaders = new HashMap<>();
-      }
-      introspectionHeaders.put(name, value);
-      return this;
-    }
-
-    public Builder addHeader(String name, String value) {
-      if (headers == null) {
-        headers = new HashMap<>();
-      }
-      headers.put(name, value);
-      return this;
     }
 
     public Builder excludeFields(List<String> fields) {

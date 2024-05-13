@@ -4,8 +4,6 @@ plugins {
 
 apply plugin: 'org.springframework.boot'
 
-
-
 jar {
 	manifest {
 		attributes 'Main-Class': 'cn.asany.his.Application'
@@ -30,6 +28,7 @@ dependencies {
 	implementation project(":jfantasy-search")
 	implementation "com.graphql-java:graphql-java:$LIB_GRAPHQL_JAVA_VER"
 	implementation "jakarta.json:jakarta.json-api:${LIB_JAKARTA_VAR}"
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 	implementation "org.springframework.boot:spring-boot-starter-data-redis"
 	implementation "org.springframework.boot:spring-boot-starter-web"
 //	implementation "org.springframework.boot:spring-boot-starter-webflux"

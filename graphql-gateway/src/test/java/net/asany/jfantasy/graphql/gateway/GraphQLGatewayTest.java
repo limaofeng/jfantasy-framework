@@ -34,7 +34,7 @@ class GraphQLGatewayTest {
   void testCreateGateway() throws IOException {
     GraphQLService service = RemoteGraphQLService.builder()
       .name("asany")
-      .url("https://api.asany.cn/graphql")
+//      .url("https://api.asany.cn/graphql")
       .excludeFields("Application", "layoutRoute")
 //      .renameField("Application", "name", "appName")
 //      .renameField("Query", "applications", "apps")
@@ -58,12 +58,12 @@ class GraphQLGatewayTest {
   void testMergeSchemas() throws IOException {
     RemoteGraphQLService service = RemoteGraphQLService.builder()
       .name("asany")
-      .url("https://api.asany.cn/graphql")
+//      .url("https://api.asany.cn/graphql")
       .excludeFields("Application", "layoutRoute")
 //      .renameField("Application", "name", "appName")
 //      .renameField("Query", "applications", "apps")
 //      .renameFieldArgument("Query", "applications", "where", "filter")
-      .clientFactory(GraphQLTemplateFactory.DEFAULT)
+//      .clientFactory(GraphQLClientFactory.DEFAULT)
       .scalarTypeResolver(new ScalarTypeResolver(new ScalarTypeProviderFactory()))
       .build();
 

@@ -72,7 +72,7 @@ public class GraphQLUtils {
     } else if (operation == OperationDefinition.Operation.MUTATION) {
       queryBuilder.append("mutation ");
     } else if (operation == OperationDefinition.Operation.SUBSCRIPTION) {
-      throw new RuntimeException("不支持的操作类型:" + operation);
+      queryBuilder.append("subscription ");
     }
 
     if (operationDefinition.getName() != null) {
@@ -748,5 +748,44 @@ public class GraphQLUtils {
     public GraphQLType getType(String name) {
       return this.environment.getGraphQLSchema().getType(name);
     }
+  }
+
+  /**
+   * Converts an HTTP URL to a WebSocket URL for subscriptions, allowing a custom subscription path.
+   *
+   * @param httpUrl the HTTP URL to convert.
+   * @param subscriptionPath the path to append for WebSocket subscriptions.
+   * @return the WebSocket URL.
+   */
+  public static String convertToWebSocketUrl(String httpUrl, String subscriptionPath) {
+    if (httpUrl == null || httpUrl.isEmpty()) {
+      throw new IllegalArgumentException("The URL cannot be null or empty");
+    }
+    if (subscriptionPath == null || subscriptionPath.isEmpty()) {
+      throw new IllegalArgumentException("Subscription path cannot be null or empty");
+    }
+
+    // Ensure the URL starts with http or https
+    if (!httpUrl.startsWith("http://") && !httpUrl.startsWith("https://")) {
+      throw new IllegalArgumentException("The URL must start with http:// or https://");
+    }
+
+    // Replace http with ws and https with wss
+    String wsUrl = httpUrl.replace("http://", "ws://").replace("https://", "wss://");
+
+    // Ensure the subscription path starts with a "/"
+    if (!subscriptionPath.startsWith("/")) {
+      subscriptionPath = "/" + subscriptionPath;
+    }
+
+    int pathStartIndex = wsUrl.indexOf("/", wsUrl.indexOf("//") + 2);
+    int pathEndIndex = wsUrl.indexOf("?", pathStartIndex);
+    pathEndIndex = (pathEndIndex == -1) ? wsUrl.length() : pathEndIndex;
+
+    if (pathStartIndex != -1) {
+      wsUrl = wsUrl.substring(0, pathStartIndex) + subscriptionPath + wsUrl.substring(pathEndIndex);
+    }
+
+    return wsUrl; // Return the original URL if no path is found
   }
 }

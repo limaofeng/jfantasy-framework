@@ -18,11 +18,11 @@ import net.asany.jfantasy.framework.security.core.GrantedAuthority;
 import net.asany.jfantasy.framework.security.core.userdetails.UserDetailsService;
 import net.asany.jfantasy.framework.security.crypto.password.PasswordEncoder;
 import net.asany.jfantasy.framework.security.crypto.password.PlaintextPasswordEncoder;
+import net.asany.jfantasy.graphql.gateway.GraphQLClientFactory;
 import net.asany.jfantasy.graphql.gateway.GraphQLGateway;
 import net.asany.jfantasy.graphql.gateway.GraphQLGatewayReloadSchemaProvider;
 import net.asany.jfantasy.graphql.gateway.GraphQLReloadSchemaProvider;
-import net.asany.jfantasy.graphql.gateway.GraphQLTemplateFactory;
-import net.asany.jfantasy.graphql.gateway.service.DefaultGraphQLTemplateFactory;
+import net.asany.jfantasy.graphql.gateway.service.DefaultGraphQLClientFactory;
 import net.asany.jfantasy.graphql.gateway.type.ScalarTypeProviderFactory;
 import net.asany.jfantasy.graphql.gateway.type.ScalarTypeResolver;
 import org.springframework.boot.SpringApplication;
@@ -192,9 +192,9 @@ public class Application extends SpringBootServletInitializer {
   }
 
   @Bean
-  public GraphQLTemplateFactory graphQLTemplateFactory(
+  public GraphQLClientFactory graphQLTemplateFactory(
       ResourceLoader resourceLoader, RestTemplate restTemplate, GraphQLObjectMapper objectMapper) {
-    return new DefaultGraphQLTemplateFactory(
+    return new DefaultGraphQLClientFactory(
         resourceLoader,
         restTemplate,
         objectMapper
@@ -206,7 +206,7 @@ public class Application extends SpringBootServletInitializer {
   @Bean(initMethod = "init", destroyMethod = "destroy")
   public GraphQLGateway graphqlGateway(
       SchemaParser schemaParser,
-      GraphQLTemplateFactory templateFactory,
+      GraphQLClientFactory templateFactory,
       ScalarTypeProviderFactory scalarFactory)
       throws IOException {
     return GraphQLGateway.builder()

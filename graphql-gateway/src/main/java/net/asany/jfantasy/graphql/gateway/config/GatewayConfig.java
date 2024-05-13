@@ -1,5 +1,6 @@
 package net.asany.jfantasy.graphql.gateway.config;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.AllArgsConstructor;
@@ -16,11 +17,40 @@ public class GatewayConfig {
   private List<DirectiveConfig> directives;
 
   @Data
+  @Builder
+  @AllArgsConstructor
+  @NoArgsConstructor
   public static class ServiceConfig {
     private String name;
     private String url;
+    private String typeDefs;
+
+    @Builder.Default
+    private SubscriptionConfig subscriptions = SubscriptionConfig.builder().build();
+
+    @Builder.Default
+    private IntrospectionConfig introspection = IntrospectionConfig.builder().build();
+
     private List<String> excludeFields;
     private Map<String, String> headers;
+  }
+
+  @Data
+  @Builder
+  @AllArgsConstructor
+  @NoArgsConstructor
+  public static class IntrospectionConfig {
+    @Builder.Default private boolean enabled = true;
+    @Builder.Default private Map<String, String> headers = new HashMap<>();
+  }
+
+  @Data
+  @Builder
+  @AllArgsConstructor
+  @NoArgsConstructor
+  public static class SubscriptionConfig {
+    @Builder.Default private boolean enabled = true;
+    @Builder.Default private String path = "/subscriptions";
   }
 
   @Data

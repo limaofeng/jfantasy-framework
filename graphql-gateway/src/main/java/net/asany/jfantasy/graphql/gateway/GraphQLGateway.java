@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -74,8 +75,14 @@ public class GraphQLGateway {
 
   public void destroy() {}
 
+  public <T extends GraphQLService> List<T> getGraphQLService(Class<T> serviceClass) {
+    //noinspection unchecked
+    return (List<T>)
+        this.serviceList.stream().filter(serviceClass::isInstance).collect(Collectors.toList());
+  }
+
   public static class Builder {
-    private GraphQLTemplateFactory clientFactory = GraphQLTemplateFactory.DEFAULT;
+    private GraphQLClientFactory clientFactory = GraphQLClientFactory.DEFAULT;
     private GraphQLSchema localSchema;
     private ScalarTypeResolver scalarResolver;
     private String config;
@@ -88,7 +95,7 @@ public class GraphQLGateway {
       directiveFactory = new DirectiveFactory();
     }
 
-    public Builder clientFactory(GraphQLTemplateFactory clientFactory) {
+    public Builder clientFactory(GraphQLClientFactory clientFactory) {
       this.clientFactory = clientFactory;
       return this;
     }
@@ -160,7 +167,6 @@ public class GraphQLGateway {
       constructor.setPropertyUtils(propertyUtils);
       Yaml yaml = new Yaml(constructor);
 
-      //noinspection VulnerableCodeUsages
       GatewayConfig gatewayConfig = yaml.load(inputStream);
 
       // 注册所有的ScalarType
@@ -171,12 +177,15 @@ public class GraphQLGateway {
         RemoteGraphQLService.Builder serviceBuilder =
             RemoteGraphQLService.builder()
                 .name(serviceConfig.getName())
-                .url(serviceConfig.getUrl())
-                .clientFactory(this.clientFactory)
-                .headers(serviceConfig.getHeaders())
+                .client(this.clientFactory.client(serviceConfig))
+                .subscription(serviceConfig.getSubscriptions())
+                .introspection(serviceConfig.getIntrospection())
                 .scalarTypeResolver(this.scalarResolver);
         if (serviceConfig.getExcludeFields() != null) {
           serviceBuilder.excludeFields(serviceConfig.getExcludeFields());
+        }
+        if (serviceConfig.getTypeDefs() != null) {
+          serviceBuilder.typeDefs("");
         }
         services.add(serviceBuilder.build());
       }

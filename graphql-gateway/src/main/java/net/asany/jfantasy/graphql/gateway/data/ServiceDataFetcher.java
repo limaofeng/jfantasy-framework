@@ -9,11 +9,14 @@ import graphql.schema.GraphQLSchema;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import net.asany.jfantasy.framework.jackson.JSON;
 import net.asany.jfantasy.framework.security.auth.AuthenticationToken;
 import net.asany.jfantasy.framework.security.auth.oauth2.server.BearerTokenAuthenticationToken;
 import net.asany.jfantasy.framework.util.common.StringUtil;
+import net.asany.jfantasy.framework.util.ognl.OgnlUtil;
 import net.asany.jfantasy.graphql.client.GraphQLResponse;
-import net.asany.jfantasy.graphql.client.GraphQLTemplate;
+import net.asany.jfantasy.graphql.client.QueryPayload;
+import net.asany.jfantasy.graphql.gateway.GraphQLClient;
 import net.asany.jfantasy.graphql.gateway.error.DataFetchGraphQLError;
 import net.asany.jfantasy.graphql.gateway.error.GraphQLServiceDataFetchException;
 import net.asany.jfantasy.graphql.gateway.error.GraphQLServiceNetworkException;
@@ -37,7 +40,9 @@ public class ServiceDataFetcher implements DataFetcher<Object> {
     String operationName = environment.getOperationDefinition().getName();
     Field field = environment.getField();
 
-    if (!"Query".equals(parentType.getName()) && !"Mutation".equals(parentType.getName())) {
+    if (!"Query".equals(parentType.getName())
+        && !"Mutation".equals(parentType.getName())
+        && !"Subscription".equals(parentType.getName())) {
       log.debug("忽略非查询类型的字段:{}", parentType.getName() + "." + field.getName());
       return GraphQLValueUtils.convert(
           environment.getSource(),
@@ -54,17 +59,53 @@ public class ServiceDataFetcher implements DataFetcher<Object> {
     log.debug("GraphQL Query: {}", gql);
     log.debug("GraphQL Variables: {}", variables);
 
-    GraphQLTemplate client = this.service.getClient();
+    GraphQLClient client = this.service.getClient();
     GraphQLResponse response;
 
+    // 获取 token
+    String token = null;
+    AuthenticationToken authenticationToken = environment.getGraphQlContext().get("authentication");
+    if (authenticationToken
+        instanceof BearerTokenAuthenticationToken bearerTokenAuthenticationToken) {
+      token = bearerTokenAuthenticationToken.getToken();
+    }
+
+    QueryPayload payload =
+        QueryPayload.builder().query(gql).operationName(operationName).variables(variables).build();
+
+    // 处理订阅
+    if ("Subscription".equals(parentType.getName())) {
+      OgnlUtil ognlUtil = OgnlUtil.getInstance();
+      //noinspection ReactiveStreamsUnusedPublisher
+      return client.subscribe(
+          payload,
+          token,
+          data -> {
+            List<Object> errors = ognlUtil.getValue("errors", data);
+            if (errors != null) {
+              List<DataFetchGraphQLError> errorsList =
+                  JSON.getObjectMapper()
+                      .convertValue(
+                          errors,
+                          JSON.getObjectMapper()
+                              .getTypeFactory()
+                              .constructCollectionType(List.class, DataFetchGraphQLError.class));
+              throw new GraphQLServiceDataFetchException(errorsList.get(0));
+            }
+            Object result = ognlUtil.getValue("data", data);
+            JsonNode jsonNode = JSON.getObjectMapper().valueToTree(result);
+
+            return GraphQLValueUtils.convert(
+                jsonNode,
+                StringUtil.defaultValue(field.getAlias(), field.getName()),
+                environment.getFieldType(),
+                environment.getGraphQlContext(),
+                environment.getLocale());
+          });
+    }
+
     try {
-      AuthenticationToken authenticationToken =
-          environment.getGraphQlContext().get("authentication");
-      if (authenticationToken
-          instanceof BearerTokenAuthenticationToken bearerTokenAuthenticationToken) {
-        client = client.withBearerAuth(bearerTokenAuthenticationToken.getToken());
-      }
-      response = client.post(gql, operationName, variables);
+      response = client.query(payload, token);
     } catch (ResourceAccessException e) {
       throw new GraphQLServiceNetworkException(e.getMessage());
     }

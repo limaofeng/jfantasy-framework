@@ -21,6 +21,7 @@ public class WebSocketBearerTokenResolver implements BearerTokenResolver<Session
   }
 
   private String resolveFromAuthorizationHeader(Session session) {
+    //noinspection unchecked
     Map<String, Object> connectionParams =
         (Map<String, Object>) session.getUserProperties().get("connectionParams");
     String authorization = (String) connectionParams.get(HttpHeaders.AUTHORIZATION.toLowerCase());

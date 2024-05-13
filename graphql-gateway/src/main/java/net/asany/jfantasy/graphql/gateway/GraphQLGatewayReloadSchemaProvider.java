@@ -4,7 +4,6 @@ import graphql.kickstart.execution.config.GraphQLSchemaProvider;
 import graphql.schema.GraphQLSchema;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.websocket.server.HandshakeRequest;
-import java.io.IOException;
 
 /**
  * 默认的 GraphQLReloadSchemaProvider
@@ -35,7 +34,7 @@ public class GraphQLGatewayReloadSchemaProvider implements GraphQLReloadSchemaPr
   }
 
   @Override
-  public void updateSchema() throws IOException {
+  public void updateSchema() {
     this.graphQLSchema = gateway.getSchema();
     this.readOnlySchema = GraphQLSchemaProvider.copyReadOnly(this.graphQLSchema);
   }

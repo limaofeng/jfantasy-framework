@@ -7,16 +7,19 @@ scalars:
 
 services:
   - name: asany-server
-    url: "http://127.0.0.1:30881/graphql"
+    url: "http://10.7.5.4:30881/graphql"
     typeDefs: "./asany-server.graphql"
+    subscriptions:
+      enabled: true
+      path: "/subscriptions"
     introspection:
-      enabled: false
+      enabled: true
       frequency: 30m
-  - name: asany-l
-    url: "http://127.0.0.1:30882/graphql"
-    typeDefs: "./asany-l.graphql"
+  - name: asany-legacy
+    url: "http://10.7.5.4:30882/graphql"
+    typeDefs: "./asany-legacy.graphql"
     introspection:
-      enabled: false
+      enabled: true
       frequency: 30m
 
 #override:
