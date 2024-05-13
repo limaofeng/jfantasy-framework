@@ -56,7 +56,11 @@ public class GraphQLWebSocketClient {
   }
 
   private WebSocketClient createWebSocketClient() throws URISyntaxException {
-    return new WebSocketClient(new URI(uri), new Draft_6455(), headers, 0) {
+    Map<String, String> newHeaders = new HashMap<>(headers);
+    newHeaders.put("Sec-WebSocket-Protocol", "graphql-ws");
+    newHeaders.put("Sec-WebSocket-Key", StringUtil.generateNonceString(22) + "==");
+    newHeaders.put("Sec-WebSocket-Version", "13");
+    return new WebSocketClient(new URI(uri), new Draft_6455(), newHeaders, 0) {
       @Override
       public void onOpen(ServerHandshake serverHandshake) {
         GraphQLWebSocketClient.this.onOpen(serverHandshake);
@@ -87,13 +91,6 @@ public class GraphQLWebSocketClient {
         GraphQLWebSocketClient.this.onWebsocketPong(conn, f);
       }
     };
-  }
-
-  private static Map<String, String> initHeaders(Map<String, String> headers) {
-    headers.put("Sec-WebSocket-Protocol", "graphql-ws");
-    headers.put("Sec-WebSocket-Key", StringUtil.generateNonceString(22) + "==");
-    headers.put("Sec-WebSocket-Version", "13");
-    return headers;
   }
 
   private void onOpen(ServerHandshake serverHandshake) {
