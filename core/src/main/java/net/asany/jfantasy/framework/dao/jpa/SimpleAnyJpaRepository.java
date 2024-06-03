@@ -94,6 +94,19 @@ public class SimpleAnyJpaRepository<T, ID extends Serializable> extends SimpleJp
   }
 
   @Override
+  public Optional<T> findById(@NotNull ID id) {
+    return super.findById(id)
+        .map(
+            item -> {
+              if (!SoftDeletable.class.isAssignableFrom(this.getDomainClass())) {
+                return item;
+              }
+              SoftDeletable deletable = (SoftDeletable) item;
+              return deletable.isDeleted() ? null : item;
+            });
+  }
+
+  @Override
   public Optional<T> findOneBy(String name, Object value) {
     return this.findOne(PropertyFilter.newFilter().equal(name, value));
   }
@@ -420,7 +433,7 @@ public class SimpleAnyJpaRepository<T, ID extends Serializable> extends SimpleJp
           ObjectUtil.remove(oldFks, name, value);
         } else {
           getJpaRepository(targetEntityClass).delete(odl);
-          log.debug("删除数据" + value);
+          log.debug("删除数据{}", value);
         }
       }
     }
@@ -669,7 +682,7 @@ public class SimpleAnyJpaRepository<T, ID extends Serializable> extends SimpleJp
 
   protected Query createQuery(String hql, Object... values) {
     Assert.hasText("hql 不能为空", hql);
-    @SuppressWarnings("SqlSourceToSinkFlow")
+    //noinspection SqlSourceToSinkFlow
     Query query = em.createQuery(hql, entityInformation.getJavaType());
     for (int i = 0; i < values.length; i++) {
       query.setParameter(i, values[i]);
