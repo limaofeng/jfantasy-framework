@@ -94,7 +94,7 @@ public class SimpleAnyJpaRepository<T, ID extends Serializable> extends SimpleJp
   }
 
   @Override
-  public Optional<T> findById(@NotNull ID id) {
+  public @NotNull Optional<T> findById(@NotNull ID id) {
     return super.findById(id)
         .map(
             item -> {
