@@ -97,6 +97,7 @@ public class OverrideDataFetcher implements DataFetcher<Object> {
             .operationDefinition(
                 OperationDefinition.newOperationDefinition()
                     .name(resolve.getQuery())
+                    .operation(OperationDefinition.Operation.QUERY)
                     .variableDefinitions(variableDefinitions)
                     .build())
             .parentType(objectType)
