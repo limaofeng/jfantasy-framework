@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.Builder;
+import lombok.extern.slf4j.Slf4j;
 import net.asany.jfantasy.graphql.gateway.config.FieldResolve;
 import net.asany.jfantasy.graphql.gateway.config.SchemaOverride;
 import net.asany.jfantasy.graphql.gateway.config.SchemaOverrideField;
@@ -18,6 +19,7 @@ import net.asany.jfantasy.graphql.gateway.directive.DirectiveProcessor;
 import net.asany.jfantasy.graphql.gateway.util.GraphQLTypeUtils;
 import net.asany.jfantasy.graphql.gateway.util.GraphQLValueUtils;
 
+@Slf4j
 @Builder(builderClassName = "Builder")
 public class OverrideDataFetcher implements DataFetcher<Object> {
 
@@ -135,11 +137,11 @@ public class OverrideDataFetcher implements DataFetcher<Object> {
 
   private SelectionSet transformSelectionSet(
       SelectionSet originalSelectionSet, GraphQLOutputType outputType) {
-    GraphQLObjectType objectType = (GraphQLObjectType) GraphQLTypeUtils.getSourceType(outputType);
+    GraphQLType fieldType = GraphQLTypeUtils.getSourceType(outputType);
     return SelectionSet.newSelectionSet()
         .selections(
             originalSelectionSet.getSelections().stream()
-                .map(item -> transformSelection(item, objectType))
+                .map(item -> transformSelection(item, fieldType))
                 .toList())
         .additionalData(originalSelectionSet.getAdditionalData())
         .sourceLocation(originalSelectionSet.getSourceLocation())
@@ -150,8 +152,19 @@ public class OverrideDataFetcher implements DataFetcher<Object> {
 
   private Selection<?> transformSelection(Selection<?> selection, GraphQLType outputType) {
     if (selection instanceof Field field) {
-      GraphQLObjectType objectType = (GraphQLObjectType) outputType;
-      GraphQLFieldDefinition fieldDefinition = objectType.getFieldDefinition(field.getName());
+
+      if (!(outputType instanceof GraphQLFieldsContainer fieldsContainer)) {
+        log.warn("Output type {} is not a fields container", outputType.toString());
+        return selection;
+      }
+
+      GraphQLFieldDefinition fieldDefinition = fieldsContainer.getFieldDefinition(field.getName());
+
+      if (fieldDefinition == null) {
+        log.warn("Field {} not found in type {}", field.getName(), fieldsContainer.getName());
+        return selection;
+      }
+
       GraphQLOutputType fieldType = fieldDefinition.getType();
 
       Field.Builder fieldBuilder =
@@ -161,9 +174,9 @@ public class OverrideDataFetcher implements DataFetcher<Object> {
               .directives(field.getDirectives());
 
       // 如果有覆盖配置，则使用覆盖配置
-      if (override.hasIncludeField(objectType.getName(), field.getName())) {
+      if (override.hasIncludeField(fieldsContainer.getName(), field.getName())) {
         SchemaOverrideField overrideField =
-            override.getField(objectType.getName(), field.getName());
+            override.getField(fieldsContainer.getName(), field.getName());
         if (overrideField.isNameChanged()) {
           fieldBuilder
               .name(overrideField.getMapping())
@@ -178,8 +191,12 @@ public class OverrideDataFetcher implements DataFetcher<Object> {
       }
 
       // 如果有子节点，则递归处理
-      if (field.getSelectionSet() != null && GraphQLTypeUtils.isObjectType(fieldType)) {
-        fieldBuilder.selectionSet(transformSelectionSet(field.getSelectionSet(), fieldType));
+      if (field.getSelectionSet() != null) {
+        if (GraphQLTypeUtils.isFieldsContainerType(fieldType)) {
+          fieldBuilder.selectionSet(transformSelectionSet(field.getSelectionSet(), fieldType));
+        } else {
+          log.warn("Field {} is not a fields container", field.getName());
+        }
       }
 
       return fieldBuilder.build();

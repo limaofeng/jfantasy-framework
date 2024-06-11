@@ -95,6 +95,10 @@ public class GraphQLTypeUtils {
     return getSourceType(fieldType) instanceof GraphQLObjectType;
   }
 
+  public static boolean isFieldsContainerType(GraphQLType fieldType) {
+    return getSourceType(fieldType) instanceof GraphQLFieldsContainer;
+  }
+
   public static boolean isListType(Type<?> type) {
     if (type instanceof NonNullType nonNullType) {
       return isListType(nonNullType.getType());

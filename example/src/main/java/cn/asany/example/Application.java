@@ -1,5 +1,6 @@
 package cn.asany.example;
 
+import cn.asany.example.demo.domain.UserSetting;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import graphql.kickstart.execution.GraphQLObjectMapper;
 import graphql.kickstart.tools.SchemaParser;
@@ -18,6 +19,7 @@ import net.asany.jfantasy.framework.security.core.GrantedAuthority;
 import net.asany.jfantasy.framework.security.core.userdetails.UserDetailsService;
 import net.asany.jfantasy.framework.security.crypto.password.PasswordEncoder;
 import net.asany.jfantasy.framework.security.crypto.password.PlaintextPasswordEncoder;
+import net.asany.jfantasy.graphql.SchemaParserDictionaryBuilder;
 import net.asany.jfantasy.graphql.gateway.GraphQLClientFactory;
 import net.asany.jfantasy.graphql.gateway.GraphQLGateway;
 import net.asany.jfantasy.graphql.gateway.GraphQLGatewayReloadSchemaProvider;
@@ -72,6 +74,13 @@ public class Application extends SpringBootServletInitializer {
   @Override
   protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
     return builder.sources(Application.class);
+  }
+
+  @Bean
+  public SchemaParserDictionaryBuilder dictionaryBuilder() {
+    return dictionary -> {
+      dictionary.add("DemoUserSettings", UserSetting.class);
+    };
   }
 
   @Bean

@@ -134,9 +134,22 @@ type DemoUserConnection implements Connection {
   edges: [DemoUserEdge!]!
   pageInfo: PageInfo!
 }
+
 type DemoUserEdge implements Edge {
   cursor: String!
   node: DemoUser
+}
+
+interface IUserSettings {
+  id: ID!
+  name: String
+}
+
+interface DemoUserSettings implements IUserSettings {
+  id: ID!
+  name: String
+  # 用户设置
+  favoriteColor: String
 }
 
 type DemoUser {
@@ -153,4 +166,6 @@ type DemoUser {
   createdAt: Date
   # 修改时间
   updatedAt: Date
+  # 用户设置
+  settings: IUserSettings
 }

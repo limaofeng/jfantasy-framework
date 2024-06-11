@@ -11,8 +11,7 @@ import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 /**
- * TODO: 还不成熟, ReactiveCrudRepository 接口定义有问题, 比如：Flux<T> findAll(); 应该是 Flux<List<T>> findAll();
- * 才合理
+ * Reactive JPA Repository
  *
  * @param <T> 实体
  * @param <ID> 主键
