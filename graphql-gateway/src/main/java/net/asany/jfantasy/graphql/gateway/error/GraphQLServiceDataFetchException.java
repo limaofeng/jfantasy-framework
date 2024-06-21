@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 import net.asany.jfantasy.framework.error.FieldValidationError;
+import net.asany.jfantasy.graphql.client.error.DataFetchGraphQLError;
 
 @Getter
 public class GraphQLServiceDataFetchException extends GraphQLGatewayException {

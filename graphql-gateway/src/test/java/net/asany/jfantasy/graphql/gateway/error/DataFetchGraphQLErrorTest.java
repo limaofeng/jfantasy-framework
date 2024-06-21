@@ -2,6 +2,7 @@ package net.asany.jfantasy.graphql.gateway.error;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import net.asany.jfantasy.framework.jackson.JSON;
+import net.asany.jfantasy.graphql.client.error.DataFetchGraphQLError;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -11,13 +11,13 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import net.asany.jfantasy.framework.jackson.JSON;
 import net.asany.jfantasy.framework.security.auth.AuthenticationToken;
-import net.asany.jfantasy.framework.security.auth.oauth2.server.BearerTokenAuthenticationToken;
+import net.asany.jfantasy.framework.security.auth.oauth2.server.authentication.BearerTokenAuthentication;
 import net.asany.jfantasy.framework.util.common.StringUtil;
 import net.asany.jfantasy.framework.util.ognl.OgnlUtil;
 import net.asany.jfantasy.graphql.client.GraphQLResponse;
 import net.asany.jfantasy.graphql.client.QueryPayload;
+import net.asany.jfantasy.graphql.client.error.DataFetchGraphQLError;
 import net.asany.jfantasy.graphql.gateway.GraphQLClient;
-import net.asany.jfantasy.graphql.gateway.error.DataFetchGraphQLError;
 import net.asany.jfantasy.graphql.gateway.error.GraphQLServiceDataFetchException;
 import net.asany.jfantasy.graphql.gateway.error.GraphQLServiceNetworkException;
 import net.asany.jfantasy.graphql.gateway.service.RemoteGraphQLService;
@@ -65,9 +65,10 @@ public class ServiceDataFetcher implements DataFetcher<Object> {
     // 获取 token
     String token = null;
     AuthenticationToken authenticationToken = environment.getGraphQlContext().get("authentication");
-    if (authenticationToken
-        instanceof BearerTokenAuthenticationToken bearerTokenAuthenticationToken) {
-      token = bearerTokenAuthenticationToken.getToken();
+    if (authenticationToken instanceof BearerTokenAuthentication bearerTokenAuthentication) {
+      token = bearerTokenAuthentication.getToken().getTokenValue();
+    } else {
+      log.error("未找到有效的认证信息:{}", authenticationToken);
     }
 
     QueryPayload payload =
@@ -119,7 +120,13 @@ public class ServiceDataFetcher implements DataFetcher<Object> {
       if (errors.size() > 1) {
         log.warn("* TODO: 逻辑漏洞 errors.size() > 1");
       }
-      throw new GraphQLServiceDataFetchException(errors.get(0));
+      log.error(
+          "GraphQL Service Error: \n gql: {} \n variables: {} \n errors: {}",
+          gql,
+          JSON.serialize(variables),
+          JSON.serialize(errors));
+      DataFetchGraphQLError error = errors.get(0);
+      throw new GraphQLServiceDataFetchException(error);
     }
 
     JsonNode result = response.get("$.data", JsonNode.class);

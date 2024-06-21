@@ -653,7 +653,8 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
   @SneakyThrows
   public static <T> T invoke(Method method) {
     if (!method.canAccess(null)) {
-      method.setAccessible(true);
+      method.trySetAccessible();
+      ;
     }
     //noinspection unchecked
     return (T) method.invoke(null);
@@ -670,7 +671,8 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
   @SneakyThrows
   public static <T> T invoke(Method method, Object obj, Object... args) {
     if (!method.canAccess(obj)) {
-      method.setAccessible(true);
+      method.trySetAccessible();
+      ;
     }
     //noinspection unchecked
     return (T) method.invoke(obj, args);
@@ -702,22 +704,26 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
 
   private static Object getCglibProxyTargetObject(Object proxy) throws Exception {
     Field h = proxy.getClass().getDeclaredField("CGLIB$CALLBACK_0");
-    h.setAccessible(true);
+    h.trySetAccessible();
+    ;
     Object dynamicAdvisedInterceptor = h.get(proxy);
 
     Field advised = dynamicAdvisedInterceptor.getClass().getDeclaredField("advised");
-    advised.setAccessible(true);
+    advised.trySetAccessible();
+    ;
 
     return ((AdvisedSupport) advised.get(dynamicAdvisedInterceptor)).getTargetSource().getTarget();
   }
 
   private static Object getJdkDynamicProxyTargetObject(Object proxy) throws Exception {
     Field h = proxy.getClass().getSuperclass().getDeclaredField("h");
-    h.setAccessible(true);
+    h.trySetAccessible();
+    ;
     AopProxy aopProxy = (AopProxy) h.get(proxy);
 
     Field advised = aopProxy.getClass().getDeclaredField("advised");
-    advised.setAccessible(true);
+    advised.trySetAccessible();
+    ;
 
     return ((AdvisedSupport) advised.get(aopProxy)).getTargetSource().getTarget();
   }

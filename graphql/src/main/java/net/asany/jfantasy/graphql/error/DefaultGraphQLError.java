@@ -23,14 +23,16 @@ public class DefaultGraphQLError extends ErrorResponse implements GraphQLError {
   private final List<SourceLocation> locations;
   private final ErrorClassification errorType;
 
-  public DefaultGraphQLError(ErrorContext errorContext) {
-    this(errorContext, errorContext.getErrorType());
+  public DefaultGraphQLError(String message, ErrorContext errorContext) {
+    this(message, errorContext, errorContext.getErrorType());
   }
 
-  public DefaultGraphQLError(ErrorContext errorContext, ErrorClassification errorType) {
+  public DefaultGraphQLError(
+      String message, ErrorContext errorContext, ErrorClassification errorType) {
     this.path = errorContext.getPath();
     this.locations = errorContext.getLocations();
     this.errorType = errorType;
+    this.setMessage(message);
     this.setData(ObjectUtil.defaultValue(errorContext.getExtensions(), new HashMap<>()));
   }
 

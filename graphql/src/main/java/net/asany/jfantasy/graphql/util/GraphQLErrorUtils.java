@@ -19,7 +19,7 @@ public class GraphQLErrorUtils {
 
   public static DefaultGraphQLError buildGraphqlError(
       ErrorContext context, String errorCode, Exception e) {
-    DefaultGraphQLError error = new DefaultGraphQLError(context);
+    DefaultGraphQLError error = new DefaultGraphQLError(e.getMessage(), context);
     ErrorUtils.populateErrorAttributesFromException(error, e);
     error.setCode(errorCode);
     return error;
@@ -27,7 +27,7 @@ public class GraphQLErrorUtils {
 
   public static DefaultGraphQLError buildGraphqlError(
       ErrorContext context, String errorCode, String message) {
-    DefaultGraphQLError error = new DefaultGraphQLError(context);
+    DefaultGraphQLError error = new DefaultGraphQLError(message, context);
     ErrorUtils.populateErrorAttributesFromException(error, new Exception(message));
     error.setCode(errorCode);
     return error;
@@ -53,11 +53,13 @@ public class GraphQLErrorUtils {
     }
     DefaultGraphQLError error;
     if (e instanceof MethodArgumentNotValidException) {
-      error = new DefaultGraphQLError(context, ErrorType.ValidationError);
+      error = new DefaultGraphQLError(e.getMessage(), context, ErrorType.ValidationError);
     } else if (e instanceof AuthenticationException) {
-      error = new DefaultGraphQLError(context, AuthorizationErrorType.AuthenticatedError);
+      error =
+          new DefaultGraphQLError(
+              e.getMessage(), context, AuthorizationErrorType.AuthenticatedError);
     } else {
-      error = new DefaultGraphQLError(context);
+      error = new DefaultGraphQLError(e.getMessage(), context);
     }
     ErrorUtils.populateErrorAttributesFromException(error, e);
     return error;

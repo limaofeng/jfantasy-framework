@@ -72,6 +72,15 @@ public class GraphQLGatewayError implements GraphQLError {
 
   @Override
   public Map<String, Object> toSpecification() {
+    if (this.extensions != null && !this.extensions.isEmpty()) {
+      Map<String, Object> result = new HashMap<>();
+      result.put("message", this.message);
+      result.put("path", this.path);
+      result.put("locations", this.locations);
+      result.put("extensions", this.extensions);
+      return result;
+    }
+
     Map<String, Object> result = GraphqlErrorHelper.toSpecification(this);
     @SuppressWarnings("unchecked")
     Map<String, Object> extensions = (Map<String, Object>) result.get("extensions");

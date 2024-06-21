@@ -2,6 +2,7 @@ package net.asany.jfantasy.autoconfigure;
 
 import net.asany.jfantasy.autoconfigure.properties.CacheAdvanceProperties;
 import net.asany.jfantasy.autoconfigure.properties.DataSourceExtendedProperties;
+import net.asany.jfantasy.autoconfigure.properties.SecurityProperties;
 import net.asany.jfantasy.framework.dao.datasource.DatasourceProxyBeanPostProcessor;
 import net.asany.jfantasy.framework.dao.hibernate.InterceptorRegistration;
 import net.asany.jfantasy.framework.dao.hibernate.interceptors.BusEntityInterceptor;
@@ -35,7 +36,8 @@ import org.springframework.context.annotation.Import;
 @EnableConfigurationProperties({
   DataSourceExtendedProperties.class,
   DataSourceProperties.class,
-  CacheAdvanceProperties.class
+  CacheAdvanceProperties.class,
+  SecurityProperties.class
 })
 public class CoreAutoConfiguration {
 

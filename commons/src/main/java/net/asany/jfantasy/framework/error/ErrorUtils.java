@@ -59,6 +59,8 @@ public class ErrorUtils {
 
     errorAttributes.put(ERROR_PROPERTY_CODE, errorCode);
     errorAttributes.put(ERROR_PROPERTY_STATUS, 400);
+    errorAttributes.put(ERROR_PROPERTY_ERROR, throwable.getClass().getSimpleName());
+    errorAttributes.put(ERROR_PROPERTY_MESSAGE, throwable.getMessage());
 
     if (throwable instanceof ValidationException e) {
       extractValidationExceptionAttributes(errorAttributes, e);

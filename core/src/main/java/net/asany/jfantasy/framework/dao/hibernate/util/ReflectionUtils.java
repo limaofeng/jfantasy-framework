@@ -75,7 +75,8 @@ public final class ReflectionUtils {
       throw new IllegalArgumentException(
           "Could not find method [" + methodName + "] on target [" + object + "]");
     }
-    method.setAccessible(true);
+    method.trySetAccessible();
+    ;
     try {
       return method.invoke(object, parameters);
     } catch (Exception e) {
@@ -101,7 +102,8 @@ public final class ReflectionUtils {
   private static void makeAccessible(Field field) {
     if ((!Modifier.isPublic(field.getModifiers()))
         || (!Modifier.isPublic(field.getDeclaringClass().getModifiers()))) {
-      field.setAccessible(true);
+      field.trySetAccessible();
+      ;
     }
   }
 

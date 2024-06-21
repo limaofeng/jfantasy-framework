@@ -8,6 +8,7 @@ import java.util.Set;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import net.asany.jfantasy.autoconfigure.properties.SecurityProperties;
 import net.asany.jfantasy.framework.jackson.JSON;
 import net.asany.jfantasy.framework.security.AuthenticationException;
 import net.asany.jfantasy.framework.security.LoginUser;
@@ -41,14 +42,17 @@ public class DefaultTokenServices
   @Setter private ClientDetailsService clientDetailsService;
   private final JwtTokenService jwtTokenService = new JwtTokenServiceImpl();
   private final TaskExecutor taskExecutor;
+  private final SecurityProperties securityProperties;
 
   public DefaultTokenServices(
+      SecurityProperties securityProperties,
       TokenStore<OAuth2AccessToken> tokenStore,
       ClientDetailsService clientDetailsService,
       TaskExecutor taskExecutor) {
     this.tokenStore = tokenStore;
     this.clientDetailsService = clientDetailsService;
     this.taskExecutor = taskExecutor;
+    this.securityProperties = securityProperties;
   }
 
   @SneakyThrows
@@ -146,7 +150,7 @@ public class DefaultTokenServices
               details.getClientId(),
               refreshTokenValue,
               issuedAt,
-              expiresAt.plus(7, ChronoUnit.DAYS));
+              issuedAt.plus(7, ChronoUnit.DAYS));
       tokenStore.storeRefreshToken(refreshToken, authentication);
 
       accessToken.setRefreshTokenValue(refreshTokenValue);
@@ -163,7 +167,7 @@ public class DefaultTokenServices
   }
 
   private void refreshAccessToken(OAuth2AccessToken accessToken, long expires) {
-    accessToken.setExpiresAt(accessToken.getExpiresAt().plus(expires, ChronoUnit.MINUTES));
+    accessToken.setExpiresAt(Instant.now().plus(expires, ChronoUnit.MINUTES));
     taskExecutor.execute(
         () ->
             this.tokenStore.storeAccessToken(
@@ -172,7 +176,7 @@ public class DefaultTokenServices
 
   private void refreshAccessToken(
       OAuth2AccessToken accessToken, long expires, BearerTokenAuthenticationToken authentication) {
-    accessToken.setExpiresAt(accessToken.getExpiresAt().plus(expires, ChronoUnit.MINUTES));
+    accessToken.setExpiresAt(Instant.now().plus(expires, ChronoUnit.MINUTES));
     taskExecutor.execute(
         () ->
             this.tokenStore.storeAccessToken(
@@ -249,7 +253,8 @@ public class DefaultTokenServices
       }
 
       // 如果续期方式为 Session 执行续期操作
-      if (accessToken.getTokenType() == TokenType.SESSION_ID) {
+      if (securityProperties.getAccessToken().isRefresh()
+          && accessToken.getTokenType() == TokenType.SESSION_ID) {
         this.refreshAccessToken(accessToken, expires);
       }
 
@@ -295,7 +300,7 @@ public class DefaultTokenServices
       }
 
       // 如果续期方式为 Session 执行续期操作
-      if (tokenType == TokenType.SESSION_ID) {
+      if (securityProperties.getAccessToken().isRefresh() && tokenType == TokenType.SESSION_ID) {
         this.refreshAccessToken(accessToken, expires, token);
       }
 

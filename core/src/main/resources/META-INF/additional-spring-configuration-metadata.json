@@ -11,6 +11,12 @@
       "description": "缓存提前初始化.",
       "type": "net.asany.jfantasy.autoconfigure.properties.CacheAdvanceProperties",
       "sourceType": "net.asany.jfantasy.autoconfigure.properties.CacheAdvanceProperties"
+    },
+    {
+      "name": "spring.security",
+      "description": "安全配置.",
+      "type": "net.asany.jfantasy.autoconfigure.properties.SecurityProperties",
+      "sourceType": "net.asany.jfantasy.autoconfigure.properties.SecurityProperties"
     }
   ],
   "properties": [
@@ -34,6 +40,43 @@
       "name": "spring.cache.advance.bean-names",
       "type": "java.lang.String",
       "description": "Bean Names."
+    },
+    {
+      "name": "spring.security.token-services",
+      "type": "java.util.Map<java.lang.String, java.lang.String>",
+      "description": "Token Services."
+    },
+    {
+      "name": "spring.security.access-token.validate",
+      "type": "java.lang.Boolean",
+      "description": "是否进行token验证.",
+      "defaultValue": "true"
+    },
+    {
+      "name": "spring.security.access-token.refresh",
+      "type": "java.lang.Boolean",
+      "description": "是否刷新token.",
+      "defaultValue": "true"
+    },
+    {
+      "name": "spring.security.access-token.validation-endpoint",
+      "type": "java.lang.String",
+      "description": "验证token的URL."
+    }
+  ],
+  "hints": [
+    {
+      "name": "spring.security.token-services.keys",
+      "values": [
+        {
+          "value": "api-key",
+          "description": "Description of what 'apiKey' configures."
+        },
+        {
+          "value": "access-token",
+          "description": "Description of what 'accessToken' configures."
+        }
+      ]
     }
   ]
 }

@@ -1,4 +1,4 @@
-package net.asany.jfantasy.graphql.gateway.error;
+package net.asany.jfantasy.graphql.client.error;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonParser;
@@ -23,7 +23,6 @@ public class DataFetchGraphQLError {
 
   private List<Object> path;
   private Map<String, Object> extensions;
-  private String timestamp;
 
   @JsonProperty("errors")
   private List<FieldValidationError> fieldErrors;

@@ -1,5 +1,6 @@
 package net.asany.jfantasy.framework.security.oauth2.server.authentication;
 
+import net.asany.jfantasy.autoconfigure.properties.SecurityProperties;
 import net.asany.jfantasy.framework.security.AuthenticationManager;
 import net.asany.jfantasy.framework.security.DefaultClientDetailsService;
 import net.asany.jfantasy.framework.security.InMemoryTokenStore;
@@ -22,6 +23,7 @@ class BearerTokenAuthenticationProviderTest {
   void setUp() {
     DefaultTokenServices defaultTokenServices =
         new DefaultTokenServices(
+            new SecurityProperties(),
             new InMemoryTokenStore(),
             new DefaultClientDetailsService(),
             new ThreadPoolTaskExecutor());

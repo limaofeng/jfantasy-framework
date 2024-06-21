@@ -49,7 +49,7 @@ public class FastClasses<T> implements IClass<T> {
           name.append("()");
         }
         try {
-          method.setAccessible(true);
+          method.trySetAccessible();
           this.methodProxies.put(name.toString(), new MethodProxy(method, parameters));
         } catch (Exception e) {
           log.error(e.getMessage(), e);
@@ -88,10 +88,10 @@ public class FastClasses<T> implements IClass<T> {
     List<Field> result = new ArrayList<>();
     for (Field field : fields) {
       if (!Modifier.isStatic(field.getModifiers())) {
-        field.setAccessible(true);
+        field.trySetAccessible();
         result.add(field);
       } else {
-        field.setAccessible(true);
+        field.trySetAccessible();
         staticFields.put(field.getName(), field);
       }
     }
