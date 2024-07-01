@@ -1,9 +1,0 @@
-{
-  "properties": [
-    {
-      "name": "graphql.gateway.config",
-      "type": "java.lang.String",
-      "description": "GraphQL Gateway 配置文件位置"
-    }
-  ]
-}

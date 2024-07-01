@@ -609,7 +609,6 @@ public class GraphQLUtils {
     // 构建新的GraphQL模式
     SchemaGenerator schemaGenerator = new SchemaGenerator();
     runtimeWiringBuilder.codeRegistry(codeRegistryBuilder.build());
-
     RuntimeWiring runtimeWiring = runtimeWiringBuilder.build();
 
     ClassUtil.setFieldValue(
@@ -674,7 +673,9 @@ public class GraphQLUtils {
         ObjectTypeExtensionDefinition.newObjectTypeExtensionDefinition();
     extensionBuilder.name(objectTypeDefinition.getName());
     // 复制字段
-    objectTypeDefinition.getFieldDefinitions().forEach(extensionBuilder::fieldDefinition);
+    for (FieldDefinition fieldDefinition : objectTypeDefinition.getFieldDefinitions()) {
+      extensionBuilder.fieldDefinition(fieldDefinition);
+    }
     // 复制指令（如果有）
     objectTypeDefinition.getDirectives().forEach(extensionBuilder::directive);
     return extensionBuilder.build();

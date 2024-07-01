@@ -18,6 +18,7 @@ import net.asany.jfantasy.framework.security.authorization.policy.context.Reques
 import net.asany.jfantasy.framework.security.core.SecurityMessageSource;
 import net.asany.jfantasy.framework.security.core.userdetails.*;
 import net.asany.jfantasy.framework.security.crypto.password.PasswordEncoder;
+import net.asany.jfantasy.framework.security.crypto.password.PlaintextPasswordEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -50,6 +51,12 @@ public class SecurityAutoConfiguration {
   public AuthenticationEventPublisher authenticationEventPublisher(
       ApplicationEventPublisher applicationEventPublisher) {
     return new DefaultAuthenticationEventPublisher(applicationEventPublisher);
+  }
+
+  @Bean
+  @ConditionalOnMissingBean({PasswordEncoder.class})
+  public PasswordEncoder passwordEncoder() {
+    return new PlaintextPasswordEncoder();
   }
 
   @Bean

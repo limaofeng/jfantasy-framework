@@ -14,10 +14,10 @@ public class PermissionStatement {
   private List<String> action;
   private List<PermissionResource> resource;
   private List<PolicyCondition> conditions;
-  private PolicyEffect effect;
+  private PolicyEffect effect = PolicyEffect.ALLOW;
 
   // 缓存通配符和它们对应正则表达式
-  private Map<String, Pattern> regexCache = new ConcurrentHashMap<>();
+  private static Map<String, Pattern> REGEX_CACHE = new ConcurrentHashMap<>();
 
   public boolean appliesToResource(String resourceString) {
     for (PermissionResource res : resource) {
@@ -72,7 +72,7 @@ public class PermissionStatement {
   }
 
   private boolean actionMatchesPattern(String action, String pattern) {
-    Pattern regex = regexCache.computeIfAbsent(pattern, this::convertWildcardToRegex);
+    Pattern regex = REGEX_CACHE.computeIfAbsent(pattern, this::convertWildcardToRegex);
     return RegexpUtil.isMatch(action, regex);
   }
 
@@ -83,7 +83,23 @@ public class PermissionStatement {
     return conditions.stream().allMatch(condition -> condition.isSatisfied(context));
   }
 
-  public boolean matches(String resource, String action) {
-    return this.appliesToResource(resource) && this.appliesToAction(action);
+  public boolean matches(String resource, String action, RequestContext context) {
+    return this.appliesToResource(resource)
+        && this.appliesToAction(action)
+        && this.isSatisfiedBy(context);
+  }
+
+  @Override
+  public String toString() {
+    return "PermissionStatement{"
+        + "action="
+        + action
+        + ", resource="
+        + resource
+        + ", conditions="
+        + conditions
+        + ", effect="
+        + effect
+        + '}';
   }
 }

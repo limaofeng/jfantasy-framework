@@ -1,7 +1,6 @@
 package net.asany.jfantasy.framework.security.authorization;
 
 import java.util.List;
-import lombok.Builder;
 import net.asany.jfantasy.framework.security.authentication.Authentication;
 import net.asany.jfantasy.framework.security.authorization.policy.PermissionPolicy;
 import net.asany.jfantasy.framework.security.authorization.policy.PermissionPolicyManager;
@@ -9,12 +8,18 @@ import net.asany.jfantasy.framework.security.authorization.policy.context.Reques
 import net.asany.jfantasy.framework.security.authorization.policy.context.RequestContextFactory;
 import net.asany.jfantasy.framework.security.core.userdetails.UserDetails;
 
-@Builder
 public class DefaultAuthorizationService implements AuthorizationService {
 
-  private PermissionPolicyManager permissionPolicyManager;
+  protected final PermissionPolicyManager permissionPolicyManager;
 
-  private RequestContextFactory requestContextFactory;
+  protected final RequestContextFactory requestContextFactory;
+
+  public DefaultAuthorizationService(
+      PermissionPolicyManager permissionPolicyManager,
+      RequestContextFactory requestContextFactory) {
+    this.permissionPolicyManager = permissionPolicyManager;
+    this.requestContextFactory = requestContextFactory;
+  }
 
   @Override
   public boolean hasPermission(String resource, String operation, Authentication authentication) {
@@ -22,7 +27,7 @@ public class DefaultAuthorizationService implements AuthorizationService {
       return false;
     }
 
-    Object principal = authentication.getPrincipal();
+    Object principal = authentication.getCredentials();
 
     RequestContext requestContext = requestContextFactory.create(authentication);
 

@@ -1,8 +1,6 @@
 package net.asany.jfantasy.graphql.gateway;
 
 import graphql.schema.GraphQLSchema;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -22,6 +20,7 @@ import net.asany.jfantasy.graphql.gateway.type.DefaultScalarTypeProvider;
 import net.asany.jfantasy.graphql.gateway.type.ScalarTypeProviderFactory;
 import net.asany.jfantasy.graphql.gateway.type.ScalarTypeResolver;
 import net.asany.jfantasy.graphql.gateway.util.GraphQLUtils;
+import org.springframework.core.io.Resource;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.introspector.PropertyUtils;
@@ -85,7 +84,7 @@ public class GraphQLGateway {
     private GraphQLClientFactory clientFactory = GraphQLClientFactory.DEFAULT;
     private GraphQLSchema localSchema;
     private ScalarTypeResolver scalarResolver;
-    private String config;
+    private Resource configLocation;
 
     private final SchemaOverride.Builder schemaOverrideBuilder = SchemaOverride.builder();
 
@@ -110,8 +109,8 @@ public class GraphQLGateway {
       return this;
     }
 
-    public Builder config(String yamlPath) throws IOException {
-      this.config = yamlPath;
+    public Builder configLocation(Resource configLocation) {
+      this.configLocation = configLocation;
       return this;
     }
 
@@ -130,22 +129,8 @@ public class GraphQLGateway {
       return this;
     }
 
-    public InputStream getConfigStream() throws FileNotFoundException {
-      InputStream inputStream;
-      if (this.config.startsWith("classpath:")) { // 从类路径加载资源
-        String resourcePath = this.config.substring(10); // 移除 "classpath:" 前缀
-        inputStream = getClass().getClassLoader().getResourceAsStream(resourcePath);
-        if (inputStream == null) {
-          throw new FileNotFoundException("Resource " + resourcePath + " not found in classpath");
-        }
-      } else { // 从文件系统加载资源
-        try {
-          inputStream = new FileInputStream(this.config);
-        } catch (FileNotFoundException e) {
-          throw new FileNotFoundException(this.config + " file not found in file system");
-        }
-      }
-      return inputStream;
+    public InputStream getConfigStream() throws IOException {
+      return configLocation.getInputStream();
     }
 
     @SneakyThrows

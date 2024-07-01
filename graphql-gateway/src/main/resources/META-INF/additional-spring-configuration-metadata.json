@@ -1,0 +1,24 @@
+{
+  "groups": [
+    {
+      "name": "graphql.gateway",
+      "description": "GraphQL 网关配置.",
+      "type": "net.asany.jfantasy.autoconfigure.properties.GatewayProperties",
+      "sourceType": "net.asany.jfantasy.autoconfigure.properties.GatewayProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "enabled",
+      "type": "java.lang.Boolean",
+      "description": "启动重建索引.",
+      "sourceType": "net.asany.jfantasy.autoconfigure.properties.GatewayProperties"
+    },
+    {
+      "name": "config-location",
+      "type": "java.lang.Boolean",
+      "description": "启用与禁用.",
+      "sourceType": "net.asany.jfantasy.autoconfigure.properties.GatewayProperties"
+    }
+  ]
+}

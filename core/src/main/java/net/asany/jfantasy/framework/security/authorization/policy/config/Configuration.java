@@ -21,6 +21,8 @@ public class Configuration {
 
   private List<ConfigRole> roles;
 
+  private List<ConfigResource> resources;
+
   @SneakyThrows
   public static Configuration load(String path) {
     InputStream inputStream;
@@ -44,7 +46,7 @@ public class Configuration {
   }
 
   public List<PermissionPolicy> getPolicyForRole(String role) {
-    return this.policies;
+    return this.policies.stream().filter(p -> p.appliesToSubject("role:" + role)).toList();
   }
 
   public Optional<PermissionPolicy> getPolicyById(String id) {

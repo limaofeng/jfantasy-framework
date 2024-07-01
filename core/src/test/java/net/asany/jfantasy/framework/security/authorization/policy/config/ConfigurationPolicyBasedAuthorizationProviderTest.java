@@ -42,9 +42,10 @@ class ConfigurationPolicyBasedAuthorizationProviderTest {
     SimpleAuthenticationToken<?> authentication =
         new SimpleAuthenticationToken<>(LoginUser.builder().name("xxx").build(), "password");
     authentication.setDetails(new WebAuthenticationDetails(new MockHttpServletRequest()));
-    authentication.setAuthorities(AuthorityUtils.createAuthorityList("ROLE_admin"));
-    boolean isAuthorized = authorizationProvider.authorize("/users/1", "read", authentication);
+    authentication.setAuthorities(AuthorityUtils.createAuthorityList("ROLE_user"));
     log.info("isAuthenticated: {}", authentication.isAuthenticated());
-    log.info("isAuthorized: {}", isAuthorized);
+    log.info(
+        "path /users/1, delete, isAuthorized: {}",
+        authorizationProvider.authorize("/users/1", "delete", authentication));
   }
 }

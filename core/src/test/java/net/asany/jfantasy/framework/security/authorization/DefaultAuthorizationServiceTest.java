@@ -32,10 +32,7 @@ class DefaultAuthorizationServiceTest {
         new ConfigurationPermissionPolicyManager(configuration);
 
     authorizationService =
-        DefaultAuthorizationService.builder()
-            .permissionPolicyManager(permissionPolicyManager)
-            .requestContextFactory(requestContextFactory)
-            .build();
+        new DefaultAuthorizationService(permissionPolicyManager, requestContextFactory);
   }
 
   @AfterEach

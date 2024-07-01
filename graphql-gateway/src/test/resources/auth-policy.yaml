@@ -1,13 +1,3 @@
-resources:
-  - id: "userService:/users"
-    type: "User"
-    description: "Product service"
-    actions:
-      - id: "GetMailUser"
-        type: "read"
-        operations:
-          - "Query.listUsers"
-
 public-paths:
   - "/public/**"
   - "/home"
@@ -19,7 +9,7 @@ default:
 policies:
   - id: "policy-1"
     description: "Admin access to all services"
-    subjects: ["admin"]
+    subjects: ["role:admin"]
     statements:
       - action: [ "read", "write" ]
         resource: ["arn:*:*:/users/*"]
@@ -34,11 +24,28 @@ policies:
 
   - id: "policy-2"
     description: "Read-only access to user data"
-    subjects: ["user"]
+    subjects: ["role:user"]
     statements:
       - action: [ "read" ]
         resource: ["arn:*:*:/users/*"]
         effect: "allow"
+      - action: [ "delete" ]
+        resource: ["arn:*:*:/users/*"]
+        effect: "deny"
+
+resources:
+  - id: "userService:/users"
+    type: "User"
+    description: "Product service"
+    actions:
+      - id: "ListUsers"
+        type: "read"
+        operations:
+          - "Query.listUsers"
+      - id: "CreateUser"
+        type: "write"
+        operations:
+          - "Mutation.createUser"
 
 roles:
   - id: "admin"

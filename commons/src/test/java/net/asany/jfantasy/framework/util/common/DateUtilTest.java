@@ -6,56 +6,55 @@ import java.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.util.Assert;
 
 @Slf4j
 public class DateUtilTest {
 
   @BeforeEach
-  public void setUp() throws Exception {
-    log.debug("TimeZone : " + TimeZone.getDefault().getID());
+  public void setUp() {
+    log.debug("TimeZone : {} ", TimeZone.getDefault().getID());
   }
 
   @Test
-  public void formatRfc822Date() throws Exception {}
+  public void formatRfc822Date() {}
 
   @Test
-  public void format() throws Exception {
+  public void format() {
     log.info(new Date().toInstant().toString());
   }
 
   @Test
-  public void format1() throws Exception {}
+  public void format1() {}
 
   @Test
-  public void format2() throws Exception {}
+  public void format2() {}
 
   @Test
-  public void format3() throws Exception {}
+  public void format3() {}
 
   @Test
-  public void format5() throws Exception {}
+  public void format5() {}
 
   @Test
-  public void format6() throws Exception {}
+  public void format6() {}
 
   @Test
-  public void toDay() throws Exception {}
+  public void toDay() {}
 
   @Test
-  public void isSameDay() throws Exception {}
+  public void isSameDay() {}
 
   @Test
-  public void parse() throws Exception {
+  public void parse() {
     String str = "2016-09-23 17:02:02";
     Date date = DateUtil.parse(str, "yyyy-MM-dd HH:mm:ss");
     String strNew = DateUtil.format(date, "yyyy-MM-dd HH:mm:ss");
     log.debug(strNew);
-    Assert.isTrue(str == strNew);
+    assertEquals(str, strNew);
   }
 
   @Test
-  public void dayInterval() throws Exception {
+  public void dayInterval() {
     Date day = DateUtil.now();
     long num = DateUtil.dayInterval(day, day);
     assertEquals(num, 0);
@@ -63,85 +62,85 @@ public class DateUtilTest {
   }
 
   @Test
-  public void isWorkDay() throws Exception {}
+  public void isWorkDay() {}
 
   @Test
-  public void roundTo() throws Exception {}
+  public void roundTo() {}
 
   @Test
-  public void nextDay() throws Exception {}
+  public void nextDay() {}
 
   @Test
-  public void nextThreeDate() throws Exception {}
+  public void nextThreeDate() {}
 
   @Test
-  public void nextHour() throws Exception {}
+  public void nextHour() {}
 
   @Test
-  public void add() throws Exception {}
+  public void add() {}
 
   @Test
-  public void set() throws Exception {}
+  public void set() {}
 
   @Test
-  public void getActualMaximumTime() throws Exception {}
+  public void getActualMaximumTime() {}
 
   @Test
-  public void getActualMinimumTime() throws Exception {}
+  public void getActualMinimumTime() {}
 
   @Test
-  public void interval() throws Exception {}
+  public void interval() {}
 
   @Test
-  public void intervalFormat() throws Exception {}
+  public void intervalFormat() {}
 
   @Test
-  public void intervalFormat1() throws Exception {}
+  public void intervalFormat1() {}
 
   @Test
-  public void interval1() throws Exception {}
+  public void interval1() {}
 
   @Test
-  public void compare() throws Exception {}
+  public void compare() {}
 
   @Test
-  public void addDay() throws Exception {}
+  public void addDay() {}
 
   @Test
-  public void first() throws Exception {}
+  public void first() {}
 
   @Test
-  public void last() throws Exception {}
+  public void last() {}
 
   @Test
-  public void next() throws Exception {}
+  public void next() {}
 
   @Test
-  public void prev() throws Exception {}
+  public void prev() {}
 
   @Test
-  public void getLastDayOfWeek() throws Exception {}
+  public void getLastDayOfWeek() {}
 
   @Test
-  public void getTimeField() throws Exception {}
+  public void getTimeField() {}
 
   @Test
-  public void getWeekOfYear() throws Exception {}
+  public void getWeekOfYear() {}
 
   @Test
-  public void setTimeField() throws Exception {}
+  public void setTimeField() {}
 
   @Test
-  public void min() throws Exception {}
+  public void min() {}
 
   @Test
-  public void max() throws Exception {}
+  public void max() {}
 
   @Test
-  public void now() throws Exception {}
+  public void now() {}
 
   @Test
-  public void betweenDates() throws Exception {
+  public void betweenDates() {
     Date starts = DateUtil.parse("2022-01-03", "yyyy-MM-dd");
     Date ends = DateUtil.parse("2022-01-05", "yyyy-MM-dd");
 
@@ -153,7 +152,7 @@ public class DateUtilTest {
   }
 
   @Test
-  public void diff() throws Exception {
+  public void diff() {
     Date starts = DateUtil.parse("2022-01-03", "yyyy-MM-dd");
     Date ends = DateUtil.parse("2022-01-05", "yyyy-MM-dd");
     int number = DateUtil.diff(starts, ends, Calendar.DATE);
@@ -161,10 +160,10 @@ public class DateUtilTest {
   }
 
   @Test
-  public void fieldValue() throws Exception {}
+  public void fieldValue() {}
 
   @Test
-  public void truncatedCompareTo() throws Exception {
+  public void truncatedCompareTo() {
     log.debug(
         ""
             + DateUtil.truncatedCompareTo(
@@ -178,7 +177,7 @@ public class DateUtilTest {
   }
 
   @Test
-  public void testFormat() throws Exception {
+  public void testFormat() {
     log.debug(" 当前日期 :" + DateUtil.format("yyyy-MM-dd"));
 
     log.debug(" 上下午 :" + DateUtil.format("a") + "/" + DateUtil.format("a", Locale.US));

@@ -26,4 +26,12 @@ public interface PermissionPolicyManager {
    * @return 权限策略
    */
   List<PermissionPolicy> getPoliciesForUser(String userId);
+
+  /**
+   * 加载权限策略
+   *
+   * @param credentials 凭证
+   * @return 权限策略
+   */
+  List<PermissionPolicy> loadPolicies(Object credentials);
 }

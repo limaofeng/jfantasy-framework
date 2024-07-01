@@ -37,22 +37,23 @@ public class ConfigurationPolicyBasedAuthorizationProvider
 
     RequestContext requestContext = requestContextFactory.create(authentication);
 
-    boolean ruleMatched = false;
-
-    for (GrantedAuthority authority : authorities) {
-      List<PermissionPolicy> policies = getPoliciesForAuthority(authority);
-      for (PermissionPolicy policy : policies) {
-        if (policy.appliesToResource(resource)) {
-          ruleMatched = true;
-          if (policy.hasPermission(resource, action, requestContext)) {
-            return true;
-          }
-        }
-      }
-    }
+    boolean isAuthorized =
+        authorities.stream()
+            .anyMatch(
+                authority -> {
+                  List<PermissionPolicy> policies = getPoliciesForAuthority(authority);
+                  return policies.stream()
+                      .anyMatch(policy -> policy.hasPermission(resource, action, requestContext));
+                });
 
     // 只有在没有匹配的规则时，才考虑默认策略
-    return !ruleMatched && configuration.getDefaultPolicy().getEffect() == PolicyEffect.ALLOW;
+    if (requestContext.getMatchedRules().isEmpty()) {
+      log.warn("No rules matched for resource: {}, action: {}", resource, action);
+      return configuration.getDefaultPolicy().getEffect().isAllow();
+    }
+
+    log.info("Matched rules: {}", requestContext.getMatchedRules());
+    return isAuthorized;
   }
 
   private List<PermissionPolicy> getPoliciesForAuthority(GrantedAuthority authority) {

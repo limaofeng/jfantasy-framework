@@ -7,9 +7,7 @@ import net.asany.jfantasy.framework.security.auth.core.token.AuthorizationServer
 import net.asany.jfantasy.framework.security.auth.utils.AuthTokenUtils;
 import net.asany.jfantasy.framework.security.authentication.ApiKeyPrincipal;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
 
-@Component
 public class InitTask implements CommandLineRunner {
 
   private final TokenServiceFactory tokenServiceFactory;

@@ -4,6 +4,7 @@ import jakarta.persistence.Id;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import lombok.Getter;
 import net.asany.jfantasy.framework.search.annotations.IndexRefBy;
 import net.asany.jfantasy.framework.search.cache.PropertysCache;
 import net.asany.jfantasy.framework.util.reflect.Property;
@@ -12,11 +13,11 @@ import org.springframework.core.task.TaskExecutor;
 public class EntityChangedListener {
   private final Class<?> clazz;
   private boolean onlyIdRefBy;
-  private RefEntityChangedListener refListener;
+  @Getter private RefEntityChangedListener refListener;
 
   private final TaskExecutor executor;
 
-  public EntityChangedListener(Class clazz, TaskExecutor executor) {
+  public EntityChangedListener(Class<?> clazz, TaskExecutor executor) {
     this.clazz = clazz;
     this.executor = executor;
     Set<Class<?>> refBySet = new HashSet<>();
@@ -79,9 +80,5 @@ public class EntityChangedListener {
 
   private void processRefBy(String id) {
     this.refListener.entityChange(this.clazz, id);
-  }
-
-  public RefEntityChangedListener getRefListener() {
-    return this.refListener;
   }
 }

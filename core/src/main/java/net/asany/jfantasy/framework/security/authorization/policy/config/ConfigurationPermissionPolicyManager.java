@@ -22,4 +22,9 @@ public class ConfigurationPermissionPolicyManager implements PermissionPolicyMan
   public List<PermissionPolicy> getPoliciesForUser(String userId) {
     return null;
   }
+
+  @Override
+  public List<PermissionPolicy> loadPolicies(Object credentials) {
+    return List.of();
+  }
 }

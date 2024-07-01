@@ -47,3 +47,47 @@ cuckoo:
       ssl:
         certificate-path: /Users/limaofeng/Downloads/ca/ca.crt
   enable: false
+
+graphql:
+  gateway:
+    config-location: classpath:graphql-gateway.yaml
+    security:
+      authentication:
+        enabled: false
+        providers:
+          - name: "api-key"
+            type: "api-key"
+            header: "X-API-KEY"
+          - name: "oidc"
+            type: "oidc"
+            issuer-uri: "https://cognito-idp.ap-northeast-1.amazonaws.com/ap-northeast-1_1a2b3c4d5e6f7g8h"
+            client-id: "client-id"
+            client-secret: "client-secret"
+          - name: "user-pools"
+            type: "user-pools"
+            user-pool-id: "ap-northeast-1_1a2b3c4d5e6f7g8h"
+            app-client-id: "client-id"
+            app-client-secret: "client-secret"
+      authorization:
+        enabled: false
+        default-policy-effect: "deny"
+        public-paths:
+          - "/public/**"
+          - "/home"
+          - "/about-us"
+        policies-location: classpath:auth-policy.yaml
+        roles:
+          - id: "admin"
+            description: "Admin role"
+            permissions:
+              - "policy-1"
+              - "policy-2"
+              - "policy-3"
+          - id: "user"
+            description: "User role"
+            permissions:
+              - "policy-2"
+          - id: "product-manager"
+            description: "Product manager role"
+            permissions:
+              - "policy-3"

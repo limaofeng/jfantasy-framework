@@ -19,4 +19,8 @@ public enum PolicyEffect {
     }
     throw new IllegalArgumentException("No constant with text " + text + " found");
   }
+
+  public boolean isAllow() {
+    return this == ALLOW;
+  }
 }

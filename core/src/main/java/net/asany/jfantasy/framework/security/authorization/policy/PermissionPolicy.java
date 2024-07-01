@@ -1,6 +1,8 @@
 package net.asany.jfantasy.framework.security.authorization.policy;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import lombok.Data;
 import net.asany.jfantasy.framework.security.authorization.policy.context.RequestContext;
 
@@ -12,8 +14,12 @@ public class PermissionPolicy {
 
   public boolean hasPermission(String resource, String action, RequestContext context) {
     return this.statements.stream()
-        .filter(statement -> statement.matches(resource, action))
-        .anyMatch(statement -> statement.isSatisfiedBy(context));
+        .filter(statement -> statement.matches(resource, action, context))
+        .anyMatch(
+            statement -> {
+              context.addMatchedRule(action + ":" + resource, statement.getEffect().isAllow());
+              return statement.getEffect().isAllow();
+            });
   }
 
   public boolean appliesToSubject(String subject) {
@@ -25,17 +31,15 @@ public class PermissionPolicy {
     return false;
   }
 
-  public boolean appliesToResource(String resource) {
-    return this.statements.stream().anyMatch(statement -> statement.appliesToResource(resource));
+  public boolean matches(String resource, String action, RequestContext context) {
+    return this.statements.stream()
+        .anyMatch(statement -> statement.matches(resource, action, context));
   }
 
-  private boolean subjectMatchesPattern(String subject, String pattern) {
-    if (pattern.equals("user:*")) {
-      return subject.startsWith("user:");
-    } else if (pattern.equals("role:*")) {
-      return subject.startsWith("role:");
-    }
-    // 可以添加更多模式匹配逻辑
-    return false;
+  public static boolean subjectMatchesPattern(String subject, String pattern) {
+    String regex = Pattern.quote(pattern).replace("*", "\\E.*\\Q");
+    Pattern p = Pattern.compile(regex);
+    Matcher m = p.matcher(subject);
+    return m.matches();
   }
 }
