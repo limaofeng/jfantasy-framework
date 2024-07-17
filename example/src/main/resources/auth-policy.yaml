@@ -34,6 +34,18 @@ policies:
         effect: "deny"
 
 resources:
+  - id: "DemoUser"
+    service: "ram"
+    description: "Demo user resource"
+    actions:
+      - id: "ListDemoUsers"
+        description: "List demo users"
+        type: "list"
+        operations:
+          - "Query.demoUsers"
+        arn:
+          - "demo-users/*"
+          - "demo-users/{#userId}"
   - id: "User"
     service: "ram"
     description: "User resource"

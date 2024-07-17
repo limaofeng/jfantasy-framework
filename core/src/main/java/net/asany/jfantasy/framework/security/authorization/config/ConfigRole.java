@@ -1,4 +1,4 @@
-package net.asany.jfantasy.framework.security.authorization.policy.config;
+package net.asany.jfantasy.framework.security.authorization.config;
 
 import java.util.List;
 import lombok.Data;

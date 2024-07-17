@@ -1,13 +1,15 @@
-package net.asany.jfantasy.framework.security.authorization.policy.config;
+package net.asany.jfantasy.framework.security.authorization.config;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import net.asany.jfantasy.framework.security.authentication.Authentication;
 import net.asany.jfantasy.framework.security.authorization.PolicyBasedAuthorizationProvider;
 import net.asany.jfantasy.framework.security.authorization.policy.PermissionPolicy;
 import net.asany.jfantasy.framework.security.authorization.policy.PolicyEffect;
+import net.asany.jfantasy.framework.security.authorization.policy.ResourceAction;
 import net.asany.jfantasy.framework.security.authorization.policy.context.RequestContext;
 import net.asany.jfantasy.framework.security.authorization.policy.context.RequestContextFactory;
 import net.asany.jfantasy.framework.security.core.GrantedAuthority;
@@ -18,42 +20,63 @@ import net.asany.jfantasy.framework.security.core.authority.RoleAuthority;
 public class ConfigurationPolicyBasedAuthorizationProvider
     implements PolicyBasedAuthorizationProvider {
 
-  private final Configuration configuration;
+  private final AuthorizationConfiguration configuration;
   private final RequestContextFactory requestContextFactory;
 
   public ConfigurationPolicyBasedAuthorizationProvider(
-      RequestContextFactory requestContextFactory, Configuration configuration) {
+      RequestContextFactory requestContextFactory, AuthorizationConfiguration configuration) {
     this.configuration = configuration;
     this.requestContextFactory = requestContextFactory;
   }
 
   @Override
-  public boolean authorize(String resource, String action, Authentication authentication) {
+  public boolean authorize(Set<String> resources, String action, Authentication authentication) {
     if (!authentication.isAuthenticated()) {
       return configuration.getDefaultPolicy().getEffect() == PolicyEffect.ALLOW;
     }
 
-    Collection<GrantedAuthority> authorities = authentication.getAuthorities();
-
     RequestContext requestContext = requestContextFactory.create(authentication);
 
-    boolean isAuthorized =
-        authorities.stream()
-            .anyMatch(
-                authority -> {
-                  List<PermissionPolicy> policies = getPoliciesForAuthority(authority);
-                  return policies.stream()
-                      .anyMatch(policy -> policy.hasPermission(resource, action, requestContext));
-                });
+    Collection<GrantedAuthority> authorities = authentication.getAuthorities();
+
+    boolean isAuthorized = hasPermission(resources, action, requestContext, authorities);
 
     // 只有在没有匹配的规则时，才考虑默认策略
     if (requestContext.getMatchedRules().isEmpty()) {
-      log.warn("No rules matched for resource: {}, action: {}", resource, action);
+      log.warn("No rules matched for resource: {}, action: {}", resources, action);
       return configuration.getDefaultPolicy().getEffect().isAllow();
     }
 
     log.info("Matched rules: {}", requestContext.getMatchedRules());
     return isAuthorized;
+  }
+
+  @Override
+  public ResourceAction getResourceActionForOperation(String operation) {
+    return configuration.getResourceActionForOperation(operation);
+  }
+
+  private boolean hasPermission(
+      Set<String> resources,
+      String action,
+      RequestContext requestContext,
+      Collection<GrantedAuthority> authorities) {
+    // 逐个检查权限
+    for (GrantedAuthority authority : authorities) {
+      // 获取权限策略
+      List<PermissionPolicy> policies = getPoliciesForAuthority(authority);
+      // 逐个检查权限策略
+      for (PermissionPolicy policy : policies) {
+        // 逐个检查资源
+        for (String resource : resources) {
+          // 如果有访问权限，返回true
+          if (policy.hasPermission(resource, action, requestContext)) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
   }
 
   private List<PermissionPolicy> getPoliciesForAuthority(GrantedAuthority authority) {

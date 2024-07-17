@@ -1,19 +1,17 @@
-package net.asany.jfantasy.framework.security.authorization.policy.config;
+package net.asany.jfantasy.framework.security.authorization.config;
 
-import java.io.File;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import lombok.Data;
 import lombok.SneakyThrows;
 import net.asany.jfantasy.framework.security.authorization.policy.PermissionPolicy;
+import net.asany.jfantasy.framework.security.authorization.policy.ResourceAction;
+import org.springframework.core.io.Resource;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.introspector.PropertyUtils;
 
 @Data
-public class Configuration {
+public class AuthorizationConfiguration {
 
   private DefaultPolicy defaultPolicy;
 
@@ -24,21 +22,15 @@ public class Configuration {
   private List<ConfigResource> resources;
 
   @SneakyThrows
-  public static Configuration load(String path) {
-    InputStream inputStream;
-    if (path.startsWith("classpath:")) {
-      path = path.substring("classpath:".length());
-      inputStream = ClassLoader.getSystemResourceAsStream(path);
-    } else {
-      inputStream = Files.newInputStream(new File(path).toPath());
-    }
+  public static AuthorizationConfiguration load(Resource resource) {
     Constructor constructor = new PolicyConstructor();
     PropertyUtils propertyUtils = new PolicyPropertyUtils();
     propertyUtils.setSkipMissingProperties(true);
     constructor.setPropertyUtils(propertyUtils);
+
     Yaml yaml = new Yaml(constructor);
     //noinspection VulnerableCodeUsages
-    return yaml.load(inputStream);
+    return yaml.load(resource.getInputStream());
   }
 
   public List<PermissionPolicy> getPoliciesForUser(String username) {
@@ -51,5 +43,31 @@ public class Configuration {
 
   public Optional<PermissionPolicy> getPolicyById(String id) {
     return this.policies.stream().filter(p -> p.getId().equals(id)).findFirst();
+  }
+
+  private Map<String, ResourceAction> actionMap = new HashMap<>();
+
+  private ResourceAction EMPTY_ACTION =
+      ConfigResource.ConfigResourceAction.builder()
+          .id("none")
+          .arn(new HashSet<>(List.of("*")))
+          .build();
+
+  public ResourceAction getResourceActionForOperation(String operation) {
+    if (actionMap.containsKey(operation)) {
+      return actionMap.get(operation);
+    }
+
+    for (ConfigResource resource : this.resources) {
+      for (ResourceAction action : resource.getActions()) {
+        if (action.getOperations().contains(operation)) {
+          actionMap.put(operation, action);
+          return action;
+        }
+      }
+    }
+
+    actionMap.put(operation, EMPTY_ACTION);
+    return EMPTY_ACTION;
   }
 }

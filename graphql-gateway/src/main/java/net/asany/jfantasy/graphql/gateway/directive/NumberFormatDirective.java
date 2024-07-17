@@ -29,7 +29,6 @@ public class NumberFormatDirective implements ClientDirectiveHandler {
       //      Number number = (Number) rawNumber;
       //      String formatString = (String)
       // environment.getDirective().getArgument("format").getArgumentValue().getValue();
-
       return rawNumber;
     };
   }

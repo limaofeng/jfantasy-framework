@@ -34,9 +34,10 @@ public class NumberFormatDirective implements SchemaDirectiveWiring {
   public GraphQLFieldDefinition onField(
       SchemaDirectiveWiringEnvironment<GraphQLFieldDefinition> environment) {
     GraphQLFieldDefinition field = environment.getElement();
-    GraphQLFieldsContainer parentType = environment.getFieldsContainer();
-    DataFetcher<?> originalDataFetcher =
-      environment.getCodeRegistry().getDataFetcher(parentType, field);
+//    GraphQLFieldsContainer parentType = environment.getFieldsContainer();
+//    environment.getCodeRegistry().getDataFetcher(parentType, field);
+
+    DataFetcher<?> originalDataFetcher = environment.getFieldDataFetcher();
 
     DataFetcher<?> dataFetcher =
         DataFetcherFactories.wrapDataFetcher(
@@ -49,7 +50,8 @@ public class NumberFormatDirective implements SchemaDirectiveWiring {
               return value;
             });
 
-    environment.getCodeRegistry().dataFetcher(parentType, field, dataFetcher);
+//    environment.getCodeRegistry().dataFetcher(parentType, field, dataFetcher);
+    environment.setFieldDataFetcher(dataFetcher);
     return field.transform(builder -> builder.argument(FORMAT_ARGUMENT));
   }
 }

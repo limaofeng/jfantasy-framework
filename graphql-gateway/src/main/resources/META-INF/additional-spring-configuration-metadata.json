@@ -5,6 +5,12 @@
       "description": "GraphQL 网关配置.",
       "type": "net.asany.jfantasy.autoconfigure.properties.GatewayProperties",
       "sourceType": "net.asany.jfantasy.autoconfigure.properties.GatewayProperties"
+    },
+    {
+      "name": "graphql.gateway.security.authorization",
+      "description": "GraphQL 网关授权配置.",
+      "type": "net.asany.jfantasy.autoconfigure.properties.SecurityAuthorizationProperties",
+      "sourceType": "net.asany.jfantasy.autoconfigure.properties.SecurityAuthorizationProperties"
     }
   ],
   "properties": [
@@ -16,9 +22,21 @@
     },
     {
       "name": "config-location",
+      "type": "java.lang.String",
+      "description": "配置文件位置.",
+      "sourceType": "net.asany.jfantasy.autoconfigure.properties.GatewayProperties"
+    },
+    {
+      "name": "security.authorization.enabled",
       "type": "java.lang.Boolean",
       "description": "启用与禁用.",
-      "sourceType": "net.asany.jfantasy.autoconfigure.properties.GatewayProperties"
+      "sourceType": "net.asany.jfantasy.autoconfigure.properties.SecurityAuthorizationProperties"
+    },
+    {
+      "name": "security.authorization.config-location",
+      "type": "java.lang.String",
+      "description": "配置文件位置.",
+      "sourceType": "net.asany.jfantasy.autoconfigure.properties.SecurityAuthorizationProperties"
     }
   ]
 }

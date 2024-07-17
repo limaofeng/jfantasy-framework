@@ -1,4 +1,4 @@
-package net.asany.jfantasy.framework.security.authorization.policy.config;
+package net.asany.jfantasy.framework.security.authorization.config;
 
 import java.util.List;
 import net.asany.jfantasy.framework.security.authorization.policy.PermissionPolicy;
@@ -6,9 +6,9 @@ import net.asany.jfantasy.framework.security.authorization.policy.PermissionPoli
 
 public class ConfigurationPermissionPolicyManager implements PermissionPolicyManager {
 
-  private final Configuration configuration;
+  private final AuthorizationConfiguration configuration;
 
-  public ConfigurationPermissionPolicyManager(Configuration configuration) {
+  public ConfigurationPermissionPolicyManager(AuthorizationConfiguration configuration) {
     this.configuration = configuration;
   }
 

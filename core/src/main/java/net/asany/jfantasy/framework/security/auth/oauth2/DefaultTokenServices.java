@@ -260,7 +260,7 @@ public class DefaultTokenServices
 
       return accessToken;
     } catch (Exception e) {
-      log.error(e.getMessage(), e);
+      log.warn("无效的 Token: {} Error: {}", tokenValue, e.getMessage());
       return null;
     }
   }

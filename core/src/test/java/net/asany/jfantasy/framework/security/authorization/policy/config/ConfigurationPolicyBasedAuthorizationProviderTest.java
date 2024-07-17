@@ -1,12 +1,12 @@
 package net.asany.jfantasy.framework.security.authorization.policy.config;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import net.asany.jfantasy.framework.security.LoginUser;
 import net.asany.jfantasy.framework.security.authentication.SimpleAuthenticationToken;
 import net.asany.jfantasy.framework.security.authorization.PolicyBasedAuthorizationProvider;
+import net.asany.jfantasy.framework.security.authorization.config.AuthorizationConfiguration;
+import net.asany.jfantasy.framework.security.authorization.config.ConfigurationPolicyBasedAuthorizationProvider;
 import net.asany.jfantasy.framework.security.authorization.policy.context.RequestContextFactory;
 import net.asany.jfantasy.framework.security.authorization.policy.context.WebRequestContextBuilder;
 import net.asany.jfantasy.framework.security.core.authority.AuthorityUtils;
@@ -14,6 +14,7 @@ import net.asany.jfantasy.framework.security.web.authentication.WebAuthenticatio
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 @Slf4j
@@ -26,9 +27,11 @@ class ConfigurationPolicyBasedAuthorizationProviderTest {
     RequestContextFactory requestContextFactory =
         new RequestContextFactory(List.of(new WebRequestContextBuilder()));
 
-    Configuration configuration =
-        Configuration.load(
+    FileSystemResource resource =
+        new FileSystemResource(
             "/Users/limaofeng/Workspace/framework/graphql-gateway/src/test/resources/auth-policy.yaml");
+
+    AuthorizationConfiguration configuration = AuthorizationConfiguration.load(resource);
 
     authorizationProvider =
         new ConfigurationPolicyBasedAuthorizationProvider(requestContextFactory, configuration);

@@ -123,7 +123,10 @@ public class SecurityGraphQLContextBuilder extends DefaultGraphQLContextBuilder
 
       context.setAuthentication(authenticationResult);
     } catch (AuthenticationException failed) {
-      log.error("Failed to process authentication request", failed);
+      log.warn(
+          "An error occurred while attempting to authenticate the user with token {} error: {}",
+          token,
+          failed.getMessage());
       context.setAuthentication(authenticationRequest);
     }
     return context;

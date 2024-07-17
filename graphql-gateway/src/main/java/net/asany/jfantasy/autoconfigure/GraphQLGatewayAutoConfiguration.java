@@ -5,11 +5,12 @@ import graphql.execution.instrumentation.Instrumentation;
 import graphql.kickstart.execution.GraphQLObjectMapper;
 import graphql.kickstart.servlet.config.GraphQLSchemaServletProvider;
 import graphql.kickstart.tools.SchemaParser;
-import java.io.IOException;
 import java.util.List;
 import net.asany.jfantasy.autoconfigure.properties.GatewayProperties;
-import net.asany.jfantasy.framework.security.authorization.AuthorizationService;
-import net.asany.jfantasy.framework.security.authorization.policy.config.ConfigurationPermissionPolicyManager;
+import net.asany.jfantasy.autoconfigure.properties.SecurityAuthorizationProperties;
+import net.asany.jfantasy.framework.security.authorization.PolicyBasedAuthorizationProvider;
+import net.asany.jfantasy.framework.security.authorization.config.AuthorizationConfiguration;
+import net.asany.jfantasy.framework.security.authorization.config.ConfigurationPolicyBasedAuthorizationProvider;
 import net.asany.jfantasy.framework.security.authorization.policy.context.RequestContextFactory;
 import net.asany.jfantasy.framework.security.authorization.policy.context.WebRequestContextBuilder;
 import net.asany.jfantasy.graphql.gateway.GraphQLClientFactory;
@@ -17,7 +18,6 @@ import net.asany.jfantasy.graphql.gateway.GraphQLGateway;
 import net.asany.jfantasy.graphql.gateway.GraphQLGatewayReloadSchemaProvider;
 import net.asany.jfantasy.graphql.gateway.error.GraphQLGatewayErrorHandler;
 import net.asany.jfantasy.graphql.gateway.execution.AuthInstrumentation;
-import net.asany.jfantasy.graphql.gateway.security.GraphQLAuthorizationService;
 import net.asany.jfantasy.graphql.gateway.service.DefaultGraphQLClientFactory;
 import net.asany.jfantasy.graphql.gateway.service.RemoteGraphQLService;
 import net.asany.jfantasy.graphql.gateway.type.ScalarTypeProvider;
@@ -34,7 +34,7 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.web.client.RestTemplate;
 
 @Configuration
-@EnableConfigurationProperties({GatewayProperties.class})
+@EnableConfigurationProperties({GatewayProperties.class, SecurityAuthorizationProperties.class})
 public class GraphQLGatewayAutoConfiguration {
 
   @Bean
@@ -59,8 +59,7 @@ public class GraphQLGatewayAutoConfiguration {
       SchemaParser schemaParser,
       GraphQLClientFactory templateFactory,
       ScalarTypeProviderFactory scalarFactory,
-      @Autowired GatewayProperties gatewayProperties)
-      throws IOException {
+      @Autowired GatewayProperties gatewayProperties) {
     return GraphQLGateway.builder()
         .schema(schemaParser.makeExecutableSchema())
         .clientFactory(templateFactory)
@@ -74,9 +73,24 @@ public class GraphQLGatewayAutoConfiguration {
     return new GraphQLGatewayReloadSchemaProvider(graphQLGateway);
   }
 
+  @Bean("authorizationConfiguration")
+  public AuthorizationConfiguration authorizationConfiguration(
+      SecurityAuthorizationProperties properties) {
+    return AuthorizationConfiguration.load(properties.getConfigLocation());
+  }
+
+  @Bean("policyBasedAuthorizationProvider")
+  public PolicyBasedAuthorizationProvider policyBasedAuthorizationProvider(
+      AuthorizationConfiguration configuration) {
+    RequestContextFactory requestContextFactory =
+        new RequestContextFactory(List.of(new WebRequestContextBuilder()));
+    return new ConfigurationPolicyBasedAuthorizationProvider(requestContextFactory, configuration);
+  }
+
   @Bean("authInstrumentation")
-  public Instrumentation authInstrumentation(AuthorizationService authorizationService) {
-    return new AuthInstrumentation(authorizationService);
+  public Instrumentation authInstrumentation(
+      PolicyBasedAuthorizationProvider policyBasedAuthorizationProvider) {
+    return new AuthInstrumentation(policyBasedAuthorizationProvider);
   }
 
   @Bean
@@ -106,19 +120,5 @@ public class GraphQLGatewayAutoConfiguration {
         }
       }
     };
-  }
-
-  @Bean
-  public AuthorizationService authorizationService() {
-    RequestContextFactory requestContextFactory =
-        new RequestContextFactory(List.of(new WebRequestContextBuilder()));
-
-    net.asany.jfantasy.framework.security.authorization.policy.config.Configuration configuration =
-        net.asany.jfantasy.framework.security.authorization.policy.config.Configuration.load(
-            "/Users/limaofeng/Workspace/framework/graphql-gateway/src/test/resources/auth-policy.yaml");
-
-    ConfigurationPermissionPolicyManager permissionPolicyManager =
-        new ConfigurationPermissionPolicyManager(configuration);
-    return new GraphQLAuthorizationService(permissionPolicyManager, requestContextFactory);
   }
 }
