@@ -306,7 +306,7 @@ public class DefaultTokenServices
 
       return accessToken;
     } catch (Exception e) {
-      log.error(e.getMessage(), e);
+      log.warn(e.getMessage(), e);
       return null;
     }
   }

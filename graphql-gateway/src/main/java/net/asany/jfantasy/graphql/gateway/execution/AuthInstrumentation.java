@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import net.asany.jfantasy.framework.security.AuthenticationException;
 import net.asany.jfantasy.framework.security.authentication.Authentication;
 import net.asany.jfantasy.framework.security.authorization.PolicyBasedAuthorizationProvider;
 import net.asany.jfantasy.framework.security.authorization.policy.ResourceAction;
@@ -61,7 +60,9 @@ public class AuthInstrumentation implements Instrumentation {
     }
 
     if (!policyBasedAuthorizationProvider.authorize(paths, action.getId(), authentication)) {
-      throw new AuthenticationException("Access denied for field: " + typeName + "." + fieldName);
+      throw new AuthenticationGraphQLException(
+          environment.getExecutionStepInfo().getPath(),
+          "Access denied for field: " + typeName + "." + fieldName);
     }
 
     return Instrumentation.super.beginFieldFetch(parameters, state);

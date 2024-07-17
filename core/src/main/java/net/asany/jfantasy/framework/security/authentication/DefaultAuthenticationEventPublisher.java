@@ -75,7 +75,7 @@ public class DefaultAuthenticationEventPublisher
       }
     } else {
       if (log.isDebugEnabled()) {
-        log.debug("No event was found for the exception " + exception.getClass().getName());
+        log.debug("No event was found for the exception {}", exception.getClass().getName());
       }
     }
   }
