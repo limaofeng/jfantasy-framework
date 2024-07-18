@@ -168,8 +168,7 @@ public class HttpRequestInvokerImpl implements HttpRequestInvoker {
     if (!response.isCommitted()) {
       ExecutionResult result = toErrorResult(cause);
       GraphQLQueryResult queryResult = GraphQLQueryResult.create(result);
-      writeResultResponse(
-          invocationInput, queryResult, request, response);
+      writeResultResponse(invocationInput, queryResult, request, response);
       listenerHandler.onError(cause);
     } else {
       log.warn(
