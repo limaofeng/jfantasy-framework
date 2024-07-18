@@ -19,7 +19,7 @@ public class InitTask implements CommandLineRunner {
   }
 
   @Override
-  public void run(String... args) throws Exception {
+  public void run(String... args) {
     // TODO Auto-generated method stub
     System.out.println("InitTask");
 
