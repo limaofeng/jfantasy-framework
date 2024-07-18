@@ -23,6 +23,9 @@ public class AuthorizationConfiguration {
 
   private List<ConfigResource> resources;
 
+  private static final List<String> ROOT_TYPES =
+      List.of(new String[] {"Query", "Mutation", "Subscription"});
+
   @SneakyThrows
   public static AuthorizationConfiguration load(Resource resource) {
     Constructor constructor = new PolicyConstructor();
@@ -49,10 +52,16 @@ public class AuthorizationConfiguration {
 
   private Map<String, ResourceAction> actionMap = new HashMap<>();
 
+  public static ResourceAction DEFAULT_ACTION =
+      ConfigResource.ConfigResourceAction.builder()
+          .id("__default_action__")
+          .arn(new HashSet<>(List.of("__default_action__")))
+          .build();
+
   public static ResourceAction SKIP_ACTION =
       ConfigResource.ConfigResourceAction.builder()
-          .id("none")
-          .arn(new HashSet<>(List.of("__skip__")))
+          .id("__skip_action__")
+          .arn(new HashSet<>(List.of("__skip_action__")))
           .build();
 
   public ResourceAction getResourceActionForOperation(String operation) {
@@ -69,7 +78,22 @@ public class AuthorizationConfiguration {
       }
     }
 
-    actionMap.put(operation, SKIP_ACTION);
-    return SKIP_ACTION;
+    if (ROOT_TYPES.stream().anyMatch(operation::startsWith)) {
+      actionMap.put(operation, DEFAULT_ACTION);
+    } else {
+      actionMap.put(operation, SKIP_ACTION);
+    }
+    return actionMap.get(operation);
+  }
+
+  public boolean appliesToPublicPaths(Set<String> paths) {
+    for (String path : paths) {
+      for (String publicPath : publicPaths) {
+        if (PermissionPolicy.subjectMatchesPattern(path, publicPath)) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 }

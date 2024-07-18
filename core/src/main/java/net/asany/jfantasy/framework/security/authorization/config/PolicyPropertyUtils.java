@@ -10,6 +10,9 @@ public class PolicyPropertyUtils extends PropertyUtils {
     if (type == AuthorizationConfiguration.class && "default".equals(name)) {
       name = "defaultPolicy";
     }
+    if (type == AuthorizationConfiguration.class && "public-paths".equals(name)) {
+      name = "publicPaths";
+    }
     if (type == PermissionStatement.class && "condition".equals(name)) {
       name = "conditions";
     }

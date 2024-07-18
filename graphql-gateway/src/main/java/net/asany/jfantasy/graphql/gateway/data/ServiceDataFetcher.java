@@ -68,7 +68,7 @@ public class ServiceDataFetcher implements DataFetcher<Object> {
     if (authenticationToken instanceof BearerTokenAuthentication bearerTokenAuthentication) {
       token = bearerTokenAuthentication.getToken().getTokenValue();
     } else {
-      log.error("未找到有效的认证信息:{}", authenticationToken);
+      log.warn("未找到有效的认证信息:{}", authenticationToken);
     }
 
     QueryPayload payload =

@@ -13,15 +13,12 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import net.asany.jfantasy.framework.security.authentication.Authentication;
 import net.asany.jfantasy.framework.security.authorization.PolicyBasedAuthorizationProvider;
-import net.asany.jfantasy.framework.security.authorization.config.AuthorizationConfiguration;
 import net.asany.jfantasy.framework.security.authorization.policy.ResourceAction;
 import org.jetbrains.annotations.Nullable;
 
 @Slf4j
 public class AuthInstrumentation implements Instrumentation {
 
-  private static final List<String> ROOT_TYPES =
-      List.of(new String[] {"Query", "Mutation", "Subscription"});
   private static final List<String> IGNORES =
       List.of(
           new String[] {
@@ -53,10 +50,6 @@ public class AuthInstrumentation implements Instrumentation {
 
     Map<String, Object> args = environment.getArguments();
     Set<String> paths = buildResourcePaths(action.getArn(), args);
-
-    if (!ROOT_TYPES.contains(typeName) || AuthorizationConfiguration.SKIP_ACTION == action) {
-      return Instrumentation.super.beginFieldFetch(parameters, state);
-    }
 
     if (!policyBasedAuthorizationProvider.authorize(paths, action.getId(), authentication)) {
       throw new AuthenticationGraphQLException(

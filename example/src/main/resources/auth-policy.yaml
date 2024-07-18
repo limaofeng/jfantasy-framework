@@ -1,16 +1,13 @@
 public-paths:
   - "/auth/login"
+  - "/application/*"
+  - "/oplog"
+  - "/tickets"
 
 default:
-  effect: "deny"
+  effect: "allow" #"deny"
 
 policies:
-#  - id: "auth-access"
-#    description: "Access to the auth service"
-#    statements:
-#      - action: ["write"]
-#        resource: ["auth/login"]
-#        effect: "allow"
   - id: "all-access"
     description: "Admin access to all services"
     subjects: ["role:admin", "role:user"]
@@ -30,7 +27,51 @@ resources:
         operations:
           - "Mutation.login"
         arn:
-          - "auth/login"
+          - "/auth/login"
+  - id: "Application"
+    service: "ram"
+    description: "Demo application resource"
+    actions:
+      - id: "GetApplication"
+        description: "Get application"
+        type: "read"
+        operations:
+          - "Query.application"
+        arn:
+          - "/application/{#id}"
+  - id: "Oplog"
+    service: "oplog"
+    description: "Demo oplog resource"
+    actions:
+      - id: "ListOplog"
+        description: "List oplog"
+        type: "list"
+        operations:
+          - "Query.oplogs"
+        arn:
+          - "/oplog"
+  - id: "Device"
+    service: "ams"
+    description: "Demo device resource"
+    actions:
+      - id: "GetDevice"
+        description: "Get device"
+        type: "read"
+        operations:
+          - "Query.device"
+        arn:
+          - "/device/{#id}"
+  - id: "Ticket"
+    service: "ams"
+    description: "Demo ticket resource"
+    actions:
+      - id: "ListTicket"
+        description: "List ticket"
+        type: "list"
+        operations:
+          - "Query.ticketsConnection"
+        arn:
+          - "/tickets"
   - id: "Other"
     service: "other"
     description: "偷懒的配置"

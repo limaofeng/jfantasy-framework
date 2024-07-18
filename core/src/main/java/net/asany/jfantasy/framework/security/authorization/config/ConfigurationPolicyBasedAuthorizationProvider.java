@@ -31,14 +31,27 @@ public class ConfigurationPolicyBasedAuthorizationProvider
 
   @Override
   public boolean authorize(Set<String> resources, String action, Authentication authentication) {
-    if (!authentication.isAuthenticated()) {
+    // 如果是公共资源，直接允许访问
+    if (configuration.appliesToPublicPaths(resources)) {
+      return true;
+    }
+
+    // 如果是跳过认证的资源，直接允许访问
+    if (AuthorizationConfiguration.SKIP_ACTION.getId().equals(action)) {
+      return true;
+    }
+
+    // 如果未认证，根据默认策略决定是否允许访问
+    if (!authentication.isAuthenticated()
+        || AuthorizationConfiguration.DEFAULT_ACTION.getId().equals(action)) {
       return configuration.getDefaultPolicy().getEffect() == PolicyEffect.ALLOW;
     }
 
+    // 创建请求上下文
     RequestContext requestContext = requestContextFactory.create(authentication);
-
     Collection<GrantedAuthority> authorities = authentication.getAuthorities();
 
+    // 检查权限
     boolean isAuthorized = hasPermission(resources, action, requestContext, authorities);
 
     // 只有在没有匹配的规则时，才考虑默认策略
