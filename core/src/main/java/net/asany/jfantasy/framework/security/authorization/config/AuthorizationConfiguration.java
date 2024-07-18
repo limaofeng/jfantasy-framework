@@ -13,6 +13,8 @@ import org.yaml.snakeyaml.introspector.PropertyUtils;
 @Data
 public class AuthorizationConfiguration {
 
+  private List<String> publicPaths;
+
   private DefaultPolicy defaultPolicy;
 
   private List<PermissionPolicy> policies;
@@ -47,10 +49,10 @@ public class AuthorizationConfiguration {
 
   private Map<String, ResourceAction> actionMap = new HashMap<>();
 
-  private ResourceAction EMPTY_ACTION =
+  public static ResourceAction SKIP_ACTION =
       ConfigResource.ConfigResourceAction.builder()
           .id("none")
-          .arn(new HashSet<>(List.of("*")))
+          .arn(new HashSet<>(List.of("__skip__")))
           .build();
 
   public ResourceAction getResourceActionForOperation(String operation) {
@@ -67,7 +69,7 @@ public class AuthorizationConfiguration {
       }
     }
 
-    actionMap.put(operation, EMPTY_ACTION);
-    return EMPTY_ACTION;
+    actionMap.put(operation, SKIP_ACTION);
+    return SKIP_ACTION;
   }
 }

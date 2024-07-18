@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import net.asany.jfantasy.framework.security.authentication.Authentication;
 import net.asany.jfantasy.framework.security.authorization.PolicyBasedAuthorizationProvider;
+import net.asany.jfantasy.framework.security.authorization.config.AuthorizationConfiguration;
 import net.asany.jfantasy.framework.security.authorization.policy.ResourceAction;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,8 +26,6 @@ public class AuthInstrumentation implements Instrumentation {
       List.of(
           new String[] {
             "Query.__schema",
-            //    "Query.demoUsers",
-            "Mutation.createDemoUser"
           });
   private final PolicyBasedAuthorizationProvider policyBasedAuthorizationProvider;
 
@@ -55,7 +54,7 @@ public class AuthInstrumentation implements Instrumentation {
     Map<String, Object> args = environment.getArguments();
     Set<String> paths = buildResourcePaths(action.getArn(), args);
 
-    if (!ROOT_TYPES.contains(typeName) && "none".equals(action.getId())) {
+    if (!ROOT_TYPES.contains(typeName) || AuthorizationConfiguration.SKIP_ACTION == action) {
       return Instrumentation.super.beginFieldFetch(parameters, state);
     }
 

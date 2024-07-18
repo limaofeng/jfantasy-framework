@@ -1,86 +1,54 @@
 public-paths:
-  - "/public/**"
-  - "/home"
-  - "/about-us"
+  - "/auth/login"
 
 default:
   effect: "deny"
 
 policies:
-  - id: "policy-1"
+#  - id: "auth-access"
+#    description: "Access to the auth service"
+#    statements:
+#      - action: ["write"]
+#        resource: ["auth/login"]
+#        effect: "allow"
+  - id: "all-access"
     description: "Admin access to all services"
-    subjects: ["role:admin"]
+    subjects: ["role:admin", "role:user"]
     statements:
-      - action: [ "read", "write" ]
-        resource: ["arn:*:*:/users/*"]
+      - action: [ "read", "write", "list" ]
+        resource: ["arn:*:*:/*"]
         effect: "allow"
-        condition:
-          - "sourceIp == '10.20.11.223'"
-          - "currentTimestamp() < '2021-03-01T00:00:00Z'"
-          - "secureTransport()"
-      - action: [ "delete" ]
-        resource: ["arn:*:*:/users/*"]
-        effect: "deny"
-
-  - id: "policy-2"
-    description: "Read-only access to user data"
-    subjects: ["role:user"]
-    statements:
-      - action: [ "read" ]
-        resource: ["arn:*:*:/users/*"]
-        effect: "allow"
-      - action: [ "delete" ]
-        resource: ["arn:*:*:/users/*"]
-        effect: "deny"
 
 resources:
-  - id: "DemoUser"
+  - id: "Authentication"
     service: "ram"
     description: "Demo user resource"
     actions:
-      - id: "ListDemoUsers"
+      - id: "Login"
         description: "List demo users"
-        type: "list"
-        operations:
-          - "Query.demoUsers"
-        arn:
-          - "demo-users/*"
-          - "demo-users/{#userId}"
-  - id: "User"
-    service: "ram"
-    description: "User resource"
-    actions:
-      - id: "ListUsers"
-        description: "List users"
-        type: "read"
-        operations:
-          - "Query.listUsers"
-        arn:
-          - "users/*"
-          - "users/{#userId}"
-      - id: "CreateUser"
-        description: "Create user"
         type: "write"
         operations:
-          - "Mutation.createUser"
+          - "Mutation.login"
         arn:
-          - "users/*"
-          - "users/{#userId}"
+          - "auth/login"
+  - id: "Other"
+    service: "other"
+    description: "偷懒的配置"
+    actions:
+      - id: "AllMutationOperation"
+        description: "All mutation operation"
+        type: "write"
+        operations:
+          - "Mutation.*"
+        arn:
+          - "/*"
 
 roles:
   - id: "admin"
     description: "Admin role"
     permissions:
-      - "policy-1"
-      - "policy-2"
-      - "policy-3"
-
+      - "all-access"
   - id: "user"
     description: "User role"
     permissions:
-      - "policy-2"
-
-  - id: "product-manager"
-    description: "Product manager role"
-    permissions:
-      - "policy-3"
+      - "all-access"
