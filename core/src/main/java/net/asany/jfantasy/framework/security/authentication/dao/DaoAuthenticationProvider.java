@@ -1,7 +1,9 @@
 package net.asany.jfantasy.framework.security.authentication.dao;
 
+import lombok.Setter;
 import net.asany.jfantasy.framework.error.ValidationException;
 import net.asany.jfantasy.framework.security.AuthenticationException;
+import net.asany.jfantasy.framework.security.authentication.Authentication;
 import net.asany.jfantasy.framework.security.authentication.BadCredentialsException;
 import net.asany.jfantasy.framework.security.authentication.InternalAuthenticationServiceException;
 import net.asany.jfantasy.framework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -13,11 +15,12 @@ import net.asany.jfantasy.framework.security.crypto.password.PasswordEncoder;
 /**
  * @author limaofeng
  */
-public class DaoAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
+public class DaoAuthenticationProvider
+    extends AbstractUserDetailsAuthenticationProvider<UsernamePasswordAuthenticationToken> {
 
   private UserDetailsService<? extends UserDetails> userDetailsService;
 
-  private PasswordEncoder passwordEncoder;
+  @Setter private PasswordEncoder passwordEncoder;
 
   public DaoAuthenticationProvider() {}
 
@@ -26,6 +29,11 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
       PasswordEncoder passwordEncoder) {
     this.userDetailsService = userDetailsService;
     this.passwordEncoder = passwordEncoder;
+  }
+
+  @Override
+  public boolean supports(Class<? extends Authentication> authentication) {
+    return (UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication));
   }
 
   @Override
@@ -65,9 +73,5 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 
   public void setUserDetailsService(UserDetailsService<UserDetails> userDetailsService) {
     this.userDetailsService = userDetailsService;
-  }
-
-  public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
-    this.passwordEncoder = passwordEncoder;
   }
 }

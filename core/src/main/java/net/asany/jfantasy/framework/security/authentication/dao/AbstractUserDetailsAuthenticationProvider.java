@@ -15,21 +15,18 @@ import org.springframework.context.support.MessageSourceAccessor;
  *
  * @author limaofeng
  */
+@Setter
 @Slf4j
-public abstract class AbstractUserDetailsAuthenticationProvider
-    implements AuthenticationProvider<UsernamePasswordAuthenticationToken> {
+public abstract class AbstractUserDetailsAuthenticationProvider<
+        T extends AbstractAuthenticationToken>
+    implements AuthenticationProvider<T> {
 
-  @Setter protected MessageSourceAccessor messages;
+  protected MessageSourceAccessor messages;
 
-  @Setter private boolean hideUserNotFoundExceptions;
+  private boolean hideUserNotFoundExceptions;
 
-  @Setter @Getter private UserDetailsChecker preAuthenticationChecks;
-  @Setter @Getter private UserDetailsChecker postAuthenticationChecks;
-
-  @Override
-  public boolean supports(Class<? extends Authentication> authentication) {
-    return (UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication));
-  }
+  @Getter private UserDetailsChecker preAuthenticationChecks;
+  @Getter private UserDetailsChecker postAuthenticationChecks;
 
   /**
    * 查找用户
@@ -38,23 +35,21 @@ public abstract class AbstractUserDetailsAuthenticationProvider
    * @param token 密码
    * @return 返回用户
    */
-  protected abstract UserDetails retrieveUser(
-      String username, UsernamePasswordAuthenticationToken token);
+  protected abstract UserDetails retrieveUser(String username, T token);
 
   private String determineUsername(Authentication authentication) {
     return (authentication.getPrincipal() == null) ? "NONE_PROVIDED" : authentication.getName();
   }
 
   @Override
-  public Authentication authenticate(UsernamePasswordAuthenticationToken authentication)
-      throws AuthenticationException {
+  public Authentication authenticate(T authentication) throws AuthenticationException {
     String username = determineUsername(authentication);
 
     UserDetails user;
     try {
       user = this.retrieveUser(username, authentication);
     } catch (UsernameNotFoundException ex) {
-      log.debug("Failed to find user '" + username + "'");
+      log.debug("Failed to find user '{}'", username);
       if (!this.hideUserNotFoundExceptions) {
         throw ex;
       }
@@ -85,8 +80,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider
    * @param authentication 认证信息
    * @throws AuthenticationException 认证异常
    */
-  protected abstract void additionalAuthenticationChecks(
-      UserDetails userDetails, UsernamePasswordAuthenticationToken authentication)
+  protected abstract void additionalAuthenticationChecks(UserDetails userDetails, T authentication)
       throws AuthenticationException;
 
   public static class DefaultPreAuthenticationChecks implements UserDetailsChecker {
