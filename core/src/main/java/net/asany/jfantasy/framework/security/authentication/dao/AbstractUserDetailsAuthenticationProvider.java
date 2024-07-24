@@ -1,7 +1,5 @@
 package net.asany.jfantasy.framework.security.authentication.dao;
 
-import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.asany.jfantasy.framework.security.AuthenticationException;
 import net.asany.jfantasy.framework.security.authentication.*;
@@ -15,18 +13,26 @@ import org.springframework.context.support.MessageSourceAccessor;
  *
  * @author limaofeng
  */
-@Setter
 @Slf4j
 public abstract class AbstractUserDetailsAuthenticationProvider<
         T extends AbstractAuthenticationToken>
     implements AuthenticationProvider<T> {
 
   protected MessageSourceAccessor messages;
+  protected boolean hideUserNotFoundExceptions;
+  protected UserDetailsChecker preAuthenticationChecks;
+  protected UserDetailsChecker postAuthenticationChecks;
 
-  private boolean hideUserNotFoundExceptions;
-
-  @Getter private UserDetailsChecker preAuthenticationChecks;
-  @Getter private UserDetailsChecker postAuthenticationChecks;
+  public AbstractUserDetailsAuthenticationProvider(
+      MessageSourceAccessor messages,
+      boolean hideUserNotFoundExceptions,
+      UserDetailsChecker preAuthenticationChecks,
+      UserDetailsChecker postAuthenticationChecks) {
+    this.messages = messages;
+    this.hideUserNotFoundExceptions = hideUserNotFoundExceptions;
+    this.preAuthenticationChecks = preAuthenticationChecks;
+    this.postAuthenticationChecks = postAuthenticationChecks;
+  }
 
   /**
    * 查找用户

@@ -1,6 +1,5 @@
 package net.asany.jfantasy.framework.security.authentication.dao;
 
-import lombok.Setter;
 import net.asany.jfantasy.framework.error.ValidationException;
 import net.asany.jfantasy.framework.security.AuthenticationException;
 import net.asany.jfantasy.framework.security.authentication.Authentication;
@@ -8,9 +7,11 @@ import net.asany.jfantasy.framework.security.authentication.BadCredentialsExcept
 import net.asany.jfantasy.framework.security.authentication.InternalAuthenticationServiceException;
 import net.asany.jfantasy.framework.security.authentication.UsernamePasswordAuthenticationToken;
 import net.asany.jfantasy.framework.security.core.userdetails.UserDetails;
+import net.asany.jfantasy.framework.security.core.userdetails.UserDetailsChecker;
 import net.asany.jfantasy.framework.security.core.userdetails.UserDetailsService;
 import net.asany.jfantasy.framework.security.core.userdetails.UsernameNotFoundException;
 import net.asany.jfantasy.framework.security.crypto.password.PasswordEncoder;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /**
  * @author limaofeng
@@ -18,15 +19,18 @@ import net.asany.jfantasy.framework.security.crypto.password.PasswordEncoder;
 public class DaoAuthenticationProvider
     extends AbstractUserDetailsAuthenticationProvider<UsernamePasswordAuthenticationToken> {
 
-  private UserDetailsService<? extends UserDetails> userDetailsService;
+  private final UserDetailsService<? extends UserDetails> userDetailsService;
 
-  @Setter private PasswordEncoder passwordEncoder;
-
-  public DaoAuthenticationProvider() {}
+  private final PasswordEncoder passwordEncoder;
 
   public DaoAuthenticationProvider(
       UserDetailsService<? extends UserDetails> userDetailsService,
-      PasswordEncoder passwordEncoder) {
+      PasswordEncoder passwordEncoder,
+      MessageSourceAccessor messages,
+      boolean hideUserNotFoundExceptions,
+      UserDetailsChecker preAuthenticationChecks,
+      UserDetailsChecker postAuthenticationChecks) {
+    super(messages, hideUserNotFoundExceptions, preAuthenticationChecks, postAuthenticationChecks);
     this.userDetailsService = userDetailsService;
     this.passwordEncoder = passwordEncoder;
   }
@@ -69,9 +73,5 @@ public class DaoAuthenticationProvider
           this.messages.getMessage(
               "AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
     }
-  }
-
-  public void setUserDetailsService(UserDetailsService<UserDetails> userDetailsService) {
-    this.userDetailsService = userDetailsService;
   }
 }

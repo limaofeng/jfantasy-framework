@@ -132,11 +132,12 @@ public class SecurityAutoConfiguration {
       @Qualifier("pre.preUserDetailsCheckers") UserDetailsChecker preUserDetailsCheckers,
       @Qualifier("post.preUserDetailsCheckers") UserDetailsChecker postUserDetailsCheckers,
       MessageSourceAccessor securityMessageSource) {
-    DaoAuthenticationProvider provider =
-        new DaoAuthenticationProvider(userDetailsService, passwordEncoder);
-    provider.setMessages(securityMessageSource);
-    provider.setPreAuthenticationChecks(preUserDetailsCheckers);
-    provider.setPostAuthenticationChecks(postUserDetailsCheckers);
-    return provider;
+    return new DaoAuthenticationProvider(
+        userDetailsService,
+        passwordEncoder,
+        securityMessageSource,
+        true,
+        preUserDetailsCheckers,
+        postUserDetailsCheckers);
   }
 }

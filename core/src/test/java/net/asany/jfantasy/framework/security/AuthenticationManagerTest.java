@@ -12,9 +12,14 @@ class AuthenticationManagerTest {
   void authenticate() {
     AuthenticationManager manager = new AuthenticationManager();
 
-    DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-    provider.setUserDetailsService(new SimpleUserDetailsService());
-    provider.setPasswordEncoder(new PlaintextPasswordEncoder());
+    DaoAuthenticationProvider provider =
+        new DaoAuthenticationProvider(
+            new SimpleUserDetailsService(),
+            new PlaintextPasswordEncoder(),
+            null,
+            false,
+            null,
+            null);
 
     manager.addProvider(provider);
 
