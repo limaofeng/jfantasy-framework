@@ -10,10 +10,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import net.asany.jfantasy.framework.dao.Tenantable;
 import net.asany.jfantasy.framework.security.core.GrantedAuthority;
 import net.asany.jfantasy.framework.security.core.user.OAuth2User;
@@ -25,7 +22,6 @@ import net.asany.jfantasy.framework.util.common.ObjectUtil;
  *
  * @author limaofeng
  * @version V1.0
- * @date 2019-04-08 17:06
  */
 @Data
 @Builder
@@ -81,6 +77,7 @@ public class LoginUser implements UserDetails, Principal, OAuth2User, Tenantable
   @Builder.Default private boolean credentialsNonExpired = true;
 
   /** 权限 */
+  @Setter
   @JsonSerialize(using = GrantedAuthority.GrantedAuthoritiesSerializer.class)
   @JsonDeserialize(using = GrantedAuthority.GrantedAuthoritiesDeserializer.class)
   private Set<GrantedAuthority> authorities;
@@ -101,6 +98,7 @@ public class LoginUser implements UserDetails, Principal, OAuth2User, Tenantable
     if (this.data == null) {
       this.data = new HashMap<>();
     }
+    //noinspection unchecked
     return (A) this.data.get(name);
   }
 
@@ -108,9 +106,5 @@ public class LoginUser implements UserDetails, Principal, OAuth2User, Tenantable
   @JsonAnyGetter
   public Map<String, Object> getAttributes() {
     return ObjectUtil.defaultValue(this.data, Collections.emptyMap());
-  }
-
-  public void setAuthorities(Set<GrantedAuthority> authorities) {
-    this.authorities = authorities;
   }
 }
