@@ -103,20 +103,22 @@ public class SecurityAutoConfiguration {
     return messages;
   }
 
-  @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
   @Bean("pre.preUserDetailsCheckers")
   public UserDetailsChecker preUserDetailsCheckers(
-      MessageSourceAccessor securityMessageSource, PreUserDetailsChecker[] checkers) {
+      MessageSourceAccessor securityMessageSource,
+      @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+          PreUserDetailsChecker[] checkers) {
     DefaultAuthenticationChecks checker =
         new DefaultAuthenticationChecks(new DefaultPreAuthenticationChecks(securityMessageSource));
     checker.addCheckers(checkers);
     return checker;
   }
 
-  @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
   @Bean("post.preUserDetailsCheckers")
   public UserDetailsChecker postUserDetailsCheckers(
-      MessageSourceAccessor securityMessageSource, PostUserDetailsChecker[] checkers) {
+      MessageSourceAccessor securityMessageSource,
+      @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+          PostUserDetailsChecker[] checkers) {
     DefaultAuthenticationChecks checker =
         new DefaultAuthenticationChecks(new DefaultPostAuthenticationChecks(securityMessageSource));
     checker.addCheckers(checkers);

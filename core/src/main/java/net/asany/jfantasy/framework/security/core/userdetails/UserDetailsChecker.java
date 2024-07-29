@@ -16,7 +16,7 @@ public interface UserDetailsChecker {
    * @return 是否需要进行认证检查
    */
   default boolean needsCheck(AuthenticationToken authenticationToken) {
-    return authenticationToken.getClass().isAssignableFrom(AuthenticationToken.class);
+    return true;
   }
 
   /**
