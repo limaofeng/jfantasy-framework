@@ -2,6 +2,7 @@ package net.asany.jfantasy.framework.security.authentication.dao;
 
 import lombok.extern.slf4j.Slf4j;
 import net.asany.jfantasy.framework.security.AuthenticationException;
+import net.asany.jfantasy.framework.security.auth.AuthenticationToken;
 import net.asany.jfantasy.framework.security.authentication.*;
 import net.asany.jfantasy.framework.security.core.userdetails.UserDetails;
 import net.asany.jfantasy.framework.security.core.userdetails.UserDetailsChecker;
@@ -63,9 +64,9 @@ public abstract class AbstractUserDetailsAuthenticationProvider<
           this.messages.getMessage(
               "AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
     }
-    this.preAuthenticationChecks.check(user);
+    this.preAuthenticationChecks.check(user, authentication);
     additionalAuthenticationChecks(user, authentication);
-    this.postAuthenticationChecks.check(user);
+    this.postAuthenticationChecks.check(user, authentication);
     return createSuccessAuthentication(user, authentication, user);
   }
 
@@ -98,7 +99,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider<
     }
 
     @Override
-    public void check(UserDetails user) {
+    public void check(UserDetails user, AuthenticationToken authenticationToken) {
       if (!user.isAccountNonLocked()) {
         throw new LockedException(
             this.messages.getMessage(
@@ -126,7 +127,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider<
     }
 
     @Override
-    public void check(UserDetails user) {
+    public void check(UserDetails user, AuthenticationToken authenticationToken) {
       if (!user.isCredentialsNonExpired()) {
         throw new CredentialsExpiredException(
             this.messages.getMessage(

@@ -2,12 +2,15 @@ package net.asany.jfantasy.framework.security.authentication.dao;
 
 import lombok.Setter;
 import net.asany.jfantasy.framework.error.ValidationException;
+import net.asany.jfantasy.framework.security.AuthenticationException;
 import net.asany.jfantasy.framework.security.authentication.Authentication;
 import net.asany.jfantasy.framework.security.authentication.InternalAuthenticationServiceException;
 import net.asany.jfantasy.framework.security.authentication.SimpleAuthenticationToken;
 import net.asany.jfantasy.framework.security.core.userdetails.SimpleUserDetailsService;
 import net.asany.jfantasy.framework.security.core.userdetails.UserDetails;
+import net.asany.jfantasy.framework.security.core.userdetails.UserDetailsChecker;
 import net.asany.jfantasy.framework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /**
  * 简单身份验证程序
@@ -15,24 +18,31 @@ import net.asany.jfantasy.framework.security.core.userdetails.UsernameNotFoundEx
  * @author limaofeng
  */
 public class SimpleAuthenticationProvider
-    extends AbstractSimpleUserDetailsAuthenticationProvider<SimpleAuthenticationToken<Object>> {
+    extends AbstractUserDetailsAuthenticationProvider<SimpleAuthenticationToken<Object>> {
 
   @Setter private SimpleUserDetailsService<Object> userDetailsService;
 
   private final Class<?> authenticationClass;
 
-  public SimpleAuthenticationProvider(Class<?> authentication) {
-    this.authenticationClass = authentication;
+  public SimpleAuthenticationProvider(
+      Class<? extends Authentication> authenticationClass,
+      MessageSourceAccessor messages,
+      boolean hideUserNotFoundExceptions,
+      UserDetailsChecker preAuthenticationChecks,
+      UserDetailsChecker postAuthenticationChecks) {
+    super(messages, hideUserNotFoundExceptions, preAuthenticationChecks, postAuthenticationChecks);
+    this.authenticationClass = authenticationClass;
   }
 
   @Override
-  public boolean supports(@SuppressWarnings("rawtypes") Class authentication) {
+  public boolean supports(Class<? extends Authentication> authentication) {
     return (this.authenticationClass.isAssignableFrom(authentication));
   }
 
   @Override
-  public UserDetails retrieveUser(SimpleAuthenticationToken<Object> authentication) {
-    Object token = determineToken(authentication);
+  protected UserDetails retrieveUser(
+      String username, SimpleAuthenticationToken<Object> authenticationToken) {
+    Object token = authenticationToken.getCredentials();
     try {
       UserDetails loadedUser = this.userDetailsService.loadUserByToken(token);
       if (loadedUser == null) {
@@ -49,7 +59,8 @@ public class SimpleAuthenticationProvider
     }
   }
 
-  private Object determineToken(Authentication authentication) {
-    return authentication.getCredentials();
-  }
+  @Override
+  protected void additionalAuthenticationChecks(
+      UserDetails userDetails, SimpleAuthenticationToken<Object> authentication)
+      throws AuthenticationException {}
 }

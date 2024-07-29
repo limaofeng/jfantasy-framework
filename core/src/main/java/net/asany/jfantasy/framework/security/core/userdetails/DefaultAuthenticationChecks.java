@@ -3,6 +3,7 @@ package net.asany.jfantasy.framework.security.core.userdetails;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import net.asany.jfantasy.framework.security.auth.AuthenticationToken;
 
 /**
  * @author limaofeng
@@ -18,9 +19,12 @@ public class DefaultAuthenticationChecks implements UserDetailsChecker {
   }
 
   @Override
-  public void check(UserDetails user) {
+  public void check(UserDetails user, AuthenticationToken authenticationToken) {
     for (UserDetailsChecker checker : checkers) {
-      checker.check(user);
+      if (!checker.needsCheck(authenticationToken)) {
+        continue;
+      }
+      checker.check(user, authenticationToken);
     }
   }
 
