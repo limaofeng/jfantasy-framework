@@ -6,10 +6,10 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
-import net.asany.jfantasy.framework.dao.hibernate.generator.CustomTableGenerator;
+import net.asany.jfantasy.framework.dao.hibernate.generator.TableIdentifierGenerator;
 import org.hibernate.annotations.IdGeneratorType;
 
-@IdGeneratorType(CustomTableGenerator.class)
+@IdGeneratorType(TableIdentifierGenerator.class)
 @Retention(RUNTIME)
 @Target({METHOD, FIELD})
 public @interface TableGenerator {

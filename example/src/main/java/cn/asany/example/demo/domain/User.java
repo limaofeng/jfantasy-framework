@@ -6,7 +6,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import net.asany.jfantasy.framework.dao.BaseBusEntity;
-import net.asany.jfantasy.framework.dao.hibernate.annotations.TableGenerator;
+import net.asany.jfantasy.framework.dao.hibernate.annotations.SnowflakeFormat;
+import net.asany.jfantasy.framework.dao.hibernate.annotations.SnowflakeGenerator;
 import net.asany.jfantasy.framework.search.annotations.IndexProperty;
 import net.asany.jfantasy.framework.search.annotations.Indexed;
 import net.asany.jfantasy.framework.spring.validation.Use;
@@ -27,9 +28,9 @@ import net.asany.jfantasy.framework.spring.validation.Use;
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class User extends BaseBusEntity {
   @Id
-  @Column(name = "ID", nullable = false, updatable = false, precision = 22)
-  @TableGenerator(allocationSize = 5)
-  private Long id;
+  @Column(name = "ID", nullable = false, updatable = false, length = 32)
+  @SnowflakeGenerator(length = 32, format = SnowflakeFormat.BASE62)
+  private String id;
 
   @IndexProperty
   @NotBlank(message = "用户名不能为空")
