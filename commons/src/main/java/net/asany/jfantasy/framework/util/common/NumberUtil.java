@@ -5,6 +5,7 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Random;
+import java.util.stream.IntStream;
 import net.asany.jfantasy.framework.util.regexp.RegexpUtil;
 
 /** 数字处理集合类 主要功能：四舍五入，随机数，数字类型转换等方法 */
@@ -36,6 +37,10 @@ public class NumberUtil {
 
   public static int randomInt(int i) {
     return random.nextInt(i);
+  }
+
+  public static IntStream randomInts(int randomNumberOrigin, int randomNumberBound) {
+    return random.ints(randomNumberOrigin, randomNumberBound);
   }
 
   public static float randomFloat() {

@@ -10,7 +10,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import net.asany.jfantasy.framework.dao.hibernate.generator.CustomTableGenerator;
+import net.asany.jfantasy.framework.dao.hibernate.generator.TableIdentifierGenerator;
 import net.asany.jfantasy.framework.dao.hibernate.util.TypeFactory;
 import net.asany.jfantasy.framework.util.common.ClassUtil;
 import net.asany.jfantasy.framework.util.ognl.OgnlUtil;
@@ -69,7 +69,7 @@ public class IdentifierGeneratorUtil {
         GenericGenerator annotGenerator = field.getAnnotation(GenericGenerator.class);
         Properties properties = new Properties();
         properties.put(
-            CustomTableGenerator.KEY_NAME,
+            TableIdentifierGenerator.KEY_NAME,
             entityClass.getAnnotation(Table.class).name()
                 + ":"
                 + field.getAnnotation(Column.class).name());

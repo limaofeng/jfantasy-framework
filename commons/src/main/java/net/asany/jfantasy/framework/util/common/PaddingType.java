@@ -1,4 +1,4 @@
-package net.asany.jfantasy.framework.dao.hibernate.annotations;
+package net.asany.jfantasy.framework.util.common;
 
 public enum PaddingType {
   /** 前缀 */

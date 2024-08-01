@@ -7,6 +7,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import net.asany.jfantasy.framework.dao.hibernate.generator.SnowflakeIdentifierGenerator;
+import net.asany.jfantasy.framework.util.common.PaddingType;
 import org.hibernate.annotations.IdGeneratorType;
 
 @IdGeneratorType(SnowflakeIdentifierGenerator.class)
