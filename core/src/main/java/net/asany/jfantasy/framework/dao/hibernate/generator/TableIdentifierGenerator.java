@@ -22,7 +22,7 @@ import org.hibernate.type.Type;
  * @version 1.0
  * @since 2013-1-14 下午02:07:25
  */
-public class CustomTableGenerator implements IdentifierGenerator {
+public class TableIdentifierGenerator implements IdentifierGenerator {
 
   private DatabaseSequenceGenerator baseKeyGenerator;
 
@@ -31,14 +31,14 @@ public class CustomTableGenerator implements IdentifierGenerator {
   private String keyName;
   private String entityName;
 
-  public CustomTableGenerator() {}
+  public TableIdentifierGenerator() {}
 
-  public CustomTableGenerator(
+  public TableIdentifierGenerator(
       TableGenerator tableGenerator,
       Member ignoredMember,
-      CustomIdGeneratorCreationContext generatorCreationContext) {
+      CustomIdGeneratorCreationContext context) {
     this();
-    RootClass rootClass = generatorCreationContext.getRootClass();
+    RootClass rootClass = context.getRootClass();
     this.entityName = rootClass.getEntityName();
     if (StringUtil.isNotBlank(tableGenerator.name())) {
       this.keyName = tableGenerator.name();

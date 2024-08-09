@@ -43,7 +43,7 @@ public class UserService {
     }
   }
 
-  public User update(Long id, boolean merge, User user) {
+  public User update(String id, boolean merge, User user) {
     user.setId(id);
     return this.userDao.update(user, merge);
   }
@@ -52,7 +52,7 @@ public class UserService {
     return this.userDao.findPage(pageable, filter);
   }
 
-  public void delete(Long... ids) {
+  public void delete(String... ids) {
     this.userDao.deleteAllInBatch(
         Arrays.stream(ids).map(id -> User.builder().id(id).build()).collect(Collectors.toList()));
   }

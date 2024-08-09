@@ -276,25 +276,50 @@ public abstract class StringUtil {
    * @param fillChar 追加的字符串
    * @return {String}
    */
-  public static String append(String ori, int length, String... fillChar) {
-    int absLength = Math.abs(length);
+  public static String append(String ori, int length, PaddingType paddingType, String fillChar) {
     if (ori == null) {
       return "";
     }
-    StringBuilder result = new StringBuilder(ori);
-    if (result.length() < absLength) {
-      for (int i = result.length(); i < absLength; i++) {
-        if (length < 0) {
-          result.insert(0, fillChar[NumberUtil.randomInt(fillChar.length)]);
-        } else {
-          result.append(fillChar[NumberUtil.randomInt(fillChar.length)]);
-        }
-        if (result.length() == absLength) {
-          break;
-        }
+    return switch (paddingType) {
+      case PREFIX -> {
+        String randomString = generateRandomString(fillChar, length - ori.length());
+        yield randomString + ori;
       }
+      case SUFFIX -> {
+        String randomString = generateRandomString(fillChar, length - ori.length());
+        yield ori + randomString;
+      }
+      case SHUFFLE -> {
+        String randomString = generateRandomString(fillChar, length - ori.length());
+        yield mixParts(ori + randomString);
+      }
+    };
+  }
+
+  private static String mixParts(String input) {
+    StringBuilder result = new StringBuilder(input.length());
+    int[] indices =
+        NumberUtil.randomInts(0, input.length()).distinct().limit(input.length()).toArray();
+    for (int index : indices) {
+      result.append(input.charAt(index));
     }
     return result.toString();
+  }
+
+  private static String generateRandomString(String chars, int length) {
+    int[] randomNumbers = new int[length];
+    nextNumbers(chars, randomNumbers);
+    return Arrays.stream(randomNumbers)
+        .map(chars::charAt)
+        .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+        .toString();
+  }
+
+  private static void nextNumbers(String chars, int[] randomNumbers) {
+    int maxRandomNumber = chars.length();
+    for (int i = 0; i < randomNumbers.length; i++) {
+      randomNumbers[i] = NumberUtil.randomInt(maxRandomNumber);
+    }
   }
 
   /**
@@ -303,11 +328,12 @@ public abstract class StringUtil {
    * <p>resultLength 最终长度
    */
   public static String addZeroLeft(String ori, int resultLength) {
-    return append(ori, resultLength < 0 ? resultLength : -resultLength, "0");
+    return append(ori, resultLength < 0 ? resultLength : -resultLength, PaddingType.PREFIX, "0");
   }
 
-  public static String addLeft(String ori, int resultLength, String... fillChar) {
-    return append(ori, resultLength < 0 ? resultLength : -resultLength, fillChar);
+  public static String addLeft(String ori, int resultLength, String fillChar) {
+    return append(
+        ori, resultLength < 0 ? resultLength : -resultLength, PaddingType.PREFIX, fillChar);
   }
 
   /**
@@ -737,5 +763,23 @@ public abstract class StringUtil {
    */
   public static String snakeCase(String source) {
     return ParsingUtils.reconcatenateCamelCase(source, "_");
+  }
+
+  public static final String BASE62_CHARS =
+      "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+  public static String base62(long decimalNumber) {
+    if (decimalNumber < 0) {
+      throw new IllegalArgumentException("Decimal number must be non-negative.");
+    }
+    StringBuilder base62String = new StringBuilder();
+    // 不断取余数，转换为对应的Base62字符
+    while (decimalNumber > 0) {
+      int remainder = (int) (decimalNumber % 62);
+      base62String.insert(0, BASE62_CHARS.charAt(remainder));
+      decimalNumber = decimalNumber / 62;
+    }
+    // 如果输入为0，直接返回"0"
+    return !base62String.isEmpty() ? base62String.toString() : "0";
   }
 }

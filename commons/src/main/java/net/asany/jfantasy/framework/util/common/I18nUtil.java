@@ -12,7 +12,7 @@ public class I18nUtil {
     for (char utfByte : utfBytes) {
       String hexB = Integer.toHexString(utfByte);
       if (hexB.length() <= 2) {
-        hexB = StringUtil.append(hexB, -4, new String[] {"0"});
+        hexB = StringUtil.addLeft(hexB, 4, "0");
       }
       unicodeBytes.append(
           StringUtil.isChinese(String.valueOf(utfByte)) ? "\\u" + hexB : String.valueOf(utfByte));

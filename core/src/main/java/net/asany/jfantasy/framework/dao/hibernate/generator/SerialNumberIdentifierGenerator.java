@@ -14,17 +14,17 @@ import org.hibernate.type.Type;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 
-public class DefaultSerialNumberGenerator implements IdentifierGenerator {
+public class SerialNumberIdentifierGenerator implements IdentifierGenerator {
 
   private final SpelExpressionParser parser = new SpelExpressionParser();
   private Expression expression;
 
-  public DefaultSerialNumberGenerator() {}
+  public SerialNumberIdentifierGenerator() {}
 
-  public DefaultSerialNumberGenerator(
+  public SerialNumberIdentifierGenerator(
       SerialNumberGenerator serialNumberGenerator,
       Member ignoredMember,
-      CustomIdGeneratorCreationContext generatorCreationContext) {
+      CustomIdGeneratorCreationContext context) {
     this();
     this.expression = parser.parseExpression(serialNumberGenerator.value());
   }

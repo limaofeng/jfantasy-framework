@@ -3,38 +3,43 @@ package net.asany.jfantasy.framework.dao.hibernate.generator;
 import cn.hutool.core.lang.Snowflake;
 import cn.hutool.core.util.IdUtil;
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.util.Properties;
+import net.asany.jfantasy.framework.dao.hibernate.annotations.SnowflakeFormat;
 import net.asany.jfantasy.framework.dao.hibernate.annotations.SnowflakeGenerator;
+import net.asany.jfantasy.framework.util.common.PaddingType;
+import net.asany.jfantasy.framework.util.common.StringUtil;
 import org.hibernate.HibernateException;
 import org.hibernate.MappingException;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.id.IdentifierGenerator;
 import org.hibernate.id.factory.spi.CustomIdGeneratorCreationContext;
-import org.hibernate.mapping.RootClass;
 import org.hibernate.service.ServiceRegistry;
 import org.hibernate.type.Type;
 
-public class DefaultSnowflakeGenerator implements IdentifierGenerator {
+public class SnowflakeIdentifierGenerator implements IdentifierGenerator {
 
+  private SnowflakeFormat format;
+  private long length;
+  private PaddingType paddingType;
   private Snowflake snowflake;
-
   private boolean toStr = false;
 
-  public DefaultSnowflakeGenerator() {}
+  public SnowflakeIdentifierGenerator() {}
 
-  public DefaultSnowflakeGenerator(
+  public SnowflakeIdentifierGenerator(
       SnowflakeGenerator snowflakeGenerator,
       Member member,
-      CustomIdGeneratorCreationContext generatorCreationContext) {
+      CustomIdGeneratorCreationContext context) {
     this();
-    RootClass rootClass = generatorCreationContext.getRootClass();
-
     long workerId = snowflakeGenerator.workerId();
     long dataCenterId = snowflakeGenerator.dataCenterId();
+    this.format = snowflakeGenerator.format();
+    this.length = snowflakeGenerator.length();
+    this.paddingType = snowflakeGenerator.paddingType();
     this.snowflake = IdUtil.getSnowflake(workerId, dataCenterId);
-
-    toStr = member.getDeclaringClass() == String.class;
+    this.toStr = ((Field) member).getType() == String.class;
   }
 
   @Override
@@ -44,13 +49,30 @@ public class DefaultSnowflakeGenerator implements IdentifierGenerator {
     String workerId = params.getProperty("workerId", "1");
     String dataCenterId = params.getProperty("dataCenterId", "1");
     this.snowflake = IdUtil.getSnowflake(Long.parseLong(workerId), Long.parseLong(dataCenterId));
-    // TODO: SpringBoot 升级遗留问题
-    //    this.toStr = type == StringType.INSTANCE;
+    this.format = SnowflakeFormat.valueOf(params.getProperty("format", "BASE62"));
+    this.length = Long.parseLong(params.getProperty("length", "0"));
+    this.paddingType = PaddingType.valueOf(params.getProperty("paddingType", "PREFIX"));
+    this.toStr = type.getReturnedClass() == String.class;
   }
 
   @Override
   public Serializable generate(SharedSessionContractImplementor session, Object object)
       throws HibernateException {
-    return this.toStr ? snowflake.nextIdStr() : snowflake.nextId();
+    if (this.toStr) {
+      return switch (format) {
+        case BASE62 -> {
+          if (length == 0) {
+            yield StringUtil.base62(snowflake.nextId());
+          }
+          yield StringUtil.append(
+              StringUtil.base62(snowflake.nextId()),
+              (int) length,
+              paddingType,
+              StringUtil.BASE62_CHARS);
+        }
+        case NONE -> snowflake.nextIdStr();
+      };
+    }
+    return snowflake.nextId();
   }
 }
