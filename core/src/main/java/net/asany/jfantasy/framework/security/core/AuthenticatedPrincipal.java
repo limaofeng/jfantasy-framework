@@ -19,7 +19,6 @@ public interface AuthenticatedPrincipal {
   String getName();
 
   default <A> A getAttribute(String name) {
-    //noinspection unchecked
     return (A) getAttributes().get(name);
   }
 

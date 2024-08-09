@@ -35,7 +35,6 @@ public abstract class AbstractAuthTokenAuthenticationToken<T> extends AbstractAu
 
   @Override
   public <P> P getPrincipal() {
-    //noinspection unchecked
     return (P) this.principal;
   }
 

@@ -99,7 +99,6 @@ public class JpaDefaultPropertyFilter
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public List<PropertyPredicate> build() {
     return super.context;
   }

@@ -29,7 +29,6 @@ public class OAuth2Authentication extends AbstractAuthenticationToken {
 
   @Override
   public <T> T getPrincipal() {
-    //noinspection unchecked
     return (T) this.principal;
   }
 }

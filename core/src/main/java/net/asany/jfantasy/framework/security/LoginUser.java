@@ -98,7 +98,6 @@ public class LoginUser implements UserDetails, Principal, OAuth2User, Tenantable
     if (this.data == null) {
       this.data = new HashMap<>();
     }
-    //noinspection unchecked
     return (A) this.data.get(name);
   }
 

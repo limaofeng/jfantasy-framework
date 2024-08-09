@@ -5,10 +5,7 @@ import jakarta.websocket.server.HandshakeRequest;
 import java.util.List;
 import net.asany.jfantasy.framework.context.DatabaseMessageSource;
 import net.asany.jfantasy.framework.context.service.LanguageService;
-import net.asany.jfantasy.framework.security.AuthenticationManager;
-import net.asany.jfantasy.framework.security.DefaultAuthenticationManagerResolver;
-import net.asany.jfantasy.framework.security.WebFluxAuthenticationManagerResolver;
-import net.asany.jfantasy.framework.security.WebSocketAuthenticationManagerResolver;
+import net.asany.jfantasy.framework.security.*;
 import net.asany.jfantasy.framework.security.authentication.*;
 import net.asany.jfantasy.framework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider.DefaultPostAuthenticationChecks;
 import net.asany.jfantasy.framework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider.DefaultPreAuthenticationChecks;
@@ -16,6 +13,7 @@ import net.asany.jfantasy.framework.security.authentication.dao.DaoAuthenticatio
 import net.asany.jfantasy.framework.security.authorization.policy.context.RequestContextBuilder;
 import net.asany.jfantasy.framework.security.authorization.policy.context.RequestContextFactory;
 import net.asany.jfantasy.framework.security.core.SecurityMessageSource;
+import net.asany.jfantasy.framework.security.core.UserAttributeService;
 import net.asany.jfantasy.framework.security.core.userdetails.*;
 import net.asany.jfantasy.framework.security.crypto.password.PasswordEncoder;
 import net.asany.jfantasy.framework.security.crypto.password.PlaintextPasswordEncoder;
@@ -141,5 +139,15 @@ public class SecurityAutoConfiguration {
         true,
         preUserDetailsCheckers,
         postUserDetailsCheckers);
+  }
+
+  @Bean
+  public UserAttributeService userAttributeService(
+      List<UserDynamicAttribute<?>> dynamicAttributes) {
+    UserAttributeService userAttributeService = new UserAttributeService();
+    for (UserDynamicAttribute<?> dynamicAttribute : dynamicAttributes) {
+      userAttributeService.registerAttribute(dynamicAttribute);
+    }
+    return userAttributeService;
   }
 }
