@@ -93,16 +93,15 @@ public class SpringBeanUtils
    */
   public static synchronized <T> T getBean(String name) {
     try {
-      //noinspection unchecked
       return (T) applicationContext.getBean(name);
     } catch (NoSuchBeanDefinitionException e) {
       if (log.isErrorEnabled()) {
-        log.error("BeanName:" + name + "没有找到!", e);
+        log.error("BeanName:{}没有找到!", name, e);
       }
       return null;
     } catch (BeansException e) {
       if (log.isErrorEnabled()) {
-        log.error("BeanName:" + name + "没有找到!", e);
+        log.error("BeanName:{}没有找到!", name, e);
       }
       throw e;
     }
@@ -129,7 +128,7 @@ public class SpringBeanUtils
       }
       throw e;
     } catch (NullPointerException e) {
-      log.error("查找Bean:" + name + "时发现applicationContext未启动", e);
+      log.error("查找Bean:{}时发现applicationContext未启动", name, e);
       return null;
     }
   }
@@ -149,7 +148,6 @@ public class SpringBeanUtils
    * @see AutoType
    */
   public static synchronized <T> T autowire(Class<T> beanClass, AutoType autoType) {
-    //noinspection unchecked
     return (T)
         applicationContext
             .getAutowireCapableBeanFactory()
@@ -166,7 +164,6 @@ public class SpringBeanUtils
    * @see AutoType
    */
   public static synchronized <T> T createBean(Class<T> beanClass, AutoType autoType) {
-    //noinspection unchecked
     return (T)
         applicationContext
             .getAutowireCapableBeanFactory()
@@ -201,7 +198,6 @@ public class SpringBeanUtils
    * @return Class 注册对象的类型
    */
   public static synchronized <T> Class<T> getType(String name) {
-    //noinspection unchecked
     return (Class<T>) applicationContext.getType(name);
   }
 

@@ -13,8 +13,10 @@ import java.util.Set;
 import lombok.*;
 import net.asany.jfantasy.framework.dao.Tenantable;
 import net.asany.jfantasy.framework.security.core.GrantedAuthority;
+import net.asany.jfantasy.framework.security.core.UserAttributeService;
 import net.asany.jfantasy.framework.security.core.user.OAuth2User;
 import net.asany.jfantasy.framework.security.core.userdetails.UserDetails;
+import net.asany.jfantasy.framework.spring.SpringBeanUtils;
 import net.asany.jfantasy.framework.util.common.ObjectUtil;
 
 /**
@@ -95,6 +97,11 @@ public class LoginUser implements UserDetails, Principal, OAuth2User, Tenantable
 
   @Override
   public <A> A getAttribute(String name) {
+    UserAttributeService userAttributeService =
+        SpringBeanUtils.getBeanByType(UserAttributeService.class);
+    if (userAttributeService.hasAttribute(name)) {
+      return userAttributeService.getAttributeValue(this, name);
+    }
     if (this.data == null) {
       this.data = new HashMap<>();
     }

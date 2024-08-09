@@ -37,10 +37,10 @@ public class UserAttributeService {
    * @param attributeName 属性名称
    * @return 属性值
    */
-  public Object getAttributeValue(LoginUser user, String attributeName) {
+  public <T> T getAttributeValue(LoginUser user, String attributeName) {
     UserDynamicAttribute<?> attribute = attributeRegistry.get(attributeName);
     if (attribute != null) {
-      return attribute.value(user);
+      return (T) attribute.value(user);
     }
     throw new IllegalArgumentException("Attribute not found: " + attributeName);
   }
