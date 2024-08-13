@@ -75,7 +75,7 @@ public class ObjectMapperWrapper {
     try {
       return this.objectMapper.readTree(json);
     } catch (IOException e) {
-      log.error(e.getMessage() + " source json string : " + json + " => readNode", e);
+      log.error("{} source json string : {} => readNode", e.getMessage(), json, e);
     }
     return null;
   }
@@ -84,7 +84,7 @@ public class ObjectMapperWrapper {
     try {
       return this.objectMapper.readValue(input, classed);
     } catch (IOException e) {
-      log.error(e.getMessage() + " source input stream => " + classed, e);
+      log.error("{} source input stream => {}", e.getMessage(), classed, e);
     }
     return null;
   }
@@ -93,7 +93,7 @@ public class ObjectMapperWrapper {
     try {
       return this.objectMapper.readValue(src, classed);
     } catch (IOException e) {
-      log.error(e.getMessage() + " source reader => " + classed, e);
+      log.error("{} source reader => {}", e.getMessage(), classed, e);
     }
     return null;
   }
