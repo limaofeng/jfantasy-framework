@@ -22,11 +22,9 @@ import net.asany.jfantasy.framework.util.common.ClassUtil;
 @NoArgsConstructor
 public class ObjectMapperWrapper {
 
-  public static ObjectMapperWrapper DEFAULT = new ObjectMapperWrapper(new ObjectMapper());
-
   private ObjectMapper objectMapper;
 
-  private ObjectMapperWrapper(ObjectMapper objectMapper) {
+  protected ObjectMapperWrapper(ObjectMapper objectMapper) {
     this.objectMapper = objectMapper;
   }
 
@@ -104,7 +102,7 @@ public class ObjectMapperWrapper {
     try {
       return this.objectMapper.readValue(json, classed);
     } catch (IOException e) {
-      log.error(e.getMessage() + " source json string : " + json + " => " + classed, e);
+      log.error("{} source json string : {} => {}", e.getMessage(), json, classed, e);
     }
     return null;
   }

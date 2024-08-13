@@ -22,7 +22,7 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 @Slf4j
 public class JSON {
 
-  private static final ObjectMapperWrapper wrapper = ObjectMapperWrapper.DEFAULT;
+  private static ObjectMapperWrapper wrapper;
 
   public static synchronized ObjectMapperWrapper initialize() {
     Jackson2ObjectMapperBuilder jsonMapperBuilder = new Jackson2ObjectMapperBuilder();
@@ -31,11 +31,12 @@ public class JSON {
   }
 
   public static synchronized ObjectMapperWrapper initialize(ObjectMapper objectMapper) {
-    if (wrapper.getObjectMapper() != null) {
+    if (wrapper != null) {
       log.warn("重置 JSON 工具类中的 ObjectMapper 对象.");
+      wrapper.setObjectMapper(objectMapper);
+      return wrapper;
     }
-    wrapper.setObjectMapper(objectMapper);
-    return wrapper;
+    return wrapper = new ObjectMapperWrapper(objectMapper);
   }
 
   public static synchronized ObjectMapperWrapper initialize(
@@ -100,7 +101,7 @@ public class JSON {
   private static boolean mixinLogWarning = true;
 
   public static void mixin(Class<?> type) {
-    if (wrapper.getObjectMapper() == null) {
+    if (wrapper == null) {
       if (mixinLogWarning) {
         log.warn("JsonMapper 未初始化完成,无法进行混入操作");
         mixinLogWarning = false;

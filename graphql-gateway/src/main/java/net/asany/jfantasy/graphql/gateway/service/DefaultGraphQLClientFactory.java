@@ -4,15 +4,12 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import lombok.SneakyThrows;
-import net.asany.jfantasy.framework.jackson.JSON;
 import net.asany.jfantasy.graphql.client.GraphQLTemplate;
 import net.asany.jfantasy.graphql.client.GraphQLWebSocketClient;
 import net.asany.jfantasy.graphql.gateway.GraphQLClient;
 import net.asany.jfantasy.graphql.gateway.GraphQLClientFactory;
 import net.asany.jfantasy.graphql.gateway.config.GatewayConfig;
 import net.asany.jfantasy.graphql.gateway.util.GraphQLUtils;
-import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.client.RestTemplate;
@@ -22,13 +19,6 @@ public class DefaultGraphQLClientFactory implements GraphQLClientFactory {
   private final ResourceLoader resourceLoader;
   private final RestTemplate restTemplate;
   private final ObjectMapper objectMapper;
-
-  public DefaultGraphQLClientFactory() {
-    this(
-        new DefaultResourceLoader(),
-        new RestTemplateBuilder().build(),
-        JSON.initialize().getObjectMapper());
-  }
 
   public DefaultGraphQLClientFactory(
       ResourceLoader resourceLoader, RestTemplate restTemplate, ObjectMapper objectMapper) {
