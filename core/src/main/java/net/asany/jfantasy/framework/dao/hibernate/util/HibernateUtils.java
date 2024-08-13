@@ -39,7 +39,6 @@ public class HibernateUtils {
     }
     if (idFields.length > 1) {
       IdClass idClass = getIdClass(entityClass);
-      @SuppressWarnings("unchecked")
       Serializable id = ClassUtil.newInstance((Class<Serializable>) idClass.value());
       for (Field idField : idFields) {
         ognlUtil.setValue(
@@ -47,7 +46,6 @@ public class HibernateUtils {
             id,
             ognlUtil.getValue(getIdFieldName(idField, idClass.value()), entity));
       }
-      //noinspection unchecked
       return (ID) id;
     } else {
       return ClassUtil.getValue(entity, idFields[0].getName());
@@ -70,9 +68,6 @@ public class HibernateUtils {
       throw new ValidationException("未发现主键配置:" + clazz.getName());
     }
     if (idFields.length > 1) {
-      IdClass idClass = getIdClass(entityClass);
-      @SuppressWarnings("unchecked")
-      Serializable id = ClassUtil.newInstance((Class<Serializable>) idClass.value());
       StringBuilder idNames = new StringBuilder();
       for (Field idField : idFields) {
         idNames.append(idField.getName());

@@ -69,6 +69,20 @@ spring:
             threadCount: 10
             threadPriority: 5
             threadsInheritContextClassLoaderOfInitializingThread: true
+  jackson:
+    mapper:
+      accept-case-insensitive-properties: true
+    property-naming-strategy: LOWER_CAMEL_CASE
+    default-property-inclusion: NON_NULL
+    serialization:
+      fail-on-empty-beans: false
+      write-dates-as-timestamps: false
+      wrap-root-value: false
+    parser:
+      allow-unquoted-field-names: true
+      allow-single-quotes: true
+    deserialization:
+      fail-on-unknown-properties: false
 
 management:
   health:

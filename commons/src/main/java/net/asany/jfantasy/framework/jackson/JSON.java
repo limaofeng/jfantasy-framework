@@ -25,26 +25,24 @@ public class JSON {
   private static final ObjectMapperWrapper wrapper = ObjectMapperWrapper.DEFAULT;
 
   public static synchronized ObjectMapperWrapper initialize() {
+    Jackson2ObjectMapperBuilder jsonMapperBuilder = new Jackson2ObjectMapperBuilder();
+    ObjectMapper objectMapper = jsonMapperBuilder.build();
+    return initialize(objectMapper);
+  }
+
+  public static synchronized ObjectMapperWrapper initialize(ObjectMapper objectMapper) {
     if (wrapper.getObjectMapper() != null) {
       log.warn("重置 JSON 工具类中的 ObjectMapper 对象.");
     }
-    Jackson2ObjectMapperBuilder jsonMapperBuilder = new Jackson2ObjectMapperBuilder();
-    wrapper.setObjectMapper(jsonMapperBuilder.build());
+    wrapper.setObjectMapper(objectMapper);
     return wrapper;
   }
 
   public static synchronized ObjectMapperWrapper initialize(
       Function<Jackson2ObjectMapperBuilder, Jackson2ObjectMapperBuilder> customizer) {
-    if (wrapper.getObjectMapper() != null) {
-      log.warn("重置 JSON 工具类中的 ObjectMapper 对象.");
-    }
     Jackson2ObjectMapperBuilder jsonMapperBuilder = new Jackson2ObjectMapperBuilder();
-    wrapper.setObjectMapper(customizer.apply(jsonMapperBuilder).build());
-    return wrapper;
-  }
-
-  public static synchronized void setObjectMapper(ObjectMapper objectMapper) {
-    wrapper.setObjectMapper(objectMapper);
+    ObjectMapper objectMapper = customizer.apply(jsonMapperBuilder).build();
+    return initialize(objectMapper);
   }
 
   public static String serialize(Object object, String... ignoreProperties) {
@@ -94,7 +92,7 @@ public class JSON {
     try {
       return wrapper.getObjectMapper().readTree(json);
     } catch (IOException e) {
-      log.error(e.getMessage() + " source json string : " + json + " => readNode", e);
+      log.error("{} source json string : {} => readNode", e.getMessage(), json, e);
     }
     return null;
   }

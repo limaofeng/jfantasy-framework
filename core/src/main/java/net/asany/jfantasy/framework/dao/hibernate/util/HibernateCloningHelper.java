@@ -21,6 +21,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.time.LocalDateTime;
 import java.util.*;
+import net.asany.jfantasy.framework.util.common.ClassUtil;
 import net.asany.jfantasy.framework.util.common.ObjectUtil;
 import org.hibernate.Hibernate;
 import org.hibernate.collection.spi.PersistentList;
@@ -43,7 +44,6 @@ public class HibernateCloningHelper {
       return value;
     }
     if (alreadyCloned.containsKey(value)) {
-      //noinspection unchecked
       return (T) alreadyCloned.get(value);
     }
     try {
@@ -59,7 +59,6 @@ public class HibernateCloningHelper {
       } else {
         clonedValue = value;
       }
-      //noinspection unchecked
       return (T) clonedValue;
     } catch (Exception e) {
       throw new RuntimeException("Cloning failed", e);
@@ -68,10 +67,8 @@ public class HibernateCloningHelper {
 
   private static <T> Class<T> getRealClass(T entity) throws ClassNotFoundException {
     if (entity instanceof MutableEntityEntry) {
-      //noinspection unchecked
       return (Class<T>) Class.forName(((MutableEntityEntry) entity).getEntityName());
     }
-    //noinspection unchecked
     return (Class<T>) Hibernate.getClass(entity);
   }
 
@@ -86,7 +83,7 @@ public class HibernateCloningHelper {
     T cloned = entityClass.getDeclaredConstructor().newInstance();
     alreadyCloned.put(entity, cloned);
 
-    for (Field field : entityClass.getDeclaredFields()) {
+    for (Field field : ClassUtil.getDeclaredFields(entityClass)) {
       if (field.getName().startsWith("$$_hibernate_")) {
         continue;
       }
@@ -147,7 +144,6 @@ public class HibernateCloningHelper {
     } else if (collection instanceof PersistentList) {
       collectionClazz = ArrayList.class;
     }
-    //noinspection unchecked
     Collection<Object> clonedCollection =
         (Collection<Object>) collectionClazz.getConstructor().newInstance();
     for (Object item : collection) {
@@ -165,7 +161,6 @@ public class HibernateCloningHelper {
     if (map instanceof PersistentMap) {
       mapClazz = LinkedHashMap.class;
     }
-    //noinspection unchecked
     Map<Object, Object> clonedMap = (Map<Object, Object>) mapClazz.getConstructor().newInstance();
     for (Map.Entry<?, ?> entry : map.entrySet()) {
       clonedMap.put(

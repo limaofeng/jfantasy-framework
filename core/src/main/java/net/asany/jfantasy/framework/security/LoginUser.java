@@ -6,10 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.security.Principal;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import lombok.*;
 import net.asany.jfantasy.framework.dao.Tenantable;
 import net.asany.jfantasy.framework.security.core.GrantedAuthority;
@@ -96,7 +93,7 @@ public class LoginUser implements UserDetails, Principal, OAuth2User, Tenantable
   }
 
   @Override
-  public <A> A getAttribute(String name) {
+  public <A> Optional<A> getAttribute(String name) {
     UserAttributeService userAttributeService =
         SpringBeanUtils.getBeanByType(UserAttributeService.class);
     if (userAttributeService.hasAttribute(name)) {
@@ -105,7 +102,10 @@ public class LoginUser implements UserDetails, Principal, OAuth2User, Tenantable
     if (this.data == null) {
       this.data = new HashMap<>();
     }
-    return (A) this.data.get(name);
+    if (this.data.containsKey(name)) {
+      return Optional.of((A) this.data.get(name));
+    }
+    return Optional.empty();
   }
 
   @Override

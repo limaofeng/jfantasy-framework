@@ -3,6 +3,7 @@ package net.asany.jfantasy.framework.security.core;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * 身份验证的主体
@@ -18,8 +19,12 @@ public interface AuthenticatedPrincipal {
    */
   String getName();
 
-  default <A> A getAttribute(String name) {
-    return (A) getAttributes().get(name);
+  default <A> Optional<A> getAttribute(String name) {
+    Map<String, Object> attrs = getAttributes();
+    if (attrs.containsKey(name)) {
+      return Optional.of((A) attrs.get(name));
+    }
+    return Optional.empty();
   }
 
   default Map<String, Object> getAttributes() {

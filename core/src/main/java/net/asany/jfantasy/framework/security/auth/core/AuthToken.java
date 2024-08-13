@@ -1,5 +1,6 @@
 package net.asany.jfantasy.framework.security.auth.core;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Set;
 import net.asany.jfantasy.framework.security.LoginUser;
@@ -28,5 +29,9 @@ public interface AuthToken {
 
   default Class<? extends AuthenticatedPrincipal> getPrincipalType() {
     return LoginUser.class;
+  }
+
+  default long getExpiresIn() {
+    return Duration.between(getIssuedAt(), getExpiresAt()).getSeconds();
   }
 }

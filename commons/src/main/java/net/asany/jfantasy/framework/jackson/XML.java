@@ -14,19 +14,25 @@ public class XML {
 
   private static final ObjectMapperWrapper wrapper = new ObjectMapperWrapper();
 
-  public static synchronized void setObjectMapper(ObjectMapper objectMapper) {
-    wrapper.setObjectMapper(objectMapper);
-  }
-
-  public static synchronized void initialize() {
+  public static synchronized ObjectMapperWrapper initialize() {
     Jackson2ObjectMapperBuilder xmlMapperBuilder = Jackson2ObjectMapperBuilder.xml();
-    wrapper.setObjectMapper(xmlMapperBuilder.build());
+    ObjectMapper objectMapper = xmlMapperBuilder.build();
+    return initialize(objectMapper);
   }
 
-  public static synchronized void initialize(
+  public static synchronized ObjectMapperWrapper initialize(
       Function<Jackson2ObjectMapperBuilder, Jackson2ObjectMapperBuilder> customizer) {
     Jackson2ObjectMapperBuilder xmlMapperBuilder = Jackson2ObjectMapperBuilder.xml();
-    wrapper.setObjectMapper(customizer.apply(xmlMapperBuilder).build());
+    ObjectMapper objectMapper = customizer.apply(xmlMapperBuilder).build();
+    return initialize(objectMapper);
+  }
+
+  public static synchronized ObjectMapperWrapper initialize(ObjectMapper objectMapper) {
+    if (wrapper.getObjectMapper() != null) {
+      log.warn("重置 XML 工具类中的 ObjectMapper 对象.");
+    }
+    wrapper.setObjectMapper(objectMapper);
+    return wrapper;
   }
 
   public static String serialize(Object object, String... ignoreProperties) {

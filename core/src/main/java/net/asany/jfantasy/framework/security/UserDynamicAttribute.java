@@ -1,5 +1,7 @@
 package net.asany.jfantasy.framework.security;
 
+import java.util.Optional;
+
 /**
  * 用户字段扩展变量接口
  *
@@ -20,5 +22,5 @@ public interface UserDynamicAttribute<T> {
    * @param user 用户对象
    * @return 字段值
    */
-  T value(LoginUser user);
+  Optional<T> value(LoginUser user);
 }

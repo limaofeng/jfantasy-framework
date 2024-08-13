@@ -34,6 +34,16 @@ public record AuthorizationGrantType(String value) implements Serializable {
     Assert.hasText(value, "value cannot be empty");
   }
 
+  public static AuthorizationGrantType valueOf(String value) {
+    return switch (value) {
+      case "authorization_code" -> AUTHORIZATION_CODE;
+      case "refresh_token" -> REFRESH_TOKEN;
+      case "client_credentials" -> CLIENT_CREDENTIALS;
+      case "password" -> PASSWORD;
+      default -> throw new IllegalStateException("Unexpected value: " + value);
+    };
+  }
+
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {

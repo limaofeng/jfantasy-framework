@@ -1,6 +1,5 @@
 package net.asany.jfantasy.autoconfigure;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import graphql.execution.instrumentation.Instrumentation;
 import graphql.kickstart.execution.GraphQLObjectMapper;
 import graphql.kickstart.servlet.config.GraphQLSchemaServletProvider;
@@ -46,12 +45,7 @@ public class GraphQLGatewayAutoConfiguration {
   public GraphQLClientFactory graphQLTemplateFactory(
       ResourceLoader resourceLoader, RestTemplate restTemplate, GraphQLObjectMapper objectMapper) {
     return new DefaultGraphQLClientFactory(
-        resourceLoader,
-        restTemplate,
-        objectMapper
-            .getJacksonMapper()
-            .copy()
-            .setSerializationInclusion(JsonInclude.Include.ALWAYS));
+        resourceLoader, restTemplate, objectMapper.getJacksonMapper());
   }
 
   @Bean(initMethod = "init", destroyMethod = "destroy")

@@ -2,6 +2,7 @@ package net.asany.jfantasy.framework.security.core;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import net.asany.jfantasy.framework.security.LoginUser;
 import net.asany.jfantasy.framework.security.UserDynamicAttribute;
 
@@ -37,10 +38,10 @@ public class UserAttributeService {
    * @param attributeName 属性名称
    * @return 属性值
    */
-  public <T> T getAttributeValue(LoginUser user, String attributeName) {
+  public <T> Optional<T> getAttributeValue(LoginUser user, String attributeName) {
     UserDynamicAttribute<?> attribute = attributeRegistry.get(attributeName);
     if (attribute != null) {
-      return (T) attribute.value(user);
+      return (Optional<T>) attribute.value(user);
     }
     throw new IllegalArgumentException("Attribute not found: " + attributeName);
   }

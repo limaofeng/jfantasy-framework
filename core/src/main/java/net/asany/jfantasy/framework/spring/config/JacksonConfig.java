@@ -1,15 +1,13 @@
 package net.asany.jfantasy.framework.spring.config;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.Module;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.PropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import jakarta.annotation.PostConstruct;
 import java.lang.reflect.Method;
 import java.util.*;
 import kong.unirest.Unirest;
@@ -45,11 +43,23 @@ public class JacksonConfig {
 
   public static final int ORDER = Ordered.HIGHEST_PRECEDENCE + 30;
 
-  @PostConstruct
-  public void initObjectMapper() {
-    XML.initialize(
+  @Bean("JsonObjectMapperWrapper")
+  public ObjectMapperWrapper json(ObjectMapper objectMapper) {
+    return JSON.initialize(objectMapper);
+  }
+
+  @Bean("xmlObjectMapperWrapper")
+  public ObjectMapperWrapper xml(
+      List<Jackson2ObjectMapperBuilderCustomizer> objectMapperBuilderCustomizers,
+      List<Jackson2XmlMapperBuilderCustomizer> xmlMapperBuilderCustomizers) {
+    return XML.initialize(
         xmlMapperBuilder -> {
-          new JacksonConfig.AnyJackson2XmlMapperBuilderCustomizer().customize(xmlMapperBuilder);
+          for (Jackson2ObjectMapperBuilderCustomizer customizer : objectMapperBuilderCustomizers) {
+            customizer.customize(xmlMapperBuilder);
+          }
+          for (Jackson2XmlMapperBuilderCustomizer customizer : xmlMapperBuilderCustomizers) {
+            customizer.customize(xmlMapperBuilder);
+          }
           return xmlMapperBuilder;
         });
   }
@@ -65,15 +75,16 @@ public class JacksonConfig {
     return new AnyJackson2ObjectMapperBuilderCustomizer(context, modules);
   }
 
+  @Bean
+  public Jackson2XmlMapperBuilderCustomizer defaultCustomizeJacksonXml() {
+    return new AnyJackson2XmlMapperBuilderCustomizer();
+  }
+
   public static class AnyJackson2ObjectMapperBuilderCustomizer
       implements Jackson2ObjectMapperBuilderCustomizer {
 
     private final List<Module> modules;
-    private ApplicationContext context;
-
-    public AnyJackson2ObjectMapperBuilderCustomizer() {
-      this.modules = new ArrayList<>();
-    }
+    private final ApplicationContext context;
 
     public AnyJackson2ObjectMapperBuilderCustomizer(
         ApplicationContext context, List<Module> modules) {
@@ -97,14 +108,6 @@ public class JacksonConfig {
               .addDeserializer(Date.class, new DateDeserializer()));
 
       builder
-          .propertyNamingStrategy(PropertyNamingStrategies.LOWER_CAMEL_CASE)
-          .serializationInclusion(JsonInclude.Include.NON_NULL)
-          .featuresToDisable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
-          .featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-          .featuresToDisable(SerializationFeature.WRAP_ROOT_VALUE)
-          .featuresToEnable(
-              JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, JsonParser.Feature.ALLOW_SINGLE_QUOTES)
-          .featuresToDisable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
           .modules(modules)
           .filters(FilteredMixinHolder.getDefaultFilterProvider())
           .mixIns(mixIns);
@@ -183,8 +186,7 @@ public class JacksonConfig {
       JacksonXmlModule xmlModule = new JacksonXmlModule();
       builder
           .modulesToInstall(xmlModule)
-          .featuresToEnable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
-          .featuresToDisable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+          .featuresToEnable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
     }
   }
 
@@ -194,7 +196,6 @@ public class JacksonConfig {
     public Object postProcessAfterInitialization(@NotNull Object bean, @NotNull String beanName)
         throws BeansException {
       if (bean instanceof ObjectMapper objectMapper) {
-        JSON.setObjectMapper(objectMapper);
         Unirest.config().setObjectMapper(new UnirestObjectMapper(objectMapper));
       }
       return bean;
