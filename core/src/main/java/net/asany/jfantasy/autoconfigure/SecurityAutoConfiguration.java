@@ -6,6 +6,9 @@ import java.util.List;
 import net.asany.jfantasy.framework.context.DatabaseMessageSource;
 import net.asany.jfantasy.framework.context.service.LanguageService;
 import net.asany.jfantasy.framework.security.*;
+import net.asany.jfantasy.framework.security.auth.base.AnonymousAuthenticationProvider;
+import net.asany.jfantasy.framework.security.auth.core.ClientDetailsService;
+import net.asany.jfantasy.framework.security.auth.oauth2.OAuth2AuthenticationProvider;
 import net.asany.jfantasy.framework.security.authentication.*;
 import net.asany.jfantasy.framework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider.DefaultPostAuthenticationChecks;
 import net.asany.jfantasy.framework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider.DefaultPreAuthenticationChecks;
@@ -139,6 +142,18 @@ public class SecurityAutoConfiguration {
         true,
         preUserDetailsCheckers,
         postUserDetailsCheckers);
+  }
+
+  @Bean
+  public OAuth2AuthenticationProvider oAuth2AuthenticationProvider() {
+    return new OAuth2AuthenticationProvider();
+  }
+
+  @Bean
+  @ConditionalOnBean({ClientDetailsService.class})
+  public AnonymousAuthenticationProvider anonymousAuthenticationProvider(
+      ClientDetailsService clientDetailsService) {
+    return new AnonymousAuthenticationProvider(clientDetailsService);
   }
 
   @Bean

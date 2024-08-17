@@ -16,11 +16,11 @@ import net.asany.jfantasy.framework.security.core.authority.AuthorityUtils;
  * @author limaofeng
  */
 @Data
-public abstract class AbstractAuthenticationToken implements AuthenticationToken {
-  private String name;
-  private AuthenticationDetails details;
-  private Collection<GrantedAuthority> authorities;
-  private boolean authenticated;
+public abstract class AbstractAuthenticationToken<T> implements AuthenticationToken<T> {
+  protected String name;
+  protected AuthenticationDetails details;
+  protected Collection<GrantedAuthority> authorities;
+  protected boolean authenticated;
 
   public AbstractAuthenticationToken(Collection<GrantedAuthority> authorities) {
     if (authorities == null) {

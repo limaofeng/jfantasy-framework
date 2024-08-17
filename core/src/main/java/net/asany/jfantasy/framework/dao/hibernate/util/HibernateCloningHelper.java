@@ -15,21 +15,31 @@
  */
 package net.asany.jfantasy.framework.dao.hibernate.util;
 
+import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
+import jakarta.persistence.metamodel.EntityType;
+import jakarta.persistence.metamodel.Metamodel;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.time.LocalDateTime;
 import java.util.*;
+import net.asany.jfantasy.framework.spring.SpringBeanUtils;
 import net.asany.jfantasy.framework.util.common.ClassUtil;
 import net.asany.jfantasy.framework.util.common.ObjectUtil;
+import net.asany.jfantasy.framework.util.reflect.Property;
 import org.hibernate.Hibernate;
+import org.hibernate.Session;
 import org.hibernate.collection.spi.PersistentList;
 import org.hibernate.collection.spi.PersistentMap;
 import org.hibernate.collection.spi.PersistentSet;
 import org.hibernate.engine.internal.MutableEntityEntry;
 
 public class HibernateCloningHelper {
+
   public static <T> T cloneEntity(T entity) {
     Map<Object, Object> alreadyCloned = new HashMap<>();
     return cloneValueInternal(entity, alreadyCloned);
@@ -39,8 +49,9 @@ public class HibernateCloningHelper {
     if (value == null) {
       return null;
     }
+    Class<T> valueClass = ClassUtil.getRealClass(value);
     // Return the entity directly if it is a cloneable simple type or has been cloned already
-    if (isSimpleType(value.getClass())) {
+    if (isSimpleType(valueClass)) {
       return value;
     }
     if (alreadyCloned.containsKey(value)) {
@@ -48,13 +59,13 @@ public class HibernateCloningHelper {
     }
     try {
       Object clonedValue;
-      if (value.getClass().isArray()) {
+      if (valueClass.isArray()) {
         clonedValue = cloneArray(value, alreadyCloned);
       } else if (value instanceof Collection<?> collection) {
         clonedValue = cloneCollection(collection, alreadyCloned);
       } else if (value instanceof Map) {
         clonedValue = cloneMap((Map<?, ?>) value, alreadyCloned);
-      } else if (!isSimpleType(value.getClass())) {
+      } else if (!isSimpleType(valueClass)) {
         clonedValue = cloneEntityInternal(value, alreadyCloned);
       } else {
         clonedValue = value;
@@ -87,18 +98,68 @@ public class HibernateCloningHelper {
       if (field.getName().startsWith("$$_hibernate_")) {
         continue;
       }
-      if (Modifier.isStatic(field.getModifiers())) {
+      if (Modifier.isStatic(field.getModifiers()) || Modifier.isTransient(field.getModifiers())) {
         continue;
       }
+
+      Property property = ClassUtil.getProperty(entityClass, field.getName());
+
+      if (property == null) {
+        continue;
+      }
+      if (property.isTransient() || !property.isRead() || !property.isWrite()) {
+        continue;
+      }
+
       Object fieldValue = ObjectUtil.getValue(field.getName(), entity);
-
-      if (fieldValue == null || !Hibernate.isInitialized(fieldValue)) {
+      if (fieldValue == null) {
         continue;
       }
 
-      ObjectUtil.setValue(field.getName(), cloned, cloneValueInternal(fieldValue, alreadyCloned));
+      Object copyFieldValue;
+
+      if (!Hibernate.isInitialized(fieldValue)) {
+        copyFieldValue = cloneLazyEntityInternal(fieldValue, alreadyCloned);
+      } else {
+        copyFieldValue = cloneValueInternal(fieldValue, alreadyCloned);
+      }
+
+      if (copyFieldValue == null) {
+        continue;
+      }
+
+      ObjectUtil.setValue(field.getName(), cloned, copyFieldValue);
     }
     return cloned;
+  }
+
+  public static <T> T cloneLazyEntityInternal(T entity, Map<Object, Object> alreadyCloned) {
+    Class<T> entityClass = ClassUtil.getRealClass(entity);
+    if (!isEntityClass(entityClass)) {
+      return null;
+    }
+    if (alreadyCloned.containsKey(entity)) {
+      return (T) alreadyCloned.get(entity);
+    }
+    EntityManager em = SpringBeanUtils.getBeanByType(EntityManager.class);
+    Session session = em.unwrap(Session.class);
+    Object primaryKey = session.getIdentifier(entity);
+    T copyFieldValue = createEntityWithId(entityClass, primaryKey);
+    alreadyCloned.put(entity, copyFieldValue);
+    return copyFieldValue;
+  }
+
+  public static boolean isEntityClass(Class<?> clazz) {
+    EntityManager em = SpringBeanUtils.getBeanByType(EntityManager.class);
+    Metamodel metamodel = em.getMetamodel();
+
+    for (EntityType<?> entityType : metamodel.getEntities()) {
+      if (entityType.getJavaType().equals(clazz)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   private static boolean isSimpleType(Class<?> clazz) {
@@ -168,5 +229,53 @@ public class HibernateCloningHelper {
           cloneValueInternal(entry.getValue(), alreadyCloned));
     }
     return clonedMap;
+  }
+
+  public static <T> T createEntityWithId(Class<T> entityClass, Object idOrCompositeId) {
+    try {
+      // 创建新的实体实例
+      T entity = entityClass.getDeclaredConstructor().newInstance();
+
+      // 查找主键字段或嵌入式主键字段
+      Field idField = null;
+      boolean isEmbeddedId = false;
+
+      for (Field field : ClassUtil.getDeclaredFields(entityClass)) {
+        if (field.isAnnotationPresent(Id.class)) {
+          idField = field;
+          break;
+        } else if (field.isAnnotationPresent(EmbeddedId.class)) {
+          idField = field;
+          isEmbeddedId = true;
+          break;
+        }
+      }
+      if (idField != null) {
+        if (isEmbeddedId) {
+          // 处理 @EmbeddedId
+          idField.set(entity, idOrCompositeId);
+        } else {
+          if (entityClass.isAnnotationPresent(IdClass.class)) {
+            // 处理 @IdClass
+            for (Field pkField : ClassUtil.getDeclaredFields(idOrCompositeId.getClass())) {
+              ClassUtil.setFieldValue(
+                  entity,
+                  pkField.getName(),
+                  ClassUtil.getFieldValue(idOrCompositeId, pkField.getName()));
+            }
+          } else {
+            // 处理单一 @Id
+            ClassUtil.setFieldValue(entity, idField.getName(), idOrCompositeId);
+          }
+        }
+      } else {
+        throw new RuntimeException(
+            "No @Id or @EmbeddedId field found in entity class: " + entityClass.getName());
+      }
+
+      return entity;
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to create entity and set ID", e);
+    }
   }
 }

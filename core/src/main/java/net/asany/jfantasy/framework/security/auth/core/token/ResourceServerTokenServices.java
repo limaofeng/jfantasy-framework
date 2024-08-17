@@ -1,16 +1,20 @@
 package net.asany.jfantasy.framework.security.auth.core.token;
 
+import net.asany.jfantasy.framework.security.auth.AuthenticationToken;
 import net.asany.jfantasy.framework.security.auth.core.AuthToken;
-import net.asany.jfantasy.framework.security.auth.oauth2.server.BearerTokenAuthenticationToken;
-import net.asany.jfantasy.framework.security.auth.oauth2.server.authentication.BearerTokenAuthentication;
 
+/**
+ * 贤源服务器令牌服务
+ *
+ * @param <T>
+ */
 public interface ResourceServerTokenServices<T extends AuthToken> {
 
-  BearerTokenAuthentication loadAuthentication(BearerTokenAuthenticationToken token);
+  AuthenticationToken<T> loadAuthentication(AuthenticationToken<String> authenticationToken);
 
-  BearerTokenAuthentication loadAuthentication(String accessToken);
+  AuthenticationToken<T> loadAuthentication(String token);
 
-  T readAccessToken(BearerTokenAuthenticationToken accessToken);
+  T readAccessToken(AuthenticationToken<String> authenticationToken);
 
   T readAccessToken(String accessToken);
 }

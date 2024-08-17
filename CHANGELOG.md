@@ -28,7 +28,7 @@ All notable changes to this project will be documented in this file. See [standa
 * 优化 BatchService, 打印队列大小 ([ee8e731](https://github.com/limaofeng/jfantasy-framework/commit/ee8e7314fb97cf0f851ace95d126b7341e052596))
 * 优化 FileUtil 工具类 ([b5aac20](https://github.com/limaofeng/jfantasy-framework/commit/b5aac20433a1bbc361d60fd30461eef875da0a3f))
 * 优化 ObjectUtil 的 toMap 函数逻辑 ([199c314](https://github.com/limaofeng/jfantasy-framework/commit/199c31479b107770ff066d9f64f1a170f388fa4d))
-* 优化 tokenType 与 secretType 的匹配逻辑 ([ec11095](https://github.com/limaofeng/jfantasy-framework/commit/ec11095b878ae0de27dd2b523414fb6a0798fa66))
+* 优化 authType 与 secretType 的匹配逻辑 ([ec11095](https://github.com/limaofeng/jfantasy-framework/commit/ec11095b878ae0de27dd2b523414fb6a0798fa66))
 * 优化 WebPropertyFilter 实现 ([8de6060](https://github.com/limaofeng/jfantasy-framework/commit/8de6060b16441e1c7cf6b8d9356d878ccf3c10b5))
 * 优化hibernate 克隆逻辑 ([9a4b21c](https://github.com/limaofeng/jfantasy-framework/commit/9a4b21c5c9d09289b287c6c3618bbad907b3a6b3))
 * 优化hibernate 克隆逻辑，支持集合 ([b98fae1](https://github.com/limaofeng/jfantasy-framework/commit/b98fae19f3bc65096e67e976d104109829cd426e))

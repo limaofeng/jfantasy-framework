@@ -34,12 +34,15 @@ public class BearerTokenAuthenticationProvider
   @Override
   public Authentication authenticate(BearerTokenAuthenticationToken bearer)
       throws AuthenticationException {
-    AbstractAuthenticationToken token = this.tokenServices.loadAuthentication(bearer);
-    if (token == null) {
+    Authentication authentication = this.tokenServices.loadAuthentication(bearer);
+    if (authentication == null) {
       throw new InvalidTokenException("Invalid token");
     }
-    token.setDetails(bearer.getDetails());
+    //noinspection rawtypes
+    if (authentication instanceof AbstractAuthenticationToken abstractAuthenticationToken) {
+      abstractAuthenticationToken.setDetails(bearer.getDetails());
+    }
     log.debug("Authenticated token");
-    return token;
+    return authentication;
   }
 }

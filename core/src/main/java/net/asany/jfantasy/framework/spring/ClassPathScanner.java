@@ -5,6 +5,7 @@ import java.lang.annotation.Annotation;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.asany.jfantasy.framework.util.common.ClassUtil;
 import org.jetbrains.annotations.NotNull;
@@ -33,7 +34,7 @@ public class ClassPathScanner implements ResourceLoaderAware {
   private MetadataReaderFactory metadataReaderFactory =
       new CachingMetadataReaderFactory(this.resourcePatternResolver);
 
-  private String resourcePattern = DEFAULT_RESOURCE_PATTERN;
+  @Setter @Getter private String resourcePattern = DEFAULT_RESOURCE_PATTERN;
 
   @Override
   public void setResourceLoader(@NotNull ResourceLoader resourceLoader) {
@@ -57,7 +58,7 @@ public class ClassPathScanner implements ResourceLoaderAware {
         String clazzName = metadataReader.getClassMetadata().getClassName();
         candidates.add(clazzName);
         if (log.isDebugEnabled()) {
-          log.debug("Find Class : " + clazzName);
+          log.debug("Find Class : {}", clazzName);
         }
       }
     } catch (IOException ex) {
@@ -74,12 +75,12 @@ public class ClassPathScanner implements ResourceLoaderAware {
    * @param anno 注解
    * @return 标注注解的Class
    */
-  public <T extends Annotation> Set<Class> findAnnotationedClasses(
+  public <T extends Annotation> Set<Class<?>> findAnnotationedClasses(
       String basepackage, Class<T> anno) {
-    log.debug("Scanning " + anno + " in " + basepackage);
+    log.debug("Scanning %s in %s".formatted(anno, basepackage));
     StopWatch watch = new StopWatch();
     watch.start();
-    Set<Class> candidates = new LinkedHashSet<>();
+    Set<Class<?>> candidates = new LinkedHashSet<>();
     try {
       String packageSearchPath =
           "classpath*:"
@@ -95,9 +96,9 @@ public class ClassPathScanner implements ResourceLoaderAware {
         try {
           String clazzName = metadataReader.getClassMetadata().getClassName();
           candidates.add(Class.forName(clazzName));
-          log.debug("Find Annotationed Class " + clazzName + "(@" + anno.getName() + ")");
+          log.debug("Find Annotationed Class {}(@{})", clazzName, anno.getName());
         } catch (ClassNotFoundException ignored) {
-          log.error(ignored.getMessage(), ignored);
+          log.error(ignored.getMessage());
         }
       }
     } catch (IOException ex) {
@@ -109,24 +110,16 @@ public class ClassPathScanner implements ResourceLoaderAware {
     return candidates;
   }
 
-  public String getResourcePattern() {
-    return this.resourcePattern;
-  }
-
-  public void setResourcePattern(String resourcePattern) {
-    this.resourcePattern = resourcePattern;
-  }
-
   /**
    * @param basepackage 扫描包
    * @param interfaceClass 接口或者父类
    * @return class
    */
-  public <T> Set<Class> findInterfaceClasses(String basepackage, Class<T> interfaceClass) {
-    log.debug("Scanning " + interfaceClass + " in " + basepackage);
+  public <T> Set<Class<?>> findInterfaceClasses(String basepackage, Class<T> interfaceClass) {
+    log.debug("Scanning {} in {}", interfaceClass, basepackage);
     StopWatch watch = new StopWatch();
     watch.start();
-    Set<Class> candidates = new LinkedHashSet<Class>();
+    Set<Class<?>> candidates = new LinkedHashSet<>();
     try {
       String packageSearchPath =
           "classpath*:"

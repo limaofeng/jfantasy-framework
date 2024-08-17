@@ -56,7 +56,7 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
     try {
       return classFactory.getClass(clazz).newInstance();
     } catch (Exception e) {
-      log.error("创建类:" + clazz + "\t时出现异常!", e);
+      log.error("创建类:{}\t时出现异常!", clazz, e);
     }
     return null;
   }
@@ -70,15 +70,12 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
    */
   @SneakyThrows
   public static <T> Class<T> getRealClass(T target) {
-    if (target instanceof Class<?>) {
-      //noinspection unchecked
-      return (Class<T>) target;
+    if (target instanceof Class<?> targetClass) {
+      return (Class<T>) getRealClass(targetClass);
     }
     if (target instanceof MutableEntityEntry) {
-      //noinspection unchecked
       return (Class<T>) Class.forName(((MutableEntityEntry) target).getEntityName());
     }
-    //noinspection unchecked
     Class<T> targetClass = (Class<T>) Hibernate.getClass(target);
     return getRealClass(targetClass);
   }
@@ -92,18 +89,14 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
    */
   public static <T> Class<T> getRealClass(Class<T> clazz) {
     if (PersistentSet.class.isAssignableFrom(clazz)) {
-      //noinspection unchecked
       return (Class<T>) LinkedHashSet.class;
     }
     if (PersistentList.class.isAssignableFrom(clazz)) {
-      //noinspection unchecked
       return (Class<T>) ArrayList.class;
     }
     if (PersistentMap.class.isAssignableFrom(clazz)) {
-      //noinspection unchecked
       return (Class<T>) LinkedHashMap.class;
     }
-    //noinspection unchecked
     return (Class<T>) getUserClass(clazz);
   }
 
@@ -139,7 +132,6 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
    */
   public static <T> T newInstance(String className) {
     try {
-      //noinspection unchecked
       return (T) newInstance(FantasyClassLoader.getClassLoader().loadClass(className));
     } catch (ClassNotFoundException e) {
       log.error(e.getMessage(), e);
@@ -178,7 +170,6 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
 
   public static <T> Class<T> forName(String className) {
     try {
-      //noinspection unchecked
       return StringUtil.isNotBlank(className)
           ? (Class<T>) FantasyClassLoader.getClassLoader().loadClass(className)
           : null;
@@ -196,6 +187,10 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
     return classFactory.getClass(clazz).getValue(target, name);
   }
 
+  public static <T> T getFieldValue(Object target, String name) {
+    return classFactory.getClass(getRealClass(target)).getValue(target, name);
+  }
+
   public static void setFieldValue(Object target, String name, Object value) {
     classFactory.getClass(getRealClass(target)).setValue(target, name, value);
   }
@@ -203,7 +198,6 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
   public static <T> void setFieldValue(Object target, String name, Function<T, T> value) {
     IClass<?> iClass = classFactory.getClass(getRealClass(target));
     Object oldValue = iClass.getValue(target, name);
-    //noinspection unchecked
     iClass.setValue(target, name, value.apply((T) oldValue));
   }
 
@@ -244,7 +238,7 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
     try {
       return classFactory.getClass(clazz).getMethod(method);
     } catch (Exception e) {
-      log.error(clazz + "." + method + "-" + e.getMessage(), e);
+      log.error("{}.{}-{}", clazz, method, e.getMessage(), e);
     }
     return null;
   }
@@ -253,7 +247,7 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
     try {
       return classFactory.getClass(clazz).getMethod(method, paramTypes);
     } catch (Exception e) {
-      log.error(clazz + "." + method + "-" + e.getMessage(), e);
+      log.error("{}.{}-{}", clazz, method, e.getMessage(), e);
     }
     return null;
   }
@@ -288,7 +282,6 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
   }
 
   public static <T> T[] newInstance(Class<T> componentType, int length) {
-    //noinspection unchecked
     return (T[]) Array.newInstance(componentType, length);
   }
 
@@ -385,10 +378,8 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
       if ((index >= typeArguments.length) || (index < 0)) {
         throw new InputDataException(String.format("你输入的索引 %s", index < 0 ? "不能小于0" : "超出了参数的总数"));
       }
-      //noinspection unchecked
       return (Class<T>) typeArguments[index];
     }
-    //noinspection unchecked
     return (Class<T>) Object.class;
   }
 
@@ -467,10 +458,8 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
       if ((index >= fieldArgTypes.length) || (index < 0)) {
         throw new InputDataException("你输入的索引" + (index < 0 ? "不能小于0" : "超出了参数的总数"));
       }
-      //noinspection unchecked
       return (Class<T>) fieldArgTypes[index];
     }
-    //noinspection unchecked
     return (Class<T>) Object.class;
   }
 
@@ -511,7 +500,6 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
     for (Annotation[] paramAnnots : annotations) {
       for (Annotation annot : paramAnnots) {
         if (annotClass.equals(annot.annotationType())) {
-          //noinspection unchecked
           return (T) annot;
         }
       }
@@ -557,7 +545,6 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
       Annotation[] annotations, Class<T> annotClass) {
     for (Annotation annot : annotations) {
       if (annotClass.equals(annot.annotationType())) {
-        //noinspection unchecked
         return (T) annot;
       }
     }
@@ -567,32 +554,31 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
   public static <T> Class<T> getSuperClassGenricType(Class<T> clazz, int index) {
     Type genType = clazz.getGenericSuperclass();
     if (!(genType instanceof ParameterizedType)) {
-      log.warn(clazz.getSimpleName() + "'s superclass not ParameterizedType");
-      //noinspection unchecked
+      log.warn("{}'s superclass not ParameterizedType", clazz.getSimpleName());
       return (Class<T>) Object.class;
     }
-    Type[] params = ((ParameterizedType) genType).getActualTypeArguments();
+    return getGenTypeClass(clazz, index, (ParameterizedType) genType);
+  }
+
+  private static <T> Class<T> getGenTypeClass(
+      Class<T> clazz, int index, ParameterizedType genType) {
+    Type[] params = genType.getActualTypeArguments();
     if ((index >= params.length) || (index < 0)) {
       log.warn(
-          "Index: "
-              + index
-              + ", Size of "
-              + clazz.getSimpleName()
-              + "'s Parameterized Type: "
-              + params.length);
-      //noinspection unchecked
+          "Index: {}, Size of {}'s Parameterized Type: {}",
+          index,
+          clazz.getSimpleName(),
+          params.length);
       return (Class<T>) Object.class;
     }
     if (params[index] instanceof ParameterizedType) {
-      //noinspection unchecked
       return (Class<T>) ((ParameterizedType) params[index]).getRawType();
     }
     if (!(params[index] instanceof Class<?>)) {
-      log.warn(clazz.getSimpleName() + " not set the actual class on superclass generic parameter");
-      //noinspection unchecked
+      log.warn(
+          "{} not set the actual class on superclass generic parameter", clazz.getSimpleName());
       return (Class<T>) Object.class;
     }
-    //noinspection unchecked
     return (Class<T>) params[index];
   }
 
@@ -605,37 +591,12 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
     Type[] genTypes = clazz.getGenericInterfaces();
     for (Type genType : genTypes) {
       if (!(genType instanceof ParameterizedType)) {
-        //noinspection unchecked
         return (Class<T>) Object.class;
       }
       if (interfaceClazz.equals(((ParameterizedType) genType).getRawType())) {
-        Type[] params = ((ParameterizedType) genType).getActualTypeArguments();
-        if ((index >= params.length) || (index < 0)) {
-          log.warn(
-              "Index: "
-                  + index
-                  + ", Size of "
-                  + clazz.getSimpleName()
-                  + "'s Parameterized Type: "
-                  + params.length);
-          //noinspection unchecked
-          return (Class<T>) Object.class;
-        }
-        if (params[index] instanceof ParameterizedType) {
-          //noinspection unchecked
-          return (Class<T>) ((ParameterizedType) params[index]).getRawType();
-        }
-        if (!(params[index] instanceof Class<?>)) {
-          log.warn(
-              clazz.getSimpleName() + " not set the actual class on superclass generic parameter");
-          //noinspection unchecked
-          return (Class<T>) Object.class;
-        }
-        //noinspection unchecked
-        return (Class<T>) params[index];
+        return (Class<T>) getGenTypeClass(clazz, index, (ParameterizedType) genType);
       }
     }
-    //noinspection unchecked
     return (Class<T>) Object.class;
   }
 
@@ -645,7 +606,7 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
 
   public static Class<?> getRealType(Class<?> clazz) {
     if (clazz.isInterface()) {
-      log.error("The implementation of interface " + clazz + " is not specified.");
+      log.error("The implementation of interface {} is not specified.", clazz);
     }
     return clazz;
   }
@@ -654,9 +615,7 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
   public static <T> T invoke(Method method) {
     if (!method.canAccess(null)) {
       method.trySetAccessible();
-      ;
     }
-    //noinspection unchecked
     return (T) method.invoke(null);
   }
 
@@ -664,7 +623,6 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
   public static <T> T invoke(String methodName, Object obj) {
     MethodProxy method = ClassUtil.getMethodProxy(getRealClass(obj), methodName);
     assert method != null;
-    //noinspection unchecked
     return (T) method.invoke(obj);
   }
 
@@ -672,9 +630,7 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
   public static <T> T invoke(Method method, Object obj, Object... args) {
     if (!method.canAccess(obj)) {
       method.trySetAccessible();
-      ;
     }
-    //noinspection unchecked
     return (T) method.invoke(obj, args);
   }
 
@@ -694,10 +650,8 @@ public class ClassUtil extends org.springframework.util.ClassUtils {
       return proxy;
     }
     if (AopUtils.isJdkDynamicProxy(proxy)) {
-      //noinspection unchecked
       return (T) getJdkDynamicProxyTargetObject(proxy);
     } else { // cglib
-      //noinspection unchecked
       return (T) getCglibProxyTargetObject(proxy);
     }
   }

@@ -32,18 +32,18 @@ public class ClassPathScannerTest {
 
   @Test
   public void testFindAnnotationedClasses() throws Exception {
-    Set<Class> classes = pathScanner.findAnnotationedClasses("", JsonIgnoreProperties.class);
-    for (Class clazz : classes) {
+    Set<Class<?>> classes = pathScanner.findAnnotationedClasses("", JsonIgnoreProperties.class);
+    for (Class<?> clazz : classes) {
       log.debug(clazz.getName());
     }
   }
 
   @Test
   public void testFindInterfaceClasses() throws Exception {
-    Set<Class> classes =
+    Set<Class<?>> classes =
         ClassPathScanner.getInstance()
             .findInterfaceClasses("net.asany.jfantasy.*.bean", BaseBusEntity.class);
-    for (Class clazz : classes) {
+    for (Class<?> clazz : classes) {
       log.debug(clazz.getName());
     }
   }

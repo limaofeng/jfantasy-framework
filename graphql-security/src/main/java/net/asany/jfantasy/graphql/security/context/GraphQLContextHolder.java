@@ -20,10 +20,7 @@ public class GraphQLContextHolder {
   }
 
   public static void setContext(AuthGraphQLServletContext context) {
-    GraphQLKickstartContext contextHolder = HOLDER.get();
-    if (contextHolder != null) {
-      HOLDER.remove();
-    }
+    clear();
     HOLDER.set(context);
   }
 

@@ -42,7 +42,6 @@ public class AuthenticationManager {
             provider.getClass().getSimpleName(), ++currentPosition, size);
       }
       try {
-        //noinspection unchecked
         result = ((AuthenticationProvider<Authentication>) provider).authenticate(authentication);
         if (result != null) {
           copyDetails(authentication, result);

@@ -2,14 +2,12 @@ package net.asany.jfantasy.framework.security.auth.core;
 
 import java.util.Collection;
 import net.asany.jfantasy.framework.security.auth.AuthenticationToken;
-import net.asany.jfantasy.framework.security.auth.oauth2.server.BearerTokenAuthenticationToken;
-import net.asany.jfantasy.framework.security.auth.oauth2.server.authentication.BearerTokenAuthentication;
 import net.asany.jfantasy.framework.security.authentication.Authentication;
 
 /**
  * ToKen 存储器
  *
- * @author limaofeng
+ * @param <T>
  */
 public interface TokenStore<T extends AuthToken> {
 
@@ -19,7 +17,7 @@ public interface TokenStore<T extends AuthToken> {
    * @param token 令牌
    * @return AuthenticationToken
    */
-  BearerTokenAuthentication readAuthentication(BearerTokenAuthenticationToken token);
+  Authentication readAuthentication(AuthenticationToken<String> token);
 
   /**
    * 通过 Token 获取身份
@@ -27,7 +25,7 @@ public interface TokenStore<T extends AuthToken> {
    * @param token 令牌
    * @return BearerTokenAuthentication
    */
-  BearerTokenAuthentication readAuthentication(String token);
+  AuthenticationToken<T> readAuthentication(String token);
 
   /**
    * 存储 Token 对应的获取身份
@@ -96,7 +94,7 @@ public interface TokenStore<T extends AuthToken> {
    * @param authentication 授权
    * @return AuthToken
    */
-  T getAccessToken(BearerTokenAuthentication authentication);
+  T getAccessToken(AuthenticationToken<String> authentication);
 
   /**
    * 获取 clientId 的全部 Token

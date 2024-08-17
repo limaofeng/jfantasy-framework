@@ -13,7 +13,8 @@ import net.asany.jfantasy.framework.security.core.GrantedAuthority;
  *
  * @author limaofeng
  */
-public class BearerTokenAuthentication extends AbstractAuthTokenAuthenticationToken<AuthToken> {
+public class BearerTokenAuthentication
+    extends AbstractAuthTokenAuthenticationToken<AuthenticatedPrincipal, AuthToken> {
 
   private final Map<String, Object> attributes;
 
@@ -21,7 +22,7 @@ public class BearerTokenAuthentication extends AbstractAuthTokenAuthenticationTo
       AuthenticatedPrincipal principal,
       AuthToken credentials,
       Collection<GrantedAuthority> authorities) {
-    super(credentials, principal, credentials, authorities);
+    super(principal, credentials, authorities);
     this.attributes = Collections.unmodifiableMap(new LinkedHashMap<>(principal.getAttributes()));
     setAuthenticated(true);
   }

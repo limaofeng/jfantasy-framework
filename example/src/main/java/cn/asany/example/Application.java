@@ -5,10 +5,9 @@ import java.util.*;
 import lombok.extern.slf4j.Slf4j;
 import net.asany.jfantasy.framework.dao.jpa.SimpleAnyJpaRepository;
 import net.asany.jfantasy.framework.security.LoginUser;
-import net.asany.jfantasy.framework.security.auth.TokenType;
+import net.asany.jfantasy.framework.security.auth.AuthenticationToken;
 import net.asany.jfantasy.framework.security.auth.core.*;
 import net.asany.jfantasy.framework.security.auth.oauth2.core.OAuth2AccessToken;
-import net.asany.jfantasy.framework.security.auth.oauth2.server.BearerTokenAuthenticationToken;
 import net.asany.jfantasy.framework.security.auth.oauth2.server.authentication.BearerTokenAuthentication;
 import net.asany.jfantasy.framework.security.authentication.Authentication;
 import net.asany.jfantasy.framework.security.core.GrantedAuthority;
@@ -63,9 +62,7 @@ public class Application extends SpringBootServletInitializer {
 
   @Bean
   public SchemaParserDictionaryBuilder dictionaryBuilder() {
-    return dictionary -> {
-      dictionary.add("DemoUserSettings", UserSetting.class);
-    };
+    return dictionary -> dictionary.add("DemoUserSettings", UserSetting.class);
   }
 
   @Bean
@@ -98,8 +95,18 @@ public class Application extends SpringBootServletInitializer {
           }
 
           @Override
-          public Set<String> getClientSecrets(ClientSecretType type) {
+          public Set<ClientSecret> getClientSecrets(ClientSecretType type) {
             return new HashSet<>();
+          }
+
+          @Override
+          public Optional<ClientSecret> getClientSecret(String id) {
+            return Optional.empty();
+          }
+
+          @Override
+          public Optional<ClientSecret> getClientSecret(ClientSecretType type) {
+            return Optional.empty();
           }
 
           @Override
@@ -111,11 +118,6 @@ public class Application extends SpringBootServletInitializer {
           public Set<String> getScope() {
             return null;
           }
-
-          @Override
-          public Integer getTokenExpires(TokenType tokenType) {
-            return 30;
-          }
         };
   }
 
@@ -123,12 +125,12 @@ public class Application extends SpringBootServletInitializer {
   public TokenStore<OAuth2AccessToken> defaultTokenStore() {
     return new TokenStore<>() {
       @Override
-      public BearerTokenAuthentication readAuthentication(BearerTokenAuthenticationToken token) {
+      public BearerTokenAuthentication readAuthentication(AuthenticationToken<String> token) {
         return null;
       }
 
       @Override
-      public BearerTokenAuthentication readAuthentication(String token) {
+      public AuthenticationToken<OAuth2AccessToken> readAuthentication(String token) {
         return null;
       }
 
@@ -163,7 +165,7 @@ public class Application extends SpringBootServletInitializer {
       public void removeAccessTokenUsingRefreshToken(AuthRefreshToken refreshToken) {}
 
       @Override
-      public OAuth2AccessToken getAccessToken(BearerTokenAuthentication authentication) {
+      public OAuth2AccessToken getAccessToken(AuthenticationToken authentication) {
         return null;
       }
 

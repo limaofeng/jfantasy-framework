@@ -1,7 +1,6 @@
 package net.asany.jfantasy.framework.security.auth.core;
 
 import java.util.*;
-import net.asany.jfantasy.framework.security.auth.TokenType;
 import net.asany.jfantasy.framework.security.core.GrantedAuthority;
 
 /**
@@ -43,19 +42,26 @@ public interface ClientDetails {
    * 客户端密钥（多个）
    *
    * @param type 密钥类型
-   * @return Set<String>
+   * @return Set<ClientSecret>
    */
-  Set<String> getClientSecrets(ClientSecretType type);
+  Set<ClientSecret> getClientSecrets(ClientSecretType type);
+
+  /**
+   * 客户端密钥
+   *
+   * <p>如果有多个，随机选取一个返回
+   *
+   * @param type 密钥类型
+   * @return Set<ClientSecret>
+   */
+  Optional<ClientSecret> getClientSecret(ClientSecretType type);
 
   /**
    * 客户端密钥
    *
    * @return String
    */
-  default String getClientSecret(ClientSecretType type) {
-    Set<String> secrets = this.getClientSecrets(type);
-    return secrets.stream().findFirst().orElse(null);
-  }
+  Optional<ClientSecret> getClientSecret(String id);
 
   /**
    * 跳转地址
@@ -70,11 +76,4 @@ public interface ClientDetails {
    * @return Set<String>
    */
   Set<String> getScope();
-
-  /**
-   * Token 失效时间（分钟）
-   *
-   * @return Integer
-   */
-  Integer getTokenExpires(TokenType tokenType);
 }

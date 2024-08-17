@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import net.asany.jfantasy.framework.security.LoginUser;
-import net.asany.jfantasy.framework.security.auth.oauth2.server.BearerTokenAuthenticationToken;
+import net.asany.jfantasy.framework.security.auth.AuthenticationToken;
 import net.asany.jfantasy.framework.security.auth.oauth2.server.authentication.BearerTokenAuthentication;
 import net.asany.jfantasy.framework.security.authentication.Authentication;
 import net.asany.jfantasy.framework.security.core.AuthenticatedPrincipal;
@@ -55,30 +55,29 @@ public abstract class AbstractTokenStore<T extends AuthToken> implements TokenSt
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
             .setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
             .registerModule(new JavaTimeModule());
-    //noinspection unchecked
     this.authTokenClass = (Class<T>) ClassUtil.getSuperClassGenricType(getClass(), 0);
   }
 
   @Override
-  public BearerTokenAuthentication readAuthentication(BearerTokenAuthenticationToken token) {
+  public Authentication readAuthentication(AuthenticationToken<String> token) {
     String key = assess_token_prefix + token.getToken();
     String data = redisTemplate.boundValueOps(key).get();
     if (StringUtil.isEmpty(data)) {
       return null;
     }
     TokenObject tokenObject = buildAuthToken(data);
-    return buildBearerTokenAuthentication(data, tokenObject, token.getDetails());
+    return buildAuthenticationToken(data, tokenObject, token.getDetails());
   }
 
   @Override
-  public BearerTokenAuthentication readAuthentication(String token) {
+  public AuthenticationToken<T> readAuthentication(String token) {
     String key = assess_token_prefix + token;
     String data = redisTemplate.boundValueOps(key).get();
     if (StringUtil.isEmpty(data)) {
       return null;
     }
     TokenObject tokenObject = buildAuthToken(data);
-    return buildBearerTokenAuthentication(data, tokenObject);
+    return buildAuthenticationToken(data, tokenObject);
   }
 
   @Override
@@ -96,11 +95,10 @@ public abstract class AbstractTokenStore<T extends AuthToken> implements TokenSt
 
   @Override
   public T readAccessToken(String tokenValue) {
-    BearerTokenAuthentication tokenAuthentication = this.readAuthentication(tokenValue);
+    AuthenticationToken<T> tokenAuthentication = this.readAuthentication(tokenValue);
     if (tokenAuthentication == null) {
       return null;
     }
-    //noinspection unchecked
     return (T) tokenAuthentication.getToken();
   }
 
@@ -159,8 +157,8 @@ public abstract class AbstractTokenStore<T extends AuthToken> implements TokenSt
   public void removeAccessTokenUsingRefreshToken(AuthRefreshToken refreshToken) {}
 
   @Override
-  public T getAccessToken(BearerTokenAuthentication authentication) {
-    return null;
+  public T getAccessToken(AuthenticationToken<String> authentication) {
+    return this.readAccessToken(authentication.getToken());
   }
 
   @Override
@@ -203,12 +201,12 @@ public abstract class AbstractTokenStore<T extends AuthToken> implements TokenSt
         .build();
   }
 
-  private BearerTokenAuthentication buildBearerTokenAuthentication(
-      String data, TokenObject accessToken) {
-    return buildBearerTokenAuthentication(data, accessToken, null);
+  private AuthenticationToken<T> buildAuthenticationToken(String data, TokenObject accessToken) {
+    DefaultAuthenticationDetails details = new DefaultAuthenticationDetails();
+    return buildAuthenticationToken(data, accessToken, details);
   }
 
-  private BearerTokenAuthentication buildBearerTokenAuthentication(
+  protected AuthenticationToken<T> buildAuthenticationToken(
       String data, TokenObject tokenObject, AuthenticationDetails details) {
 
     AuthenticatedPrincipal principal = tokenObject.getPrincipal();
@@ -216,11 +214,11 @@ public abstract class AbstractTokenStore<T extends AuthToken> implements TokenSt
         tokenObject.getAuthorities().stream()
             .map(SimpleGrantedAuthority::new)
             .collect(Collectors.toList());
-    BearerTokenAuthentication bearerTokenAuthentication =
+    BearerTokenAuthentication authentication =
         new BearerTokenAuthentication(principal, tokenObject.getAccessToken(), authorities);
     if (details != null) {
-      bearerTokenAuthentication.setDetails(details);
+      authentication.setDetails(details);
     }
-    return bearerTokenAuthentication;
+    return (AuthenticationToken<T>) authentication;
   }
 }

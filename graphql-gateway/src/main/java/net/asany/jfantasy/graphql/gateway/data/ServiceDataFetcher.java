@@ -11,7 +11,7 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import net.asany.jfantasy.framework.jackson.JSON;
 import net.asany.jfantasy.framework.security.auth.AuthenticationToken;
-import net.asany.jfantasy.framework.security.auth.oauth2.server.authentication.BearerTokenAuthentication;
+import net.asany.jfantasy.framework.security.auth.core.AuthToken;
 import net.asany.jfantasy.framework.util.common.StringUtil;
 import net.asany.jfantasy.framework.util.ognl.OgnlUtil;
 import net.asany.jfantasy.graphql.client.GraphQLResponse;
@@ -65,8 +65,9 @@ public class ServiceDataFetcher implements DataFetcher<Object> {
     // 获取 token
     String token = null;
     AuthenticationToken authenticationToken = environment.getGraphQlContext().get("authentication");
-    if (authenticationToken instanceof BearerTokenAuthentication bearerTokenAuthentication) {
-      token = bearerTokenAuthentication.getToken().getTokenValue();
+    if (authenticationToken.isAuthenticated()) {
+      AuthToken authToken = authenticationToken.getCredentials();
+      token = authToken.getTokenValue();
     } else {
       log.warn("未找到有效的认证信息:{}", authenticationToken);
     }

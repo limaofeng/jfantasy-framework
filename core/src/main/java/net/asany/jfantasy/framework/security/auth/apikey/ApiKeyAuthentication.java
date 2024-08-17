@@ -1,31 +1,29 @@
 package net.asany.jfantasy.framework.security.auth.apikey;
 
-import lombok.Setter;
-import net.asany.jfantasy.framework.security.auth.core.AuthenticationDetails;
-import net.asany.jfantasy.framework.security.authentication.AbstractAuthenticationToken;
-import net.asany.jfantasy.framework.security.authentication.Authentication;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import net.asany.jfantasy.framework.security.auth.oauth2.server.authentication.AbstractAuthTokenAuthenticationToken;
 import net.asany.jfantasy.framework.security.core.AuthenticatedPrincipal;
+import net.asany.jfantasy.framework.security.core.GrantedAuthority;
 
-public class ApiKeyAuthentication extends AbstractAuthenticationToken {
-  private final AuthenticatedPrincipal principal;
-  @Setter private Object credentials;
+public class ApiKeyAuthentication
+    extends AbstractAuthTokenAuthenticationToken<AuthenticatedPrincipal, ApiKey> {
 
-  public ApiKeyAuthentication(Authentication authentication, AuthenticationDetails details) {
-    super(authentication.getAuthorities());
-    this.credentials = authentication.getCredentials();
-    this.principal = authentication.getPrincipal();
-    setDetails(details);
-    setAuthenticated(authentication.isAuthenticated());
+  private final Map<String, Object> attributes;
+
+  public ApiKeyAuthentication(
+      AuthenticatedPrincipal principal,
+      ApiKey credentials,
+      Collection<GrantedAuthority> authorities) {
+    super(principal, credentials, authorities);
+    this.attributes = Collections.unmodifiableMap(new LinkedHashMap<>(principal.getAttributes()));
+    setAuthenticated(true);
   }
 
   @Override
-  public Object getCredentials() {
-    return this.credentials;
-  }
-
-  @Override
-  public <T> T getPrincipal() {
-    //noinspection unchecked
-    return (T) this.principal;
+  public Map<String, Object> getTokenAttributes() {
+    return this.attributes;
   }
 }

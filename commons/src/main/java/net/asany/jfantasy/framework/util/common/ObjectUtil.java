@@ -66,25 +66,20 @@ public final class ObjectUtil {
     }
     if (object instanceof Map) {
       Map<Object, Object> cloneMap = new HashMap<>();
-      //noinspection unchecked
       Map<Object, Object> map = (Map<Object, Object>) object;
       for (Map.Entry<Object, Object> entry : map.entrySet()) {
         cloneMap.put(clone(entry.getKey()), clone(entry.getValue(), ignoreProperties));
       }
-      //noinspection unchecked
       return (T) cloneMap;
     }
     if (object instanceof List) {
       List<Object> cloneList = new ArrayList<>();
-      //noinspection unchecked
       List<Object> list = (List<Object>) object;
       for (Object l : list) {
         cloneList.add(clone(l, ignoreProperties));
       }
-      //noinspection unchecked
       return (T) cloneList;
     }
-    //noinspection unchecked
     T target = (T) ClassUtil.newInstance(ClassUtil.getRealClass(object.getClass()));
     assert target != null;
     BeanUtils.copyProperties(object, target, ignoreProperties);
@@ -92,7 +87,6 @@ public final class ObjectUtil {
   }
 
   public static <T> T getValue(String key, Object root) {
-    //noinspection unchecked
     return (T)
         Arrays.stream((Object[]) key.split("\\."))
             .reduce(
@@ -165,11 +159,9 @@ public final class ObjectUtil {
   private static <T, C extends Collection<T>> C packageResult(
       Stream<T> stream, Class<?> resultClass) {
     if (ClassUtil.isList(resultClass)) {
-      //noinspection unchecked
       return (C) stream.collect(Collectors.toList());
     }
     if (ClassUtil.isSet(resultClass)) {
-      //noinspection unchecked
       return (C) stream.collect(Collectors.toSet());
     }
     throw new TransformException("不支持转换到 " + resultClass.getName());
@@ -221,7 +213,6 @@ public final class ObjectUtil {
   private static <T, R, C extends Collection<T>, CR extends Collection<R>> CR recursive(
       C treeData, NestedConverter<T, R> converter, NestedContext<R> context) {
     Class<?> listClass = treeData.getClass();
-    //noinspection unchecked
     List<Object> list = packageResult((Stream<Object>) treeData.stream(), List.class);
 
     int level = context.level;
@@ -231,7 +222,6 @@ public final class ObjectUtil {
 
     for (int i = 0, len = list.size(); i < len; i++) {
       context.index = i;
-      //noinspection unchecked
       T item = (T) list.get(i);
       R obj = converter.apply(item, context);
       list.set(i, obj);
@@ -255,7 +245,6 @@ public final class ObjectUtil {
       return recursive(treeData, converter, context);
     }
 
-    //noinspection unchecked
     return packageResult((Stream<R>) list.stream().filter(Objects::nonNull), listClass);
   }
 
@@ -310,16 +299,14 @@ public final class ObjectUtil {
   }
 
   public static <T, C extends Collection<T>> T[] toArray(C list, Class<T> type) {
-    return list.toArray((T[]) ClassUtil.newInstance(type, list.size()));
+    return list.toArray(ClassUtil.newInstance(type, list.size()));
   }
 
   public static <T> String toString(T[] objs, String fieldName, String sign) {
     if (objs.length == 1) {
       if (ClassUtil.isArray(objs[0])) {
-        //noinspection unchecked
         return toString((T[]) objs[0], fieldName, sign);
       } else if (ClassUtil.isList(objs[0])) {
-        //noinspection unchecked
         return toString((List<T>) objs[0], fieldName, sign);
       }
     }
@@ -357,13 +344,11 @@ public final class ObjectUtil {
   }
 
   public static <T, R> R[] toFieldArray(T[] objs, String fieldName, Class<R> componentType) {
-    //noinspection unchecked
     return toFieldArray(objs, fieldName, (R[]) Array.newInstance(componentType, objs.length));
   }
 
   public static <T, R> R[] toFieldArray(T[] objs, String fieldName, R[] returnObjs) {
     if (returnObjs.length < objs.length) {
-      //noinspection unchecked
       returnObjs =
           (R[]) ClassUtil.newInstance(returnObjs.getClass().getComponentType(), objs.length);
     }
@@ -737,7 +722,6 @@ public final class ObjectUtil {
       return newArray;
     }
     if (value instanceof Collection<?> collection) {
-      //noinspection unchecked
       Collection<Map<String, Object>> newCollection =
           (Collection<Map<String, Object>>)
               ClassUtil.newInstance(ClassUtil.getRealClass(collection));
@@ -748,7 +732,6 @@ public final class ObjectUtil {
       return newCollection;
     }
     if (ClassUtil.isMap(value)) {
-      //noinspection unchecked
       Map<String, Object> map = (Map<String, Object>) value;
       Map<String, Object> newMap = ClassUtil.newInstance(ClassUtil.getRealClass(map));
       assert newMap != null;
@@ -771,7 +754,6 @@ public final class ObjectUtil {
   private static Map<String, Object> toMap(
       Object data, Map<Object, Object> alreadyConverted, BeanUtil.PropertyFilter filter) {
     if (ClassUtil.isMap(data)) {
-      //noinspection unchecked
       return (Map<String, Object>) data;
     }
     Map<String, Object> rootMap = new HashMap<>();
@@ -845,7 +827,6 @@ public final class ObjectUtil {
     }
     List<T> all = new ArrayList<>(Arrays.asList(sources));
     all.addAll(Arrays.asList(items));
-    //noinspection unchecked
     return all.toArray((T[]) Array.newInstance(sources.getClass().getComponentType(), all.size()));
   }
 
@@ -856,7 +837,6 @@ public final class ObjectUtil {
 
   public static <R, T> R[] map(
       T[] sources, Function<? super T, ? extends R> mapper, Class<R> returnClass) {
-    //noinspection unchecked
     return Arrays.stream(sources)
         .map(mapper)
         .toArray(length -> (R[]) Array.newInstance(returnClass, length));
@@ -867,7 +847,6 @@ public final class ObjectUtil {
   }
 
   public static <T> T[] filter(T[] sources, Predicate<T> selector) {
-    //noinspection unchecked
     return Arrays.stream(sources)
         .filter(selector)
         .toArray(length -> (T[]) Array.newInstance(sources.getClass().getComponentType(), length));
@@ -1085,14 +1064,11 @@ public final class ObjectUtil {
 
   public static <T> T[] multipleValuesObjectsObjects(Object value) {
     if (ClassUtil.isArray(value)) {
-      //noinspection unchecked
       return (T[]) value;
     }
     if (ClassUtil.isList(value)) {
-      //noinspection unchecked
       return (T[]) ((Collection<?>) value).toArray();
     }
-    //noinspection unchecked
     return (T[]) new Object[] {value};
   }
 

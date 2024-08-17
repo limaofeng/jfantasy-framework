@@ -1,16 +1,13 @@
 package net.asany.jfantasy.framework.security.auth.apikey;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Base64;
 import lombok.extern.slf4j.Slf4j;
 import net.asany.jfantasy.framework.security.auth.AuthenticationToken;
-import net.asany.jfantasy.framework.security.auth.TokenType;
 import net.asany.jfantasy.framework.security.auth.core.*;
 import net.asany.jfantasy.framework.security.auth.core.token.AuthorizationServerTokenServices;
 import net.asany.jfantasy.framework.security.auth.core.token.ResourceServerTokenServices;
-import net.asany.jfantasy.framework.security.auth.oauth2.server.BearerTokenAuthenticationToken;
-import net.asany.jfantasy.framework.security.auth.oauth2.server.authentication.BearerTokenAuthentication;
+import net.asany.jfantasy.framework.security.authentication.Authentication;
 import net.asany.jfantasy.framework.util.common.StringUtil;
 
 /**
@@ -31,12 +28,13 @@ public class ApiKeyServices
   }
 
   @Override
-  public BearerTokenAuthentication loadAuthentication(BearerTokenAuthenticationToken accessToken) {
-    return loadAuthentication(accessToken.getToken());
+  public AuthenticationToken<ApiKey> loadAuthentication(AuthenticationToken<String> accessToken) {
+    //    return loadAuthentication(accessToken.getToken().getTokenValue());
+    return null;
   }
 
   @Override
-  public BearerTokenAuthentication loadAuthentication(String accessToken) {
+  public AuthenticationToken<ApiKey> loadAuthentication(String accessToken) {
     ApiKey token = this.readAccessToken(accessToken);
     if (token == null) {
       return null;
@@ -45,8 +43,8 @@ public class ApiKeyServices
   }
 
   @Override
-  public ApiKey readAccessToken(BearerTokenAuthenticationToken accessToken) {
-    return readAccessToken(accessToken.getToken());
+  public ApiKey readAccessToken(AuthenticationToken accessToken) {
+    return readAccessToken("");
   }
 
   @Override
@@ -65,19 +63,13 @@ public class ApiKeyServices
   }
 
   @Override
-  public ApiKey createAccessToken(AuthenticationToken authentication) {
+  public ApiKey createAccessToken(Authentication authentication) {
     DefaultAuthenticationDetails details = authentication.getDetails();
     ClientDetails clientDetails =
         this.clientDetailsService.loadClientByClientId(details.getClientId());
 
-    Integer expires = clientDetails.getTokenExpires(TokenType.API_KEY);
-
     Instant issuedAt = Instant.now();
-    Instant expiresAt = expires != null ? issuedAt.plus(expires, ChronoUnit.MINUTES) : null;
-
-    if (details.getExpiresAt() != null) {
-      expiresAt = details.getExpiresAt();
-    }
+    Instant expiresAt = details.getExpiresAt();
 
     String tokenValue = generateApiKey();
 
@@ -94,7 +86,7 @@ public class ApiKeyServices
   }
 
   @Override
-  public ApiKey getAccessToken(AuthenticationToken authentication) {
+  public ApiKey getAccessToken(Authentication authentication) {
     return null;
   }
 }

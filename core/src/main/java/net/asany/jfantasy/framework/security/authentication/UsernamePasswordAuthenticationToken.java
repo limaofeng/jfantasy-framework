@@ -2,7 +2,9 @@ package net.asany.jfantasy.framework.security.authentication;
 
 import java.security.Principal;
 import java.util.Collection;
+import java.util.Collections;
 import net.asany.jfantasy.framework.security.LoginUser;
+import net.asany.jfantasy.framework.security.auth.core.AuthenticationDetails;
 import net.asany.jfantasy.framework.security.core.AuthenticatedPrincipal;
 import net.asany.jfantasy.framework.security.core.GrantedAuthority;
 
@@ -15,10 +17,16 @@ public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationT
   private final Object credentials;
 
   public UsernamePasswordAuthenticationToken(Object principal, Object credentials) {
-    super(null);
+    super(Collections.emptyList());
     this.principal = principal;
     this.credentials = credentials;
     setAuthenticated(false);
+  }
+
+  public UsernamePasswordAuthenticationToken(
+      Object principal, Object credentials, AuthenticationDetails details) {
+    this(principal, credentials);
+    this.details = details;
   }
 
   public UsernamePasswordAuthenticationToken(
@@ -52,4 +60,9 @@ public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationT
   public Object getPrincipal() {
     return this.principal;
   }
+
+  //  @Override
+  //  public String getToken() {
+  //    return this.principal + ":" + this.credentials;
+  //  }
 }

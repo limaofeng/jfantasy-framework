@@ -1,7 +1,7 @@
 package net.asany.jfantasy.framework.security.auth.core.token;
 
-import net.asany.jfantasy.framework.security.auth.AuthenticationToken;
 import net.asany.jfantasy.framework.security.auth.core.AuthToken;
+import net.asany.jfantasy.framework.security.authentication.Authentication;
 
 /**
  * 授权服务器令牌服务
@@ -18,7 +18,7 @@ public interface AuthorizationServerTokenServices<T extends AuthToken> {
    * @param authentication 授权信息
    * @return 访问令牌
    */
-  T createAccessToken(AuthenticationToken authentication);
+  T createAccessToken(Authentication authentication);
 
   /**
    * 获取访问令牌
@@ -26,7 +26,7 @@ public interface AuthorizationServerTokenServices<T extends AuthToken> {
    * @param authentication 授权信息
    * @return 访问令牌
    */
-  T getAccessToken(AuthenticationToken authentication);
+  T getAccessToken(Authentication authentication);
 
   /**
    * 刷新访问令牌

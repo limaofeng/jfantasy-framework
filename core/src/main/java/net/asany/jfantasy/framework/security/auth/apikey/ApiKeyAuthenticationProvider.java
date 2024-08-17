@@ -26,14 +26,17 @@ public class ApiKeyAuthenticationProvider
   }
 
   @Override
-  public Authentication authenticate(ApiKeyAuthenticationToken authentication)
+  public Authentication authenticate(ApiKeyAuthenticationToken authenticationToken)
       throws AuthenticationException {
-    AbstractAuthenticationToken token = this.tokenServices.loadAuthentication(authentication);
-    if (token == null) {
+    Authentication authentication = this.tokenServices.loadAuthentication(authenticationToken);
+    if (authentication == null) {
       throw new InvalidTokenException("Invalid token");
     }
-    token.setDetails(authentication.getDetails());
+    //noinspection rawtypes
+    if (authentication instanceof AbstractAuthenticationToken abstractAuthenticationToken) {
+      abstractAuthenticationToken.setDetails(authentication.getDetails());
+    }
     log.debug("Authenticated token");
-    return token;
+    return authentication;
   }
 }

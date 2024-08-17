@@ -2,7 +2,8 @@ package net.asany.jfantasy.framework.security.auth.oauth2.server;
 
 import java.util.Collections;
 import lombok.Getter;
-import net.asany.jfantasy.framework.security.auth.TokenType;
+import net.asany.jfantasy.framework.security.auth.AuthType;
+import net.asany.jfantasy.framework.security.auth.core.AuthenticationDetails;
 import net.asany.jfantasy.framework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.util.Assert;
 
@@ -14,20 +15,25 @@ import org.springframework.util.Assert;
 @Getter
 public class BearerTokenAuthenticationToken extends AbstractAuthenticationToken {
 
-  private final TokenType tokenType;
+  private final AuthType authType;
   private final String token;
 
   public BearerTokenAuthenticationToken(String token) {
     super(Collections.emptyList());
     Assert.hasText(token, "token cannot be empty");
-    this.tokenType = TokenType.JWT;
+    this.authType = AuthType.BEARER;
     this.token = token;
   }
 
-  public BearerTokenAuthenticationToken(TokenType tokenType, String token) {
+  public BearerTokenAuthenticationToken(String token, AuthenticationDetails details) {
+    this(token);
+    this.details = details;
+  }
+
+  public BearerTokenAuthenticationToken(AuthType authType, String token) {
     super(Collections.emptyList());
     Assert.hasText(token, "token cannot be empty");
-    this.tokenType = tokenType;
+    this.authType = authType;
     this.token = token;
   }
 

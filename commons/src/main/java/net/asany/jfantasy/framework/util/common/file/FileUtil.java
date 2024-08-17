@@ -342,7 +342,7 @@ public class FileUtil {
       MimeType _mimeType = allTypes.forName(mimeType);
       extension = _mimeType.getExtension();
     } catch (MimeTypeException e) {
-      log.warn("Can't detect extension for MIME-type {} {}", mimeType, e);
+      log.warn("Can't detect extension for MIME-type {} {}", mimeType, e.getMessage());
     }
     return extension;
   }

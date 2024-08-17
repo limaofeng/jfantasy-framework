@@ -14,17 +14,17 @@ import net.asany.jfantasy.framework.security.AuthenticationException;
 import net.asany.jfantasy.framework.security.AuthenticationManager;
 import net.asany.jfantasy.framework.security.SecurityContext;
 import net.asany.jfantasy.framework.security.SecurityContextHolder;
-import net.asany.jfantasy.framework.security.auth.TokenType;
+import net.asany.jfantasy.framework.security.auth.AuthenticationToken;
+import net.asany.jfantasy.framework.security.auth.Token;
 import net.asany.jfantasy.framework.security.auth.apikey.ApiKeyAuthenticationToken;
+import net.asany.jfantasy.framework.security.auth.base.AnonymousAuthenticationToken;
+import net.asany.jfantasy.framework.security.auth.base.AnonymousTokenResolver;
 import net.asany.jfantasy.framework.security.auth.core.AuthenticationDetails;
 import net.asany.jfantasy.framework.security.auth.oauth2.server.BearerTokenAuthenticationToken;
-import net.asany.jfantasy.framework.security.auth.oauth2.server.web.BearerTokenResolver;
-import net.asany.jfantasy.framework.security.auth.oauth2.server.web.DefaultBearerTokenResolver;
-import net.asany.jfantasy.framework.security.auth.oauth2.server.web.WebSocketBearerTokenResolver;
+import net.asany.jfantasy.framework.security.auth.oauth2.server.web.*;
 import net.asany.jfantasy.framework.security.authentication.Authentication;
 import net.asany.jfantasy.framework.security.authentication.AuthenticationDetailsSource;
 import net.asany.jfantasy.framework.security.authentication.AuthenticationManagerResolver;
-import net.asany.jfantasy.framework.security.authentication.SimpleAuthenticationToken;
 import net.asany.jfantasy.framework.security.web.WebAuthenticationDetailsSource;
 import net.asany.jfantasy.framework.security.web.WebSocketAuthenticationDetailsSource;
 import org.dataloader.DataLoaderRegistry;
@@ -40,10 +40,10 @@ import org.springframework.core.log.LogMessage;
 public class SecurityGraphQLContextBuilder extends DefaultGraphQLContextBuilder
     implements GraphQLServletContextBuilder {
 
-  private final BearerTokenResolver<HttpServletRequest> bearerTokenResolver =
-      new DefaultBearerTokenResolver();
-  private final BearerTokenResolver<Session> webSocketBearerTokenResolver =
-      new WebSocketBearerTokenResolver();
+  private final CompositeTokenResolver<HttpServletRequest> tokenResolver =
+      new CompositeTokenResolver<>(new AnonymousTokenResolver(), new DefaultBearerTokenResolver());
+  private final CompositeTokenResolver<Session> webSocketBearerTokenResolver =
+      new CompositeTokenResolver<>(new WebSocketBearerTokenResolver());
 
   private final AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource =
       new WebAuthenticationDetailsSource();
@@ -78,7 +78,7 @@ public class SecurityGraphQLContextBuilder extends DefaultGraphQLContextBuilder
         new AuthGraphQLServletContext(this.dataLoaderRegistry, req, response, securityContext);
     GraphQLContextHolder.setContext(context);
 
-    String token = bearerTokenResolver.resolve(req);
+    Token token = tokenResolver.resolveToken(req);
 
     AuthenticationDetails details = this.authenticationDetailsSource.buildDetails(req);
 
@@ -88,28 +88,25 @@ public class SecurityGraphQLContextBuilder extends DefaultGraphQLContextBuilder
 
   private AuthGraphQLServletContext buildContext(
       AuthGraphQLServletContext context,
-      String token,
+      Token token,
       AuthenticationDetails details,
       Supplier<AuthenticationManager> authenticationResolver) {
     if (token == null) {
       log.trace("Did not process request since did not find bearer token");
-      SimpleAuthenticationToken<?> authenticationRequest = new SimpleAuthenticationToken<>();
+      AnonymousAuthenticationToken authenticationRequest =
+          new AnonymousAuthenticationToken("anonymous");
       authenticationRequest.setDetails(details);
       context.setAuthentication(authenticationRequest);
       return context;
     }
 
-    TokenType tokenType = TokenType.of(token);
-
-    BearerTokenAuthenticationToken authenticationRequest =
-        switch (tokenType) {
-          case JWT -> new BearerTokenAuthenticationToken(token);
-          case API_KEY -> new ApiKeyAuthenticationToken(token);
-          case SESSION_ID -> throw new AuthenticationException("SESSION_ID 未实现");
-          case PERSONAL_ACCESS_TOKEN -> throw new AuthenticationException(
-              "PERSONAL_ACCESS_TOKEN 未实现");
+    AuthenticationToken<String> authenticationRequest =
+        switch (token.tokenType()) {
+          case ACCESS_TOKEN -> new BearerTokenAuthenticationToken(token.value(), details);
+          case API_KEY -> new ApiKeyAuthenticationToken(token.value(), details);
+          case ANONYMOUS -> new AnonymousAuthenticationToken(token.value(), details);
+          default -> throw new AuthenticationException("Unsupported token type");
         };
-    authenticationRequest.setDetails(details);
 
     try {
       AuthenticationManager authenticationManager = authenticationResolver.get();
@@ -140,7 +137,7 @@ public class SecurityGraphQLContextBuilder extends DefaultGraphQLContextBuilder
     SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
     SecurityContextHolder.setContext(securityContext);
 
-    String token = webSocketBearerTokenResolver.resolve(session);
+    Token token = webSocketBearerTokenResolver.resolveToken(session);
 
     AuthGraphQLServletContext context =
         new AuthGraphQLServletContext(this.dataLoaderRegistry, session, request, securityContext);

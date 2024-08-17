@@ -98,7 +98,6 @@ public class AuthGraphQLServletContext extends DefaultGraphQLContext
   }
 
   public <T> T getAttribute(String name) {
-    //noinspection unchecked
     return (T) getMapOfContext().get(name);
   }
 

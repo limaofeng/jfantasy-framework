@@ -4,7 +4,7 @@ import com.nimbusds.jose.JOSEException;
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Set;
+import java.util.Optional;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -12,18 +12,19 @@ import net.asany.jfantasy.autoconfigure.properties.SecurityProperties;
 import net.asany.jfantasy.framework.jackson.JSON;
 import net.asany.jfantasy.framework.security.AuthenticationException;
 import net.asany.jfantasy.framework.security.LoginUser;
+import net.asany.jfantasy.framework.security.auth.AuthType;
 import net.asany.jfantasy.framework.security.auth.AuthenticationToken;
-import net.asany.jfantasy.framework.security.auth.TokenType;
+import net.asany.jfantasy.framework.security.auth.TokenUsage;
 import net.asany.jfantasy.framework.security.auth.core.*;
 import net.asany.jfantasy.framework.security.auth.core.token.AuthorizationServerTokenServices;
 import net.asany.jfantasy.framework.security.auth.core.token.ConsumerTokenServices;
 import net.asany.jfantasy.framework.security.auth.core.token.ResourceServerTokenServices;
-import net.asany.jfantasy.framework.security.auth.oauth2.core.*;
+import net.asany.jfantasy.framework.security.auth.oauth2.core.OAuth2AccessToken;
 import net.asany.jfantasy.framework.security.auth.oauth2.jwt.JwtTokenService;
 import net.asany.jfantasy.framework.security.auth.oauth2.jwt.JwtTokenServiceImpl;
 import net.asany.jfantasy.framework.security.auth.oauth2.jwt.JwtUtils;
 import net.asany.jfantasy.framework.security.auth.oauth2.server.BearerTokenAuthenticationToken;
-import net.asany.jfantasy.framework.security.auth.oauth2.server.authentication.BearerTokenAuthentication;
+import net.asany.jfantasy.framework.security.authentication.Authentication;
 import net.asany.jfantasy.framework.util.common.StringUtil;
 import org.springframework.core.task.TaskExecutor;
 
@@ -57,79 +58,55 @@ public class DefaultTokenServices
 
   @SneakyThrows
   @Override
-  public OAuth2AccessToken createAccessToken(AuthenticationToken authentication) {
+  public OAuth2AccessToken createAccessToken(Authentication authentication) {
     LoginUser principal = authentication.getPrincipal();
-    OAuth2AuthenticationDetails details = authentication.getDetails();
+    AuthenticationDetails details = authentication.getDetails();
+
     ClientDetails clientDetails =
-        this.clientDetailsService.loadClientByClientId(details.getClientId());
+        Optional.ofNullable(details.getClientDetails())
+            .orElseGet(() -> this.clientDetailsService.loadClientByClientId(details.getClientId()));
 
-    TokenType tokenType = details.getTokenType();
-
-    int expires = clientDetails.getTokenExpires(tokenType);
-
-    boolean supportRefreshToken = false;
-    Instant issuedAt = Instant.now();
-    Instant expiresAt;
-
-    String secret;
-
-    switch (tokenType) {
-      case SESSION_ID:
-        {
-          secret = clientDetails.getClientSecret(ClientSecretType.SESSION);
-          expiresAt = Instant.now().plus(expires, ChronoUnit.MINUTES);
-          break;
-        }
-      case PERSONAL_ACCESS_TOKEN:
-        {
-          secret = clientDetails.getClientSecret(ClientSecretType.PERSONAL_ACCESS_TOKEN);
-          expiresAt = details.getExpiresAt();
-          break;
-        }
-      case API_KEY:
-        {
-          throw new AuthenticationException("还不支持 API_KEY 认证方式");
-        }
-      case JWT:
-        {
-          if (details.getGrantType() == AuthorizationGrantType.CLIENT_CREDENTIALS) {
-            if (clientDetails.getClientSecrets(ClientSecretType.OAUTH).stream()
-                .noneMatch(s -> s.equals(details.getClientSecret()))) {
-              throw new AuthenticationException("无效的 client_secret");
-            }
-            secret = details.getClientSecret();
-            expiresAt = details.getExpiresAt();
-          } else {
-            secret = clientDetails.getClientSecret(ClientSecretType.OAUTH);
-            expiresAt = Instant.now().plus(expires, ChronoUnit.MINUTES);
-          }
-          if (details.getGrantType() == AuthorizationGrantType.AUTHORIZATION_CODE
-              || details.getGrantType() == AuthorizationGrantType.PASSWORD
-              || details.getGrantType() == AuthorizationGrantType.JWT_BEARER) {
-            supportRefreshToken = true;
-          }
-          break;
-        }
-      default:
-        {
-          throw new AuthenticationException("还不支持的认证方式:" + tokenType);
-        }
+    if (clientDetails == null) {
+      throw new AuthenticationException("无效的 ClientID " + details.getClientId());
     }
 
-    if (secret == null) {
+    details.setClientDetails(clientDetails);
+
+    AuthType authType = details.getAuthType();
+    TokenUsage tokenUsage = details.getTokenUsage();
+
+    ClientSecret clientSecret = details.getClientSecret();
+    if (clientSecret == null && tokenUsage != null) {
+      clientSecret = clientDetails.getClientSecret(tokenUsage.getClientSecretType()).orElse(null);
+    }
+    if (clientSecret == null && authType == AuthType.PASSWORD) {
+      clientSecret = clientDetails.getClientSecret(ClientSecretType.ROTATING).orElse(null);
+    }
+
+    if (clientSecret == null) {
       throw new AuthenticationException("无效的 client_secret");
     }
+    details.setClientSecret(clientSecret);
 
-    details.setClientSecret(secret);
+    Instant issuedAt = Instant.now();
+
+    String secretValue = clientSecret.getSecretValue();
+    int expires = clientSecret.getTokenExpires();
+    Instant expiresAt = Instant.now().plus(expires, ChronoUnit.MINUTES);
+    boolean supportRefreshToken = clientSecret.getType().supportsRefreshToken();
+
+    if (details.getExpiresAt() != null) {
+      expiresAt = details.getExpiresAt();
+    }
 
     JwtTokenPayload.JwtTokenPayloadBuilder jwtTokenPayloadBuilder =
         JwtTokenPayload.builder()
+            .kid(clientSecret.getId())
             .iss("https://www.asany.cn")
             .name(authentication.getName())
-            .clientId(clientDetails.getClientId())
-            .tokenType(tokenType)
             .iat(issuedAt.getEpochSecond())
-            .exp(expiresAt.getEpochSecond());
+            .exp(expiresAt.getEpochSecond())
+            .clientId(clientDetails.getClientId());
 
     if (principal != null) {
       jwtTokenPayloadBuilder.userId(principal.getUid());
@@ -137,11 +114,10 @@ public class DefaultTokenServices
 
     JwtTokenPayload payload = jwtTokenPayloadBuilder.build();
 
-    String tokenValue = generateTokenValue(payload, secret);
+    String tokenValue = generateTokenValue(payload, secretValue);
 
     OAuth2AccessToken accessToken =
-        new OAuth2AccessToken(
-            clientDetails.getClientId(), tokenType, tokenValue, issuedAt, expiresAt);
+        new OAuth2AccessToken(clientDetails.getClientId(), tokenValue, issuedAt, expiresAt);
 
     if (supportRefreshToken) {
       String refreshTokenValue = generateRefreshTokenValue();
@@ -162,7 +138,7 @@ public class DefaultTokenServices
   }
 
   @Override
-  public OAuth2AccessToken getAccessToken(AuthenticationToken authentication) {
+  public OAuth2AccessToken getAccessToken(Authentication authentication) {
     return null;
   }
 
@@ -203,25 +179,7 @@ public class DefaultTokenServices
   }
 
   @Override
-  public BearerTokenAuthentication loadAuthentication(BearerTokenAuthenticationToken accessToken) {
-    AuthToken token = this.readAccessToken(accessToken);
-    if (token == null) {
-      return null;
-    }
-    return this.tokenStore.readAuthentication(token.getTokenValue());
-  }
-
-  @Override
-  public BearerTokenAuthentication loadAuthentication(String accessToken) {
-    AuthToken token = this.readAccessToken(accessToken);
-    if (token == null) {
-      return null;
-    }
-    return this.tokenStore.readAuthentication(token.getTokenValue());
-  }
-
-  @Override
-  public OAuth2AccessToken readAccessToken(String tokenValue) {
+  public AuthenticationToken<OAuth2AccessToken> loadAuthentication(String tokenValue) {
     try {
       // 解析内容
       JwtTokenPayload payload = JwtUtils.payload(tokenValue);
@@ -230,35 +188,36 @@ public class DefaultTokenServices
       ClientDetails clientDetails =
           clientDetailsService.loadClientByClientId(payload.getClientId());
 
-      TokenType tokenType = payload.getTokenType();
+      Optional<ClientSecret> clientSecretOptional = clientDetails.getClientSecret(payload.getKid());
 
-      ClientSecretType clientSecretType =
-          switch (tokenType) {
-            case PERSONAL_ACCESS_TOKEN -> ClientSecretType.PERSONAL_ACCESS_TOKEN;
-            case SESSION_ID -> ClientSecretType.SESSION;
-            default -> ClientSecretType.OAUTH;
-          };
+      if (clientSecretOptional.isEmpty()) {
+        throw new AuthenticationException("无效的 client_secret");
+      }
 
-      Set<String> secrets = clientDetails.getClientSecrets(clientSecretType);
-      int expires = clientDetails.getTokenExpires(TokenType.PERSONAL_ACCESS_TOKEN);
+      ClientSecret clientSecret = clientSecretOptional.get();
+
+      int expires = clientSecret.getTokenExpires();
 
       // 验证 Token
-      verifyToken(tokenValue, secrets);
+      verifyToken(tokenValue, clientSecret.getSecretValue());
 
       // 获取令牌
-      OAuth2AccessToken accessToken = this.tokenStore.readAccessToken(tokenValue);
+      AuthenticationToken<OAuth2AccessToken> authentication =
+          this.tokenStore.readAuthentication(tokenValue);
 
-      if (accessToken == null) {
-        throw new InvalidTokenException("无效的 Token");
+      if (authentication == null) {
+        throw new InvalidTokenException("Token  " + tokenValue + " 不存在");
       }
+
+      OAuth2AccessToken accessToken = authentication.getToken();
 
       // 如果续期方式为 Session 执行续期操作
       if (securityProperties.getAccessToken().isRefresh()
-          && accessToken.getTokenType() == TokenType.SESSION_ID) {
+          && clientSecret.getType().isAutoRenewable()) {
         this.refreshAccessToken(accessToken, expires);
       }
 
-      return accessToken;
+      return authentication;
     } catch (Exception e) {
       log.warn("无效的 Token: {} Error: {}", tokenValue, e.getMessage());
       return null;
@@ -266,63 +225,27 @@ public class DefaultTokenServices
   }
 
   @Override
-  public OAuth2AccessToken readAccessToken(BearerTokenAuthenticationToken token) {
-    try {
-      TokenType tokenType = token.getTokenType();
-
-      // 解析内容
-      JwtTokenPayload payload = JwtUtils.payload(token.getToken());
-
-      // 获取客户端配置
-      ClientDetails clientDetails =
-          clientDetailsService.loadClientByClientId(payload.getClientId());
-
-      tokenType = tokenType == TokenType.JWT ? payload.getTokenType() : tokenType;
-
-      ClientSecretType clientSecretType =
-          switch (tokenType) {
-            case PERSONAL_ACCESS_TOKEN -> ClientSecretType.PERSONAL_ACCESS_TOKEN;
-            case SESSION_ID -> ClientSecretType.SESSION;
-            default -> ClientSecretType.OAUTH;
-          };
-
-      Set<String> secrets = clientDetails.getClientSecrets(clientSecretType);
-      int expires = clientDetails.getTokenExpires(tokenType);
-
-      // 验证 Token
-      verifyToken(token.getToken(), secrets);
-
-      // 获取令牌
-      OAuth2AccessToken accessToken = this.tokenStore.readAccessToken(token.getToken());
-
-      if (accessToken == null) {
-        throw new InvalidTokenException("无效的 Token");
-      }
-
-      // 如果续期方式为 Session 执行续期操作
-      if (securityProperties.getAccessToken().isRefresh() && tokenType == TokenType.SESSION_ID) {
-        this.refreshAccessToken(accessToken, expires, token);
-      }
-
-      return accessToken;
-    } catch (Exception e) {
-      log.warn(e.getMessage(), e);
-      return null;
-    }
+  public AuthenticationToken<OAuth2AccessToken> loadAuthentication(
+      AuthenticationToken<String> authenticationToken) {
+    return loadAuthentication(authenticationToken.getToken());
   }
 
-  private void verifyToken(String accessToken, Set<String> secrets) throws Exception {
-    Exception firstException = null;
-    for (String secret : secrets) {
-      try {
-        jwtTokenService.verifyToken(accessToken, secret);
-        return;
-      } catch (ParseException | JOSEException e) {
-        firstException = firstException == null ? e : firstException;
-      }
-    }
-    if (firstException != null) {
-      throw firstException;
+  @Override
+  public OAuth2AccessToken readAccessToken(AuthenticationToken<String> authenticationToken) {
+    return this.readAccessToken(authenticationToken.getToken());
+  }
+
+  @Override
+  public OAuth2AccessToken readAccessToken(String tokenValue) {
+    return this.loadAuthentication(tokenValue).getToken();
+  }
+
+  private void verifyToken(String accessToken, String secret) {
+    try {
+      jwtTokenService.verifyToken(accessToken, secret);
+    } catch (ParseException | JOSEException e) {
+      log.error("Token 验证失败：{}", e.getMessage());
+      throw new InvalidTokenException("无效的 Token");
     }
   }
 

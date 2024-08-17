@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import net.asany.jfantasy.framework.security.auth.TokenType;
 
 /**
  * JWT 数据内容
@@ -20,6 +19,9 @@ import net.asany.jfantasy.framework.security.auth.TokenType;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class JwtTokenPayload {
+
+  /** （Key ID）可以用来标识具体使用的密钥 */
+  private String kid;
 
   /*------------------------ JWT 标准字段 ------------------------*/
 
@@ -108,8 +110,4 @@ public class JwtTokenPayload {
    */
   @JsonProperty("client_id")
   private String clientId;
-
-  /** Token 类型 */
-  @JsonProperty("token_type")
-  private TokenType tokenType;
 }

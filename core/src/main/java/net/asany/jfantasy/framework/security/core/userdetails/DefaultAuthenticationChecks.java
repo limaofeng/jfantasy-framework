@@ -3,16 +3,16 @@ package net.asany.jfantasy.framework.security.core.userdetails;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import lombok.NoArgsConstructor;
 import net.asany.jfantasy.framework.security.auth.AuthenticationToken;
 
 /**
  * @author limaofeng
  */
+@NoArgsConstructor
 public class DefaultAuthenticationChecks implements UserDetailsChecker {
 
   private final List<UserDetailsChecker> checkers = new ArrayList<>();
-
-  public DefaultAuthenticationChecks() {}
 
   public DefaultAuthenticationChecks(UserDetailsChecker checker) {
     this.checkers.add(checker);

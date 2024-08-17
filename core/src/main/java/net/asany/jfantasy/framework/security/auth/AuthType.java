@@ -9,13 +9,20 @@ import lombok.Getter;
  * <p>令牌类型是一个枚举，它定义了所有支持的令牌类型。
  */
 @Getter
-public enum TokenType {
+public enum AuthType {
   /**
-   * JWT 令牌
+   * 基本认证
    *
-   * <p>JWT 令牌是一种无状态的令牌，它包含了用户的身份信息，以及一些其他的元数据。
+   * <p>BASIC 是一种简单的认证机制，它使用用户名和密码进行身份 在这种模式下，客户端将用，名和密码编码为 Base64 符串 求头的 Authorization 字段中。
    */
-  JWT,
+  BASIC,
+  /**
+   * BEARER
+   *
+   * <p>Bearer 是一种令牌传递机制，通常在 HTTP 请求头的 Authorization 字段中使用。 Bearer 令牌可以是多种格式，包括但不限于 JSON Web Token
+   * (JWT)。
+   */
+  BEARER,
   /**
    * API 密钥
    *
@@ -23,24 +30,24 @@ public enum TokenType {
    */
   API_KEY,
   /**
-   * 会话令牌
+   * 密码认证
    *
-   * <p>会话令牌是一种有状态的令牌，它包含了用户的身份信息，以及一些其他的元数据。
+   * <p>密码认证使用用户名和密码进行身份验证，通常适用于传统的登录系统。在这种模式下，用户直接向客户端提供凭证，客户端通过这些凭证向服务器请求访问令牌。
    */
-  SESSION_ID,
+  PASSWORD,
   /**
-   * Access Token
+   * OAuth2
    *
-   * <p>Access Token 是一种有状态的令牌，它包含了用户的身份信息，以及一些其他的元数据。
+   * <p>OAuth2 是一种开放标准，它定义了一种授权框架，允许第三方应用访问用户的资源。 OAuth2 有多种授权模式，包括但不限于授权码模式、密码模式、客户端模式和隐式模式
    */
-  PERSONAL_ACCESS_TOKEN;
+  OAUTH2;
 
-  public static TokenType of(String token) {
+  public static AuthType of(String token) {
     if (token.startsWith("ak-")) {
       return API_KEY;
     }
     if (mightBeJwt(token)) {
-      return JWT;
+      return BEARER;
     }
     throw new IllegalArgumentException("Unknown token type");
   }

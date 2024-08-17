@@ -2,18 +2,16 @@ package cn.asany.example.demo.runner;
 
 import net.asany.jfantasy.framework.security.auth.apikey.ApiKey;
 import net.asany.jfantasy.framework.security.auth.apikey.ApiKeyAuthentication;
-import net.asany.jfantasy.framework.security.auth.core.TokenServiceFactory;
+import net.asany.jfantasy.framework.security.auth.core.TokenServicesFactory;
 import net.asany.jfantasy.framework.security.auth.core.token.AuthorizationServerTokenServices;
-import net.asany.jfantasy.framework.security.auth.utils.AuthTokenUtils;
-import net.asany.jfantasy.framework.security.authentication.ApiKeyPrincipal;
 import org.springframework.boot.CommandLineRunner;
 
 public class InitTask implements CommandLineRunner {
 
-  private final TokenServiceFactory tokenServiceFactory;
+  private final TokenServicesFactory tokenServicesFactory;
 
-  public InitTask(TokenServiceFactory tokenServiceFactory) {
-    this.tokenServiceFactory = tokenServiceFactory;
+  public InitTask(TokenServicesFactory tokenServicesFactory) {
+    this.tokenServicesFactory = tokenServicesFactory;
   }
 
   @Override
@@ -22,11 +20,12 @@ public class InitTask implements CommandLineRunner {
     System.out.println("InitTask");
 
     AuthorizationServerTokenServices<ApiKey> tokenServices =
-        tokenServiceFactory.getTokenServices(ApiKey.class);
+        tokenServicesFactory.getTokenServices(ApiKeyAuthentication.class);
 
-    ApiKeyAuthentication authentication =
-        AuthTokenUtils.buildApiKey("test", ApiKeyPrincipal.builder().name("123123213").build());
-    ApiKey apiKey = tokenServices.createAccessToken(authentication);
-    System.out.println(apiKey.getTokenValue());
+    //    ApiKeyAuthentication authentication =
+    //        AuthTokenUtils.buildApiKey("test",
+    // ApiKeyPrincipal.builder().name("123123213").build());
+    //    ApiKey apiKey = tokenServices.createAccessToken(authentication);
+    //    System.out.println(apiKey.getTokenValue());
   }
 }

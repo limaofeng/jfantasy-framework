@@ -31,6 +31,7 @@ ext {
                     "org.aspectj:aspectjweaver:${LIB_ASPECTJ_WEAVER_VER}",
                     "org.hibernate:hibernate-validator:${LIB_HIBERNATE_VALIDATOR_VER}",
                     "org.apache.commons:commons-text:${LIB_APACHE_COMMONS_TEXT_VER}",
+                    "org.apache.ant:ant:${LIB_APACHE_ANT_VER}",
                     "commons-net:commons-net:${LIB_APACHE_COMMONS_NET_VER}",
                     dependencies.create("commons-beanutils:commons-beanutils:${LIB_COMMONS_BEANUTILS_VER}"){
                         exclude group: "commons-logging", module: "commons-logging"

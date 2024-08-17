@@ -3,6 +3,7 @@ package net.asany.jfantasy.framework.security.auth.core;
 import java.util.HashMap;
 import java.util.Map;
 import net.asany.jfantasy.framework.security.auth.core.token.AuthorizationServerTokenServices;
+import net.asany.jfantasy.framework.security.authentication.Authentication;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -12,27 +13,25 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 
-public class TokenServiceFactory implements BeanDefinitionRegistryPostProcessor {
+public class TokenServicesFactory implements BeanDefinitionRegistryPostProcessor {
 
   private ConfigurableListableBeanFactory beanFactory;
   private final Map<
-          Class<? extends AuthToken>,
-          Class<? extends AuthorizationServerTokenServices<? extends AuthToken>>>
+          Class<? extends Authentication>, Class<? extends AuthorizationServerTokenServices<?>>>
       tokenServicesMap = new HashMap<>();
 
-  public <T> T getTokenServices(Class<? extends AuthToken> type) {
+  public <T> T getTokenServices(Class<? extends Authentication> type) {
     Class<?> serviceClass = tokenServicesMap.get(type);
     if (serviceClass != null) {
-      //noinspection unchecked
       return (T) beanFactory.getBean(serviceClass);
     }
     throw new IllegalArgumentException("No token service registered for type: " + type);
   }
 
   public void registerTokenService(
-      Class<? extends AuthToken> tokenType,
-      Class<? extends AuthorizationServerTokenServices<? extends AuthToken>> serviceClass) {
-    tokenServicesMap.put(tokenType, serviceClass);
+      Class<? extends Authentication> authenticationClass,
+      Class<? extends AuthorizationServerTokenServices<?>> tokenServicesClass) {
+    tokenServicesMap.put(authenticationClass, tokenServicesClass);
   }
 
   @Override

@@ -3,6 +3,7 @@ package net.asany.jfantasy.framework.security.authentication;
 import java.io.Serializable;
 import java.security.Principal;
 import java.util.Collection;
+import net.asany.jfantasy.framework.security.auth.core.AuthenticationDetails;
 import net.asany.jfantasy.framework.security.core.GrantedAuthority;
 
 /**
@@ -24,14 +25,14 @@ public interface Authentication extends Principal, Serializable {
    *
    * @return 凭证
    */
-  Object getCredentials();
+  <C> C getCredentials();
 
   /**
    * 详情
    *
    * @return 认证详情
    */
-  <O> O getDetails();
+  <O extends AuthenticationDetails> O getDetails();
 
   /**
    * 当事人

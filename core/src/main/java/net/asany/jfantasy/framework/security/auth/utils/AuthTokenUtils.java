@@ -1,34 +1,25 @@
 package net.asany.jfantasy.framework.security.auth.utils;
 
-import net.asany.jfantasy.framework.security.LoginUser;
-import net.asany.jfantasy.framework.security.auth.TokenType;
-import net.asany.jfantasy.framework.security.auth.apikey.ApiKeyAuthentication;
-import net.asany.jfantasy.framework.security.auth.core.AuthenticationDetails;
-import net.asany.jfantasy.framework.security.auth.core.DefaultAuthenticationDetails;
-import net.asany.jfantasy.framework.security.authentication.ApiKeyPrincipal;
-import net.asany.jfantasy.framework.security.authentication.Authentication;
-import net.asany.jfantasy.framework.security.authentication.SimpleAuthenticationToken;
-
 public class AuthTokenUtils {
 
-  public static Authentication simple(LoginUser principal) {
-    SimpleAuthenticationToken<?> authentication = new SimpleAuthenticationToken<>(principal);
-    authentication.setDetails(DefaultAuthenticationDetails.builder().build());
-    return authentication;
-  }
+  //  public static Authentication simple(LoginUser principal) {
+  //    SimpleAuthenticationToken<?> authentication = new SimpleAuthenticationToken<>(principal);
+  //    authentication.setDetails(DefaultAuthenticationDetails.builder().build());
+  //    return authentication;
+  //  }
+  //
+  //  public static Authentication simple(ApiKeyPrincipal principal) {
+  //    SimpleAuthenticationToken<?> authentication = new SimpleAuthenticationToken<>(principal);
+  //    authentication.setDetails(DefaultAuthenticationDetails.builder().build());
+  //    return authentication;
+  //  }
 
-  public static Authentication simple(ApiKeyPrincipal principal) {
-    SimpleAuthenticationToken<?> authentication = new SimpleAuthenticationToken<>(principal);
-    authentication.setDetails(DefaultAuthenticationDetails.builder().build());
-    return authentication;
-  }
-
-  public static ApiKeyAuthentication buildApiKey(String clientId, ApiKeyPrincipal principal) {
-    AuthenticationDetails authenticationDetails =
-        DefaultAuthenticationDetails.builder()
-            .clientId(clientId)
-            .tokenType(TokenType.API_KEY)
-            .build();
-    return new ApiKeyAuthentication(AuthTokenUtils.simple(principal), authenticationDetails);
-  }
+  //  public static ApiKeyAuthentication buildApiKey(String clientId, ApiKeyPrincipal principal) {
+  //    AuthenticationDetails authenticationDetails =
+  //        DefaultAuthenticationDetails.builder()
+  //            .clientId(clientId)
+  //            .tokenType(TokenType.API_KEY)
+  //            .build();
+  //    return new ApiKeyAuthentication(AuthTokenUtils.simple(principal), authenticationDetails);
+  //  }
 }
