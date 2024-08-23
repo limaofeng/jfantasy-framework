@@ -99,7 +99,7 @@ public abstract class AbstractTokenStore<T extends AuthToken> implements TokenSt
     if (tokenAuthentication == null) {
       return null;
     }
-    return (T) tokenAuthentication.getToken();
+    return tokenAuthentication.getToken();
   }
 
   @Override
@@ -203,6 +203,7 @@ public abstract class AbstractTokenStore<T extends AuthToken> implements TokenSt
 
   private AuthenticationToken<T> buildAuthenticationToken(String data, TokenObject accessToken) {
     DefaultAuthenticationDetails details = new DefaultAuthenticationDetails();
+    details.setClientId(accessToken.getAccessToken().getClientId());
     return buildAuthenticationToken(data, accessToken, details);
   }
 

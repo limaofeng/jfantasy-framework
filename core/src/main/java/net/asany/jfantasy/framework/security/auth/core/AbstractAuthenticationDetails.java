@@ -28,4 +28,13 @@ public abstract class AbstractAuthenticationDetails implements AuthenticationDet
 
   @JsonProperty("expires_at")
   protected Instant expiresAt;
+
+  @Override
+  public AuthenticationDetails update(AuthenticationDetails details) {
+    this.clientId = details.getClientId();
+    this.clientDetails = details.getClientDetails();
+    this.clientSecret = details.getClientSecret();
+    this.expiresAt = details.getExpiresAt();
+    return this;
+  }
 }

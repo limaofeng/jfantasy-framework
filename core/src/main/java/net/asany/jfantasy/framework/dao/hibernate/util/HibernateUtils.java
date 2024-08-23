@@ -5,8 +5,13 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 import net.asany.jfantasy.framework.error.ValidationException;
 import net.asany.jfantasy.framework.util.common.ClassUtil;
+import net.asany.jfantasy.framework.util.common.ObjectUtil;
 import net.asany.jfantasy.framework.util.common.StringUtil;
 import net.asany.jfantasy.framework.util.ognl.OgnlUtil;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.event.spi.PostUpdateEvent;
+import org.hibernate.persister.entity.EntityPersister;
 
 /**
  * HibernateUtils 工具类
@@ -100,5 +105,35 @@ public class HibernateUtils {
       return StringUtil.snakeCase(clazz.getSimpleName()).toUpperCase();
     }
     return entityAnnotation.name();
+  }
+
+  /**
+   * 判断属性是否发生变化
+   *
+   * @param event PostUpdateEvent
+   * @param property 属性名称
+   * @return boolean
+   */
+  public static boolean hasPropertyChanged(PostUpdateEvent event, String property) {
+    if (event.getOldState() == null) {
+      return false;
+    }
+    int index = ObjectUtil.indexOf(event.getPersister().getPropertyNames(), property);
+    if (index != -1) {
+      if (event.getState()[index] != null) {
+        return !event.getState()[index].equals(event.getOldState()[index]);
+      } else {
+        return event.getState()[index] != event.getOldState()[index];
+      }
+    }
+    return false;
+  }
+
+  public static EntityPersister getEntityPersister(
+      EntityManager entityManager, Class<?> entityClass) {
+    Session session = entityManager.unwrap(Session.class);
+    SessionFactory sessionFactory = session.getSessionFactory();
+    sessionFactory.getMetamodel();
+    return null;
   }
 }

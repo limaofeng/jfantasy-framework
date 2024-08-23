@@ -24,6 +24,7 @@ import net.asany.jfantasy.framework.security.auth.oauth2.jwt.JwtTokenService;
 import net.asany.jfantasy.framework.security.auth.oauth2.jwt.JwtTokenServiceImpl;
 import net.asany.jfantasy.framework.security.auth.oauth2.jwt.JwtUtils;
 import net.asany.jfantasy.framework.security.auth.oauth2.server.BearerTokenAuthenticationToken;
+import net.asany.jfantasy.framework.security.authentication.AbstractAuthenticationToken;
 import net.asany.jfantasy.framework.security.authentication.Authentication;
 import net.asany.jfantasy.framework.util.common.StringUtil;
 import org.springframework.core.task.TaskExecutor;
@@ -209,6 +210,11 @@ public class DefaultTokenServices
         throw new InvalidTokenException("Token  " + tokenValue + " 不存在");
       }
 
+      AuthenticationDetails details = authentication.getDetails();
+
+      details.setClientSecret(clientSecret);
+      details.setClientDetails(clientDetails);
+
       OAuth2AccessToken accessToken = authentication.getToken();
 
       // 如果续期方式为 Session 执行续期操作
@@ -227,7 +233,12 @@ public class DefaultTokenServices
   @Override
   public AuthenticationToken<OAuth2AccessToken> loadAuthentication(
       AuthenticationToken<String> authenticationToken) {
-    return loadAuthentication(authenticationToken.getToken());
+    AuthenticationToken<OAuth2AccessToken> authentication =
+        loadAuthentication(authenticationToken.getToken());
+    if (authentication instanceof AbstractAuthenticationToken<OAuth2AccessToken> token) {
+      token.setDetails(authenticationToken.getDetails().update(token.getDetails()));
+    }
+    return authentication;
   }
 
   @Override

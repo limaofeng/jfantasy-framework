@@ -89,6 +89,7 @@ type Query {
 type Mutation {
   createTenant(name: String): Boolean
   createDemoUser(input: DemoUserCreateInput!): DemoUser
+  updateDemoUser(id: ID!, input: DemoUserCreateInput!): DemoUser
 }
 
 type StockPriceUpdate {

@@ -52,11 +52,11 @@ public class SimpleAnyJpaRepository<T, ID extends Serializable> extends SimpleJp
     implements AnyJpaRepository<T, ID> {
 
   public static int BATCH_SIZE = 500;
+  public static final Map<Class<?>, AnyJpaRepository<Object, Serializable>> REPOSITORIES =
+      new HashMap<>();
 
   protected EntityManager em;
   protected JpaEntityInformation<T, ?> entityInformation;
-  private static final Map<Class<?>, AnyJpaRepository<Object, Serializable>> REPOSITORIES =
-      new HashMap<>();
 
   public SimpleAnyJpaRepository(Class<T> domainClass, EntityManager entityManager) {
     this(

@@ -18,6 +18,16 @@ public interface ClientDetails {
   Map<String, Object> getAdditionalInformation();
 
   /**
+   * 附加信息
+   *
+   * @param key 键
+   * @param clazz 值类型
+   * @return T
+   * @param <T> Object
+   */
+  <T> T getAdditionalInformation(String key, Class<T> clazz);
+
+  /**
    * 权限
    *
    * @return Collection<GrantedAuthority>
@@ -76,4 +86,11 @@ public interface ClientDetails {
    * @return Set<String>
    */
   Set<String> getScope();
+
+  /**
+   * 获取租户ID
+   *
+   * @return 租户ID
+   */
+  String getTenantId();
 }

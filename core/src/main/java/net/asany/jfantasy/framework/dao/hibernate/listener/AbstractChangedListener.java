@@ -3,7 +3,6 @@ package net.asany.jfantasy.framework.dao.hibernate.listener;
 import jakarta.annotation.PostConstruct;
 import net.asany.jfantasy.framework.dao.hibernate.util.ReflectionUtils;
 import net.asany.jfantasy.framework.util.common.ClassUtil;
-import net.asany.jfantasy.framework.util.common.ObjectUtil;
 import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.*;
 import org.hibernate.persister.entity.EntityPersister;
@@ -33,7 +32,6 @@ public abstract class AbstractChangedListener<T>
         applicationContext.getBean(EventListenerRegistry.class);
     //noinspection rawtypes
     for (EventType type : types) {
-      //noinspection unchecked
       eventListenerRegistry.appendListeners(type, this);
     }
   }
@@ -106,21 +104,6 @@ public abstract class AbstractChangedListener<T>
     Class<?> aClass = ClassUtil.forName(entityPersister.getRootEntityName());
     assert aClass != null;
     return entityClass.isAssignableFrom(aClass);
-  }
-
-  protected boolean modify(PostUpdateEvent event, String property) {
-    if (event.getOldState() == null) {
-      return false;
-    }
-    int index = ObjectUtil.indexOf(event.getPersister().getPropertyNames(), property);
-    if (index != -1) {
-      if (event.getState()[index] != null) {
-        return !event.getState()[index].equals(event.getOldState()[index]);
-      } else {
-        return event.getState()[index] != event.getOldState()[index];
-      }
-    }
-    return false;
   }
 
   @Override

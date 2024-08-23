@@ -7,7 +7,7 @@ scalars:
 
 services:
   - name: asany-server
-    url: "http://10.7.5.4:30881/graphql"
+    url: "http://10.7.5.4:8081/graphql"
     typeDefs: "./asany-server.graphql"
     subscriptions:
       enabled: true

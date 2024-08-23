@@ -64,7 +64,8 @@ public class ServiceDataFetcher implements DataFetcher<Object> {
 
     // 获取 token
     String token = null;
-    AuthenticationToken authenticationToken = environment.getGraphQlContext().get("authentication");
+    AuthenticationToken<AuthToken> authenticationToken =
+        environment.getGraphQlContext().get("authentication");
     if (authenticationToken.isAuthenticated()) {
       AuthToken authToken = authenticationToken.getCredentials();
       token = authToken.getTokenValue();

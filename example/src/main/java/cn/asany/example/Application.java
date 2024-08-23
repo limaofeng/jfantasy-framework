@@ -80,6 +80,11 @@ public class Application extends SpringBootServletInitializer {
           }
 
           @Override
+          public <T> T getAdditionalInformation(String key, Class<T> clazz) {
+            return null;
+          }
+
+          @Override
           public Collection<GrantedAuthority> getAuthorities() {
             return null;
           }
@@ -117,6 +122,11 @@ public class Application extends SpringBootServletInitializer {
           @Override
           public Set<String> getScope() {
             return null;
+          }
+
+          @Override
+          public String getTenantId() {
+            return "";
           }
         };
   }

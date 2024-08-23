@@ -1,6 +1,7 @@
 package net.asany.jfantasy.schedule.service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
@@ -39,9 +40,28 @@ public class TaskScheduler {
   }
 
   @Transactional(rollbackFor = SchedulerException.class)
+  public void scheduleTask(
+      JobKey jobKey, TriggerKey triggerKey, Date startAt, Map<String, String> data)
+      throws SchedulerException {
+    Trigger trigger =
+        ScheduleHelper.newTrigger(jobKey, triggerKey, data)
+            .startAt(startAt)
+            .withSchedule(
+                SimpleScheduleBuilder.simpleSchedule()
+                    .withMisfireHandlingInstructionFireNow()) // 配置Misfire策略
+            .build();
+    this.scheduler.scheduleJob(trigger);
+  }
+
+  @Transactional(rollbackFor = SchedulerException.class)
   public void scheduleTask(JobKey jobKey, TriggerKey triggerKey, Map<String, String> data)
       throws SchedulerException {
-    Trigger trigger = ScheduleHelper.newTrigger(jobKey, triggerKey, data).build();
+    Trigger trigger =
+        ScheduleHelper.newTrigger(jobKey, triggerKey, data)
+            .withSchedule(
+                SimpleScheduleBuilder.simpleSchedule()
+                    .withMisfireHandlingInstructionFireNow()) // 配置Misfire策略
+            .build();
     this.scheduler.scheduleJob(trigger);
   }
 

@@ -24,8 +24,7 @@ public abstract class AbstractBearerTokenResolver<T> implements BearerTokenResol
   @Override
   public boolean supports(T request) {
     String authorization = getHeader(request, this.tokenHeaderName);
-    Matcher matcher = AUTHORIZATION_PATTERN.matcher(authorization);
-    return matcher.matches();
+    return authorization != null && AUTHORIZATION_PATTERN.matcher(authorization).matches();
   }
 
   @Override

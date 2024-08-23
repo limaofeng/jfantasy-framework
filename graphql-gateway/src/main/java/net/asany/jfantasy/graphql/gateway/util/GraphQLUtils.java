@@ -103,7 +103,6 @@ public class GraphQLUtils {
     }
 
     if (GraphQLTypeUtils.isListType(type)) {
-      //noinspection unchecked
       List<Object> values = (List<Object>) value;
       values.replaceAll(o -> processVariable(varName, o, varType));
       return values;
@@ -116,7 +115,6 @@ public class GraphQLUtils {
 
     if (varType instanceof GraphQLInputObjectType) {
       // 处理输入对象类型的变量
-      //noinspection unchecked
       Map<String, Object> values = (Map<String, Object>) value;
       //noinspection PatternVariableCanBeUsed
       GraphQLInputObjectType inputObjectType = (GraphQLInputObjectType) varType;
@@ -176,7 +174,7 @@ public class GraphQLUtils {
           .append(" on ")
           .append(fragmentTypeName.getName());
       processSelectionSet(
-          fragmentType, fragmentDefinition.getSelectionSet(), queryBuilder, context);
+          fragmentType, fragmentDefinition.getSelectionSet(), queryBuilder, context, true);
     }
   }
 
@@ -205,12 +203,14 @@ public class GraphQLUtils {
       GraphQLType type,
       SelectionSet selectionSet,
       StringBuilder queryBuilder,
-      BuildGraphQLQueryContext usingFragments) {
+      BuildGraphQLQueryContext context,
+      boolean isFragment) {
     if (selectionSet != null && !selectionSet.getSelections().isEmpty()) {
       queryBuilder.append(" { ");
       selectionSet
           .getSelections()
-          .forEach(selection -> processSelection(type, selection, queryBuilder, usingFragments));
+          .forEach(
+              selection -> processSelection(type, selection, queryBuilder, context, isFragment));
       queryBuilder.append(" }");
     }
   }
@@ -234,7 +234,7 @@ public class GraphQLUtils {
   private static StringBuilder processSelection(
       GraphQLType type, Selection<?> selection, BuildGraphQLQueryContext context) {
     StringBuilder queryBuilder = new StringBuilder();
-    processSelection(type, selection, queryBuilder, context);
+    processSelection(type, selection, queryBuilder, context, false);
     return queryBuilder;
   }
 
@@ -242,26 +242,65 @@ public class GraphQLUtils {
       GraphQLType type,
       Selection<?> selection,
       StringBuilder queryBuilder,
-      BuildGraphQLQueryContext context) {
+      BuildGraphQLQueryContext context,
+      boolean isFragment) {
     if (selection instanceof Field subField) {
       buildFieldQueryPart(type, subField, queryBuilder, context);
 
       if (subField.getSelectionSet() != null) {
         GraphQLType fileType = GraphQLTypeUtils.getFieldType(type, subField.getName());
-        processSelectionSet(fileType, subField.getSelectionSet(), queryBuilder, context);
+        processSelectionSet(
+            fileType, subField.getSelectionSet(), queryBuilder, context, isFragment);
       }
 
       queryBuilder.append(" ");
     } else if (selection instanceof FragmentSpread fragmentSpread) {
-      queryBuilder.append("...").append(fragmentSpread.getName()).append(" ");
       context.addUsingFragment(fragmentSpread.getName());
+      queryBuilder.append("...").append(fragmentSpread.getName()).append(" ");
+      if (!isFragment) {
+        List<FragmentSpread> allFragments =
+            fetchAllFragments(fragmentSpread, context.getFragmentsByName());
+        allFragments.forEach(f -> context.addUsingFragment(f.getName()));
+      }
     } else if (selection instanceof InlineFragment inlineFragment) {
       TypeName inlineTypeName = inlineFragment.getTypeCondition();
       queryBuilder.append("... on ").append(inlineTypeName.getName()).append(" ");
       GraphQLType fragmentType = context.getType(inlineTypeName.getName());
-      processSelectionSet(fragmentType, inlineFragment.getSelectionSet(), queryBuilder, context);
+      processSelectionSet(
+          fragmentType, inlineFragment.getSelectionSet(), queryBuilder, context, isFragment);
     } else {
       throw new RuntimeException("未知的选择类型: " + selection);
+    }
+  }
+
+  public static List<FragmentSpread> fetchAllFragments(
+      FragmentSpread fragment, Map<String, FragmentDefinition> allFragments) {
+    List<FragmentSpread> result = new ArrayList<>();
+
+    // 递归查找所有后代 FragmentSpread
+    findDescendantsRecursive(
+        result, allFragments.get(fragment.getName()).getSelectionSet(), allFragments);
+
+    return result;
+  }
+
+  private static void findDescendantsRecursive(
+      List<FragmentSpread> result,
+      SelectionSet selectionSet,
+      Map<String, FragmentDefinition> allFragments) {
+
+    //noinspection rawtypes
+    List<Selection> selections = selectionSet.getSelections();
+    for (Selection<?> selection : selections) {
+      if (selection instanceof Field subField) {
+        if (subField.getSelectionSet() != null) {
+          findDescendantsRecursive(result, subField.getSelectionSet(), allFragments);
+        }
+      } else if (selection instanceof FragmentSpread fragmentSpread) {
+        result.add(fragmentSpread);
+        findDescendantsRecursive(
+            result, allFragments.get(fragmentSpread.getName()).getSelectionSet(), allFragments);
+      }
     }
   }
 
@@ -723,8 +762,8 @@ public class GraphQLUtils {
 
   private static class BuildGraphQLQueryContext {
     private final DataFetchingEnvironment environment;
-    @Getter private final Set<String> usingFragments = new HashSet<>();
-    @Getter private final Set<String> usingVariables = new HashSet<>();
+    @Getter private final Set<String> usingFragments = new LinkedHashSet<>();
+    @Getter private final Set<String> usingVariables = new LinkedHashSet<>();
 
     public BuildGraphQLQueryContext(DataFetchingEnvironment environment) {
       this.environment = environment;
@@ -748,6 +787,10 @@ public class GraphQLUtils {
 
     public GraphQLType getType(String name) {
       return this.environment.getGraphQLSchema().getType(name);
+    }
+
+    public Map<String, FragmentDefinition> getFragmentsByName() {
+      return this.environment.getFragmentsByName();
     }
   }
 

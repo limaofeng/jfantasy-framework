@@ -6,6 +6,7 @@ import cn.asany.example.demo.graphql.inputs.UserCreateInput;
 import cn.asany.example.demo.service.UserService;
 import com.zaxxer.hikari.HikariDataSource;
 import graphql.kickstart.tools.GraphQLMutationResolver;
+import lombok.extern.slf4j.Slf4j;
 import net.asany.jfantasy.framework.dao.datasource.MultiDataSourceManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
@@ -15,6 +16,7 @@ import org.springframework.validation.annotation.Validated;
 /**
  * @author limaofeng
  */
+@Slf4j
 @Component
 public class UserGraphQLMutationResolver implements GraphQLMutationResolver {
 
@@ -38,6 +40,18 @@ public class UserGraphQLMutationResolver implements GraphQLMutationResolver {
     User user = userConverter.toUser(input);
     try {
       return userService.save(user);
+    } finally {
+      userChangePublisher.emit(user);
+    }
+  }
+
+  public User updateDemoUser(String id, @Validated UserCreateInput input) {
+    User user = userConverter.toUser(input);
+    try {
+      user = userService.update(id, true, user);
+      //      log.debug("hasPropertyChanged: password: {}",
+      // entityStateTracker.hasPropertyChanged(user, "password"));
+      return user;
     } finally {
       userChangePublisher.emit(user);
     }

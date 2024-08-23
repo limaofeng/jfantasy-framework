@@ -23,4 +23,8 @@ public interface AuthenticationDetails {
   Instant getExpiresAt();
 
   void setExpiresAt(Instant expiresAt);
+
+  default AuthenticationDetails update(AuthenticationDetails details) {
+    throw new UnsupportedOperationException("update");
+  }
 }
