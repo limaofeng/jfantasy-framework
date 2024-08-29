@@ -9,9 +9,11 @@ import net.asany.jfantasy.framework.security.core.AuthenticatedPrincipal;
 import net.asany.jfantasy.framework.security.core.GrantedAuthority;
 
 /**
+ * 用户名密码认证令牌
+ *
  * @author limaofeng
  */
-public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationToken {
+public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationToken<String> {
 
   private final Object principal;
   private final Object credentials;
@@ -60,9 +62,4 @@ public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationT
   public Object getPrincipal() {
     return this.principal;
   }
-
-  //  @Override
-  //  public String getToken() {
-  //    return this.principal + ":" + this.credentials;
-  //  }
 }

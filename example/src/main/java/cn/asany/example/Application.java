@@ -85,6 +85,11 @@ public class Application extends SpringBootServletInitializer {
           }
 
           @Override
+          public String getName() {
+            return "";
+          }
+
+          @Override
           public Collection<GrantedAuthority> getAuthorities() {
             return null;
           }

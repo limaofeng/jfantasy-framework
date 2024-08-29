@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Matcher;
@@ -558,10 +559,7 @@ public class DateUtil extends DateUtils {
   }
 
   public static Date setTimeField(Date date, int field, int timeNum) {
-    GregorianCalendar gc = new GregorianCalendar();
-    gc.setTime(date);
-    gc.set(field, timeNum);
-    return gc.getTime();
+    return set(date, field, timeNum);
   }
 
   /**
@@ -598,6 +596,49 @@ public class DateUtil extends DateUtils {
       }
     }
     return max;
+  }
+
+  public static long convertTimeToInt(String time) {
+    return convertTimeToInt(time, TimeUnit.SECONDS);
+  }
+
+  public static long convertTimeToInt(String expires, TimeUnit timeUnit) {
+    if (expires == null || expires.isEmpty()) {
+      throw new IllegalArgumentException("Expires value cannot be null or empty");
+    }
+
+    String unit = expires.substring(expires.length() - 1);
+
+    long timeValue;
+
+    // 检查最后一个字符是否为数字，如果是，表示没有单位，则默认解释为分钟
+    if (Character.isDigit(unit.charAt(0))) {
+      timeValue = Integer.parseInt(expires);
+    } else {
+      timeValue = Integer.parseInt(expires.substring(0, expires.length() - 1));
+
+      timeValue =
+          timeValue
+              * switch (unit) {
+                case "d" -> // 天
+                24 * 60 * 60; // 转换为秒
+                case "h" -> // 小时
+                60 * 60; // 转换为秒
+                case "m" -> // 分钟
+                60; // 转换为秒
+                case "s" -> // 秒
+                1; // 已经是秒
+                default -> throw new IllegalArgumentException("Unsupported time unit: " + unit);
+              };
+    }
+
+    return switch (timeUnit) {
+      case SECONDS -> timeValue;
+      case MINUTES -> timeValue / 60;
+      case HOURS -> timeValue / 3600;
+      case DAYS -> timeValue / 86400;
+      default -> throw new UnsupportedException("Unsupported time unit: " + timeUnit);
+    };
   }
 
   /**
@@ -716,7 +757,7 @@ public class DateUtil extends DateUtils {
     GregorianCalendar gc = new GregorianCalendar();
     gc.setTime(date);
     for (FieldValue d : details) {
-      gc.set(d.getField(), d.getValue());
+      gc.set(d.field(), d.value());
     }
     return gc.getTime();
   }
@@ -725,21 +766,5 @@ public class DateUtil extends DateUtils {
     return new FieldValue(field, value);
   }
 
-  public static class FieldValue {
-    private final int field;
-    private final int value;
-
-    public FieldValue(int field, int value) {
-      this.field = field;
-      this.value = value;
-    }
-
-    public int getField() {
-      return field;
-    }
-
-    public int getValue() {
-      return value;
-    }
-  }
+  public record FieldValue(int field, int value) {}
 }

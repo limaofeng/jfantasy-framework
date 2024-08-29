@@ -1,6 +1,7 @@
 package net.asany.jfantasy.framework.security.auth.core;
 
 import java.util.*;
+import net.asany.jfantasy.framework.security.core.AuthenticatedPrincipal;
 import net.asany.jfantasy.framework.security.core.GrantedAuthority;
 
 /**
@@ -8,7 +9,7 @@ import net.asany.jfantasy.framework.security.core.GrantedAuthority;
  *
  * @author limaofeng
  */
-public interface ClientDetails {
+public interface ClientDetails extends AuthenticatedPrincipal {
 
   /**
    * 附加信息

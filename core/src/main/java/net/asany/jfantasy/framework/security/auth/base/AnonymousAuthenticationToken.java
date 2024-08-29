@@ -8,7 +8,7 @@ import net.asany.jfantasy.framework.security.authentication.AbstractAuthenticati
 import org.springframework.util.Assert;
 
 @Getter
-public class AnonymousAuthenticationToken extends AbstractAuthenticationToken {
+public class AnonymousAuthenticationToken extends AbstractAuthenticationToken<String> {
 
   private final AuthType authType;
 

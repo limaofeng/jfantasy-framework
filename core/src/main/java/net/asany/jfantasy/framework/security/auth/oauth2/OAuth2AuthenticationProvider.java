@@ -5,6 +5,7 @@ import net.asany.jfantasy.framework.security.AuthenticationManager;
 import net.asany.jfantasy.framework.security.auth.AuthenticationToken;
 import net.asany.jfantasy.framework.security.auth.core.AuthorizationGrantType;
 import net.asany.jfantasy.framework.security.auth.oauth2.core.OAuth2AuthenticationToken;
+import net.asany.jfantasy.framework.security.auth.oauth2.token.ClientCredentialsAuthenticationToken;
 import net.asany.jfantasy.framework.security.authentication.Authentication;
 import net.asany.jfantasy.framework.security.authentication.AuthenticationProvider;
 import net.asany.jfantasy.framework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,12 +30,26 @@ public class OAuth2AuthenticationProvider
     if (AuthorizationGrantType.PASSWORD == grantType) {
       AuthenticationToken<String> authenticationToken =
           new UsernamePasswordAuthenticationToken(
-              authentication.getUsername(),
-              authentication.getPassword(),
+              authentication.getPrincipal(),
+              authentication.getCredentials(),
+              authentication.getDetails());
+      return authenticationManager.authenticate(authenticationToken);
+    } else if (AuthorizationGrantType.REFRESH_TOKEN == grantType) {
+      AuthenticationToken<String> authenticationToken =
+          new UsernamePasswordAuthenticationToken(
+              authentication.getPrincipal(),
+              authentication.getCredentials(),
+              authentication.getDetails());
+      return authenticationManager.authenticate(authenticationToken);
+    } else if (AuthorizationGrantType.CLIENT_CREDENTIALS == grantType) {
+      AuthenticationToken<String> authenticationToken =
+          new ClientCredentialsAuthenticationToken(
+              authentication.getPrincipal(),
+              (String) authentication.getCredentials(),
               authentication.getDetails());
       return authenticationManager.authenticate(authenticationToken);
     }
 
-    return null;
+    throw new AuthenticationException("Unsupported grant type: " + grantType.toString());
   }
 }

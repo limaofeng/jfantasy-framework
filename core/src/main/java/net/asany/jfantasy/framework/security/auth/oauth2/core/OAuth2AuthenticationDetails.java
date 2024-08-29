@@ -1,5 +1,6 @@
 package net.asany.jfantasy.framework.security.auth.oauth2.core;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Base64;
@@ -28,6 +29,8 @@ public class OAuth2AuthenticationDetails extends WebAuthenticationDetails {
    */
   @JsonProperty("client_id")
   private String clientId;
+
+  @JsonIgnore private String clientSecretStr;
 
   /** 授权模式 */
   @JsonProperty("grant_type")
@@ -72,23 +75,49 @@ public class OAuth2AuthenticationDetails extends WebAuthenticationDetails {
     if (StringUtil.isNotBlank(grant_type)) {
       this.grantType = AuthorizationGrantType.valueOf(grant_type);
     }
+    this.clientId = extractClientId(request);
     if (this.grantType == AuthorizationGrantType.PASSWORD) {
       this.username = request.getParameter("username");
       this.password = request.getParameter("password");
 
-      this.clientId = extractClientId(request);
-      //      this.clientSecret = extractClientSecret(request);
+    } else if (this.grantType == AuthorizationGrantType.CLIENT_CREDENTIALS) {
+      this.clientSecretStr = extractClientSecret(request);
+    } else if (this.grantType == AuthorizationGrantType.AUTHORIZATION_CODE) {
+      this.code = request.getParameter("code");
     }
   }
 
   public static OAuth2AuthenticationDetails password(
-      String clientId, String username, String password) {
+      String clientId, String username, String password, String... scopes) {
     OAuth2AuthenticationDetails details = new OAuth2AuthenticationDetails();
     details.grantType = AuthorizationGrantType.PASSWORD;
     details.clientId = clientId;
     details.username = username;
     details.password = password;
     details.tokenUsage = TokenUsage.OAUTH;
+    details.scopes = Set.of(scopes);
+    return details;
+  }
+
+  public static OAuth2AuthenticationDetails clientCredentials(
+      String clientId, String clientSecret, String... scopes) {
+    OAuth2AuthenticationDetails details = new OAuth2AuthenticationDetails();
+    details.grantType = AuthorizationGrantType.CLIENT_CREDENTIALS;
+    details.clientId = clientId;
+    details.clientSecretStr = clientSecret;
+    details.tokenUsage = TokenUsage.OAUTH;
+    details.scopes = Set.of(scopes);
+    return details;
+  }
+
+  public static OAuth2AuthenticationDetails authorizationCode(
+      String clientId, String code, String... scopes) {
+    OAuth2AuthenticationDetails details = new OAuth2AuthenticationDetails();
+    details.grantType = AuthorizationGrantType.AUTHORIZATION_CODE;
+    details.clientId = clientId;
+    details.code = code;
+    details.tokenUsage = TokenUsage.OAUTH;
+    details.scopes = Set.of(scopes);
     return details;
   }
 
@@ -101,7 +130,6 @@ public class OAuth2AuthenticationDetails extends WebAuthenticationDetails {
   public static String extractClientId(HttpServletRequest request) {
     // 尝试从请求参数中获取 client_id
     String clientId = request.getParameter("client_id");
-
     // 如果请求参数中未找到，则从 Authorization 头中获取
     if (clientId == null) {
       String[] clientCredentials = extractClientCredentialsFromHeader(request);

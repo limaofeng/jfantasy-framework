@@ -14,17 +14,18 @@ import net.asany.jfantasy.framework.security.authentication.AbstractAuthenticati
 public class OAuth2AuthenticationToken extends AbstractAuthenticationToken<String> {
 
   private final String principal;
-  private final String username;
-  private final String password;
-  private Object credentials;
+  private final Object credentials;
   private final AuthorizationGrantType grantType;
 
-  public OAuth2AuthenticationToken(OAuth2AuthenticationDetails details) {
+  public OAuth2AuthenticationToken(
+      AuthorizationGrantType grantType,
+      String principal,
+      String credentials,
+      OAuth2AuthenticationDetails details) {
     super(Collections.emptyList());
-    this.grantType = details.getGrantType();
-    this.username = details.getUsername();
-    this.password = details.getPassword();
-    this.principal = details.getClientId();
+    this.grantType = grantType;
+    this.principal = principal;
+    this.credentials = credentials;
     setDetails(details);
     setAuthenticated(false);
   }

@@ -3,6 +3,8 @@ package net.asany.jfantasy.framework.util.common;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
+
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -194,6 +196,16 @@ public class DateUtilTest {
             + "/"
             + DateUtil.format("yyyy-MM-dd'T'HH:mm:ss.SSSZ", Locale.US));
 
-    log.debug(" 当前日期 :" + DateUtil.formatRfc822Date(DateUtil.now()));
+    log.debug(" 当前日期 :{}", DateUtil.formatRfc822Date(DateUtil.now()));
+  }
+
+  @Test
+  void convertTimeToInt() {
+    log.debug("convertTimeToInt: {}", DateUtil.convertTimeToInt("0"));
+    log.debug("convertTimeToInt: {}", DateUtil.convertTimeToInt("30s"));
+    log.debug("convertTimeToInt: {}", DateUtil.convertTimeToInt("30")); // 默认30分钟 -> 1800秒
+    log.debug("convertTimeToInt: {}", DateUtil.convertTimeToInt("30m", TimeUnit.MINUTES)); // 1800秒
+    log.debug("convertTimeToInt: {}", DateUtil.convertTimeToInt("1h", TimeUnit.MINUTES)); // 3600秒
+    log.debug("convertTimeToInt: {}", DateUtil.convertTimeToInt("2d", TimeUnit.MINUTES)); // 172800秒
   }
 }
