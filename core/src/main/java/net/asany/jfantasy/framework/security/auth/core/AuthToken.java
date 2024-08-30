@@ -26,7 +26,10 @@ public interface AuthToken {
     return LoginUser.class;
   }
 
-  default long getExpiresIn() {
+  default Long getExpiresIn() {
+    if (getExpiresAt() == null) {
+      return null;
+    }
     return Duration.between(getIssuedAt(), getExpiresAt()).getSeconds();
   }
 }

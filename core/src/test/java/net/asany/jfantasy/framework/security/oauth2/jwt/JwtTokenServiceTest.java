@@ -32,9 +32,9 @@ class JwtTokenServiceTest {
   @Test
   void generateToken() throws JOSEException {
     String client = StringUtil.generateNonceString("abcdef0123456789", 20);
-    log.debug(" client = " + client);
+    log.debug(" client = {}", client);
     String secret = StringUtil.generateNonceString("abcdef0123456789", 40);
-    log.debug(" secret = " + secret);
+    log.debug(" secret = {}", secret);
     JwtTokenPayload payload =
         JwtTokenPayload.builder()
             .userId(1L)
@@ -42,8 +42,9 @@ class JwtTokenServiceTest {
             .email("limaofeng@msn.com")
             .exp(System.currentTimeMillis() / 1000 + 3600)
             .build();
-    String token = jwtTokenService.generateToken(JSON.stringify(payload), secret);
-    log.debug(" token = " + token);
+    String token =
+        jwtTokenService.generateToken(JWSAlgorithm.HS256, JOSEObjectType.JWT, payload, secret);
+    log.debug(" token = {}", token);
   }
 
   @Test
@@ -51,11 +52,13 @@ class JwtTokenServiceTest {
     String payloadStr =
         "{\"uid\":1,\"token_type\":\"SESSION\",\"client_id\":\"6068485332c5fc853a65\"}";
     String secret = "3c833cf785c71234d5024aca9668dd466f050453";
-    String token = jwtTokenService.generateToken(payloadStr, secret);
-    log.debug(" token = " + token + ", token length: " + token.length());
+    String token =
+        jwtTokenService.generateToken(JWSAlgorithm.HS256, JOSEObjectType.JWT, payloadStr, secret);
+    log.debug(" token = {}, token length: {}", token, token.length());
 
-    payloadStr = jwtTokenService.verifyToken(token, secret);
-    log.debug(" payloadStr = " + payloadStr);
+    JWSObject jwsObject = jwtTokenService.verifyToken(token, secret);
+    assert jwsObject.getPayload().toString() != null;
+    log.debug(" payloadStr = {}", payloadStr);
   }
 
   @Test

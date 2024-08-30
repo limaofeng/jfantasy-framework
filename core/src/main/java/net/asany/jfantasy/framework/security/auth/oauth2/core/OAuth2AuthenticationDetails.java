@@ -71,6 +71,7 @@ public class OAuth2AuthenticationDetails extends WebAuthenticationDetails {
   public OAuth2AuthenticationDetails(HttpServletRequest request) {
     super(request);
     this.authType = AuthType.OAUTH2;
+    this.tokenUsage = TokenUsage.OAUTH;
     String grant_type = request.getParameter("grant_type");
     if (StringUtil.isNotBlank(grant_type)) {
       this.grantType = AuthorizationGrantType.valueOf(grant_type);

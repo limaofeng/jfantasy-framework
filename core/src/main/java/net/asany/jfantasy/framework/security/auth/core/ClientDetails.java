@@ -87,11 +87,4 @@ public interface ClientDetails extends AuthenticatedPrincipal {
    * @return Set<String>
    */
   Set<String> getScope();
-
-  /**
-   * 获取租户ID
-   *
-   * @return 租户ID
-   */
-  String getTenantId();
 }

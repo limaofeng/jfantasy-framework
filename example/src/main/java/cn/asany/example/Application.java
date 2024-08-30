@@ -85,6 +85,11 @@ public class Application extends SpringBootServletInitializer {
           }
 
           @Override
+          public String getSubject() {
+            return "";
+          }
+
+          @Override
           public String getName() {
             return "";
           }
@@ -127,11 +132,6 @@ public class Application extends SpringBootServletInitializer {
           @Override
           public Set<String> getScope() {
             return null;
-          }
-
-          @Override
-          public String getTenantId() {
-            return "";
           }
         };
   }

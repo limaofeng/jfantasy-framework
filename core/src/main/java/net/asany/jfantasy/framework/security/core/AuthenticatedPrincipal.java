@@ -1,5 +1,6 @@
 package net.asany.jfantasy.framework.security.core;
 
+import java.security.Principal;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -10,7 +11,14 @@ import java.util.Optional;
  *
  * @author limaofeng
  */
-public interface AuthenticatedPrincipal {
+public interface AuthenticatedPrincipal extends Principal {
+
+  /**
+   * 当事人的主题
+   *
+   * @return String
+   */
+  String getSubject();
 
   /**
    * 当事人名称

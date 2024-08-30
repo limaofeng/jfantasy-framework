@@ -4,6 +4,8 @@ import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import java.text.ParseException;
+import net.asany.jfantasy.framework.jackson.JSON;
+import net.asany.jfantasy.framework.security.auth.oauth2.JwtTokenPayload;
 import org.springframework.stereotype.Service;
 
 /**
@@ -13,13 +15,22 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class JwtTokenServiceImpl implements JwtTokenService {
+
   @Override
-  public String generateToken(String payloadStr, String secret) throws JOSEException {
+  public String generateToken(
+      JWSAlgorithm alg, JOSEObjectType typ, JwtTokenPayload jwtPayload, String secret)
+      throws JOSEException {
+    return this.generateToken(alg, typ, JSON.serialize(jwtPayload), secret);
+  }
+
+  @Override
+  public String generateToken(
+      JWSAlgorithm alg, JOSEObjectType typ, String jwtPayload, String secret) throws JOSEException {
     // 创建JWS头，设置签名算法和类型
     JWSHeader jwsHeader =
         new JWSHeader.Builder(JWSAlgorithm.HS256).type(JOSEObjectType.JWT).build();
     // 将负载信息封装到Payload中
-    Payload payload = new Payload(payloadStr);
+    Payload payload = new Payload(jwtPayload);
     // 创建JWS对象
     JWSObject jwsObject = new JWSObject(jwsHeader, payload);
     // 创建HMAC签名器
@@ -30,7 +41,7 @@ public class JwtTokenServiceImpl implements JwtTokenService {
   }
 
   @Override
-  public String verifyToken(String token, String secret) throws ParseException, JOSEException {
+  public JWSObject verifyToken(String token, String secret) throws ParseException, JOSEException {
     // 从token中解析JWS对象
     JWSObject jwsObject = JWSObject.parse(token);
     // 创建HMAC验证器
@@ -38,6 +49,6 @@ public class JwtTokenServiceImpl implements JwtTokenService {
     if (!jwsObject.verify(jwsVerifier)) {
       throw new JwtInvalidException("token签名不合法！");
     }
-    return jwsObject.getPayload().toString();
+    return jwsObject;
   }
 }

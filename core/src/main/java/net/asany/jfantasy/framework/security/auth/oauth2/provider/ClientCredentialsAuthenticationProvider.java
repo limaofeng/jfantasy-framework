@@ -12,6 +12,7 @@ import net.asany.jfantasy.framework.security.auth.oauth2.core.OAuth2Token;
 import net.asany.jfantasy.framework.security.auth.oauth2.token.ClientCredentialsAuthenticationToken;
 import net.asany.jfantasy.framework.security.authentication.Authentication;
 import net.asany.jfantasy.framework.security.authentication.AuthenticationProvider;
+import net.asany.jfantasy.framework.security.core.user.OAuth2Principal;
 
 public class ClientCredentialsAuthenticationProvider
     implements AuthenticationProvider<ClientCredentialsAuthenticationToken> {
@@ -40,9 +41,11 @@ public class ClientCredentialsAuthenticationProvider
       throw new AuthenticationException("Invalid client secret");
     }
 
+    details.setClientSecret(secretOptional.get());
+
     return new OAuth2Authentication(
         AuthorizationGrantType.CLIENT_CREDENTIALS,
-        details.getClientDetails(),
+        new OAuth2Principal(details.getClientDetails()),
         new OAuth2Token(secretOptional.get()),
         new ArrayList<>(),
         details);

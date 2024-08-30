@@ -1,6 +1,8 @@
 package net.asany.jfantasy.framework.security.auth.oauth2;
 
 import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JOSEObjectType;
+import com.nimbusds.jose.JWSAlgorithm;
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -9,7 +11,6 @@ import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import net.asany.jfantasy.autoconfigure.properties.SecurityProperties;
-import net.asany.jfantasy.framework.jackson.JSON;
 import net.asany.jfantasy.framework.security.AuthenticationException;
 import net.asany.jfantasy.framework.security.LoginUser;
 import net.asany.jfantasy.framework.security.auth.AuthType;
@@ -26,6 +27,7 @@ import net.asany.jfantasy.framework.security.auth.oauth2.jwt.JwtUtils;
 import net.asany.jfantasy.framework.security.auth.oauth2.server.BearerTokenAuthenticationToken;
 import net.asany.jfantasy.framework.security.authentication.AbstractAuthenticationToken;
 import net.asany.jfantasy.framework.security.authentication.Authentication;
+import net.asany.jfantasy.framework.security.core.AuthenticatedPrincipal;
 import net.asany.jfantasy.framework.util.common.StringUtil;
 import org.springframework.core.task.TaskExecutor;
 
@@ -60,7 +62,7 @@ public class DefaultTokenServices
   @SneakyThrows
   @Override
   public OAuth2AccessToken createAccessToken(Authentication authentication) {
-    LoginUser principal = authentication.getPrincipal();
+    AuthenticatedPrincipal principal = authentication.getPrincipal();
     AuthenticationDetails details = authentication.getDetails();
 
     ClientDetails clientDetails =
@@ -92,25 +94,26 @@ public class DefaultTokenServices
     Instant issuedAt = Instant.now();
 
     String secretValue = clientSecret.getSecretValue();
-    int expires = clientSecret.getTokenExpires();
-    Instant expiresAt = Instant.now().plus(expires, ChronoUnit.MINUTES);
+    Instant expiresAt = details.getExpiresAt();
     boolean supportRefreshToken = clientSecret.getType().supportsRefreshToken();
 
-    if (details.getExpiresAt() != null) {
-      expiresAt = details.getExpiresAt();
+    if (expiresAt == null) {
+      Integer expires = clientSecret.getTokenExpires();
+      expiresAt = expires != null ? Instant.now().plus(expires, ChronoUnit.MINUTES) : null;
     }
 
     JwtTokenPayload.JwtTokenPayloadBuilder jwtTokenPayloadBuilder =
         JwtTokenPayload.builder()
-            .kid(clientSecret.getId())
-            .iss("https://www.asany.cn")
+            .sub(principal.getSubject())
             .name(authentication.getName())
+            .kid(clientSecret.getId())
+            .iss(details.getClientId())
+            .aud(details.getTenantId())
             .iat(issuedAt.getEpochSecond())
-            .exp(expiresAt.getEpochSecond())
-            .clientId(clientDetails.getClientId());
+            .exp(Optional.ofNullable(expiresAt).map(Instant::getEpochSecond).orElse(null));
 
-    if (principal != null) {
-      jwtTokenPayloadBuilder.userId(principal.getUid());
+    if (principal instanceof LoginUser loginUser) {
+      jwtTokenPayloadBuilder.userId(loginUser.getUid());
     }
 
     JwtTokenPayload payload = jwtTokenPayloadBuilder.build();
@@ -186,8 +189,7 @@ public class DefaultTokenServices
       JwtTokenPayload payload = JwtUtils.payload(tokenValue);
 
       // 获取客户端配置
-      ClientDetails clientDetails =
-          clientDetailsService.loadClientByClientId(payload.getClientId());
+      ClientDetails clientDetails = clientDetailsService.loadClientByClientId(payload.getIss());
 
       Optional<ClientSecret> clientSecretOptional = clientDetails.getClientSecret(payload.getKid());
 
@@ -197,7 +199,7 @@ public class DefaultTokenServices
 
       ClientSecret clientSecret = clientSecretOptional.get();
 
-      int expires = clientSecret.getTokenExpires();
+      Integer expires = clientSecret.getTokenExpires();
 
       // 验证 Token
       verifyToken(tokenValue, clientSecret.getSecretValue());
@@ -219,7 +221,8 @@ public class DefaultTokenServices
 
       // 如果续期方式为 Session 执行续期操作
       if (securityProperties.getAccessToken().isRefresh()
-          && clientSecret.getType().isAutoRenewable()) {
+          && clientSecret.getType().isAutoRenewable()
+          && expires != null) {
         this.refreshAccessToken(accessToken, expires);
       }
 
@@ -264,7 +267,8 @@ public class DefaultTokenServices
   private String generateTokenValue(JwtTokenPayload payload, String secret) {
     String tokenValue;
     do {
-      tokenValue = jwtTokenService.generateToken(JSON.serialize(payload), secret);
+      tokenValue =
+          jwtTokenService.generateToken(JWSAlgorithm.HS256, JOSEObjectType.JWT, payload, secret);
     } while (tokenStore.readAccessToken(tokenValue) != null);
     return tokenValue;
   }

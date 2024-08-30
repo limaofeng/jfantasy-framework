@@ -5,10 +5,10 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import java.security.Principal;
 import java.util.*;
 import lombok.*;
 import net.asany.jfantasy.framework.dao.Tenantable;
+import net.asany.jfantasy.framework.security.core.AuthenticatedPrincipal;
 import net.asany.jfantasy.framework.security.core.GrantedAuthority;
 import net.asany.jfantasy.framework.security.core.UserAttributeService;
 import net.asany.jfantasy.framework.security.core.user.OAuth2User;
@@ -26,7 +26,7 @@ import net.asany.jfantasy.framework.util.common.ObjectUtil;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class LoginUser implements UserDetails, Principal, OAuth2User, Tenantable {
+public class LoginUser implements UserDetails, AuthenticatedPrincipal, OAuth2User, Tenantable {
   /** 用户名 */
   private String username;
 
@@ -90,6 +90,11 @@ public class LoginUser implements UserDetails, Principal, OAuth2User, Tenantable
       this.data = new HashMap<>(0);
     }
     this.data.put(key, value);
+  }
+
+  @Override
+  public String getSubject() {
+    return "user-" + getUid();
   }
 
   @Override

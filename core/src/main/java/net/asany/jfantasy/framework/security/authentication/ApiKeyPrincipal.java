@@ -13,4 +13,9 @@ import net.asany.jfantasy.framework.security.core.AuthenticatedPrincipal;
 @NoArgsConstructor
 public class ApiKeyPrincipal implements AuthenticatedPrincipal {
   private String name;
+
+  @Override
+  public String getSubject() {
+    return "api-key-";
+  }
 }

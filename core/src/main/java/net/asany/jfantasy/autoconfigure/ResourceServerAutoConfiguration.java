@@ -3,12 +3,10 @@ package net.asany.jfantasy.autoconfigure;
 import net.asany.jfantasy.framework.security.auth.apikey.*;
 import net.asany.jfantasy.framework.security.auth.core.TokenServicesFactory;
 import net.asany.jfantasy.framework.security.auth.core.TokenStore;
-import net.asany.jfantasy.framework.security.auth.core.token.ResourceServerTokenServices;
 import net.asany.jfantasy.framework.security.auth.oauth2.DefaultTokenServices;
-import net.asany.jfantasy.framework.security.auth.oauth2.core.OAuth2AccessToken;
+import net.asany.jfantasy.framework.security.auth.oauth2.core.OAuth2Authentication;
 import net.asany.jfantasy.framework.security.auth.oauth2.server.authentication.BearerTokenAuthenticationProvider;
 import net.asany.jfantasy.framework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -27,6 +25,8 @@ public class ResourceServerAutoConfiguration {
 
     tokenServiceFactory.registerTokenService(
         UsernamePasswordAuthenticationToken.class, DefaultTokenServices.class);
+    tokenServiceFactory.registerTokenService(
+        OAuth2Authentication.class, DefaultTokenServices.class);
     tokenServiceFactory.registerTokenService(ApiKeyAuthentication.class, ApiKeyServices.class);
 
     return tokenServiceFactory;
@@ -34,8 +34,9 @@ public class ResourceServerAutoConfiguration {
 
   @Bean
   public BearerTokenAuthenticationProvider bearerTokenAuthenticationProvider(
-      @Autowired(required = false) ResourceServerTokenServices<OAuth2AccessToken> tokenServices) {
-    return new BearerTokenAuthenticationProvider(tokenServices);
+      TokenServicesFactory tokenServicesFactory) {
+    return new BearerTokenAuthenticationProvider(
+        tokenServicesFactory.getTokenServices(UsernamePasswordAuthenticationToken.class));
   }
 
   @Bean

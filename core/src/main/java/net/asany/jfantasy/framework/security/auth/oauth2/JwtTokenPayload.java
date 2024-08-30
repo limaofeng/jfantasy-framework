@@ -20,15 +20,12 @@ import lombok.NoArgsConstructor;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class JwtTokenPayload {
 
-  /** （Key ID）可以用来标识具体使用的密钥 */
-  private String kid;
-
   /*------------------------ JWT 标准字段 ------------------------*/
 
   /**
    * 签发者
    *
-   * <p>一般是服务端的地址
+   * <p>一般是应用标识
    */
   private String iss;
 
@@ -42,7 +39,7 @@ public class JwtTokenPayload {
   /**
    * 接收方
    *
-   * <p>一般是客户端的地址
+   * <p>一般是租户 ID
    */
   private String aud;
 
@@ -96,18 +93,13 @@ public class JwtTokenPayload {
   @JsonProperty("user_id")
   private Long userId;
 
+  /** （Key ID）可以用来标识具体使用的密钥 */
+  private String kid;
+
   /**
    * 权限范围
    *
    * <p>用户的权限范围
    */
   private List<String> scope;
-
-  /**
-   * 客户端 ID
-   *
-   * <p>一般是客户端的标识
-   */
-  @JsonProperty("client_id")
-  private String clientId;
 }
