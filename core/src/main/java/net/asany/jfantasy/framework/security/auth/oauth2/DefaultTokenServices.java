@@ -6,6 +6,8 @@ import com.nimbusds.jose.JWSAlgorithm;
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import lombok.Setter;
 import lombok.SneakyThrows;
@@ -28,6 +30,7 @@ import net.asany.jfantasy.framework.security.auth.oauth2.server.BearerTokenAuthe
 import net.asany.jfantasy.framework.security.authentication.AbstractAuthenticationToken;
 import net.asany.jfantasy.framework.security.authentication.Authentication;
 import net.asany.jfantasy.framework.security.core.AuthenticatedPrincipal;
+import net.asany.jfantasy.framework.security.core.user.ClientApp;
 import net.asany.jfantasy.framework.util.common.StringUtil;
 import org.springframework.core.task.TaskExecutor;
 
@@ -47,6 +50,8 @@ public class DefaultTokenServices
   private final JwtTokenService jwtTokenService = new JwtTokenServiceImpl();
   private final TaskExecutor taskExecutor;
   private final SecurityProperties securityProperties;
+  private final Map<Class<? extends AuthenticatedPrincipal>, String> PRINCIPAL_TYPEMAP =
+      new HashMap<>();
 
   public DefaultTokenServices(
       SecurityProperties securityProperties,
@@ -57,6 +62,8 @@ public class DefaultTokenServices
     this.clientDetailsService = clientDetailsService;
     this.taskExecutor = taskExecutor;
     this.securityProperties = securityProperties;
+    this.PRINCIPAL_TYPEMAP.put(LoginUser.class, "user");
+    this.PRINCIPAL_TYPEMAP.put(ClientApp.class, "client-app");
   }
 
   @SneakyThrows
@@ -104,16 +111,16 @@ public class DefaultTokenServices
 
     JwtTokenPayload.JwtTokenPayloadBuilder jwtTokenPayloadBuilder =
         JwtTokenPayload.builder()
-            .sub(principal.getSubject())
+            .sub(PRINCIPAL_TYPEMAP.get(principal.getClass()) + "-" + principal.getId())
             .name(authentication.getName())
             .kid(clientSecret.getId())
             .iss(details.getClientId())
-            .aud(details.getTenantId())
+            .aud(principal.getTenantId())
             .iat(issuedAt.getEpochSecond())
             .exp(Optional.ofNullable(expiresAt).map(Instant::getEpochSecond).orElse(null));
 
     if (principal instanceof LoginUser loginUser) {
-      jwtTokenPayloadBuilder.userId(loginUser.getUid());
+      jwtTokenPayloadBuilder.userId(loginUser.getId());
     }
 
     JwtTokenPayload payload = jwtTokenPayloadBuilder.build();

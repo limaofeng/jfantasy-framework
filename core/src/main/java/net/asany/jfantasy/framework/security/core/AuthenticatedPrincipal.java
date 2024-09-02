@@ -13,12 +13,7 @@ import java.util.Optional;
  */
 public interface AuthenticatedPrincipal extends Principal {
 
-  /**
-   * 当事人的主题
-   *
-   * @return String
-   */
-  String getSubject();
+  Long getId();
 
   /**
    * 当事人名称
@@ -26,6 +21,10 @@ public interface AuthenticatedPrincipal extends Principal {
    * @return String
    */
   String getName();
+
+  default String getTenantId() {
+    return (String) this.getAttribute("tenantId").orElse(null);
+  }
 
   default <A> Optional<A> getAttribute(String name) {
     Map<String, Object> attrs = getAttributes();

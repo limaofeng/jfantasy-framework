@@ -12,7 +12,7 @@ import net.asany.jfantasy.framework.security.auth.oauth2.core.OAuth2Token;
 import net.asany.jfantasy.framework.security.auth.oauth2.token.ClientCredentialsAuthenticationToken;
 import net.asany.jfantasy.framework.security.authentication.Authentication;
 import net.asany.jfantasy.framework.security.authentication.AuthenticationProvider;
-import net.asany.jfantasy.framework.security.core.user.OAuth2Principal;
+import net.asany.jfantasy.framework.security.core.user.ClientApp;
 
 public class ClientCredentialsAuthenticationProvider
     implements AuthenticationProvider<ClientCredentialsAuthenticationToken> {
@@ -45,7 +45,7 @@ public class ClientCredentialsAuthenticationProvider
 
     return new OAuth2Authentication(
         AuthorizationGrantType.CLIENT_CREDENTIALS,
-        new OAuth2Principal(details.getClientDetails()),
+        new ClientApp(details.getClientDetails()),
         new OAuth2Token(secretOptional.get()),
         new ArrayList<>(),
         details);

@@ -16,11 +16,14 @@ import net.asany.jfantasy.framework.security.authentication.dao.AbstractUserDeta
 import net.asany.jfantasy.framework.security.authentication.dao.DaoAuthenticationProvider;
 import net.asany.jfantasy.framework.security.authorization.policy.context.RequestContextBuilder;
 import net.asany.jfantasy.framework.security.authorization.policy.context.RequestContextFactory;
+import net.asany.jfantasy.framework.security.core.AuthenticatedPrincipal;
+import net.asany.jfantasy.framework.security.core.PrincipalAttributeService;
+import net.asany.jfantasy.framework.security.core.PrincipalAttributeServiceRegistry;
 import net.asany.jfantasy.framework.security.core.SecurityMessageSource;
-import net.asany.jfantasy.framework.security.core.UserAttributeService;
 import net.asany.jfantasy.framework.security.core.userdetails.*;
 import net.asany.jfantasy.framework.security.crypto.password.PasswordEncoder;
 import net.asany.jfantasy.framework.security.crypto.password.PlaintextPasswordEncoder;
+import net.asany.jfantasy.framework.util.common.ClassUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -163,12 +166,26 @@ public class SecurityAutoConfiguration {
   }
 
   @Bean
-  public UserAttributeService userAttributeService(
-      List<UserDynamicAttribute<?>> dynamicAttributes) {
-    UserAttributeService userAttributeService = new UserAttributeService();
-    for (UserDynamicAttribute<?> dynamicAttribute : dynamicAttributes) {
-      userAttributeService.registerAttribute(dynamicAttribute);
+  public PrincipalAttributeServiceRegistry principalAttributeServiceRegistry(
+      List<PrincipalDynamicAttribute<? extends AuthenticatedPrincipal, ?>> dynamicAttributes) {
+
+    PrincipalAttributeServiceRegistry registry = new PrincipalAttributeServiceRegistry();
+
+    for (PrincipalDynamicAttribute<? extends AuthenticatedPrincipal, ?> dynamicAttribute :
+        dynamicAttributes) {
+      Class<? extends AuthenticatedPrincipal> principalClazz =
+          ClassUtil.getInterfaceGenricType(
+              ClassUtil.getRealClass(dynamicAttribute.getClass()), PrincipalDynamicAttribute.class);
+
+      PrincipalAttributeService attributeService = registry.getService(principalClazz);
+
+      if (attributeService == null) {
+        attributeService = new PrincipalAttributeService();
+        registry.registerService(principalClazz, attributeService);
+      }
+
+      attributeService.registerAttribute(dynamicAttribute);
     }
-    return userAttributeService;
+    return registry;
   }
 }

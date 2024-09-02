@@ -10,6 +10,7 @@ import net.asany.jfantasy.framework.security.core.AuthenticatedPrincipal;
 public class TokenObject {
 
   private AuthToken accessToken;
+  private String principalType;
   private AuthenticatedPrincipal principal;
   private Set<String> authorities;
 }

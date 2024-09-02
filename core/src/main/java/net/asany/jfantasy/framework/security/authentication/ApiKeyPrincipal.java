@@ -15,7 +15,7 @@ public class ApiKeyPrincipal implements AuthenticatedPrincipal {
   private String name;
 
   @Override
-  public String getSubject() {
-    return "api-key-";
+  public Long getId() {
+    return 0L;
   }
 }

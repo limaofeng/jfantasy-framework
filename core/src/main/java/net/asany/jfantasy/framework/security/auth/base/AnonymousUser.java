@@ -7,8 +7,8 @@ import net.asany.jfantasy.framework.security.core.AuthenticatedPrincipal;
 public record AnonymousUser(ClientDetails clientDetails) implements AuthenticatedPrincipal {
 
   @Override
-  public String getSubject() {
-    return "anonymous";
+  public Long getId() {
+    return 0L;
   }
 
   @Override

@@ -1,20 +1,14 @@
 package net.asany.jfantasy.framework.security;
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import java.util.*;
+import java.util.Set;
 import lombok.*;
 import net.asany.jfantasy.framework.dao.Tenantable;
+import net.asany.jfantasy.framework.security.core.AbstractAuthenticatedPrincipal;
 import net.asany.jfantasy.framework.security.core.AuthenticatedPrincipal;
 import net.asany.jfantasy.framework.security.core.GrantedAuthority;
-import net.asany.jfantasy.framework.security.core.UserAttributeService;
-import net.asany.jfantasy.framework.security.core.user.OAuth2User;
 import net.asany.jfantasy.framework.security.core.userdetails.UserDetails;
-import net.asany.jfantasy.framework.spring.SpringBeanUtils;
-import net.asany.jfantasy.framework.util.common.ObjectUtil;
 
 /**
  * 登录用户对象
@@ -26,7 +20,9 @@ import net.asany.jfantasy.framework.util.common.ObjectUtil;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class LoginUser implements UserDetails, AuthenticatedPrincipal, OAuth2User, Tenantable {
+@EqualsAndHashCode(callSuper = false)
+public class LoginUser extends AbstractAuthenticatedPrincipal
+    implements UserDetails, AuthenticatedPrincipal, Tenantable {
   /** 用户名 */
   private String username;
 
@@ -34,7 +30,7 @@ public class LoginUser implements UserDetails, AuthenticatedPrincipal, OAuth2Use
   private String password;
 
   /** 用户ID */
-  private Long uid;
+  private Long id;
 
   /** 用户类型 */
   private String type;
@@ -60,9 +56,6 @@ public class LoginUser implements UserDetails, AuthenticatedPrincipal, OAuth2Use
   /** 电话 */
   private String phone;
 
-  /** 扩展属性 */
-  @JsonIgnore private Map<String, Object> data;
-
   /** 启用状态 */
   @Builder.Default private boolean enabled = true;
 
@@ -83,39 +76,4 @@ public class LoginUser implements UserDetails, AuthenticatedPrincipal, OAuth2Use
 
   /** 租户ID */
   private String tenantId;
-
-  @JsonAnySetter
-  public void setAttribute(String key, Object value) {
-    if (this.data == null) {
-      this.data = new HashMap<>(0);
-    }
-    this.data.put(key, value);
-  }
-
-  @Override
-  public String getSubject() {
-    return "user-" + getUid();
-  }
-
-  @Override
-  public <A> Optional<A> getAttribute(String name) {
-    UserAttributeService userAttributeService =
-        SpringBeanUtils.getBeanByType(UserAttributeService.class);
-    if (userAttributeService.hasAttribute(name)) {
-      return userAttributeService.getAttributeValue(this, name);
-    }
-    if (this.data == null) {
-      this.data = new HashMap<>();
-    }
-    if (this.data.containsKey(name)) {
-      return Optional.of((A) this.data.get(name));
-    }
-    return Optional.empty();
-  }
-
-  @Override
-  @JsonAnyGetter
-  public Map<String, Object> getAttributes() {
-    return ObjectUtil.defaultValue(this.data, Collections.emptyMap());
-  }
 }

@@ -177,6 +177,7 @@ public abstract class AbstractTokenStore<T extends AuthToken> implements TokenSt
     return mapper.writeValueAsString(
         TokenObject.builder()
             .authorities(authorities)
+            .principalType(authentication.getPrincipal().getClass().getName())
             .principal(authentication.getPrincipal())
             .accessToken(token)
             .build());
@@ -188,14 +189,18 @@ public abstract class AbstractTokenStore<T extends AuthToken> implements TokenSt
     JsonNode accessTokenNode = node.get("access_token");
     JsonNode principalNode = node.get("principal");
     JsonNode authoritiesNode = node.get("authorities");
+    String principal_type = node.get("principal_type").asText();
 
     T authToken = mapper.treeToValue(accessTokenNode, authTokenClass);
-    AuthenticatedPrincipal principal =
-        mapper.treeToValue(principalNode, authToken.getPrincipalType());
+
+    Class<? extends AuthenticatedPrincipal> principalType = ClassUtil.forName(principal_type);
+
+    AuthenticatedPrincipal principal = mapper.treeToValue(principalNode, principalType);
     Set<String> authorities = mapper.convertValue(authoritiesNode, new TypeReference<>() {});
 
     return TokenObject.builder()
         .principal(principal)
+        .principalType(principal_type)
         .authorities(authorities == null ? Collections.emptySet() : authorities)
         .accessToken(authToken)
         .build();

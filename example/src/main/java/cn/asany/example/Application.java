@@ -85,8 +85,8 @@ public class Application extends SpringBootServletInitializer {
           }
 
           @Override
-          public String getSubject() {
-            return "";
+          public Long getId() {
+            return 12L;
           }
 
           @Override

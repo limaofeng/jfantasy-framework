@@ -11,6 +11,8 @@ import net.asany.jfantasy.framework.security.core.GrantedAuthority;
  */
 public interface ClientDetails extends AuthenticatedPrincipal {
 
+  Long getId();
+
   /**
    * 附加信息
    *

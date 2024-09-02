@@ -1,13 +1,12 @@
 package net.asany.jfantasy.framework.dao.hibernate.interceptors;
 
-import java.io.Serializable;
 import net.asany.jfantasy.framework.dao.BaseBusEntity;
 import net.asany.jfantasy.framework.dao.SoftDeletable;
 import net.asany.jfantasy.framework.dao.Tenantable;
 import net.asany.jfantasy.framework.security.LoginUser;
 import net.asany.jfantasy.framework.security.SpringSecurityUtils;
 import net.asany.jfantasy.framework.util.common.DateUtil;
-import org.hibernate.EmptyInterceptor;
+import org.hibernate.Interceptor;
 import org.hibernate.type.Type;
 
 /**
@@ -17,12 +16,12 @@ import org.hibernate.type.Type;
  * @version 1.0
  * @since 2012-10-28 下午08:07:30
  */
-public class BusEntityInterceptor extends EmptyInterceptor {
+public class BusEntityInterceptor implements Interceptor {
 
   @Override
   public boolean onFlushDirty(
       Object entity,
-      Serializable id,
+      Object id,
       Object[] currentState,
       Object[] previousState,
       String[] propertyNames,
@@ -31,7 +30,7 @@ public class BusEntityInterceptor extends EmptyInterceptor {
       LoginUser user = SpringSecurityUtils.getCurrentUser();
       Long modifiedBy = ((BaseBusEntity) entity).getUpdatedBy();
       if (modifiedBy == null && user != null) {
-        modifiedBy = user.getUid();
+        modifiedBy = user.getId();
       }
       int count = 0;
       for (int i = 0; i < propertyNames.length; i++) {
@@ -47,17 +46,17 @@ public class BusEntityInterceptor extends EmptyInterceptor {
         }
       }
     }
-    return super.onFlushDirty(entity, id, currentState, previousState, propertyNames, types);
+    return false;
   }
 
   @Override
   public boolean onSave(
-      Object entity, Serializable id, Object[] state, String[] propertyNames, Type[] types) {
+      Object entity, Object id, Object[] state, String[] propertyNames, Type[] types) {
     if (entity instanceof BaseBusEntity) {
       LoginUser user = SpringSecurityUtils.getCurrentUser();
       Long createdBy = ((BaseBusEntity) entity).getCreatedBy();
       if (createdBy == null && user != null) {
-        createdBy = user.getUid();
+        createdBy = user.getId();
       }
       int count = 0;
       int maxCount = 4;
@@ -100,6 +99,6 @@ public class BusEntityInterceptor extends EmptyInterceptor {
         }
       }
     }
-    return super.onSave(entity, id, state, propertyNames, types);
+    return false;
   }
 }

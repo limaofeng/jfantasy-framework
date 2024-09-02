@@ -12,8 +12,6 @@ public interface AuthenticationDetails {
 
   String getClientId();
 
-  String getTenantId();
-
   ClientDetails getClientDetails();
 
   void setClientDetails(ClientDetails clientDetails);
