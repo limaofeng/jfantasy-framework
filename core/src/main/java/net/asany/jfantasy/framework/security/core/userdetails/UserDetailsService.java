@@ -12,11 +12,12 @@ public interface UserDetailsService<T extends UserDetails> {
   /**
    * 通过用户名查询用户
    *
+   * @param tenantId 租户ID
    * @param username 用户名
    * @return 用户
    * @throws UsernameNotFoundException 未查询到用户
    */
-  T loadUserByUsername(String username) throws UsernameNotFoundException;
+  T loadUserByUsername(String tenantId, String username) throws UsernameNotFoundException;
 
   /**
    * 根据用户ID加载用户信息
@@ -31,10 +32,11 @@ public interface UserDetailsService<T extends UserDetails> {
   /**
    * 根据手机号码加载用户信息
    *
+   * @param tenantId 租户ID
    * @param phone 手机号码
    * @return 用户信息
    */
-  default T loadUserByPhone(String phone) {
+  default T loadUserByPhone(String tenantId, String phone) {
     throw new UnsupportedOperationException();
   }
 }

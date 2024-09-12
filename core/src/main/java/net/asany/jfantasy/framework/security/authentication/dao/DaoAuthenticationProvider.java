@@ -43,7 +43,8 @@ public class DaoAuthenticationProvider
   @Override
   public UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken token) {
     try {
-      UserDetails loadedUser = this.userDetailsService.loadUserByUsername(username);
+      UserDetails loadedUser =
+          this.userDetailsService.loadUserByUsername(token.getTenantId(), username);
       if (loadedUser == null) {
         throw new InternalAuthenticationServiceException(
             "UserDetailsService returned null, which is an interface contract violation");

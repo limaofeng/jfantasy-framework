@@ -19,7 +19,7 @@ public class DefaultAuthenticationChecks implements UserDetailsChecker {
   }
 
   @Override
-  public void check(UserDetails user, AuthenticationToken authenticationToken) {
+  public void check(UserDetails user, AuthenticationToken<?> authenticationToken) {
     for (UserDetailsChecker checker : checkers) {
       if (!checker.needsCheck(authenticationToken)) {
         continue;

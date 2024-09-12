@@ -15,7 +15,7 @@ public interface UserDetailsChecker {
    * @param authenticationToken 认证令牌
    * @return 是否需要进行认证检查
    */
-  default boolean needsCheck(AuthenticationToken authenticationToken) {
+  default boolean needsCheck(AuthenticationToken<?> authenticationToken) {
     return true;
   }
 
@@ -25,5 +25,5 @@ public interface UserDetailsChecker {
    * @param user 用户
    * @param authenticationToken 认证令牌
    */
-  void check(UserDetails user, AuthenticationToken authenticationToken);
+  void check(UserDetails user, AuthenticationToken<?> authenticationToken);
 }

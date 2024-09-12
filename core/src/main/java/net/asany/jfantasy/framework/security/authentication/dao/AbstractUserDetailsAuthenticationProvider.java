@@ -74,7 +74,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider<
       Object principal, Authentication authentication, UserDetails user) {
     UsernamePasswordAuthenticationToken result =
         new UsernamePasswordAuthenticationToken(
-            principal, authentication.getCredentials(), user.getAuthorities());
+            user.getTenantId(), principal, authentication.getCredentials(), user.getAuthorities());
     result.setDetails(authentication.getDetails());
     log.debug("Authenticated user");
     return result;
@@ -99,7 +99,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider<
     }
 
     @Override
-    public void check(UserDetails user, AuthenticationToken authenticationToken) {
+    public void check(UserDetails user, AuthenticationToken<?> authenticationToken) {
       if (!user.isAccountNonLocked()) {
         throw new LockedException(
             this.messages.getMessage(

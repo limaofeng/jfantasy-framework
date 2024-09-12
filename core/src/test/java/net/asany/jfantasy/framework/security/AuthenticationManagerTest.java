@@ -24,7 +24,7 @@ class AuthenticationManagerTest {
     manager.addProvider(provider);
 
     Authentication authentication =
-        new UsernamePasswordAuthenticationToken("limaofeng", "123456789");
+        new UsernamePasswordAuthenticationToken("", "limaofeng", "123456789");
 
     manager.authenticate(authentication);
   }

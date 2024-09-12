@@ -12,11 +12,11 @@ import net.asany.jfantasy.framework.security.core.GrantedAuthority;
 public interface UserDetails extends Serializable {
 
   /**
-   * 密码
+   * 租户ID
    *
-   * @return 密码
+   * @return 租户ID
    */
-  String getPassword();
+  String getTenantId();
 
   /**
    * 用户名
@@ -24,6 +24,13 @@ public interface UserDetails extends Serializable {
    * @return 用户名
    */
   String getUsername();
+
+  /**
+   * 密码
+   *
+   * @return 密码
+   */
+  String getPassword();
 
   /**
    * 未过期

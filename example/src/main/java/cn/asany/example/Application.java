@@ -67,7 +67,7 @@ public class Application extends SpringBootServletInitializer {
 
   @Bean
   public UserDetailsService<LoginUser> userDetailsService() {
-    return username -> LoginUser.builder().build();
+    return (tid, username) -> LoginUser.builder().build();
   }
 
   @Bean

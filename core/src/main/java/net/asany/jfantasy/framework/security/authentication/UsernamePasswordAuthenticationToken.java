@@ -3,6 +3,7 @@ package net.asany.jfantasy.framework.security.authentication;
 import java.security.Principal;
 import java.util.Collection;
 import java.util.Collections;
+import lombok.Getter;
 import net.asany.jfantasy.framework.security.LoginUser;
 import net.asany.jfantasy.framework.security.auth.core.AuthenticationDetails;
 import net.asany.jfantasy.framework.security.core.AuthenticatedPrincipal;
@@ -15,25 +16,32 @@ import net.asany.jfantasy.framework.security.core.GrantedAuthority;
  */
 public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationToken<String> {
 
+  @Getter private final String tenantId;
   private final Object principal;
   private final Object credentials;
 
-  public UsernamePasswordAuthenticationToken(Object principal, Object credentials) {
+  public UsernamePasswordAuthenticationToken(
+      String tenantId, Object principal, Object credentials) {
     super(Collections.emptyList());
+    this.tenantId = tenantId;
     this.principal = principal;
     this.credentials = credentials;
     setAuthenticated(false);
   }
 
   public UsernamePasswordAuthenticationToken(
-      Object principal, Object credentials, AuthenticationDetails details) {
-    this(principal, credentials);
+      String tenantId, Object principal, Object credentials, AuthenticationDetails details) {
+    this(tenantId, principal, credentials);
     this.details = details;
   }
 
   public UsernamePasswordAuthenticationToken(
-      Object principal, Object credentials, Collection<GrantedAuthority> authorities) {
+      String tenantId,
+      Object principal,
+      Object credentials,
+      Collection<GrantedAuthority> authorities) {
     super(authorities);
+    this.tenantId = tenantId;
     this.principal = principal;
     this.credentials = credentials;
     super.setAuthenticated(true);
