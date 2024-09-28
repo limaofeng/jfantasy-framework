@@ -258,10 +258,8 @@ public class HibernateCloningHelper {
           if (entityClass.isAnnotationPresent(IdClass.class)) {
             // 处理 @IdClass
             for (Field pkField : ClassUtil.getDeclaredFields(idOrCompositeId.getClass())) {
-              ClassUtil.setFieldValue(
-                  entity,
-                  pkField.getName(),
-                  ClassUtil.getFieldValue(idOrCompositeId, pkField.getName()));
+              Object pkValue = ClassUtil.getFieldValue(idOrCompositeId, pkField.getName());
+              ClassUtil.setFieldValue(entity, pkField.getName(), pkValue);
             }
           } else {
             // 处理单一 @Id
