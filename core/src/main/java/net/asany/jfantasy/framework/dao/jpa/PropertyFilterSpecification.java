@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2024 Asany
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.asany.net/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package net.asany.jfantasy.framework.dao.jpa;
 
 import static net.asany.jfantasy.framework.util.common.ObjectUtil.multipleValuesObjectsObjects;
@@ -48,6 +63,7 @@ public class PropertyFilterSpecification<T> implements Specification<T> {
     List<Predicate> predicates = new ArrayList<>();
     for (PropertyPredicate filter : filters) {
       if (filter.isSpecification()) {
+        //noinspection unchecked
         predicates =
             join(
                 predicates,
@@ -55,6 +71,7 @@ public class PropertyFilterSpecification<T> implements Specification<T> {
       } else if (filter.getMatchType() == MatchType.AND
           || filter.getMatchType() == MatchType.OR
           || filter.getMatchType() == MatchType.NOT) {
+        //noinspection unchecked
         Predicate[] predicateChildren =
             buildPropertyFilterPredicate(filter.getPropertyValue(List.class), root, query, builder);
         if (predicateChildren.length == 0) {
@@ -96,9 +113,14 @@ public class PropertyFilterSpecification<T> implements Specification<T> {
       Root<T> root,
       CriteriaQuery<?> query,
       CriteriaBuilder builder) {
-    return filters.stream()
-        .map(item -> buildMultiplePropertyFilterPredicate(item, root, query, builder))
-        .toArray(Predicate[]::new);
+    try {
+      return filters.stream()
+          .map(item -> buildMultiplePropertyFilterPredicate(item, root, query, builder))
+          .toArray(Predicate[]::new);
+    } catch (RuntimeException e) {
+      e.printStackTrace();
+      throw e;
+    }
   }
 
   private Predicate buildMultiplePropertyFilterPredicate(
@@ -138,24 +160,34 @@ public class PropertyFilterSpecification<T> implements Specification<T> {
     if (MatchType.EQ == matchType) {
       return builder.equal(path, propertyValue);
     } else if (MatchType.CONTAINS == matchType) {
+      //noinspection unchecked
       return builder.like(path, '%' + (String) propertyValue + '%');
     } else if (MatchType.NOT_CONTAINS == matchType) {
+      //noinspection unchecked
       return builder.notLike(path, '%' + (String) propertyValue + '%');
     } else if (MatchType.STARTS_WITH == matchType) {
+      //noinspection unchecked
       return builder.like(path, (String) propertyValue + '%');
     } else if (MatchType.NOT_STARTS_WITH == matchType) {
+      //noinspection unchecked
       return builder.notLike(path, (String) propertyValue + '%');
     } else if (MatchType.ENDS_WITH == matchType) {
+      //noinspection unchecked
       return builder.like(path, '%' + (String) propertyValue);
     } else if (MatchType.NOT_ENDS_WITH == matchType) {
+      //noinspection unchecked
       return builder.notLike(path, '%' + (String) propertyValue);
     } else if (MatchType.LTE == matchType) {
+      //noinspection unchecked
       return builder.lessThanOrEqualTo(path, (Comparable<Object>) propertyValue);
     } else if (MatchType.LT == matchType) {
+      //noinspection unchecked
       return builder.lessThan(path, (Comparable<Object>) propertyValue);
     } else if (MatchType.GTE == matchType) {
+      //noinspection unchecked
       return builder.greaterThanOrEqualTo(path, (Comparable<Object>) propertyValue);
     } else if (MatchType.GT == matchType) {
+      //noinspection unchecked
       return builder.greaterThan(path, (Comparable<Object>) propertyValue);
     } else if (MatchType.IN == matchType) {
       return path.in(Arrays.stream(multipleValuesObjectsObjects(propertyValue)).toArray());
@@ -169,12 +201,17 @@ public class PropertyFilterSpecification<T> implements Specification<T> {
     } else if (MatchType.NOT_NULL == matchType) {
       return builder.isNotNull(path);
     } else if (MatchType.EMPTY == matchType) {
+      //noinspection unchecked
       return builder.isEmpty(path);
     } else if (MatchType.NOT_EMPTY == matchType) {
+      //noinspection unchecked
       return builder.isNotEmpty(path);
     } else if (MatchType.BETWEEN == matchType) {
+      //noinspection unchecked
       Comparable<Object> x = (Comparable<Object>) Array.get(propertyValue, 0);
+      //noinspection unchecked
       Comparable<Object> y = (Comparable<Object>) Array.get(propertyValue, 1);
+      // noinspection unchecked
       return builder.between(path, x, y);
     }
     throw new RuntimeException("不支持的查询");
