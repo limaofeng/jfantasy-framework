@@ -28,6 +28,10 @@ import net.asany.jfantasy.graphql.inputs.WhereInput;
 @EqualsAndHashCode(callSuper = false)
 public class UserWhereInput extends WhereInput<UserWhereInput, User> {
 
+  public UserWhereInput() {
+    super("DemoUserFilter");
+  }
+
   @JsonProperty("username_contains")
   public void setUsernameContains(String value) {
     filter.contains("username", value);

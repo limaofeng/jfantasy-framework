@@ -15,13 +15,17 @@
  */
 package net.asany.jfantasy.graphql.scalars;
 
+import graphql.GraphQLContext;
+import graphql.execution.CoercedVariables;
 import graphql.language.IntValue;
 import graphql.language.StringValue;
+import graphql.language.Value;
 import graphql.schema.Coercing;
 import graphql.schema.CoercingParseLiteralException;
 import graphql.schema.CoercingParseValueException;
 import graphql.schema.CoercingSerializeException;
 import java.util.Date;
+import java.util.Locale;
 import net.asany.jfantasy.framework.dao.hibernate.util.ReflectionUtils;
 import net.asany.jfantasy.graphql.util.Kit;
 import org.jetbrains.annotations.NotNull;
@@ -29,7 +33,9 @@ import org.jetbrains.annotations.NotNull;
 public class GraphqlDateCoercing implements Coercing<Date, Object> {
 
   @Override
-  public Object serialize(@NotNull Object input) throws CoercingSerializeException {
+  public Object serialize(
+      @NotNull Object input, @NotNull GraphQLContext graphQLContext, @NotNull Locale locale)
+      throws CoercingSerializeException {
     if (input instanceof Date) {
       return ((Date) input).getTime();
     }
@@ -37,7 +43,9 @@ public class GraphqlDateCoercing implements Coercing<Date, Object> {
   }
 
   @Override
-  public Date parseValue(@NotNull Object input) throws CoercingParseValueException {
+  public Date parseValue(
+      @NotNull Object input, @NotNull GraphQLContext graphQLContext, @NotNull Locale locale)
+      throws CoercingParseValueException {
     if (input instanceof Date) {
       return (Date) input;
     }
@@ -54,7 +62,12 @@ public class GraphqlDateCoercing implements Coercing<Date, Object> {
   }
 
   @Override
-  public Date parseLiteral(@NotNull Object input) throws CoercingParseLiteralException {
+  public Date parseLiteral(
+      @NotNull Value<?> input,
+      @NotNull CoercedVariables variables,
+      @NotNull GraphQLContext graphQLContext,
+      @NotNull Locale locale)
+      throws CoercingParseLiteralException {
     if (input instanceof StringValue) {
       return ReflectionUtils.convert(((StringValue) input).getValue(), Date.class);
     }

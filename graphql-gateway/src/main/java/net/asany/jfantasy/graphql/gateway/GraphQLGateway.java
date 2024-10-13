@@ -90,6 +90,7 @@ public class GraphQLGateway {
   public void destroy() {}
 
   public <T extends GraphQLService> List<T> getGraphQLService(Class<T> serviceClass) {
+    //noinspection unchecked
     return (List<T>)
         this.serviceList.stream().filter(serviceClass::isInstance).collect(Collectors.toList());
   }

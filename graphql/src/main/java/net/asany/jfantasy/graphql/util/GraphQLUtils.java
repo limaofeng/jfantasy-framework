@@ -15,13 +15,58 @@
  */
 package net.asany.jfantasy.graphql.util;
 
+import graphql.kickstart.tools.SchemaParser;
 import graphql.language.Field;
-import graphql.schema.DataFetchingEnvironment;
+import graphql.language.TypeDefinition;
+import graphql.schema.*;
+import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Map;
+import net.asany.jfantasy.framework.spring.SpringBeanUtils;
+import net.asany.jfantasy.framework.util.common.ClassUtil;
 import net.asany.jfantasy.framework.util.common.ObjectUtil;
 import net.asany.jfantasy.framework.util.common.StringUtil;
+import net.asany.jfantasy.framework.util.error.UnsupportedException;
 
 public class GraphQLUtils {
+
+  public static <T extends TypeDefinition<?>> T getTypeDefinition(Class<?> clazz) {
+    SchemaParser schemaParser = SpringBeanUtils.getBeanByType(SchemaParser.class);
+    Map<TypeDefinition<?>, Type> dictionary = ClassUtil.getFieldValue(schemaParser, "dictionary");
+    for (Map.Entry<TypeDefinition<?>, Type> entry : dictionary.entrySet()) {
+      if (entry.getValue().equals(clazz)) {
+        //noinspection unchecked
+        return (T) entry.getKey();
+      }
+    }
+    return null;
+  }
+
+  public static <T extends GraphQLSchemaElement> T getFieldDefinition(
+      String typeName, String name) {
+    GraphQLSchema schema = SpringBeanUtils.getBeanByType(GraphQLSchema.class);
+    GraphQLType typeDefinition = schema.getType(typeName);
+    assert typeDefinition != null;
+
+    List<GraphQLSchemaElement> children = typeDefinition.getChildren();
+
+    for (GraphQLSchemaElement element : children) {
+      if (element instanceof GraphQLInputObjectField field) {
+        if (field.getName().equals(name)) {
+          //noinspection unchecked
+          return (T) field;
+        }
+      }
+      if (element instanceof GraphQLFieldDefinition field) {
+        if (field.getName().equals(name)) {
+          //noinspection unchecked
+          return (T) field;
+        }
+      }
+    }
+
+    throw new UnsupportedException("Field not found");
+  }
 
   public static String getExecutionStepInfoPath(DataFetchingEnvironment environment) {
     return environment.getExecutionStepInfo().getPath().toString();

@@ -67,7 +67,7 @@ public class JpaDefaultPropertyFilter
                 || matchType == MatchType.NOT) {
               context.add(new PropertyPredicate(matchType, value));
             } else if (matchType == MatchType.BETWEEN) {
-              BetweenValue<?, ?> betweenValue = (BetweenValue<?, ?>) value;
+              BetweenValue<?> betweenValue = (BetweenValue<?>) value;
               context.add(
                   new PropertyPredicate(
                       MatchType.BETWEEN, name, betweenValue.getX(), betweenValue.getY()));

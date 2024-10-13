@@ -18,6 +18,7 @@ package net.asany.jfantasy.framework.dao;
 import static net.asany.jfantasy.framework.util.common.ObjectUtil.multipleValuesObjectsObjects;
 
 import java.lang.reflect.Array;
+import lombok.Getter;
 import net.asany.jfantasy.framework.dao.jpa.PropertyFilter;
 import net.asany.jfantasy.framework.util.common.ObjectUtil;
 
@@ -75,21 +76,19 @@ public enum MatchType {
   BETWEEN(
       "between",
       (builder, name, value) -> {
+        //noinspection unchecked
         Comparable<Object> x = (Comparable<Object>) Array.get(value, 0);
+        //noinspection unchecked
         Comparable<Object> y = (Comparable<Object>) Array.get(value, 1);
         return builder.between(name, x, y);
       });
 
-  private final String slug;
+  @Getter private final String slug;
   private final MatchBuilder builder;
 
   MatchType(String slug, MatchBuilder builder) {
     this.slug = slug;
     this.builder = builder;
-  }
-
-  public String getSlug() {
-    return slug;
   }
 
   public static MatchType get(String str) {

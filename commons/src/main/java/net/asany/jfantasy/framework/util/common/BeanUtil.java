@@ -140,8 +140,8 @@ public class BeanUtil {
     return toType.cast(BeanUtilsBean.getInstance().getConvertUtils().convert(value, toType));
   }
 
-  public static Object convert(Object value, Class<?> toType) {
-    return BeanUtilsBean.getInstance().getConvertUtils().convert(value, toType);
+  public static <T> T convert(Object value, Class<T> toType) {
+    return toType.cast(BeanUtilsBean.getInstance().getConvertUtils().convert(value, toType));
   }
 
   private static class AllowPropertyFilter implements PropertyFilter {

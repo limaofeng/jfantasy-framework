@@ -23,6 +23,9 @@ import net.asany.jfantasy.graphql.context.DataLoaderRegistryCustomizer;
 import net.asany.jfantasy.graphql.error.GraphQLResolverAdvice;
 import net.asany.jfantasy.graphql.error.GraphqlStaticMethodMatcherPointcut;
 import net.asany.jfantasy.graphql.error.TokenGraphQLServletListener;
+import net.asany.jfantasy.graphql.inputs.DateRange;
+import net.asany.jfantasy.graphql.inputs.FloatRange;
+import net.asany.jfantasy.graphql.inputs.IntRange;
 import org.dataloader.DataLoaderRegistry;
 import org.springframework.aop.support.DefaultBeanFactoryPointcutAdvisor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +50,15 @@ public class GraphQLAutoConfiguration {
   @Bean
   public TokenGraphQLServletListener tokenGraphQLServletListener() {
     return new TokenGraphQLServletListener();
+  }
+
+  @Bean("defaultDictionaryBuilder")
+  public SchemaParserDictionaryBuilder dictionaryBuilder() {
+    return dictionary -> {
+      dictionary.add("IntRange", IntRange.class);
+      dictionary.add("FloatRange", FloatRange.class);
+      dictionary.add("DateRange", DateRange.class);
+    };
   }
 
   @Bean

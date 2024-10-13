@@ -38,6 +38,7 @@ public class TokenServicesFactory implements BeanDefinitionRegistryPostProcessor
   public <T> T getTokenServices(Class<? extends Authentication> type) {
     Class<?> serviceClass = tokenServicesMap.get(type);
     if (serviceClass != null) {
+      //noinspection unchecked
       return (T) beanFactory.getBean(serviceClass);
     }
     throw new IllegalArgumentException("No token service registered for type: " + type);
@@ -64,12 +65,7 @@ public class TokenServicesFactory implements BeanDefinitionRegistryPostProcessor
   private boolean hasBeanDefinition(
       BeanDefinitionRegistry registry,
       Class<? extends AuthorizationServerTokenServices<? extends AuthToken>> serviceClass) {
-    try {
-      ((DefaultListableBeanFactory) registry).getBean(serviceClass);
-      return true;
-    } catch (BeansException e) {
-      return false;
-    }
+    return ((DefaultListableBeanFactory) registry).getBeanNamesForType(serviceClass).length > 0;
   }
 
   private BeanDefinition buildBeanDefinition(Class<?> serviceClass) {

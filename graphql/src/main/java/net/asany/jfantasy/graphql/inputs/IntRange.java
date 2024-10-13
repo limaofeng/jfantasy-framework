@@ -13,20 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.asany.jfantasy.framework.dao.jpa;
+package net.asany.jfantasy.graphql.inputs;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
-/**
- * BetweenValue
- *
- * @author limaofeng
- */
-@Data
-@AllArgsConstructor
-public class BetweenValue<V> {
-
-  private V x;
-  private V y;
-}
+@Getter
+@Setter
+@SuperBuilder
+@NoArgsConstructor
+public class IntRange extends Range<Integer> {}

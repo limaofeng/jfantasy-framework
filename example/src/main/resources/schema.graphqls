@@ -113,6 +113,7 @@ input DemoUserCreateInput {
 
 input DemoUserFilter {
   username_contains: String
+  createdAt_range: DateRange
 }
 
 type DemoUserConnection implements Connection {
@@ -164,7 +165,7 @@ type DemoUser {
   # 修改人
   updatedBy: String
   # 创建时间
-  createdAt: Date
+  createdAt: Date @dateFormat
   # 修改时间
   updatedAt: Date
   # 用户设置

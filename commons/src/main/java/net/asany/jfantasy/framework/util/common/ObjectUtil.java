@@ -618,6 +618,7 @@ public final class ObjectUtil {
   public static <T, C extends Collection<T>> C sort(C collection, String orderBy, String order) {
     List<T> list = new ArrayList<>();
     if (collection.isEmpty()) {
+      //noinspection RedundantOperationOnEmptyContainer
       return packageResult(list.stream(), collection.getClass());
     }
     String key = collection.iterator().next().getClass().toString().concat("|").concat(orderBy);
@@ -626,6 +627,7 @@ public final class ObjectUtil {
       COMPARATOR_MAP.put(key, (o1, o2) -> compareField(o1, o2, orderBys));
     }
     list.addAll(collection);
+    //noinspection unchecked
     list.sort((Comparator<T>) COMPARATOR_MAP.get(key));
     if ("desc".equalsIgnoreCase(order)) {
       Collections.reverse(list);
@@ -1052,10 +1054,8 @@ public final class ObjectUtil {
     return array;
   }
 
-  private static class CustomSortOrderComparator implements Comparator<Object>, Serializable {
-
-    private final String[] customSort;
-    private final String idFieldName;
+  private record CustomSortOrderComparator(String[] customSort, String idFieldName)
+      implements Comparator<Object>, Serializable {
 
     private CustomSortOrderComparator(String[] customSort, String idFieldName) {
       this.customSort = Arrays.copyOf(customSort, customSort.length);
@@ -1079,11 +1079,14 @@ public final class ObjectUtil {
 
   public static <T> T[] multipleValuesObjectsObjects(Object value) {
     if (ClassUtil.isArray(value)) {
+      //noinspection unchecked
       return (T[]) value;
     }
     if (ClassUtil.isList(value)) {
+      //noinspection unchecked
       return (T[]) ((Collection<?>) value).toArray();
     }
+    //noinspection unchecked
     return (T[]) new Object[] {value};
   }
 

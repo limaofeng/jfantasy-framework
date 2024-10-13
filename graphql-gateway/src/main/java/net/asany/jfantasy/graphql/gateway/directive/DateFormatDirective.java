@@ -20,10 +20,7 @@ public class DateFormatDirective implements ClientDirectiveHandler {
 
   @Override
   public DataFetcher<?> apply(QueryAppliedDirective directive, DataFetcher<?> originalDataFetcher) {
-    return (env) -> {
-      Object result = originalDataFetcher.get(env);
-      return result;
-    };
+    return (env) -> originalDataFetcher;
   }
 
   @Override
@@ -31,6 +28,6 @@ public class DateFormatDirective implements ClientDirectiveHandler {
       GraphQLObjectType objectType, GraphQLFieldDefinition fieldDefinition) {
     GraphQLNamedType namedType =
         (GraphQLNamedType) GraphQLTypeUtils.getSourceType(fieldDefinition.getType());
-    return namedType.getName().equals("DateTime");
+    return namedType.getName().equals("DateTime") || namedType.getName().equals("Date");
   }
 }
