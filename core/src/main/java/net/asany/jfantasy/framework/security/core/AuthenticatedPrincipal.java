@@ -16,10 +16,7 @@
 package net.asany.jfantasy.framework.security.core;
 
 import java.security.Principal;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * 身份验证的主体
@@ -44,6 +41,7 @@ public interface AuthenticatedPrincipal extends Principal {
   default <A> Optional<A> getAttribute(String name) {
     Map<String, Object> attrs = getAttributes();
     if (attrs.containsKey(name)) {
+      //noinspection unchecked
       return Optional.of((A) attrs.get(name));
     }
     return Optional.empty();
@@ -53,7 +51,11 @@ public interface AuthenticatedPrincipal extends Principal {
     return Collections.emptyMap();
   }
 
-  default Collection<GrantedAuthority> getAuthorities() {
-    return Collections.emptyList();
+  default Set<GrantedAuthority> getAuthorities() {
+    return Collections.emptySet();
+  }
+
+  default Set<GrantedAuthority> getAuthorities(boolean force) {
+    return Collections.emptySet();
   }
 }

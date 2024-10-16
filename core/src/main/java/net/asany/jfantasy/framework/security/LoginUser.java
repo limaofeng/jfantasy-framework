@@ -15,14 +15,10 @@
  */
 package net.asany.jfantasy.framework.security;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import java.util.Set;
 import lombok.*;
 import net.asany.jfantasy.framework.dao.Tenantable;
 import net.asany.jfantasy.framework.security.core.AbstractAuthenticatedPrincipal;
 import net.asany.jfantasy.framework.security.core.AuthenticatedPrincipal;
-import net.asany.jfantasy.framework.security.core.GrantedAuthority;
 import net.asany.jfantasy.framework.security.core.userdetails.UserDetails;
 
 /**
@@ -82,12 +78,6 @@ public class LoginUser extends AbstractAuthenticatedPrincipal
 
   /** 凭证过期状态 */
   @Builder.Default private boolean credentialsNonExpired = true;
-
-  /** 权限 */
-  @Setter
-  @JsonSerialize(using = GrantedAuthority.GrantedAuthoritiesSerializer.class)
-  @JsonDeserialize(using = GrantedAuthority.GrantedAuthoritiesDeserializer.class)
-  private Set<GrantedAuthority> authorities;
 
   /** 租户ID */
   private String tenantId;

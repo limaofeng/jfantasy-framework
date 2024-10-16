@@ -33,6 +33,7 @@ public class PrincipalAttributeService {
    * @param attribute 动态属性实现
    */
   public void registerAttribute(PrincipalDynamicAttribute<?, ?> attribute) {
+    //noinspection unchecked
     attributeRegistry.put(
         attribute.name(), (PrincipalDynamicAttribute<AuthenticatedPrincipal, ?>) attribute);
   }
@@ -58,6 +59,7 @@ public class PrincipalAttributeService {
     PrincipalDynamicAttribute<AuthenticatedPrincipal, ?> attribute =
         attributeRegistry.get(attributeName);
     if (attribute != null) {
+      //noinspection unchecked
       return (Optional<V>) attribute.value(principal);
     }
     throw new IllegalArgumentException("Attribute not found: " + attributeName);

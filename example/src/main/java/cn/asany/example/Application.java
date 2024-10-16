@@ -110,7 +110,7 @@ public class Application extends SpringBootServletInitializer {
           }
 
           @Override
-          public Collection<GrantedAuthority> getAuthorities() {
+          public Set<GrantedAuthority> getAuthorities() {
             return null;
           }
 

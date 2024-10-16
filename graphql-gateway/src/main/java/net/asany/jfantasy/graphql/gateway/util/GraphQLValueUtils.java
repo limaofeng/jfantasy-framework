@@ -24,6 +24,7 @@ import graphql.execution.directives.QueryAppliedDirective;
 import graphql.language.*;
 import graphql.parser.Parser;
 import graphql.schema.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -162,7 +163,20 @@ public class GraphQLValueUtils {
       return null;
     }
     if (GraphQLTypeUtils.isListType(outputType) && valueNode.isArray()) {
-      return valueNode;
+      List<Object> list = new ArrayList<>();
+      GraphQLType gType = GraphQLTypeUtils.getSourceType(outputType);
+      for (JsonNode item : valueNode) {
+        if (gType instanceof GraphQLScalarType scalarType) {
+          if (scalarType.getName().equals(GraphQLString.getName())) {
+            list.add(item.asText());
+          } else {
+            list.add(item);
+          }
+        } else {
+          list.add(item);
+        }
+      }
+      return list;
     }
     if (!valueNode.isObject() && GraphQLTypeUtils.isObjectType(outputType)) {
       log.warn(

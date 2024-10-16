@@ -18,10 +18,10 @@ package net.asany.jfantasy.framework.security.core;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import java.util.*;
+import lombok.Setter;
 import net.asany.jfantasy.framework.spring.SpringBeanUtils;
 import net.asany.jfantasy.framework.util.common.ObjectUtil;
 
@@ -29,6 +29,11 @@ public abstract class AbstractAuthenticatedPrincipal implements AuthenticatedPri
 
   /** 扩展属性 */
   @JsonIgnore private Map<String, Object> data;
+
+  @Setter
+  @JsonSerialize(using = GrantedAuthority.GrantedAuthoritiesSerializer.class)
+  @JsonDeserialize(using = GrantedAuthority.GrantedAuthoritiesDeserializer.class)
+  private Set<GrantedAuthority> authorities;
 
   @JsonAnySetter
   public void setAttribute(String key, Object value) {
@@ -50,9 +55,36 @@ public abstract class AbstractAuthenticatedPrincipal implements AuthenticatedPri
       this.data = new HashMap<>();
     }
     if (this.data.containsKey(name)) {
+      //noinspection unchecked
       return Optional.of((A) this.data.get(name));
     }
     return Optional.empty();
+  }
+
+  @Override
+  public Set<GrantedAuthority> getAuthorities() {
+    return getAuthorities(false);
+  }
+
+  @Override
+  public Set<GrantedAuthority> getAuthorities(boolean force) {
+    // 如果已经获取过权限，不再重复获取
+    if (!force && this.authorities != null) {
+      return this.authorities;
+    }
+    // 获取所有的权限提供者
+    String[] authorityProviders = SpringBeanUtils.getBeanNamesForType(AuthorityProvider.class);
+    Set<GrantedAuthority> authorities = new HashSet<>();
+    for (String provider : authorityProviders) {
+      //noinspection unchecked
+      AuthorityProvider<AuthenticatedPrincipal> authorityProvider =
+          SpringBeanUtils.getBean(provider, AuthorityProvider.class);
+      if (authorityProvider == null || !authorityProvider.supports(getClass())) {
+        continue;
+      }
+      authorities.addAll(authorityProvider.getAuthorities(this));
+    }
+    return this.authorities = authorities;
   }
 
   @Override

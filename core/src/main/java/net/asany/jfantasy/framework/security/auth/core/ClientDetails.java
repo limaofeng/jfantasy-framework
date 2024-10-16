@@ -50,7 +50,7 @@ public interface ClientDetails extends AuthenticatedPrincipal {
    *
    * @return Collection<GrantedAuthority>
    */
-  Collection<GrantedAuthority> getAuthorities();
+  Set<GrantedAuthority> getAuthorities();
 
   /**
    * 支持的授权方式
