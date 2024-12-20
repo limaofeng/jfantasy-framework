@@ -54,8 +54,8 @@ class AbstractTokenStoreTest {
     Class<OAuth2AccessToken> authTokenClass = OAuth2AccessToken.class;
 
     OAuth2AccessToken authToken = mapper.treeToValue(accessTokenNode, authTokenClass);
-    AuthenticatedPrincipal principal =
-        mapper.treeToValue(principalNode, authToken.getPrincipalType());
+    AuthenticatedPrincipal principal = null;
+    //        mapper.treeToValue(principalNode, authToken.getClass());
     Set<String> authorities = mapper.convertValue(authoritiesNode, new TypeReference<>() {});
 
     TokenObject tokenObject =

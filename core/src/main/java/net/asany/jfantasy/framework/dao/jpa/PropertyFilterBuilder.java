@@ -31,17 +31,25 @@ public abstract class PropertyFilterBuilder<P extends PropertyFilter, C> impleme
 
   protected C context;
   protected Class<?> entityClass;
-  protected final Map<String, PropertyDefinition<C>> properties = new HashMap<>();
+
+  @SuppressWarnings("rawtypes")
+  protected final Map<String, PropertyDefinition> properties = new HashMap<>();
+
   protected final Map<String, JunctionPredicateCallback<C>> junctions = new HashMap<>();
   protected static Map<Class<?>, Class<? extends PropertyFilter>> FILTERS = new HashMap<>();
   protected static final Map<Class<?>, Map<String, TypeConverter<?>>> CUSTOM_CONVERTERS =
       new HashMap<>();
-  protected static final Map<Class<?>, Map<String, PropertyDefinition<?>>> CUSTOM_PROPERTIES =
+
+  @SuppressWarnings("rawtypes")
+  protected static final Map<Class<?>, Map<String, PropertyDefinition>> CUSTOM_PROPERTIES =
       new HashMap<>();
 
   protected PropertyFilterBuilder(Class<?> entityClass, C context) {
     this.context = context;
     this.entityClass = entityClass;
+    if (PropertyFilterBuilder.CUSTOM_PROPERTIES.containsKey(entityClass)) {
+      this.properties.putAll(PropertyFilterBuilder.CUSTOM_PROPERTIES.get(entityClass));
+    }
   }
 
   protected PropertyFilterBuilder(C context) {
@@ -53,6 +61,9 @@ public abstract class PropertyFilterBuilder<P extends PropertyFilter, C> impleme
         entityClass,
         (clazz) -> {
           Map<String, TypeConverter<?>> fields = new HashMap<>();
+          if (Object.class.equals(clazz)) {
+            return fields;
+          }
           for (Field field : ClassUtil.getDeclaredFields(clazz)) {
             if (ClassUtil.isBasicType(field.getType())) {
               fields.put(field.getName(), new DefaultTypeConverter<>(field.getType()));
@@ -88,8 +99,10 @@ public abstract class PropertyFilterBuilder<P extends PropertyFilter, C> impleme
   }
 
   protected PropertyPredicateCallback<C> predicate(String name, MatchType matchType) {
+    //noinspection unchecked
     PropertyDefinition<C> definition = this.properties.get(name);
     if (definition == null) {
+      //noinspection unchecked
       definition = this.properties.get("*");
     }
     if (definition == null) {
@@ -339,7 +352,7 @@ public abstract class PropertyFilterBuilder<P extends PropertyFilter, C> impleme
     return PropertyFilter.hasProperty(this.entityClass, name);
   }
 
-  protected interface PropertyPredicateCallback<C> {
+  public interface PropertyPredicateCallback<C> {
     /**
      * 应用
      *

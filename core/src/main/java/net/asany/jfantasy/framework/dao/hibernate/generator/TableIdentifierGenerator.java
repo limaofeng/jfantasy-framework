@@ -17,6 +17,7 @@ package net.asany.jfantasy.framework.dao.hibernate.generator;
 
 import java.lang.reflect.Member;
 import java.util.Properties;
+import lombok.extern.slf4j.Slf4j;
 import net.asany.jfantasy.framework.dao.hibernate.annotations.TableGenerator;
 import net.asany.jfantasy.framework.dao.mybatis.keygen.util.DatabaseSequenceGenerator;
 import net.asany.jfantasy.framework.util.common.StringUtil;
@@ -37,14 +38,21 @@ import org.hibernate.type.Type;
  * @version 1.0
  * @since 2013-1-14 下午02:07:25
  */
+@Slf4j
 public class TableIdentifierGenerator implements IdentifierGenerator {
 
-  private DatabaseSequenceGenerator baseKeyGenerator;
+  private volatile DatabaseSequenceGenerator baseKeyGenerator;
 
   public static final String KEY_NAME = "keyName";
 
   private String keyName;
   private String entityName;
+
+  private int initialValue = 0;
+
+  private int allocationSize = 50;
+
+  private int incrementSize = 1;
 
   public TableIdentifierGenerator() {}
 
@@ -57,16 +65,15 @@ public class TableIdentifierGenerator implements IdentifierGenerator {
     this.entityName = rootClass.getEntityName();
     if (StringUtil.isNotBlank(tableGenerator.name())) {
       this.keyName = tableGenerator.name();
-    } else
+    } else {
       this.keyName =
           (rootClass.getTable().getName() + ":" + rootClass.getIdentifierProperty().getName())
               .toLowerCase();
-    this.baseKeyGenerator =
-        DatabaseSequenceGenerator.create(
-            keyName,
-            tableGenerator.incrementSize(),
-            tableGenerator.allocationSize(),
-            tableGenerator.initialValue());
+    }
+
+    this.initialValue = tableGenerator.initialValue();
+    this.allocationSize = tableGenerator.allocationSize();
+    this.incrementSize = tableGenerator.incrementSize();
   }
 
   @Override
@@ -78,7 +85,24 @@ public class TableIdentifierGenerator implements IdentifierGenerator {
                 params.getProperty(KEY_NAME),
                 params.getProperty("target_table") + ":" + params.getProperty("target_column"))
             .toLowerCase();
-    this.baseKeyGenerator = DatabaseSequenceGenerator.create(keyName);
+  }
+
+  private long nextValue() {
+    if (this.baseKeyGenerator == null) {
+      synchronized (this) {
+        if (this.baseKeyGenerator == null) {
+          try {
+            this.baseKeyGenerator =
+                DatabaseSequenceGenerator.create(
+                    keyName, incrementSize, allocationSize, initialValue);
+          } catch (Exception e) {
+            log.error("创建序列生成器[{}]失败", keyName, e);
+            throw new RuntimeException("创建序列生成器[" + keyName + "]失败", e);
+          }
+        }
+      }
+    }
+    return this.baseKeyGenerator.nextValue();
   }
 
   @Override
@@ -90,6 +114,6 @@ public class TableIdentifierGenerator implements IdentifierGenerator {
     if (id != null) {
       return id;
     }
-    return this.baseKeyGenerator.nextValue();
+    return nextValue();
   }
 }

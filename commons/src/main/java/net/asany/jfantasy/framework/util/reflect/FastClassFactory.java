@@ -26,6 +26,7 @@ public class FastClassFactory implements IClassFactory {
     if (!this.classes.containsKey(cla)) {
       this.classes.put(cla, new FastClasses<>(cla));
     }
+    //noinspection unchecked
     return (IClass<T>) this.classes.get(cla);
   }
 }

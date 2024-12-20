@@ -23,10 +23,10 @@ import org.junit.jupiter.api.Test;
 
 class PropertyFilterTest {
 
-  static class UserPropertyFilter extends PropertyFilterBuilder<UserPropertyFilter, List<String>>
-      implements PropertyFilter {
+  public static class UserPropertyFilter
+      extends PropertyFilterBuilder<UserPropertyFilter, List<String>> implements PropertyFilter {
 
-    UserPropertyFilter() {
+    public UserPropertyFilter() {
       super(new ArrayList<>());
       this.custom(
           "name",

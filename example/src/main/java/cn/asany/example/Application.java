@@ -15,10 +15,12 @@
  */
 package cn.asany.example;
 
+import cn.asany.example.demo.domain.User;
 import cn.asany.example.demo.domain.UserSetting;
 import java.util.*;
 import lombok.extern.slf4j.Slf4j;
-import net.asany.jfantasy.framework.dao.jpa.SimpleAnyJpaRepository;
+import net.asany.jfantasy.framework.dao.MatchType;
+import net.asany.jfantasy.framework.dao.jpa.*;
 import net.asany.jfantasy.framework.security.LoginUser;
 import net.asany.jfantasy.framework.security.auth.AuthenticationToken;
 import net.asany.jfantasy.framework.security.auth.core.*;
@@ -209,6 +211,19 @@ public class Application extends SpringBootServletInitializer {
       public Collection<AuthToken> findTokensByClientId(String clientId) {
         return null;
       }
+    };
+  }
+
+  @Bean
+  public PropertyFilterCustomizer filterCustomizer() {
+    return config -> {
+      config.doWithProperty(
+          User.class,
+          "xxx",
+          MatchType.EQ,
+          (name, matchType, value, context) -> {
+            context.add(new PropertyPredicate(MatchType.EQ, "username", value));
+          });
     };
   }
 }

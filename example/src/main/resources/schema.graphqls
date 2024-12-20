@@ -112,8 +112,9 @@ input DemoUserCreateInput {
 }
 
 input DemoUserFilter {
+  xxx: String
   username_contains: String
-  createdAt_range: DateRange
+  #  createdAt_range: DateRange
 }
 
 type DemoUserConnection implements Connection {

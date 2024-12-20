@@ -31,4 +31,9 @@ public class DefaultUserDetails implements UserDetails {
   @Builder.Default private boolean accountNonExpired = true;
   @Builder.Default private boolean accountNonLocked = true;
   @Builder.Default private boolean credentialsNonExpired = true;
+
+  @Override
+  public String getTenantId() {
+    return "";
+  }
 }

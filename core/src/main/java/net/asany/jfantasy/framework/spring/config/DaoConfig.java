@@ -17,14 +17,20 @@ package net.asany.jfantasy.framework.spring.config;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManagerFactory;
+import java.util.Map;
 import net.asany.jfantasy.framework.dao.hibernate.event.PropertyGeneratorPersistEventListener;
 import net.asany.jfantasy.framework.dao.hibernate.event.PropertyGeneratorSaveOrUpdateEventListener;
+import net.asany.jfantasy.framework.dao.jpa.PropertyFilter;
+import net.asany.jfantasy.framework.dao.jpa.PropertyFilterCustomizer;
 import net.asany.jfantasy.framework.dao.jpa.SimpleAnyJpaRepository;
 import net.asany.jfantasy.framework.spring.SpringBeanUtils;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.EventType;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -53,7 +59,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
   "net.asany.jfantasy.framework.context.dao"
 })
 @Import({MyBatisConfig.class})
-public class DaoConfig {
+public class DaoConfig implements ApplicationListener<ApplicationReadyEvent> {
 
   private final EntityManagerFactory entityManagerFactory;
 
@@ -96,5 +102,15 @@ public class DaoConfig {
   @Bean(name = "transactionManager")
   public PlatformTransactionManager jpaTransactionManager() {
     return new JpaTransactionManager(entityManagerFactory);
+  }
+
+  @Override
+  public void onApplicationEvent(@NotNull ApplicationReadyEvent event) {
+    for (Map.Entry<String, PropertyFilterCustomizer> entry :
+        SpringBeanUtils.getBeansOfType(PropertyFilterCustomizer.class).entrySet()) {
+      String k = entry.getKey();
+      PropertyFilterCustomizer v = entry.getValue();
+      PropertyFilter.custom(v);
+    }
   }
 }

@@ -13,21 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.asany.jfantasy.framework.security;
+package net.asany.jfantasy.framework.dao.hibernate.converter;
 
-import net.asany.jfantasy.framework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.junit.jupiter.api.Test;
-
-class SecurityContextTest {
-
-  @Test
-  void isAuthenticated() {
-    SecurityContext context = new SecurityContext();
-    UsernamePasswordAuthenticationToken token =
-        new UsernamePasswordAuthenticationToken("test", "test", "");
-    assert !context.isAuthenticated();
-    context.setAuthentication(token);
-    token.setAuthenticated(true);
-    assert context.isAuthenticated();
-  }
-}
+/**
+ * 字符串集合
+ *
+ * @author limaofeng
+ */
+public class StringListConverter extends ListConverter<String> {}

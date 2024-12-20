@@ -17,7 +17,6 @@ package net.asany.jfantasy.framework.dao.jpa;
 
 import java.util.*;
 import net.asany.jfantasy.framework.dao.MatchType;
-import net.asany.jfantasy.framework.dao.hibernate.util.ReflectionUtils;
 import net.asany.jfantasy.framework.util.common.ClassUtil;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -311,14 +310,9 @@ public interface PropertyFilter {
    *
    * @param customizer 定制器
    */
-  static void custom(PropertyFilterCustomizer<Class<?>> customizer) {
-    Class<?> entityClass = ReflectionUtils.getSuperClassGenricType(customizer.getClass(), 0);
-    Map<String, TypeConverter<?>> typeConverterMap =
-        PropertyFilterBuilder.initDefaultConverters(entityClass);
-    Map<String, PropertyDefinition<?>> propertyDefinitionMap =
-        PropertyFilterBuilder.CUSTOM_PROPERTIES.computeIfAbsent(
-            entityClass, (clazz) -> new HashMap<>());
-    customizer.customize(typeConverterMap, propertyDefinitionMap);
+  static void custom(PropertyFilterCustomizer customizer) {
+    PropertyFilterConfig config = PropertyFilterConfig.builder().build();
+    customizer.customize(config);
   }
 
   boolean hasProperty(String name);

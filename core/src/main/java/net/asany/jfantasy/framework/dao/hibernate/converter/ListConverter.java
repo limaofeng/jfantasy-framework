@@ -16,6 +16,7 @@
 package net.asany.jfantasy.framework.dao.hibernate.converter;
 
 import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
 import java.util.List;
 import net.asany.jfantasy.framework.dao.hibernate.util.ReflectionUtils;
 import net.asany.jfantasy.framework.jackson.JSON;
@@ -27,6 +28,7 @@ import net.asany.jfantasy.framework.util.common.StringUtil;
  *
  * @author limaofeng
  */
+@Converter
 public class ListConverter<T> implements AttributeConverter<List<T>, String> {
 
   protected Class<T> entityClass;
