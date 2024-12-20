@@ -20,7 +20,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * @author limaofeng
+ * GraphQLClient 注解
+ *
+ * @author limaofeng Created
  */
 @Target(java.lang.annotation.ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
