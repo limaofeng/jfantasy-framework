@@ -18,6 +18,7 @@ package net.asany.jfantasy.framework.dao.hibernate.util;
 import jakarta.persistence.*;
 import java.io.Serializable;
 import java.lang.reflect.Field;
+import net.asany.jfantasy.framework.dao.hibernate.util.HibernateCloningHelper.PropertyFilter;
 import net.asany.jfantasy.framework.error.ValidationException;
 import net.asany.jfantasy.framework.util.common.ClassUtil;
 import net.asany.jfantasy.framework.util.common.ObjectUtil;
@@ -38,6 +39,14 @@ import org.hibernate.persister.entity.EntityPersister;
 public class HibernateUtils {
 
   public static <T> T cloneEntity(T entity) {
+    return HibernateCloningHelper.cloneEntity(entity);
+  }
+
+  public static <T> T cloneEntity(T entity, String... excludeProperties) {
+    return HibernateCloningHelper.cloneEntity(entity, excludeProperties);
+  }
+
+  public static <T> T cloneEntity(T entity, PropertyFilter filter) {
     return HibernateCloningHelper.cloneEntity(entity);
   }
 
