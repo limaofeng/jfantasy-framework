@@ -143,6 +143,7 @@ subprojects {
         from configurations.compileClasspath
         from configurations.testCompileClasspath
         into 'build/dependencies'
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE 
     }
 
     publishing {

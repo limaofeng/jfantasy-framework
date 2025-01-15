@@ -21,6 +21,7 @@ bin
 target
 build
 classes
+.scannerwork
 
 LOG_PATH_IS_UNDEFINED
 rebel.xml
