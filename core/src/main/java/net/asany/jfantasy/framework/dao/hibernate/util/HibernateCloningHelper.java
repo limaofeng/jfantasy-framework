@@ -41,11 +41,20 @@ import org.hibernate.engine.internal.MutableEntityEntry;
 public class HibernateCloningHelper {
 
   public static <T> T cloneEntity(T entity) {
-    Map<Object, Object> alreadyCloned = new HashMap<>();
-    return cloneValueInternal(entity, alreadyCloned);
+    return cloneEntity(entity, new IgnorePropertyFilter());
   }
 
-  private static <T> T cloneValueInternal(T value, Map<Object, Object> alreadyCloned) {
+  public static <T> T cloneEntity(T entity, String... excludeProperties) {
+    return cloneEntity(entity, new IgnorePropertyFilter(excludeProperties));
+  }
+
+  public static <T> T cloneEntity(T entity, PropertyFilter filter) {
+    Map<Object, Object> alreadyCloned = new HashMap<>();
+    return cloneValueInternal(entity, filter, alreadyCloned, "");
+  }
+
+  private static <T> T cloneValueInternal(
+      T value, PropertyFilter filter, Map<Object, Object> alreadyCloned, String rootPath) {
     if (value == null) {
       return null;
     }
@@ -55,21 +64,23 @@ public class HibernateCloningHelper {
       return value;
     }
     if (alreadyCloned.containsKey(value)) {
+      //noinspection unchecked
       return (T) alreadyCloned.get(value);
     }
     try {
       Object clonedValue;
       if (valueClass.isArray()) {
-        clonedValue = cloneArray(value, alreadyCloned);
+        clonedValue = cloneArray(value, filter, alreadyCloned, rootPath);
       } else if (value instanceof Collection<?> collection) {
-        clonedValue = cloneCollection(collection, alreadyCloned);
+        clonedValue = cloneCollection(collection, filter, alreadyCloned, rootPath);
       } else if (value instanceof Map) {
-        clonedValue = cloneMap((Map<?, ?>) value, alreadyCloned);
+        clonedValue = cloneMap((Map<?, ?>) value, filter, alreadyCloned, rootPath);
       } else if (!isSimpleType(valueClass)) {
-        clonedValue = cloneEntityInternal(value, alreadyCloned);
+        clonedValue = cloneEntityInternal(value, filter, alreadyCloned, rootPath);
       } else {
         clonedValue = value;
       }
+      //noinspection unchecked
       return (T) clonedValue;
     } catch (Exception e) {
       throw new RuntimeException("Cloning failed", e);
@@ -78,12 +89,15 @@ public class HibernateCloningHelper {
 
   private static <T> Class<T> getRealClass(T entity) throws ClassNotFoundException {
     if (entity instanceof MutableEntityEntry) {
+      //noinspection unchecked
       return (Class<T>) Class.forName(((MutableEntityEntry) entity).getEntityName());
     }
+    //noinspection unchecked
     return (Class<T>) Hibernate.getClass(entity);
   }
 
-  private static <T> T cloneEntityInternal(T entity, Map<Object, Object> alreadyCloned)
+  private static <T> T cloneEntityInternal(
+      T entity, PropertyFilter filter, Map<Object, Object> alreadyCloned, String rootPath)
       throws ClassNotFoundException,
           NoSuchMethodException,
           InvocationTargetException,
@@ -95,6 +109,8 @@ public class HibernateCloningHelper {
     alreadyCloned.put(entity, cloned);
 
     for (Field field : ClassUtil.getDeclaredFields(entityClass)) {
+      String path = rootPath + "/" + field.getName();
+
       if (field.getName().startsWith("$$_hibernate_")) {
         continue;
       }
@@ -103,6 +119,10 @@ public class HibernateCloningHelper {
       }
 
       Property property = ClassUtil.getProperty(entityClass, field.getName());
+
+      if (!filter.accept(path, property, ObjectUtil.getValue(field.getName(), entity), entity)) {
+        continue;
+      }
 
       if (property == null) {
         continue;
@@ -119,9 +139,9 @@ public class HibernateCloningHelper {
       Object copyFieldValue;
 
       if (!Hibernate.isInitialized(fieldValue)) {
-        copyFieldValue = cloneLazyEntityInternal(fieldValue, alreadyCloned);
+        copyFieldValue = cloneLazyEntityInternal(fieldValue, filter, alreadyCloned, path);
       } else {
-        copyFieldValue = cloneValueInternal(fieldValue, alreadyCloned);
+        copyFieldValue = cloneValueInternal(fieldValue, filter, alreadyCloned, path);
       }
 
       if (copyFieldValue == null) {
@@ -133,12 +153,14 @@ public class HibernateCloningHelper {
     return cloned;
   }
 
-  public static <T> T cloneLazyEntityInternal(T entity, Map<Object, Object> alreadyCloned) {
+  public static <T> T cloneLazyEntityInternal(
+      T entity, PropertyFilter filter, Map<Object, Object> alreadyCloned, String rootPath) {
     Class<T> entityClass = ClassUtil.getRealClass(entity);
     if (!isEntityClass(entityClass)) {
       return null;
     }
     if (alreadyCloned.containsKey(entity)) {
+      //noinspection unchecked
       return (T) alreadyCloned.get(entity);
     }
     EntityManager em = SpringBeanUtils.getBeanByType(EntityManager.class);
@@ -179,22 +201,30 @@ public class HibernateCloningHelper {
         || Number.class.isAssignableFrom(clazz);
   }
 
-  private static Object cloneArray(Object array, Map<Object, Object> alreadyCloned) {
+  private static Object cloneArray(
+      Object array, PropertyFilter filter, Map<Object, Object> alreadyCloned, String rootPath) {
     int length = Array.getLength(array);
     Object clonedArray = Array.newInstance(array.getClass().getComponentType(), length);
     for (int i = 0; i < length; i++) {
       Object arrayItem = Array.get(array, i);
+      String path = rootPath + "[" + i + "]";
+      if (!filter.accept(path, null, arrayItem, array)) {
+        continue;
+      }
       Object clonedItem =
           isSimpleType(arrayItem.getClass())
               ? arrayItem
-              : cloneValueInternal(arrayItem, alreadyCloned);
+              : cloneValueInternal(arrayItem, filter, alreadyCloned, path);
       Array.set(clonedArray, i, clonedItem);
     }
     return clonedArray;
   }
 
   private static Collection<?> cloneCollection(
-      Collection<?> collection, Map<Object, Object> alreadyCloned)
+      Collection<?> collection,
+      PropertyFilter filter,
+      Map<Object, Object> alreadyCloned,
+      String rootPath)
       throws InstantiationException,
           IllegalAccessException,
           NoSuchMethodException,
@@ -205,15 +235,23 @@ public class HibernateCloningHelper {
     } else if (collection instanceof PersistentList) {
       collectionClazz = ArrayList.class;
     }
+    //noinspection ReassignedVariable,unchecked
     Collection<Object> clonedCollection =
         (Collection<Object>) collectionClazz.getConstructor().newInstance();
+    int index = 0;
     for (Object item : collection) {
-      clonedCollection.add(cloneValueInternal(item, alreadyCloned));
+      String path = rootPath + "[" + index + "]";
+      if (!filter.accept(path, null, item, collection)) {
+        continue;
+      }
+      clonedCollection.add(cloneValueInternal(item, filter, alreadyCloned, path));
+      index++;
     }
     return clonedCollection;
   }
 
-  private static Map<?, ?> cloneMap(Map<?, ?> map, Map<Object, Object> alreadyCloned)
+  private static Map<?, ?> cloneMap(
+      Map<?, ?> map, PropertyFilter filter, Map<Object, Object> alreadyCloned, String rootPath)
       throws InstantiationException,
           IllegalAccessException,
           NoSuchMethodException,
@@ -222,11 +260,16 @@ public class HibernateCloningHelper {
     if (map instanceof PersistentMap) {
       mapClazz = LinkedHashMap.class;
     }
+    //noinspection unchecked
     Map<Object, Object> clonedMap = (Map<Object, Object>) mapClazz.getConstructor().newInstance();
     for (Map.Entry<?, ?> entry : map.entrySet()) {
+      String path = rootPath + "/" + entry.getKey();
+      if (!filter.accept(path, null, entry.getValue(), map)) {
+        continue;
+      }
       clonedMap.put(
-          cloneValueInternal(entry.getKey(), alreadyCloned),
-          cloneValueInternal(entry.getValue(), alreadyCloned));
+          cloneValueInternal(entry.getKey(), filter, alreadyCloned, path),
+          cloneValueInternal(entry.getValue(), filter, alreadyCloned, path));
     }
     return clonedMap;
   }
@@ -274,6 +317,32 @@ public class HibernateCloningHelper {
       return entity;
     } catch (Exception e) {
       throw new RuntimeException("Failed to create entity and set ID", e);
+    }
+  }
+
+  public interface PropertyFilter {
+    /**
+     * Determine whether the property should be cloned.
+     *
+     * @param path The path of the property in the object graph.
+     * @param property The property metadata.
+     * @param value The property value.
+     * @param target The object that contains the property.
+     * @return true if the property should be cloned, false otherwise.
+     */
+    boolean accept(String path, Property property, Object value, Object target);
+
+    default Object convertValue(Property property, Object value, Object target) {
+      return value;
+    }
+  }
+
+  private record IgnorePropertyFilter(String... propertyNames) implements PropertyFilter {
+
+    @Override
+    public boolean accept(String path, Property property, Object value, Object target) {
+      return Arrays.stream(propertyNames)
+          .noneMatch(item -> item.startsWith("/") ? path.startsWith(item) : path.endsWith(item));
     }
   }
 }
