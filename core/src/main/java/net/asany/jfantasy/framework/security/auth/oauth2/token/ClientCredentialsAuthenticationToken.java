@@ -16,6 +16,7 @@
 package net.asany.jfantasy.framework.security.auth.oauth2.token;
 
 import java.util.Collections;
+import lombok.Getter;
 import net.asany.jfantasy.framework.security.auth.core.AuthenticationDetails;
 import net.asany.jfantasy.framework.security.authentication.AbstractAuthenticationToken;
 
@@ -24,6 +25,7 @@ import net.asany.jfantasy.framework.security.authentication.AbstractAuthenticati
  *
  * @since 1.0
  */
+@Getter
 public class ClientCredentialsAuthenticationToken extends AbstractAuthenticationToken<String> {
 
   private final String principal;
@@ -36,15 +38,5 @@ public class ClientCredentialsAuthenticationToken extends AbstractAuthentication
     this.credentials = credentials;
     this.setDetails(details);
     setAuthenticated(false);
-  }
-
-  @Override
-  public String getCredentials() {
-    return this.credentials;
-  }
-
-  @Override
-  public String getPrincipal() {
-    return this.principal;
   }
 }

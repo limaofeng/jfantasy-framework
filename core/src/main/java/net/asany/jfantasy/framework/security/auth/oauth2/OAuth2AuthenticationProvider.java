@@ -24,6 +24,7 @@ import net.asany.jfantasy.framework.security.auth.oauth2.token.ClientCredentials
 import net.asany.jfantasy.framework.security.authentication.Authentication;
 import net.asany.jfantasy.framework.security.authentication.AuthenticationProvider;
 import net.asany.jfantasy.framework.security.authentication.UsernamePasswordAuthenticationToken;
+import net.asany.jfantasy.framework.security.core.user.ClientApp;
 import net.asany.jfantasy.framework.spring.SpringBeanUtils;
 
 public class OAuth2AuthenticationProvider
@@ -41,10 +42,11 @@ public class OAuth2AuthenticationProvider
         SpringBeanUtils.getBean(AuthenticationManager.class);
 
     AuthorizationGrantType grantType = authentication.getGrantType();
-
+    ClientApp clientApp = new ClientApp(authentication.getDetails().getClientDetails());
     if (AuthorizationGrantType.PASSWORD == grantType) {
       AuthenticationToken<String> authenticationToken =
           new UsernamePasswordAuthenticationToken(
+              clientApp.getTenantId(),
               authentication.getPrincipal(),
               authentication.getCredentials(),
               authentication.getDetails());
@@ -52,6 +54,7 @@ public class OAuth2AuthenticationProvider
     } else if (AuthorizationGrantType.REFRESH_TOKEN == grantType) {
       AuthenticationToken<String> authenticationToken =
           new UsernamePasswordAuthenticationToken(
+              clientApp.getTenantId(),
               authentication.getPrincipal(),
               authentication.getCredentials(),
               authentication.getDetails());
